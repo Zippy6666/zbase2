@@ -14,19 +14,15 @@
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
+if !ZBaseNPCs then
+    ZBaseNPCs = {}
+    ZBaseNPCInstances = {}
+end
 
-ZBaseNPCs = {}
-ZBaseNPCInstances = {}
-
+include("zbase/globals.lua")
 include("zbase/hooks.lua")
 
--------------------------------------------------------------------------------------------------------------------------=#
-function FindZBaseTable(debuginfo)
-    local shortsrc = debuginfo.short_src
-    local split = string.Split(shortsrc, "/")
-    local name = split[#split-1]
-    return ZBaseNPCs[name]
-end
+
 -------------------------------------------------------------------------------------------------------------------------=#
 local function include_npc_files()
     -- Include all npc files
@@ -70,9 +66,18 @@ local function addNPCs()
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
+local function updateActiveNPCs()
+    for _, ent in ipairs(ZBaseNPCInstances) do
+        for k, v in pairs(ZBaseNPCs[ent.ZBase_Class]) do
+            ent[k] = v
+        end
+    end
+end
+-------------------------------------------------------------------------------------------------------------------------=#
 
 
 include_npc_files()
 addNPCs()
+updateActiveNPCs()
 
 

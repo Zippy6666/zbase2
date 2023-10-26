@@ -1,17 +1,17 @@
 AddCSLuaFile()
 
 ---------------------------------------------------------------------------------------=#
-local function do_method(ent, method_name)
-    if ent[method_name] then
-        ent[method_name](ent)
-    end
+local function do_method(ent, method_name, ... )
+    if !ent[method_name] then return end
+    return ent[method_name](ent, ...)
 end
 ---------------------------------------------------------------------------------------=#
 local function init( ent, name )
     table.insert(ZBaseNPCInstances, ent)
 
     local name = string.Right(name, #name-6)
-    for k, v in pairs(ZBaseNPCs[name]) do
+    ent.ZBase_Class = name
+    for k, v in pairs(ZBaseNPCs[ent.ZBase_Class]) do
         ent[k] = v
     end
 
@@ -33,8 +33,8 @@ if SERVER then
 
             if !IsValid(ent) then return end
 
-            local parentname = ent:GetKeyValues().parentname
-            if string.StartWith(parentname, "zbase_") then
+            if IsZBaseNPC(ent) then
+                local parentname = ent:GetKeyValues().parentname
 
                 init( ent, parentname )
 
@@ -42,7 +42,6 @@ if SERVER then
                 net.WriteEntity(ent)
                 net.WriteString(parentname)
                 net.Broadcast()
-            
             end
 
         end)
@@ -61,5 +60,24 @@ hook.Add("Think", "ZBASE", function()
         do_method(v, "CustomThink")
 
     end
+end)
+---------------------------------------------------------------------------------------=#
+hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
+
+    if IsZBaseNPC(ent) then
+        local r = do_method(ent, "CustomTakeDamage", dmg)
+        if r then
+            return r
+        end
+    end
+
+    local attacker = dmg:GetAttacker()
+    if IsValid(attacker) && IsZBaseNPC(attacker) then
+        local r = do_method(attacker, "DealDamage", ent, dmg)
+        if r then
+            return r
+        end
+    end
+
 end)
 ---------------------------------------------------------------------------------------=#
