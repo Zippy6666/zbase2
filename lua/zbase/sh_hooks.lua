@@ -34,18 +34,11 @@ local function init( ent, name )
 
 
     -- Init stuff --
-    if !table.IsEmpty(ent.Models) then
-        ent:SetModel(table.Random(ent.Models))
-    end
 
-    ent:SetPos(ent:GetPos()+Vector(0, 0, 20))
-
-    if ent.Behaviours then
-        ZBaseBehaviourInit( ent )
-    end
     ------------------------------------------------------=#
 
     -- Custom init
+    ent:ZBaseInit()
     do_method(ent, "CustomInitialize")
 
 end
@@ -96,16 +89,20 @@ end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
-    if IsZBaseNPC(ent) then
-        local r = do_method(ent, "CustomTakeDamage", dmg)
+    local attacker = dmg:GetAttacker()
+    if IsValid(attacker) && IsZBaseNPC(attacker) then
+        local r = do_method(attacker, "DealDamage", ent, dmg)
         if r then
             return r
         end
     end
 
-    local attacker = dmg:GetAttacker()
-    if IsValid(attacker) && IsZBaseNPC(attacker) then
-        local r = do_method(attacker, "DealDamage", ent, dmg)
+end)
+---------------------------------------------------------------------------------------=#
+hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
+
+    if IsZBaseNPC(npc) then
+        local r = do_method(npc, "CustomTakeDamage", dmg, hit_gr)
         if r then
             return r
         end

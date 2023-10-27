@@ -1,2 +1,1 @@
-local NPC = FindZBaseTable(debug.getinfo(1,'S'))
-NPC.Behaviours = {}
+local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))

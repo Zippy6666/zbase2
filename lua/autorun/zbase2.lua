@@ -15,24 +15,37 @@
 -------------------------------------------------------------------------------------------------------------------------=#
 
     -- TODO --
-    -- Inheritance
-    -- Behaviour system
     -- Next?
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
-if !ZBaseNPCs then
-    ZBaseNPCs = {}
-    ZBaseNPCInstances = {}
-    ZBaseBehaviourTimerFuncs = {}
-end
 
+
+-- Includes --
 include("zbase/sh_globals.lua")
 include("zbase/sh_hooks.lua")
-
 if SERVER then
     include("zbase/sv_behaviour.lua")
 end
+
+
+ 
+-- Sounds --
+sound.Add( {
+	name = "ZBase.Ricochet",
+	channel = CHAN_BODY,
+	volume = 0.8,
+	level = 75,
+	pitch = {90, 110},
+	sound = {
+        "weapons/fx/rics/ric1.wav",
+        "weapons/fx/rics/ric2.wav",
+        "weapons/fx/rics/ric3.wav",
+        "weapons/fx/rics/ric4.wav",
+        "weapons/fx/rics/ric5.wav"
+    }
+} )
+
 
 -------------------------------------------------------------------------------------------------------------------------=#
 local function NPCReg( name, path )
@@ -67,7 +80,7 @@ local function NPCReg( name, path )
         && file.Exists(sv, "LUA")
         && file.Exists(cl, "LUA") then
 
-            ZBaseNPCs[name] = {}
+            ZBaseNPCs[name] = {Behaviours={}}
 
             -- local inhSuccess = inherit(ZBaseNPCs[name])
             -- print(name, "inhSuccess", inhSuccess)
@@ -86,7 +99,7 @@ local function NPCReg( name, path )
                 include(sv)
 
                 local bh = path.."/behaviour.lua"
-                if name != "npc_zbase" && file.Exists(bh, "LUA") then
+                if file.Exists(bh, "LUA") then
                     include(bh)
                 end
             end
@@ -102,7 +115,7 @@ end
 local function registerNPCs()
     local _, dirs = file.Find("zbase_npcs/*","LUA")
 
-    NPCReg("npc_zbase", "zbase/npc_zbase") -- Register base
+    NPCReg("npc_zbase", "npc_zbase") -- Register base
 
     -- Register all ZBase NPCs
     for _, v in ipairs(dirs) do
@@ -113,6 +126,7 @@ end
 local function addNPCs()
     -- Add all NPCs to spawnmenu
     for cls, t in pairs(ZBaseNPCs) do
+        if cls == "npc_zbase" then continue end
 
         if t.KeyValues then
             t.KeyValues.parentname = "zbase_"..cls

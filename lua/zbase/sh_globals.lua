@@ -1,5 +1,11 @@
 AddCSLuaFile()
 
+if !ZBaseNPCs then
+    ZBaseNPCs = {}
+    ZBaseNPCInstances = {}
+    ZBaseBehaviourTimerFuncs = {}
+end
+
 -------------------------------------------------------------------------------------------------------------------------=#
 function IsZBaseNPC(ent)
     if SERVER then
@@ -13,5 +19,11 @@ function FindZBaseTable(debuginfo)
     local split = string.Split(shortsrc, "/")
     local name = split[#split-1]
     return ZBaseNPCs[name]
+end
+-------------------------------------------------------------------------------------------------------------------------=#
+function FindZBaseBehaviourTable(debuginfo)
+    if SERVER then
+        return FindZBaseTable(debuginfo).Behaviours
+    end
 end
 -------------------------------------------------------------------------------------------------------------------------=#

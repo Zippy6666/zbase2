@@ -1,5 +1,6 @@
 local ZBaseDelayEnt = NULL
 local ZBaseDelayBehaviour_Name
+local NextBehaviourThink = CurTime()
 ---------------------------------------------------------------------------------------=#
 function ZBaseDelayBehaviour( delay )
     if IsValid(ZBaseDelayEnt) && ZBaseDelayBehaviour_Name then
@@ -20,14 +21,19 @@ local function BehaviourTimer( ent )
         end
 
         if ent.ZBase_Behaviour_Delays[BehaviourName] > CurTime() then continue end
-        if !Behaviour:ShouldDoBehaviour( ent ) then continue end
+        if Behaviour.ShouldDoBehaviour && !Behaviour:ShouldDoBehaviour( ent ) then continue end
 
         local ene = ent:GetEnemy()
 
         if (Behaviour.MustHaveEnemy or Behaviour.MustHaveVisibleEnemy) && !IsValid(ene) then continue end
         if IsValid(ene) then
+            if Behaviour.MustNotHaveEnemy then continue end
             if Behaviour.MustHaveVisibleEnemy && !ent:Visible(ene) then continue end
         end
+
+        -- if GetConVar("developer"):GetBool() then
+        --     print(ent.ZBase_Class, BehaviourName)
+        -- end
 
         Behaviour:Run( ent )
 
@@ -55,7 +61,10 @@ function ZBaseBehaviourInit( ent )
 
 end
 ---------------------------------------------------------------------------------------=#
-timer.Create("ZBaseBehaviourTimer", 0.5, 0, function()
+hook.Add("Think", "ZBaseBehaviourTimer", function()
+
+    if NextBehaviourThink > CurTime() then return end
+    if GetConVar("ai_disabled"):GetBool() then return end
 
     for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
 
@@ -67,5 +76,6 @@ timer.Create("ZBaseBehaviourTimer", 0.5, 0, function()
 
     end
 
+    NextBehaviourThink = CurTime() + 0.6
 end)
 ---------------------------------------------------------------------------------------=#
