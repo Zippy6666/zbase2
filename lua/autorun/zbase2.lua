@@ -16,7 +16,7 @@
 
     -- TODO --
     -- Inheritance
-    -- Action system
+    -- Behaviour system
     -- Next?
 
 -------------------------------------------------------------------------------------------------------------------------=#
@@ -24,13 +24,14 @@
 if !ZBaseNPCs then
     ZBaseNPCs = {}
     ZBaseNPCInstances = {}
+    ZBaseBehaviourTimerFuncs = {}
 end
 
 include("zbase/sh_globals.lua")
 include("zbase/sh_hooks.lua")
 
 if SERVER then
-    include("zbase/sv_action_system.lua")
+    include("zbase/sv_behaviour.lua")
 end
 
 -------------------------------------------------------------------------------------------------------------------------=#
@@ -80,8 +81,19 @@ local function NPCReg( name, path )
             include(sh)
             AddCSLuaFile(sh)
             AddCSLuaFile(cl)
-            if SERVER then include(sv) end
-            if CLIENT then include(cl) end
+
+            if SERVER then
+                include(sv)
+
+                local bh = path.."/behaviour.lua"
+                if file.Exists(bh, "LUA") then
+                    include(bh)
+                end
+            end
+
+            if CLIENT then
+                include(cl)
+            end
 
         end
     end
@@ -119,7 +131,6 @@ local function addNPCs()
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
-
 
 registerNPCs()
 addNPCs()

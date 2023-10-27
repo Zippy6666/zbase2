@@ -6,24 +6,22 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 NPC.Models = {}
 
 
+    -- Functions you can change --
+
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Called when the NPC is created --
-function NPC:CustomInitialize()
-
-end
+function NPC:CustomInitialize() end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Called every tick --
-function NPC:CustomThink()
-
-end
+function NPC:CustomThink() end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- On NPC hurt, return true to prevent damage --
-function NPC:CustomTakeDamage( dmginfo )
-
-end
+function NPC:CustomTakeDamage( dmginfo ) end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Called when the NPC hurts an entity, return true to prevent damage --
-function NPC:DealDamage( victimEnt, dmginfo )
-
-end
+function NPC:DealDamage( victimEnt, dmginfo ) end
 ---------------------------------------------------------------------------------------------------------------------=#
+
+
+
+

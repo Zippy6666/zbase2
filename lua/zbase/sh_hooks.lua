@@ -39,8 +39,11 @@ local function init( ent, name )
     end
 
     ent:SetPos(ent:GetPos()+Vector(0, 0, 20))
-    ------------------------------------------------------=#
 
+    if ent.Behaviours then
+        ZBaseBehaviourInit( ent )
+    end
+    ------------------------------------------------------=#
 
     -- Custom init
     do_method(ent, "CustomInitialize")
