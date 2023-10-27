@@ -7,15 +7,30 @@ local function do_method(ent, method_name, ... )
 end
 ---------------------------------------------------------------------------------------=#
 local function init( ent, name )
+
+    -- Register
     table.insert(ZBaseNPCInstances, ent)
 
+    -- Table "transfer"
     local name = string.Right(name, #name-6)
     ent.ZBase_Class = name
+    print(ent.ZBase_Class)
+    PrintTable(ZBaseNPCs)
     for k, v in pairs(ZBaseNPCs[ent.ZBase_Class]) do
         ent[k] = v
     end
 
+    -- Init stuff
+    if ent.Models then
+        ent:SetModel(table.Random(ent.Models))
+    end
+
+    ent:SetPos(ent:GetPos()+Vector(0, 0, 20))
+    --------------------=#
+
+    -- Custom init
     do_method(ent, "CustomInitialize")
+
 end
 ---------------------------------------------------------------------------------------=#
 if CLIENT then
@@ -38,10 +53,10 @@ if SERVER then
 
                 init( ent, parentname )
 
-                net.Start("ZBaseInitEnt")
-                net.WriteEntity(ent)
-                net.WriteString(parentname)
-                net.Broadcast()
+                -- net.Start("ZBaseInitEnt")
+                -- net.WriteEntity(ent)
+                -- net.WriteString(parentname)
+                -- net.Broadcast()
             end
 
         end)
