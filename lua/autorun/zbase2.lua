@@ -1,24 +1,25 @@
 -------------------------------------------------------------------------------------------------------------------------=#
-print("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
-print("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
-print("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
-print("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
-print("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
-print("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --")
-    
-print("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
-print("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
-print("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")            
+if SERVER then
+    print("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
+    print("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
+    print("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
+    print("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
+    print("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
+    print("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --")
+        
+    print("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
+    print("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
+    print("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
+end   
 -------------------------------------------------------------------------------------------------------------------------=#
 
         -- TODO --
-    -- Inheritance
-    -- Recreate hl2 npcs
+    -- Fix shit inheritence
     -- Next?
 
         -- Ideas --
     -- Hearing system
-    -- Squad system
+    -- Ditch squads, use better system instead
     -- Hl2 weapons deal correct damage + secondary fire (as behaviour) + improve crossbow + other improvements maybe
     -- SNPCs
     -- COND_ for behaviours
@@ -26,7 +27,9 @@ print("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀
     -- Custom blood system, white blood decals for hunters
     -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
     -- Player factions
-    -- Radio on/off sounds for custom sounds
+    -- Radio on/off sounds for CHAN_VOICE sounds
+    -- Very basic weapon base
+    -- Recreate some hl2 npcs
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
@@ -78,34 +81,25 @@ local function NPCReg( name, path )
         local cl = path.."/cl_init.lua"
         local sv = path.."/init.lua"
 
-        -- local function inherit( t )
-        --     if name == "npc_zbase" then return true end
+        local function inherit( t )
+            if name == "npc_zbase" then return true end
 
-        --     local inh = path.."/inherit.lua"
+            local ZBase_Inherit = t.Inherit
 
-        --     include(inh)
-        --     AddCSLuaFile(inh)
-
-        --     local ZBase_Inherit = t.Inherit
-
-        --     if ZBaseNPCs[ZBase_Inherit] then
-        --         for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
-        --             t[k] = v
-        --         end
-        --         return true
-        --     end
-
-        --     return false
-        -- end
+            if ZBase_Inherit != "" then
+                for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
+                    if !t[k] then
+                        t[k] = v
+                    end
+                end
+            end
+        end
 
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA")
         && file.Exists(cl, "LUA") then
 
             ZBaseNPCs[name] = {Behaviours={}}
-
-            -- local inhSuccess = inherit(ZBaseNPCs[name])
-            -- print(name, "inhSuccess", inhSuccess)
 
             if name != "npc_zbase" then
                 for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
@@ -130,6 +124,8 @@ local function NPCReg( name, path )
                 include(cl)
             end
 
+            inherit(ZBaseNPCs[name])
+            --ZBaseNPCs[name].ZBaseClassName=name
         end
     end
 end
@@ -150,19 +146,9 @@ local function addNPCs()
     for cls, t in pairs(ZBaseNPCs) do
         if cls == "npc_zbase" then continue end
 
-        if t.KeyValues then
-            t.KeyValues.parentname = "zbase_"..cls
-        else
-            t.KeyValues = {parentname = "zbase_"..cls}
-        end
-
+        t.KeyValues.parentname = "zbase_"..cls
         t.Category = "ZBase - "..t.Category
-
-        -- if SERVER && GetConVar("developer"):GetBool() then
-        --     print("---------------------", cls, "---------------------")
-        --     PrintTable(t)
-        --     print("------------------------------------------------------------")
-        -- end
+        print(t.KeyValues.parentname)
 
         list.Set( "NPC", cls, t )
 

@@ -195,6 +195,7 @@ function NPC:ZBaseInit()
     self:SetMaxLookDistance(self.SightDistance)
     self:SetCurrentWeaponProficiency(self.WeaponProficiency)
     self:SetBloodColor(self.BloodColor)
+    print(self.Name=="")
     self:SetNWString("ZBaseName", self.Name)
 
     ZBaseBehaviourInit( self )

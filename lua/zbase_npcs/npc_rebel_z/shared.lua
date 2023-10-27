@@ -1,8 +1,8 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
-NPC.Class = "npc_combine_s" -- NPC to base this NPC on
-NPC.Category = "Combine" -- Spawnmenu category
-NPC.Name = "Overwatch Soldier" -- Spawnmenu name
+NPC.Class = "npc_citizen" -- NPC to base this NPC on
+NPC.Category = "Resistance" -- Spawnmenu category
+NPC.Name = "Rebel" -- Spawnmenu name
 NPC.Weapons = {
     "weapon_357",
     "weapon_pistol",
@@ -19,3 +19,5 @@ NPC.Weapons = {
     "weapon_smg1",
 }
 NPC.IsZBaseNPC = true
+NPC.Inherit = "npc_citizen_z" -- Inherit features from an existing ZBase NPC
+NPC.KeyValues = {citizentype = CT_REBEL} -- Keyvalues

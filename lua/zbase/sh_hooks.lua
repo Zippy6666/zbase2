@@ -16,15 +16,11 @@ local function init( ent, name )
     ent.ZBase_Class = string.Right(name, #name-6)
     ent.ZBase_Inherit = ZBaseNPCs[ent.ZBase_Class].Inherit
 
-        -- Inherit from base
-    if ent.ZBase_Class!="npc_zbase" then
-        -- for k, v in pairs(ZBaseNPCs[ent.ZBase_Inherit]) do
-        --     ent[k] = v
-        -- end
-        for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
-            ent[k] = v
-        end
+        -- Inherit
+    for k, v in pairs( ZBaseNPCs[ent.ZBase_Inherit] ) do
+        ent[k] = v
     end
+
 
         -- This npc's table
     for k, v in pairs(ZBaseNPCs[ent.ZBase_Class]) do
@@ -61,6 +57,7 @@ if SERVER then
             if IsZBaseNPC(ent) then
                 local parentname = ent:GetKeyValues().parentname
 
+                print(ent, parentname)
                 init( ent, parentname )
 
                 -- net.Start("ZBaseInitEnt")

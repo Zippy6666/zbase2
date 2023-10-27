@@ -1,12 +1,12 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
+NPC.IsZBaseNPC = true -- Won't work right without this
 NPC.Class = "npc_citizen" -- NPC to base this NPC on
 NPC.Category = "Misc" -- Spawnmenu category
 NPC.Name = "Untitled" -- Spawnmenu name
-NPC.Inherit = "" -- Inherit features from an existing ZBase NPC
-
+NPC.Inherit = "npc_zbase" -- Inherit features from "npc_zbase" or an existing ZBase NPC
+NPC.KeyValues = {} -- Keyvalues
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
-NPC.IsZBaseNPC = true
 
 sound.Add( {
 	name = "ZBase.Idle",
