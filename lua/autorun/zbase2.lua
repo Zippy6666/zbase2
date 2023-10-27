@@ -1,33 +1,33 @@
 -------------------------------------------------------------------------------------------------------------------------=#
-
-    -- ███████╗██████╗░░█████╗░░██████╗███████╗ --
-    -- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --
-    -- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --
-    -- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --
-    -- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --
-    -- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --
-
-
-                                                    -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --
-                                                    -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --
-                                                    -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --
-
+print("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
+print("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
+print("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
+print("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
+print("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
+print("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --")
+    
+print("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
+print("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
+print("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")            
 -------------------------------------------------------------------------------------------------------------------------=#
 
         -- TODO --
     -- Sounds
+    -- Smart dropdown spawnmenu thing
+    -- Armor system
     -- Next?
 
         -- Ideas --
     -- Hearing system
     -- Squad system
     -- Recreate hl2 npcs
-    -- Armor system
-    -- Hl2 weapons deal correct damage + secondary fire + improve crossbow
+    -- Hl2 weapons deal correct damage + secondary fire + improve crossbow + other improvements maybe
     -- Weapon base
     -- SNPCs
     -- COND_ for behaviours
-    -- Custom NPCs, for example, Ministrider
+    -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
+    -- Custom blood system, white blood decals for hunters
+    -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
@@ -36,6 +36,7 @@
 -- Includes --
 include("zbase/sh_globals.lua")
 include("zbase/sh_hooks.lua")
+include("zbase/sh_replace_funcs.lua")
 if SERVER then
     include("zbase/sv_behaviour.lua")
 end

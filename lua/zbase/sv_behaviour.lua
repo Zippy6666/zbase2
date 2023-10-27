@@ -13,6 +13,8 @@ local function BehaviourTimer( ent )
 
     for BehaviourName, Behaviour in pairs(ent.Behaviours) do
 
+        if !Behaviour.Run then continue end
+
         ZBaseDelayBehaviour_Name = BehaviourName
 
         local delay = Behaviour.Delay && Behaviour:Delay( ent )

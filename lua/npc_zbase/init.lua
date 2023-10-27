@@ -1,29 +1,45 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 
+        -- GENERAL --
 
 -- Spawn with a random model from this table
 -- Leave empty to use the default model for the NPC
 NPC.Models = {}
 
-
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
+NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
+-- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER	
 
 NPC.SightDistance = 7000 -- Sight distance
 NPC.StartHealth = 100 -- Max health
 NPC.CanPatrol = true -- Use base patrol behaviour
-NPC.MuteDefaultVoice = false -- Mute all voice sounds normally emitted by this NPC
 
-
-NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied
+NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied, it set to "none", they won't be allied to anybody
 -- Default factions:
 -- "combine" || "ally" || "zombie" || "antlion" || "none"
 
+---------------------------------------------------------------------------------------------------------------------=#
 
 
-    -- Functions you can change --
+
+        -- CUSTOM SOUNDS --
+        -- Use sound scripts to alter pitch and level etc..
+
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC, use ZBaseEmitSound instead of EmitSound if this is set to true!
+NPC.UseCustomSounds = false -- Should the NPC be able to use custom sounds?
+
+NPC.AlertSounds = "" -- Sounds emitted when an enemy is seen for the first time
+NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
+NPC.IdleSounds_HasEnemy = "" -- Sounds emitted while there is an enemy
+NPC.PainSounds = "" -- Sounds emitted on hurt
+NPC.DeathSounds = "" -- Sounds emitted on death
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+        -- Functions you can change --
 
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Called when the NPC is created --
@@ -33,18 +49,32 @@ function NPC:CustomInitialize() end
 function NPC:CustomThink() end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- On NPC hurt, dmginfo:ScaleDamage(0) to prevent damage --
+    -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
+    -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
 function NPC:CustomTakeDamage( dmginfo, HitGroup ) end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Called when the NPC hurts an entity, return true to prevent damage --
 function NPC:DealDamage( victimEnt, dmginfo ) end
 ---------------------------------------------------------------------------------------------------------------------=#
+    -- Accept input, return true to prevent --
+function NPC:CustomAcceptInput( input, activator, caller, value ) end
+---------------------------------------------------------------------------------------------------------------------=#
 
+---------------------------------------------------------------------------------------------------------------------=#
 
+        -- Functions you can call --
 
+    -- Emit sound
+-- function NPC:ZBaseEmitSound( snd )
+--     if !self.UseCustomSounds then return end
+--     if #snd==0 then return end
+--     ZBaseSoundCall = true
+--     self:EmitSound( snd )
+--     ZBaseSoundCall = false
+-- end
+---------------------------------------------------------------------------------------------------------------------=#
 
-
-
-    -- DON'T TOUCH ANYTHING BELOW HERE --
+        -- DON'T TOUCH ANYTHING BELOW HERE --
 
 
 local factionTranslation = {
@@ -114,11 +144,22 @@ function NPC:ZBaseInit()
     self:SetHealth(self.StartHealth)
     self:SetMaxLookDistance(self.SightDistance)
     self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+    self:SetBloodColor(self.BloodColor)
 
     ZBaseBehaviourInit( self )
 
     -- Better position
     self:SetPos(self:GetPos()+Vector(0, 0, 20))
+
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:ZBaseThink()
+
+    self:Relationships()
+
+    if !IsValid(self:GetEnemy()) then
+        self.AlertSound_LastEnemy = NULL
+    end
 
 end
 ---------------------------------------------------------------------------------------------------------------------=#

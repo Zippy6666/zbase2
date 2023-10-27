@@ -1,15 +1,32 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-NPC.Models = {}--{"models/barney.mdl", "models/mossman.mdl", "models/alyx.mdl", "models/eli.mdl"}
-NPC.StartHealth = 70
+NPC.Models = {}
+NPC.StartHealth = 50
 NPC.CanPatrol = true
-NPC.MuteDefaultVoice = true -- Mute all voice sounds normally emitted by this NPC
 
+NPC.MuteDefaultVoice = true -- Mute all voice sounds normally emitted by this NPC
+NPC.UseCustomSounds = true -- Should the NPC be able to use custom sounds?
+
+NPC.AlertSounds = "ZBase.Alert"
+NPC.IdleSounds = "ZBase.Idle"
+NPC.IdleSounds_HasEnemy = "ZBase.IdleEnemy"
+NPC.PainSounds = "ZBase.Pain"
+NPC.DeathSounds = "ZBase.Death"
+
+---------------------------------------------------------------------------------------------------------------------=#
+    -- Accept input, return true to prevent --
+function NPC:CustomAcceptInput( input, activator, caller, value )
+
+    if input == "PullGrenade" then
+        PrintMessage(HUD_PRINTTALK, "ALLAHU AKBAR")
+    end
+
+end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- On NPC hurt --
 function NPC:CustomTakeDamage( dmginfo, HitGroup )
 
-    if self:GetModel() == "models/barney.mdl" && HitGroup == HITGROUP_CHEST then
+    if HitGroup == HITGROUP_CHEST then
         if math.random(1, 4) == 1 then
             dmginfo:ScaleDamage(0.5)
         else

@@ -84,10 +84,7 @@ hook.Add("Think", "ZBASE", function()
             return
         end
 
-        if SERVER then
-            v:Relationships()
-        end
-
+        do_method(v, "ZBaseThink")
         do_method(v, "CustomThink")
 
     end
@@ -121,12 +118,20 @@ end)
 hook.Add("EntityEmitSound", "ZBASE", function( data )
 
     -- Mute voice
-    if SERVER
+    if !ZBase_EmitSoundCall
+    && SERVER
     && data.Entity.IsZBaseNPC
     && data.Entity.MuteDefaultVoice
     && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
         return false
     end
 
+end)
+---------------------------------------------------------------------------------------=#
+hook.Add("AcceptInput", "ZBASE", function( ent, input, activator, caller, value )
+    if ent.IsZBaseNPC then
+        local r = do_method(ent, "CustomAcceptInput", input, activator, caller, value)
+        if r == true then return true end
+    end
 end)
 ---------------------------------------------------------------------------------------=#

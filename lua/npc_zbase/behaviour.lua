@@ -34,7 +34,8 @@ end
 
 ------------------------------------------------------------------------=#
 
-    -- Base behaviours --
+    -- Patrol
+
 BEHAVIOUR.Patrol = {
     MustNotHaveEnemy = true, -- Should it only run the behaviour if it doesn't have an enemy?
 }
@@ -46,6 +47,66 @@ end
 function BEHAVIOUR.Patrol:Run( self )
     self:SetSchedule(SCHED_PATROL_WALK)
     ZBaseDelayBehaviour(math.random(5, 10))
+end
+
+------------------------------------------------------------------------=#
+
+-- Sounds
+
+local function UseCustomSounds( _, self )
+    if self:GetNPCState() == NPC_STATE_DEAD then return false end
+    return self.UseCustomSounds
+end
+
+BEHAVIOUR.DoIdleSound = {
+    MustNotHaveEnemy = true, -- Should it only run the behaviour if it doesn't have an enemy?
+    ShouldDoBehaviour = UseCustomSounds
+}
+BEHAVIOUR.DoIdleEnemySound = {
+    MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy?
+    ShouldDoBehaviour = UseCustomSounds
+}
+BEHAVIOUR.DoPainSound = {
+    ShouldDoBehaviour = UseCustomSounds
+}
+
+function BEHAVIOUR.DoIdleSound:Run( self )
+
+    self:EmitSound(self.IdleSounds)
+    ZBaseDelayBehaviour(math.Rand(5, 10))
+
+end
+
+function BEHAVIOUR.DoIdleEnemySound:Run( self )
+
+    local snd = self.IdleSounds_HasEnemy
+    local enemy = self:GetEnemy()
+
+    if IsValid(enemy) && enemy != self.AlertSound_LastEnemy then
+        snd = self.AlertSounds
+        self.AlertSound_LastEnemy = enemy
+        print("alert")
+    end
+
+    self:EmitSound(snd)
+    ZBaseDelayBehaviour(math.Rand(2, 7))
+
+end
+
+function BEHAVIOUR.DoPainSound:Run( self )
+
+    local health = self:Health()
+
+    if !self.PainSound_LastHealth then
+        self.PainSound_LastHealth = health
+    end
+
+    if health < self.PainSound_LastHealth then
+        self:EmitSound(self.PainSounds)
+        self.PainSound_LastHealth = health
+        ZBaseDelayBehaviour(math.Rand(0.5, 2.5))
+    end
+
 end
 
 ------------------------------------------------------------------------=#

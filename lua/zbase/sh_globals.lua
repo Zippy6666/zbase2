@@ -6,6 +6,8 @@ if !ZBaseNPCs then
     ZBaseBehaviourTimerFuncs = {}
 end
 
+ZBase_EmitSoundCall = false
+
 -------------------------------------------------------------------------------------------------------------------------=#
 function IsZBaseNPC(ent)
     if SERVER then
