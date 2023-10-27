@@ -3,7 +3,7 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 -- Spawn with a random model from this table
 -- Leave empty to use the default model for the NPC
-NPC.Models = {"models/breen.mdl", "models/Kleiner.mdl", "models/Eli.mdl", "models/mossman.mdl"}
+NPC.Models = {}
 
 
 ---------------------------------------------------------------------------------------------------------------------=#

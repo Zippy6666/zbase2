@@ -11,22 +11,33 @@ local function init( ent, name )
     -- Register
     table.insert(ZBaseNPCInstances, ent)
 
-    -- Table "transfer"
-    local name = string.Right(name, #name-6)
-    ent.ZBase_Class = name
-    print(ent.ZBase_Class)
-    PrintTable(ZBaseNPCs)
+
+    -- Table "transfer" --
+    ent.ZBase_Class = string.Right(name, #name-6)
+    ent.ZBase_Inherit = ZBaseNPCs[ent.ZBase_Class].Inherit
+
+        -- "base" npc table
+    if ent.ZBase_Class!="npc_zbase" then
+        for k, v in pairs(ZBaseNPCs[ent.ZBase_Inherit]) do
+            ent[k] = v
+        end
+    end
+
+        -- This npc's table
     for k, v in pairs(ZBaseNPCs[ent.ZBase_Class]) do
         ent[k] = v
     end
+    ------------------------------------------------------=#
 
-    -- Init stuff
+
+    -- Init stuff --
     if !table.IsEmpty(ent.Models) then
         ent:SetModel(table.Random(ent.Models))
     end
 
     ent:SetPos(ent:GetPos()+Vector(0, 0, 20))
-    --------------------=#
+    ------------------------------------------------------=#
+
 
     -- Custom init
     do_method(ent, "CustomInitialize")

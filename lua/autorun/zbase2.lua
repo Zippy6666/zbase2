@@ -15,8 +15,9 @@
 -------------------------------------------------------------------------------------------------------------------------=#
 
     -- TODO --
-    -- Comments
-    -- Figure out what to do next
+    -- Inheritance
+    -- Action system
+    -- Next?
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
@@ -25,36 +26,70 @@ if !ZBaseNPCs then
     ZBaseNPCInstances = {}
 end
 
-include("zbase/globals.lua")
-include("zbase/hooks.lua")
+include("zbase/sh_globals.lua")
+include("zbase/sh_hooks.lua")
 
+if SERVER then
+    include("zbase/sv_action_system.lua")
+end
 
 -------------------------------------------------------------------------------------------------------------------------=#
-local function include_npc_files()
-    -- Include all npc files
-    
-    local _, dirs = file.Find("zbase_npcs/*","LUA")
+local function NPCReg( name, path )
+    if string.StartsWith(name, "npc_") then
 
-    for k, v in ipairs(dirs) do
-        if string.StartsWith(v, "npc_") then
-            local sh = "zbase_npcs/"..v.."/shared.lua"
-            local cl = "zbase_npcs/"..v.."/cl_init.lua"
-            local sv = "zbase_npcs/"..v.."/init.lua"
-            
-            if file.Exists(sh, "LUA") && file.Exists(sv, "LUA") && file.Exists(cl, "LUA") then
+        local path = path or ("zbase_npcs/"..name)
+        local sh = path.."/shared.lua"
+        local cl = path.."/cl_init.lua"
+        local sv = path.."/init.lua"
 
-                -- Register
-                ZBaseNPCs[v] = {}
-                include(sh)
-                AddCSLuaFile(sh)
-                AddCSLuaFile(cl)
-                if SERVER then include(sv) end
-                if CLIENT then include(cl) end
+        local function inherit( t )
+            if name == "npc_zbase" then return true end
 
+            local inh = path.."/inherit.lua"
+
+            include(inh)
+            AddCSLuaFile(inh)
+
+            local ZBase_Inherit = t.Inherit
+
+            if ZBaseNPCs[ZBase_Inherit] then
+                for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
+                    t[k] = v
+                end
+                return true
             end
+
+            return false
+        end
+
+        if file.Exists(sh, "LUA")
+        && file.Exists(sv, "LUA")
+        && file.Exists(cl, "LUA") then
+
+            ZBaseNPCs[name] = {}
+
+            local inhSuccess = inherit(ZBaseNPCs[name])
+            print(name, "inhSuccess", inhSuccess)
+
+            include(sh)
+            AddCSLuaFile(sh)
+            AddCSLuaFile(cl)
+            if SERVER then include(sv) end
+            if CLIENT then include(cl) end
+
         end
     end
+end
+-------------------------------------------------------------------------------------------------------------------------=#
+local function registerNPCs()
+    local _, dirs = file.Find("zbase_npcs/*","LUA")
 
+    NPCReg("npc_zbase", "zbase/npc_zbase") -- Register base
+
+    -- Register all ZBase NPCs
+    for _, v in ipairs(dirs) do
+        NPCReg(v)
+    end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 local function addNPCs()
@@ -67,23 +102,20 @@ local function addNPCs()
             t.KeyValues = {parentname = "zbase_"..cls}
         end
 
+        if GetConVar("developer"):GetBool() then
+            print("---------------------", cls, "---------------------")
+            PrintTable(t)
+            print("------------------------------------------------------------")
+        end
+
         list.Set( "NPC", cls, t )
 
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
-local function updateActiveNPCs()
-    for _, ent in ipairs(ZBaseNPCInstances) do
-        for k, v in pairs(ZBaseNPCs[ent.ZBase_Class]) do
-            ent[k] = v
-        end
-    end
-end
--------------------------------------------------------------------------------------------------------------------------=#
 
 
-include_npc_files()
+registerNPCs()
 addNPCs()
-updateActiveNPCs()
 
 
