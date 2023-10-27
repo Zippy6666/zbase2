@@ -5,3 +5,4 @@ NPC.Category = "ZBase" -- Spawnmenu category
 NPC.Name = "Example" -- Spawnmenu name
 
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+NPC.IsZBaseNPC = true

@@ -82,6 +82,7 @@ hook.Add("Think", "ZBASE", function()
             return
         end
 
+        v:Relationships()
         do_method(v, "CustomThink")
 
     end
