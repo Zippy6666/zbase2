@@ -21,7 +21,7 @@ local function init( ent, name )
     end
 
     -- Init stuff
-    if ent.Models then
+    if !table.IsEmpty(ent.Models) then
         ent:SetModel(table.Random(ent.Models))
     end
 

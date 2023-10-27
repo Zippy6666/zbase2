@@ -2,8 +2,10 @@ AddCSLuaFile()
 
 -------------------------------------------------------------------------------------------------------------------------=#
 function IsZBaseNPC(ent)
-    local parentname = ent:GetKeyValues().parentname
-    return string.StartWith(parentname, "zbase_")
+    if SERVER then
+        local parentname = ent:GetKeyValues().parentname
+        return string.StartWith(parentname, "zbase_")
+    end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 function FindZBaseTable(debuginfo)
