@@ -42,25 +42,25 @@ local function NPCReg( name, path )
         local cl = path.."/cl_init.lua"
         local sv = path.."/init.lua"
 
-        local function inherit( t )
-            if name == "npc_zbase" then return true end
+        -- local function inherit( t )
+        --     if name == "npc_zbase" then return true end
 
-            local inh = path.."/inherit.lua"
+        --     local inh = path.."/inherit.lua"
 
-            include(inh)
-            AddCSLuaFile(inh)
+        --     include(inh)
+        --     AddCSLuaFile(inh)
 
-            local ZBase_Inherit = t.Inherit
+        --     local ZBase_Inherit = t.Inherit
 
-            if ZBaseNPCs[ZBase_Inherit] then
-                for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
-                    t[k] = v
-                end
-                return true
-            end
+        --     if ZBaseNPCs[ZBase_Inherit] then
+        --         for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
+        --             t[k] = v
+        --         end
+        --         return true
+        --     end
 
-            return false
-        end
+        --     return false
+        -- end
 
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA")
@@ -68,8 +68,14 @@ local function NPCReg( name, path )
 
             ZBaseNPCs[name] = {}
 
-            local inhSuccess = inherit(ZBaseNPCs[name])
-            print(name, "inhSuccess", inhSuccess)
+            -- local inhSuccess = inherit(ZBaseNPCs[name])
+            -- print(name, "inhSuccess", inhSuccess)
+
+            if name != "npc_zbase" then
+                for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
+                    ZBaseNPCs[name][k] = v
+                end
+            end
 
             include(sh)
             AddCSLuaFile(sh)
@@ -102,7 +108,7 @@ local function addNPCs()
             t.KeyValues = {parentname = "zbase_"..cls}
         end
 
-        if GetConVar("developer"):GetBool() then
+        if SERVER && GetConVar("developer"):GetBool() then
             print("---------------------", cls, "---------------------")
             PrintTable(t)
             print("------------------------------------------------------------")

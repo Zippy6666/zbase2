@@ -1,4 +1,4 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
-NPC.Class = "npc_combine" -- NPC to base this NPC on
-NPC.Name = "Red Combine" -- Spawnmenu name
+NPC.Inherit = "npc_zbase" -- Required, can be "npc_zbase" or any other zbase npc
+NPC.Name = "Red NPC" -- Spawnmenu name

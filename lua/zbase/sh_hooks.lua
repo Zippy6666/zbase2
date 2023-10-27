@@ -16,9 +16,12 @@ local function init( ent, name )
     ent.ZBase_Class = string.Right(name, #name-6)
     ent.ZBase_Inherit = ZBaseNPCs[ent.ZBase_Class].Inherit
 
-        -- "base" npc table
+        -- Inherit from base
     if ent.ZBase_Class!="npc_zbase" then
-        for k, v in pairs(ZBaseNPCs[ent.ZBase_Inherit]) do
+        -- for k, v in pairs(ZBaseNPCs[ent.ZBase_Inherit]) do
+        --     ent[k] = v
+        -- end
+        for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
             ent[k] = v
         end
     end

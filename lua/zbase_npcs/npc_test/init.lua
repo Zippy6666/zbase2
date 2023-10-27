@@ -1,8 +1,8 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 ---------------------------------------------------------------------------------------------------------------------=#
-    -- On NPC hurt, return true to prevent damage --
-function NPC:CustomTakeDamage( dmginfo )
-    PrintTable(self:GetTable())
+    -- Called when the NPC is created --
+function NPC:CustomInitialize()
+    self:SetColor(Color(255, 0, 0))
 end
 ---------------------------------------------------------------------------------------------------------------------=#
