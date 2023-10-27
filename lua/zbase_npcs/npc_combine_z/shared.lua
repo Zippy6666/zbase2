@@ -1,8 +1,11 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
-NPC.Name = "Test NPC" -- Spawnmenu name
-NPC.Class = "npc_zombine"
-NPC.Weapons = {}
+NPC.Class = "npc_citizen" -- NPC to base this NPC on
+NPC.Category = "Misc" -- Spawnmenu category
+NPC.Name = "Untitled" -- Spawnmenu name
+
+NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+NPC.IsZBaseNPC = true
 
 sound.Add( {
 	name = "ZBase.Idle",

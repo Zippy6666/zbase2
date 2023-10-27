@@ -12,17 +12,13 @@ print("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀
 -------------------------------------------------------------------------------------------------------------------------=#
 
         -- TODO --
-    -- Sounds
-    -- Smart dropdown spawnmenu thing
-    -- Armor system
+    -- Recreate hl2 npcs
     -- Next?
 
         -- Ideas --
     -- Hearing system
     -- Squad system
-    -- Recreate hl2 npcs
     -- Hl2 weapons deal correct damage + secondary fire + improve crossbow + other improvements maybe
-    -- Weapon base
     -- SNPCs
     -- COND_ for behaviours
     -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
@@ -39,6 +35,16 @@ include("zbase/sh_hooks.lua")
 include("zbase/sh_replace_funcs.lua")
 if SERVER then
     include("zbase/sv_behaviour.lua")
+end
+
+
+if CLIENT then
+    -- spawnmenu.AddCreationTab( "ZBase", function(...)
+    --     print(...)
+    --     return vgui.Create("DCheckBox")
+    -- end)
+
+    spawnmenu.AddContentType( "ZBase", function( ... ) print(...) end)
 end
 
 
@@ -147,11 +153,13 @@ local function addNPCs()
             t.KeyValues = {parentname = "zbase_"..cls}
         end
 
-        if SERVER && GetConVar("developer"):GetBool() then
-            print("---------------------", cls, "---------------------")
-            PrintTable(t)
-            print("------------------------------------------------------------")
-        end
+        t.Category = "ZBase - "..t.Category
+
+        -- if SERVER && GetConVar("developer"):GetBool() then
+        --     print("---------------------", cls, "---------------------")
+        --     PrintTable(t)
+        --     print("------------------------------------------------------------")
+        -- end
 
         list.Set( "NPC", cls, t )
 

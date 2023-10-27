@@ -106,10 +106,19 @@ end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
 
-    if IsZBaseNPC(npc) then
+    if npc.IsZBaseNPC then
         local r = do_method(npc, "CustomTakeDamage", dmg, hit_gr)
         if r then
             return r
+        end
+
+        print(npc.HasArmor, hit_gr)
+        if npc.HasArmor[hit_gr] then
+            print("test")
+            local r = do_method(npc, "HitArmor", dmg, hit_gr)
+            if r then
+                return r
+            end
         end
     end
 
