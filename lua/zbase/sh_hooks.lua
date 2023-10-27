@@ -112,9 +112,7 @@ hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
             return r
         end
 
-        print(npc.HasArmor, hit_gr)
         if npc.HasArmor[hit_gr] then
-            print("test")
             local r = do_method(npc, "HitArmor", dmg, hit_gr)
             if r then
                 return r

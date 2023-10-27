@@ -35,6 +35,7 @@ NPC.HasArmor = {
 }
 NPC.ArmorPenChance = 4 -- 1/x Chance that the armor is penetrated
 NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this
+NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
@@ -83,7 +84,12 @@ function NPC:CustomAcceptInput( input, activator, caller, value ) end
     -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
     -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
 function NPC:HitArmor( dmginfo, HitGroup )
-    if dmginfo:GetDamage() >= self.ArmorAlwaysPenDamage then return end
+
+    if dmginfo:GetDamage() >= self.ArmorAlwaysPenDamage then
+        dmginfo:ScaleDamage(self.ArmorPenDamageMult)
+        return
+    end
+
     if math.random(1, self.ArmorPenChance) != 1 then
         local spark = ents.Create("env_spark")
         spark:SetKeyValue("spawnflags", 256)
@@ -97,7 +103,10 @@ function NPC:HitArmor( dmginfo, HitGroup )
         SafeRemoveEntityDelayed(spark, 0.1)
         self:EmitSound("ZBase.Ricochet")
         dmginfo:ScaleDamage(0)
+    else
+        dmginfo:ScaleDamage(self.ArmorPenDamageMult)
     end
+
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -186,6 +195,7 @@ function NPC:ZBaseInit()
     self:SetMaxLookDistance(self.SightDistance)
     self:SetCurrentWeaponProficiency(self.WeaponProficiency)
     self:SetBloodColor(self.BloodColor)
+    self:SetNWString("ZBaseName", self.Name)
 
     ZBaseBehaviourInit( self )
 
@@ -223,13 +233,17 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:Relationship( ent )
 
+    if self.ZBaseFaction == "none" then
+        self:SetRelationship( ent, D_HT )
+        return
+    end
+
     if self.ZBaseFaction == ent.ZBaseFaction then
         self:SetRelationship( ent, D_LI )
         return
     end
 
-    if self.ZBaseFaction != "none"
-    && (self:ZBase_VJFriendly( ent ) or self.ZBase_Class == ent.ZBase_Class) then
+    if (self:ZBase_VJFriendly( ent ) or self.ZBase_Class == ent.ZBase_Class) then
         self:SetRelationship( ent, D_LI )
     else
         self:SetRelationship( ent, D_HT )

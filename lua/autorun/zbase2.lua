@@ -12,18 +12,21 @@ print("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀
 -------------------------------------------------------------------------------------------------------------------------=#
 
         -- TODO --
+    -- Inheritance
     -- Recreate hl2 npcs
     -- Next?
 
         -- Ideas --
     -- Hearing system
     -- Squad system
-    -- Hl2 weapons deal correct damage + secondary fire + improve crossbow + other improvements maybe
+    -- Hl2 weapons deal correct damage + secondary fire (as behaviour) + improve crossbow + other improvements maybe
     -- SNPCs
     -- COND_ for behaviours
     -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
     -- Custom blood system, white blood decals for hunters
     -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
+    -- Player factions
+    -- Radio on/off sounds for custom sounds
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
