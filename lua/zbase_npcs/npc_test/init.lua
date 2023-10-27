@@ -1,15 +1,10 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-NPC.Models = {"models/barney.mdl", "models/mossman.mdl", "models/alyx.mdl", "models/eli.mdl"}
+NPC.Models = {}--{"models/barney.mdl", "models/mossman.mdl", "models/alyx.mdl", "models/eli.mdl"}
 NPC.StartHealth = 70
 NPC.CanPatrol = true
+NPC.MuteDefaultVoice = true -- Mute all voice sounds normally emitted by this NPC
 
-
----------------------------------------------------------------------------------------------------------------------=#
-    -- Called every tick --
-function NPC:CustomThink()
-
-end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- On NPC hurt --
 function NPC:CustomTakeDamage( dmginfo, HitGroup )

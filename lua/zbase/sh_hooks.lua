@@ -74,7 +74,9 @@ if SERVER then
     ---------------------------------------------------------------------------------------=#
 end
 ---------------------------------------------------------------------------------------=#
+local ZBaseNextThink = CurTime()
 hook.Add("Think", "ZBASE", function()
+    if ZBaseNextThink > CurTime() then return end
     for _, v in ipairs(ZBaseNPCInstances) do
 
         if !IsValid(v) then
@@ -82,10 +84,15 @@ hook.Add("Think", "ZBASE", function()
             return
         end
 
-        v:Relationships()
+        if SERVER then
+            v:Relationships()
+        end
+
         do_method(v, "CustomThink")
 
     end
+
+    ZBaseNextThink = CurTime()+0.2
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
@@ -107,6 +114,18 @@ hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
         if r then
             return r
         end
+    end
+
+end)
+---------------------------------------------------------------------------------------=#
+hook.Add("EntityEmitSound", "ZBASE", function( data )
+
+    -- Mute voice
+    if SERVER
+    && data.Entity.IsZBaseNPC
+    && data.Entity.MuteDefaultVoice
+    && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
+        return false
     end
 
 end)

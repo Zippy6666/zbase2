@@ -14,11 +14,12 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_GOOD -- WEAPON_PROFICIENCY_POOR || WE
 NPC.SightDistance = 7000 -- Sight distance
 NPC.StartHealth = 100 -- Max health
 NPC.CanPatrol = true -- Use base patrol behaviour
+NPC.MuteDefaultVoice = false -- Mute all voice sounds normally emitted by this NPC
 
 
-NPC.ZBaseFaction = "menace" -- Any string, all ZBase NPCs with this faction will be allied
+NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied
 -- Default factions:
--- "combine" || "ally" || "zombie" || "antlion"
+-- "combine" || "ally" || "zombie" || "antlion" || "none"
 
 
 
@@ -28,7 +29,7 @@ NPC.ZBaseFaction = "menace" -- Any string, all ZBase NPCs with this faction will
     -- Called when the NPC is created --
 function NPC:CustomInitialize() end
 ---------------------------------------------------------------------------------------------------------------------=#
-    -- Called every tick --
+    -- Called continiously --
 function NPC:CustomThink() end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- On NPC hurt, dmginfo:ScaleDamage(0) to prevent damage --
@@ -139,7 +140,14 @@ function NPC:ZBase_VJFriendly( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:Relationship( ent )
-    if self.ZBaseFaction == ent.ZBaseFaction or self:ZBase_VJFriendly( ent ) then
+
+    if self.ZBaseFaction == ent.ZBaseFaction then
+        self:SetRelationship( ent, D_LI )
+        return
+    end
+
+    if self.ZBaseFaction != "none"
+    && (self:ZBase_VJFriendly( ent ) or self.ZBase_Class == ent.ZBase_Class) then
         self:SetRelationship( ent, D_LI )
     else
         self:SetRelationship( ent, D_HT )
@@ -176,6 +184,5 @@ end)
 ---------------------------------------------------------------------------------------------------------------------=#
 hook.Add("PlayerSpawn", "PlayerSpawn", function( ply )
     ply.ZBaseFaction = "ally"
-    print(ply.ZBaseFaction)
 end)
 ---------------------------------------------------------------------------------------------------------------------=#

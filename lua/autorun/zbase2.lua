@@ -14,8 +14,20 @@
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
-    -- TODO --
+        -- TODO --
+    -- Sounds
     -- Next?
+
+        -- Ideas --
+    -- Hearing system
+    -- Squad system
+    -- Recreate hl2 npcs
+    -- Armor system
+    -- Hl2 weapons deal correct damage + secondary fire + improve crossbow
+    -- Weapon base
+    -- SNPCs
+    -- COND_ for behaviours
+    -- Custom NPCs, for example, Ministrider
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
