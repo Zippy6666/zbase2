@@ -86,7 +86,7 @@ local function NPCReg( name, path )
                 include(sv)
 
                 local bh = path.."/behaviour.lua"
-                if file.Exists(bh, "LUA") then
+                if name != "npc_zbase" && file.Exists(bh, "LUA") then
                     include(bh)
                 end
             end
