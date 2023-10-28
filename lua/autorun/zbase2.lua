@@ -15,24 +15,25 @@ end
 
 
         -- TODO --
-    -- Hl2 weapons deal correct damage + secondary fire (as behaviour) + improve crossbow + other improvements maybe
     -- SNPCs (flying snpcs with custom movement system)
     -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
-    -- Player factions
+    -- More variables and function
+    -- Internal variable system
+    
 
-
-        -- Ideas --
+        -- Future ideas --
     -- COND_ for behaviours
     -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
     -- Radio on/off sounds for CHAN_VOICE sounds
     -- Very basic weapon base
     -- Recreate more hl2 npcs
     -- Custom blood system, white blood decals for hunters
+    -- Player factions
 
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
-if BRANCH == "x86-64" then
+if BRANCH != "x86-64" then
     -------------------------------------------------------------------------------------------------------------------------=#
     if SERVER then
         util.AddNetworkString("ZBaseError")
@@ -144,8 +145,11 @@ local function AddNPCsToSpawnMenu()
     for cls, t in pairs( ZBaseNPCs ) do
 
         local spawnmenuTbl = table.Copy(t)
-        spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
+        if SERVER then
+            spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
+        end
         spawnmenuTbl.Category = "ZBase - "..t.Category
+
         list.Set( "NPC", cls, spawnmenuTbl )
 
     end

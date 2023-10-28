@@ -4,6 +4,17 @@ util.AddNetworkString("ZBaseInitEnt")
 local ZBaseNextThink = CurTime()
 
 
+local ZBaseWeaponDMGs = {
+    ["weapon_pistol"] = {dmg=5},
+    ["weapon_357"] = {dmg=40},
+    ["weapon_ar2"] = {dmg=8},
+    ["weapon_rpg"] = {dmg=150},
+    ["weapon_shotgun"] = {dmg=56},
+    ["weapon_smg1"] = {dmg=4},
+    ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
+}
+
+
 ---------------------------------------------------------------------------------------=#
 hook.Add("OnEntityCreated", "ZBASE", function( ent ) timer.Simple(0, function()
     if !IsValid(ent) then return end
@@ -49,29 +60,43 @@ end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     local attacker = dmg:GetAttacker()
+    local infl = dmg:GetInflictor()
+
+
+    -- Don't hurt NPCs in same faction
+    if attacker.IsZBaseNPC
+    && ent.IsZBaseNPC
+    && ent:HasCapability(CAP_FRIENDLY_DMG_IMMUNE)
+    && attacker.ZBaseFaction == ent.ZBaseFaction
+    && ent.ZBaseFaction != "none" then
+        dmg:ScaleDamage(0)
+        return true
+    end
+
 
     if IsValid(attacker) && IsZBaseNPC(attacker) then
         local r = attacker:ZBaseMethod("DealDamage", ent, dmg)
         if r then
             return r
         end
+
+        -- Proper damage values for hl2 weapons
+        local wep = attacker:GetActiveWeapon()
+
+        if IsValid(wep) then
+            local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
+
+            if dmgTbl
+            && (!dmgTbl.inflclass or (IsValid(infl) && dmgTbl.inflclass == infl:GetClass())) then
+                dmg:SetDamage(dmgTbl.dmg)
+            end
+        end
+        ----------------------------------------------=#
     end
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
     if !npc.IsZBaseNPC then return end
-
-    if npc:HasCapability(CAP_FRIENDLY_DMG_IMMUNE) then
-        local attacker = dmg:GetAttacker()
-
-        if IsValid(attacker)
-        && attacker.ZBaseFaction == npc.ZBaseFaction
-        && npc.ZBaseFaction != "none" then
-            dmg:ScaleDamage(0)
-            print("sus")
-            return
-        end
-    end
 
     local r = npc:ZBaseMethod("CustomTakeDamage", dmg, hit_gr)
     if r then

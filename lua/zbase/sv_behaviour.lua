@@ -2,9 +2,12 @@ local ZBaseDelayEnt = NULL
 local ZBaseDelayBehaviour_Name
 local NextBehaviourThink = CurTime()
 ---------------------------------------------------------------------------------------=#
-function ZBaseDelayBehaviour( delay )
-    if IsValid(ZBaseDelayEnt) && ZBaseDelayBehaviour_Name then
-        ZBaseDelayEnt.ZBase_Behaviour_Delays[ZBaseDelayBehaviour_Name] = CurTime() + delay
+function ZBaseDelayBehaviour( delay, ent, name )
+    local Ent = ent or ZBaseDelayEnt
+    local BehaviourName = name or ZBaseDelayBehaviour_Name
+
+    if IsValid(Ent) && BehaviourName then
+        Ent.ZBase_Behaviour_Delays[BehaviourName] = CurTime() + delay
     end
 end
 ---------------------------------------------------------------------------------------=#
@@ -19,7 +22,7 @@ local function BehaviourTimer( ent )
 
         local delay = Behaviour.Delay && Behaviour:Delay( ent )
         if delay then
-            ZBaseDelayBehaviour( ent, BehaviourName, delay )
+            ZBaseDelayBehaviour( delay, ent, BehaviourName )
         end
 
         if ent.ZBase_Behaviour_Delays[BehaviourName] > CurTime() then continue end

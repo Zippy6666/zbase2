@@ -6,7 +6,7 @@ NPC.Inherit = "npc_zbase" -- Inherit features from "npc_zbase" or an existing ZB
 NPC.Class = "npc_citizen" -- NPC to base this NPC on
 NPC.Category = "Misc" -- Spawnmenu category
 NPC.Name = "Untitled" -- Spawnmenu name
-
+NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 
 ---------------------------------------------------------------------------------------------------------------------=#
 

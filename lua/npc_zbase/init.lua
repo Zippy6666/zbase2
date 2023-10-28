@@ -7,9 +7,7 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 -- Leave empty to use the default model for the NPC
 NPC.Models = {}
 
-NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
-
-NPC.WeaponProficiency = WEAPON_PROFICIENCY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
+NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
 NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
@@ -47,7 +45,7 @@ NPC.ExtraCapabilities = {
 }
 
  -- Keyvalues
-NPC.KeyValues = {} -- Ex. NPC.KeyValues = {SquadName="cool squad", citizentype=CT_REFUGEE}
+NPC.KeyValues = {} -- Ex. NPC.KeyValues = {SquadName="cool squad", citizentype=CT_REBEL}
 
 NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.CallForHelpDistance = 3000 -- Call for help distance
@@ -130,9 +128,17 @@ end
 
         -- Functions you can call --
 
-    -- Check if an entity is x units away from itself
-function NPC:WithinDistance( ent, dist )
-    return self:GetPos():DistToSqr(ent:GetPos()) < dist^2
+    -- Check if an entity is within a certain distance
+    -- If maxdist is given, return true if the entity is within x units from itself
+    -- If mindist is given, return true if the entity is x units away from itself
+function NPC:WithinDistance( ent, maxdist, mindist )
+    if !IsValid(ent) then return false end
+
+    local dSqr = self:GetPos():DistToSqr(ent:GetPos())
+    if mindist && dSqr < mindist^2 then return false end
+    if maxdist && dSqr > maxdist^2 then return false end
+
+    return true
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 

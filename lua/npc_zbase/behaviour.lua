@@ -18,7 +18,7 @@ function BEHAVIOUR.SayWhat:ShouldDoBehaviour( self )
 end
 
 -- Called before running the behaviour
--- Return a number to delay the behaviour by said number (in seconds)
+-- Return a number to suppress and delay the behaviour by said number (in seconds)
 function BEHAVIOUR.SayWhat:Delay( self )
 end
 
@@ -57,6 +57,9 @@ BEHAVIOUR.DoIdleEnemySound = {
 BEHAVIOUR.DoPainSound = {
     ShouldDoBehaviour = UseCustomSounds
 }
+BEHAVIOUR.SecondaryFire = {
+    MustHaveVisibleEnemy = true, -- Should it only run the behaviour if it has a enemy, and its enemy is visible?
+}
 
 
 
@@ -68,15 +71,16 @@ end
 function BEHAVIOUR.FactionCallForHelp:Run( self )
     for _, v in ipairs(ZBaseNPCInstances) do
 
+        if !IsValid(v) then continue end
         if v == self then continue end
         if v.ZBaseFaction == "none" then continue end
         if IsValid(v:GetEnemy()) then continue end -- Ally already busy with an enemy
         if !self:WithinDistance(v, self.CallForHelpDistance) then continue end
+        if !v:WithinDistance(self, v.CallForHelpDistance) then continue end
 
         if v.ZBaseFaction == self.ZBaseFaction then
             local ene = self:GetEnemy()
             v:UpdateEnemyMemory(ene, ene:GetPos())
-            print(self, "FactionCallForHelp", v, ene)
         end
 
     end
@@ -142,4 +146,64 @@ function BEHAVIOUR.DoPainSound:Run( self )
 
 end
 
+------------------------------------------------------------------------=#
+
+-- Secondary fire
+
+local SecondaryFireWeapons = {
+    ["weapon_ar2"] = {dist=4000},
+    ["weapon_smg1"] = {dist=1500},
+}
+
+------------------------------------------------------------------------=#
+function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
+
+
+end
+------------------------------------------------------------------------=#
+function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
+
+    local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
+    local grenade = ents.Create("grenade_ar2")
+    grenade:SetOwner(self)
+    grenade:SetPos(startPos)
+    grenade:Spawn()
+    grenade:SetVelocity((enemy:GetPos() - startPos):GetNormalized()*1250 + Vector(0,0,200))
+    grenade:SetLocalAngularVelocity(AngleRand())
+    wep:EmitSound("Weapon_AR2.Double")
+
+    local effectdata = EffectData()
+    effectdata:SetFlags(7)
+    effectdata:SetEntity(wep)
+    util.Effect( "MuzzleFlash", effectdata, true, true )
+
+end
+------------------------------------------------------------------------=#
+function BEHAVIOUR.SecondaryFire:ShouldDoBehaviour( self )
+    local wep = self:GetActiveWeapon()
+
+    if !IsValid(wep) then return false end
+    if !SecondaryFireWeapons[wep:GetClass()] then return false end
+
+    return self:WithinDistance( self:GetEnemy(), SecondaryFireWeapons[wep:GetClass()].dist, 300 )
+end
+------------------------------------------------------------------------=#
+function BEHAVIOUR.SecondaryFire:Delay( self )
+
+    local enemy = self:GetEnemy()
+
+    if !IsValid(enemy) then return end
+
+    if !self:Visible(enemy) then
+        return math.Rand(0.5, 3)
+    end
+
+end
+------------------------------------------------------------------------=#
+function BEHAVIOUR.SecondaryFire:Run( self )
+    local enemy = self:GetEnemy()
+    local wep = self:GetActiveWeapon()
+    SecondaryFireWeapons[wep:GetClass()]:Func( self, wep, enemy )
+    ZBaseDelayBehaviour(2)
+end
 ------------------------------------------------------------------------=#
