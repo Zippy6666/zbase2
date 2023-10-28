@@ -73,6 +73,18 @@ sound.Add( {
 
 
 -------------------------------------------------------------------------------------------------------------------------=#
+local function NPCsInherit()
+    for cls, t in pairs(ZBaseNPCs) do
+        local ZBase_Inherit = t.Inherit
+
+        for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
+            if !t[k] then
+                t[k] = v
+            end
+        end
+    end
+end
+-------------------------------------------------------------------------------------------------------------------------=#
 local function NPCReg( name, path )
     if string.StartsWith(name, "npc_") then
 
@@ -82,31 +94,17 @@ local function NPCReg( name, path )
         local sv = path.."/init.lua"
 
         local function inherit( t )
-            if name == "npc_zbase" then return true end
 
-            local ZBase_Inherit = t.Inherit
-
-            if ZBase_Inherit != "" then
-                for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
-                    if !t[k] then
-                        t[k] = v
-                    end
-                end
-            end
         end
 
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA")
         && file.Exists(cl, "LUA") then
 
+            -- New NPC
             ZBaseNPCs[name] = {Behaviours={}}
 
-            if name != "npc_zbase" then
-                for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
-                    ZBaseNPCs[name][k] = v
-                end
-            end
-
+            -- Files --
             include(sh)
             AddCSLuaFile(sh)
             AddCSLuaFile(cl)
@@ -123,9 +121,12 @@ local function NPCReg( name, path )
             if CLIENT then
                 include(cl)
             end
+            --------------------------------=#
 
-            inherit(ZBaseNPCs[name])
-            --ZBaseNPCs[name].ZBaseClassName=name
+            -- Inherit
+            timer.Simple(1, function()
+                inherit(ZBaseNPCs[name])
+            end)
         end
     end
 end
@@ -141,22 +142,23 @@ local function registerNPCs()
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
-local function addNPCs()
+local function AddNPCsToSpawnMenu()
     -- Add all NPCs to spawnmenu
-    for cls, t in pairs(ZBaseNPCs) do
-        if cls == "npc_zbase" then continue end
+    for cls, t in pairs( ZBaseNPCs ) do
 
-        t.KeyValues.parentname = "zbase_"..cls
-        t.Category = "ZBase - "..t.Category
-        print(t.KeyValues.parentname)
-
-        list.Set( "NPC", cls, t )
+        local spawnmenuTbl = table.Copy(t)
+        spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
+        spawnmenuTbl.Category = "ZBase - "..t.Category
+        list.Set( "NPC", cls, spawnmenuTbl )
 
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
+hook.Add("Initialize", "ZBASE", function()
+    NPCsInherit()
+    AddNPCsToSpawnMenu()
+    PrintTable(ZBaseNPCs)
+end)
+-------------------------------------------------------------------------------------------------------------------------=#
 
 registerNPCs()
-addNPCs()
-
-

@@ -57,7 +57,7 @@ if SERVER then
             if IsZBaseNPC(ent) then
                 local parentname = ent:GetKeyValues().parentname
 
-                print(ent, parentname)
+                --print(ent, parentname)
                 init( ent, parentname )
 
                 -- net.Start("ZBaseInitEnt")
