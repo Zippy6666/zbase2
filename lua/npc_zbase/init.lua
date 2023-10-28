@@ -210,6 +210,7 @@ function NPC:ZBaseInit( name )
     ))
 
     self:ZBaseSetSaveValues()
+    self:ZBaseSquad()
 
     ZBaseBehaviourInit( self )
 
@@ -219,6 +220,31 @@ function NPC:ZBaseInit( name )
     -- Custom init
     self:CustomInitialize()
 
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:ZBaseSquad()
+    local squadName = self.ZBaseFaction.."1"
+    local i = 1
+
+    while true do
+        local squadMemberCount = 0
+
+        for _, v in ipairs(ZBaseNPCInstances) do
+            if v.ZBaseSquadName == squadName then
+                squadMemberCount = squadMemberCount+1
+            end
+        end
+
+        if squadMemberCount >= 4 then
+            i = i+1
+            squadName = self.ZBaseFaction..i
+        else
+            break
+        end
+    end
+
+    self:SetKeyValue("squadname", squadName)
+    self.ZBaseSquadName = squadName
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseSetSaveValues()
