@@ -54,6 +54,7 @@ end
 
 
 ZBase_EmitSoundCall = false
+ZBaseComballOwner = NULL
 
 -------------------------------------------------------------------------------------------------------------------------=#
 function ZBaseInit(ent, name)

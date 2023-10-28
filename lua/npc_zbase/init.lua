@@ -128,6 +128,8 @@ end
 
         -- Functions you can call --
 
+
+---------------------------------------------------------------------------------------------------------------------=#
     -- Check if an entity is within a certain distance
     -- If maxdist is given, return true if the entity is within x units from itself
     -- If mindist is given, return true if the entity is x units away from itself
@@ -139,6 +141,18 @@ function NPC:WithinDistance( ent, maxdist, mindist )
     if maxdist && dSqr > maxdist^2 then return false end
 
     return true
+end
+
+
+---------------------------------------------------------------------------------------------------------------------=#
+    -- Check if the NPC is facing an entity
+function NPC:IsFacing( ent )
+    if !IsValid(ent) then return false end
+
+    local ang = (ent:GetPos() - self:GetPos()):Angle()
+    local yawDif = math.abs(self:WorldToLocalAngles(ang).Yaw)
+
+    return yawDif < 22.5
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 

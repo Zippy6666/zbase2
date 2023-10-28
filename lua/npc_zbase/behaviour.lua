@@ -5,23 +5,30 @@ local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
     -- In this file you can add custom NPC behaviours
 
 
-    -- Example --
-BEHAVIOUR.SayWhat = {
-    MustHaveEnemy = false, -- Should it only run the behaviour if it has an enemy?
-    MustHaveVisibleEnemy = false, -- Should it only run the behaviour if it has a enemy, and its enemy is visible?
-    MustNotHaveEnemy = false, -- Should it only run the behaviour if it doesn't have an enemy?
-}
 
+------------------------------------------------------------------------=#
+
+        -- Example --
+
+BEHAVIOUR.SayWhat = {
+
+    MustHaveEnemy = false, -- Should it only run the behaviour if it has an enemy? 
+    MustNotHaveEnemy = false, --  Don't run the behaviour if the NPC doesn't have an enemy
+    MustHaveVisibleEnemy = false -- Only run the behaviour if the NPC can see its enemy
+    MustFaceEnemy = false -- Only run the behaviour if the NPC is facing its enemy
+
+}
+------------------------------------------------------------------------=#
 -- Return true to allow the behaviour to run, otherwise return false
 function BEHAVIOUR.SayWhat:ShouldDoBehaviour( self )
     return true
 end
-
+------------------------------------------------------------------------=#
 -- Called before running the behaviour
 -- Return a number to suppress and delay the behaviour by said number (in seconds)
 function BEHAVIOUR.SayWhat:Delay( self )
 end
-
+------------------------------------------------------------------------=#
 -- Called continiously as long as it should do the behaviour 
 -- Write whatever the NPC is going to do here
 -- Call ZBaseDelayBehaviour( seconds ) to delay the behaviour (cooldown)
@@ -29,6 +36,7 @@ function BEHAVIOUR.SayWhat:Run( self )
     PrintMessage(HUD_PRINTTALK, "WHAT")
     ZBaseDelayBehaviour( 3 )
 end
+------------------------------------------------------------------------=#
 */
 
 
@@ -41,24 +49,23 @@ end
 
 
 BEHAVIOUR.Patrol = {
-    MustNotHaveEnemy = true, -- Should it only run the behaviour if it doesn't have an enemy?
+    MustNotHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
 }
 BEHAVIOUR.FactionCallForHelp = {
-    MustHaveEnemy = true, -- Should it only run the behaviour if it doesn't have an enemy?
+    MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy? 
 }
 BEHAVIOUR.DoIdleSound = {
-    MustNotHaveEnemy = true, -- Should it only run the behaviour if it doesn't have an enemy?
-    ShouldDoBehaviour = UseCustomSounds
+    MustNotHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
 }
 BEHAVIOUR.DoIdleEnemySound = {
-    MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy?
-    ShouldDoBehaviour = UseCustomSounds
+    MustHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
 }
 BEHAVIOUR.DoPainSound = {
-    ShouldDoBehaviour = UseCustomSounds
 }
+
 BEHAVIOUR.SecondaryFire = {
-    MustHaveVisibleEnemy = true, -- Should it only run the behaviour if it has a enemy, and its enemy is visible?
+    MustFaceEnemy = true,
+    MustHaveVisibleEnemy = true,
 }
 
 
@@ -151,13 +158,63 @@ end
 -- Secondary fire
 
 local SecondaryFireWeapons = {
-    ["weapon_ar2"] = {dist=4000},
-    ["weapon_smg1"] = {dist=1500},
+    ["weapon_ar2"] = {dist=4000, mindist=100},
+    ["weapon_smg1"] = {dist=1500, mindist=250},
 }
 
 ------------------------------------------------------------------------=#
 function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
 
+    local seq = self:LookupSequence("shootar2alt")
+    if seq != -1 then
+        self:ResetIdealActivity(self:GetSequenceActivity(seq))
+    else
+        wep:EmitSound("Weapon_CombineGuard.Special1")
+    end
+
+    timer.Simple(0.75, function()
+        if IsValid(self) && IsValid(wep) && IsValid(enemy) then
+            local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
+
+            local ball_launcher = ents.Create( "point_combine_ball_launcher" )
+            ball_launcher:SetAngles( (enemy:WorldSpaceCenter() - startPos):Angle() )
+            ball_launcher:SetPos( startPos )
+            ball_launcher:SetKeyValue( "minspeed",1200 )
+            ball_launcher:SetKeyValue( "maxspeed", 1200 )
+            ball_launcher:SetKeyValue( "ballradius", "10" )
+            ball_launcher:SetKeyValue( "ballcount", "1" )
+            ball_launcher:SetKeyValue( "maxballbounces", "100" )
+            ball_launcher:Spawn()
+            ball_launcher:Activate()
+            ball_launcher:Fire( "LaunchBall" )
+            ball_launcher:Fire("kill","",0)
+            timer.Simple(0.01, function()
+                if IsValid(self) then
+                    for _, ball in ipairs(ents.FindInSphere(self:GetPos(), 100)) do
+                        if ball:GetClass() == "prop_combine_ball" then
+
+                            ball:SetOwner(self)
+                            ball.ZBaseComballOwner = self
+
+                            timer.Simple(math.Rand(4, 6), function()
+                                if IsValid(ball) then
+                                    ball:Fire("Explode")
+                                end
+                            end)
+
+                        end
+                    end
+                end
+            end)
+        
+            local effectdata = EffectData()
+            effectdata:SetFlags(5)
+            effectdata:SetEntity(wep)
+            util.Effect( "MuzzleFlash", effectdata, true, true )
+
+            wep:EmitSound("Weapon_IRifle.Single")
+        end
+    end)
 
 end
 ------------------------------------------------------------------------=#
@@ -183,19 +240,19 @@ function BEHAVIOUR.SecondaryFire:ShouldDoBehaviour( self )
     local wep = self:GetActiveWeapon()
 
     if !IsValid(wep) then return false end
-    if !SecondaryFireWeapons[wep:GetClass()] then return false end
 
-    return self:WithinDistance( self:GetEnemy(), SecondaryFireWeapons[wep:GetClass()].dist, 300 )
+    local wepTbl = SecondaryFireWeapons[wep:GetClass()]
+    if !wepTbl then return false end
+
+    if self:GetActivity()!=ACT_RANGE_ATTACK1 then return false end
+
+    return self:WithinDistance( self:GetEnemy(), wepTbl.dist, wepTbl.mindist )
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.SecondaryFire:Delay( self )
 
-    local enemy = self:GetEnemy()
-
-    if !IsValid(enemy) then return end
-
-    if !self:Visible(enemy) then
-        return math.Rand(0.5, 3)
+    if math.random(1, 3) != 1 then
+        return math.Rand(4, 8)
     end
 
 end
@@ -204,6 +261,5 @@ function BEHAVIOUR.SecondaryFire:Run( self )
     local enemy = self:GetEnemy()
     local wep = self:GetActiveWeapon()
     SecondaryFireWeapons[wep:GetClass()]:Func( self, wep, enemy )
-    ZBaseDelayBehaviour(2)
 end
 ------------------------------------------------------------------------=#

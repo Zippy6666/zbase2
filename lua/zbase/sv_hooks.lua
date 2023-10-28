@@ -16,29 +16,31 @@ local ZBaseWeaponDMGs = {
 
 
 ---------------------------------------------------------------------------------------=#
-hook.Add("OnEntityCreated", "ZBASE", function( ent ) timer.Simple(0, function()
-    if !IsValid(ent) then return end
+hook.Add("OnEntityCreated", "ZBASE", function( ent )
+    timer.Simple(0, function()
+        if !IsValid(ent) then return end
 
-    if IsZBaseNPC(ent) then
+        if IsZBaseNPC(ent) then
 
-        local parentname = ent:GetKeyValues().parentname
+            local parentname = ent:GetKeyValues().parentname
 
-        --print(ent, parentname)
-        ZBaseInit(ent, parentname)
+            --print(ent, parentname)
+            ZBaseInit(ent, parentname)
 
-        -- net.Start("ZBaseInitEnt")
-        -- net.WriteEntity(ent)
-        -- net.WriteString(parentname)
-        -- net.Broadcast()
+            -- net.Start("ZBaseInitEnt")
+            -- net.WriteEntity(ent)
+            -- net.WriteString(parentname)
+            -- net.Broadcast()
 
-    elseif ent:IsNPC() then
+        elseif ent:IsNPC() then
 
-        ent.ZBaseFaction = ZBaseFactionTranslation[ent:Classify()]
-        table.insert(ZBase_NonZBaseNPCs, ent)
-        ent:CallOnRemove("ZBase_RemoveFromNPCTable", function() table.RemoveByValue(ZBase_NonZBaseNPCs, ent) end)
+            ent.ZBaseFaction = ZBaseFactionTranslation[ent:Classify()]
+            table.insert(ZBase_NonZBaseNPCs, ent)
+            ent:CallOnRemove("ZBase_RemoveFromNPCTable", function() table.RemoveByValue(ZBase_NonZBaseNPCs, ent) end)
 
-    end
-end) end)
+        end
+    end) 
+end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("Think", "ZBASE", function()
     if ZBaseNextThink > CurTime() then return end
@@ -61,6 +63,11 @@ end)
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
+
+    if IsValid(attacker.ZBaseComballOwner) then
+        dmg:SetAttacker(attacker.ZBaseComballOwner)
+        attacker = attacker.ZBaseComballOwner
+    end
 
 
     -- Don't hurt NPCs in same faction

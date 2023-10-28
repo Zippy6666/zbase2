@@ -17,28 +17,26 @@ local function BehaviourTimer( ent )
     for BehaviourName, Behaviour in pairs(ent.Behaviours) do
 
         if !Behaviour.Run then continue end
-
         ZBaseDelayBehaviour_Name = BehaviourName
-
-        local delay = Behaviour.Delay && Behaviour:Delay( ent )
-        if delay then
-            ZBaseDelayBehaviour( delay, ent, BehaviourName )
-        end
 
         if ent.ZBase_Behaviour_Delays[BehaviourName] > CurTime() then continue end
         if Behaviour.ShouldDoBehaviour && !Behaviour:ShouldDoBehaviour( ent ) then continue end
 
-        local ene = ent:GetEnemy()
+        local enemy = ent:GetEnemy()
+        local has_ene = IsValid(enemy)
 
-        if (Behaviour.MustHaveEnemy or Behaviour.MustHaveVisibleEnemy) && !IsValid(ene) then continue end
-        if IsValid(ene) then
-            if Behaviour.MustNotHaveEnemy then continue end
-            if Behaviour.MustHaveVisibleEnemy && !ent:Visible(ene) then continue end
+        if (Behaviour.MustHaveEnemy && !has_ene)
+        or (Behaviour.MustNotHaveEnemy && has_ene)
+        or (Behaviour.MustHaveVisibleEnemy && has_ene && !ent:Visible(enemy) )
+        or (Behaviour.MustFaceEnemy && !ent:IsFacing(enemy)) then
+            continue
         end
 
-        -- if GetConVar("developer"):GetBool() then
-        --     print(ent.ZBase_Class, BehaviourName)
-        -- end
+        local delay = Behaviour.Delay && Behaviour:Delay( ent )
+        if delay then
+            ZBaseDelayBehaviour( delay, ent, BehaviourName )
+            return
+        end
 
         Behaviour:Run( ent )
 
