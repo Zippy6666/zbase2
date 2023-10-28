@@ -18,7 +18,6 @@ end
     -- SNPCs (flying snpcs with custom movement system)
     -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
     -- More variables and function, and npcs that use said variables and functions
-    -- Internal variable system
 
         -- Future ideas --
     -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
@@ -26,7 +25,7 @@ end
     -- Recreate more hl2 npcs
     -- Custom blood system, white blood decals for hunters
     -- Player factions
-
+    -- Any kind of general npc improvement
 
 -------------------------------------------------------------------------------------------------------------------------=#
 

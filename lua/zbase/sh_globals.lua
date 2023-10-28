@@ -102,3 +102,11 @@ function FindZBaseBehaviourTable(debuginfo)
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
+function ZBasePrintInternalVars(ent)
+    print("---", ent, "internal vars", "---")
+    for k in pairs(ent:GetSaveTable( true )) do
+        print(k)
+    end
+    print("----------------------------------------")
+end
+-------------------------------------------------------------------------------------------------------------------------=#

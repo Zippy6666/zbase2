@@ -68,7 +68,11 @@ NPC.DeathSounds = "" -- Sounds emitted on death
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
+
+
         -- Functions you can change --
+
+
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -124,9 +128,12 @@ function NPC:HitArmor( dmginfo, HitGroup )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
----------------------------------------------------------------------------------------------------------------------=#
+
+
 
         -- Functions you can call --
+
+
 
 
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -142,8 +149,6 @@ function NPC:WithinDistance( ent, maxdist, mindist )
 
     return true
 end
-
-
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Check if the NPC is facing an entity
 function NPC:IsFacing( ent )
@@ -156,7 +161,11 @@ function NPC:IsFacing( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
+
+
         -- DON'T TOUCH ANYTHING BELOW HERE --
+
+
 
 local VJ_Translation = {
     ["CLASS_COMBINE"] = "combine",
@@ -200,6 +209,8 @@ function NPC:ZBaseInit( name )
         CAP_FRIENDLY_DMG_IMMUNE
     ))
 
+    self:ZBaseSetSaveValues()
+
     ZBaseBehaviourInit( self )
 
     -- Better position
@@ -208,6 +219,15 @@ function NPC:ZBaseInit( name )
     -- Custom init
     self:CustomInitialize()
 
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:ZBaseSetSaveValues()
+    for k, v in pairs(self:GetTable()) do
+        if string.StartWith(k, "m_") && self:GetInternalVariable(k) then
+            local success = self:SetSaveValue(k, v)
+            print(k, "set to", v, "success = ", success)
+        end
+    end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()

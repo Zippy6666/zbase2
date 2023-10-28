@@ -4,13 +4,15 @@ util.AddNetworkString("ZBaseInitEnt")
 local ZBaseNextThink = CurTime()
 
 
+    -- ["weapon_pistol"] = {dmg=5},
+    -- ["weapon_357"] = {dmg=40},
+    -- ["weapon_ar2"] = {dmg=8},
+    -- ["weapon_shotgun"] = {dmg=56},
+    -- ["weapon_smg1"] = {dmg=4},
+
+
 local ZBaseWeaponDMGs = {
-    ["weapon_pistol"] = {dmg=5},
-    ["weapon_357"] = {dmg=40},
-    ["weapon_ar2"] = {dmg=8},
-    ["weapon_rpg"] = {dmg=150},
-    ["weapon_shotgun"] = {dmg=56},
-    ["weapon_smg1"] = {dmg=4},
+    ["weapon_rpg"] = {dmg=150, inflclass="rpg_missile"},
     ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
 }
 
@@ -31,6 +33,8 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
             -- net.WriteEntity(ent)
             -- net.WriteString(parentname)
             -- net.Broadcast()
+
+            -- ZBasePrintInternalVars(ent)
 
         elseif ent:IsNPC() then
 
@@ -90,11 +94,12 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
         -- Proper damage values for hl2 weapons
         local wep = attacker:GetActiveWeapon()
 
-        if IsValid(wep) then
+        if IsValid(infl) && IsValid(wep) then
             local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
 
             if dmgTbl
-            && (!dmgTbl.inflclass or (IsValid(infl) && dmgTbl.inflclass == infl:GetClass())) then
+            && ( dmgTbl.inflclass == infl:GetClass() ) then
+                print(infl, dmgTbl.dmg)
                 dmg:SetDamage(dmgTbl.dmg)
             end
         end
