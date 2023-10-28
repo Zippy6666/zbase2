@@ -33,32 +33,19 @@ end
 
 
 ------------------------------------------------------------------------=#
-
-    -- Patrol
-
-BEHAVIOUR.Patrol = {
-    MustNotHaveEnemy = true, -- Should it only run the behaviour if it doesn't have an enemy?
-}
-
-function BEHAVIOUR.Patrol:ShouldDoBehaviour( self )
-    return self.CanPatrol
-end
-
-function BEHAVIOUR.Patrol:Run( self )
-    print("BEHAVIOUR.Patrol:Run(", self.Name, ")")
-    self:SetSchedule(SCHED_PATROL_WALK)
-    ZBaseDelayBehaviour(math.random(5, 10))
-end
-
-------------------------------------------------------------------------=#
-
--- Sounds
-
 local function UseCustomSounds( _, self )
     if self:GetNPCState() == NPC_STATE_DEAD then return false end
     return self.UseCustomSounds
 end
+------------------------------------------------------------------------=#
 
+
+BEHAVIOUR.Patrol = {
+    MustNotHaveEnemy = true, -- Should it only run the behaviour if it doesn't have an enemy?
+}
+BEHAVIOUR.FactionCallForHelp = {
+    MustHaveEnemy = true, -- Should it only run the behaviour if it doesn't have an enemy?
+}
 BEHAVIOUR.DoIdleSound = {
     MustNotHaveEnemy = true, -- Should it only run the behaviour if it doesn't have an enemy?
     ShouldDoBehaviour = UseCustomSounds
@@ -71,13 +58,59 @@ BEHAVIOUR.DoPainSound = {
     ShouldDoBehaviour = UseCustomSounds
 }
 
+
+
+------------------------------------------------------------------------=#
+function BEHAVIOUR.FactionCallForHelp:ShouldDoBehaviour( self )
+    return self.CallForHelp!=false && self.ZBaseFaction != "none"
+end
+------------------------------------------------------------------------=#
+function BEHAVIOUR.FactionCallForHelp:Run( self )
+    for _, v in ipairs(ZBaseNPCInstances) do
+
+        if v == self then continue end
+        if v.ZBaseFaction == "none" then continue end
+        if IsValid(v:GetEnemy()) then continue end -- Ally already busy with an enemy
+        if !self:WithinDistance(v, self.CallForHelpDistance) then continue end
+
+        if v.ZBaseFaction == self.ZBaseFaction then
+            local ene = self:GetEnemy()
+            v:UpdateEnemyMemory(ene, ene:GetPos())
+            print(self, "FactionCallForHelp", v, ene)
+        end
+
+    end
+
+    ZBaseDelayBehaviour(math.Rand(1, 3))
+end
+------------------------------------------------------------------------=#
+
+
+
+
+------------------------------------------------------------------------=#
+function BEHAVIOUR.Patrol:ShouldDoBehaviour( self )
+    return self.CanPatrol
+end
+------------------------------------------------------------------------=#
+function BEHAVIOUR.Patrol:Run( self )
+    self:SetSchedule(SCHED_PATROL_WALK)
+    ZBaseDelayBehaviour(math.random(5, 10))
+end
+
+------------------------------------------------------------------------=#
+
+
+
+
+------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleSound:Run( self )
 
     self:EmitSound(self.IdleSounds)
     ZBaseDelayBehaviour(math.Rand(5, 10))
 
 end
-
+------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleEnemySound:Run( self )
 
     local snd = self.IdleSounds_HasEnemy
@@ -92,7 +125,7 @@ function BEHAVIOUR.DoIdleEnemySound:Run( self )
     ZBaseDelayBehaviour(math.Rand(2, 7))
 
 end
-
+------------------------------------------------------------------------=#
 function BEHAVIOUR.DoPainSound:Run( self )
 
     local health = self:Health()

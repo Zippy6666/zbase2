@@ -3,15 +3,9 @@ local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
 NPC.IsZBaseNPC = true -- Won't work right without this
 NPC.Inherit = "npc_zbase" -- Inherit features from "npc_zbase" or an existing ZBase NPC
-NPC.KeyValues = {} -- Keyvalues
 NPC.Class = "npc_citizen" -- NPC to base this NPC on
-
-
 NPC.Category = "Misc" -- Spawnmenu category
 NPC.Name = "Untitled" -- Spawnmenu name
-
-
-NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 
 
 ---------------------------------------------------------------------------------------------------------------------=#

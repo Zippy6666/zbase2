@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------------------------------------------=#
-if SERVER then
+if BRANCH == "x86-64" && SERVER then
     print("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
     print("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
     print("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
@@ -13,24 +13,49 @@ if SERVER then
 end   
 -------------------------------------------------------------------------------------------------------------------------=#
 
+
         -- TODO --
-    -- Faction enemy sharing system (compatible with squads)
     -- Hl2 weapons deal correct damage + secondary fire (as behaviour) + improve crossbow + other improvements maybe
     -- SNPCs (flying snpcs with custom movement system)
-    -- Hearing system
-    -- Custom blood system, white blood decals for hunters
     -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
     -- Player factions
+
 
         -- Ideas --
     -- COND_ for behaviours
     -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
     -- Radio on/off sounds for CHAN_VOICE sounds
     -- Very basic weapon base
-    -- Recreate some hl2 npcs
+    -- Recreate more hl2 npcs
+    -- Custom blood system, white blood decals for hunters
+
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
+if BRANCH == "x86-64" then
+    -------------------------------------------------------------------------------------------------------------------------=#
+    if SERVER then
+        util.AddNetworkString("ZBaseError")
+
+        hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
+            timer.Simple(3, function()
+                net.Start("ZBaseError")
+                net.Send(ply)
+            end)
+        end)
+    end
+    -------------------------------------------------------------------------------------------------------------------------=#
+    if CLIENT then
+        net.Receive("ZBaseError", function()
+            chat.AddText(Color(255, 0, 0), "[ZBase] Fatal ZBase error!")
+            chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' branch of gmod! Current branch: '", BRANCH, "'.")
+        end)
+    end
+    -------------------------------------------------------------------------------------------------------------------------=#
+    return
+end
+
+-------------------------------------------------------------------------------------------------------------------------=#
 
 
 AddCSLuaFile("zbase/cl_hooks.lua")
@@ -76,7 +101,10 @@ local function NPCReg( name, path )
         && file.Exists(cl, "LUA") then
 
             -- New NPC
-            ZBaseNPCs[name] = {Behaviours={}}
+            ZBaseNPCs[name] = {}
+            if name == "npc_zbase" then
+                ZBaseNPCs[name].Behaviours={}
+            end
 
             -- Files --
             include(sh)

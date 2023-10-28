@@ -7,6 +7,8 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 -- Leave empty to use the default model for the NPC
 NPC.Models = {}
 
+NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
@@ -43,6 +45,12 @@ NPC.ExtraCapabilities = {
     CAP_OPEN_DOORS, -- Can open regular doors
     CAP_MOVE_JUMP, -- Can jump1
 }
+
+ -- Keyvalues
+NPC.KeyValues = {} -- Ex. NPC.KeyValues = {SquadName="cool squad", citizentype=CT_REFUGEE}
+
+NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
+NPC.CallForHelpDistance = 3000 -- Call for help distance
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -122,14 +130,10 @@ end
 
         -- Functions you can call --
 
-    -- Emit sound
--- function NPC:ZBaseEmitSound( snd )
---     if !self.UseCustomSounds then return end
---     if #snd==0 then return end
---     ZBaseSoundCall = true
---     self:EmitSound( snd )
---     ZBaseSoundCall = false
--- end
+    -- Check if an entity is x units away from itself
+function NPC:WithinDistance( ent, dist )
+    return self:GetPos():DistToSqr(ent:GetPos()) < dist^2
+end
 ---------------------------------------------------------------------------------------------------------------------=#
 
         -- DON'T TOUCH ANYTHING BELOW HERE --

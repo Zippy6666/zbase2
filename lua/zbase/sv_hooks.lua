@@ -61,7 +61,17 @@ end)
 hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
     if !npc.IsZBaseNPC then return end
 
-    print(npc:HasCapability(CAP_FRIENDLY_DMG_IMMUNE))
+    if npc:HasCapability(CAP_FRIENDLY_DMG_IMMUNE) then
+        local attacker = dmg:GetAttacker()
+
+        if IsValid(attacker)
+        && attacker.ZBaseFaction == npc.ZBaseFaction
+        && npc.ZBaseFaction != "none" then
+            dmg:ScaleDamage(0)
+            print("sus")
+            return
+        end
+    end
 
     local r = npc:ZBaseMethod("CustomTakeDamage", dmg, hit_gr)
     if r then

@@ -8,6 +8,7 @@ NPC.Weapons = {
     "weapon_smg1",
     "weapon_smg1",
     "weapon_smg1",
+    "weapon_shotgun",
 }
 NPC.IsZBaseNPC = true
 NPC.Inherit = "npc_zbase" -- Inherit features from an existing ZBase NPC
