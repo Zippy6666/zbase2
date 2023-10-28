@@ -8,3 +8,5 @@ NPC.StartHealth = 40 -- Max health
 NPC.ZBaseFaction = "ally" -- Any string, all ZBase NPCs with this faction will be allied, it set to "none", they won't be allied to anybody
 -- Default factions:
 -- "combine" || "ally" || "zombie" || "antlion" || "none"
+
+NPC.CanPatrol = true -- Use base patrol behaviour

@@ -1,12 +1,22 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
+
 NPC.IsZBaseNPC = true -- Won't work right without this
-NPC.Class = "npc_citizen" -- NPC to base this NPC on
-NPC.Category = "Misc" -- Spawnmenu category
-NPC.Name = "Untitled" -- Spawnmenu name
 NPC.Inherit = "npc_zbase" -- Inherit features from "npc_zbase" or an existing ZBase NPC
 NPC.KeyValues = {} -- Keyvalues
+NPC.Class = "npc_citizen" -- NPC to base this NPC on
+
+
+NPC.Category = "Misc" -- Spawnmenu category
+NPC.Name = "Untitled" -- Spawnmenu name
+
+
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+	-- Sounds --
 
 sound.Add( {
 	name = "ZBase.Idle",
@@ -70,3 +80,29 @@ sound.Add( {
 		"npc/zombie_poison/pz_throw2.wav",
     }
 } )
+
+sound.Add( {
+	name = "ZBase.Ricochet",
+	channel = CHAN_BODY,
+	volume = 0.8,
+	level = 75,
+	pitch = {90, 110},
+	sound = {
+        "weapons/fx/rics/ric1.wav",
+        "weapons/fx/rics/ric2.wav",
+        "weapons/fx/rics/ric3.wav",
+        "weapons/fx/rics/ric4.wav",
+        "weapons/fx/rics/ric5.wav"
+    }
+} )
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+	-- DON'T TOUCH --
+
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:ZBaseMethod(method_name, ... )
+    if !NPC[method_name] then return end
+    return NPC[method_name](self, ...)
+end
+---------------------------------------------------------------------------------------------------------------------=#

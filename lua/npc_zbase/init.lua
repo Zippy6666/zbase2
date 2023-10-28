@@ -36,6 +36,14 @@ NPC.HasArmor = {
 NPC.ArmorPenChance = 4 -- 1/x Chance that the armor is penetrated
 NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this
 NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
+
+-- Extra capabilities
+-- List of capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
+NPC.ExtraCapabilities = {
+    CAP_OPEN_DOORS, -- Can open regular doors
+    CAP_MOVE_JUMP, -- Can jump1
+}
+
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
@@ -126,48 +134,6 @@ end
 
         -- DON'T TOUCH ANYTHING BELOW HERE --
 
-
-local factionTranslation = {
--- Combine
-[CLASS_COMBINE] = "combine",
-[CLASS_COMBINE_GUNSHIP] = "combine",
-[CLASS_MANHACK] = "combine",
-[CLASS_METROPOLICE] = "combine",
-[CLASS_MILITARY] = "combine",
-[CLASS_SCANNER] = "combine",
-[CLASS_STALKER] = "combine",
-[CLASS_PROTOSNIPER] = "combine",
-[CLASS_COMBINE_HUNTER] = "combine",
-
--- Player ally
-[CLASS_HACKED_ROLLERMINE] = "ally",
-[CLASS_HUMAN_PASSIVE] = "ally",
-[CLASS_VORTIGAUNT] = "ally",
-[CLASS_PLAYER] = "ally",
-[CLASS_PLAYER_ALLY] = "ally",
-[CLASS_PLAYER_ALLY_VITAL] = "ally",
-[CLASS_CITIZEN_PASSIVE] = "ally",
-[CLASS_CITIZEN_REBEL] = "ally",
-
--- Xen
-[CLASS_BARNACLE] = "xen",
-[CLASS_ALIEN_MILITARY] = "xen",
-[CLASS_ALIEN_MONSTER] = "xen",
-[CLASS_ALIEN_PREDATOR] = "xen",
-
--- Hecu
-[CLASS_MACHINE] = "hecu",
-[CLASS_HUMAN_MILITARY] = "hecu",
-
--- Zombie
-[CLASS_HEADCRAB] = "zombie",
-[CLASS_ZOMBIE] = "zombie",
-[CLASS_ALIEN_PREY] = "zombie",
-
--- Antlion
-[CLASS_ANTLION] = "antlion",
-}
-
 local VJ_Translation = {
     ["CLASS_COMBINE"] = "combine",
     ["CLASS_ZOMBIE"] = "zombie",
@@ -183,7 +149,7 @@ local VJ_Translation_Flipped = {
 }
 
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:ZBaseInit()
+function NPC:ZBaseInit( name )
 
     -- Model
     if !table.IsEmpty(self.Models) then
@@ -195,13 +161,28 @@ function NPC:ZBaseInit()
     self:SetMaxLookDistance(self.SightDistance)
     self:SetCurrentWeaponProficiency(self.WeaponProficiency)
     self:SetBloodColor(self.BloodColor)
-    print(self.Name=="")
     self:SetNWString("ZBaseName", self.Name)
+
+    
+    for _, v in ipairs(self.ExtraCapabilities) do
+        self:CapabilitiesAdd(v)
+    end
+
+    self:CapabilitiesAdd(bit.bor(
+        CAP_SQUAD,
+        CAP_TURN_HEAD,
+        CAP_ANIMATEDFACE,
+        CAP_SKIP_NAV_GROUND_CHECK,
+        CAP_FRIENDLY_DMG_IMMUNE
+    ))
 
     ZBaseBehaviourInit( self )
 
     -- Better position
     self:SetPos(self:GetPos()+Vector(0, 0, 20))
+
+    -- Custom init
+    self:CustomInitialize()
 
 end
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -257,7 +238,7 @@ function NPC:Relationships()
         self.VJ_NPC_Class = {VJ_Translation_Flipped[self.ZBaseFaction]}
     end
 
-    for _, v in ipairs(ZBASE_NPC_TABLE) do
+    for _, v in ipairs(ZBase_NonZBaseNPCs) do
         if v != self then self:Relationship(v) end
     end
 
@@ -267,19 +248,7 @@ function NPC:Relationships()
 
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-if !ZBASE_NPC_TABLE then ZBASE_NPC_TABLE = {} end
-hook.Add("OnEntityCreated", "ZBase_EntityCreated_Relationships", function( ent )
-    if ent:IsNPC() then
-
-        ent.ZBaseFaction = factionTranslation[ent:Classify()]
-        table.insert(ZBASE_NPC_TABLE, ent)
-
-        ent:CallOnRemove("ZBase_RemoveFromNPCTable", function() table.RemoveByValue(ZBASE_NPC_TABLE, ent) end)
-
-    end
-end)
----------------------------------------------------------------------------------------------------------------------=#
-hook.Add("PlayerSpawn", "PlayerSpawn", function( ply )
-    ply.ZBaseFaction = "ally"
-end)
+function NPC:HasCapability( cap )
+    return bit.band(self:CapabilitiesGet(), cap)==cap
+end
 ---------------------------------------------------------------------------------------------------------------------=#

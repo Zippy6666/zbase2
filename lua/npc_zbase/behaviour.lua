@@ -45,6 +45,7 @@ function BEHAVIOUR.Patrol:ShouldDoBehaviour( self )
 end
 
 function BEHAVIOUR.Patrol:Run( self )
+    print("BEHAVIOUR.Patrol:Run(", self.Name, ")")
     self:SetSchedule(SCHED_PATROL_WALK)
     ZBaseDelayBehaviour(math.random(5, 10))
 end

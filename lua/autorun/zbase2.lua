@@ -14,19 +14,17 @@ end
 -------------------------------------------------------------------------------------------------------------------------=#
 
         -- TODO --
-    -- Fix shit inheritence
-    -- Next?
-
-        -- Ideas --
-    -- Hearing system
-    -- Ditch squads, use better system instead
+    -- Faction enemy sharing system (compatible with squads)
     -- Hl2 weapons deal correct damage + secondary fire (as behaviour) + improve crossbow + other improvements maybe
-    -- SNPCs
-    -- COND_ for behaviours
-    -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
+    -- SNPCs (flying snpcs with custom movement system)
+    -- Hearing system
     -- Custom blood system, white blood decals for hunters
     -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
     -- Player factions
+
+        -- Ideas --
+    -- COND_ for behaviours
+    -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
     -- Radio on/off sounds for CHAN_VOICE sounds
     -- Very basic weapon base
     -- Recreate some hl2 npcs
@@ -35,41 +33,20 @@ end
 
 
 
--- Includes --
+AddCSLuaFile("zbase/cl_hooks.lua")
+
 include("zbase/sh_globals.lua")
-include("zbase/sh_hooks.lua")
 include("zbase/sh_replace_funcs.lua")
+
 if SERVER then
     include("zbase/sv_behaviour.lua")
+    include("zbase/sv_hooks.lua")
 end
-
 
 if CLIENT then
-    -- spawnmenu.AddCreationTab( "ZBase", function(...)
-    --     print(...)
-    --     return vgui.Create("DCheckBox")
-    -- end)
-
-    spawnmenu.AddContentType( "ZBase", function( ... ) print(...) end)
+    include("zbase/cl_hooks.lua")
 end
 
-
- 
--- Sounds --
-sound.Add( {
-	name = "ZBase.Ricochet",
-	channel = CHAN_BODY,
-	volume = 0.8,
-	level = 75,
-	pitch = {90, 110},
-	sound = {
-        "weapons/fx/rics/ric1.wav",
-        "weapons/fx/rics/ric2.wav",
-        "weapons/fx/rics/ric3.wav",
-        "weapons/fx/rics/ric4.wav",
-        "weapons/fx/rics/ric5.wav"
-    }
-} )
 
 
 -------------------------------------------------------------------------------------------------------------------------=#
@@ -93,9 +70,6 @@ local function NPCReg( name, path )
         local cl = path.."/cl_init.lua"
         local sv = path.."/init.lua"
 
-        local function inherit( t )
-
-        end
 
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA")
@@ -122,11 +96,6 @@ local function NPCReg( name, path )
                 include(cl)
             end
             --------------------------------=#
-
-            -- Inherit
-            timer.Simple(1, function()
-                inherit(ZBaseNPCs[name])
-            end)
         end
     end
 end
@@ -157,7 +126,6 @@ end
 hook.Add("Initialize", "ZBASE", function()
     NPCsInherit()
     AddNPCsToSpawnMenu()
-    PrintTable(ZBaseNPCs)
 end)
 -------------------------------------------------------------------------------------------------------------------------=#
 
