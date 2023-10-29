@@ -9,6 +9,8 @@ if !ZBaseNPCs then
     ZBaseSpawnMenuNPCList = {}
 end
 
+ZBaseCvar_Replace = CreateConVar("zbase_replace", "1", bit.bnot(FCVAR_ARCHIVE, FCVAR_REPLICATED))
+
 
 if SERVER then
     ZBaseFactionTranslation = {

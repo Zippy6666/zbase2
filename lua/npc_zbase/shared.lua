@@ -7,6 +7,7 @@ NPC.Class = "npc_citizen" -- NPC to base this NPC on
 NPC.Category = "Misc" -- Spawnmenu category
 NPC.Name = "Untitled" -- Spawnmenu name
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+NPC.Replace = false -- Put the spawn menu name of an existing NPC to make this NPC replace it in the spawn menu
 
 ---------------------------------------------------------------------------------------------------------------------=#
 

@@ -6,3 +6,4 @@ NPC.Name = "Citizen" -- Spawnmenu name
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.IsZBaseNPC = true
 NPC.Inherit = "npc_zbase" -- Inherit features from an existing ZBase NPC
+NPC.Replace = "npc_citizen" -- Put the spawn menu name of an existing NPC to make this NPC replace it in the spawn menu

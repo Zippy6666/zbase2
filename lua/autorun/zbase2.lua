@@ -15,15 +15,15 @@ end
 
 
         -- TODO --
-    -- Separate spawnmenu tab + options tab + logo
+    -- Recreate more hl2 npcs + replace feature
     -- More variables, sounds (hear enemy, lost enemy, hear danger, grenade, etc), internal variables, and functions, and npcs and snpcs that use said variables and functions + Make more user friendly, dummy git
+    -- Options tab
 
         -- Future ideas --
     -- Custom schedule system for snpcs
     -- Ministrider
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
     -- Elite metro police with head armor and custom sounds and custom gun
-    -- Recreate more hl2 npcs + replace feature
     -- Custom blood system, white blood decals for hunters
     -- Player factions + faction tool
     -- Any kind of general npc improvement
@@ -153,6 +153,7 @@ local function AddNPCsToSpawnMenu()
         -- end
         -- spawnmenuTbl.Category = "ZBase - "..t.Category
 
+
         local spawnmenuTbl = {
             Name=t.Name,
             Category=t.Category,
@@ -164,7 +165,22 @@ local function AddNPCsToSpawnMenu()
             spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
         end
 
-        -- list.Set( "NPC", cls, spawnmenuTbl )
+
+        local npcTable = table.Copy(spawnmenuTbl)
+        npcTable.Category = "ZBase - "..spawnmenuTbl.Category
+        list.Set( "NPC", cls, npcTable )
+
+
+        local replaceTargetTbl = list.Get("NPC")[t.Replace]
+        if ZBaseCvar_Replace:GetBool() && t.Replace && replaceTargetTbl then
+
+            local replaceTable = table.Copy(spawnmenuTbl)
+            replaceTable.Category = replaceTargetTbl.Category
+    
+            list.Set( "NPC", t.Replace, replaceTable )
+        end
+        
+
         ZBaseSpawnMenuNPCList[cls] = spawnmenuTbl
 
     end
