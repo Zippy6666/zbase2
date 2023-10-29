@@ -4,14 +4,15 @@ util.AddNetworkString("ZBaseInitEnt")
 local ZBaseNextThink = CurTime()
 
 
-    -- ["weapon_pistol"] = {dmg=5},
-    -- ["weapon_357"] = {dmg=40},
-    -- ["weapon_ar2"] = {dmg=8},
-    -- ["weapon_shotgun"] = {dmg=56},
-    -- ["weapon_smg1"] = {dmg=4},
+
 
 
 local ZBaseWeaponDMGs = {
+    ["weapon_pistol"] = {dmg=5, inflclass="bullet"},
+    ["weapon_357"] = {dmg=40, inflclass="bullet"},
+    ["weapon_ar2"] = {dmg=8, inflclass="bullet"},
+    ["weapon_shotgun"] = {dmg=56, inflclass="bullet"},
+    ["weapon_smg1"] = {dmg=4, inflclass="bullet"},
     ["weapon_rpg"] = {dmg=150, inflclass="rpg_missile"},
     ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
 }
@@ -98,9 +99,20 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
             local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
 
             if dmgTbl
-            && ( dmgTbl.inflclass == infl:GetClass() ) then
-                print(infl, dmgTbl.dmg)
-                dmg:SetDamage(dmgTbl.dmg)
+            && ( (dmgTbl.inflclass=="bullet"&&dmg:IsBulletDamage()) or (dmgTbl.inflclass == infl:GetClass()) ) then
+                local dmgFinal = dmgTbl.dmg
+
+                if dmg:IsDamageType(DMG_BUCKSHOT) then
+                    if attacker:WithinDistance(ent, 200) then
+                        dmgFinal = math.random(40, 56)
+                    elseif attacker:WithinDistance(ent, 400) then
+                        dmgFinal = math.random(16, 40)
+                    else
+                        dmgFinal = math.random(8, 16)
+                    end
+                end
+
+                dmg:SetDamage(dmgFinal)
             end
         end
         ----------------------------------------------=#

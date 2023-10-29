@@ -133,9 +133,6 @@ end
 
         -- Functions you can call --
 
-
-
-
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Check if an entity is within a certain distance
     -- If maxdist is given, return true if the entity is within x units from itself
@@ -160,7 +157,79 @@ function NPC:IsFacing( ent )
     return yawDif < 22.5
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+/*
+	-- self:PlayAnimation( anim, duration, face ) --
+	anim - String sequence name, or an activity (https://wiki.facepunch.com/gmod/Enums/ACT).
+	duration - Duration that it won't allow the sequence to be interupted.
+	face - What direction will it face when doing the sequence?
+		"none" - The SNPC will face whatever direction it wants to (lets you change it manually)
+		"lock" - The SNPC will constantly face the direction the sequence started with
+		"enemy" - The SNPC will face the enemy if it has one
+		"enemy_visible" - Same as enemy, but the enemy has to be visible
 
+*/
+function NPC:PlayAnimation( anim, duration, face )
+
+	if !face then face = "none" end
+	self.SequenceFaceType = face
+	self.AnimFacePos = self:GetPos()+self:GetForward()*100
+
+	self.CurrentAnimation = anim
+
+	if isstring(anim) then
+
+		local act = self:GetSequenceActivity(self:LookupSequence(anim))
+		if act == -1 then
+			self:ResetSequence(self.CurrentAnimation)
+		end
+	
+	else
+
+		self:ResetIdealActivity(anim)
+	
+	end
+
+	self:StopAndPreventSelectSchedule( duration )
+
+	timer.Create("ZNPC_StopPlayAnimation"..self:EntIndex(), duration, 1, function()
+		if !IsValid(self) then return end
+		self.CurrentAnimation = nil
+		self.SequenceFaceType = nil
+		self.AnimFacePos = nil
+		self:ResetIdealActivity(ACT_IDLE) -- Helps reseting the animation
+	end)
+
+end
+--------------------------------------------------------------------------------=#
+/*
+	-- self:Face( face ) --
+	face - A position or an entity to face, or a number representing the yaw.
+*/
+function NPC:Face( face )
+
+	local function turn( yaw )
+
+		self:SetIdealYawAndUpdate(yaw)
+
+		-- Turning aid
+		if self:IsMoving() then
+			local myAngs = self:GetAngles()
+			local newAng = Angle(myAngs.pitch, yaw, myAngs.roll)
+			self:SetAngles(LerpAngle(self.m_fMaxYawSpeed/100, myAngs, newAng))
+		end
+		
+	end
+
+	if isnumber(face) then
+		turn(face)
+	elseif IsValid(face) then
+		turn( (face:GetPos() - self:GetPos()):Angle().y )
+	elseif isvector(face) then
+		turn( (face - self:GetPos()):Angle().y )
+	end
+
+end
+--------------------------------------------------------------------------------=#
 
 
         -- DON'T TOUCH ANYTHING BELOW HERE --
@@ -215,7 +284,9 @@ function NPC:ZBaseInit( name )
     ZBaseBehaviourInit( self )
 
     -- Better position
-    self:SetPos(self:GetPos()+Vector(0, 0, 20))
+    if !self.IsZBase_SNPC then
+        self:SetPos(self:GetPos()+Vector(0, 0, 20))
+    end
 
     -- Custom init
     self:CustomInitialize()
