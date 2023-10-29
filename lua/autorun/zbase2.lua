@@ -15,15 +15,14 @@ end
 
 
         -- TODO --
-    -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
-    -- Separate spawnmenu tab + options tab
-    -- More variables, internal variables, and functions, and npcs and snpcs that use said variables and functions + Make more user friendly, dummy git
+    -- Separate spawnmenu tab + options tab + logo
+    -- More variables, sounds (hear enemy, lost enemy, hear danger, grenade, etc), internal variables, and functions, and npcs and snpcs that use said variables and functions + Make more user friendly, dummy git
 
         -- Future ideas --
     -- Custom schedule system for snpcs
     -- Ministrider
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
-    -- Elite metro police with head armor
+    -- Elite metro police with head armor and custom sounds and custom gun
     -- Recreate more hl2 npcs + replace feature
     -- Custom blood system, white blood decals for hunters
     -- Player factions + faction tool
@@ -57,25 +56,28 @@ end
 --     return
 -- end
 
+
+
 -------------------------------------------------------------------------------------------------------------------------=#
+local function IncludeFiles()
+    AddCSLuaFile("zbase/cl_hooks.lua")
+    AddCSLuaFile("zbase/cl_spawnmenu.lua")
+    AddCSLuaFile("zbase/cl_toolmenu.lua")
 
+    include("zbase/sh_globals.lua")
+    include("zbase/sh_replace_funcs.lua")
 
-AddCSLuaFile("zbase/cl_hooks.lua")
+    if SERVER then
+        include("zbase/sv_behaviour.lua")
+        include("zbase/sv_hooks.lua")
+    end
 
-include("zbase/sh_globals.lua")
-include("zbase/sh_replace_funcs.lua")
-
-if SERVER then
-    include("zbase/sv_behaviour.lua")
-    include("zbase/sv_hooks.lua")
+    if CLIENT then
+        include("zbase/cl_hooks.lua")
+        include("zbase/cl_spawnmenu.lua")
+        include("zbase/cl_toolmenu.lua")
+    end
 end
-
-if CLIENT then
-    include("zbase/cl_hooks.lua")
-end
-
-
-
 -------------------------------------------------------------------------------------------------------------------------=#
 local function NPCsInherit()
     for cls, t in pairs(ZBaseNPCs) do
@@ -153,7 +155,7 @@ local function AddNPCsToSpawnMenu()
 
         local spawnmenuTbl = {
             Name=t.Name,
-            Category="ZBase - "..t.Category,
+            Category=t.Category,
             Class = t.Class,
             Weapons = t.Weapons,
             KeyValues = table.Copy(t.KeyValues),
@@ -162,7 +164,8 @@ local function AddNPCsToSpawnMenu()
             spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
         end
 
-        list.Set( "NPC", cls, spawnmenuTbl )
+        -- list.Set( "NPC", cls, spawnmenuTbl )
+        ZBaseSpawnMenuNPCList[cls] = spawnmenuTbl
 
     end
 end
@@ -173,4 +176,5 @@ hook.Add("Initialize", "ZBASE", function()
 end)
 -------------------------------------------------------------------------------------------------------------------------=#
 
+IncludeFiles()
 registerNPCs()

@@ -6,6 +6,7 @@ if !ZBaseNPCs then
     ZBaseNPCInstances = {}
     ZBaseBehaviourTimerFuncs = {}
     ZBase_NonZBaseNPCs = {}
+    ZBaseSpawnMenuNPCList = {}
 end
 
 
