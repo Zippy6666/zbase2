@@ -15,13 +15,11 @@ end
 
 
         -- TODO --
-    -- Recreate more hl2 npcs + replace feature
-    -- More variables, sounds (hear enemy, lost enemy, hear danger, grenade, etc), internal variables, and functions, and npcs and snpcs that use said variables and functions + Make more user friendly, dummy git
-    -- Options tab
+    -- More variables, sounds (hear enemy, lost enemy, hear danger, grenade, etc), internal variables, cvars, and functions, and npcs and snpcs that use said variables and functions + Make more user friendly, dummy git
 
         -- Future ideas --
     -- Custom schedule system for snpcs
-    -- Ministrider
+    -- Ministrider (with armor that reflects bullets)
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
     -- Elite metro police with head armor and custom sounds and custom gun
     -- Custom blood system, white blood decals for hunters
@@ -30,33 +28,32 @@ end
     -- Very basic weapon base?
     -- Hearing system?
     -- Aerial base
+    -- Smart voice system (avoid repetition, don't speak over mates)
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
--- if BRANCH != "x86-64" then
---     -------------------------------------------------------------------------------------------------------------------------=#
---     if SERVER then
---         util.AddNetworkString("ZBaseError")
+if BRANCH != "x86-64" && BRANCH != "dev" then
+    -------------------------------------------------------------------------------------------------------------------------=#
+    if SERVER then
+        util.AddNetworkString("ZBaseError")
 
---         hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
---             timer.Simple(3, function()
---                 net.Start("ZBaseError")
---                 net.Send(ply)
---             end)
---         end)
---     end
---     -------------------------------------------------------------------------------------------------------------------------=#
---     if CLIENT then
---         net.Receive("ZBaseError", function()
---             chat.AddText(Color(255, 0, 0), "[ZBase] Fatal ZBase error!")
---             chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' branch of gmod! Current branch: '", BRANCH, "'.")
---         end)
---     end
---     -------------------------------------------------------------------------------------------------------------------------=#
---     return
--- end
-
-
+        hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
+            timer.Simple(3, function()
+                net.Start("ZBaseError")
+                net.Send(ply)
+            end)
+        end)
+    end
+    -------------------------------------------------------------------------------------------------------------------------=#
+    if CLIENT then
+        net.Receive("ZBaseError", function()
+            chat.AddText(Color(255, 0, 0), "[ZBase] Fatal ZBase error!")
+            chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
+        end)
+    end
+    -------------------------------------------------------------------------------------------------------------------------=#
+    return
+end
 
 -------------------------------------------------------------------------------------------------------------------------=#
 local function IncludeFiles()
@@ -144,15 +141,7 @@ local function registerNPCs()
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 local function AddNPCsToSpawnMenu()
-    -- Add all NPCs to spawnmenu
     for cls, t in pairs( ZBaseNPCs ) do
-
-        -- local spawnmenuTbl = table.Copy(t)
-        -- if SERVER then
-        --     spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
-        -- end
-        -- spawnmenuTbl.Category = "ZBase - "..t.Category
-
 
         local spawnmenuTbl = {
             Name=t.Name,
@@ -166,21 +155,30 @@ local function AddNPCsToSpawnMenu()
         end
 
 
+        -- Add to regular spawn menu
         local npcTable = table.Copy(spawnmenuTbl)
-        npcTable.Category = "ZBase - "..spawnmenuTbl.Category
+        npcTable.Category = "ZBase"
         list.Set( "NPC", cls, npcTable )
+        if !file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
+            npcTable.IconOverride = "entities/zbase.png"
+        end
 
 
+        -- Replace default spawn menu npcs
         local replaceTargetTbl = list.Get("NPC")[t.Replace]
         if ZBaseCvar_Replace:GetBool() && t.Replace && replaceTargetTbl then
 
-            local replaceTable = table.Copy(spawnmenuTbl)
+            local replaceTable = table.Copy(npcTable)
             replaceTable.Category = replaceTargetTbl.Category
+
+            if file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
+                replaceTable.IconOverride = "materials/entities/" .. cls .. ".png"
+            end
     
             list.Set( "NPC", t.Replace, replaceTable )
         end
         
-
+        -- Add to zbase menu
         ZBaseSpawnMenuNPCList[cls] = spawnmenuTbl
 
     end
@@ -194,3 +192,5 @@ end)
 
 IncludeFiles()
 registerNPCs()
+
+--print( file.Exists( "materials/entities/" .. "npc_combine_z" .. ".png", "GAME" ) )

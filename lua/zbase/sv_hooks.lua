@@ -1,12 +1,6 @@
 util.AddNetworkString("ZBaseInitEnt")
 
-
 local ZBaseNextThink = CurTime()
-
-
-
-
-
 local ZBaseWeaponDMGs = {
     ["weapon_pistol"] = {dmg=5, inflclass="bullet"},
     ["weapon_357"] = {dmg=40, inflclass="bullet"},
@@ -16,7 +10,6 @@ local ZBaseWeaponDMGs = {
     ["weapon_rpg"] = {dmg=150, inflclass="rpg_missile"},
     ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
 }
-
 
 ---------------------------------------------------------------------------------------=#
 hook.Add("OnEntityCreated", "ZBASE", function( ent )
@@ -87,35 +80,38 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
 
     if IsValid(attacker) && IsZBaseNPC(attacker) then
+    
         local r = attacker:ZBaseMethod("DealDamage", ent, dmg)
         if r then
             return r
         end
 
         -- Proper damage values for hl2 weapons
-        local wep = attacker:GetActiveWeapon()
+        if ZBaseCvar_HL2WepDMG:GetBool() then
+            local wep = attacker:GetActiveWeapon()
 
-        if IsValid(infl) && IsValid(wep) then
-            local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
+            if IsValid(infl) && IsValid(wep) then
+                local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
 
-            if dmgTbl
-            && ( (dmgTbl.inflclass=="bullet"&&dmg:IsBulletDamage()) or (dmgTbl.inflclass == infl:GetClass()) ) then
-                local dmgFinal = dmgTbl.dmg
+                if dmgTbl
+                && ( (dmgTbl.inflclass=="bullet"&&dmg:IsBulletDamage()) or (dmgTbl.inflclass == infl:GetClass()) ) then
+                    local dmgFinal = dmgTbl.dmg
 
-                if dmg:IsDamageType(DMG_BUCKSHOT) then
-                    if attacker:WithinDistance(ent, 200) then
-                        dmgFinal = math.random(40, 56)
-                    elseif attacker:WithinDistance(ent, 400) then
-                        dmgFinal = math.random(16, 40)
-                    else
-                        dmgFinal = math.random(8, 16)
+                    if dmg:IsDamageType(DMG_BUCKSHOT) then
+                        if attacker:WithinDistance(ent, 200) then
+                            dmgFinal = math.random(40, 56)
+                        elseif attacker:WithinDistance(ent, 400) then
+                            dmgFinal = math.random(16, 40)
+                        else
+                            dmgFinal = math.random(8, 16)
+                        end
                     end
-                end
 
-                dmg:SetDamage(dmgFinal)
+                    dmg:SetDamage(dmgFinal)
+                end
             end
         end
-        ----------------------------------------------=#
+
     end
 end)
 ---------------------------------------------------------------------------------------=#

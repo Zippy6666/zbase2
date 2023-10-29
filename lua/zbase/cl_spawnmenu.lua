@@ -6,28 +6,22 @@ PANEL.m_bBackground = true -- Hack for above
 
 -----------------------------------------------------------------------------------------=#
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
-	-- Categorize
 	local Categories = {}
-	for k, v in pairs( ZBaseSpawnMenuNPCList ) do
 
+	for k, v in pairs( ZBaseSpawnMenuNPCList ) do
 		local Category = v.Category or "Other"
 		if ( !isstring( Category ) ) then Category = tostring( Category ) end
 
 		local Tab = Categories[ Category ] or {}
 		Tab[ k ] = v
 		Categories[ Category ] = Tab
-
 	end
 
 	-- Create an icon for each one and put them on the panel
 	for CategoryName, v in SortedPairs( Categories ) do
+		local node = tree:AddNode( CategoryName, icon ) -- Add a node to the tree
 
-		-- Add a node to the tree
-		local node = tree:AddNode( CategoryName, icon )
-
-		-- When we click on the node - populate it using this function
-		node.DoPopulate = function( self )
-
+		node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
 			-- If we've already populated it - forget it.
 			if ( self.PropPanel ) then return end
 
@@ -37,17 +31,21 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			self.PropPanel:SetTriggerSpawnlistChange( false )
 
 			for name, ent in SortedPairsByMemberValue( v, "Name" ) do
-
 				local icon = spawnmenu.CreateContentIcon( ent.ScriptedEntityType or "npc", self.PropPanel, {
+
 					nicename	= ent.Name or name,
 					spawnname	= name,
-					material	= ent.IconOverride or "entities/" .. name .. ".png",
+
+					material	=
+								ent.IconOverride
+								or file.Exists( "materials/entities/" .. name .. ".png", "GAME" )&&"entities/" .. name .. ".png"
+								or icon,
+
 					weapon		= ent.Weapons,
 					admin		= ent.AdminOnly
+
 				} )
-
 			end
-
 		end
 
 		-- If we click on the node populate it and switch to it.
@@ -57,7 +55,6 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			pnlContent:SwitchPanel( self.PropPanel )
 
 		end
-
 	end
 
 	-- Select the first node

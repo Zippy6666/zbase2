@@ -1,5 +1,7 @@
 AddCSLuaFile()
 
+ZBaseCvar_Replace = CreateConVar("zbase_replace", "1", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
+ZBaseCvar_HL2WepDMG = CreateConVar("zbase_hl2_wep_damage", "1", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
 
 if !ZBaseNPCs then
     ZBaseNPCs = {}
@@ -9,49 +11,46 @@ if !ZBaseNPCs then
     ZBaseSpawnMenuNPCList = {}
 end
 
-ZBaseCvar_Replace = CreateConVar("zbase_replace", "1", bit.bnot(FCVAR_ARCHIVE, FCVAR_REPLICATED))
-
-
 if SERVER then
     ZBaseFactionTranslation = {
-    -- Combine
-    [CLASS_COMBINE] = "combine",
-    [CLASS_COMBINE_GUNSHIP] = "combine",
-    [CLASS_MANHACK] = "combine",
-    [CLASS_METROPOLICE] = "combine",
-    [CLASS_MILITARY] = "combine",
-    [CLASS_SCANNER] = "combine",
-    [CLASS_STALKER] = "combine",
-    [CLASS_PROTOSNIPER] = "combine",
-    [CLASS_COMBINE_HUNTER] = "combine",
+        -- Combine
+        [CLASS_COMBINE] = "combine",
+        [CLASS_COMBINE_GUNSHIP] = "combine",
+        [CLASS_MANHACK] = "combine",
+        [CLASS_METROPOLICE] = "combine",
+        [CLASS_MILITARY] = "combine",
+        [CLASS_SCANNER] = "combine",
+        [CLASS_STALKER] = "combine",
+        [CLASS_PROTOSNIPER] = "combine",
+        [CLASS_COMBINE_HUNTER] = "combine",
 
-    -- Player ally
-    [CLASS_HACKED_ROLLERMINE] = "ally",
-    [CLASS_HUMAN_PASSIVE] = "ally",
-    [CLASS_VORTIGAUNT] = "ally",
-    [CLASS_PLAYER] = "ally",
-    [CLASS_PLAYER_ALLY] = "ally",
-    [CLASS_PLAYER_ALLY_VITAL] = "ally",
-    [CLASS_CITIZEN_PASSIVE] = "ally",
-    [CLASS_CITIZEN_REBEL] = "ally",
+        -- Player ally
+        [CLASS_HACKED_ROLLERMINE] = "ally",
+        [CLASS_HUMAN_PASSIVE] = "ally",
+        [CLASS_VORTIGAUNT] = "ally",
+        [CLASS_PLAYER] = "ally",
+        [CLASS_PLAYER_ALLY] = "ally",
+        [CLASS_PLAYER_ALLY_VITAL] = "ally",
+        [CLASS_CITIZEN_PASSIVE] = "ally",
+        [CLASS_CITIZEN_REBEL] = "ally",
 
-    -- Xen
-    [CLASS_BARNACLE] = "xen",
-    [CLASS_ALIEN_MILITARY] = "xen",
-    [CLASS_ALIEN_MONSTER] = "xen",
-    [CLASS_ALIEN_PREDATOR] = "xen",
+        -- Xen
+        [CLASS_BARNACLE] = "xen",
+        [CLASS_ALIEN_MILITARY] = "xen",
+        [CLASS_ALIEN_MONSTER] = "xen",
+        [CLASS_ALIEN_PREDATOR] = "xen",
 
-    -- Hecu
-    [CLASS_MACHINE] = "hecu",
-    [CLASS_HUMAN_MILITARY] = "hecu",
+        -- Hecu
+        [CLASS_MACHINE] = "hecu",
+        [CLASS_HUMAN_MILITARY] = "hecu",
 
-    -- Zombie
-    [CLASS_HEADCRAB] = "zombie",
-    [CLASS_ZOMBIE] = "zombie",
-    [CLASS_ALIEN_PREY] = "zombie",
+        -- Zombie
+        [CLASS_HEADCRAB] = "zombie",
+        [CLASS_ZOMBIE] = "zombie",
+        [CLASS_ALIEN_PREY] = "zombie",
 
-    -- Antlion
-    [CLASS_ANTLION] = "antlion",
+        -- Antlion
+        [CLASS_ANTLION] = "antlion",
     }
 end
 
