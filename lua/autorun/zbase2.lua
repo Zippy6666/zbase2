@@ -15,20 +15,22 @@ end
 
 
         -- TODO --
-    -- More variables, sounds (hear enemy, lost enemy, hear danger, grenade, etc), internal variables, cvars, and functions, and npcs and snpcs that use said variables and functions + Make more user friendly, dummy git
+    -- Elite metro police with head armor and custom sounds and custom gun
+    -- A few NPCs that need special functions and shit
+    -- Make more user friendly with comments and shit, dummy git
+
 
         -- Future ideas --
     -- Custom schedule system for snpcs
     -- Ministrider (with armor that reflects bullets)
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
-    -- Elite metro police with head armor and custom sounds and custom gun
     -- Custom blood system, white blood decals for hunters
     -- Player factions + faction tool
     -- Any kind of general npc improvement
     -- Very basic weapon base?
     -- Hearing system?
     -- Aerial base
-    -- Smart voice system (avoid repetition, don't speak over mates)
+    -- Smart voice system (avoid repetition, don't speak over squadmembers)
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
@@ -80,7 +82,9 @@ local function NPCsInherit()
     for cls, t in pairs(ZBaseNPCs) do
         local ZBase_Inherit = t.Inherit
 
-        for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
+        -- print(cls, "ZBase_Inherit", ZBase_Inherit)
+
+        for k, v in pairs(ZBaseNPCs[ZBase_Inherit or "npc_zbase"]) do
             if !t[k] then
                 t[k] = v
             end
@@ -98,8 +102,7 @@ local function NPCReg( name, path )
 
 
         if file.Exists(sh, "LUA")
-        && file.Exists(sv, "LUA")
-        && file.Exists(cl, "LUA") then
+        && file.Exists(sv, "LUA") then
 
             -- New NPC
             ZBaseNPCs[name] = {}
@@ -110,7 +113,10 @@ local function NPCReg( name, path )
             -- Files --
             include(sh)
             AddCSLuaFile(sh)
-            AddCSLuaFile(cl)
+
+            if file.Exists(cl, "LUA") then
+                AddCSLuaFile(cl)
+            end
 
             if SERVER then
                 include(sv)
@@ -121,7 +127,7 @@ local function NPCReg( name, path )
                 end
             end
 
-            if CLIENT then
+            if file.Exists(cl, "LUA") && CLIENT then
                 include(cl)
             end
             --------------------------------=#
@@ -151,6 +157,7 @@ local function AddNPCsToSpawnMenu()
             KeyValues = table.Copy(t.KeyValues),
         }
         if SERVER then
+            if !spawnmenuTbl.KeyValues then spawnmenuTbl.KeyValues = {} end
             spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
         end
 
@@ -187,10 +194,14 @@ end
 hook.Add("Initialize", "ZBASE", function()
     NPCsInherit()
     AddNPCsToSpawnMenu()
+    ZBaseInitialized = true
 end)
 -------------------------------------------------------------------------------------------------------------------------=#
 
 IncludeFiles()
 registerNPCs()
 
---print( file.Exists( "materials/entities/" .. "npc_combine_z" .. ".png", "GAME" ) )
+if ZBaseInitialized then
+    NPCsInherit()
+    AddNPCsToSpawnMenu()
+end

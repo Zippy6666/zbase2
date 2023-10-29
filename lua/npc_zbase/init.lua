@@ -51,6 +51,7 @@ NPC.KeyValues = {} -- Ex. NPC.KeyValues = {SquadName="cool squad", citizentype=C
 NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.CallForHelpDistance = 2000 -- Call for help distance
 
+
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
@@ -338,9 +339,8 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseSetSaveValues()
     for k, v in pairs(self:GetTable()) do
-        if string.StartWith(k, "m_") && self:GetInternalVariable(k) then
-            local success = self:SetSaveValue(k, v)
-            -- print(k, "set to", v, "success = ", success)
+        if string.StartWith(k, "m_") then
+            print(k, v, self:SetSaveValue(k, v))
         end
     end
 end

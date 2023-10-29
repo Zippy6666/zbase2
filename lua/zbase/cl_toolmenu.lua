@@ -23,7 +23,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Replace Default NPCs", "zbase_replace")
         panel:Help("Replace the default HL2 NPCs with ZBase ones in the spawn menu? Requires restart.")
         panel:CheckBox("Player HL2 Weapon Damage", "zbase_hl2_wep_damage")
-        panel:Help("Should ZBase NPCs HL2 weapons have the same damage values as players?")
+        panel:Help("Should ZBase NPC's HL2 weapons have the same damage values as players?")
     end)
 
 end)

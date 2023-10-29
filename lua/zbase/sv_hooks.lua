@@ -63,8 +63,26 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     local infl = dmg:GetInflictor()
 
     if IsValid(attacker.ZBaseComballOwner) then
+
         dmg:SetAttacker(attacker.ZBaseComballOwner)
+
+        if ent:GetClass() == "npc_hunter" or ent:GetClass() == "npc_strider" then
+
+            attacker:Fire("Explode")
+
+            if attacker.ZBaseComballOwner.ZBaseFaction != ent.ZBaseFaction
+            or attacker.ZBaseComballOwner.ZBaseFaction == "none" then
+                local dmg2 = DamageInfo()
+                dmg2:SetDamage(ent:GetClass() == "npc_strider" && 100 or 1000)
+                dmg2:SetDamageType(DMG_DISSOLVE)
+                dmg2:SetAttacker(dmg:GetAttacker())
+                ent:TakeDamageInfo(dmg2)
+            end
+
+        end
+
         attacker = attacker.ZBaseComballOwner
+
     end
 
 

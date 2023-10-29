@@ -76,14 +76,12 @@ function BEHAVIOUR.FactionCallForHelp:ShouldDoBehaviour( self )
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.FactionCallForHelp:Run( self )
-    for _, v in ipairs(ZBaseNPCInstances) do
+    for _, v in ipairs(ents.FindInSphere(self:GetPos(), self.CallForHelpDistance)) do
 
-        if !IsValid(v) then continue end
+        if !v:IsNPC() then continue end
         if v == self then continue end
         if v.ZBaseFaction == "none" then continue end
         if IsValid(v:GetEnemy()) then continue end -- Ally already busy with an enemy
-        if !self:WithinDistance(v, self.CallForHelpDistance) then continue end
-        if !v:WithinDistance(self, v.CallForHelpDistance) then continue end
 
         if v.ZBaseFaction == self.ZBaseFaction then
             local ene = self:GetEnemy()
@@ -93,7 +91,7 @@ function BEHAVIOUR.FactionCallForHelp:Run( self )
 
     end
 
-    ZBaseDelayBehaviour(math.Rand(1, 3))
+    ZBaseDelayBehaviour(math.Rand(2, 3.5))
 end
 ------------------------------------------------------------------------=#
 
