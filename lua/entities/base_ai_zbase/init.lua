@@ -35,17 +35,8 @@ function ENT:Initialize()
 end
 --------------------------------------------------------------------------------=#
 function ENT:SelectSchedule( iNPCState )
-
-	-- Don't remove this line!
 	if self.PreventSelectSched then return end
-
-	-- Example
-	if IsValid(self:GetEnemy()) then
-		self:SetSchedule(SCHED_COMBAT_FACE)
-	else
-		self:SetSchedule(SCHED_IDLE_STAND)
-	end
-
+	self:ZBaseSNPC_SelectSchedule()
 end
 --------------------------------------------------------------------------------=#
 function ENT:ServerRagdoll( dmginfo )

@@ -15,9 +15,8 @@ end
 
 
         -- TODO --
-    -- SNPCs (flying snpcs with custom movement system)
     -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
-    -- More variables and function, and npcs that use said variables and functions
+    -- More variables and function, and npcs that use said variables and functions (special stuff for snpcs too)
     -- Make more user friendly, dummy git
 
         -- Future ideas --

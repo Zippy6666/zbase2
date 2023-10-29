@@ -14,7 +14,7 @@ NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER	
 
 NPC.SightDistance = 7000 -- Sight distance
-NPC.StartHealth = 100 -- Max health
+NPC.StartHealth = 50 -- Max health
 NPC.CanPatrol = true -- Use base patrol behaviour
 
 NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied, it set to "none", they won't be allied to anybody
@@ -125,6 +125,16 @@ function NPC:HitArmor( dmginfo, HitGroup )
         dmginfo:ScaleDamage(self.ArmorPenDamageMult)
     end
 
+end
+---------------------------------------------------------------------------------------------------------------------=#
+    -- Select schedule (only used by SNPCs!)
+function NPC:ZBaseSNPC_SelectSchedule()
+	-- Example
+	if IsValid(self:GetEnemy()) then
+		self:SetSchedule(SCHED_COMBAT_FACE)
+	else
+		self:SetSchedule(SCHED_IDLE_STAND)
+	end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -294,9 +304,11 @@ function NPC:ZBaseInit( name )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseSquad()
+    if self.ZBaseFaction == "none" then return end
+
+
     local squadName = self.ZBaseFaction.."1"
     local i = 1
-
     while true do
         local squadMemberCount = 0
 
@@ -313,6 +325,7 @@ function NPC:ZBaseSquad()
             break
         end
     end
+
 
     self:SetKeyValue("squadname", squadName)
     self.ZBaseSquadName = squadName
@@ -379,8 +392,13 @@ function NPC:Relationships()
         self.VJ_NPC_Class = {VJ_Translation_Flipped[self.ZBaseFaction]}
     end
 
-    for _, v in ipairs(ZBase_NonZBaseNPCs) do
+    for _, v in ipairs(ZBaseNPCInstances) do
+        if !IsValid(v) then continue end
         if v != self then self:Relationship(v) end
+    end
+
+    for _, v in ipairs(ZBase_NonZBaseNPCs) do
+        self:Relationship(v)
     end
 
     for _, v in ipairs(player.GetAll()) do

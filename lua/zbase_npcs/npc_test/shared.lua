@@ -1,6 +1,6 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-NPC.Class = "base_ai_zbase" -- NPC to base this NPC on
+NPC.Class = "base_ai_zbase_aerial" -- NPC to base this NPC on
 NPC.Category = "Tests" -- Spawnmenu category
 NPC.Name = "Test" -- Spawnmenu name
 NPC.IsZBaseNPC = true
