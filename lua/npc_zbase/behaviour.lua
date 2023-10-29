@@ -88,6 +88,7 @@ function BEHAVIOUR.FactionCallForHelp:Run( self )
         if v.ZBaseFaction == self.ZBaseFaction then
             local ene = self:GetEnemy()
             v:UpdateEnemyMemory(ene, ene:GetPos())
+            v:AlertSound()
         end
 
     end

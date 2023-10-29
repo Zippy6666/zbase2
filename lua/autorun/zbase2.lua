@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------------------------------------------=#
-if BRANCH == "x86-64" && SERVER then
+if BRANCH == "x86-64" then
     print("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
     print("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
     print("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
@@ -15,44 +15,47 @@ end
 
 
         -- TODO --
-    -- Fix spawnmenu thing
     -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
-    -- More variables and function, and npcs that use said variables and functions (special stuff for snpcs too) + make npcs that utilize all the stuff
-    -- Make more user friendly, dummy git
+    -- Separate spawnmenu tab + options tab
+    -- More variables, internal variables, and functions, and npcs and snpcs that use said variables and functions + Make more user friendly, dummy git
 
         -- Future ideas --
-    -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
+    -- Custom schedule system for snpcs
+    -- Ministrider
+    -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
+    -- Elite metro police with head armor
     -- Recreate more hl2 npcs + replace feature
     -- Custom blood system, white blood decals for hunters
     -- Player factions + faction tool
     -- Any kind of general npc improvement
     -- Very basic weapon base?
     -- Hearing system?
+    -- Aerial base
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
-if BRANCH != "x86-64" then
-    -------------------------------------------------------------------------------------------------------------------------=#
-    if SERVER then
-        util.AddNetworkString("ZBaseError")
+-- if BRANCH != "x86-64" then
+--     -------------------------------------------------------------------------------------------------------------------------=#
+--     if SERVER then
+--         util.AddNetworkString("ZBaseError")
 
-        hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
-            timer.Simple(3, function()
-                net.Start("ZBaseError")
-                net.Send(ply)
-            end)
-        end)
-    end
-    -------------------------------------------------------------------------------------------------------------------------=#
-    if CLIENT then
-        net.Receive("ZBaseError", function()
-            chat.AddText(Color(255, 0, 0), "[ZBase] Fatal ZBase error!")
-            chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' branch of gmod! Current branch: '", BRANCH, "'.")
-        end)
-    end
-    -------------------------------------------------------------------------------------------------------------------------=#
-    return
-end
+--         hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
+--             timer.Simple(3, function()
+--                 net.Start("ZBaseError")
+--                 net.Send(ply)
+--             end)
+--         end)
+--     end
+--     -------------------------------------------------------------------------------------------------------------------------=#
+--     if CLIENT then
+--         net.Receive("ZBaseError", function()
+--             chat.AddText(Color(255, 0, 0), "[ZBase] Fatal ZBase error!")
+--             chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' branch of gmod! Current branch: '", BRANCH, "'.")
+--         end)
+--     end
+--     -------------------------------------------------------------------------------------------------------------------------=#
+--     return
+-- end
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
@@ -142,22 +145,22 @@ local function AddNPCsToSpawnMenu()
     -- Add all NPCs to spawnmenu
     for cls, t in pairs( ZBaseNPCs ) do
 
-        local spawnmenuTbl = table.Copy(t)
-        if SERVER then
-            spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
-        end
-        spawnmenuTbl.Category = "ZBase - "..t.Category
-
-        -- local spawnmenuTbl = {
-        --     Name=t.Name,
-        --     Category="ZBase - "..t.Category,
-        --     Class = t.Class,
-        --     Weapons = t.Weapons,
-        --     KeyValues = t.KeyValues,
-        -- }
+        -- local spawnmenuTbl = table.Copy(t)
         -- if SERVER then
         --     spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
         -- end
+        -- spawnmenuTbl.Category = "ZBase - "..t.Category
+
+        local spawnmenuTbl = {
+            Name=t.Name,
+            Category="ZBase - "..t.Category,
+            Class = t.Class,
+            Weapons = t.Weapons,
+            KeyValues = table.Copy(t.KeyValues),
+        }
+        if SERVER then
+            spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
+        end
 
         list.Set( "NPC", cls, spawnmenuTbl )
 

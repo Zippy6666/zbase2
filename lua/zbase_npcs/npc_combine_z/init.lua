@@ -12,15 +12,10 @@ NPC.ZBaseFaction = "combine" -- Any string, all ZBase NPCs with this faction wil
 
 NPC.HasArmor = {
     [HITGROUP_GENERIC] = true,
-    [HITGROUP_HEAD] = false,
     [HITGROUP_CHEST] = true,
     [HITGROUP_STOMACH] = true,
-    [HITGROUP_LEFTARM] = false,
-    [HITGROUP_RIGHTARM] = false,
-    [HITGROUP_LEFTLEG] = false,
-    [HITGROUP_RIGHTLEG] = false,
-    [HITGROUP_GEAR] = false,
 }
 
 NPC.m_iNumGrenades = 1
+NPC.m_nKickDamage = 15
 NPC.m_iTacticalVariant = 2

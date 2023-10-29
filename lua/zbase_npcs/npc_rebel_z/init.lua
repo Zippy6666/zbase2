@@ -10,5 +10,7 @@ NPC.ZBaseFaction = "ally" -- Any string, all ZBase NPCs with this faction will b
 -- "combine" || "ally" || "zombie" || "antlion" || "none"
 
 NPC.CanPatrol = true -- Use base patrol behaviour
-
 NPC.KeyValues = {citizentype = CT_REBEL} -- Keyvalues
+NPC.HasArmor = {
+    [HITGROUP_CHEST] = true,
+}

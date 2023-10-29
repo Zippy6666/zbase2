@@ -36,6 +36,7 @@ NPC.HasArmor = {
 NPC.ArmorPenChance = 4 -- 1/x Chance that the armor is penetrated
 NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this
 NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
+NPC.ArmorHitSpark = true -- Do a spark on armor hit
 
 -- Extra capabilities
 -- List of capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
@@ -109,18 +110,23 @@ function NPC:HitArmor( dmginfo, HitGroup )
     end
 
     if math.random(1, self.ArmorPenChance) != 1 then
-        local spark = ents.Create("env_spark")
-        spark:SetKeyValue("spawnflags", 256)
-        spark:SetKeyValue("TrailLength", 1)
-        spark:SetKeyValue("Magnitude", 1)
-        spark:SetPos(dmginfo:GetDamagePosition())
-        spark:SetAngles(-dmginfo:GetDamageForce():Angle())
-        spark:Spawn()
-        spark:Activate()
-        spark:Fire("SparkOnce")
-        SafeRemoveEntityDelayed(spark, 0.1)
+    
+        if self.ArmorHitSpark then
+            local spark = ents.Create("env_spark")
+            spark:SetKeyValue("spawnflags", 256)
+            spark:SetKeyValue("TrailLength", 1)
+            spark:SetKeyValue("Magnitude", 1)
+            spark:SetPos(dmginfo:GetDamagePosition())
+            spark:SetAngles(-dmginfo:GetDamageForce():Angle())
+            spark:Spawn()
+            spark:Activate()
+            spark:Fire("SparkOnce")
+            SafeRemoveEntityDelayed(spark, 0.1)
+        end
+
         self:EmitSound("ZBase.Ricochet")
         dmginfo:ScaleDamage(0)
+
     else
         dmginfo:ScaleDamage(self.ArmorPenDamageMult)
     end
@@ -261,7 +267,7 @@ local VJ_Translation_Flipped = {
 }
 
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:ZBaseInit( name )
+function NPC:ZBaseInit( tbl )
 
     -- Model
     if !table.IsEmpty(self.Models) then
@@ -275,7 +281,6 @@ function NPC:ZBaseInit( name )
     self:SetBloodColor(self.BloodColor)
     self:SetNWString("ZBaseName", self.Name)
 
-    
     for _, v in ipairs(self.ExtraCapabilities) do
         self:CapabilitiesAdd(v)
     end

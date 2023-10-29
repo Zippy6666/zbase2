@@ -72,14 +72,16 @@ function ZBaseInit(ent, name)
         -- Inherit from self.Inherit NPC
     for k, v in pairs( ZBaseNPCs[ent.ZBase_Inherit] ) do
         ent[k] = v
+        -- print("ent.ZBase_Inherit:"..ent.ZBase_Inherit, k, v)
     end
 
         -- This npc's table
     for k, v in pairs(ZBaseNPCs[ent.ZBase_Class]) do
         ent[k] = v
+        -- print("ent.ZBase_Class:"..ent.ZBase_Class, k, v)
     end
 
-    ent:ZBaseMethod("ZBaseInit")
+    ent:ZBaseMethod("ZBaseInit", ZBaseNPCs[ent.ZBase_Class])
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 function IsZBaseNPC(ent)
