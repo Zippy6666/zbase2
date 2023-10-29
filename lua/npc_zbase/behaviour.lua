@@ -106,7 +106,7 @@ end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.Patrol:Run( self )
     self:SetSchedule(SCHED_PATROL_WALK)
-    ZBaseDelayBehaviour(math.random(5, 10))
+    ZBaseDelayBehaviour(math.random(8, 15))
 end
 
 ------------------------------------------------------------------------=#

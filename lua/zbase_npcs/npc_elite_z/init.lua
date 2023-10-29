@@ -6,4 +6,6 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_PERFECT -- WEAPON_PROFICIENCY_POOR ||
 
 NPC.StartHealth = 70 -- Max health
 
+NPC.m_iNumGrenades = 5
 NPC.m_nKickDamage = 30
+NPC.m_iTacticalVariant = 1

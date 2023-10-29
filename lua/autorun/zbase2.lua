@@ -15,17 +15,19 @@ end
 
 
         -- TODO --
+    -- Fix spawnmenu thing
     -- More sounds (hear enemy, lost enemy, hear danger, grenade, etc)
-    -- More variables and function, and npcs that use said variables and functions (special stuff for snpcs too)
+    -- More variables and function, and npcs that use said variables and functions (special stuff for snpcs too) + make npcs that utilize all the stuff
     -- Make more user friendly, dummy git
 
         -- Future ideas --
     -- Custom NPCs, for example, Ministrider, crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
-    -- Very basic weapon base
-    -- Recreate more hl2 npcs
+    -- Recreate more hl2 npcs + replace feature
     -- Custom blood system, white blood decals for hunters
-    -- Player factions
+    -- Player factions + faction tool
     -- Any kind of general npc improvement
+    -- Very basic weapon base?
+    -- Hearing system?
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
@@ -145,6 +147,17 @@ local function AddNPCsToSpawnMenu()
             spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
         end
         spawnmenuTbl.Category = "ZBase - "..t.Category
+
+        -- local spawnmenuTbl = {
+        --     Name=t.Name,
+        --     Category="ZBase - "..t.Category,
+        --     Class = t.Class,
+        --     Weapons = t.Weapons,
+        --     KeyValues = t.KeyValues,
+        -- }
+        -- if SERVER then
+        --     spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
+        -- end
 
         list.Set( "NPC", cls, spawnmenuTbl )
 

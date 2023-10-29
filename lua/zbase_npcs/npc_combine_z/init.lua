@@ -22,5 +22,5 @@ NPC.HasArmor = {
     [HITGROUP_GEAR] = false,
 }
 
-NPC.m_iNumGrenades = 5
-NPC.m_iTacticalVariant = 1
+NPC.m_iNumGrenades = 1
+NPC.m_iTacticalVariant = 2
