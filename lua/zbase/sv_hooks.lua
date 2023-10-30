@@ -50,8 +50,8 @@ hook.Add("Think", "ZBASE", function()
             return
         end
 
-        v:ZBaseMethod("ZBaseThink")
-        v:ZBaseMethod("CustomThink")
+        v:ZBaseThink()
+        v:CustomThink()
 
     end
 
@@ -59,6 +59,11 @@ hook.Add("Think", "ZBASE", function()
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
+    if ent.IsZBaseNPC then
+        ent:OnHurt(dmg)
+    end
+
+
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
 
@@ -99,7 +104,7 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
     if IsValid(attacker) && IsZBaseNPC(attacker) then
     
-        local r = attacker:ZBaseMethod("DealDamage", ent, dmg)
+        local r = attacker:DealDamage(ent, dmg)
         if r then
             return r
         end
@@ -136,13 +141,13 @@ end)
 hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
     if !npc.IsZBaseNPC then return end
 
-    local r = npc:ZBaseMethod("CustomTakeDamage", dmg, hit_gr)
+    local r = npc:CustomTakeDamage(dmg, hit_gr)
     if r then
         return r
     end
 
     if npc.HasArmor[hit_gr] then
-        local r = npc:ZBaseMethod("HitArmor", dmg, hit_gr)
+        local r = npc:HitArmor(dmg, hit_gr)
         if r then
             return r
         end
@@ -150,6 +155,8 @@ hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityEmitSound", "ZBASE", function( data )
+
+    if !IsValid(data.Entity) then return end
 
     -- Mute voice
     if !ZBase_EmitSoundCall
@@ -160,11 +167,22 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
         return false
     end
 
+    -- "OnEmitSound"
+    if data.Entity.IsZBaseNPC then
+        local r = data.Entity:OnEmitSound(data)
+        if isstring(r) then
+            data.Entity:EmitSound(r)
+            return false
+        elseif r == false then
+            return false
+        end
+    end
+
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("AcceptInput", "ZBASE", function( ent, input, activator, caller, value )
     if ent.IsZBaseNPC then
-        local r = ent:ZBaseMethod("CustomAcceptInput", input, activator, caller, value)
+        local r = ent:CustomAcceptInput(input, activator, caller, value)
         if r == true then return true end
     end
 end)

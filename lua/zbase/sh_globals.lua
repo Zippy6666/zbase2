@@ -80,10 +80,10 @@ function ZBaseInit(ent, name)
         -- This npc's table
     for k, v in pairs(ZBaseNPCs[ent.ZBase_Class]) do
         ent[k] = v
-        -- print("ent.ZBase_Class:"..ent.ZBase_Class, k, v)
+        -- print(k=="BeforeEmitSound")
     end
 
-    ent:ZBaseMethod("ZBaseInit", ZBaseNPCs[ent.ZBase_Class])
+    ent:ZBaseInit(ZBaseNPCs[ent.ZBase_Class])
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 function IsZBaseNPC(ent)
@@ -106,6 +106,7 @@ function FindZBaseBehaviourTable(debuginfo)
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
+-- List an entity's internal variables
 function ZBasePrintInternalVars(ent)
     print("---", ent, "internal vars", "---")
     for k in pairs(ent:GetSaveTable( true )) do
@@ -114,6 +115,7 @@ function ZBasePrintInternalVars(ent)
     print("----------------------------------------")
 end
 -------------------------------------------------------------------------------------------------------------------------=#
+-- Quickly adds a soundscript with voice like features
 function ZBaseCreateVoiceSounds( name, tbl )
     sound.Add( {
         name = name,
@@ -123,5 +125,10 @@ function ZBaseCreateVoiceSounds( name, tbl )
         pitch = {95, 105},
         sound = tbl,
     } )
+end
+---------------------------------------------------------------------------------------------------------------------=#
+-- Pretty straight forward if you look at the code
+function ZBaseRndTblRange( tbl )
+    return math.Rand(tbl[1], tbl[2])
 end
 ---------------------------------------------------------------------------------------------------------------------=#

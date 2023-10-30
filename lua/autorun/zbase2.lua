@@ -82,10 +82,17 @@ local function NPCsInherit()
     for cls, t in pairs(ZBaseNPCs) do
         local ZBase_Inherit = t.Inherit
 
-        -- print(cls, "ZBase_Inherit", ZBase_Inherit)
-
-        for k, v in pairs(ZBaseNPCs[ZBase_Inherit or "npc_zbase"]) do
-            if !t[k] then
+        if ZBase_Inherit
+        && ZBaseNPCs[ZBase_Inherit] then
+            for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
+                if !t[k] then 
+                    t[k] = v
+                end
+            end
+        end
+    
+        for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
+            if !t[k] then 
                 t[k] = v
             end
         end

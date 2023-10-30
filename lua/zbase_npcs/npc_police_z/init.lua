@@ -13,3 +13,7 @@ NPC.ZBaseFaction = "combine" -- Any string, all ZBase NPCs with this faction wil
 NPC.HasArmor = {
     [HITGROUP_CHEST] = true,
 }
+
+local arrest = 2097152
+local extendedAttackRange = 33554432
+NPC.KeyValues = {spawnflags=bit.bor(extendedAttackRange, arrest)}

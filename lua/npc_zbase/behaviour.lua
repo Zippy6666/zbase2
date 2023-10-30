@@ -117,7 +117,7 @@ end
 function BEHAVIOUR.DoIdleSound:Run( self )
 
     self:EmitSound(self.IdleSounds)
-    ZBaseDelayBehaviour(math.Rand(5, 10))
+    ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSoundCooldown))
 
 end
 ------------------------------------------------------------------------=#
@@ -132,26 +132,9 @@ function BEHAVIOUR.DoIdleEnemySound:Run( self )
     end
 
     self:EmitSound(snd)
-    ZBaseDelayBehaviour(math.Rand(2, 7))
+    ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown))
 
 end
-------------------------------------------------------------------------=#
-function BEHAVIOUR.DoPainSound:Run( self )
-
-    local health = self:Health()
-
-    if !self.PainSound_LastHealth then
-        self.PainSound_LastHealth = health
-    end
-
-    if health < self.PainSound_LastHealth then
-        self:EmitSound(self.PainSounds)
-        self.PainSound_LastHealth = health
-        ZBaseDelayBehaviour(math.Rand(0.5, 2.5))
-    end
-
-end
-
 ------------------------------------------------------------------------=#
 
 -- Secondary fire

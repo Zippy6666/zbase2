@@ -68,6 +68,11 @@ NPC.IdleSounds_HasEnemy = "" -- Sounds emitted while there is an enemy
 NPC.PainSounds = "" -- Sounds emitted on hurt
 NPC.DeathSounds = "" -- Sounds emitted on death
 
+-- Sound cooldowns {min, max}
+NPC.IdleSoundCooldown = {2, 7}
+NPC.IdleSounds_HasEnemyCooldown = {2, 7}
+NPC.PainSoundCooldown = {1, 2.5}
+
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
@@ -134,6 +139,7 @@ function NPC:HitArmor( dmginfo, HitGroup )
 
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+
     -- Select schedule (only used by SNPCs!)
 function NPC:ZBaseSNPC_SelectSchedule()
 	-- Example
@@ -145,7 +151,12 @@ function NPC:ZBaseSNPC_SelectSchedule()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-
+    -- Called when the NPC emits a sound
+    -- Return true to apply all changes done to the data table.
+    -- Return false to prevent the sound from playing.
+    -- Return nil or nothing to play the sound without altering it.
+function NPC:OnEmitSound( sndData ) end
+---------------------------------------------------------------------------------------------------------------------=#
 
 
         -- Functions you can call --
@@ -304,9 +315,18 @@ function NPC:ZBaseInit( tbl )
         self:SetPos(self:GetPos()+Vector(0, 0, 20))
     end
 
+    self.NextPainSound = CurTime()
+
     -- Custom init
     self:CustomInitialize()
 
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:OnHurt( dmg )
+    if self.UseCustomSounds && self.NextPainSound < CurTime() then
+        self:EmitSound(self.PainSounds)
+        self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
+    end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseSquad()
@@ -340,7 +360,7 @@ end
 function NPC:ZBaseSetSaveValues()
     for k, v in pairs(self:GetTable()) do
         if string.StartWith(k, "m_") then
-            print(k, v, self:SetSaveValue(k, v))
+            self:SetSaveValue(k, v)
         end
     end
 end
