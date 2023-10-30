@@ -9,6 +9,7 @@ if !ZBaseNPCs then
     ZBaseBehaviourTimerFuncs = {}
     ZBase_NonZBaseNPCs = {}
     ZBaseSpawnMenuNPCList = {}
+    ZBaseSpeakingSquads = {}
 end
 
 if SERVER then
@@ -56,6 +57,7 @@ end
 
 
 ZBase_EmitSoundCall = false
+ZBase_DontSpeakOverThisSound = false
 ZBaseComballOwner = NULL
 
 -------------------------------------------------------------------------------------------------------------------------=#
@@ -120,7 +122,7 @@ function ZBaseCreateVoiceSounds( name, tbl )
     sound.Add( {
         name = name,
         channel = CHAN_VOICE,
-        volume = 0.8,
+        volume = 0.7,
         level = 90,
         pitch = {95, 105},
         sound = tbl,

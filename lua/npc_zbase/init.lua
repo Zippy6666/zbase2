@@ -61,25 +61,26 @@ NPC.CallForHelpDistance = 2000 -- Call for help distance
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC, use ZBaseEmitSound instead of EmitSound if this is set to true!
 NPC.UseCustomSounds = false -- Should the NPC be able to use custom sounds?
+NPC.IdleSound_OnlyNearAllies = false -- Only do IdleSounds if there is another NPC in the same faction nearby
 
 NPC.AlertSounds = "" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
 NPC.IdleSounds_HasEnemy = "" -- Sounds emitted while there is an enemy
 NPC.PainSounds = "" -- Sounds emitted on hurt
 NPC.DeathSounds = "" -- Sounds emitted on death
+NPC.KilledEnemySound = "" -- Sounds emitted when the NPC kills an enemy
 
 -- Sound cooldowns {min, max}
 NPC.IdleSoundCooldown = {2, 7}
 NPC.IdleSounds_HasEnemyCooldown = {2, 7}
 NPC.PainSoundCooldown = {1, 2.5}
 
+
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
 
         -- Functions you can change --
-
-
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -155,8 +156,19 @@ end
     -- Return true to apply all changes done to the data table.
     -- Return false to prevent the sound from playing.
     -- Return nil or nothing to play the sound without altering it.
-function NPC:OnEmitSound( sndData ) end
+function NPC:CustomOnEmitSound( sndData ) end
 ---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Called when the NPC kills another entity (player or NPC)
+function NPC:CustomOnKilledEnt( ent ) end
+---------------------------------------------------------------------------------------------------------------------=#
+
+
+
+
+
+
+
 
 
         -- Functions you can call --
@@ -260,6 +272,14 @@ end
 --------------------------------------------------------------------------------=#
 
 
+
+
+
+
+
+
+
+
         -- DON'T TOUCH ANYTHING BELOW HERE --
 
 
@@ -322,6 +342,30 @@ function NPC:ZBaseInit( tbl )
 
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:OnEmitSound( data )
+    local val = self:CustomOnEmitSound( data )
+    local squad = self:GetKeyValues().squadname
+
+    if isstring(val) then
+        return val
+    elseif val == false then
+        return false
+    elseif squad != "" && ZBase_DontSpeakOverThisSound then
+        -- Make sure squad doesn't speak over each other
+        ZBaseSpeakingSquads[squad] = true
+        timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
+            ZBaseSpeakingSquads[squad] = nil
+        end) 
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:OnKilledEnt( ent )
+    if ent == self:GetEnemy() then
+        self:EmitSound(self.KilledEnemySound)
+    end
+    self:CustomOnKilledEnt( ent )
+end
+---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnHurt( dmg )
     if self.UseCustomSounds && self.NextPainSound < CurTime() then
         self:EmitSound(self.PainSounds)
@@ -339,7 +383,7 @@ function NPC:ZBaseSquad()
         local squadMemberCount = 0
 
         for _, v in ipairs(ZBaseNPCInstances) do
-            if v.ZBaseSquadName == squadName then
+            if v:GetKeyValues().squadname == squadName then
                 squadMemberCount = squadMemberCount+1
             end
         end
@@ -354,7 +398,7 @@ function NPC:ZBaseSquad()
 
 
     self:SetKeyValue("squadname", squadName)
-    self.ZBaseSquadName = squadName
+    --self.ZBaseSquadName = squadName
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseSetSaveValues()
@@ -369,8 +413,18 @@ function NPC:ZBaseThink()
 
     self:Relationships()
 
-    if !IsValid(self:GetEnemy()) then
-        self.AlertSound_LastEnemy = NULL
+    local ene = self:GetEnemy()
+
+    -- Alert sound
+    if ene != self.LastEnemy then
+        self.LastEnemy = ene
+
+        if self.LastEnemy then
+            ZBase_DontSpeakOverThisSound = true
+            self:EmitSound(self.AlertSounds)
+            ZBase_DontSpeakOverThisSound = false
+            ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
+        end
     end
 
 end

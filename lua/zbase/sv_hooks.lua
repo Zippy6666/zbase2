@@ -59,6 +59,7 @@ hook.Add("Think", "ZBASE", function()
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
+
     if ent.IsZBaseNPC then
         ent:OnHurt(dmg)
     end
@@ -66,6 +67,11 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
+
+
+    -- if IsValid(attacker) then
+    --     ent.ZBaseLastAttacker = attacker
+    -- end
 
     if IsValid(attacker.ZBaseComballOwner) then
 
@@ -187,7 +193,13 @@ hook.Add("AcceptInput", "ZBASE", function( ent, input, activator, caller, value 
     end
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
-hook.Add("PlayerSpawn", "PlayerSpawn", function( ply )
+hook.Add("PlayerSpawn", "ZBASE", function( ply )
     ply.ZBaseFaction = "ally"
+end)
+---------------------------------------------------------------------------------------------------------------------=#
+hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
+    if IsValid(attacker) && attacker.IsZBaseNPC then
+        attacker:OnKilledEnt( ply )
+    end
 end)
 ---------------------------------------------------------------------------------------------------------------------=#

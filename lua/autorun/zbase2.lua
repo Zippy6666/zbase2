@@ -15,14 +15,14 @@ end
 
 
         -- TODO --
-    -- Elite metro police with head armor and custom sounds and custom gun
-    -- A few NPCs that need special functions and shit
+    -- Final sound stuff: fix alert sound issue, make idle less frequent somehow, system that avoids sound repitition
+    -- A few NPCs that need special functions and shit (custom schedule system for snpcs)
     -- Make more user friendly with comments and shit, dummy git
 
 
         -- Future ideas --
-    -- Custom schedule system for snpcs
     -- Ministrider (with armor that reflects bullets)
+    -- Crab synth snpc?
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
     -- Custom blood system, white blood decals for hunters
     -- Player factions + faction tool
@@ -30,7 +30,6 @@ end
     -- Very basic weapon base?
     -- Hearing system?
     -- Aerial base
-    -- Smart voice system (avoid repetition, don't speak over squadmembers)
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
@@ -191,7 +190,7 @@ local function AddNPCsToSpawnMenu()
     
             list.Set( "NPC", t.Replace, replaceTable )
         end
-        
+
         -- Add to zbase menu
         ZBaseSpawnMenuNPCList[cls] = spawnmenuTbl
 

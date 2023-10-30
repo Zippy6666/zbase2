@@ -16,4 +16,4 @@ NPC.HasArmor = {
 
 local arrest = 2097152
 local extendedAttackRange = 33554432
-NPC.KeyValues = {spawnflags=bit.bor(extendedAttackRange, arrest)}
+NPC.KeyValues = {spawnflags=bit.bor(extendedAttackRange, arrest), weapondrawn="1"}

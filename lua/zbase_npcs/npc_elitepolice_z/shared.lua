@@ -22,7 +22,28 @@ ZBaseCreateVoiceSounds("ZBaseElitePolice.FireDeath", {
 })
 
 ZBaseCreateVoiceSounds("ZBaseElitePolice.Idle", {
-
+    "npc/elitepolice/mc1ans_bellyaching.wav",
+    "npc/elitepolice/mc1ans_fascinating.wav",
+    "npc/elitepolice/mc1ans_helluvamood.wav",
+    "npc/elitepolice/mc1ans_hm.wav",
+    "npc/elitepolice/mc1que_betterthings.wav",
+    "npc/elitepolice/mc1que_career.wav",
+    "npc/elitepolice/mc1que_enlisting.wav",
+    "npc/elitepolice/mc1que_everythingihoped.wav",
+    "npc/elitepolice/mc1que_feelinggood.wav",
+    "npc/elitepolice/mc1que_feetkillin.wav",
+    "npc/elitepolice/mc1que_goingtohell.wav",
+    "npc/elitepolice/mc1que_justthought.wav",
+    "npc/elitepolice/mc1que_kids.wav",
+    "npc/elitepolice/mc1que_lastjob.wav",
+    "npc/elitepolice/mc1que_paycut.wav",
+    "npc/elitepolice/mc1que_peoplesuck.wav",
+    "npc/elitepolice/mc1que_perks.wav",
+    "npc/elitepolice/mc1que_stimpatch.wav",
+    "npc/elitepolice/mc1que_stomach.wav",
+    "npc/elitepolice/mc1que_stunsticks.wav",
+    "npc/elitepolice/mc1que_thisridiculous.wav",
+    "npc/elitepolice/mc1que_yourwife.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseElitePolice.Deploy", {

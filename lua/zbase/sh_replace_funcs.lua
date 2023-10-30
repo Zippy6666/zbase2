@@ -10,7 +10,12 @@ if SERVER then
     hook.Add("InitPostEntity", "InitPostEntity", function() timer.Simple(0.5, function()
         local OnNPCKilled = GAMEMODE.OnNPCKilled
 
-        function GAMEMODE:OnNPCKilled( npc, ... )
+        function GAMEMODE:OnNPCKilled( npc, attacker, ... )
+
+            if IsValid(attacker) && attacker.IsZBaseNPC then
+                attacker:OnKilledEnt( npc )
+            end
+
             if npc.IsZBaseNPC then
                 npc:EmitSound(npc.DeathSounds)
             end

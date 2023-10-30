@@ -45,6 +45,13 @@ local function UseCustomSounds( _, self )
     if self:GetNPCState() == NPC_STATE_DEAD then return false end
     return self.UseCustomSounds
 end
+
+local function DelaySpeech( _, self )
+
+    local squad = self:GetKeyValues().squadname
+    if ZBaseSpeakingSquads[squad] then print("delay...") return math.Rand(1, 2) end
+
+end
 ------------------------------------------------------------------------=#
 
 
@@ -54,20 +61,22 @@ BEHAVIOUR.Patrol = {
 BEHAVIOUR.FactionCallForHelp = {
     MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy? 
 }
-BEHAVIOUR.DoIdleSound = {
-    MustNotHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
-}
-BEHAVIOUR.DoIdleEnemySound = {
-    MustHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
-}
-BEHAVIOUR.DoPainSound = {
-}
-
 BEHAVIOUR.SecondaryFire = {
     MustFaceEnemy = true,
     MustHaveVisibleEnemy = true,
 }
 
+
+BEHAVIOUR.DoIdleSound = {
+    MustNotHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
+    ShouldDoBehaviour=UseCustomSounds,
+    Delay=DelaySpeech,
+}
+BEHAVIOUR.DoIdleEnemySound = {
+    MustHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
+    ShouldDoBehaviour=UseCustomSounds,
+    Delay=DelaySpeech,
+}
 
 
 ------------------------------------------------------------------------=#
@@ -116,7 +125,9 @@ end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleSound:Run( self )
 
+    ZBase_DontSpeakOverThisSound = true
     self:EmitSound(self.IdleSounds)
+    ZBase_DontSpeakOverThisSound = false
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSoundCooldown))
 
 end
@@ -126,12 +137,14 @@ function BEHAVIOUR.DoIdleEnemySound:Run( self )
     local snd = self.IdleSounds_HasEnemy
     local enemy = self:GetEnemy()
 
-    if IsValid(enemy) && enemy != self.AlertSound_LastEnemy then
-        snd = self.AlertSounds
-        self.AlertSound_LastEnemy = enemy
-    end
+    -- if IsValid(enemy) && enemy != self.AlertSound_LastEnemy then
+    --     snd = self.AlertSounds
+    --     self.AlertSound_LastEnemy = enemy
+    -- end
 
+    ZBase_DontSpeakOverThisSound = true
     self:EmitSound(snd)
+    ZBase_DontSpeakOverThisSound = false
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown))
 
 end
