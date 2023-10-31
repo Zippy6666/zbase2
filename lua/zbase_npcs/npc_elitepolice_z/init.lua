@@ -22,18 +22,13 @@ NPC.PainSounds = "ZBaseElitePolice.Pain" -- Sounds emitted on hurt
 NPC.DeathSounds = "ZBaseElitePolice.Death" -- Sounds emitted on death
 NPC.KilledEnemySound = "ZBaseElitePolice.KilledEnemy" -- Sounds emitted when the NPC kills an enemy
 
--- Sound cooldowns {min, max}
-NPC.IdleSoundCooldown = {6, 12}
-NPC.IdleSounds_HasEnemyCooldown = {5, 10}
-NPC.PainSoundCooldown = {1, 2.5}
-
 ---------------------------------------------------------------------------------------------------------------------=#
 
     -- Return a new sound name to play that sound instead.
     -- Return false to prevent the sound from playing.
 function NPC:CustomOnEmitSound( sndData )
     local sndName = sndData.OriginalSoundName
-    
+
     if sndName == "ZBaseElitePolice.Death" && self:IsOnFire() then
         return "ZBaseElitePolice.FireDeath"
     end

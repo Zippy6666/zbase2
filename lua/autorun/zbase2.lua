@@ -15,10 +15,8 @@ end
 
 
         -- TODO --
-    -- Final sound stuff: fix alert sound issue, make idle less frequent somehow, system that avoids sound repitition
+    -- System that avoids sound repitition
     -- A few NPCs that need special functions and shit (custom schedule system for snpcs)
-    -- Make more user friendly with comments and shit, dummy git
-
 
         -- Future ideas --
     -- Ministrider (with armor that reflects bullets)
@@ -30,6 +28,10 @@ end
     -- Very basic weapon base?
     -- Hearing system?
     -- Aerial base
+
+    -- Finally
+    -- Make more user friendly with comments and shit, dummy git
+    -- Make sure everything works
 
 -------------------------------------------------------------------------------------------------------------------------=#
 

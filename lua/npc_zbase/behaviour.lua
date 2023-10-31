@@ -49,7 +49,7 @@ end
 local function DelaySpeech( _, self )
 
     local squad = self:GetKeyValues().squadname
-    if ZBaseSpeakingSquads[squad] then print("delay...") return math.Rand(1, 2) end
+    if ZBaseSpeakingSquads[squad] then print("delay...") return math.Rand(2, 4) end
 
 end
 ------------------------------------------------------------------------=#
@@ -69,7 +69,7 @@ BEHAVIOUR.SecondaryFire = {
 
 BEHAVIOUR.DoIdleSound = {
     MustNotHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
-    ShouldDoBehaviour=UseCustomSounds,
+    --ShouldDoBehaviour=UseCustomSounds,
     Delay=DelaySpeech,
 }
 BEHAVIOUR.DoIdleEnemySound = {
@@ -120,8 +120,15 @@ end
 ------------------------------------------------------------------------=#
 
 
+------------------------------------------------------------------------=#
+function BEHAVIOUR.DoIdleSound:ShouldDoBehaviour( self )
+    if self.IdleSound_OnlyNearAllies then
+        self.IdleSound_CurrentNearestAlly = self:GetNearestAlly(200)
+        return IsValid(self.IdleSound_CurrentNearestAlly)
+    end
 
-
+    return UseCustomSounds(_, self)
+end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleSound:Run( self )
 
@@ -130,6 +137,13 @@ function BEHAVIOUR.DoIdleSound:Run( self )
     ZBase_DontSpeakOverThisSound = false
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSoundCooldown))
 
+    -- Face each other as if they are talking
+    if math.random(1, self.IdleSound_FaceAllyChance)==1 && IsValid(self.IdleSound_CurrentNearestAlly) then
+        self:SetTarget(self.IdleSound_CurrentNearestAlly)
+        self:SetSchedule(SCHED_TARGET_FACE)
+        self.IdleSound_CurrentNearestAlly:SetTarget(self)
+        self.IdleSound_CurrentNearestAlly:SetSchedule(SCHED_TARGET_FACE)
+    end
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleEnemySound:Run( self )

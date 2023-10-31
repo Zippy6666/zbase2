@@ -62,6 +62,7 @@ NPC.CallForHelpDistance = 2000 -- Call for help distance
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC, use ZBaseEmitSound instead of EmitSound if this is set to true!
 NPC.UseCustomSounds = false -- Should the NPC be able to use custom sounds?
 NPC.IdleSound_OnlyNearAllies = false -- Only do IdleSounds if there is another NPC in the same faction nearby
+NPC.IdleSound_FaceAllyChance = 2 -- 1/X chance that the NPC faces its nearby ally, NPC.IdleSound_OnlyNearAllies must be true in order for this to work
 
 NPC.AlertSounds = "" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
@@ -71,8 +72,8 @@ NPC.DeathSounds = "" -- Sounds emitted on death
 NPC.KilledEnemySound = "" -- Sounds emitted when the NPC kills an enemy
 
 -- Sound cooldowns {min, max}
-NPC.IdleSoundCooldown = {2, 7}
-NPC.IdleSounds_HasEnemyCooldown = {2, 7}
+NPC.IdleSoundCooldown = {8, 16}
+NPC.IdleSounds_HasEnemyCooldown = {5, 10}
 NPC.PainSoundCooldown = {1, 2.5}
 
 
@@ -163,7 +164,10 @@ function NPC:CustomOnEmitSound( sndData ) end
 function NPC:CustomOnKilledEnt( ent ) end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-
+    -- Called one tick after an entity owned by this NPC is created
+    -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
+function NPC:CustomOnOwnedEntCreated( ent ) end
+---------------------------------------------------------------------------------------------------------------------=#
 
 
 
@@ -174,6 +178,37 @@ function NPC:CustomOnKilledEnt( ent ) end
         -- Functions you can call --
 
 ---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Check if an entity is allied with the NPC
+function NPC:IsAlly( ent )
+    if self.ZBaseFaction == "none" then return false end
+    return ent.ZBaseFaction == self.ZBaseFaction
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Get the nearest allied NPC/ent in a certain radius
+    -- Returns nil if none was found
+function NPC:GetNearestAlly( radius )
+    local mindist
+    local ally
+
+    for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius)) do
+        if v == self then continue end
+
+        if self:IsAlly(v) then
+            local dist = self:GetPos():DistToSqr(v:GetPos())
+
+            if !mindist or dist < mindist then
+                mindist = dist
+                ally = v
+            end
+        end
+    end
+
+    return ally
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
     -- Check if an entity is within a certain distance
     -- If maxdist is given, return true if the entity is within x units from itself
     -- If mindist is given, return true if the entity is x units away from itself
@@ -187,6 +222,7 @@ function NPC:WithinDistance( ent, maxdist, mindist )
     return true
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+
     -- Check if the NPC is facing an entity
 function NPC:IsFacing( ent )
     if !IsValid(ent) then return false end
@@ -197,6 +233,7 @@ function NPC:IsFacing( ent )
     return yawDif < 22.5
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+
 /*
 	-- self:PlayAnimation( anim, duration, face ) --
 	anim - String sequence name, or an activity (https://wiki.facepunch.com/gmod/Enums/ACT).
@@ -241,11 +278,14 @@ function NPC:PlayAnimation( anim, duration, face )
 
 end
 --------------------------------------------------------------------------------=#
+
 /*
 	-- self:Face( face ) --
+    -- You probably only want to use this for SNPCs
 	face - A position or an entity to face, or a number representing the yaw.
+    duration - Face duration, does not have to be set (you can run this function in think)
 */
-function NPC:Face( face )
+function NPC:Face( face, duration )
 
 	local function turn( yaw )
 
@@ -260,13 +300,31 @@ function NPC:Face( face )
 		
 	end
 
+
+    local faceFunc
 	if isnumber(face) then
-		turn(face)
+		faceFunc = function() turn(face) end
 	elseif IsValid(face) then
-		turn( (face:GetPos() - self:GetPos()):Angle().y )
+		faceFunc = function() turn( (face:GetPos() - self:GetPos()):Angle().y ) end
 	elseif isvector(face) then
-		turn( (face - self:GetPos()):Angle().y )
+		faceFunc = function() turn( (face - self:GetPos()):Angle().y ) end
 	end
+
+    if !faceFunc then return end
+
+
+    if duration then
+        self.TimeUntilStopFace = CurTime()+duration
+
+        timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
+            if !IsValid(self) or self.TimeUntilStopFace < CurTime() then
+                timer.Remove("ZBaseFace"..self:EntIndex())
+                return
+            end
+
+            faceFunc()
+        end)
+    end
 
 end
 --------------------------------------------------------------------------------=#
@@ -361,7 +419,9 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnKilledEnt( ent )
     if ent == self:GetEnemy() then
+        ZBase_DontSpeakOverThisSound = true
         self:EmitSound(self.KilledEnemySound)
+        ZBase_DontSpeakOverThisSound = false
     end
     self:CustomOnKilledEnt( ent )
 end
@@ -410,7 +470,6 @@ function NPC:ZBaseSetSaveValues()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
-
     self:Relationships()
 
     local ene = self:GetEnemy()
@@ -426,7 +485,6 @@ function NPC:ZBaseThink()
             ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
         end
     end
-
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:SetRelationship( ent, rel )
@@ -488,5 +546,9 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:HasCapability( cap )
     return bit.band(self:CapabilitiesGet(), cap)==cap
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:OnOwnedEntCreated( ent )
+    self:CustomOnOwnedEntCreated( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#

@@ -37,6 +37,12 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
             ent:CallOnRemove("ZBase_RemoveFromNPCTable", function() table.RemoveByValue(ZBase_NonZBaseNPCs, ent) end)
 
         end
+
+        local own = ent:GetOwner()
+
+        if IsValid(own) && own.IsZBaseNPC then
+            own:OnOwnedEntCreated( ent )
+        end
     end) 
 end)
 ---------------------------------------------------------------------------------------=#
