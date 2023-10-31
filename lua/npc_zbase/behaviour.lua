@@ -131,10 +131,7 @@ function BEHAVIOUR.DoIdleSound:ShouldDoBehaviour( self )
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleSound:Run( self )
-
-    ZBase_DontSpeakOverThisSound = true
-    self:EmitSound(self.IdleSounds)
-    ZBase_DontSpeakOverThisSound = false
+    self:EmitSound_Uninterupted(self.IdleSounds)
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSoundCooldown))
 
     -- Face each other as if they are talking
@@ -156,9 +153,7 @@ function BEHAVIOUR.DoIdleEnemySound:Run( self )
     --     self.AlertSound_LastEnemy = enemy
     -- end
 
-    ZBase_DontSpeakOverThisSound = true
-    self:EmitSound(snd)
-    ZBase_DontSpeakOverThisSound = false
+    self:EmitSound_Uninterupted(snd)
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown))
 
 end
@@ -210,7 +205,6 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
                                     ball:Fire("Explode")
                                 end
                             end)
-
                         end
                     end
                 end

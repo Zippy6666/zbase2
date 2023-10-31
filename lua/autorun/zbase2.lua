@@ -129,6 +129,13 @@ local function NPCReg( name, path )
             if SERVER then
                 include(sv)
 
+                if name == "npc_zbase" then
+                    local base = path.."/base.lua"
+                    local util = path.."/util.lua"
+                    include(base)
+                    include(util)
+                end
+
                 local bh = path.."/behaviour.lua"
                 if file.Exists(bh, "LUA") then
                     include(bh)

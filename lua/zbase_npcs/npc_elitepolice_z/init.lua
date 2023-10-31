@@ -3,6 +3,10 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 NPC.Models = {"models/zippy/elitepolice.mdl"}
 NPC.StartHealth = 60 -- Max health
 
+NPC.WeaponProficiency = WEAPON_PROFICIENCY_PERFECT -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
+-- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
+
+
 NPC.HasArmor = {
     [HITGROUP_CHEST] = true,
     [HITGROUP_HEAD] = true,
@@ -41,6 +45,15 @@ function NPC:CustomOnEmitSound( sndData )
 
     if sndName == "ZBaseElitePolice.EnemyIdle" && IsValid(ene) && !self:Visible(enemy) then
         return "ZBaseElitePolice.IdleEnemyOccluded"
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Called when the base detects that the NPC is playing a new activity
+function NPC:CustomNewActivityDetected( act )
+    -- 2152 = Deploy manhack
+    if act==2152 then
+        self:EmitSound_Uninterupted("ZBaseElitePolice.Deploy")
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
