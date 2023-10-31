@@ -16,7 +16,7 @@ SWEP.NPCBurstMax = 1 -- Maximum amount of bullets the NPC can fire when firing a
 SWEP.NPCFireRate = 1 -- Shoot delay in seconds
 SWEP.NPCFireRestTimeMin = 1 -- Minimum amount of time the NPC rests between bursts in seconds
 SWEP.NPCFireRestTimeMax = 1 -- Maximum amount of time the NPC rests between bursts in seconds
-SWEP.NPCBulletSpreadMult = 1 -- Accuracy multiplier
+SWEP.NPCBulletSpreadMult = 1 -- Higher number = worse accuracy
 SWEP.NPCReloadSound = "" -- Sound when the NPC reloads the gun
 
 
@@ -27,13 +27,6 @@ SWEP.NPCReloadSound = "" -- Sound when the NPC reloads the gun
 
 	-- Don't touch anything below this! --
 
---------------------------------------------------------=#
-hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
-	if swep.IsZBaseWeapon then
-		print("PreRegisterSWEP", "ZBASE", swep, class)
-		list.Add( "NPCUsableWeapons", { class = class, title = "ZBase - "..swep.PrintName } )
-	end
-end)
 --------------------------------------------------------=#
 hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
 	if wep.IsZBaseWeapon && wep.NPCOnly then

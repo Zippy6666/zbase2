@@ -62,7 +62,7 @@ hook.Add("Think", "ZBASE", function()
 
     end
 
-    ZBaseNextThink = CurTime()+0.2
+    ZBaseNextThink = CurTime()+0.1
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
@@ -254,6 +254,16 @@ end)
 hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:OnKilledEnt( ply )
+    end
+end)
+---------------------------------------------------------------------------------------------------------------------=#
+hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
+    if ply.ZBaseNPCFactionOverride && ply.ZBaseNPCFactionOverride != "" then
+        timer.Simple(0, function()
+            if !IsValid(ent) or !IsValid(ply) then return end
+
+            ent.ZBaseFaction = ply.ZBaseNPCFactionOverride
+        end)
     end
 end)
 ---------------------------------------------------------------------------------------------------------------------=#

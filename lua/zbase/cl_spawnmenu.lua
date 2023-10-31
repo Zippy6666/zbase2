@@ -64,74 +64,81 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 	end
 end)
 -----------------------------------------------------------------------------------------=#
-function PANEL:AddCheckbox( text, cvar )
-	local DermaCheckbox = self:Add( "DCheckBoxLabel", self )
-	DermaCheckbox:Dock( TOP )
-	DermaCheckbox:SetText( text )
-	DermaCheckbox:SetDark( true )
-	DermaCheckbox:SetConVar( cvar)
-	DermaCheckbox:SizeToContents()
-	DermaCheckbox:DockMargin( 0, 5, 0, 0 )
+-- local factionColors = {
+-- 	ally = Color(0, 255, 0),
+-- }
+
+function PANEL:AddTextEntry( text, func, startVal )
+	local label = vgui.Create("DLabel", self)
+	label:SetText(text)
+	label:Dock(TOP)
+	label:SetColor(Color(0,0,0))
+
+	local textentry = vgui.Create("DTextEntry", self)
+	textentry:Dock(TOP)
+
+	local function setCol()
+		-- if factionColors[textentry:GetText()] then
+		-- 	label:SetTextColor(factionColors[textentry:GetText()])
+		-- end
+	end
+
+	if startVal then
+		textentry:SetText(startVal)
+		setCol()
+	end
+
+	function textentry:OnEnter()
+		func(textentry:GetText())
+		setCol()
+	end
+end
+-----------------------------------------------------------------------------------------=#
+function PANEL:AddHelp( text )
+	local label = vgui.Create("DLabel", self)
+	label:SetText(text)
+	label:Dock(TOP)
+	label:SetColor(Color(100,100,100))
 end
 -----------------------------------------------------------------------------------------=#
 function PANEL:Init()
 
-	self:SetOpenSize( 150 )
 	self:DockPadding( 15, 10, 15, 10 )
+	self:SetOpenSize(300)
 
-	self:AddCheckbox( "#menubar.npcs.disableai", "ai_disabled" )
-	self:AddCheckbox( "#menubar.npcs.ignoreplayers", "ai_ignoreplayers" )
-	self:AddCheckbox( "#menubar.npcs.keepcorpses", "ai_serverragdolls" )
-	self:AddCheckbox( "#menubar.npcs.autoplayersquad", "npc_citizen_auto_player_squad" )
+	self:AddHelp("Default factions:")
+	self:AddHelp("	- ally - Allied with players and rebel NPCs")
+	self:AddHelp("	- combine - Allied with combine NPCs")
+	self:AddHelp("	- zombie - Allied with zombie NPCs")
+	self:AddHelp("	- antlion - Allied with antlion NPCs")
+	self:AddHelp("	- none - Allied with no NPCs")
 
-	local label = vgui.Create( "DLabel", self )
-	label:Dock( TOP )
-	label:DockMargin( 0, 5, 0, 0 )
-	label:SetDark( true )
-	label:SetText( "#menubar.npcs.weapon" )
+	self:AddTextEntry("Your Faction:", function( v )
+		net.Start("ZBasePlayerFactionSwitch")
+		net.WriteString(v)
+		net.SendToServer()
+	end, "ally")
 
-	local DComboBox = vgui.Create( "DComboBox", self )
-	DComboBox:Dock( TOP )
-	DComboBox:DockMargin( 0, 0, 0, 0 )
-	DComboBox:SetConVar( "gmod_npcweapon" )
-	DComboBox:SetSortItems( false )
-
-	DComboBox:AddChoice( "#menubar.npcs.defaultweapon", "" )
-	DComboBox:AddChoice( "#menubar.npcs.noweapon", "none" )
-
-	-- Sort the items by name, and group by category
-	local groupedWeps = {}
-	for _, v in pairs( list.Get( "NPCUsableWeapons" ) ) do
-		local cat = (v.category or ""):lower()
-		groupedWeps[ cat ] = groupedWeps[ cat ] or {}
-		groupedWeps[ cat ][ v.class ] = language.GetPhrase( v.title )
-	end
-
-	for group, items in SortedPairs( groupedWeps ) do
-		DComboBox:AddSpacer()
-		for class, title in SortedPairsByValue( items ) do
-			DComboBox:AddChoice( title, class )
-		end
-	end
-
-	function DComboBox:OnSelect( index, value )
-		self:ConVarChanged( self.Data[ index ] )
-	end
+	self:AddTextEntry("NPC Faction Override:", function( v )
+		net.Start("ZBaseNPCFactionOverrideSwitch")
+		net.WriteString(v)
+		net.SendToServer()
+	end)
 
 	self:Open()
 
 end
 -----------------------------------------------------------------------------------------=#
-vgui.Register( "SpawnmenuNPCSidebarToolbox", PANEL, "DDrawer" )
+vgui.Register( "ZBaseSussyBaka", PANEL, "DDrawer" )
 spawnmenu.AddCreationTab( "ZBase", function(...)
 
     local pnlContent = vgui.Create( "SpawnmenuContentPanel" )
-	pnlContent:EnableSearch( "npcs", "PopulateZBase" )
+	pnlContent:EnableSearch( "", "PopulateZBase" )
 	pnlContent:CallPopulateHook( "PopulateZBase" )
 
 	local sidebar = pnlContent.ContentNavBar
-	sidebar.Options = vgui.Create( "SpawnmenuNPCSidebarToolbox", sidebar )
-    
+	sidebar.Options = vgui.Create( "ZBaseSussyBaka", sidebar )
+
     return pnlContent
 
 end, icon, 25)

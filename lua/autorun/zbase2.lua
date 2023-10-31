@@ -15,39 +15,40 @@ end
 
 
         -- TODO --
-    -- Replace most HL2 NPCs
+    -- Fix dumbass seach bar
+
+    -- Neutral faction
 
     -- More sounds
-        -- SoundInvestigate
-        -- LostEnemy
-        -- Reload
-        -- SeeGrenade
-        -- SeeDanger
-        -- AllyDeath
-        -- Follow player
+        -- LostEnemySounds
+        -- ReloadSounds
+        -- SeeDangerSounds
+        -- HearDangerSounds
+        -- AllyDeathSounds
+    
     -- Ministrider
         -- Based on hunter
         -- Armor that deflects bullets
+    
+    -- Mortar synth
+        -- Based on scanner
 
-    -- Crab synth snpc
-        -- Armor that deflects bullets
-        -- Use custom schedule system
+    -- Crab synth
+        -- Based on antlion guard
+
+    -- Some kind of SNPC
+        -- Uses custom schedule system
 
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
 
     -- Custom blood system
         --White blood decals for hunters
 
-    -- Faction tool
-
     -- Any kind of general npc improvement
 
     -- Hearing system
     
     -- Aerial base (maybe)
-        -- Mortar synth?
-
-    -- Following code
 
 
         -- Finally --
@@ -84,9 +85,11 @@ local function IncludeFiles()
     AddCSLuaFile("zbase/cl_hooks.lua")
     AddCSLuaFile("zbase/cl_spawnmenu.lua")
     AddCSLuaFile("zbase/cl_toolmenu.lua")
+    AddCSLuaFile("zbase/cl_globals.lua")
 
     include("zbase/sh_globals.lua")
     include("zbase/sh_replace_funcs.lua")
+    include("zbase/sh_hooks.lua")
 
     if SERVER then
         include("zbase/sv_behaviour.lua")
@@ -97,6 +100,7 @@ local function IncludeFiles()
         include("zbase/cl_hooks.lua")
         include("zbase/cl_spawnmenu.lua")
         include("zbase/cl_toolmenu.lua")
+        include("zbase/cl_globals.lua")
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#

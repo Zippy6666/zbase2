@@ -60,6 +60,23 @@ ZBase_EmitSoundCall = false
 ZBase_DontSpeakOverThisSound = false
 ZBaseComballOwner = NULL
 
+if SERVER then
+    util.AddNetworkString("ZBasePlayerFactionSwitch")
+    util.AddNetworkString("ZBaseNPCFactionOverrideSwitch")
+
+    -----------------------------------------------------------------------------------------=#
+    net.Receive("ZBasePlayerFactionSwitch", function( _, ply )
+        local faction = net.ReadString()
+        ply.ZBaseFaction = faction
+    end)
+    -----------------------------------------------------------------------------------------=#
+    net.Receive("ZBaseNPCFactionOverrideSwitch", function( _, ply )
+        local faction = net.ReadString()
+        ply.ZBaseNPCFactionOverride = faction
+    end)
+    -----------------------------------------------------------------------------------------=#
+end
+
 -------------------------------------------------------------------------------------------------------------------------=#
 function ZBaseInit(ent, name)
     table.insert(ZBaseNPCInstances, ent)
