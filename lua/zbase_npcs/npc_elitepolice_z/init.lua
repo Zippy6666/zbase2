@@ -15,8 +15,7 @@ NPC.HasArmor = {
         -- CUSTOM SOUNDS --
         -- Use sound scripts to alter pitch and level etc..
 
-NPC.MuteDefaultVoice = true -- Mute all default voice sounds emitted by this NPC, use ZBaseEmitSound instead of EmitSound if this is set to true!
-NPC.UseCustomSounds = true -- Should the NPC be able to use custom sounds?
+NPC.MuteDefaultVoice = true -- Mute all default voice sounds emitted by this NPC
 NPC.IdleSound_OnlyNearAllies = true -- Only do IdleSounds if there is another NPC in the same faction nearby
 
 NPC.AlertSounds = "ZBaseElitePolice.Alert" -- Sounds emitted when an enemy is seen for the first time
@@ -39,7 +38,7 @@ function NPC:CustomOnEmitSound( sndData )
 
     local ene = self:GetEnemy()
 
-    if sndName == "ZBaseElitePolice.Alert" && IsValid(ene) && IsValid(ene:GetActiveWeapon()) then
+    if sndName == "ZBaseElitePolice.Alert" && IsValid(ene) && self:Visible(ene) && IsValid(ene:GetActiveWeapon()) then
         return "ZBaseElitePolice.AlertArmed"
     end
 

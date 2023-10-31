@@ -247,7 +247,7 @@ hook.Add("AcceptInput", "ZBASE", function( ent, input, activator, caller, value 
     end
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
-hook.Add("PlayerSpawn", "ZBASE", function( ply )
+hook.Add("PlayerInitialSpawn", "ZBASE", function( ply )
     ply.ZBaseFaction = "ally"
 end)
 ---------------------------------------------------------------------------------------------------------------------=#

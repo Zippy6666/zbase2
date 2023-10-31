@@ -92,22 +92,22 @@ function NPC:PlayAnimation( anim, duration, face )
 	
 	end
 
-	self:StopAndPreventSelectSchedule( duration )
+    if self.IsZBase_SNPC then
+        self:StopAndPreventSelectSchedule( duration )
+    end
 
-	timer.Create("ZNPC_StopPlayAnimation"..self:EntIndex(), duration, 1, function()
-		if !IsValid(self) then return end
-		self.CurrentAnimation = nil
-		self.SequenceFaceType = nil
-		self.AnimFacePos = nil
-		self:ResetIdealActivity(ACT_IDLE) -- Helps reseting the animation
-	end)
-
+    timer.Create("ZNPC_StopPlayAnimation"..self:EntIndex(), duration, 1, function()
+        if !IsValid(self) then return end
+        self.CurrentAnimation = nil
+        self.SequenceFaceType = nil
+        self.AnimFacePos = nil
+        self:ResetIdealActivity(ACT_IDLE) -- Helps reseting the animation
+    end)
 end
 --------------------------------------------------------------------------------=#
 
 /*
 	-- self:Face( face ) --
-    -- You probably only want to use this for SNPCs
 	face - A position or an entity to face, or a number representing the yaw.
     duration - Face duration, does not have to be set (you can run this function in think)
 */
@@ -118,7 +118,7 @@ function NPC:Face( face, duration )
 		self:SetIdealYawAndUpdate(yaw)
 
 		-- Turning aid
-		if self:IsMoving() then
+		if self.IsZBase_SNPC && self:IsMoving() then
 			local myAngs = self:GetAngles()
 			local newAng = Angle(myAngs.pitch, yaw, myAngs.roll)
 			self:SetAngles(LerpAngle(self.m_fMaxYawSpeed/100, myAngs, newAng))

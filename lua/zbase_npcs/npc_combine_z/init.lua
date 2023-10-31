@@ -6,9 +6,7 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.StartHealth = 50 -- Max health
 NPC.CanPatrol = true -- Use base patrol behaviour
 
-NPC.ZBaseFaction = "combine" -- Any string, all ZBase NPCs with this faction will be allied, it set to "none", they won't be allied to anybody
--- Default factions:
--- "combine" || "ally" || "zombie" || "antlion" || "none"
+NPC.ZBaseFaction = "combine" -- Any string, all ZBase NPCs with this faction will be allied
 
 NPC.HasArmor = {
     [HITGROUP_GENERIC] = true,

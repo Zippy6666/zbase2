@@ -88,7 +88,7 @@ function NPC:OnKilledEnt( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnHurt( dmg )
-    if self.UseCustomSounds && self.NextPainSound < CurTime() then
+    if self.NextPainSound < CurTime() then
         self:EmitSound(self.PainSounds)
         self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
     end
@@ -165,6 +165,7 @@ function NPC:ZBaseThink()
         self.Alert_LastEnemy = ene
 
         if self.Alert_LastEnemy then
+            self:StopSound(self.IdleSounds)
             self:ZBaseAlertSound()
         end
     end
@@ -198,18 +199,20 @@ function NPC:ZBase_VJFriendly( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:Relationship( ent )
+    -- Me or the ent has faction neutral, like
+    if self.ZBaseFaction == "neutral" or ent.ZBaseFaction=="neutral" then
+        self:SetRelationship( ent, D_LI )
+        return
+    end
 
+    -- My faction is none, hate everybody
     if self.ZBaseFaction == "none" then
         self:SetRelationship( ent, D_HT )
         return
     end
 
-    if self.ZBaseFaction == ent.ZBaseFaction then
-        self:SetRelationship( ent, D_LI )
-        return
-    end
-
-    if (self:ZBase_VJFriendly( ent ) or self.ZBase_Class == ent.ZBase_Class) then
+    -- Are their factions the same?
+    if self.ZBaseFaction == ent.ZBaseFaction or self:ZBase_VJFriendly( ent ) then
         self:SetRelationship( ent, D_LI )
     else
         self:SetRelationship( ent, D_HT )
@@ -243,5 +246,42 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnOwnedEntCreated( ent )
     self:CustomOnOwnedEntCreated( ent )
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function ENT:DoCurrentAnimation()
+	-- Animation --
+	if isstring(self.CurrentAnimation) then
+		-- String sequence
+		local act = self:GetSequenceActivity(self:LookupSequence(self.CurrentAnimation))
+
+		if act != -1 then
+			self:SetActivity(act)
+		else
+			self:SetSequence(self.CurrentAnimation)
+		end
+	else
+		-- Number activity
+		self:SetActivity(self.CurrentAnimation)
+	end
+	-----------------------------=#
+	
+	-- Facing stuff --
+	local face = self.SequenceFaceType
+	local enemy = self:GetEnemy()
+	local enemyPos = IsValid(enemy) && enemy:GetPos()
+
+	if face == "enemy" && enemyPos then
+		self.AnimFacePos = enemyPos
+	elseif face == "enemy_visible" && enemyPos && self:Visible(enemy) then
+		self.AnimFacePos = enemyPos
+	end
+
+	if face != "none" then
+		self:Face(self.AnimFacePos)
+	end
+	-----------------------------=#
+
+	-- Make sure SNPC is still
+	self:SetMoveVelocity(Vector())
 end
 ---------------------------------------------------------------------------------------------------------------------=#

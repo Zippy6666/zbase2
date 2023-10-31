@@ -14,10 +14,8 @@ end
 -------------------------------------------------------------------------------------------------------------------------=#
 
 
-        -- TODO --
+        -- Ideas --
     -- Fix dumbass seach bar
-
-    -- Neutral faction
 
     -- More sounds
         -- LostEnemySounds
@@ -25,11 +23,11 @@ end
         -- SeeDangerSounds
         -- HearDangerSounds
         -- AllyDeathSounds
-    
+
     -- Ministrider
         -- Based on hunter
         -- Armor that deflects bullets
-    
+
     -- Mortar synth
         -- Based on scanner
 
@@ -45,9 +43,9 @@ end
         --White blood decals for hunters
 
     -- Any kind of general npc improvement
+        -- Extended jumping?
+        -- Hearing system
 
-    -- Hearing system
-    
     -- Aerial base (maybe)
 
 
@@ -85,7 +83,6 @@ local function IncludeFiles()
     AddCSLuaFile("zbase/cl_hooks.lua")
     AddCSLuaFile("zbase/cl_spawnmenu.lua")
     AddCSLuaFile("zbase/cl_toolmenu.lua")
-    AddCSLuaFile("zbase/cl_globals.lua")
 
     include("zbase/sh_globals.lua")
     include("zbase/sh_replace_funcs.lua")
@@ -100,7 +97,6 @@ local function IncludeFiles()
         include("zbase/cl_hooks.lua")
         include("zbase/cl_spawnmenu.lua")
         include("zbase/cl_toolmenu.lua")
-        include("zbase/cl_globals.lua")
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#

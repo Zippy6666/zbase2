@@ -64,11 +64,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 	end
 end)
 -----------------------------------------------------------------------------------------=#
--- local factionColors = {
--- 	ally = Color(0, 255, 0),
--- }
-
-function PANEL:AddTextEntry( text, func, startVal )
+function PANEL:AddTextEntry( text, func, startVal, placeholdertext )
 	local label = vgui.Create("DLabel", self)
 	label:SetText(text)
 	label:Dock(TOP)
@@ -76,21 +72,14 @@ function PANEL:AddTextEntry( text, func, startVal )
 
 	local textentry = vgui.Create("DTextEntry", self)
 	textentry:Dock(TOP)
-
-	local function setCol()
-		-- if factionColors[textentry:GetText()] then
-		-- 	label:SetTextColor(factionColors[textentry:GetText()])
-		-- end
-	end
+	textentry:SetPlaceholderText(placeholdertext)
 
 	if startVal then
 		textentry:SetText(startVal)
-		setCol()
 	end
 
 	function textentry:OnEnter()
 		func(textentry:GetText())
-		setCol()
 	end
 end
 -----------------------------------------------------------------------------------------=#
@@ -104,26 +93,29 @@ end
 function PANEL:Init()
 
 	self:DockPadding( 15, 10, 15, 10 )
-	self:SetOpenSize(300)
+	self:SetOpenSize(240)
 
-	self:AddHelp("Default factions:")
-	self:AddHelp("	- ally - Allied with players and rebel NPCs")
-	self:AddHelp("	- combine - Allied with combine NPCs")
-	self:AddHelp("	- zombie - Allied with zombie NPCs")
-	self:AddHelp("	- antlion - Allied with antlion NPCs")
-	self:AddHelp("	- none - Allied with no NPCs")
+	self:AddHelp("Default Factions")
+	self:AddHelp("	> 'ally' - Allied with players and rebel NPCs")
+	self:AddHelp("	> 'combine' - Allied with combine NPCs")
+	self:AddHelp("	> 'zombie' - Allied with zombie NPCs")
+	self:AddHelp("	> 'antlion' - Allied with antlion NPCs")
+	self:AddHelp("	> 'none' - Allied with no NPCs")
+	self:AddHelp("	> 'neutral' - Allied with all NPCs")
 
-	self:AddTextEntry("Your Faction:", function( v )
-		net.Start("ZBasePlayerFactionSwitch")
-		net.WriteString(v)
-		net.SendToServer()
-	end, "ally")
+	self:AddTextEntry("Your Faction", function( v )
+		if v != "" then
+			net.Start("ZBasePlayerFactionSwitch")
+			net.WriteString(v)
+			net.SendToServer()
+		end
+	end, "ally", "Enter Your Faction Here")
 
-	self:AddTextEntry("NPC Faction Override:", function( v )
+	self:AddTextEntry("NPC Faction Override", function( v )
 		net.Start("ZBaseNPCFactionOverrideSwitch")
 		net.WriteString(v)
 		net.SendToServer()
-	end)
+	end, nil, "No Override")
 
 	self:Open()
 

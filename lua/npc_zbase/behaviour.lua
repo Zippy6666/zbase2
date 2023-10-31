@@ -70,7 +70,7 @@ end
 local idle_ally_speak_range = 250
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleSound:ShouldDoBehaviour( self )
-    if !self.UseCustomSounds then return false end
+    if self.IdleSounds == "" then return false end
     if self:GetNPCState() == NPC_STATE_DEAD then return false end
 
     if self.IdleSound_OnlyNearAllies then
@@ -105,7 +105,7 @@ end
 
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleEnemySound:ShouldDoBehaviour( self )
-    if !self.UseCustomSounds then return false end
+    if self.IdleSounds_HasEnemy == "" then return false end
     if self:GetNPCState() == NPC_STATE_DEAD then return false end
 
     return true

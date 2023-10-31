@@ -17,9 +17,11 @@ NPC.SightDistance = 7000 -- Sight distance
 NPC.StartHealth = 50 -- Max health
 NPC.CanPatrol = true -- Use base patrol behaviour
 
-NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied, it set to "none", they won't be allied to anybody
+NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied
 -- Default factions:
--- "combine" || "ally" || "zombie" || "antlion" || "none"
+-- "combine" || "ally" || "zombie" || "antlion" || "none" || "neutral"
+    -- "none" = not allied with anybody
+    -- "neutral" = allied with everybody
 
 -- Hitgroups with armor:
 NPC.HasArmor = {
@@ -59,8 +61,8 @@ NPC.CallForHelpDistance = 2000 -- Call for help distance
         -- CUSTOM SOUNDS --
         -- Use sound scripts to alter pitch and level etc..
 
-NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC, use ZBaseEmitSound instead of EmitSound if this is set to true!
-NPC.UseCustomSounds = false -- Should the NPC be able to use custom sounds?
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+
 NPC.IdleSound_OnlyNearAllies = false -- Only do IdleSounds if there is another NPC in the same faction nearby
 NPC.IdleSound_FaceAllyChance = 2 -- 1/X chance that the NPC faces its nearby ally, NPC.IdleSound_OnlyNearAllies must be true in order for this to work
 
