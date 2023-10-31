@@ -130,7 +130,23 @@ function NPC:ZBaseSetSaveValues()
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+local ReloadActs = {
+    [ACT_RELOAD] = true,
+    [ACT_RELOAD_SHOTGUN] = true,
+    [ACT_RELOAD_SHOTGUN_LOW] = true,
+    [ACT_RELOAD_SMG1] = true,
+    [ACT_RELOAD_SMG1_LOW] = true,
+    [ACT_RELOAD_PISTOL] = true,
+    [ACT_RELOAD_PISTOL_LOW] = true,
+}
+
 function NPC:NewActivityDetected( act )
+    -- Reload ZBase weapon sound:
+    local wep = self:GetActiveWeapon()
+    if ReloadActs[act] && IsValid(wep) && wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
+        wep:EmitSound(wep.NPCReloadSound)
+    end
+
     self:CustomNewActivityDetected( act )
 end
 ---------------------------------------------------------------------------------------------------------------------=#

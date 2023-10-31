@@ -15,20 +15,42 @@ end
 
 
         -- TODO --
-    -- A few NPCs that need special functions and shit (custom schedule system for snpcs)
+    -- Replace most HL2 NPCs
 
-        -- Future ideas --
-    -- Ministrider (with armor that reflects bullets)
-    -- Crab synth snpc?
+    -- More sounds
+        -- SoundInvestigate
+        -- LostEnemy
+        -- Reload
+        -- SeeGrenade
+        -- SeeDanger
+        -- AllyDeath
+        -- Follow player
+    -- Ministrider
+        -- Based on hunter
+        -- Armor that deflects bullets
+
+    -- Crab synth snpc
+        -- Armor that deflects bullets
+        -- Use custom schedule system
+
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
-    -- Custom blood system, white blood decals for hunters
-    -- Player factions + faction tool
-    -- Any kind of general npc improvement
-    -- Very basic weapon base?
-    -- Hearing system?
-    -- Aerial base
 
-    -- Finally
+    -- Custom blood system
+        --White blood decals for hunters
+
+    -- Faction tool
+
+    -- Any kind of general npc improvement
+
+    -- Hearing system
+    
+    -- Aerial base (maybe)
+        -- Mortar synth?
+
+    -- Following code
+
+
+        -- Finally --
     -- Make more user friendly with comments and shit, dummy git
     -- Make sure everything works
 
@@ -163,7 +185,7 @@ end
 local function AddNPCsToSpawnMenu()
     for cls, t in pairs( ZBaseNPCs ) do
 
-        local spawnmenuTbl = {
+        local ZBaseSpawnMenuTbl = {
             Name=t.Name,
             Category=t.Category,
             Class = t.Class,
@@ -171,37 +193,38 @@ local function AddNPCsToSpawnMenu()
             KeyValues = table.Copy(t.KeyValues),
         }
         if SERVER then
-            if !spawnmenuTbl.KeyValues then spawnmenuTbl.KeyValues = {} end
-            spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
-            spawnmenuTbl.KeyValues.spawnflags = bit.bor(spawnmenuTbl.KeyValues.spawnflags or 0, 256) -- Long Visibility/Shoot
+            if !ZBaseSpawnMenuTbl.KeyValues then ZBaseSpawnMenuTbl.KeyValues = {} end
+            ZBaseSpawnMenuTbl.KeyValues.parentname = "zbase_"..cls
+            ZBaseSpawnMenuTbl.KeyValues.spawnflags = bit.bor(ZBaseSpawnMenuTbl.KeyValues.spawnflags or 0, 256) -- Long Visibility/Shoot
         end
 
+        ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
 
-        -- Add to regular spawn menu
-        local npcTable = table.Copy(spawnmenuTbl)
-        npcTable.Category = "ZBase"
-        list.Set( "NPC", cls, npcTable )
+         -- Add to regular spawn menu
+        local SpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
+        SpawnMenuTable.Category = "ZBase - "..ZBaseSpawnMenuTbl.Category
+
         if !file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
-            npcTable.IconOverride = "entities/zbase.png"
+            SpawnMenuTable.IconOverride = "entities/zbase.png"
         end
 
+        list.Set("NPC", cls, SpawnMenuTable)
+        ----------------------------------------------------------=#
 
-        -- Replace default spawn menu npcs
         local replaceTargetTbl = list.Get("NPC")[t.Replace]
         if ZBaseCvar_Replace:GetBool() && t.Replace && replaceTargetTbl then
+            -- Replace default spawn menu npcs
 
-            local replaceTable = table.Copy(npcTable)
+            local replaceTable = table.Copy(SpawnMenuTable)
             replaceTable.Category = replaceTargetTbl.Category
 
+            -- Replace image if available (otherwise it will just use monke)
             if file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
                 replaceTable.IconOverride = "materials/entities/" .. cls .. ".png"
             end
     
             list.Set( "NPC", t.Replace, replaceTable )
         end
-
-        -- Add to zbase menu
-        ZBaseSpawnMenuNPCList[cls] = spawnmenuTbl
 
     end
 end

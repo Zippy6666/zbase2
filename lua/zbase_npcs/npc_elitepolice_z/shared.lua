@@ -2,6 +2,17 @@ local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
 NPC.Inherit = "npc_police_z" -- Inherit features from an existing ZBase NPC
 NPC.Name = "Civil Protection Elite" -- Spawnmenu name
+NPC.NPCCategory = "Combine" -- Normal spawnmenu category
+NPC.Replace = false -- Put the spawn menu name of an existing NPC to make this NPC replace it in the spawn menu
+
+NPC.Weapons = {
+    "weapon_pistol",
+    "weapon_pistol",
+    "weapon_pistol",
+    "weapon_stunstick",
+    "weapon_elitepolice_mp5k",
+    "weapon_elitepolice_mp5k",
+}
 
 ZBaseCreateVoiceSounds("ZBaseElitePolice.Pain", {
     "npc/elitepolice/knockout1.wav",
