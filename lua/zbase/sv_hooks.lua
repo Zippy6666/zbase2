@@ -202,7 +202,7 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
             -- Avoid sound repitition --
         local sndTbl = sound.GetProperties(data.OriginalSoundName)
 
-        if istable(sndTbl.sound) && table.Count(sndTbl.sound) > 1 then
+        if sndTbl && istable(sndTbl.sound) && table.Count(sndTbl.sound) > 1 && ZBase_EmitSoundCall then
             if !SoundIndexes[data.OriginalSoundName] then
                 RestartSoundCycle(sndTbl, data)
             else

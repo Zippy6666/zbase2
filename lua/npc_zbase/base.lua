@@ -104,7 +104,7 @@ function NPC:ZBaseSquad()
         local squadMemberCount = 0
 
         for _, v in ipairs(ZBaseNPCInstances) do
-            if v:GetKeyValues().squadname == squadName then
+            if IsValid(v) && v:GetKeyValues().squadname == squadName then
                 squadMemberCount = squadMemberCount+1
             end
         end

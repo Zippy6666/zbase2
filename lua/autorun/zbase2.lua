@@ -173,6 +173,7 @@ local function AddNPCsToSpawnMenu()
         if SERVER then
             if !spawnmenuTbl.KeyValues then spawnmenuTbl.KeyValues = {} end
             spawnmenuTbl.KeyValues.parentname = "zbase_"..cls
+            spawnmenuTbl.KeyValues.spawnflags = bit.bor(spawnmenuTbl.KeyValues.spawnflags or 0, 256) -- Long Visibility/Shoot
         end
 
 

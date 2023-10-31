@@ -1,6 +1,7 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
 NPC.Inherit = "npc_police_z" -- Inherit features from an existing ZBase NPC
+NPC.Name = "Civil Protection Elite" -- Spawnmenu name
 
 ZBaseCreateVoiceSounds("ZBaseElitePolice.Pain", {
     "npc/elitepolice/knockout1.wav",
