@@ -166,27 +166,74 @@ hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
     end
 end)
 ---------------------------------------------------------------------------------------=#
+local SoundIndexes = {}
+local ShuffledSoundTables = {}
+---------------------------------------------------------------------------------------=#
+local function RestartSoundCycle( sndTbl, data )
+    SoundIndexes[data.OriginalSoundName] = 1
+
+    local shuffle = table.Copy(sndTbl.sound)
+    table.Shuffle(shuffle)
+    ShuffledSoundTables[data.OriginalSoundName] = shuffle
+
+    -- print("-----------------", data.OriginalSoundName, "-----------------")
+    -- PrintTable(ShuffledSoundTables[data.OriginalSoundName])
+    -- print("--------------------------------------------------")
+end
+---------------------------------------------------------------------------------------=#
 hook.Add("EntityEmitSound", "ZBASE", function( data )
 
     if !IsValid(data.Entity) then return end
 
-    -- Mute voice
-    if !ZBase_EmitSoundCall
-    && SERVER
-    && data.Entity.IsZBaseNPC
-    && data.Entity.MuteDefaultVoice
-    && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
-        return false
-    end
-
-    -- "OnEmitSound"
+    
     if data.Entity.IsZBaseNPC then
+        local altered = false
+
+
+        -- Mute default "engine" voice
+        if !ZBase_EmitSoundCall
+        && SERVER
+        && data.Entity.MuteDefaultVoice
+        && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
+            return false
+        end
+
+
+            -- Avoid sound repitition --
+        local sndTbl = sound.GetProperties(data.OriginalSoundName)
+
+        if istable(sndTbl.sound) && table.Count(sndTbl.sound) > 1 then
+            if !SoundIndexes[data.OriginalSoundName] then
+                RestartSoundCycle(sndTbl, data)
+            else
+                if SoundIndexes[data.OriginalSoundName] == table.Count(sndTbl.sound) then
+                    RestartSoundCycle(sndTbl, data)
+                else
+                    SoundIndexes[data.OriginalSoundName] = SoundIndexes[data.OriginalSoundName] + 1
+                end
+            end
+
+            local snds = ShuffledSoundTables[data.OriginalSoundName]
+            data.SoundName = snds[SoundIndexes[data.OriginalSoundName]]
+            altered = true
+
+            --print(SoundIndexes[data.OriginalSoundName], data.SoundName)
+        end
+        -----------------------------------------------=#
+
+
+        -- "OnEmitSound"
         local r = data.Entity:OnEmitSound(data)
         if isstring(r) then
             data.Entity:EmitSound(r)
             return false
         elseif r == false then
             return false
+        end
+
+
+        if altered then
+            return true
         end
     end
 

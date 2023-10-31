@@ -15,7 +15,6 @@ end
 
 
         -- TODO --
-    -- System that avoids sound repitition
     -- A few NPCs that need special functions and shit (custom schedule system for snpcs)
 
         -- Future ideas --
@@ -50,7 +49,7 @@ if BRANCH != "x86-64" && BRANCH != "dev" then
     -------------------------------------------------------------------------------------------------------------------------=#
     if CLIENT then
         net.Receive("ZBaseError", function()
-            chat.AddText(Color(255, 0, 0), "[ZBase] Fatal ZBase error!")
+            chat.AddText(Color(255, 0, 0), "[ZBase] Fatal error!")
             chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
         end)
     end

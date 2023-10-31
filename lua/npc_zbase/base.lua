@@ -135,23 +135,23 @@ function NPC:NewActivityDetected( act )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseAlertSound()
-    self:EmitSound_Uninterupted(self.AlertSounds)
-    ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
+    timer.Simple(math.Rand(0, 1), function()
+        if !IsValid(self) then return end
+        self:EmitSound_Uninterupted(self.AlertSounds)
+        ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
+    end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
     local ene = self:GetEnemy()
 
+    if ene != self.Alert_LastEnemy then
+        self.Alert_LastEnemy = ene
 
-    -- Alert sound
-    if ene != self.LastEnemy then
-        self.LastEnemy = ene
-
-        if self.LastEnemy then
+        if self.Alert_LastEnemy then
             self:ZBaseAlertSound()
         end
     end
-
 
     self:Relationships()
 

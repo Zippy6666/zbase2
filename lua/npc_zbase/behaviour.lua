@@ -2,57 +2,9 @@ local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
 
 
 /*
-    -- In this file you can add custom NPC behaviours
-
-
-
-------------------------------------------------------------------------=#
-
-        -- Example --
-
-BEHAVIOUR.SayWhat = {
-
-    MustHaveEnemy = false, -- Should it only run the behaviour if it has an enemy? 
-    MustNotHaveEnemy = false, --  Don't run the behaviour if the NPC doesn't have an enemy
-    MustHaveVisibleEnemy = false -- Only run the behaviour if the NPC can see its enemy
-    MustFaceEnemy = false -- Only run the behaviour if the NPC is facing its enemy
-
-}
-------------------------------------------------------------------------=#
--- Return true to allow the behaviour to run, otherwise return false
-function BEHAVIOUR.SayWhat:ShouldDoBehaviour( self )
-    return true
-end
-------------------------------------------------------------------------=#
--- Called before running the behaviour
--- Return a number to suppress and delay the behaviour by said number (in seconds)
-function BEHAVIOUR.SayWhat:Delay( self )
-end
-------------------------------------------------------------------------=#
--- Called continiously as long as it should do the behaviour 
--- Write whatever the NPC is going to do here
--- Call ZBaseDelayBehaviour( seconds ) to delay the behaviour (cooldown)
-function BEHAVIOUR.SayWhat:Run( self )
-    PrintMessage(HUD_PRINTTALK, "WHAT")
-    ZBaseDelayBehaviour( 3 )
-end
-------------------------------------------------------------------------=#
+    -- In this file you can add custom NPC behaviours, view the example at the bottom of the file for more documentation
 */
 
-
-------------------------------------------------------------------------=#
-local function UseCustomSounds( _, self )
-    if self:GetNPCState() == NPC_STATE_DEAD then return false end
-    return self.UseCustomSounds
-end
-
-local function DelaySpeech( _, self )
-
-    local squad = self:GetKeyValues().squadname
-    if ZBaseSpeakingSquads[squad] then print("delay...") return math.Rand(2, 4) end
-
-end
-------------------------------------------------------------------------=#
 
 
 BEHAVIOUR.Patrol = {
@@ -62,20 +14,16 @@ BEHAVIOUR.FactionCallForHelp = {
     MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy? 
 }
 BEHAVIOUR.SecondaryFire = {
-    MustFaceEnemy = true,
-    MustHaveVisibleEnemy = true,
+    MustHaveVisibleEnemy = false, -- Only run the behaviour if the NPC can see its enemy
+    MustFaceEnemy = false, -- Only run the behaviour if the NPC is facing its enemy
 }
 
 
 BEHAVIOUR.DoIdleSound = {
     MustNotHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
-    --ShouldDoBehaviour=UseCustomSounds,
-    Delay=DelaySpeech,
 }
 BEHAVIOUR.DoIdleEnemySound = {
-    MustHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
-    ShouldDoBehaviour=UseCustomSounds,
-    Delay=DelaySpeech,
+    MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy? 
 }
 
 
@@ -119,15 +67,24 @@ end
 
 ------------------------------------------------------------------------=#
 
-
+local idle_ally_speak_range = 250
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleSound:ShouldDoBehaviour( self )
+    if !self.UseCustomSounds then return false end
+    if self:GetNPCState() == NPC_STATE_DEAD then return false end
+
     if self.IdleSound_OnlyNearAllies then
-        self.IdleSound_CurrentNearestAlly = self:GetNearestAlly(200)
+        self.IdleSound_CurrentNearestAlly = self:GetNearestAlly(idle_ally_speak_range)
         return IsValid(self.IdleSound_CurrentNearestAlly)
     end
 
-    return UseCustomSounds(_, self)
+    return true
+end
+------------------------------------------------------------------------=#
+function BEHAVIOUR.DoIdleSound:Delay( self )
+    if ZBaseSpeakingSquads[self:GetKeyValues().squadname] then
+        return ZBaseRndTblRange(self.IdleSoundCooldown)
+    end
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleSound:Run( self )
@@ -143,21 +100,37 @@ function BEHAVIOUR.DoIdleSound:Run( self )
     end
 end
 ------------------------------------------------------------------------=#
+
+
+
+------------------------------------------------------------------------=#
+function BEHAVIOUR.DoIdleEnemySound:ShouldDoBehaviour( self )
+    if !self.UseCustomSounds then return false end
+    if self:GetNPCState() == NPC_STATE_DEAD then return false end
+
+    return true
+end
+------------------------------------------------------------------------=#
+function BEHAVIOUR.DoIdleEnemySound:Delay( self )
+    if ZBaseSpeakingSquads[self:GetKeyValues().squadname] then
+        return ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown)
+    end
+end
+------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleEnemySound:Run( self )
 
     local snd = self.IdleSounds_HasEnemy
     local enemy = self:GetEnemy()
-
-    -- if IsValid(enemy) && enemy != self.AlertSound_LastEnemy then
-    --     snd = self.AlertSounds
-    --     self.AlertSound_LastEnemy = enemy
-    -- end
 
     self:EmitSound_Uninterupted(snd)
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown))
 
 end
 ------------------------------------------------------------------------=#
+
+
+
+
 
 -- Secondary fire
 
@@ -266,3 +239,43 @@ function BEHAVIOUR.SecondaryFire:Run( self )
     SecondaryFireWeapons[wep:GetClass()]:Func( self, wep, enemy )
 end
 ------------------------------------------------------------------------=#
+
+
+
+
+
+
+
+
+
+/*------------------------------------------------------------------------=#
+
+        -- Example --
+
+BEHAVIOUR.SayWhat = {
+
+    MustHaveEnemy = false, -- Should it only run the behaviour if it has an enemy? 
+    MustNotHaveEnemy = false, --  Don't run the behaviour if the NPC doesn't have an enemy
+    MustHaveVisibleEnemy = false, -- Only run the behaviour if the NPC can see its enemy
+    MustFaceEnemy = false, -- Only run the behaviour if the NPC is facing its enemy
+
+}
+------------------------------------------------------------------------=#
+-- Return true to allow the behaviour to run, otherwise return false
+function BEHAVIOUR.SayWhat:ShouldDoBehaviour( self )
+    return true
+end
+------------------------------------------------------------------------=#
+-- Called before running the behaviour
+-- Return a number to suppress and delay the behaviour by said number (in seconds)
+function BEHAVIOUR.SayWhat:Delay( self )
+end
+------------------------------------------------------------------------=#
+-- Called continiously as long as it should do the behaviour 
+-- Write whatever the NPC is going to do here
+-- Call ZBaseDelayBehaviour( seconds ) to delay the behaviour (cooldown)
+function BEHAVIOUR.SayWhat:Run( self )
+    PrintMessage(HUD_PRINTTALK, "WHAT")
+    ZBaseDelayBehaviour( 3 )
+end
+------------------------------------------------------------------------=#*/

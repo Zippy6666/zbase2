@@ -43,7 +43,7 @@ function NPC:CustomOnEmitSound( sndData )
         return "ZBaseElitePolice.AlertArmed"
     end
 
-    if sndName == "ZBaseElitePolice.EnemyIdle" && IsValid(ene) && !self:Visible(enemy) then
+    if sndName == "ZBaseElitePolice.IdleEnemy" && IsValid(ene) && !self:Visible(ene) then
         return "ZBaseElitePolice.IdleEnemyOccluded"
     end
 end
