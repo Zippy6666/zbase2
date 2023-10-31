@@ -248,7 +248,7 @@ function NPC:OnOwnedEntCreated( ent )
     self:CustomOnOwnedEntCreated( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function ENT:DoCurrentAnimation()
+function NPC:DoCurrentAnimation()
 	-- Animation --
 	if isstring(self.CurrentAnimation) then
 		-- String sequence

@@ -17,3 +17,19 @@ NPC.HasArmor = {
 NPC.m_iNumGrenades = 1
 NPC.m_nKickDamage = 15
 NPC.m_iTacticalVariant = 2
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Called when the NPC is created --
+function NPC:CustomInitialize()
+    local att = self:GetAttachment(self:LookupAttachment("zipline"))
+    self.Turret = ents.Create("npc_turret_floor")
+    self.Turret:SetKeyValue("spawnflags", 64) -- Start inactive
+    self.Turret:SetPos(att.Pos - Vector(0,0,45) - self:GetForward()*8)
+    self.Turret:SetAngles(self:GetAngles() + Angle(0,90,8))
+    self.Turret:SetParent(self, self:LookupAttachment("zipline"))
+    self.Turret.ZBaseFaction = self.ZBaseFaction
+    self.Turret:AddFlags(FL_NOTARGET)
+    self.Turret:Spawn()
+end
+---------------------------------------------------------------------------------------------------------------------=#
