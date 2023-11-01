@@ -153,6 +153,44 @@ function ENT:DoNPCState()
 	end
 end
 --------------------------------------------------------------------------------=#
+function NPC:DoCurrentAnimation()
+    if !self.CurrentAnimation then return end
+	-- Animation --
+	if isstring(self.CurrentAnimation) then
+		-- String sequence
+		local act = self:GetSequenceActivity(self:LookupSequence(self.CurrentAnimation))
+
+		if act != -1 then
+			self:SetActivity(act)
+		else
+			self:SetSequence(self.CurrentAnimation)
+		end
+	else
+		-- Number activity
+		self:SetActivity(self.CurrentAnimation)
+	end
+	-----------------------------=#
+	
+	-- Facing stuff --
+	local face = self.SequenceFaceType
+	local enemy = self:GetEnemy()
+	local enemyPos = IsValid(enemy) && enemy:GetPos()
+
+	if face == "enemy" && enemyPos then
+		self.AnimFacePos = enemyPos
+	elseif face == "enemy_visible" && enemyPos && self:Visible(enemy) then
+		self.AnimFacePos = enemyPos
+	end
+
+	if face != "none" then
+		self:Face(self.AnimFacePos)
+	end
+	-----------------------------=#
+
+	-- Make sure SNPC is still
+	self:SetMoveVelocity(Vector())
+end
+--------------------------------------------------------------------------------=#
 function ENT:RunAI( strExp )
 	self:DoNPCState()
 

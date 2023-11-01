@@ -108,14 +108,24 @@ local function NPCsInherit()
         && ZBaseNPCs[ZBase_Inherit] then
             for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
                 if !t[k] then 
+                    -- print(cls, "ZBase_Inherit", k, v)
                     t[k] = v
                 end
             end
         end
     
         for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
-            if !t[k] then 
+            if !t[k] then
+                -- print(cls, "npc_zbase", k, v)
                 t[k] = v
+            end
+        end
+
+        if SERVER then
+            local path = "zbase_npcs/"..cls
+            local bh = path.."/behaviour.lua"
+            if file.Exists(bh, "LUA") then
+                include(bh)
             end
         end
     end
@@ -153,12 +163,9 @@ local function NPCReg( name, path )
                 if name == "npc_zbase" then
                     local base = path.."/base.lua"
                     local util = path.."/util.lua"
+                    local bh = path.."/behaviour.lua"
                     include(base)
                     include(util)
-                end
-
-                local bh = path.."/behaviour.lua"
-                if file.Exists(bh, "LUA") then
                     include(bh)
                 end
             end

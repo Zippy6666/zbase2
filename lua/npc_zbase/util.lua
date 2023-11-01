@@ -61,7 +61,31 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 
 /*
-	-- self:PlayAnimation( anim, duration, face ) --
+	-- self:NPC_PlayAnimation( anim, duration, face ) --
+    -- For NPCs, not SNPCs
+	anim - String sequence name (sequence must have an activity), or an activity (https://wiki.facepunch.com/gmod/Enums/ACT).
+
+*/
+-- function NPC:NPC_PlayAnimation( anim )
+--     if isstring(anim) then
+--         local act = self:GetSequenceActivity(anim)
+
+--         if act == -1 then
+--             error("Sequence has no activity.")
+--             return
+--         else
+--             anim = act
+--         end
+--     end
+
+--     if isnumber(anim) then
+--         print( self:SelectWeightedSequence(anim) )
+--     end
+-- end
+
+/*
+	-- self:SNPC_PlayAnimation( anim, duration, face ) --
+    -- For SNPCs
 	anim - String sequence name, or an activity (https://wiki.facepunch.com/gmod/Enums/ACT).
 	duration - Duration that it won't allow the sequence to be interupted.
 	face - What direction will it face when doing the sequence?
@@ -71,7 +95,7 @@ end
 		"enemy_visible" - Same as enemy, but the enemy has to be visible
 
 */
-function NPC:PlayAnimation( anim, duration, face )
+function NPC:SNPC_PlayAnimation( anim, duration, face )
 
 	if !face then face = "none" end
 	self.SequenceFaceType = face
@@ -94,6 +118,9 @@ function NPC:PlayAnimation( anim, duration, face )
 
     if self.IsZBase_SNPC then
         self:StopAndPreventSelectSchedule( duration )
+    else
+        self:ClearGoal()
+        self:ClearSchedule()
     end
 
     timer.Create("ZNPC_StopPlayAnimation"..self:EntIndex(), duration, 1, function()
