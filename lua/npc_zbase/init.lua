@@ -1,6 +1,11 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 
+---------------------------------------------------------------------------------------------------------------------=#
+
+
+
+
         -- GENERAL --
 
 -- Spawn with a random model from this table
@@ -16,6 +21,16 @@ NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR
 NPC.SightDistance = 7000 -- Sight distance
 NPC.StartHealth = 50 -- Max health
 NPC.CanPatrol = true -- Use base patrol behaviour
+NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
+NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
+NPC.CallForHelpDistance = 2000 -- Call for help distance
+
+-- Extra capabilities
+-- List of capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
+NPC.ExtraCapabilities = {
+    CAP_OPEN_DOORS, -- Can open regular doors
+    CAP_MOVE_JUMP, -- Can jump
+}
 
 NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied
 -- Default factions:
@@ -23,7 +38,14 @@ NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will b
     -- "none" = not allied with anybody
     -- "neutral" = allied with everybody
 
--- Hitgroups with armor:
+
+
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+
+
+        -- ARMOR SYSTEM --
 NPC.HasArmor = {
     [HITGROUP_GENERIC] = false,
     [HITGROUP_HEAD] = false,
@@ -40,25 +62,44 @@ NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is mor
 NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
 NPC.ArmorHitSpark = true -- Do a spark on armor hit
 
--- Extra capabilities
--- List of capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
-NPC.ExtraCapabilities = {
-    CAP_OPEN_DOORS, -- Can open regular doors
-    CAP_MOVE_JUMP, -- Can jump1
-}
-
- -- Keyvalues
-NPC.KeyValues = {} -- Ex. NPC.KeyValues = {SquadName="cool squad", citizentype=CT_REBEL}
-
-NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
-NPC.CallForHelpDistance = 2000 -- Call for help distance
 
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
 
-        -- CUSTOM SOUNDS --
+
+        -- BASE MELEE ATTACK --
+
+NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
+NPC.BaseMeleeAttackDistance = 100
+-- Melee attack animations
+-- The table key is the animation (string sequence, or number activity) 
+-- The table value is the duration until the animation cuts off
+-- [animation] = *duration of animation*
+NPC.BaseMeleeAttackAnimations = {
+    [ACT_MELEE_ATTACK1] = 1,
+}
+
+
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+
+
+        -- BASE RANGE ATTACK --
+
+-- Use ZBase range attack system
+NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
+
+
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+
+
+
+        -- SOUNDS --
         -- Use sound scripts to alter pitch and level etc..
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
@@ -79,7 +120,12 @@ NPC.IdleSounds_HasEnemyCooldown = {5, 10}
 NPC.PainSoundCooldown = {1, 2.5}
 
 
+
+
 ---------------------------------------------------------------------------------------------------------------------=#
+
+
+
 
 
 
@@ -175,18 +221,3 @@ function NPC:CustomOnOwnedEntCreated( ent ) end
 function NPC:CustomNewActivityDetected( act )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

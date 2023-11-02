@@ -14,17 +14,35 @@ BEHAVIOUR.FactionCallForHelp = {
     MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy? 
 }
 BEHAVIOUR.SecondaryFire = {
-    MustHaveVisibleEnemy = false, -- Only run the behaviour if the NPC can see its enemy
-    MustFaceEnemy = false, -- Only run the behaviour if the NPC is facing its enemy
+    MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
+    MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
+}
+BEHAVIOUR.MeleeAttack = {
+    MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
+    MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
 }
 
 
+-- Sounds
 BEHAVIOUR.DoIdleSound = {
     MustNotHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy
 }
 BEHAVIOUR.DoIdleEnemySound = {
     MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy? 
 }
+
+------------------------------------------------------------------------=#
+function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )
+    return self.BaseMeleeAttack
+    && self:WithinDistance(self:GetEnemy(), self.BaseMeleeAttackDistance)
+end
+------------------------------------------------------------------------=#
+function BEHAVIOUR.MeleeAttack:Run( self )
+    local anim, duration = table.Random(self.BaseMeleeAttackAnimations)
+    self:PlayAnimation(anim, duration)
+end
+------------------------------------------------------------------------=#
+
 
 
 ------------------------------------------------------------------------=#

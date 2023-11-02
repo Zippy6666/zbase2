@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------------------------------------------=#
-if BRANCH == "x86-64" then
+if !ZBaseInitialized then
     print("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
     print("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
     print("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
@@ -14,7 +14,13 @@ end
 -------------------------------------------------------------------------------------------------------------------------=#
 
 
-        -- Ideas --
+        -- TODO --
+    -- More basic variables and functions, use VJ Base as an example
+
+    -- Sound variation system broken? fix
+
+    -- Easy sound creating system
+    
     -- Fix dumbass seach bar
 
     -- More sounds
@@ -33,6 +39,7 @@ end
         -- Base range attack system
 
     -- Crab synth SNPC
+        -- Armor that deflects bullets
         -- Uses custom schedule system
 
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
@@ -41,17 +48,18 @@ end
         --White blood decals for hunters
 
     -- Any kind of general npc improvement
-        -- Extended jumping?
+        -- Extended jumping
         -- Hearing system
 
-    -- Aerial base (maybe)
+    -- Aerial base
         -- Ground node navigation system
 
-    -- Melee attack system
+    -- Controller
 
-    -- Range attack system
+    -- Player base
 
         -- Finally --
+    -- Make sure all NPCs have their full potential
     -- Make more user friendly with comments and shit, dummy git
     -- Make sure everything works
 
