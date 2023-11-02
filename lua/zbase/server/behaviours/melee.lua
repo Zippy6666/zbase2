@@ -3,7 +3,6 @@ local BEHAVIOUR = NPC.Behaviours
 
 BEHAVIOUR.MeleeAttack = {
     MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
-    MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
 }
 
 local BusyScheds = {
@@ -19,9 +18,14 @@ function NPC:MeleeAttackDamage()
     local soundEmitted = false
     for _, ent in ipairs(ents.FindInSphere(self:WorldSpaceCenter(), self.MeleeDamage_Distance)) do
         if ent == self then continue end
+        if ent.GetNPCState && ent:GetNPCState() == NPC_STATE_DEAD then continue end
 
         local disp = self:Disposition(ent)
         if disp == D_LI or disp == D_NU then continue end
+
+        if !self:Visible(ent) then continue end
+
+        ZBaseBleed( ent, (self:WorldSpaceCenter() + ent:WorldSpaceCenter())*0.5+VectorRand(-15, 15) )
 
         local dmg = DamageInfo()
         dmg:SetAttacker(self)
@@ -34,8 +38,6 @@ function NPC:MeleeAttackDamage()
             ent:EmitSound(self.MeleeDamage_Sound)
             soundEmitted = true
         end
-
-        ZBaseBleed( ent, (self:WorldSpaceCenter() + ent:WorldSpaceCenter())*0.5+VectorRand(-15, 15) )
     end
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#

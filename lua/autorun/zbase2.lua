@@ -17,7 +17,7 @@ end
         -- TODO --
     -- Remove comments from NPC examples, they may contain false information
     
-    -- Legacy model system
+    -- Legacy model system (better spawn system that doesn't use parentname?)
 
     -- Fix death sounds
 
@@ -231,6 +231,7 @@ local function AddNPCsToSpawnMenu()
             Category=t.Category,
             Class = t.Class,
             Weapons = t.Weapons,
+            Model = t.Model,
             KeyValues = table.Copy(t.KeyValues),
         }
         if SERVER then

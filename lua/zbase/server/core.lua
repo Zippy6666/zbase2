@@ -42,7 +42,11 @@ function NPC:ZBaseInit( tbl )
     ))
 
     self:ZBaseSetSaveValues()
-    self:ZBaseSquad()
+    
+    timer.Simple(1, function()
+        if !IsValid(self) then return end
+        self:ZBaseSquad()
+    end)
 
     ZBaseBehaviourInit( self )
 

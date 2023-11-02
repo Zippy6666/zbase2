@@ -39,8 +39,6 @@ NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will b
     -- "neutral" = allied with everybody
 
 
-
-
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
