@@ -60,62 +60,53 @@ function NPC:IsFacing( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-/*
-	-- self:NPC_PlayAnimation( anim, duration, face ) --
-    -- For NPCs, not SNPCs
-	anim - String sequence name (sequence must have an activity), or an activity (https://wiki.facepunch.com/gmod/Enums/ACT).
-
-*/
--- function NPC:NPC_PlayAnimation( anim )
---     if isstring(anim) then
---         local act = self:GetSequenceActivity(anim)
-
---         if act == -1 then
---             error("Sequence has no activity.")
---             return
---         else
---             anim = act
---         end
---     end
-
---     if isnumber(anim) then
---         print( self:SelectWeightedSequence(anim) )
---     end
--- end
-
-/*
-	-- self:SNPC_PlayAnimation( anim, duration, face ) --
-    -- For SNPCs
-	anim - String sequence name, or an activity (https://wiki.facepunch.com/gmod/Enums/ACT).
-	duration - Duration that it won't allow the sequence to be interupted.
-	face - What direction will it face when doing the sequence?
-		"none" - The SNPC will face whatever direction it wants to (lets you change it manually)
-		"lock" - The SNPC will constantly face the direction the sequence started with
-		"enemy" - The SNPC will face the enemy if it has one
-		"enemy_visible" - Same as enemy, but the enemy has to be visible
-
-*/
-function NPC:SNPC_PlayAnimation( anim, duration, face )
-
+    -- Play an animation (sequence or activity)
+    -- 'duration' - ...
+    -- 'face' - ...
+function NPC:PlayAnimation( anim, duration, face )
 	if !face then face = "none" end
-	self.SequenceFaceType = face
-	self.AnimFacePos = self:GetPos()+self:GetForward()*100
 
-	self.CurrentAnimation = anim
+    -- Determine duration if not given
+    -- if !duration then
+    --     if isstring(anim) then
+
+    --         duration = self:SequenceDuration(anim)
+
+    --     elseif isnumber(anim) then
+
+    --         local seq = self:SelectWeightedSequence(anim)
+    --         duration = self:SequenceDuration(seq)
+
+    --     end
+    -- end
+
+
+    self.CurrentAnimation = anim
+
+    self.SequenceFaceType = face
+	self.AnimFacePos = self:GetPos()+self:GetForward()*100 -- Static face position
+    
 
 	if isstring(anim) then
-
+        -- Sequence, try to convert to activity
 		local act = self:GetSequenceActivity(self:LookupSequence(anim))
+
+        
 		if act == -1 then
+            -- No activity for the sequence, set it directly instead of setting the activity 
 			self:ResetSequence(self.CurrentAnimation)
+        else
+            -- Sequence has activity, play as such
+            print("ResetIdealActivity from str, duration:", duration)
+            self:ResetIdealActivity(act)
 		end
 	
-	else
-
+	elseif isnumber(anim) then
+        -- 'anim' is activity
 		self:ResetIdealActivity(anim)
-	
 	end
 
+    -- Stop the NPC
     if self.IsZBase_SNPC then
         self:StopAndPreventSelectSchedule( duration )
     else
@@ -123,28 +114,29 @@ function NPC:SNPC_PlayAnimation( anim, duration, face )
         self:ClearSchedule()
     end
 
+    -- Reset after duration
     timer.Create("ZNPC_StopPlayAnimation"..self:EntIndex(), duration, 1, function()
         if !IsValid(self) then return end
         self.CurrentAnimation = nil
         self.SequenceFaceType = nil
         self.AnimFacePos = nil
-        self:ResetIdealActivity(ACT_IDLE) -- Helps reseting the animation
+        self:ResetIdealActivity(ACT_IDLE)
     end)
 end
 --------------------------------------------------------------------------------=#
 
-/*
-	-- self:Face( face ) --
-	face - A position or an entity to face, or a number representing the yaw.
-    duration - Face duration, does not have to be set (you can run this function in think)
-*/
+
+	-- Make the NPC face certain directions
+	-- 'face' - A position or an entity to face, or a number representing the yaw.
+    -- 'duration' - Face duration, if not set, you can run the function in think for example
+
 function NPC:Face( face, duration )
 
 	local function turn( yaw )
 
 		self:SetIdealYawAndUpdate(yaw)
 
-		-- Turning aid
+		-- Turning aid for SNPCs
 		if self.IsZBase_SNPC && self:IsMoving() then
 			local myAngs = self:GetAngles()
 			local newAng = Angle(myAngs.pitch, yaw, myAngs.roll)

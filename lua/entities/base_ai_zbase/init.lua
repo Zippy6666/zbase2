@@ -153,43 +153,52 @@ function ENT:DoNPCState()
 	end
 end
 --------------------------------------------------------------------------------=#
-function ENT:DoCurrentAnimation()
-    if !self.CurrentAnimation then return end
-	-- Animation --
-	if isstring(self.CurrentAnimation) then
-		-- String sequence
-		local act = self:GetSequenceActivity(self:LookupSequence(self.CurrentAnimation))
+-- function ENT:DoCurrentAnimation()
+--     if !self.CurrentAnimation then return end
 
-		if act != -1 then
-			self:SetActivity(act)
-		else
-			self:SetSequence(self.CurrentAnimation)
-		end
-	else
-		-- Number activity
-		self:SetActivity(self.CurrentAnimation)
-	end
-	-----------------------------=#
+
+-- 	-- Animation stuff --
+-- 	if isstring(self.CurrentAnimation) then
+-- 		-- Sequence, try to convert to activity
+-- 		local act = self:GetSequenceActivity(self:LookupSequence(self.CurrentAnimation))
+
+-- 		if act != -1 then
+-- 			-- Success, play as activity
+-- 			self:SetActivity(act)
+-- 		else
+-- 			-- No activity for the sequence, set it directly instead of setting the activity 
+-- 			self:SetSequence(self.CurrentAnimation)
+-- 		end
+-- 	elseif isnumber(self.CurrentAnimation) then
+-- 		-- 'self.CurrentAnimation' is activity
+-- 		self:SetActivity(self.CurrentAnimation)
+-- 	end
+-- 	-----------------------------=#
+
 	
-	-- Facing stuff --
-	local face = self.SequenceFaceType
-	local enemy = self:GetEnemy()
-	local enemyPos = IsValid(enemy) && enemy:GetPos()
+-- 	-- Facing stuff --
+-- 	local face = self.SequenceFaceType
+-- 	local enemy = self:GetEnemy()
+-- 	local enemyPos = IsValid(enemy) && enemy:GetPos()
 
-	if face == "enemy" && enemyPos then
-		self.AnimFacePos = enemyPos
-	elseif face == "enemy_visible" && enemyPos && self:Visible(enemy) then
-		self.AnimFacePos = enemyPos
-	end
+-- 	if face == "enemy" && enemyPos then
+-- 		-- Face enemy
+-- 		self.AnimFacePos = enemyPos
+-- 	elseif face == "enemy_visible" && enemyPos && self:Visible(enemy) then
+-- 		-- Face enemy visible
+-- 		self.AnimFacePos = enemyPos
+-- 	end
 
-	if face != "none" then
-		self:Face(self.AnimFacePos)
-	end
-	-----------------------------=#
+-- 	if face != "none" then
+-- 		-- Face static direction
+-- 		self:Face(self.AnimFacePos)
+-- 	end
+-- 	-----------------------------=#
 
-	-- Make sure SNPC is still
-	self:SetMoveVelocity(Vector())
-end
+
+-- 	-- Try to make sure NPC is still
+-- 	self:SetMoveVelocity(Vector())
+-- end
 --------------------------------------------------------------------------------=#
 function ENT:RunAI( strExp )
 	self:DoNPCState()

@@ -159,6 +159,57 @@ function NPC:ZBaseAlertSound()
     end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:DoCurrentAnimation()
+    if !self.CurrentAnimation then return end
+
+
+	-- Animation stuff --
+	if isstring(self.CurrentAnimation) then
+
+		-- Sequence, try to convert to activity
+		local act = self:GetSequenceActivity(self:LookupSequence(self.CurrentAnimation))
+
+		if act != -1 then
+			-- Success, play as activity
+			self:SetActivity(act)
+		else
+			-- No activity for the sequence, set it directly instead of setting the activity 
+			self:SetSequence(self.CurrentAnimation)
+		end
+
+	elseif isnumber(self.CurrentAnimation) then
+
+		-- 'self.CurrentAnimation' is activity
+		self:SetActivity(self.CurrentAnimation)
+
+	end
+	-----------------------------=#
+
+	
+	-- Facing stuff --
+	local face = self.SequenceFaceType
+	local enemy = self:GetEnemy()
+	local enemyPos = IsValid(enemy) && enemy:GetPos()
+
+	if face == "enemy" && enemyPos then
+		-- Face enemy
+		self.AnimFacePos = enemyPos
+	elseif face == "enemy_visible" && enemyPos && self:Visible(enemy) then
+		-- Face enemy visible
+		self.AnimFacePos = enemyPos
+	end
+
+	if face != "none" then
+		-- Face static direction
+		self:Face(self.AnimFacePos)
+	end
+	-----------------------------=#
+
+
+	-- Try to make sure NPC is still
+	self:SetMoveVelocity(Vector())
+end
+---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
 
     local ene = self:GetEnemy()
@@ -173,7 +224,7 @@ function NPC:ZBaseThink()
     end
 
     self:Relationships()
-    -- self:DoCurrentAnimation()
+    self:DoCurrentAnimation()
 
     -- Activity change detection
     local act = self:GetActivity()

@@ -30,11 +30,9 @@ end
 
     -- Mortar synth
         -- Based on scanner
+        -- Base range attack system
 
-    -- Crab synth
-        -- Based on antlion guard
-
-    -- Some kind of SNPC
+    -- Crab synth SNPC
         -- Uses custom schedule system
 
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
@@ -47,7 +45,11 @@ end
         -- Hearing system
 
     -- Aerial base (maybe)
+        -- Ground node navigation system
 
+    -- Melee attack system
+
+    -- Range attack system
 
         -- Finally --
     -- Make more user friendly with comments and shit, dummy git
