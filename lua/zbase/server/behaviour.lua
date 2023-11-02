@@ -65,7 +65,6 @@ function ZBaseBehaviourInit( ent )
 end
 ---------------------------------------------------------------------------------------=#
 hook.Add("Think", "ZBaseBehaviourTimer", function()
-
     if NextBehaviourThink > CurTime() then return end
     if GetConVar("ai_disabled"):GetBool() then return end
 
@@ -79,6 +78,6 @@ hook.Add("Think", "ZBaseBehaviourTimer", function()
 
     end
 
-    NextBehaviourThink = CurTime() + 0.6
+    NextBehaviourThink = CurTime() + 0.4
 end)
 ---------------------------------------------------------------------------------------=#

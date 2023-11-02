@@ -73,12 +73,14 @@ NPC.ArmorHitSpark = true -- Do a spark on armor hit
 
 NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
 NPC.MeleeAttackDistance = 75
+NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
+
 
 -- Melee attack animations
 NPC.MeleeAttackAnimations = {
     ACT_MELEE_ATTACK1,
 }
-NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
+NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack animation
 
 NPC.MeleeDamage = {10, 10} -- Melee damage {min, max}
 NPC.MeleeDamage_Distance = 100 -- Distance the damage travels
@@ -222,11 +224,6 @@ function NPC:CustomOnOwnedEntCreated( ent ) end
 function NPC:CustomNewActivityDetected( act )
 end
 
----------------------------------------------------------------------------------------------------------------------=#
-
-    -- Called when the base detects that the NPC is running a new schedule
-function NPC:CustomNewScheduleDetected( sched ) 
-end
 ---------------------------------------------------------------------------------------------------------------------=#
 
     -- Called before the base melee attack is ran

@@ -208,9 +208,9 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:NewScheduleDetected( sched )       
-    self:CustomNewScheduleDetected()     
-end
+-- function NPC:NewScheduleDetected( sched )       
+--     self:CustomNewScheduleDetected( sched )     
+-- end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
 
@@ -236,11 +236,11 @@ function NPC:ZBaseThink()
     end
 
     -- Schedule change detection
-    local sched = self:GetCurrentSchedule()
-    if sched && sched != self.ZBaseCurrentSched then
-        self.ZBaseCurrentSched = sched
-        self:NewActivityDetected( self.ZBaseCurrentSched )
-    end
+    -- local sched = self:GetCurrentSchedule()
+    -- if sched && sched != self.ZBaseCurrentSched then
+    --     self.ZBaseCurrentSched = sched
+    --     self:NewScheduleDetected( self.ZBaseCurrentSched )
+    -- end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:SetRelationship( ent, rel )
@@ -346,7 +346,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
 
 
     -- Da meat of the function --
-    self.TimeUntilStopMeleeAnimOverride = CurTime()+duration
+    self.TimeUntilStopMeleeAnimOverride = CurTime()+(duration*0.75)
     local timerName = "ZBaseMeleeAnimOverride"..self:EntIndex()
     timer.Create(timerName, 0, 0, function()
         if !IsValid(self)

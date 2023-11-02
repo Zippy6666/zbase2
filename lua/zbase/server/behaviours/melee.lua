@@ -34,6 +34,8 @@ function NPC:MeleeAttackDamage()
             ent:EmitSound(self.MeleeDamage_Sound)
             soundEmitted = true
         end
+
+        ZBaseBleed( ent, (self:WorldSpaceCenter() + ent:WorldSpaceCenter())*0.5+VectorRand(-15, 15) )
     end
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
@@ -55,12 +57,12 @@ function BEHAVIOUR.MeleeAttack:Run( self )
 
     -- Animation
     local anim = table.Random(self.MeleeAttackAnimations)
-    print(anim)
-    self:InternalPlayAnimation(anim, nil, nil, SCHED_MELEE_ATTACK1)
+    self:InternalPlayAnimation(anim, nil, self.MeleeAttackAnimationSpeed, SCHED_MELEE_ATTACK1)
 
     -- Damage
     timer.Simple(self.MeleeDamage_Delay, function()
         if !IsValid(self) then return end
+        if self:GetNPCState()==NPC_STATE_DEAD then return end
         self:MeleeAttackDamage()
     end)
 

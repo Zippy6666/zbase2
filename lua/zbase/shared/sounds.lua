@@ -65,7 +65,7 @@ sound.Add( {
 
 sound.Add( {
 	name = "ZBase.Melee1",
-	channel = CHAN_BODY,
+	channel = CHAN_AUTO,
 	volume = 0.8,
 	level = 75,
 	pitch = {95, 105},
@@ -78,7 +78,7 @@ sound.Add( {
 
 sound.Add( {
 	name = "ZBase.Melee2",
-	channel = CHAN_BODY,
+	channel = CHAN_AUTO,
 	volume = 0.8,
 	level = 75,
 	pitch = {95, 105},
@@ -94,7 +94,7 @@ sound.Add( {
 
 sound.Add( {
 	name = "ZBase.Ricochet",
-	channel = CHAN_BODY,
+	channel = CHAN_AUTO,
 	volume = 0.8,
 	level = 75,
 	pitch = {90, 110},

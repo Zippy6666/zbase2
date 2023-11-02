@@ -147,3 +147,39 @@ function ZBaseRndTblRange( tbl )
     return math.Rand(tbl[1], tbl[2])
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+-- Blood effect from an NPC
+local BloodEffects = {
+    [BLOOD_COLOR_RED] = "blood_impact_red_01",
+    [BLOOD_COLOR_ANTLION] = "blood_impact_antlion_01",
+    [BLOOD_COLOR_ANTLION_WORKER] = "blood_impact_antlion_worker_01",
+    [BLOOD_COLOR_GREEN] = "blood_impact_green_01",
+    [BLOOD_COLOR_ZOMBIE] = "blood_impact_zombie_01",
+    [BLOOD_COLOR_YELLOW] = "blood_impact_yellow_01",
+}
+
+function ZBaseBleed( ent, pos, ang )
+    if !ent.GetBloodColor then return end
+    if ent.GetNPCState && ent:GetNPCState()==NPC_STATE_DEAD then return end
+
+    local bloodcol = ent:GetBloodColor()
+
+    if bloodcol==BLOOD_COLOR_MECH then
+        local spark = ents.Create("env_spark")
+        spark:SetKeyValue("spawnflags", 256)
+        spark:SetKeyValue("TrailLength", 1)
+        spark:SetKeyValue("Magnitude", 1)
+        spark:SetPos(pos)
+        spark:SetAngles(-ang)
+        spark:Spawn()
+        spark:Activate()
+        spark:Fire("SparkOnce")
+        SafeRemoveEntityDelayed(spark, 0.1)
+    else
+        local effect = BloodEffects[bloodcol]
+
+        if effect then
+            ParticleEffect(effect, pos, ang or AngleRand())
+        end
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
