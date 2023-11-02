@@ -1,6 +1,6 @@
 AddCSLuaFile()
 
-ZBaseCvar_Replace = CreateConVar("zbase_replace", "1", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
+ZBaseCvar_Replace = CreateConVar("zbase_replace", "0", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
 ZBaseCvar_HL2WepDMG = CreateConVar("zbase_hl2_wep_damage", "1", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
 
 if !ZBaseNPCs then
@@ -14,7 +14,6 @@ end
 
 if SERVER then
     ZBaseFactionTranslation = {
-        -- Combine
         [CLASS_COMBINE] = "combine",
         [CLASS_COMBINE_GUNSHIP] = "combine",
         [CLASS_MANHACK] = "combine",
@@ -25,7 +24,6 @@ if SERVER then
         [CLASS_PROTOSNIPER] = "combine",
         [CLASS_COMBINE_HUNTER] = "combine",
 
-        -- Player ally
         [CLASS_HACKED_ROLLERMINE] = "ally",
         [CLASS_HUMAN_PASSIVE] = "ally",
         [CLASS_VORTIGAUNT] = "ally",
@@ -35,23 +33,21 @@ if SERVER then
         [CLASS_CITIZEN_PASSIVE] = "ally",
         [CLASS_CITIZEN_REBEL] = "ally",
 
-        -- Xen
         [CLASS_BARNACLE] = "xen",
         [CLASS_ALIEN_MILITARY] = "xen",
         [CLASS_ALIEN_MONSTER] = "xen",
         [CLASS_ALIEN_PREDATOR] = "xen",
 
-        -- Hecu
         [CLASS_MACHINE] = "hecu",
         [CLASS_HUMAN_MILITARY] = "hecu",
 
-        -- Zombie
         [CLASS_HEADCRAB] = "zombie",
         [CLASS_ZOMBIE] = "zombie",
         [CLASS_ALIEN_PREY] = "zombie",
 
-        -- Antlion
         [CLASS_ANTLION] = "antlion",
+
+        [CLASS_EARTH_FAUNA] = "neutral",
     }
 end
 

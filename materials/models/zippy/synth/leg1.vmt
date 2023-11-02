@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	// Original shader: VertexLitMaskedEnvMappedTexture
+	"$basetexture" "models/Synth/leg1"
+
+	$bumpmap				"models/zippy/Synth/leg1nrm"
+	$phong "1"
+	$phongfresnelranges "[0 0.5 1]"
+	$phongboost "100"
+	$phongexponent "200"
+
+}

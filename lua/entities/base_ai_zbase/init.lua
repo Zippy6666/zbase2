@@ -153,7 +153,7 @@ function ENT:DoNPCState()
 	end
 end
 --------------------------------------------------------------------------------=#
-function NPC:DoCurrentAnimation()
+function ENT:DoCurrentAnimation()
     if !self.CurrentAnimation then return end
 	-- Animation --
 	if isstring(self.CurrentAnimation) then

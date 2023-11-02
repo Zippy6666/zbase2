@@ -107,7 +107,7 @@ local function NPCsInherit()
         if ZBase_Inherit
         && ZBaseNPCs[ZBase_Inherit] then
             for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
-                if !t[k] then 
+                if t[k] == nil then 
                     -- print(cls, "ZBase_Inherit", k, v)
                     t[k] = v
                 end
@@ -115,7 +115,7 @@ local function NPCsInherit()
         end
     
         for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
-            if !t[k] then
+            if t[k] == nil then
                 -- print(cls, "npc_zbase", k, v)
                 t[k] = v
             end
@@ -224,6 +224,7 @@ local function AddNPCsToSpawnMenu()
 
             local replaceTable = table.Copy(SpawnMenuTable)
             replaceTable.Category = replaceTargetTbl.Category
+            replaceTable.Name = "[ZBase] "..replaceTable.Name
 
             -- Replace image if available (otherwise it will just use monke)
             if file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then

@@ -38,7 +38,11 @@ function NPC:CustomOnEmitSound( sndData )
 
     local ene = self:GetEnemy()
 
-    if sndName == "ZBaseElitePolice.Alert" && IsValid(ene) && self:Visible(ene) && IsValid(ene:GetActiveWeapon()) then
+    if sndName == "ZBaseElitePolice.Alert"
+    && IsValid(ene)
+    && self:Visible(ene)
+    && self:WithinDistance(ene, 1500)
+    && IsValid(ene:GetActiveWeapon()) then
         return "ZBaseElitePolice.AlertArmed"
     end
 
