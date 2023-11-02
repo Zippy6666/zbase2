@@ -75,12 +75,12 @@ NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
 NPC.BaseMeleeAttackDistance = 100
 -- Melee attack animations
 -- The table key is the animation (string sequence, or number activity) 
--- The table value is the duration until the animation cuts off
+-- The table value is the duration in seconds until the animation cuts off (set to false to use the default duration of the animation)
 -- [animation] = *duration of animation*
 NPC.BaseMeleeAttackAnimations = {
-    [ACT_MELEE_ATTACK1] = 1,
+    [ACT_MELEE_ATTACK1] = false,
 }
-NPC.BaseMeleeAttackCooldown = {1, 2} -- Melee attack cooldown {min, max}
+NPC.BaseMeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 
 
 
@@ -218,5 +218,11 @@ function NPC:CustomOnOwnedEntCreated( ent ) end
 
     -- Called when the base detects that the NPC is playing a new activity
 function NPC:CustomNewActivityDetected( act )
+end
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Called when the base detects that the NPC is running a new schedule
+function NPC:CustomNewScheduleDetected( sched ) 
 end
 ---------------------------------------------------------------------------------------------------------------------=#

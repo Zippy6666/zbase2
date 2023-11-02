@@ -15,7 +15,13 @@ end
 
 
         -- TODO --
+    -- Remove comments from NPC examples, they may contain false information
+    
     -- Legacy model system
+
+    -- Fix death sounds
+
+    -- Faction dropdown system
 
     -- Fix "[ZBase]" showing in healthbar etc
 

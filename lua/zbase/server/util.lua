@@ -59,8 +59,6 @@ function NPC:IsFacing( ent )
     return yawDif < 22.5
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-
-    -- Play an animation (sequence or activity)
     -- 'duration' - ...
     -- 'face' - ...
 -- function NPC:PlayAnimation( anim, duration, face )

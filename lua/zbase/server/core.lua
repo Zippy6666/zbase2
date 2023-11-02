@@ -206,6 +206,12 @@ end
 -- 	self:SetMoveVelocity(Vector())
 -- end
 ---------------------------------------------------------------------------------------------------------------------=#
+
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:NewScheduleDetected( sched )       
+    self:CustomNewScheduleDetected()     
+end
+---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
 
     local ene = self:GetEnemy()
@@ -227,6 +233,13 @@ function NPC:ZBaseThink()
     if act && act != self.ZBaseCurrentACT then
         self.ZBaseCurrentACT = act
         self:NewActivityDetected( self.ZBaseCurrentACT )
+    end
+
+    -- Schedule change detection
+    local sched = self:GetCurrentSchedule()
+    if sched && sched != self.ZBaseCurrentSched then
+        self.ZBaseCurrentSched = sched
+        self:NewActivityDetected( self.ZBaseCurrentSched )
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -313,5 +326,51 @@ function NPC:InternalSetAnimation( anim )
 		self:SetActivity(anim)
 
 	end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
+    local duration, anim = table.Random(self.BaseMeleeAttackAnimations)
+
+    -- Duration stuff
+    self:InternalSetAnimation(anim)
+    duration = duration or self:SequenceDuration()
+    if playbackRate then
+        duration = duration/playbackRate
+    end
+
+
+    -- Da meat of the function --
+    self.TimeUntilStopMeleeAnimOverride = CurTime()+duration
+    local timerName = "ZBaseMeleeAnimOverride"..self:EntIndex()
+    timer.Create(timerName, 0, 0, function()
+        if !IsValid(self)
+        or self.TimeUntilStopMeleeAnimOverride < CurTime() then
+            timer.Remove(timerName)
+            return
+        end
+
+        if sched && !self:IsCurrentSchedule(sched) then
+            self:SetSchedule(sched)
+        end
+
+        self:InternalSetAnimation(anim)
+
+        if playbackRate then
+            self:SetPlaybackRate(playbackRate)
+        end
+    end)
+    ---------------------------------------------=#
+
+
+    -- Reset
+    timer.Simple(duration, function()
+        if !IsValid(self) then return end
+
+        self:TaskComplete()
+        self:StopMoving()
+        self:ClearSchedule()
+        self:ClearGoal()
+        self:SetActivity(ACT_IDLE) -- Seems to help
+    end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
