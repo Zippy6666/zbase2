@@ -16,7 +16,7 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
     local seq = self:LookupSequence("shootar2alt")
     if seq != -1 then
         -- Has comball animation, play it
-        self:PlayAnimation("shootar2alt", 1.5)
+        self:ResetIdealActivity(self:GetSequenceActivity(seq))
     else
         -- Charge sound (would normally play in the comball anim)
         wep:EmitSound("Weapon_CombineGuard.Special1")

@@ -15,6 +15,10 @@ end
 
 
         -- TODO --
+    -- Legacy model system
+
+    -- Fix "[ZBase]" showing in healthbar etc
+
     -- More basic variables and functions, use VJ Base as an example
 
     -- Sound variation system broken? fix
@@ -41,6 +45,7 @@ end
     -- Crab synth SNPC
         -- Armor that deflects bullets
         -- Uses custom schedule system
+        -- Melee attack, charge attack, all that jazz
 
     -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
 

@@ -80,6 +80,7 @@ NPC.BaseMeleeAttackDistance = 100
 NPC.BaseMeleeAttackAnimations = {
     [ACT_MELEE_ATTACK1] = 1,
 }
+NPC.BaseMeleeAttackCooldown = {1, 2} -- Melee attack cooldown {min, max}
 
 
 
@@ -88,9 +89,7 @@ NPC.BaseMeleeAttackAnimations = {
 
 
         -- BASE RANGE ATTACK --
-
--- Use ZBase range attack system
-NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
+NPC.BaseRangeAttack = false -- Use ZBase range attack system
 
 
 

@@ -63,66 +63,64 @@ end
     -- Play an animation (sequence or activity)
     -- 'duration' - ...
     -- 'face' - ...
-function NPC:PlayAnimation( anim, duration, face )
-	if !face then face = "none" end
+-- function NPC:PlayAnimation( anim, duration, face )
+-- 	if !face then face = "none" end
 
-    -- Determine duration if not given
-    -- if !duration then
-    --     if isstring(anim) then
+--     -- Determine duration if not given
+--     -- if !duration then
+--     --     if isstring(anim) then
 
-    --         duration = self:SequenceDuration(anim)
+--     --         duration = self:SequenceDuration(anim)
 
-    --     elseif isnumber(anim) then
+--     --     elseif isnumber(anim) then
 
-    --         local seq = self:SelectWeightedSequence(anim)
-    --         duration = self:SequenceDuration(seq)
+--     --         local seq = self:SelectWeightedSequence(anim)
+--     --         duration = self:SequenceDuration(seq)
 
-    --     end
-    -- end
+--     --     end
+--     -- end
 
 
-    self.CurrentAnimation = anim
+--     self.CurrentAnimation = anim
 
-    self.SequenceFaceType = face
-	self.AnimFacePos = self:GetPos()+self:GetForward()*100 -- Static face position
+--     self.SequenceFaceType = face
+-- 	self.AnimFacePos = self:GetPos()+self:GetForward()*100 -- Static face position
     
 
-	if isstring(anim) then
-        -- Sequence, try to convert to activity
-		local act = self:GetSequenceActivity(self:LookupSequence(anim))
+-- 	if isstring(anim) then
+--         -- Sequence, try to convert to activity
+-- 		local act = self:GetSequenceActivity(self:LookupSequence(anim))
 
         
-		if act == -1 then
-            -- No activity for the sequence, set it directly instead of setting the activity 
-			self:ResetSequence(self.CurrentAnimation)
-        else
-            -- Sequence has activity, play as such
-            print("ResetIdealActivity from str, duration:", duration)
-            self:ResetIdealActivity(act)
-		end
+-- 		if act == -1 then
+--             -- No activity for the sequence, set it directly instead of setting the activity 
+-- 			self:ResetSequence(self.CurrentAnimation)
+--         else
+--             -- Sequence has activity, play as such
+--             self:ResetIdealActivity(act)
+-- 		end
 	
-	elseif isnumber(anim) then
-        -- 'anim' is activity
-		self:ResetIdealActivity(anim)
-	end
+-- 	elseif isnumber(anim) then
+--         -- 'anim' is activity
+-- 		self:ResetIdealActivity(anim)
+-- 	end
 
-    -- Stop the NPC
-    if self.IsZBase_SNPC then
-        self:StopAndPreventSelectSchedule( duration )
-    else
-        self:ClearGoal()
-        self:ClearSchedule()
-    end
+--     -- Stop the NPC
+--     if self.IsZBase_SNPC then
+--         self:StopAndPreventSelectSchedule( duration )
+--     else
+--         self:ClearGoal()
+--     end
 
-    -- Reset after duration
-    timer.Create("ZNPC_StopPlayAnimation"..self:EntIndex(), duration, 1, function()
-        if !IsValid(self) then return end
-        self.CurrentAnimation = nil
-        self.SequenceFaceType = nil
-        self.AnimFacePos = nil
-        self:ResetIdealActivity(ACT_IDLE)
-    end)
-end
+--     -- Reset after duration
+--     timer.Create("ZNPC_StopPlayAnimation"..self:EntIndex(), duration, 1, function()
+--         if !IsValid(self) then return end
+--         self.CurrentAnimation = nil
+--         self.SequenceFaceType = nil
+--         self.AnimFacePos = nil
+--         self:ResetIdealActivity(ACT_IDLE)
+--     end)
+-- end
 --------------------------------------------------------------------------------=#
 
 
