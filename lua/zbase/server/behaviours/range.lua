@@ -1,1 +1,1 @@
-local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
+local BEHAVIOUR = ZBaseNPCs["npc_zbase"].Behaviours

@@ -1,4 +1,4 @@
-local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
+local BEHAVIOUR = ZBaseNPCs["npc_zbase"].Behaviours
 
 BEHAVIOUR.Patrol = {
     MustNotHaveEnemy = true, --  Don't run the behaviour if the NPC doesn't have an enemy

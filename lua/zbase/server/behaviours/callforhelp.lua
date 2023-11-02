@@ -1,4 +1,4 @@
-local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
+local BEHAVIOUR = ZBaseNPCs["npc_zbase"].Behaviours
 
 BEHAVIOUR.FactionCallForHelp = {
     MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy? 

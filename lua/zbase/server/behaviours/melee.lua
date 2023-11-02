@@ -1,4 +1,4 @@
-local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
+local BEHAVIOUR = ZBaseNPCs["npc_zbase"].Behaviours
 
 BEHAVIOUR.MeleeAttack = {
     MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
