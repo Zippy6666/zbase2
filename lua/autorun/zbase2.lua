@@ -90,23 +90,23 @@ end
 
 -------------------------------------------------------------------------------------------------------------------------=#
 local function IncludeFiles()
-    AddCSLuaFile("zbase/cl_hooks.lua")
-    AddCSLuaFile("zbase/cl_spawnmenu.lua")
-    AddCSLuaFile("zbase/cl_toolmenu.lua")
+    AddCSLuaFile("zbase/client/hooks.lua")
+    AddCSLuaFile("zbase/client/spawnmenu.lua")
+    AddCSLuaFile("zbase/client/toolmenu.lua")
 
-    include("zbase/sh_globals.lua")
-    include("zbase/sh_replace_funcs.lua")
-    include("zbase/sh_hooks.lua")
+    include("zbase/shared/globals.lua")
+    include("zbase/shared/sh_replace_funcs.lua")
+    include("zbase/shared/sh_hooks.lua")
 
     if SERVER then
-        include("zbase/sv_behaviour.lua")
-        include("zbase/sv_hooks.lua")
+        include("zbase/server/behaviour.lua")
+        include("zbase/server/hooks.lua")
     end
 
     if CLIENT then
-        include("zbase/cl_hooks.lua")
-        include("zbase/cl_spawnmenu.lua")
-        include("zbase/cl_toolmenu.lua")
+        include("zbase/client/hooks.lua")
+        include("zbase/client/pawnmenu.lua")
+        include("zbase/client/toolmenu.lua")
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
@@ -141,6 +141,12 @@ local function NPCsInherit()
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
+local function RegBase()
+
+
+end
+-------------------------------------------------------------------------------------------------------------------------=#
+
 local function NPCReg( name, path )
     if string.StartsWith(name, "npc_") then
 
@@ -152,14 +158,6 @@ local function NPCReg( name, path )
 
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA") then
-
-            -- New NPC
-            ZBaseNPCs[name] = {}
-            if name == "npc_zbase" then
-                ZBaseNPCs[name].Behaviours={}
-            end
-
-            -- Files --
             include(sh)
             AddCSLuaFile(sh)
 
@@ -169,21 +167,11 @@ local function NPCReg( name, path )
 
             if SERVER then
                 include(sv)
-
-                if name == "npc_zbase" then
-                    local base = path.."/base.lua"
-                    local util = path.."/util.lua"
-                    local bh = path.."/behaviour.lua"
-                    include(base)
-                    include(util)
-                    include(bh)
-                end
             end
 
             if file.Exists(cl, "LUA") && CLIENT then
                 include(cl)
             end
-            --------------------------------=#
         end
     end
 end
@@ -191,7 +179,7 @@ end
 local function registerNPCs()
     local _, dirs = file.Find("zbase_npcs/*","LUA")
 
-    NPCReg("npc_zbase", "npc_zbase") -- Register base
+    RegBase() -- Register base
 
     -- Register all ZBase NPCs
     for _, v in ipairs(dirs) do
