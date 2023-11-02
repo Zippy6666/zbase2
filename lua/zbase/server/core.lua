@@ -363,14 +363,13 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
 
 
     -- Reset
-    timer.Simple(duration, function()
-        if !IsValid(self) then return end
+    -- timer.Simple(duration, function()
+    --     if !IsValid(self) then return end
 
-        self:TaskComplete()
-        self:StopMoving()
-        self:ClearSchedule()
-        self:ClearGoal()
-        self:SetActivity(ACT_IDLE) -- Seems to help
-    end)
+    --     self:TaskComplete()
+    --     self:StopMoving()
+    --     self:ClearSchedule()
+    --     self:ClearGoal()
+    -- end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#

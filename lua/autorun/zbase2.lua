@@ -28,8 +28,6 @@ end
     -- More basic variables and functions, use VJ Base as an example
 
     -- Sound variation system broken? fix
-
-    -- Easy sound creating system
     
     -- Fix dumbass seach bar
 
@@ -104,10 +102,12 @@ local function IncludeFiles()
     AddCSLuaFile("zbase/client/hooks.lua")
     AddCSLuaFile("zbase/client/spawnmenu.lua")
     AddCSLuaFile("zbase/client/toolmenu.lua")
+    
 
     include("zbase/shared/globals.lua")
     include("zbase/shared/replace_funcs.lua")
     include("zbase/shared/hooks.lua")
+    include("zbase/shared/sounds.lua")
 
     if SERVER then
         include("zbase/server/behaviour.lua")

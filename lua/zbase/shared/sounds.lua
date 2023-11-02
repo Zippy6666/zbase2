@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 sound.Add( {
 	name = "ZBase.Idle",
 	channel = CHAN_VOICE,
@@ -58,6 +60,35 @@ sound.Add( {
 	pitch = {80, 90},
 	sound = {
 		"npc/zombie_poison/pz_throw2.wav",
+    }
+} )
+
+sound.Add( {
+	name = "ZBase.Melee1",
+	channel = CHAN_BODY,
+	volume = 0.8,
+	level = 75,
+	pitch = {95, 105},
+	sound = {
+        "npc/fast_zombie/claw_strike1.wav",
+		"npc/fast_zombie/claw_strike2.wav",
+		"npc/fast_zombie/claw_strike3.wav",
+    }
+} )
+
+sound.Add( {
+	name = "ZBase.Melee2",
+	channel = CHAN_BODY,
+	volume = 0.8,
+	level = 75,
+	pitch = {95, 105},
+	sound = {
+        "physics/body/body_medium_impact_hard1.wav",
+		"physics/body/body_medium_impact_hard2.wav",
+		"physics/body/body_medium_impact_hard3.wav",
+        "physics/body/body_medium_impact_hard4.wav",
+		"physics/body/body_medium_impact_hard5.wav",
+		"physics/body/body_medium_impact_hard6.wav",
     }
 } )
 

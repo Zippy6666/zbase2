@@ -1,4 +1,5 @@
-local BEHAVIOUR = ZBaseNPCs["npc_zbase"].Behaviours
+local NPC = ZBaseNPCs["npc_zbase"]
+local BEHAVIOUR = NPC.Behaviours
 
 BEHAVIOUR.MeleeAttack = {
     MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
@@ -14,6 +15,28 @@ local BusyScheds = {
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------------=#
+function NPC:MeleeAttackDamage()
+    local soundEmitted = false
+    for _, ent in ipairs(ents.FindInSphere(self:WorldSpaceCenter(), self.MeleeDamage_Distance)) do
+        if ent == self then continue end
+
+        local disp = self:Disposition(ent)
+        if disp == D_LI or disp == D_NU then continue end
+
+        local dmg = DamageInfo()
+        dmg:SetAttacker(self)
+        dmg:SetInflictor(self)
+        dmg:SetDamage(ZBaseRndTblRange(self.MeleeDamage))
+        dmg:SetDamageType(self.MeleeDamage_Type)
+        ent:TakeDamageInfo(dmg)
+
+        if !soundEmitted then
+            ent:EmitSound(self.MeleeDamage_Sound)
+            soundEmitted = true
+        end
+    end
+end
+-----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )
     local sched = self:GetCurrentSchedule()
 
@@ -24,9 +47,23 @@ function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.MeleeAttack:Run( self )
-    local anim = table.Random(self.MeleeAttackAnimations)
+    local prevent = self:BeforeMeleeAttack()
 
+    if prevent then
+        return
+    end
+
+    -- Animation
+    local anim = table.Random(self.MeleeAttackAnimations)
+    print(anim)
     self:InternalPlayAnimation(anim, nil, nil, SCHED_MELEE_ATTACK1)
+
+    -- Damage
+    timer.Simple(self.MeleeDamage_Delay, function()
+        if !IsValid(self) then return end
+        self:MeleeAttackDamage()
+    end)
+
     ZBaseDelayBehaviour(self:SequenceDuration() + ZBaseRndTblRange(self.MeleeAttackCooldown))
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#

@@ -72,7 +72,7 @@ NPC.ArmorHitSpark = true -- Do a spark on armor hit
         -- BASE MELEE ATTACK --
 
 NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
-NPC.MeleeAttackDistance = 100
+NPC.MeleeAttackDistance = 75
 
 -- Melee attack animations
 NPC.MeleeAttackAnimations = {
@@ -80,8 +80,12 @@ NPC.MeleeAttackAnimations = {
 }
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 
-
-
+NPC.MeleeDamage = {10, 10} -- Melee damage {min, max}
+NPC.MeleeDamage_Distance = 100 -- Distance the damage travels
+NPC.MeleeDamage_Angle = 180 -- Damage angle (180 = everything in front of the NPC is damaged)
+NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes
+NPC.MeleeDamage_Type = DMG_GENERIC -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
+NPC.MeleeDamage_Sound = "ZBase.Melee2"
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
@@ -222,5 +226,10 @@ end
 
     -- Called when the base detects that the NPC is running a new schedule
 function NPC:CustomNewScheduleDetected( sched ) 
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Called before the base melee attack is ran
+function NPC:BeforeMeleeAttack()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
