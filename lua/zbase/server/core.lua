@@ -329,13 +329,19 @@ function NPC:InternalSetAnimation( anim )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
-    local duration, anim = table.Random(self.BaseMeleeAttackAnimations)
-
     -- Duration stuff
     self:InternalSetAnimation(anim)
     duration = duration or self:SequenceDuration()
     if playbackRate then
         duration = duration/playbackRate
+    end
+
+
+    -- Set schedule
+    if sched then
+        self:SetPlaybackRate(1) -- Am i hallucinating, or does this help?
+        self:SetSchedule(sched)
+        self:SetPlaybackRate(1) -- Am i hallucinating, or does this help?
     end
 
 
@@ -349,15 +355,9 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
             return
         end
 
-        if sched && !self:IsCurrentSchedule(sched) then
-            self:SetSchedule(sched)
-        end
-
         self:InternalSetAnimation(anim)
 
-        if playbackRate then
-            self:SetPlaybackRate(playbackRate)
-        end
+        self:SetPlaybackRate(playbackRate or 1)
     end)
     ---------------------------------------------=#
 

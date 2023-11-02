@@ -72,15 +72,13 @@ NPC.ArmorHitSpark = true -- Do a spark on armor hit
         -- BASE MELEE ATTACK --
 
 NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
-NPC.BaseMeleeAttackDistance = 100
+NPC.MeleeAttackDistance = 100
+
 -- Melee attack animations
--- The table key is the animation (string sequence, or number activity) 
--- The table value is the duration in seconds until the animation cuts off (set to false to use the default duration of the animation)
--- [animation] = *duration of animation*
-NPC.BaseMeleeAttackAnimations = {
-    [ACT_MELEE_ATTACK1] = false,
+NPC.MeleeAttackAnimations = {
+    ACT_MELEE_ATTACK1,
 }
-NPC.BaseMeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
+NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 
 
 
