@@ -1,6 +1,5 @@
 ---------------------------------------------------------------------------------------=#
 net.Receive("ZBaseInitEnt", function()
-    local ent = net.ReadEntity()
-    ent:ZBaseInit(net.ReadString())
+    ent:ZBaseInit(net.ReadEntity())
 end)
 ---------------------------------------------------------------------------------------=#

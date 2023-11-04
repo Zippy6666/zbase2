@@ -14,25 +14,71 @@ local VJ_Translation_Flipped = {
     ["ally"] = "CLASS_PLAYER_ALLY",
 }
 
+local ReloadActs = {
+    [ACT_RELOAD] = true,
+    [ACT_RELOAD_SHOTGUN] = true,
+    [ACT_RELOAD_SHOTGUN_LOW] = true,
+    [ACT_RELOAD_SMG1] = true,
+    [ACT_RELOAD_SMG1_LOW] = true,
+    [ACT_RELOAD_PISTOL] = true,
+    [ACT_RELOAD_PISTOL_LOW] = true,
+}
+
+
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:ZBaseInit( tbl )
+function NPC:ZBaseInit()
 
-    -- Model
-    if !table.IsEmpty(self.Models) then
-        self:SetModel(table.Random(self.Models))
-    end
+        -- EDITED FROM GMOD SPAWNMENU CODE --
+	-- Store spawnmenu data for addons and stuff
+	self._wasSpawnedOnCeiling = wasSpawnedOnCeiling
 
-    self:SetMaxHealth(self.StartHealth)
-    self:SetHealth(self.StartHealth)
+
+	-- For those NPCs that set their model in Spawn function
+	-- We have to keep the call above for NPCs that want a model set by Spawn() time
+	-- BAD: They may adversly affect entity collision bounds
+	if ( self.NPCTable.Model && self:GetModel():lower() != self.NPCTable.Model:lower() ) then
+		self:SetModel( self.NPCTable.Model )
+	end
+
+
+	if ( bDropToFloor ) then
+		self:DropToFloor()
+	end
+
+
+	if ( self.NPCTable.Health ) then
+        self:SetMaxHealth( self.NPCTable.Health )
+		self:SetHealth( self.NPCTable.Health )
+	end
+
+
+	-- -- Body groups
+	if ( self.NPCTable.BodyGroups ) then
+		for k, v in pairs( self.NPCTable.BodyGroups ) do
+			self:SetBodygroup( k, v )
+		end
+	end
+    ---------------------------------------------------------------------------------=#
+
+
+        -- ZBase stuff --
+    -- Vars
+    self.NextPainSound = CurTime()
+
+
+    -- Some calls based on attributes
     self:SetMaxLookDistance(self.SightDistance)
     self:SetCurrentWeaponProficiency(self.WeaponProficiency)
     self:SetBloodColor(self.BloodColor)
-    self:SetNWString("ZBaseName", self.Name)
 
+
+    -- Extra capabilities given
     for _, v in ipairs(self.ExtraCapabilities) do
         self:CapabilitiesAdd(v)
     end
 
+
+    -- Default capabilities for all zbase NPCs
     self:CapabilitiesAdd(bit.bor(
         CAP_SQUAD,
         CAP_TURN_HEAD,
@@ -41,25 +87,25 @@ function NPC:ZBaseInit( tbl )
         CAP_FRIENDLY_DMG_IMMUNE
     ))
 
+
+    -- Set specified internal variables
     self:ZBaseSetSaveValues()
     
+
+    -- Group in squads
     timer.Simple(1, function()
         if !IsValid(self) then return end
         self:ZBaseSquad()
     end)
 
+
+    -- Makes behaviour system function
     ZBaseBehaviourInit( self )
 
-    -- Better position
-    if !self.IsZBase_SNPC then
-        self:SetPos(self:GetPos()+Vector(0, 0, 20))
-    end
-
-    self.NextPainSound = CurTime()
 
     -- Custom init
     self:CustomInitialize()
-
+    ---------------------------------------------------------------------------------=#
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnEmitSound( data )
@@ -130,16 +176,6 @@ function NPC:ZBaseSetSaveValues()
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-local ReloadActs = {
-    [ACT_RELOAD] = true,
-    [ACT_RELOAD_SHOTGUN] = true,
-    [ACT_RELOAD_SHOTGUN_LOW] = true,
-    [ACT_RELOAD_SMG1] = true,
-    [ACT_RELOAD_SMG1_LOW] = true,
-    [ACT_RELOAD_PISTOL] = true,
-    [ACT_RELOAD_PISTOL_LOW] = true,
-}
-
 function NPC:NewActivityDetected( act )
     -- Reload ZBase weapon sound:
     local wep = self:GetActiveWeapon()
@@ -159,63 +195,6 @@ function NPC:ZBaseAlertSound()
     end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
--- function NPC:DoCurrentAnimation()
---     if !self.CurrentAnimation then return end
-
-
--- 	-- Animation stuff --
--- 	if isstring(self.CurrentAnimation) then
-
--- 		-- Sequence, try to convert to activity
--- 		local act = self:GetSequenceActivity(self:LookupSequence(self.CurrentAnimation))
-
--- 		if act != -1 then
--- 			-- Success, play as activity
--- 			self:SetActivity(act)
--- 		else
--- 			-- No activity for the sequence, set it directly instead of setting the activity 
--- 			self:SetSequence(self.CurrentAnimation)
--- 		end
-
--- 	elseif isnumber(self.CurrentAnimation) then
-
--- 		-- 'self.CurrentAnimation' is activity
--- 		self:SetActivity(self.CurrentAnimation)
-
--- 	end
--- 	-----------------------------=#
-
-	
--- 	-- Facing stuff --
--- 	local face = self.SequenceFaceType
--- 	local enemy = self:GetEnemy()
--- 	local enemyPos = IsValid(enemy) && enemy:GetPos()
-
--- 	if face == "enemy" && enemyPos then
--- 		-- Face enemy
--- 		self.AnimFacePos = enemyPos
--- 	elseif face == "enemy_visible" && enemyPos && self:Visible(enemy) then
--- 		-- Face enemy visible
--- 		self.AnimFacePos = enemyPos
--- 	end
-
--- 	if face != "none" then
--- 		-- Face static direction
--- 		self:Face(self.AnimFacePos)
--- 	end
--- 	-----------------------------=#
-
-
--- 	-- Try to make sure NPC is still
--- 	self:SetMoveVelocity(Vector())
--- end
----------------------------------------------------------------------------------------------------------------------=#
-
----------------------------------------------------------------------------------------------------------------------=#
--- function NPC:NewScheduleDetected( sched )       
---     self:CustomNewScheduleDetected( sched )     
--- end
----------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
 
     local ene = self:GetEnemy()
@@ -230,7 +209,6 @@ function NPC:ZBaseThink()
     end
 
     self:Relationships()
-    -- self:DoCurrentAnimation()
 
     -- Activity change detection
     local act = self:GetActivity()
@@ -238,13 +216,6 @@ function NPC:ZBaseThink()
         self.ZBaseCurrentACT = act
         self:NewActivityDetected( self.ZBaseCurrentACT )
     end
-
-    -- Schedule change detection
-    -- local sched = self:GetCurrentSchedule()
-    -- if sched && sched != self.ZBaseCurrentSched then
-    --     self.ZBaseCurrentSched = sched
-    --     self:NewScheduleDetected( self.ZBaseCurrentSched )
-    -- end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:SetRelationship( ent, rel )
@@ -364,16 +335,5 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
         self:SetPlaybackRate(playbackRate or 1)
     end)
     ---------------------------------------------=#
-
-
-    -- Reset
-    -- timer.Simple(duration, function()
-    --     if !IsValid(self) then return end
-
-    --     self:TaskComplete()
-    --     self:StopMoving()
-    --     self:ClearSchedule()
-    --     self:ClearGoal()
-    -- end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#

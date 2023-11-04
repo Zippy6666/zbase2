@@ -15,15 +15,17 @@ end
 
 
         -- TODO --
+    -- NPC update command (that runs spawnmenu reload too?)
+
+    -- Make sure ZBase handles all npc classes well (especially zombies!!)
+
     -- Remove comments from NPC examples, they may contain false information
     
-    -- Legacy model system (better spawn system that doesn't use parentname?)
+    -- Use exclusivly the zbase menu for spawning
 
     -- Fix death sounds
 
     -- Faction dropdown system
-
-    -- Fix "[ZBase]" showing in healthbar etc
 
     -- More basic variables and functions, use VJ Base as an example
 
@@ -105,13 +107,13 @@ local function IncludeFiles()
     
 
     include("zbase/shared/globals.lua")
-    include("zbase/shared/replace_funcs.lua")
     include("zbase/shared/hooks.lua")
     include("zbase/shared/sounds.lua")
 
     if SERVER then
         include("zbase/server/behaviour.lua")
         include("zbase/server/hooks.lua")
+        include("zbase/server/spawn_npc.lua")
     end
 
     if CLIENT then
@@ -153,7 +155,7 @@ local function NPCsInherit()
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 local function RegBase()
-    ZBaseNPCs["npc_zbase"] = {}
+    ZBaseNPCs["npc_zbase"] = {ZBase_Class="npc_zbase"}
 
     local npcpath = "zbase/npcs/npc_zbase/"
 
@@ -191,7 +193,7 @@ local function NPCReg( name )
 
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA") then
-            ZBaseNPCs[name] = {}
+            ZBaseNPCs[name] = {ZBase_Class=name}
 
             include(sh)
             AddCSLuaFile(sh)
@@ -231,16 +233,14 @@ local function AddNPCsToSpawnMenu()
             Category=t.Category,
             Class = t.Class,
             Weapons = t.Weapons,
-            Model = t.Model,
+            Models = t.Models,
             KeyValues = table.Copy(t.KeyValues),
+            ZBase_Class = t.ZBase_Class
         }
-        if SERVER then
-            if !ZBaseSpawnMenuTbl.KeyValues then ZBaseSpawnMenuTbl.KeyValues = {} end
-            ZBaseSpawnMenuTbl.KeyValues.parentname = "zbase_"..cls
-            ZBaseSpawnMenuTbl.KeyValues.spawnflags = bit.bor(ZBaseSpawnMenuTbl.KeyValues.spawnflags or 0, 256) -- Long Visibility/Shoot
-        end
+
 
         ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
+
 
          -- Add to regular spawn menu
         local SpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
@@ -253,9 +253,11 @@ local function AddNPCsToSpawnMenu()
         list.Set("NPC", cls, SpawnMenuTable)
         ----------------------------------------------------------=#
 
+
+        -- Replace default spawn menu npcs
         local replaceTargetTbl = list.Get("NPC")[t.Replace]
         if ZBaseCvar_Replace:GetBool() && t.Replace && replaceTargetTbl then
-            -- Replace default spawn menu npcs
+            
 
             local replaceTable = table.Copy(SpawnMenuTable)
             replaceTable.Category = replaceTargetTbl.Category
@@ -278,6 +280,7 @@ hook.Add("Initialize", "ZBASE", function()
     ZBaseInitialized = true
 end)
 -------------------------------------------------------------------------------------------------------------------------=#
+
 
 IncludeFiles()
 registerNPCs()
