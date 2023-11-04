@@ -36,74 +36,7 @@ local function TryFixPropPosition( ply, ent, hitpos )
 	fixupProp( ply, ent, hitpos, Vector( 0, 0, ent:OBBMins().z ), Vector( 0, 0, ent:OBBMaxs().z ) )
 end
 ---------------------------------------------------------------------------------------------------------=#
-local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor )
-	local NPCList = ZBaseSpawnMenuNPCList
-	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
-
-
-	-- Don't let them spawn this entity if it isn't in our NPC Spawn list.
-	-- We don't want them spawning any entity they like!
-	if ( !NPCData ) then return end
-
-
-	local isAdmin = ( IsValid( ply ) && ply:IsAdmin() ) or game.SinglePlayer()
-	if ( NPCData.AdminOnly && !isAdmin ) then return end
-
-
-	--
-	-- This NPC has to be spawned on a ceiling (Barnacle) or a floor (Turrets)
-	--
-	local bDropToFloor = false
-	local wasSpawnedOnCeiling = false
-	local wasSpawnedOnFloor = false
-	if ( NPCData.OnCeiling or NPCData.OnFloor ) then
-		local isOnCeiling	= Vector( 0, 0, -1 ):Dot( Normal ) >= 0.95
-		local isOnFloor		= Vector( 0, 0,  1 ):Dot( Normal ) >= 0.95
-
-		-- Not on ceiling, and we can't be on floor
-		if ( !isOnCeiling && !NPCData.OnFloor ) then return end
-
-		-- Not on floor, and we can't be on ceiling
-		if ( !isOnFloor && !NPCData.OnCeiling ) then return end
-
-		-- We can be on either, and we are on neither
-		if ( !isOnFloor && !isOnCeiling ) then return end
-
-		wasSpawnedOnCeiling = isOnCeiling
-		wasSpawnedOnFloor = isOnFloor
-	else
-		bDropToFloor = true
-	end
-
-
-	if ( NPCData.NoDrop or NoDropToFloor ) then bDropToFloor = false end
-
-
-	-- Create NPC
-	local NPC = ents.Create( NPCData.Class )
-	if ( !IsValid( NPC ) ) then return end
-
-
-	--
-	-- Offset the position
-	--
-	local Offset = NPCData.Offset or 32
-	NPC:SetPos( Position + Normal * Offset )
-
-
-	-- Rotate to face player (expected behaviour)
-	local Angles = Angle( 0, 0, 0 )
-	if ( IsValid( ply ) ) then
-		Angles = ply:GetAngles()
-	end
-
-	Angles.pitch = 0
-	Angles.roll = 0
-	Angles.yaw = Angles.yaw + 180
-	if ( NPCData.Rotate ) then Angles = Angles + NPCData.Rotate end
-	NPC:SetAngles( Angles )
-
-
+function ZBaseInitialize( NPC, NPCData, Class, Equipment, doEffect, wasSpawnedOnCeiling, bDropToFloor )
 
         -- Table "transfer" --
     NPC.ZBase_Inherit = ZBaseNPCs[Class].Inherit
@@ -196,7 +129,7 @@ local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnF
 	end
 
 
-	-- -- Allow special case for duplicator stuff
+	-- Allow special case for duplicator stuff
 	if ( isfunction( NPCData.OnDuplicated ) ) then
 		NPC.OnDuplicated = NPCData.OnDuplicated
 	end
@@ -205,10 +138,11 @@ local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnF
     NPC:Spawn()
     NPC:Activate()
 
-	local ed = EffectData()
-	ed:SetEntity( NPC )
-	util.Effect( "zbasespawn", ed, true, true )
-
+	if doEffect then
+		local ed = EffectData()
+		ed:SetEntity( NPC )
+		util.Effect( "zbasespawn", ed, true, true )
+	end
 
     -- Metrocops are sus
     if myModel && NPCData.Class == "npc_metropolice" then
@@ -239,7 +173,6 @@ local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnF
 			NPC:SetBodygroup( k, v )
 		end
 	end
-    ---------------------------------------------------------------------------------=#
 
 
     -- "Register"
@@ -248,7 +181,77 @@ local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnF
 
 
 	return NPC
+end
+---------------------------------------------------------------------------------=#
+local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor )
+	local NPCList = ZBaseSpawnMenuNPCList
+	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
 
+
+	-- Don't let them spawn this entity if it isn't in our NPC Spawn list.
+	-- We don't want them spawning any entity they like!
+	if ( !NPCData ) then return end
+
+
+	local isAdmin = ( IsValid( ply ) && ply:IsAdmin() ) or game.SinglePlayer()
+	if ( NPCData.AdminOnly && !isAdmin ) then return end
+
+
+	--
+	-- This NPC has to be spawned on a ceiling (Barnacle) or a floor (Turrets)
+	--
+	local bDropToFloor = false
+	local wasSpawnedOnCeiling = false
+	local wasSpawnedOnFloor = false
+	if ( NPCData.OnCeiling or NPCData.OnFloor ) then
+		local isOnCeiling	= Vector( 0, 0, -1 ):Dot( Normal ) >= 0.95
+		local isOnFloor		= Vector( 0, 0,  1 ):Dot( Normal ) >= 0.95
+
+		-- Not on ceiling, and we can't be on floor
+		if ( !isOnCeiling && !NPCData.OnFloor ) then return end
+
+		-- Not on floor, and we can't be on ceiling
+		if ( !isOnFloor && !NPCData.OnCeiling ) then return end
+
+		-- We can be on either, and we are on neither
+		if ( !isOnFloor && !isOnCeiling ) then return end
+
+		wasSpawnedOnCeiling = isOnCeiling
+		wasSpawnedOnFloor = isOnFloor
+	else
+		bDropToFloor = true
+	end
+
+
+	if ( NPCData.NoDrop or NoDropToFloor ) then bDropToFloor = false end
+
+
+	-- Create NPC
+	local NPC = ents.Create( NPCData.Class )
+	if ( !IsValid( NPC ) ) then return end
+
+
+	--
+	-- Offset the position
+	--
+	local Offset = NPCData.Offset or 32
+	NPC:SetPos( Position + Normal * Offset )
+
+
+	-- Rotate to face player (expected behaviour)
+	local Angles = Angle( 0, 0, 0 )
+	if ( IsValid( ply ) ) then
+		Angles = ply:GetAngles()
+	end
+
+	Angles.pitch = 0
+	Angles.roll = 0
+	Angles.yaw = Angles.yaw + 180
+	if ( NPCData.Rotate ) then Angles = Angles + NPCData.Rotate end
+	NPC:SetAngles( Angles )
+
+
+	return ZBaseInitialize( NPC, NPCData, Class, Equipment, true, wasSpawnedOnCeiling, bDropToFloor )
 end
 ---------------------------------------------------------------------------------------------------------=#
 function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )

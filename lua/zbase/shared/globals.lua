@@ -1,7 +1,7 @@
 AddCSLuaFile()
 
 ZBaseCvar_Replace = CreateConVar("zbase_replace", "0", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
-ZBaseCvar_HL2WepDMG = CreateConVar("zbase_hl2_wep_damage", "1", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
+ZBaseCvar_HL2WepDMG = CreateConVar("zbase_hl2_wep_damage", "0", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
 
 if !ZBaseNPCs then
     ZBaseNPCs = {}

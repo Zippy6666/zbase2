@@ -12,56 +12,6 @@ if !ZBaseInitialized then
     print("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
 end   
 -------------------------------------------------------------------------------------------------------------------------=#
-
-
-        -- BUGS --
-    -- Secondary fire jankyness
-    -- Sounds
-        -- Variation system
-        -- Turn taking system
-        -- Death sounds not being played
-        -- Idle sounds playing when dead
-
-
-
-        -- TODO (ranked by priority) --
-    -- 1. More basic variables and functions, use VJ Base as an example
-    -- 2. Aerial base
-    -- 3. More sounds
-            -- LostEnemySounds
-            -- ReloadSounds
-            -- SeeDangerSounds
-            -- HearDangerSounds
-            -- AllyDeathSounds
-    -- 4. Make sure ZBase handles all npc classes well (especially zombies!!)
-    -- 5. Any kind of general npc improvement
-            -- Extended jumping
-            -- Hearing system
-            -- Ground node navigation system
-    -- 6. Controller
-    -- 7. Faction dropdown system
-    -- 8. Spawning utilities
-    -- 9. Bodygroup system
-    -- 10. Submaterial system
-    -- 11. Custom blood system
-            --White blood decals for hunters
-
-
-
-        -- FINAL --
-    -- Make sure all NPCs have their full potential
-    -- Make more user friendly with comments and shit, remove comments from NPC examples, they may contain false information, dummy git
-    -- Make sure everything works
-    -- Compatible with my other addons
-
-
-
-
-        -- GOOD STUFF --
-    --https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/game/server/ai_basenpc.cpp
-
--------------------------------------------------------------------------------------------------------------------------=#
-
 if BRANCH != "x86-64" && BRANCH != "dev" then
     -------------------------------------------------------------------------------------------------------------------------=#
     if SERVER then
@@ -84,8 +34,6 @@ if BRANCH != "x86-64" && BRANCH != "dev" then
     -------------------------------------------------------------------------------------------------------------------------=#
     return
 end
-
-
 -------------------------------------------------------------------------------------------------------------------------=#
 if CLIENT then
     net.Receive("ZBaseReload", function()
@@ -282,16 +230,19 @@ end)
 -------------------------------------------------------------------------------------------------------------------------=#
 
 
-IncludeFiles()
-registerNPCs()
-
 if ZBaseInitialized then
     table.Empty( ZBaseNPCs )
     table.Empty( ZBaseSpawnMenuNPCList )
+    
+    IncludeFiles()
+    registerNPCs()
 
     NPCsInherit()
     AddNPCsToSpawnMenu()
 
     RunConsoleCommand("spawnmenu_reload")
     print("ZBase Reloaded!")
+else
+    IncludeFiles()
+    registerNPCs()
 end
