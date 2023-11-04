@@ -10,20 +10,6 @@ PANEL.m_bBackground = true -- Hack for above
 
 
 -----------------------------------------------------------------------------------------=#
-local function DoGenericSpawnmenuRightclickMenu( self )
-	local menu = DermaMenu()
-		menu:AddOption( "#spawnmenu.menu.copy", function() SetClipboardText( self:GetSpawnName() ) end ):SetIcon( "icon16/page_copy.png" )
-		if ( isfunction( self.OpenMenuExtra ) ) then
-			self:OpenMenuExtra( menu )
-		end
-
-		if ( !IsValid( self:GetParent() ) || !self:GetParent().GetReadOnly || !self:GetParent():GetReadOnly() ) then
-			menu:AddSpacer()
-			menu:AddOption( "#spawnmenu.menu.delete", function() self:Remove() hook.Run( "SpawnlistContentChanged" ) end ):SetIcon( "icon16/bin_closed.png" )
-		end
-	menu:Open()
-end
------------------------------------------------------------------------------------------=#
 spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	if ( !obj.material ) then return end
 	if ( !obj.nicename ) then return end
@@ -39,24 +25,25 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	icon:SetAdminOnly( obj.admin )
 	icon:SetColor( Color( 205, 92, 92, 255 ) )
 	icon.DoClick = function()
-		RunConsoleCommand( "zbase_spawnnpc", obj.spawnname )
-		surface.PlaySound( "ui/buttonclickrelease.wav" ) -- Use different sound maybe? :O
+		local override = GetConVar("gmod_npcweapon"):GetString()
+		RunConsoleCommand( "zbase_spawnnpc", obj.spawnname, override == "" && table.Random(obj.weapon) or override )
+		surface.PlaySound( "buttons/button16.wav" )
 	end
 
 
-	icon.OpenMenuExtra = function( self, menu )
+	-- icon.OpenMenuExtra = function( self, menu )
 
-		menu:AddOption( "#spawnmenu.menu.spawn_with_toolgun", function()
-			RunConsoleCommand( "gmod_tool", "creator" )
-			RunConsoleCommand( "creator_type", "0" )
-			RunConsoleCommand( "creator_name", obj.spawnname, obj.weapon )
-			end 
-		):SetIcon( "icon16/brick_add.png" )
+	-- 	menu:AddOption( "#spawnmenu.menu.spawn_with_toolgun", function()
+	-- 		RunConsoleCommand( "gmod_tool", "creator" )
+	-- 		RunConsoleCommand( "creator_type", "0" )
+	-- 		RunConsoleCommand( "creator_name", obj.spawnname, table.Random(obj.weapon) )
+	-- 		end 
+	-- 	):SetIcon( "icon16/brick_add.png" )
 
-	end
+	-- end
 
 
-	icon.OpenMenu = DoGenericSpawnmenuRightclickMenu
+	-- icon.OpenMenu = DoGenericSpawnmenuRightclickMenu
 
 
 	if ( IsValid( container ) ) then

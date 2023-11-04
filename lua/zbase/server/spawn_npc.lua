@@ -38,7 +38,7 @@ end
 ---------------------------------------------------------------------------------------------------------=#
 local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor )
 	local NPCList = ZBaseSpawnMenuNPCList
-	local NPCData = NPCList[ Class ]
+	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
 
 
 	-- Don't let them spawn this entity if it isn't in our NPC Spawn list.
@@ -106,8 +106,7 @@ local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnF
 
 
         -- Table "transfer" --
-    NPC.ZBase_Class = NPCData.ZBase_Class
-    NPC.ZBase_Inherit = ZBaseNPCs[NPC.ZBase_Class].Inherit
+    NPC.ZBase_Inherit = ZBaseNPCs[Class].Inherit
 
         -- Inherit from base
     for k, v in pairs( ZBaseNPCs["npc_zbase"] ) do
@@ -120,7 +119,7 @@ local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnF
     end
 
         -- This npc's table
-    for k, v in pairs(ZBaseNPCs[NPC.ZBase_Class]) do
+    for k, v in pairs(ZBaseNPCs[Class]) do
         NPC[k] = v
     end
     --------------------------------------------------------------=#
@@ -202,13 +201,13 @@ local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnF
 		NPC.OnDuplicated = NPCData.OnDuplicated
 	end
 
-
-	-- DoPropSpawnedEffect( NPC ) -- New effect maybe??
-
-
     -- Spawn
     NPC:Spawn()
     NPC:Activate()
+
+	local ed = EffectData()
+	ed:SetEntity( NPC )
+	util.Effect( "zbasespawn", ed, true, true )
 
 
     -- Metrocops are sus
@@ -219,6 +218,28 @@ local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnF
 
 	NPC.NPCName = Class
 	NPC.NPCTable = NPCData
+
+        -- EDITED FROM GMOD SPAWNMENU CODE --
+	-- Store spawnmenu data for addons and stuff
+	NPC._wasSpawnedOnCeiling = wasSpawnedOnCeiling
+
+
+	if ( bDropToFloor ) then
+		NPC:DropToFloor()
+	end
+
+
+    NPC:SetMaxHealth(NPCData.StartHealth )
+    NPC:SetHealth( NPCData.StartHealth )
+
+
+	-- -- Body groups
+	if ( NPCData.BodyGroups ) then
+		for k, v in pairs( NPCData.BodyGroups ) do
+			NPC:SetBodygroup( k, v )
+		end
+	end
+    ---------------------------------------------------------------------------------=#
 
 
     -- "Register"

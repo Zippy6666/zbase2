@@ -108,7 +108,6 @@ end
 
 -------------------------------------------------------------------------------------------------------------------------=#
 local function IncludeFiles()
-    AddCSLuaFile("zbase/client/hooks.lua")
     AddCSLuaFile("zbase/client/spawnmenu.lua")
     AddCSLuaFile("zbase/client/toolmenu.lua")
     
@@ -124,7 +123,6 @@ local function IncludeFiles()
     end
 
     if CLIENT then
-        include("zbase/client/hooks.lua")
         include("zbase/client/spawnmenu.lua")
         include("zbase/client/toolmenu.lua")
     end
@@ -162,7 +160,7 @@ local function NPCsInherit()
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 local function RegBase()
-    ZBaseNPCs["npc_zbase"] = {ZBase_Class="npc_zbase"}
+    ZBaseNPCs["npc_zbase"] = {}
 
     local npcpath = "zbase/npcs/npc_zbase/"
 
@@ -200,7 +198,7 @@ local function NPCReg( name )
 
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA") then
-            ZBaseNPCs[name] = {ZBase_Class=name}
+            ZBaseNPCs[name] = {}
 
             include(sh)
             AddCSLuaFile(sh)
@@ -239,7 +237,6 @@ local function AddNPCsToSpawnMenu()
             Name=t.Name,
             Category=t.Category,
             Class = t.Class,
-            ZBase_Class = t.ZBase_Class,
             Weapons = t.Weapons,
             Models = t.Models,
             KeyValues = table.Copy(t.KeyValues),
@@ -254,6 +251,7 @@ local function AddNPCsToSpawnMenu()
             TotalSpawnFlags = t.TotalSpawnFlags,
             OnDuplicated = t.OnDuplicated,
             BodyGroups = BodyGroups,
+            StartHealth = t.StartHealth,
         }
 
 
