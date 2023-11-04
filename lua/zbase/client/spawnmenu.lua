@@ -124,23 +124,37 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 	end
 end)
 -----------------------------------------------------------------------------------------=#
-function PANEL:AddTextEntry( text, func, startVal, placeholdertext )
+function PANEL:GetAllFactions( factions )
+	self.PlyFactionDropDown:Clear()
+	self.NPCFactionDropDown:Clear()
+
+	self.NPCFactionDropDown:AddChoice("No Override")
+
+	for k in pairs(factions) do
+		self.PlyFactionDropDown:AddChoice(k)
+		self.NPCFactionDropDown:AddChoice(k)
+	end
+
+	self.PlyFactionDropDown:ChooseOption(self.PlyFactionDropDown.StartVal)
+	self.NPCFactionDropDown:ChooseOption(self.NPCFactionDropDown.StartVal)
+end
+net.Receive("ZBaseListFactions", function() LocalPlayer().ZBaseDDrawer:GetAllFactions(net.ReadTable()) end)
+-----------------------------------------------------------------------------------------=#
+function PANEL:AddDropdown( text, func, startVal )
 	local label = vgui.Create("DLabel", self)
 	label:SetText(text)
 	label:Dock(TOP)
 	label:SetColor(Color(0,0,0))
 
-	local textentry = vgui.Create("DTextEntry", self)
-	textentry:Dock(TOP)
-	textentry:SetPlaceholderText(placeholdertext)
-
-	if startVal then
-		textentry:SetText(startVal)
+	local dropdown = vgui.Create("DComboBox", self)
+	dropdown:Dock(TOP)
+	function dropdown:OnSelect(_, faction)
+		func(faction)
 	end
 
-	function textentry:OnEnter()
-		func(textentry:GetText())
-	end
+	dropdown.StartVal = startVal
+
+	return dropdown
 end
 -----------------------------------------------------------------------------------------=#
 function PANEL:AddHelp( text )
@@ -153,29 +167,25 @@ end
 function PANEL:Init()
 
 	self:DockPadding( 15, 10, 15, 10 )
-	self:SetOpenSize(240)
+	self:SetOpenSize(135)
 
-	self:AddHelp("Default Factions")
-	self:AddHelp("	> 'ally' - Allied with players and rebel NPCs")
-	self:AddHelp("	> 'combine' - Allied with combine NPCs")
-	self:AddHelp("	> 'zombie' - Allied with zombie NPCs")
-	self:AddHelp("	> 'antlion' - Allied with antlion NPCs")
-	self:AddHelp("	> 'none' - Allied with no NPCs")
-	self:AddHelp("	> 'neutral' - Allied with all NPCs")
+	self:AddHelp("Faction Settings")
 
-	self:AddTextEntry("Your Faction", function( v )
+	self.PlyFactionDropDown = self:AddDropdown("Your Faction", function( v )
 		if v != "" then
 			net.Start("ZBasePlayerFactionSwitch")
 			net.WriteString(v)
 			net.SendToServer()
 		end
-	end, "ally", "Enter Your Faction Here")
+	end, "ally")
 
-	self:AddTextEntry("NPC Faction Override", function( v )
+	self.NPCFactionDropDown = self:AddDropdown("NPC Faction Override", function( v )
 		net.Start("ZBaseNPCFactionOverrideSwitch")
 		net.WriteString(v)
 		net.SendToServer()
-	end, nil, "No Override")
+	end, "No Override")
+
+	ZBaseListFactions()
 
 	self:Open()
 
@@ -189,6 +199,7 @@ spawnmenu.AddCreationTab( "ZBase", function(...)
 
 	local sidebar = pnlContent.ContentNavBar
 	sidebar.Options = vgui.Create( "ZBaseSussyBaka", sidebar )
+	LocalPlayer().ZBaseDDrawer = sidebar.Options
 
     return pnlContent
 

@@ -14,9 +14,14 @@
 -------------------------------------------------------------------------------------------------------------------------=#
 
 
+                -- BUGS --
+        -- Squad error
+
+
         -- TODO (ranked by priority) --
-    -- 1. More basic variables and functions, use VJ Base as an example
+    -- 1. Make sure it has all the essential things
     -- 2. Aerial base
+            -- Ground node navigation system
     -- 3. More sounds
             -- LostEnemySounds
             -- SeeDangerSounds
@@ -25,19 +30,18 @@
             -- OnMeleeSounds
             -- OnRangeSounds
             -- OnReloadSounds
+            -- + Stop sounds on death
     -- 4. Make sure ZBase handles all npc classes well (especially zombies!!)
     -- 5. Any kind of general npc improvement
             -- Extended jumping
             -- Hearing system
-            -- Ground node navigation system
     -- 6. Controller
-    -- 7. Faction dropdown system
-    -- 8. Spawning utilities
-    -- 9. Bodygroup system
-    -- 10. Submaterial system
-    -- 11. Custom blood system
+    -- 7. Spawning utilities
+    -- 8. Bodygroup system
+    -- 9. Submaterial system
+    -- 10. Custom blood system
             --White blood decals for hunters
-    -- 12. More menu options
+    -- 11. More menu options
 
 
 

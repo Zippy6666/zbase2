@@ -20,6 +20,7 @@ function NPC:GetNearestAlly( radius )
 
     for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius)) do
         if v == self then continue end
+        if !v:IsNPC() then continue end
 
         if self:IsAlly(v) then
             local dist = self:GetPos():DistToSqr(v:GetPos())

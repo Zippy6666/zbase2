@@ -1,7 +1,9 @@
 AddCSLuaFile()
 
+
 ZBaseCvar_Replace = CreateConVar("zbase_replace", "0", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
 ZBaseCvar_HL2WepDMG = CreateConVar("zbase_hl2_wep_damage", "0", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
+
 
 if !ZBaseNPCs then
     ZBaseNPCs = {}
@@ -11,6 +13,7 @@ if !ZBaseNPCs then
     ZBaseSpawnMenuNPCList = {}
     ZBaseSpeakingSquads = {}
 end
+
 
 if SERVER then
     ZBaseFactionTranslation = {
@@ -56,6 +59,17 @@ ZBase_EmitSoundCall = false
 ZBase_DontSpeakOverThisSound = false
 ZBaseComballOwner = NULL
 
+
+local BloodEffects = {
+    [BLOOD_COLOR_RED] = "blood_impact_red_01",
+    [BLOOD_COLOR_ANTLION] = "blood_impact_antlion_01",
+    [BLOOD_COLOR_ANTLION_WORKER] = "blood_impact_antlion_worker_01",
+    [BLOOD_COLOR_GREEN] = "blood_impact_green_01",
+    [BLOOD_COLOR_ZOMBIE] = "blood_impact_zombie_01",
+    [BLOOD_COLOR_YELLOW] = "blood_impact_yellow_01",
+}
+
+
 if SERVER then
     util.AddNetworkString("ZBasePlayerFactionSwitch")
     util.AddNetworkString("ZBaseNPCFactionOverrideSwitch")
@@ -68,7 +82,12 @@ if SERVER then
     -----------------------------------------------------------------------------------------=#
     net.Receive("ZBaseNPCFactionOverrideSwitch", function( _, ply )
         local faction = net.ReadString()
-        ply.ZBaseNPCFactionOverride = faction
+        
+        if faction == "No Override" then
+            ply.ZBaseNPCFactionOverride = nil
+        else
+            ply.ZBaseNPCFactionOverride = faction
+        end
     end)
     -----------------------------------------------------------------------------------------=#
 end
@@ -113,15 +132,6 @@ function ZBaseRndTblRange( tbl )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 -- Blood effect from an NPC
-local BloodEffects = {
-    [BLOOD_COLOR_RED] = "blood_impact_red_01",
-    [BLOOD_COLOR_ANTLION] = "blood_impact_antlion_01",
-    [BLOOD_COLOR_ANTLION_WORKER] = "blood_impact_antlion_worker_01",
-    [BLOOD_COLOR_GREEN] = "blood_impact_green_01",
-    [BLOOD_COLOR_ZOMBIE] = "blood_impact_zombie_01",
-    [BLOOD_COLOR_YELLOW] = "blood_impact_yellow_01",
-}
-
 function ZBaseBleed( ent, pos, ang )
     if !ent.GetBloodColor then return end
     if ent.GetNPCState && ent:GetNPCState()==NPC_STATE_DEAD then return end
@@ -146,5 +156,32 @@ function ZBaseBleed( ent, pos, ang )
             ParticleEffect(effect, pos, ang or AngleRand())
         end
     end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function ZBaseListFactions( _, ply )
+    if SERVER then
+        local factions = {none=true, neutral=true}
+
+        for k, v in pairs(ZBaseNPCs) do
+            if v.ZBaseFaction then
+                factions[v.ZBaseFaction] = true
+            end
+        end
+
+        net.Start("ZBaseListFactions")
+        net.WriteTable(factions)
+        net.Send(ply)
+    end
+
+    if CLIENT then
+        net.Start("ZBase_GetFactionsFromServer")
+        net.SendToServer()
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+if SERVER then
+    util.AddNetworkString("ZBaseListFactions")
+    util.AddNetworkString("ZBase_GetFactionsFromServer")
+    net.Receive("ZBase_GetFactionsFromServer", ZBaseListFactions)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
