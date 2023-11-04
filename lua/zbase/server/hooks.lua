@@ -38,11 +38,11 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncs", function() timer.Simple(0.5, fun
 		return OnNPCKilled(self, npc, ...)
 	end
 	----------------------------------------------------------------------------------------------=#
-	function Spawn_NPC( ply, NPCClassName, WeaponName, tr )
+	function Spawn_NPC( ply, NPCClassName, WeaponName, tr, ... )
         if ZBaseNPCs[NPCClassName] then
-            return Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
+            return Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr, ... )
         else
-		    return SpawnNPC( ply, NPCClassName, WeaponName, tr )
+		    return SpawnNPC( ply, NPCClassName, WeaponName, tr, ... )
         end
 	end
 	----------------------------------------------------------------------------------------------=#

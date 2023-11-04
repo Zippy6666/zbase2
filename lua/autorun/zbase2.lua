@@ -15,13 +15,15 @@ end
 
 
         -- TODO --
+    -- New spawn effect
+
     -- NPC update command (that runs spawnmenu reload too?)
 
     -- Make sure ZBase handles all npc classes well (especially zombies!!)
 
     -- Remove comments from NPC examples, they may contain false information
     
-    -- Use exclusivly the zbase menu for spawning
+    -- Use only the zbase menu for spawning
 
     -- Fix death sounds
 
@@ -32,6 +34,11 @@ end
     -- Sound variation system broken? fix
     
     -- Fix dumbass seach bar
+
+    -- Bodygroup system
+
+    -- Transcendent vortigaunt
+        -- Use submaterial system
 
     -- More sounds
         -- LostEnemySounds
@@ -232,45 +239,55 @@ local function AddNPCsToSpawnMenu()
             Name=t.Name,
             Category=t.Category,
             Class = t.Class,
+            ZBase_Class = t.ZBase_Class,
             Weapons = t.Weapons,
             Models = t.Models,
             KeyValues = table.Copy(t.KeyValues),
-            ZBase_Class = t.ZBase_Class
+            OnFloor = t.OnFloor,
+            OnCeiling = t.OnCeiling,
+            NoDrop = t.NoDrop,
+            Offset = t.Offset,
+            Rotate = t.Rotate,
+            Skins = t.Skins,
+            AdminOnly = t.AdminOnly,
+            SpawnFlags = t.SpawnFlags,
+            TotalSpawnFlags = t.TotalSpawnFlags,
+            OnDuplicated = t.OnDuplicated,
+            BodyGroups = BodyGroups,
         }
 
 
         ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
 
 
-         -- Add to regular spawn menu
-        local SpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
-        SpawnMenuTable.Category = "ZBase - "..ZBaseSpawnMenuTbl.Category
+        -- Add to regular spawn menu
+        -- local SpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
+        -- SpawnMenuTable.Category = "ZBase - "..ZBaseSpawnMenuTbl.Category
 
-        if !file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
-            SpawnMenuTable.IconOverride = "entities/zbase.png"
-        end
+        -- if !file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
+        --     SpawnMenuTable.IconOverride = "entities/zbase.png"
+        -- end
 
-        list.Set("NPC", cls, SpawnMenuTable)
+        -- list.Set("NPC", cls, SpawnMenuTable)
         ----------------------------------------------------------=#
 
 
         -- Replace default spawn menu npcs
-        local replaceTargetTbl = list.Get("NPC")[t.Replace]
-        if ZBaseCvar_Replace:GetBool() && t.Replace && replaceTargetTbl then
+        -- local replaceTargetTbl = list.Get("NPC")[t.Replace]
+        -- if ZBaseCvar_Replace:GetBool() && t.Replace && replaceTargetTbl then
             
 
-            local replaceTable = table.Copy(SpawnMenuTable)
-            replaceTable.Category = replaceTargetTbl.Category
-            replaceTable.Name = "[ZBase] "..replaceTable.Name
+        --     local replaceTable = table.Copy(SpawnMenuTable)
+        --     replaceTable.Category = replaceTargetTbl.Category
+        --     replaceTable.Name = "[ZBase] "..replaceTable.Name
 
-            -- Replace image if available (otherwise it will just use monke)
-            if file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
-                replaceTable.IconOverride = "materials/entities/" .. cls .. ".png"
-            end
+        --     -- Replace image if available (otherwise it will just use monke)
+        --     if file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
+        --         replaceTable.IconOverride = "materials/entities/" .. cls .. ".png"
+        --     end
     
-            list.Set( "NPC", t.Replace, replaceTable )
-        end
-
+        --     list.Set( "NPC", t.Replace, replaceTable )
+        -- end
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
