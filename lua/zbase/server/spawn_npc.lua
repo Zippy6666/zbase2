@@ -36,7 +36,7 @@ local function TryFixPropPosition( ply, ent, hitpos )
 	fixupProp( ply, ent, hitpos, Vector( 0, 0, ent:OBBMins().z ), Vector( 0, 0, ent:OBBMaxs().z ) )
 end
 ---------------------------------------------------------------------------------------------------------=#
-function ZBaseInitialize( NPC, NPCData, Class, Equipment, doEffect, wasSpawnedOnCeiling, bDropToFloor )
+function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSpawnedOnCeiling, bDropToFloor )
 
         -- Table "transfer" --
     NPC.ZBase_Inherit = ZBaseNPCs[Class].Inherit
@@ -73,25 +73,30 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, doEffect, wasSpawnedOn
 	end
 
 
+	-- Keyvalues
+	for k, v in pairs( NPCData.KeyValues ) do
+		NPC:SetKeyValue( k, v )
+	end
+
+
+	-- Set temporary squad, which fixes stuff, like the metrocop arrest behaviour
+	NPC:SetKeyValue( "squadname", "zbase_"..Class )
+	print(NPC:GetKeyValues().squadname)
+
+
 	--
 	-- Spawn Flags
 	--
 	local SpawnFlags = bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE )
-	if ( NPCData.SpawnFlags ) then SpawnFlags = bit.bor( SpawnFlags, NPCData.SpawnFlags ) end
+	for _, v in ipairs(NPCData.SpawnFlags) do
+		SpawnFlags = bit.bor( SpawnFlags, v )
+	end
 	if ( NPCData.TotalSpawnFlags ) then SpawnFlags = NPCData.TotalSpawnFlags end
 	if ( SpawnFlagsSaved ) then SpawnFlags = SpawnFlagsSaved end
 	NPC:SetKeyValue( "spawnflags", SpawnFlags )
 	NPC.SpawnFlags = SpawnFlags
 
 
-	--
-	-- Optional Key Values
-	--
-	if ( NPCData.KeyValues ) then
-		for k, v in pairs( NPCData.KeyValues ) do
-			NPC:SetKeyValue( k, v )
-		end
-	end
 
 
     -- Set skin
@@ -135,10 +140,13 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, doEffect, wasSpawnedOn
 	end
 
     -- Spawn
-    NPC:Spawn()
-    NPC:Activate()
+	if isNotFirstSpawn then
+		NPC:Spawn()
+		NPC:Activate()
+	end
 
-	if doEffect then
+
+	if isNotFirstSpawn then
 		local ed = EffectData()
 		ed:SetEntity( NPC )
 		util.Effect( "zbasespawn", ed, true, true )

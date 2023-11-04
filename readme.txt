@@ -15,11 +15,11 @@
 
 
         -- BUGS --
+    -- Spawnmenu issue
     -- Sounds
         -- Variation system broken
-        -- Turn taking system broken
         -- Death sounds not being played
-        -- Idle sounds playing when dead
+        -- Idle sounds playing when dead (just silence all sounds on removal...)
         -- Reload sounds is playing excessivly
 
 
@@ -47,6 +47,7 @@
     -- 10. Submaterial system
     -- 11. Custom blood system
             --White blood decals for hunters
+    -- 12. More menu options
 
 
 

@@ -23,6 +23,7 @@ NPC.SightDistance = 7000 -- Sight distance
 NPC.StartHealth = 50 -- Max health
 NPC.CanPatrol = true -- Use base patrol behaviour
 NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
+NPC.SpawnFlags = {} -- Ex. NPC.SpawnFlags = {SF_NPC_DROP_HEALTHKIT, SF_NPC_NO_WEAPON_DROP}, https://wiki.facepunch.com/gmod/Enums/SF
 NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.CallForHelpDistance = 2000 -- Call for help distance
 
@@ -108,9 +109,6 @@ NPC.BaseRangeAttack = false -- Use ZBase range attack system
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
-NPC.IdleSound_OnlyNearAllies = false -- Only do IdleSounds if there is another NPC in the same faction nearby
-NPC.IdleSound_FaceAllyChance = 2 -- 1/X chance that the NPC faces its nearby ally, NPC.IdleSound_OnlyNearAllies must be true in order for this to work
-
 NPC.AlertSounds = "" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
 NPC.IdleSounds_HasEnemy = "" -- Sounds emitted while there is an enemy
@@ -123,6 +121,9 @@ NPC.IdleSoundCooldown = {8, 16}
 NPC.IdleSounds_HasEnemyCooldown = {5, 10}
 NPC.PainSoundCooldown = {1, 2.5}
 
+-- Idle sound stuff
+NPC.IdleSound_OnlyNearAllies = false -- Only do IdleSounds if there is another NPC in the same faction nearby
+NPC.IdleSound_Chance = 3 -- 1 in X chance that the NPC will emit IdleSounds when permitted
 
 
 
