@@ -15,7 +15,7 @@ local ZBaseWeaponDMGs = {
 
 
 ---------------------------------------------------------------------------------------=#
-hook.Add("InitPostEntity", "ZBaseReplaceFuncs", function() timer.Simple(0.5, function()
+hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function() timer.Simple(0.5, function()
 	local ENT = FindMetaTable("Entity")
 	local emitSound = ENT.EmitSound
 	local OnNPCKilled = GAMEMODE.OnNPCKilled
@@ -29,6 +29,7 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncs", function() timer.Simple(0.5, fun
 		end
 
 		if npc.IsZBaseNPC then
+            -- Death sound
 			npc:EmitSound(npc.DeathSounds)
 		end
 
@@ -253,7 +254,7 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
             data.SoundName = snds[SoundIndexes[data.OriginalSoundName]]
             altered = true
 
-            --print(SoundIndexes[data.OriginalSoundName], data.SoundName)
+            -- print(SoundIndexes[data.OriginalSoundName], data.SoundName)
         end
         -----------------------------------------------=#
 

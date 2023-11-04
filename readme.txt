@@ -14,16 +14,6 @@
 -------------------------------------------------------------------------------------------------------------------------=#
 
 
-        -- BUGS --
-    -- Spawnmenu issue
-    -- Sounds
-        -- Variation system broken
-        -- Death sounds not being played
-        -- Idle sounds playing when dead (just silence all sounds on removal...)
-        -- Reload sounds is playing excessivly
-
-
-
         -- TODO (ranked by priority) --
     -- 1. More basic variables and functions, use VJ Base as an example
     -- 2. Aerial base

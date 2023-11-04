@@ -54,6 +54,7 @@ end)
 local function IncludeFiles()
     AddCSLuaFile("zbase/client/spawnmenu.lua")
     AddCSLuaFile("zbase/client/toolmenu.lua")
+    AddCSLuaFile("zbase/client/hooks.lua")
     
 
     include("zbase/shared/globals.lua")
@@ -69,6 +70,7 @@ local function IncludeFiles()
     if CLIENT then
         include("zbase/client/spawnmenu.lua")
         include("zbase/client/toolmenu.lua")
+        include("zbase/client/hooks.lua")
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
@@ -191,7 +193,7 @@ local function AddNPCsToSpawnMenu()
             Rotate = t.Rotate,
             Skins = t.Skins,
             AdminOnly = t.AdminOnly,
-            SpawnFlags = t.SpawnFlags,
+            SpawnFlagTbl = t.SpawnFlagTbl,
             TotalSpawnFlags = t.TotalSpawnFlags,
             OnDuplicated = t.OnDuplicated,
             BodyGroups = BodyGroups,
