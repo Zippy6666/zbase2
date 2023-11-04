@@ -45,15 +45,15 @@ NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will b
 
         -- ARMOR SYSTEM --
 NPC.HasArmor = {
-    [HITGROUP_GENERIC] = false,
-    [HITGROUP_HEAD] = false,
-    [HITGROUP_CHEST] = false,
-    [HITGROUP_STOMACH] = false,
-    [HITGROUP_LEFTARM] = false,
-    [HITGROUP_RIGHTARM] = false,
-    [HITGROUP_LEFTLEG] = false,
-    [HITGROUP_RIGHTLEG] = false,
-    [HITGROUP_GEAR] = false,
+    -- [HITGROUP_GENERIC] = false,
+    -- [HITGROUP_HEAD] = false,
+    -- [HITGROUP_CHEST] = false,
+    -- [HITGROUP_STOMACH] = false,
+    -- [HITGROUP_LEFTARM] = false,
+    -- [HITGROUP_RIGHTARM] = false,
+    -- [HITGROUP_LEFTLEG] = false,
+    -- [HITGROUP_RIGHTLEG] = false,
+    -- [HITGROUP_GEAR] = false,
 }
 NPC.ArmorPenChance = 4 -- 1/x Chance that the armor is penetrated
 NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this

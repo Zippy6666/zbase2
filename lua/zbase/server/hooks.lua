@@ -22,9 +22,6 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncs", function() timer.Simple(0.5, fun
 	local SpawnNPC = Spawn_NPC
 
 
-	print("Spawn_NPC = ", Spawn_NPC)
-
-
 	----------------------------------------------------------------------------------------------=#
 	function GAMEMODE:OnNPCKilled( npc, attacker, ... )
 		if IsValid(attacker) && attacker.IsZBaseNPC then
