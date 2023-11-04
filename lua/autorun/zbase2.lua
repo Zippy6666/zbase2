@@ -202,25 +202,6 @@ local function AddNPCsToSpawnMenu()
 
 
         ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
-
-
-
-        -- Replace default spawn menu npcs
-        -- local replaceTargetTbl = list.Get("NPC")[t.Replace]
-        -- if ZBaseCvar_Replace:GetBool() && t.Replace && replaceTargetTbl then
-            
-
-        --     local replaceTable = table.Copy(SpawnMenuTable)
-        --     replaceTable.Category = replaceTargetTbl.Category
-        --     replaceTable.Name = "[ZBase] "..replaceTable.Name
-
-        --     -- Replace image if available (otherwise it will just use monke)
-        --     if file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
-        --         replaceTable.IconOverride = "materials/entities/" .. cls .. ".png"
-        --     end
-    
-        --     list.Set( "NPC", t.Replace, replaceTable )
-        -- end
     end
 end
 -------------------------------------------------------------------------------------------------------------------------=#
@@ -245,6 +226,8 @@ if ZBaseInitialized then
     RunConsoleCommand("spawnmenu_reload")
     print("ZBase Reloaded!")
 else
+
     IncludeFiles()
     registerNPCs()
+
 end
