@@ -285,11 +285,11 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
 
 
     -- Da meat of the function --
-    self.TimeUntilStopMeleeAnimOverride = CurTime()+(duration*0.75)
+    self.TimeUntilStopAnimOverride = CurTime()+(duration*0.75)
     local timerName = "ZBaseMeleeAnimOverride"..self:EntIndex()
     timer.Create(timerName, 0, 0, function()
         if !IsValid(self)
-        or self.TimeUntilStopMeleeAnimOverride < CurTime() then
+        or self.TimeUntilStopAnimOverride < CurTime() then
             timer.Remove(timerName)
             return
         end

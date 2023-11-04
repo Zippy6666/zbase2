@@ -174,7 +174,6 @@ vgui.Register( "ZBaseSussyBaka", PANEL, "DDrawer" )
 spawnmenu.AddCreationTab( "ZBase", function(...)
 
     local pnlContent = vgui.Create( "SpawnmenuContentPanel" )
-	pnlContent:EnableSearch( "", "PopulateZBase" )
 	pnlContent:CallPopulateHook( "PopulateZBase" )
 
 	local sidebar = pnlContent.ContentNavBar

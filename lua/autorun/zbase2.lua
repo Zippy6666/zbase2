@@ -14,72 +14,51 @@ end
 -------------------------------------------------------------------------------------------------------------------------=#
 
 
-        -- TODO --
-    -- New spawn effect
+        -- BUGS --
+    -- Secondary fire jankyness
+    -- Sounds
+        -- Variation system
+        -- Turn taking system
+        -- Death sounds not being played
+        -- Idle sounds playing when dead
 
-    -- NPC update command (that runs spawnmenu reload too?)
 
-    -- Make sure ZBase handles all npc classes well (especially zombies!!)
 
-    -- Remove comments from NPC examples, they may contain false information
-    
-    -- Use only the zbase menu for spawning
+        -- TODO (ranked by priority) --
+    -- 1. More basic variables and functions, use VJ Base as an example
+    -- 2. Aerial base
+    -- 3. More sounds
+            -- LostEnemySounds
+            -- ReloadSounds
+            -- SeeDangerSounds
+            -- HearDangerSounds
+            -- AllyDeathSounds
+    -- 4. Make sure ZBase handles all npc classes well (especially zombies!!)
+    -- 5. Any kind of general npc improvement
+            -- Extended jumping
+            -- Hearing system
+            -- Ground node navigation system
+    -- 6. Controller
+    -- 7. Faction dropdown system
+    -- 8. Spawning utilities
+    -- 9. Bodygroup system
+    -- 10. Submaterial system
+    -- 11. Custom blood system
+            --White blood decals for hunters
 
-    -- Fix death sounds
 
-    -- Faction dropdown system
 
-    -- More basic variables and functions, use VJ Base as an example
-
-    -- Sound variation system broken? fix
-    
-    -- Fix dumbass seach bar
-
-    -- Bodygroup system
-
-    -- Transcendent vortigaunt
-        -- Use submaterial system
-
-    -- More sounds
-        -- LostEnemySounds
-        -- ReloadSounds
-        -- SeeDangerSounds
-        -- HearDangerSounds
-        -- AllyDeathSounds
-
-    -- Ministrider
-        -- Based on hunter
-        -- Armor that deflects bullets
-
-    -- Mortar synth
-        -- Based on scanner
-        -- Base range attack system
-
-    -- Crab synth SNPC
-        -- Armor that deflects bullets
-        -- Uses custom schedule system
-        -- Melee attack, charge attack, all that jazz
-
-    -- Crabless zombies (just called zombies, normal zombies will be called headcrab zombies)
-
-    -- Custom blood system
-        --White blood decals for hunters
-
-    -- Any kind of general npc improvement
-        -- Extended jumping
-        -- Hearing system
-
-    -- Aerial base
-        -- Ground node navigation system
-
-    -- Controller
-
-    -- Player base
-
-        -- Finally --
+        -- FINAL --
     -- Make sure all NPCs have their full potential
-    -- Make more user friendly with comments and shit, dummy git
+    -- Make more user friendly with comments and shit, remove comments from NPC examples, they may contain false information, dummy git
     -- Make sure everything works
+    -- Compatible with my other addons
+
+
+
+
+        -- GOOD STUFF --
+    --https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/game/server/ai_basenpc.cpp
 
 -------------------------------------------------------------------------------------------------------------------------=#
 
@@ -106,6 +85,23 @@ if BRANCH != "x86-64" && BRANCH != "dev" then
     return
 end
 
+
+-------------------------------------------------------------------------------------------------------------------------=#
+if CLIENT then
+    net.Receive("ZBaseReload", function()
+        include("autorun/zbase2.lua")
+    end)
+else
+    util.AddNetworkString("ZBaseReload")
+end
+-------------------------------------------------------------------------------------------------------------------------=#
+concommand.Add("zbase_reload", function( ply )
+    if ply:IsSuperAdmin() then
+        include("autorun/zbase2.lua")
+        net.Start("ZBaseReload")
+        net.Broadcast()
+    end
+end)
 -------------------------------------------------------------------------------------------------------------------------=#
 local function IncludeFiles()
     AddCSLuaFile("zbase/client/spawnmenu.lua")
@@ -258,17 +254,6 @@ local function AddNPCsToSpawnMenu()
         ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
 
 
-        -- Add to regular spawn menu
-        -- local SpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
-        -- SpawnMenuTable.Category = "ZBase - "..ZBaseSpawnMenuTbl.Category
-
-        -- if !file.Exists( "materials/entities/" .. cls .. ".png", "GAME" ) then
-        --     SpawnMenuTable.IconOverride = "entities/zbase.png"
-        -- end
-
-        -- list.Set("NPC", cls, SpawnMenuTable)
-        ----------------------------------------------------------=#
-
 
         -- Replace default spawn menu npcs
         -- local replaceTargetTbl = list.Get("NPC")[t.Replace]
@@ -301,6 +286,12 @@ IncludeFiles()
 registerNPCs()
 
 if ZBaseInitialized then
+    table.Empty( ZBaseNPCs )
+    table.Empty( ZBaseSpawnMenuNPCList )
+
     NPCsInherit()
     AddNPCsToSpawnMenu()
+
+    RunConsoleCommand("spawnmenu_reload")
+    print("ZBase Reloaded!")
 end
