@@ -27,41 +27,6 @@ local ReloadActs = {
 
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseInit()
-
-        -- EDITED FROM GMOD SPAWNMENU CODE --
-	-- Store spawnmenu data for addons and stuff
-	self._wasSpawnedOnCeiling = wasSpawnedOnCeiling
-
-
-	-- For those NPCs that set their model in Spawn function
-	-- We have to keep the call above for NPCs that want a model set by Spawn() time
-	-- BAD: They may adversly affect entity collision bounds
-	if ( self.NPCTable.Model && self:GetModel():lower() != self.NPCTable.Model:lower() ) then
-		self:SetModel( self.NPCTable.Model )
-	end
-
-
-	if ( bDropToFloor ) then
-		self:DropToFloor()
-	end
-
-
-	if ( self.StartHealth ) then
-        self:SetMaxHealth( self.StartHealth )
-		self:SetHealth( self.StartHealth )
-	end
-
-
-	-- -- Body groups
-	if ( self.NPCTable.BodyGroups ) then
-		for k, v in pairs( self.NPCTable.BodyGroups ) do
-			self:SetBodygroup( k, v )
-		end
-	end
-    ---------------------------------------------------------------------------------=#
-
-
-        -- ZBase stuff --
     -- Vars
     self.NextPainSound = CurTime()
 
@@ -105,7 +70,6 @@ function NPC:ZBaseInit()
 
     -- Custom init
     self:CustomInitialize()
-    ---------------------------------------------------------------------------------=#
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnEmitSound( data )
