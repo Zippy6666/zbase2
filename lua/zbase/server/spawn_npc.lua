@@ -1,5 +1,5 @@
-    -- Edited version of original gmod spawn menu code! --
-    -- https://github.com/Facepunch/garrysmod/blob/master/garrysmod/gamemodes/sandbox/gamemode/commands.lua --
+    -- Note: Contains a lot of borrowed gmod source code! --
+
 
 ---------------------------------------------------------------------------------------------------------=#
 -- A little hacky function to help prevent spawning props partially inside walls
@@ -37,8 +37,7 @@ local function TryFixPropPosition( ply, ent, hitpos )
 end
 ---------------------------------------------------------------------------------------------------------=#
 local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor )
-
-	local NPCList = list.Get( "NPC" )
+	local NPCList = ZBaseSpawnMenuNPCList
 	local NPCData = NPCList[ Class ]
 
 
@@ -287,4 +286,8 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 	ply:SendLua( "achievements.SpawnedNPC()" )
 
 end
+---------------------------------------------------------------------------------------------------------=#
+concommand.Add( "zbase_spawnnpc", function( ply, cmd, args )
+    Spawn_ZBaseNPC( ply, args[ 1 ], args[ 2 ] )
+end)
 ---------------------------------------------------------------------------------------------------------=#

@@ -46,9 +46,9 @@ function NPC:ZBaseInit()
 	end
 
 
-	if ( self.NPCTable.Health ) then
-        self:SetMaxHealth( self.NPCTable.Health )
-		self:SetHealth( self.NPCTable.Health )
+	if ( self.StartHealth ) then
+        self:SetMaxHealth( self.StartHealth )
+		self:SetHealth( self.StartHealth )
 	end
 
 

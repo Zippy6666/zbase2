@@ -1,9 +1,71 @@
+    -- Note: Contains a lot of borrowed gmod source code! --
+
+
 local PANEL = {}
 local icon = "entities/zbase.png"
+
 
 Derma_Hook( PANEL, "Paint", "Paint", "Tree" )
 PANEL.m_bBackground = true -- Hack for above
 
+
+-----------------------------------------------------------------------------------------=#
+local function DoGenericSpawnmenuRightclickMenu( self )
+	local menu = DermaMenu()
+		menu:AddOption( "#spawnmenu.menu.copy", function() SetClipboardText( self:GetSpawnName() ) end ):SetIcon( "icon16/page_copy.png" )
+		if ( isfunction( self.OpenMenuExtra ) ) then
+			self:OpenMenuExtra( menu )
+		end
+
+		if ( !IsValid( self:GetParent() ) || !self:GetParent().GetReadOnly || !self:GetParent():GetReadOnly() ) then
+			menu:AddSpacer()
+			menu:AddOption( "#spawnmenu.menu.delete", function() self:Remove() hook.Run( "SpawnlistContentChanged" ) end ):SetIcon( "icon16/bin_closed.png" )
+		end
+	menu:Open()
+end
+-----------------------------------------------------------------------------------------=#
+spawnmenu.AddContentType("zbase_npcs", function( container, obj )
+	if ( !obj.material ) then return end
+	if ( !obj.nicename ) then return end
+	if ( !obj.spawnname ) then return end
+	if ( !obj.weapon ) then return end
+
+
+	local icon = vgui.Create( "ContentIcon", container )
+	icon:SetContentType( "zbase_npcs" )
+	icon:SetSpawnName( obj.spawnname )
+	icon:SetName( obj.nicename )
+	icon:SetMaterial( obj.material )
+	icon:SetAdminOnly( obj.admin )
+	icon:SetColor( Color( 205, 92, 92, 255 ) )
+	icon.DoClick = function()
+		RunConsoleCommand( "zbase_spawnnpc", obj.spawnname )
+		surface.PlaySound( "ui/buttonclickrelease.wav" ) -- Use different sound maybe? :O
+	end
+
+
+	icon.OpenMenuExtra = function( self, menu )
+
+		menu:AddOption( "#spawnmenu.menu.spawn_with_toolgun", function()
+			RunConsoleCommand( "gmod_tool", "creator" )
+			RunConsoleCommand( "creator_type", "0" )
+			RunConsoleCommand( "creator_name", obj.spawnname, obj.weapon )
+			end 
+		):SetIcon( "icon16/brick_add.png" )
+
+	end
+
+
+	icon.OpenMenu = DoGenericSpawnmenuRightclickMenu
+
+
+	if ( IsValid( container ) ) then
+		container:Add( icon )
+	end
+
+
+	return icon
+end)
 -----------------------------------------------------------------------------------------=#
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
 	local Categories = {}
@@ -31,7 +93,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			self.PropPanel:SetTriggerSpawnlistChange( false )
 
 			for name, ent in SortedPairsByMemberValue( v, "Name" ) do
-				local icon = spawnmenu.CreateContentIcon( ent.ScriptedEntityType or "npc", self.PropPanel, {
+				local icon = spawnmenu.CreateContentIcon( "zbase_npcs", self.PropPanel, {
 
 					nicename	= ent.Name or name,
 					spawnname	= name,
