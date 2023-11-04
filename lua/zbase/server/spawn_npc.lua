@@ -81,14 +81,13 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 
 	-- Set temporary squad, which fixes stuff, like the metrocop arrest behaviour
 	NPC:SetKeyValue( "squadname", "zbase_"..Class )
-	print(NPC:GetKeyValues().squadname)
 
 
 	--
 	-- Spawn Flags
 	--
 	local SpawnFlags = bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE )
-	for _, v in ipairs(NPCData.SpawnFlags) do
+	for _, v in ipairs(NPCData.SpawnFlagTbl) do
 		SpawnFlags = bit.bor( SpawnFlags, v )
 	end
 	if ( NPCData.TotalSpawnFlags ) then SpawnFlags = NPCData.TotalSpawnFlags end

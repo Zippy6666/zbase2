@@ -7,12 +7,12 @@ hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 	end
 end)
 -------------------------------------------------------------------------------------------------------------=#
-hook.Add("InitPostEntity", "ZBaseFuckAroundAndFindOut", function()
+hook.Add("InitPostEntity", "ZBaseReplaceFuncsShared", function()
 	local listGet = list.Get
 
 	----------------------------------------------------------------------------------------------=#
 	function list:Get()
-		if self == "NPC" then
+		if !ZBase_JustReloadedSpawnmenu && self == "NPC" then
 			-- Add ZBase NPCs to NPC list
 
 			local ZBaseTableAdd = {}
@@ -26,12 +26,11 @@ hook.Add("InitPostEntity", "ZBaseFuckAroundAndFindOut", function()
 
 			local t = table.Merge(listGet(self), ZBaseTableAdd)
 
-			-- PrintTable(ZBaseTableAdd)
 			return t
 		end
 
 		return listGet(self)
 	end
-	----------------------------------------------------------------------------------------------=#
+	---------------------------------------------------------------------------------------=#
 end)
 ---------------------------------------------------------------------------------------=#

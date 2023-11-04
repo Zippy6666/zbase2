@@ -145,6 +145,7 @@ function NPC:NewActivityDetected( act )
     -- Reload ZBase weapon sound:
     local wep = self:GetActiveWeapon()
     if ReloadActs[act] && IsValid(wep) && wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
+        debugoverlay.Text(self:WorldSpaceCenter(), "RELOAD SOUND")
         wep:EmitSound(wep.NPCReloadSound)
     end
 
