@@ -74,10 +74,10 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent ) timer.Simple(0, function()
             own:OnOwnedEntCreated( ent )
         end
 
+        -- ZBase init stuff when not spawned from menu
         local zbaseClass = ent:GetKeyValues().parentname
         local zbaseNPCTable = ZBaseNPCs[ ent:GetKeyValues().parentname ]
         if zbaseNPCTable then
-            print("SUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUS")
             ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
         end
 end) end)

@@ -10,6 +10,17 @@ PANEL.m_bBackground = true -- Hack for above
 
 
 -----------------------------------------------------------------------------------------=#
+local function DoGenericSpawnmenuRightclickMenu( self )
+	local menu = DermaMenu()
+	
+	menu:AddOption( "#spawnmenu.menu.copy", function() SetClipboardText( self:GetSpawnName() ) end ):SetIcon( "icon16/page_copy.png" )
+	if ( isfunction( self.OpenMenuExtra ) ) then
+		self:OpenMenuExtra( menu )
+	end
+
+	menu:Open()
+end
+-----------------------------------------------------------------------------------------=#
 spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	if ( !obj.material ) then return end
 	if ( !obj.nicename ) then return end
@@ -43,7 +54,7 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	-- end
 
 
-	-- icon.OpenMenu = DoGenericSpawnmenuRightclickMenu
+	icon.OpenMenu = DoGenericSpawnmenuRightclickMenu
 
 
 	if ( IsValid( container ) ) then
