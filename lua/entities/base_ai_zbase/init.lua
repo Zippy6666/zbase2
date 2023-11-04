@@ -10,7 +10,6 @@ ENT.IsZBase_SNPC = true
 function ENT:Initialize()
 
 	-- Some default calls to make the NPC function
-	self:SetModel( "models/Zombie/Classic.mdl" )
 	self:SetHullType( HULL_HUMAN )
 	self:SetHullSizeNormal()
 	self:SetSolid( SOLID_BBOX )

@@ -72,41 +72,6 @@ if SERVER then
     end)
     -----------------------------------------------------------------------------------------=#
 end
-
--------------------------------------------------------------------------------------------------------------------------=#
-function ZBaseInit(ent, name)
-    table.insert(ZBaseNPCInstances, ent)
-
-    -- Table "transfer" --
-    ent.ZBase_Class = string.Right(name, #name-6)
-    ent.ZBase_Inherit = ZBaseNPCs[ent.ZBase_Class].Inherit
-    
-        -- Inherit from base
-    for k, v in pairs( ZBaseNPCs["npc_zbase"] ) do
-        ent[k] = v
-    end
-
-        -- Inherit from self.Inherit NPC
-    for k, v in pairs( ZBaseNPCs[ent.ZBase_Inherit] ) do
-        ent[k] = v
-        -- print("ent.ZBase_Inherit:"..ent.ZBase_Inherit, k, v)
-    end
-
-        -- This npc's table
-    for k, v in pairs(ZBaseNPCs[ent.ZBase_Class]) do
-        ent[k] = v
-        -- print(k=="BeforeEmitSound")
-    end
-
-    ent:ZBaseInit(ZBaseNPCs[ent.ZBase_Class])
-end
--------------------------------------------------------------------------------------------------------------------------=#
-function IsZBaseNPC(ent)
-    if SERVER then
-        local parentname = ent:GetKeyValues().parentname
-        return string.StartWith(parentname, "zbase_")
-    end
-end
 -------------------------------------------------------------------------------------------------------------------------=#
 function FindZBaseTable(debuginfo)
     local shortsrc = debuginfo.short_src

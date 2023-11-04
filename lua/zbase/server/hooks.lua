@@ -1,5 +1,6 @@
 util.AddNetworkString("ZBaseInitEnt")
 
+
 local ZBaseNextThink = CurTime()
 local ZBaseWeaponDMGs = {
     ["weapon_pistol"] = {dmg=5, inflclass="bullet"},
@@ -12,26 +13,58 @@ local ZBaseWeaponDMGs = {
     ["weapon_elitepolice_mp5k"] = {dmg=6, inflclass="bullet"},
 }
 
+
+---------------------------------------------------------------------------------------=#
+hook.Add("InitPostEntity", "ZBaseReplaceFuncs", function() timer.Simple(0.5, function()
+	local ENT = FindMetaTable("Entity")
+	local emitSound = ENT.EmitSound
+	local OnNPCKilled = GAMEMODE.OnNPCKilled
+	local SpawnNPC = Spawn_NPC
+
+
+	print("Spawn_NPC = ", Spawn_NPC)
+
+
+	----------------------------------------------------------------------------------------------=#
+	function GAMEMODE:OnNPCKilled( npc, attacker, ... )
+		if IsValid(attacker) && attacker.IsZBaseNPC then
+			attacker:OnKilledEnt( npc )
+		end
+
+		if npc.IsZBaseNPC then
+			npc:EmitSound(npc.DeathSounds)
+		end
+
+		return OnNPCKilled(self, npc, ...)
+	end
+	----------------------------------------------------------------------------------------------=#
+	function Spawn_NPC( ply, NPCClassName, WeaponName, tr )
+        if ZBaseNPCs[NPCClassName] then
+            return Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
+        else
+		    return SpawnNPC( ply, NPCClassName, WeaponName, tr )
+        end
+	end
+	----------------------------------------------------------------------------------------------=#
+	function ENT:EmitSound( snd, ... )
+
+		if self.IsZBaseNPC && snd == "" then return end
+
+		ZBase_EmitSoundCall = true
+		local v = emitSound(self, snd, ...)
+		ZBase_EmitSoundCall = false
+
+		return v
+
+	end
+	----------------------------------------------------------------------------------------------=#
+end) end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("OnEntityCreated", "ZBASE", function( ent )
     timer.Simple(0, function()
         if !IsValid(ent) then return end
 
-        if IsZBaseNPC(ent) then
-
-            local parentname = ent:GetKeyValues().parentname
-
-            --print(ent, parentname)
-            ZBaseInit(ent, parentname)
-
-            -- net.Start("ZBaseInitEnt")
-            -- net.WriteEntity(ent)
-            -- net.WriteString(parentname)
-            -- net.Broadcast()
-
-            -- ZBasePrintInternalVars(ent)
-
-        elseif ent:IsNPC() then
+        if ent:IsNPC() then
 
             ent.ZBaseFaction = ZBaseFactionTranslation[ent:Classify()]
             table.insert(ZBase_NonZBaseNPCs, ent)
@@ -115,7 +148,7 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     end
 
 
-    if IsValid(attacker) && IsZBaseNPC(attacker) then
+    if IsValid(attacker) && attacker.IsZBaseNPC then
     
         local r = attacker:DealDamage(ent, dmg)
         if r then
