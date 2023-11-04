@@ -57,8 +57,7 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncs", function() timer.Simple(0.5, fun
 	----------------------------------------------------------------------------------------------=#
 end) end)
 ---------------------------------------------------------------------------------------=#
-hook.Add("OnEntityCreated", "ZBASE", function( ent )
-    timer.Simple(0, function()
+hook.Add("OnEntityCreated", "ZBASE", function( ent ) timer.Simple(0, function()
         if !IsValid(ent) then return end
 
         if ent:IsNPC() then
@@ -74,8 +73,14 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
         if IsValid(own) && own.IsZBaseNPC then
             own:OnOwnedEntCreated( ent )
         end
-    end) 
-end)
+
+        local zbaseClass = ent:GetKeyValues().parentname
+        local zbaseNPCTable = ZBaseNPCs[ ent:GetKeyValues().parentname ]
+        if zbaseNPCTable then
+            print("SUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUS")
+            ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
+        end
+end) end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("Think", "ZBASE", function()
     if ZBaseNextThink > CurTime() then return end

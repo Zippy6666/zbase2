@@ -55,7 +55,7 @@ NPC.HasArmor = {
     -- [HITGROUP_RIGHTLEG] = false,
     -- [HITGROUP_GEAR] = false,
 }
-NPC.ArmorPenChance = 4 -- 1/x Chance that the armor is penetrated
+NPC.ArmorPenChance = 2 -- 1/x Chance that the armor is penetrated
 NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this
 NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
 NPC.ArmorHitSpark = true -- Do a spark on armor hit

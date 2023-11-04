@@ -7,9 +7,8 @@ hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 	end
 end)
 -------------------------------------------------------------------------------------------------------------=#
-hook.Add("InitPostEntity", "ZBaseReplaceFuncs", function() timer.Simple(0.5, function()
+hook.Add("InitPostEntity", "ZBaseFuckAroundAndFindOut", function()
 	local listGet = list.Get
-
 
 	----------------------------------------------------------------------------------------------=#
 	function list:Get()
@@ -21,17 +20,18 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncs", function() timer.Simple(0.5, fun
 				local ZBaseNPC = table.Copy(v)
 
 				ZBaseNPC.Category = "ZBase"
+				ZBaseNPC.KeyValues = {parentname=k}
 				ZBaseTableAdd[k] = ZBaseNPC
 			end
 
-			-- local t = table.Merge(listGet(self), table.Copy(ZBaseSpawnMenuNPCList))
+			local t = table.Merge(listGet(self), ZBaseTableAdd)
 
-			PrintTable(ZBaseTableAdd)
-			return ZBaseTableAdd
+			-- PrintTable(ZBaseTableAdd)
+			return t
 		end
 
 		return listGet(self)
 	end
 	----------------------------------------------------------------------------------------------=#
-end) end)
+end)
 ---------------------------------------------------------------------------------------=#
