@@ -86,6 +86,8 @@ function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.SecondaryFire:ShouldDoBehaviour( self )
+    if !self.CanSecondaryAttack then return false end
+
     local wep = self:GetActiveWeapon()
 
     if !IsValid(wep) then return false end
@@ -110,5 +112,6 @@ function BEHAVIOUR.SecondaryFire:Run( self )
     local enemy = self:GetEnemy()
     local wep = self:GetActiveWeapon()
     SecondaryFireWeapons[wep:GetClass()]:Func( self, wep, enemy )
+    ZBaseDelayBehaviour(math.Rand(4, 8))
 end
 ------------------------------------------------------------------------=#

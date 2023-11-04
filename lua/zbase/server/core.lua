@@ -135,6 +135,7 @@ end
 function NPC:ZBaseSetSaveValues()
     for k, v in pairs(self:GetTable()) do
         if string.StartWith(k, "m_") then
+            print(k, v)
             self:SetSaveValue(k, v)
         end
     end

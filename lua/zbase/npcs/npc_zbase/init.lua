@@ -12,6 +12,7 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 -- Leave empty to use the default model for the NPC
 NPC.Models = {}
 
+NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
@@ -24,6 +25,8 @@ NPC.CanPatrol = true -- Use base patrol behaviour
 NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
 NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.CallForHelpDistance = 2000 -- Call for help distance
+
+
 
 -- Extra capabilities
 -- List of capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
