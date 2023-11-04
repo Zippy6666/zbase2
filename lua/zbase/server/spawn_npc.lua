@@ -175,6 +175,12 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, doEffect, wasSpawnedOn
 	end
 
 
+	-- Don't allow combines to be elites
+	if NPCData.Class == "npc_combine_s" then
+		NPC.m_fIsElite = false
+	end
+
+
     -- "Register"
     table.insert(ZBaseNPCInstances, NPC)
     NPC:ZBaseInit()

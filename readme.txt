@@ -15,14 +15,12 @@
 
 
         -- BUGS --
-    -- Secondary fire jankyness
-        -- Weird inconsistensies
-        -- Elites have two comball attacks
     -- Sounds
-        -- Variation system
-        -- Turn taking system
+        -- Variation system broken
+        -- Turn taking system broken
         -- Death sounds not being played
         -- Idle sounds playing when dead
+        -- Reload sounds is playing excessivly
 
 
 
@@ -31,10 +29,12 @@
     -- 2. Aerial base
     -- 3. More sounds
             -- LostEnemySounds
-            -- ReloadSounds
             -- SeeDangerSounds
             -- HearDangerSounds
             -- AllyDeathSounds
+            -- OnMeleeSounds
+            -- OnRangeSounds
+            -- OnReloadSounds
     -- 4. Make sure ZBase handles all npc classes well (especially zombies!!)
     -- 5. Any kind of general npc improvement
             -- Extended jumping
