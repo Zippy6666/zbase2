@@ -20,40 +20,44 @@
 
                 -- CURRENT --
         -- Finish melee attack code
+			-- Knockback
+			-- Better blood position/code
         -- Make range attack code
 
 
-        -- TODO (ranked by priority) --
-    -- 1. Make sure it has all the essential things
-    -- 2. Aerial base
-            -- Ground node navigation system
-    -- 3. Make sure ZBase handles all npc classes well (especially zombies!!)
-    -- 4. More sounds
-            -- LostEnemySounds
-            -- SeeDangerSounds
-            -- HearDangerSounds
-            -- AllyDeathSounds
-            -- OnMeleeSounds
-            -- OnRangeSounds
-            -- OnReloadSounds
-            -- + Stop sounds on death
-    -- 5. Any kind of general npc improvement
-            -- Extended jumping
-            -- Hearing system
-    -- 6. Controller
-    -- 7. Spawning utilities
-    -- 8. Bodygroup system
-    -- 9. Submaterial system
-    -- 10. Custom blood system
-            --White blood decals for hunters
-    -- 11. More menu options
+			-- TODO (ranked by priority) --
+		-- 1. Make sure it has all the essential things
+				-- More sounds
+					-- LostEnemySounds
+					-- SeeDangerSounds
+					-- HearDangerSounds
+					-- AllyDeathSounds
+					-- OnMeleeSounds
+					-- OnRangeSounds
+					-- OnReloadSounds
+					-- + Stop sounds on death
+				-- Range attack code
+				-- Damage scaling system (like vj immunity, but scale)
+				-- Jump system
+				-- Hearing system
+		-- 2. Aerial base
+		-- 3. Controller
+		-- 4. Spawning utilities
+		-- 5. Bodygroup system
+		-- 6. Submaterial system
+		-- 7. Custom blood system
+				--White blood decals for hunters
+		-- 8. More menu options
 
 
 
         -- FINAL --
     -- Make sure all NPCs have their full potential
     -- Make more user friendly with comments and shit, more error handling maybe, update comments for NPC examples, dummy git
-    -- Make sure everything works, make sure it works as intended with vj
+    -- Make sure everything works
+	-- Make sure it works in multiplayer
+	-- Make sure ZBase handles all npc classes well (especially zombies!!)
+	-- Make sure it works as intended with vj
     -- Compatible with my other addons
     -- Copyright stuff
 

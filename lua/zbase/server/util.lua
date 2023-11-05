@@ -36,15 +36,21 @@ function NPC:GetNearestAlly( radius )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- Check if an entity is within a certain distance
-    -- If maxdist is given, return true if the entity is within x units from itself
-    -- If mindist is given, return true if the entity is x units away from itself
-function NPC:WithinDistance( ent, maxdist, mindist )
-    if !IsValid(ent) then return false end
+    -- Check if an entity or position is within a certain distance
+    -- If tbl.within is given, return true if the entity is within x units from itself
+    -- If tbl.away is given, return true if the entity is x units away from itself
+    -- Example: self:ZBaseDist( self:GetEnemy(), {within=400, away=200} )
+function NPC:ZBaseDist( ent_or_pos, tbl )
+    local dSqr
 
-    local dSqr = self:GetPos():DistToSqr(ent:GetPos())
-    if mindist && dSqr < mindist^2 then return false end
-    if maxdist && dSqr > maxdist^2 then return false end
+    if isvector(ent_or_pos) then
+        dSqr = self:GetPos():DistToSqr(ent_or_pos)
+    elseif IsValid(ent_or_pos) then
+        dSqr = self:GetPos():DistToSqr(ent_or_pos:GetPos())
+    end
+
+    if tbl.away && dSqr < tbl.away^2 then return false end
+    if tbl.within && dSqr > tbl.within^2 then return false end
 
     return true
 end
@@ -128,18 +134,23 @@ end
     -- 'duration' - Face duration, if not set, you can run the function in think for example
 
 function NPC:Face( face, duration )
-
 	local function turn( yaw )
+        local hasFreezeSched = self:IsCurrentSchedule(SCHED_NPC_FREEZE)
 
-		self:SetIdealYawAndUpdate(yaw)
+        -- if !hasFreezeSched then
+		    self:SetIdealYawAndUpdate(yaw)
+        -- end
+
+        local yawspeed = self.m_fMaxYawSpeed or 20
 
 		-- Turning aid for SNPCs
-		if self.IsZBase_SNPC && self:IsMoving() then
+		if (self.IsZBase_SNPC && self:IsMoving())
+        -- or hasFreezeSched
+        then
 			local myAngs = self:GetAngles()
 			local newAng = Angle(myAngs.pitch, yaw, myAngs.roll)
-			self:SetAngles(LerpAngle(self.m_fMaxYawSpeed/100, myAngs, newAng))
+			self:SetAngles(LerpAngle(yawspeed/100, myAngs, newAng))
 		end
-		
 	end
 
 
@@ -166,8 +177,9 @@ function NPC:Face( face, duration )
 
             faceFunc()
         end)
+    else
+        faceFunc()
     end
-
 end
 --------------------------------------------------------------------------------=#
 
