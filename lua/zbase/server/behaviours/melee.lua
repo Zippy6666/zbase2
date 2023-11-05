@@ -23,42 +23,87 @@ function NPC:TooBusyForMelee()
     return BusyScheds[sched] or sched > 88
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
-function NPC:MeleeAttackDamage(dist, ang, type, amt, hitSound)
+function NPC:CanBeMeleed( ent )
+    local mtype = ent:GetMoveType()
+    return mtype == MOVETYPE_STEP -- NPC
+    or mtype == MOVETYPE_VPHYSICS -- Prop
+    or mtype == MOVETYPE_WALK -- Player
+end
+-----------------------------------------------------------------------------------------------------------------------------------------=#
+function NPC:MeleeAttackDamage(dmgData)
     local mypos = self:WorldSpaceCenter()
     local soundEmitted = false
+    local soundPropEmitted = false
 
-    for _, ent in ipairs(ents.FindInSphere(mypos, dist)) do
+    for _, ent in ipairs(ents.FindInSphere(mypos, dmgData.dist)) do
         if ent == self then continue end
         if ent.GetNPCState && ent:GetNPCState() == NPC_STATE_DEAD then continue end
-        local disp = self:Disposition(ent) if disp == D_LI or disp == D_NU then continue end
+
+        local disp = self:Disposition(ent)
+        if disp == D_LI
+        or (!dmgData.affectProps && disp == D_NU) then continue end
+
         if !self:Visible(ent) then continue end
 
+
         local entpos = ent:WorldSpaceCenter()
+        local undamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
+        local forcevec 
 
 
         -- Angle check
-        if ang != 360 then
+        if dmgData.ang != 360 then
             local yawDiff = math.abs( self:WorldToLocalAngles( (entpos-mypos):Angle() ).Yaw )*2
-            if ang < yawDiff then continue end
+            if dmgData.ang < yawDiff then continue end
         end
 
 
-        -- Bleed
-        ZBaseBleed( ent, (mypos + entpos)*0.5+VectorRand(-15, 15) )
+        if self:CanBeMeleed(ent) then
+            local tbl = self:MeleeDamageForce(dmgData)
+
+            if tbl then
+                forcevec = self:GetForward()*(tbl.forward or 0) + self:GetUp()*(tbl.up or 0) + self:GetRight()*(tbl.right or 0)
+
+                if tbl.randomness then
+                    forcevec = forcevec + VectorRand()*tbl.randomness
+                end
+            end
+        else
+            continue
+        end
+
+
+        -- Push
+        if forcevec then
+            local phys = ent:GetPhysicsObject()
+
+            if IsValid(phys) then
+                phys:SetVelocity(forcevec)
+            end
+
+            ent:SetVelocity(forcevec)
+        end
 
 
         -- Damage
-        local dmg = DamageInfo()
-        dmg:SetAttacker(self)
-        dmg:SetInflictor(self)
-        dmg:SetDamage(ZBaseRndTblRange(amt))
-        dmg:SetDamageType(type)
-        ent:TakeDamageInfo(dmg)
+        if !undamagable then
+            ZBaseBleed( ent, entpos+VectorRand(-15, 15) ) -- Bleed
 
+            local dmg = DamageInfo()
+            dmg:SetAttacker(self)
+            dmg:SetInflictor(self)
+            dmg:SetDamage(ZBaseRndTblRange(dmgData.amt))
+            dmg:SetDamageType(dmgData.type)
+            ent:TakeDamageInfo(dmg)
+        end
+    
 
         -- Sound
-        if !soundEmitted then
-            ent:EmitSound(hitSound)
+        if disp == D_NU && !soundPropEmitted then -- Prop probably
+            sound.Play(dmgData.hitSoundProps, entpos)
+            soundPropEmitted = true
+        elseif !soundEmitted && dist != D_NU then
+            ent:EmitSound(dmgData.hitSound)
             soundEmitted = true
         end
     end
@@ -85,11 +130,24 @@ function BEHAVIOUR.MeleeAttack:Run( self )
     local type = self.MeleeDamage_Type
     local amt = self.MeleeDamage
     local hitSound = self.MeleeDamage_Sound
+    local hitSoundProps = self.MeleeDamage_Sound_Prop
+    local affectProps = self.MeleeDamage_AffectProps
+    local name = self.MeleeAttackName
     
     timer.Simple(self.MeleeDamage_Delay, function()
         if !IsValid(self) then return end
         if self:GetNPCState()==NPC_STATE_DEAD then return end
-        self:MeleeAttackDamage(dist, ang, type, amt, hitSound)
+
+        self:MeleeAttackDamage({
+            dist=dist,
+            ang=ang,
+            type=type,
+            amt=amt,
+            hitSound=hitSound,
+            affectProps=affectProps,
+            name = name,
+            hitSoundProps = hitSoundProps,
+        })
     end)
     -----------------------------------------------------------------=#
 

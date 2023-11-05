@@ -76,6 +76,7 @@ NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
 NPC.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
 NPC.MeleeAttackDistance = 75
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
+NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever you want
 
 
 -- Melee attack animations
@@ -87,7 +88,9 @@ NPC.MeleeDamage_Distance = 100 -- Distance the damage travels
 NPC.MeleeDamage_Angle = 180 -- Damage angle (180 = everything in front of the NPC is damaged)
 NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes
 NPC.MeleeDamage_Type = DMG_GENERIC -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
-NPC.MeleeDamage_Sound = "ZBase.Melee2"
+NPC.MeleeDamage_Sound = "ZBase.Melee1" -- Sound when the melee attack hits an enemy
+NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
+NPC.MeleeDamage_AffectProps = false -- Affect props and other entites
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
@@ -237,5 +240,12 @@ function NPC:MultipleMeleeAttacks()
     -- else
     --     self.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
     -- end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Force to apply to entities affected by the melee attack damage, relative to the NPC
+function NPC:MeleeDamageForce( dmgData )
+    -- Example:
+    -- return {forward=500, up=500, right=0, randomness=100}
 end
 ---------------------------------------------------------------------------------------------------------------------=#
