@@ -65,6 +65,7 @@ local function IncludeFiles()
         include("zbase/server/behaviour.lua")
         include("zbase/server/hooks.lua")
         include("zbase/server/spawn_npc.lua")
+        include("zbase/server/tasks.lua")
     end
 
     if CLIENT then
@@ -223,7 +224,6 @@ if ZBaseInitialized then
     NPCsInherit()
     AddNPCsToSpawnMenu()
 
-    RunConsoleCommand("spawnmenu_reload")
     print("ZBase Reloaded!")
 else
 
