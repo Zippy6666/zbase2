@@ -15,22 +15,6 @@ function ENT:Initialize()
 	self:SetSolid( SOLID_BBOX )
 	self:SetMoveType( MOVETYPE_STEP )
 
-	-- self:CapabilitiesAdd(bit.bor(
-
-	-- 	-- Navigation essentials
-	-- 	CAP_MOVE_GROUND,
-	-- 	CAP_SKIP_NAV_GROUND_CHECK,
-	-- 	--=#
-
-	-- 	-- Makes them not act like robots
-	-- 	CAP_TURN_HEAD,
-	-- 	CAP_ANIMATEDFACE
-	-- 	--=#
-
-	-- ))
-
-	-- self:SetHealth( 100 )
-
 end
 --------------------------------------------------------------------------------=#
 function ENT:SelectSchedule( iNPCState )
@@ -152,59 +136,12 @@ function ENT:DoNPCState()
 	end
 end
 --------------------------------------------------------------------------------=#
--- function ENT:DoCurrentAnimation()
---     if !self.CurrentAnimation then return end
-
-
--- 	-- Animation stuff --
--- 	if isstring(self.CurrentAnimation) then
--- 		-- Sequence, try to convert to activity
--- 		local act = self:GetSequenceActivity(self:LookupSequence(self.CurrentAnimation))
-
--- 		if act != -1 then
--- 			-- Success, play as activity
--- 			self:SetActivity(act)
--- 		else
--- 			-- No activity for the sequence, set it directly instead of setting the activity 
--- 			self:SetSequence(self.CurrentAnimation)
--- 		end
--- 	elseif isnumber(self.CurrentAnimation) then
--- 		-- 'self.CurrentAnimation' is activity
--- 		self:SetActivity(self.CurrentAnimation)
--- 	end
--- 	-----------------------------=#
-
-	
--- 	-- Facing stuff --
--- 	local face = self.SequenceFaceType
--- 	local enemy = self:GetEnemy()
--- 	local enemyPos = IsValid(enemy) && enemy:GetPos()
-
--- 	if face == "enemy" && enemyPos then
--- 		-- Face enemy
--- 		self.AnimFacePos = enemyPos
--- 	elseif face == "enemy_visible" && enemyPos && self:Visible(enemy) then
--- 		-- Face enemy visible
--- 		self.AnimFacePos = enemyPos
--- 	end
-
--- 	if face != "none" then
--- 		-- Face static direction
--- 		self:Face(self.AnimFacePos)
--- 	end
--- 	-----------------------------=#
-
-
--- 	-- Try to make sure NPC is still
--- 	self:SetMoveVelocity(Vector())
--- end
---------------------------------------------------------------------------------=#
 function ENT:RunAI( strExp )
 	self:DoNPCState()
 
-	-- Play animation:
-	if self.CurrentAnimation then
-		self:DoCurrentAnimation()
+	-- Play sequence:
+	if self.ZBaseSNPCSequence then
+		self:SetSequence(self.ZBaseSNPCSequence)
 		return
 	end
 

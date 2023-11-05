@@ -253,7 +253,6 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalSetAnimation( anim )
 	if isstring(anim) then
-
 		-- Sequence, try to convert to activity
 		local act = self:GetSequenceActivity(self:LookupSequence(anim))
 
@@ -262,19 +261,18 @@ function NPC:InternalSetAnimation( anim )
 			self:SetActivity(act)
         else
             self:SetSequence(anim)
+            self.ZBaseSNPCSequence = anim
 		end
-
 	elseif isnumber(anim) then
-
 		self:SetActivity(anim)
-
 	end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
+    anim = self:InternalSetAnimation(anim)
+
     -- Duration stuff
-    self:InternalSetAnimation(anim)
-    duration = duration or self:SequenceDuration()
+    duration = duration or self:SequenceDuration()*0.66
     if playbackRate then
         duration = duration/playbackRate
     end
@@ -289,19 +287,35 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
 
 
     -- Da meat of the function --
-    self.TimeUntilStopAnimOverride = CurTime()+(duration*0.75)
+    self.TimeUntilStopAnimOverride = CurTime()+duration
     local timerName = "ZBaseMeleeAnimOverride"..self:EntIndex()
     timer.Create(timerName, 0, 0, function()
         if !IsValid(self)
         or self.TimeUntilStopAnimOverride < CurTime() then
+
+            self.ZBaseSNPCSequence = nil
+
+            if sched && IsValid(self) then
+                self:ClearSchedule()
+            end
+
             timer.Remove(timerName)
             return
         end
 
         self:InternalSetAnimation(anim)
-
         self:SetPlaybackRate(playbackRate or 1)
+
     end)
     ---------------------------------------------=#
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:ZBaseStartTask(name, data)
+    self:StartEngineTask(ZBaseTaskID(name), data or 0)
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:ZBaseRunTask(name, data)
+    self:RunEngineTask(ZBaseTaskID(name), data or 0)
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
