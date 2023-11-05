@@ -73,14 +73,13 @@ NPC.ArmorHitSpark = true -- Do a spark on armor hit
         -- BASE MELEE ATTACK --
 
 NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
+NPC.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
 NPC.MeleeAttackDistance = 75
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 
 
 -- Melee attack animations
-NPC.MeleeAttackAnimations = {
-    ACT_MELEE_ATTACK1,
-}
+NPC.MeleeAttackAnimations = {} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
 NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack animation
 
 NPC.MeleeDamage = {10, 10} -- Melee damage {min, max}
@@ -198,12 +197,12 @@ end
 
     -- Select schedule (only used by SNPCs!)
 function NPC:ZBaseSNPC_SelectSchedule()
-	-- Example
-	if IsValid(self:GetEnemy()) then
-		self:SetSchedule(SCHED_COMBAT_FACE)
-	else
-		self:SetSchedule(SCHED_IDLE_STAND)
-	end
+	-- Example:
+    if IsValid(self:GetEnemy()) then
+        self:SetSchedule(SCHED_COMBAT_FACE)
+    else
+        self:SetSchedule(SCHED_IDLE_STAND)
+    end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -218,7 +217,7 @@ function NPC:CustomOnEmitSound( sndData ) end
 function NPC:CustomOnKilledEnt( ent ) end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- Called one tick after an entity owned by this NPC is created
+    -- Called a tick after an entity owned by this NPC is created
     -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
 function NPC:CustomOnOwnedEntCreated( ent ) end
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -226,10 +225,17 @@ function NPC:CustomOnOwnedEntCreated( ent ) end
     -- Called when the base detects that the NPC is playing a new activity
 function NPC:CustomNewActivityDetected( act )
 end
-
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- Called before the base melee attack is ran
-function NPC:BeforeMeleeAttack()
+    -- Called continiusly if the NPC has a melee attack
+    -- Useful for changing things about the melee attack based on given conditions
+function NPC:MultipleMeleeAttacks()
+    -- Example:
+    -- if self:ZBaseDist(self:GetEnemy(), {within=40}) then
+    --     -- Enemy is x units away, switch to another melee attack animation
+    --     self.MeleeAttackAnimations = {ACT_SPECIAL_ATTACK1}
+    -- else
+    --     self.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
+    -- end
 end
 ---------------------------------------------------------------------------------------------------------------------=#

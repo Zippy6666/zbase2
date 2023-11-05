@@ -268,11 +268,11 @@ function NPC:InternalSetAnimation( anim )
 	end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
-    anim = self:InternalSetAnimation(anim)
+function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace )
+    self:InternalSetAnimation(anim)
 
     -- Duration stuff
-    duration = duration or self:SequenceDuration()*0.66
+    duration = duration or self:SequenceDuration()*0.75
     if playbackRate then
         duration = duration/playbackRate
     end
@@ -286,8 +286,15 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
     end
 
 
-    -- Da meat of the function --
     self.TimeUntilStopAnimOverride = CurTime()+duration
+    self.NextAnimTick = CurTime()+0.1
+
+
+    if forceFace then
+        self:Face(forceFace, duration)
+    end
+
+
     local timerName = "ZBaseMeleeAnimOverride"..self:EntIndex()
     timer.Create(timerName, 0, 0, function()
         if !IsValid(self)
@@ -296,6 +303,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
             self.ZBaseSNPCSequence = nil
 
             if sched && IsValid(self) then
+                print(sched, "cleared")
                 self:ClearSchedule()
             end
 
@@ -303,11 +311,16 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched )
             return
         end
 
+
+        if self.NextAnimTick > CurTime() then return end
+
+
         self:InternalSetAnimation(anim)
         self:SetPlaybackRate(playbackRate or 1)
 
+        self.NextAnimTick = CurTime()+0.1
+
     end)
-    ---------------------------------------------=#
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseStartTask(name, data)
@@ -316,6 +329,20 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseRunTask(name, data)
     self:RunEngineTask(ZBaseTaskID(name), data or 0)
+end
+---------------------------------------------------------------------------------------------------------------------=#
+    -- Depricated
+    -- Check if an entity is within a certain distance
+    -- If maxdist is given, return true if the entity is within x units from itself
+    -- If mindist is given, return true if the entity is x units away from itself
+function NPC:WithinDistance( ent, maxdist, mindist )
+    if !IsValid(ent) then return false end
+
+    local dSqr = self:GetPos():DistToSqr(ent:GetPos())
+    if mindist && dSqr < mindist^2 then return false end
+    if maxdist && dSqr > maxdist^2 then return false end
+
+    return true
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
