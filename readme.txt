@@ -18,11 +18,18 @@
         -- Squad error
 
 
+                -- CURRENT --
+        -- Animation code support sequences
+        -- Finish melee attack code
+        -- Make range attack code
+
+
         -- TODO (ranked by priority) --
     -- 1. Make sure it has all the essential things
     -- 2. Aerial base
             -- Ground node navigation system
-    -- 3. More sounds
+    -- 3. Make sure ZBase handles all npc classes well (especially zombies!!)
+    -- 4. More sounds
             -- LostEnemySounds
             -- SeeDangerSounds
             -- HearDangerSounds
@@ -31,7 +38,6 @@
             -- OnRangeSounds
             -- OnReloadSounds
             -- + Stop sounds on death
-    -- 4. Make sure ZBase handles all npc classes well (especially zombies!!)
     -- 5. Any kind of general npc improvement
             -- Extended jumping
             -- Hearing system
@@ -47,9 +53,10 @@
 
         -- FINAL --
     -- Make sure all NPCs have their full potential
-    -- Make more user friendly with comments and shit, remove comments from NPC examples, they may contain false information, dummy git
-    -- Make sure everything works
+    -- Make more user friendly with comments and shit, more error handling maybe, update comments for NPC examples, dummy git
+    -- Make sure everything works, make sure it works as intended with vj
     -- Compatible with my other addons
+    -- Copyright stuff
 
 
         -- GOOD STUFF --

@@ -10,26 +10,26 @@ ENT.IsZBase_SNPC = true
 function ENT:Initialize()
 
 	-- Some default calls to make the NPC function
-	self:SetHullType( HULL_HUMAN )
+	self:SetHullType( HULL_MEDIUM )
 	self:SetHullSizeNormal()
 	self:SetSolid( SOLID_BBOX )
 	self:SetMoveType( MOVETYPE_STEP )
 
-	self:CapabilitiesAdd(bit.bor(
+	-- self:CapabilitiesAdd(bit.bor(
 
-		-- Navigation essentials
-		CAP_MOVE_GROUND,
-		CAP_SKIP_NAV_GROUND_CHECK,
-		--=#
+	-- 	-- Navigation essentials
+	-- 	CAP_MOVE_GROUND,
+	-- 	CAP_SKIP_NAV_GROUND_CHECK,
+	-- 	--=#
 
-		-- Makes them not act like robots
-		CAP_TURN_HEAD,
-		CAP_ANIMATEDFACE
-		--=#
+	-- 	-- Makes them not act like robots
+	-- 	CAP_TURN_HEAD,
+	-- 	CAP_ANIMATEDFACE
+	-- 	--=#
 
-	))
+	-- ))
 
-	self:SetHealth( 100 )
+	-- self:SetHealth( 100 )
 
 end
 --------------------------------------------------------------------------------=#
