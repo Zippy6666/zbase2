@@ -260,6 +260,8 @@ function NPC:InternalSetAnimation( anim )
 		if act != -1 then
 			-- Success, play as activity
 			self:SetActivity(act)
+        else
+            self:SetSequence(anim)
 		end
 
 	elseif isnumber(anim) then

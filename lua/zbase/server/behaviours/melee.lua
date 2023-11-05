@@ -42,10 +42,14 @@ function NPC:MeleeAttackDamage()
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )
+    if !self.BaseMeleeAttack then return false end 
+    if table.IsEmpty(self.MeleeAttackAnimations) then return false end
+
+
     local sched = self:GetCurrentSchedule()
 
-    return self.BaseMeleeAttack
-    && !BusyScheds[sched]
+    
+    return !BusyScheds[sched]
     && sched <= 88 -- Doing some wacky schedule
     && self:WithinDistance(self:GetEnemy(), self.MeleeAttackDistance)
 end

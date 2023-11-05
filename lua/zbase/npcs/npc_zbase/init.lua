@@ -28,7 +28,6 @@ NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even 
 NPC.CallForHelpDistance = 2000 -- Call for help distance
 
 
-
 -- Extra capabilities
 -- List of capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
 NPC.ExtraCapabilities = {
@@ -139,7 +138,9 @@ NPC.IdleSound_Chance = 3 -- 1 in X chance that the NPC will emit IdleSounds when
 ---------------------------------------------------------------------------------------------------------------------=#
 
     -- Called when the NPC is created --
-function NPC:CustomInitialize() end
+function NPC:CustomInitialize()
+    -- self:SetCollisionBounds( Vector(-100, -100, 0), Vector(100, 100, 100) )
+end
 ---------------------------------------------------------------------------------------------------------------------=#
 
     -- Called continiously --
