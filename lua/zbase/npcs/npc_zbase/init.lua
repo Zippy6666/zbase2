@@ -88,7 +88,7 @@ NPC.MeleeDamage_Distance = 100 -- Distance the damage travels
 NPC.MeleeDamage_Angle = 180 -- Damage angle (180 = everything in front of the NPC is damaged)
 NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes
 NPC.MeleeDamage_Type = DMG_GENERIC -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
-NPC.MeleeDamage_Sound = "ZBase.Melee1" -- Sound when the melee attack hits an enemy
+NPC.MeleeDamage_Sound = "ZBase.Melee2" -- Sound when the melee attack hits an enemy
 NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
 NPC.MeleeDamage_AffectProps = false -- Affect props and other entites
 ---------------------------------------------------------------------------------------------------------------------=#
