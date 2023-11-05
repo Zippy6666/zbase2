@@ -20,6 +20,10 @@
 
 
                 -- CURRENT --
+		-- External PlayAnimation
+			-- Secondary fire as PlayAnimation
+		-- Melee animation events
+		-- Make some NPCs melee more somehow (vorts and metrocops for example)
 		-- BOOLET DEFLECTIONnnn
         -- Make range attack code
 
@@ -48,6 +52,7 @@
 		-- 7. Custom blood system
 				--White blood decals for hunters
 		-- 8. More menu options
+			-- Behavior tick speed
 
 
 

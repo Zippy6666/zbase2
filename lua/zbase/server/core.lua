@@ -269,6 +269,13 @@ function NPC:InternalSetAnimation( anim )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace )
+    -- Stop and shit
+    self:ClearSchedule()
+    self:ClearGoal()
+    self:StopMoving()
+    self:TaskComplete()
+
+
     self:InternalSetAnimation(anim)
 
     -- Duration stuff
