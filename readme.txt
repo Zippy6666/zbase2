@@ -16,12 +16,11 @@
 
                 -- BUGS --
         -- Squad error
+		-- Circular include error thingy
 
 
                 -- CURRENT --
-        -- Finish melee attack code
-			-- Knockback
-			-- Better blood position/code
+		-- BOOLET DEFLECTIONnnn
         -- Make range attack code
 
 
@@ -30,6 +29,7 @@
 				-- More sounds
 					-- LostEnemySounds
 					-- SeeDangerSounds
+					-- SeeGrenadeSounds
 					-- HearDangerSounds
 					-- AllyDeathSounds
 					-- OnMeleeSounds

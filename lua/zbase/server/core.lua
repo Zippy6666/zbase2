@@ -303,7 +303,6 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
             self.ZBaseSNPCSequence = nil
 
             if sched && IsValid(self) then
-                print(sched, "cleared")
                 self:ClearSchedule()
             end
 
