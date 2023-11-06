@@ -1,0 +1,62 @@
+        -- BUGS --
+-- Squad error
+-- Circular include error thingy
+
+
+        -- CURRENT --
+-- External PlayAnimation
+    -- Secondary fire as PlayAnimation
+-- Melee animation events
+-- Make some NPCs melee more somehow (vorts and metrocops for example)
+-- BOOLET DEFLECTIONnnn
+-- Make range attack code
+
+
+    -- TODO (ranked by priority) --
+-- 1. Make sure it has all the essential things vj has
+        -- More sounds
+            -- LostEnemySounds
+            -- SeeDangerSounds
+            -- SeeGrenadeSounds
+            -- HearDangerSounds
+            -- AllyDeathSounds
+            -- OnMeleeSounds
+            -- OnRangeSounds
+            -- OnReloadSounds
+            -- + Stop sounds on death
+        -- Range attack code
+        -- Damage scaling system (like vj immunity, but scale)
+        -- Jump system
+        -- Hearing system
+        -- Danger detection for SNPCs
+        -- Custom blood system
+            -- White blood decals for hunters
+        -- Adjustable shoot distance
+-- 2. Aerial base
+-- 3. Controller
+-- 4. Spawning utilities
+-- 5. Bodygroup system
+-- 6. Submaterial system
+-- 7. More menu options
+    -- Health and damage sliders
+    -- Behavior tick speed
+-- 8. Vehicle base??
+
+
+
+-- FINAL --
+-- Make sure all NPCs have their full potential
+-- Make more user friendly with comments and shit, more error handling maybe, update comments for NPC examples, dummy git
+-- Make sure everything works
+-- Make sure it works in multiplayer
+-- Make sure ZBase handles all npc classes well (especially zombies!!)
+-- Make sure it works as intended with vj
+-- Compatible with my other addons
+-- Copyright stuff
+
+
+-- NPCS FROM GAMES --
+-- Entropy Zero 2
+-- Hl2 Overcharged
+-- RTBR
+-- Insurgency

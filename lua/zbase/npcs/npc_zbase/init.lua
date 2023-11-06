@@ -249,3 +249,7 @@ function NPC:MeleeDamageForce( dmgData )
     -- return {forward=500, up=500, right=0, randomness=100}
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:HandleAnimEvent( event, eventTime, cycle, type, options )
+    print( event, eventTime, cycle, type, options )
+end
+---------------------------------------------------------------------------------------------------------------------=#
