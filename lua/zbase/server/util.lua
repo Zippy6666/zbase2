@@ -76,8 +76,12 @@ end
 function NPC:Face( face, duration, speed )
 	local function turn( yaw )
         if GetConVar("ai_disabled"):GetBool() then return end
+
+        local turnSpeed = speed
+        or (self.IsZBase_SNPC && self.m_fMaxYawSpeed)
+        or 10
         
-		self:SetIdealYawAndUpdate(yaw, speed)
+		self:SetIdealYawAndUpdate(yaw, turnSpeed)
 	end
 
 
@@ -118,13 +122,14 @@ end
         -- extraData.face - Position or entity to constantly face
         -- extraData.speedMult - Speed multiplier for the animation
         -- extraData.cutOff - Stop the animation after this amount of time in seconds
+        -- extraData.faceSpeed - Face turn speed
 function NPC:PlayAnimation( anim, faceEnemy, extraData )
     extraData = extraData or {}
 
     local enemy = self:GetEnemy()
     local face = extraData.face or (faceEnemy && IsValid(enemy) && enemy) or nil
 
-    self:InternalPlayAnimation(anim, extraData.cutOff, extraData.speedMult, SCHED_NPC_FREEZE, face )
+    self:InternalPlayAnimation(anim, extraData.cutOff, extraData.speedMult, SCHED_NPC_FREEZE, face, extraData.faceSpeed )
 end
 --------------------------------------------------------------------------------=#
 
