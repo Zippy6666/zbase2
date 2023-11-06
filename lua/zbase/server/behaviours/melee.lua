@@ -20,7 +20,7 @@ local BusyScheds = {
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function NPC:TooBusyForMelee()
     local sched = self:GetCurrentSchedule()
-    return BusyScheds[sched] or sched > 88
+    return BusyScheds[sched] or sched > 88 or self.DoingPlayAnim
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function NPC:CanBeMeleed( ent )
@@ -87,16 +87,16 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
         -- Damage
         if !undamagable then
-            if !ent:IsPlayer() then
-                ZBaseBleed( ent, entpos+VectorRand(-15, 15) ) -- Bleed
-            end
-
             local dmg = DamageInfo()
             dmg:SetAttacker(self)
             dmg:SetInflictor(self)
             dmg:SetDamage(ZBaseRndTblRange(dmgData.amt))
             dmg:SetDamageType(dmgData.type)
             ent:TakeDamageInfo(dmg)
+
+            if !(ent:IsPlayer() && dmg:IsDamageType(DMG_SLASH)) && dmg:GetDamage()>0 then
+                ZBaseBleed( ent, entpos+VectorRand(-15, 15) ) -- Bleed
+            end
         end
     
 

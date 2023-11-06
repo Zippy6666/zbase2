@@ -4,58 +4,73 @@
 
 
         -- CURRENT --
--- External PlayAnimation
-    -- Secondary fire as PlayAnimation
--- > Melee animation events <
--- Make some NPCs melee more somehow (vorts and metrocops for example)
--- BOOLET DEFLECTIONnnn
 -- Make range attack code
 
 
-    -- TODO (ranked by priority) --
--- 1. Make sure it has all the essential things vj has
-        -- More sounds
-            -- LostEnemySounds
-            -- SeeDangerSounds
-            -- SeeGrenadeSounds
-            -- HearDangerSounds
-            -- AllyDeathSounds
-            -- OnMeleeSounds
-            -- OnRangeSounds
-            -- OnReloadSounds
-            -- + Stop sounds on death
-        -- Range attack code
-        -- Damage scaling system (like vj immunity, but scale)
-        -- Jump system
-        -- Hearing system
-        -- Danger detection for SNPCs
-        -- Custom blood system
-            -- White blood decals for hunters
-        -- Adjustable shoot distance
--- 2. Aerial base
--- 3. Controller
--- 4. Spawning utilities
--- 5. Bodygroup system
--- 6. Submaterial system
--- 7. More menu options
+    -- TODO --
+-- Sounds
+    -- LostEnemySounds
+    -- SeeDangerSounds
+    -- SeeGrenadeSounds
+    -- HearDangerSounds
+    -- AllyDeathSounds
+    -- OnMeleeSounds
+    -- OnRangeSounds
+    -- OnReloadSounds
+    -- Stop sounds on death
+-- Range attack code
+-- Damage scaling system (like vj immunity, but scale)
+-- Jump system
+-- Hearing system
+-- Danger detection for SNPCs
+-- Custom blood system
+    -- White blood decals for hunters
+-- Adjustable shoot distance
+-- Range attack and melee attack should be able to have tables in their delay variable (so that the code fires many times)
+-- Aerial base (and aquatic maybe...)
+    -- Ground node navigation system
+-- Controller (maybe)
+-- Turn speed for SNPCs
+-- Weapon switching?
+-- Global weapon pickup?
+-- Stationary SNPCs
+-- Ability to change movement animations
+-- SNPC chasing system
+-- Attack props
+-- Flinch system
+-- SNPC turn towards damage system (and maybe other behaviours when damaged)
+-- Death animation system
+-- Item drop system
+-- Advanced dialogue system (maybe)
+-- Surround bound thingy
+-- Pose parameter code
+-- Lots of "CustomOn" functions
+-- Play animation supports gestures
+-- Face speed can be adjusted
+-- Spawning utilities
+-- Ability to have npcs in regular spawn menu (maybe)
+-- Bodygroup system
+-- Submaterial system
+-- More menu options
     -- Health and damage sliders
     -- Behavior tick speed
--- 8. Vehicle base??
+-- Vehicle base (maybe)
 
 
 
--- FINAL --
--- Make sure all NPCs have their full potential
--- Make more user friendly with comments and shit, more error handling maybe, update comments for NPC examples, dummy git
+    -- FINAL --
+-- Make more user friendly
+    -- Comments
+    -- Dummy git
 -- Make sure everything works
--- Make sure it works in multiplayer
--- Make sure ZBase handles all npc classes well (especially zombies!!)
--- Make sure it works as intended with vj
--- Compatible with my other addons
+    -- Multiplayer
+    -- Make sure ZBase handles all npc classes well (especially zombies!!)
+    -- Make sure it works as intended with vj
+    -- Compatible with my other addons
 -- Copyright stuff
 
 
--- NPCS FROM GAMES --
+    -- FUTURE NPCS --
 -- Entropy Zero 2
 -- Hl2 Overcharged
 -- RTBR

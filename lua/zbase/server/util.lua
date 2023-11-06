@@ -49,6 +49,7 @@ function NPC:ZBaseDist( ent_or_pos, tbl )
         dSqr = self:GetPos():DistToSqr(ent_or_pos:GetPos())
     end
 
+    if !dSqr then return false end
     if tbl.away && dSqr < tbl.away^2 then return false end
     if tbl.within && dSqr > tbl.within^2 then return false end
 
@@ -71,21 +72,12 @@ end
 	-- Make the NPC face certain directions
 	-- 'face' - A position or an entity to face, or a number representing the yaw.
     -- 'duration' - Face duration, if not set, you can run the function in think for example
-function NPC:Face( face, duration )
+    -- 'speed' - Turn speed, if not set, it will be the default turn speed
+function NPC:Face( face, duration, speed )
 	local function turn( yaw )
-        local hasFreezeSched = self:IsCurrentSchedule(SCHED_NPC_FREEZE)
-
-		self:SetIdealYawAndUpdate(yaw)
-
-        local yawspeed = self.m_fMaxYawSpeed or 20
-
-		-- Turning aid for SNPCs
-		if (self.IsZBase_SNPC && self:IsMoving())
-        then
-			local myAngs = self:GetAngles()
-			local newAng = Angle(myAngs.pitch, yaw, myAngs.roll)
-			self:SetAngles(LerpAngle(yawspeed/100, myAngs, newAng))
-		end
+        if GetConVar("ai_disabled"):GetBool() then return end
+        
+		self:SetIdealYawAndUpdate(yaw, speed)
 	end
 
 
@@ -117,6 +109,25 @@ function NPC:Face( face, duration )
     end
 end
 --------------------------------------------------------------------------------=#
+
+    -- Play an activity or sequence
+    -- Note: NPCs cannot play sequences that aren't bound to an activity, SNPCs however, can do so.
+    -- 'anim' - The sequence or activity to play, accepts sequences as strings
+    -- 'faceEnemy' - Set to true to constantly face enemy while the animation is playing
+    -- 'extraData' (table)
+        -- extraData.face - Position or entity to constantly face
+        -- extraData.speedMult - Speed multiplier for the animation
+        -- extraData.cutOff - Stop the animation after this amount of time in seconds
+function NPC:PlayAnimation( anim, faceEnemy, extraData )
+    extraData = extraData or {}
+
+    local enemy = self:GetEnemy()
+    local face = extraData.face or (faceEnemy && IsValid(enemy) && enemy) or nil
+
+    self:InternalPlayAnimation(anim, extraData.cutOff, extraData.speedMult, SCHED_NPC_FREEZE, face )
+end
+--------------------------------------------------------------------------------=#
+
 
     -- Just like entity:EmitSound(), except it will prevent certain sounds from playing over it
 function NPC:EmitSound_Uninterupted( ... )

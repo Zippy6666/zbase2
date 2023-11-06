@@ -1,6 +1,6 @@
 util.AddNetworkString("ZBaseInitEnt")
 
-
+local grabbing_bullet_backup_data = false
 local ZBaseNextThink = CurTime()
 local ZBaseWeaponDMGs = {
     ["weapon_pistol"] = {dmg=5, inflclass="bullet"},
@@ -301,5 +301,39 @@ hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
             ent.ZBaseFaction = ply.ZBaseNPCFactionOverride
         end)
     end
+end)
+---------------------------------------------------------------------------------------------------------------------=#
+local function BulletHit( ent, tr, dmginfo, data )
+    if IsValid(tr.Entity) && tr.Entity.IsZBaseNPC then
+        tr.Entity:OnBulletHit(ent, tr, dmginfo, data)
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+ZBaseReflectedBullet = false
+
+hook.Add("EntityFireBullets", "EntityFireBullets_RealisticBlood", function( ent, data, ... )
+    local data_backup = data
+    if grabbing_bullet_backup_data then return end
+
+    grabbing_bullet_backup_data = true
+    hook.Run("EntityFireBullets", ent, data, ...)
+    grabbing_bullet_backup_data = false
+
+    data = data_backup
+
+    if !ZBaseReflectedBullet then
+        local callback = data.Callback
+        data.Callback = function(callback_ent, tr, dmginfo, ...)
+
+            if callback then
+                callback(callback_ent, tr, dmginfo, ...)
+            end
+
+            BulletHit(callback_ent, tr, dmginfo, data)
+
+        end
+    end
+
+    return true
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
