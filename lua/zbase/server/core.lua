@@ -253,18 +253,22 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalSetAnimation( anim )
 	if isstring(anim) then
-		-- Sequence, try to convert to activity
-		local act = self:GetSequenceActivity(self:LookupSequence(anim))
-
-		if act != -1 then
-			-- Success, play as activity
-			self:SetActivity(act)
-        else
+        -- Sequence
+        if self.IsZBase_SNPC then
             self:SetSequence(anim)
             self.ZBaseSNPCSequence = anim
-		end
+
+        else
+            -- Normal NPCs can't play sequences that well, try to play as activity instead
+            local act = self:GetSequenceActivity(self:LookupSequence(anim))
+            self:SetActivity(act)
+
+        end
+
 	elseif isnumber(anim) then
+        -- Activity
 		self:SetActivity(anim)
+
 	end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -349,6 +353,10 @@ function NPC:WithinDistance( ent, maxdist, mindist )
     if maxdist && dSqr > maxdist^2 then return false end
 
     return true
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)       
+    self:CustomHandleAnimEvent(event, eventTime, cycle, type, options)     
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 

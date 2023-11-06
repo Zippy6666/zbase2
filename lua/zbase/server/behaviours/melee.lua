@@ -30,7 +30,7 @@ function NPC:CanBeMeleed( ent )
     or mtype == MOVETYPE_WALK -- Player
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
-function NPC:MeleeAttackDamage(dmgData)
+function NPC:InternalMeleeAttackDamage(dmgData)
     local mypos = self:WorldSpaceCenter()
     local soundEmitted = false
     local soundPropEmitted = false
@@ -87,7 +87,9 @@ function NPC:MeleeAttackDamage(dmgData)
 
         -- Damage
         if !undamagable then
-            ZBaseBleed( ent, entpos+VectorRand(-15, 15) ) -- Bleed
+            if !ent:IsPlayer() then
+                ZBaseBleed( ent, entpos+VectorRand(-15, 15) ) -- Bleed
+            end
 
             local dmg = DamageInfo()
             dmg:SetAttacker(self)
@@ -125,30 +127,27 @@ function BEHAVIOUR.MeleeAttack:Run( self )
 
 
         -- Damage --
-    local dist = self.MeleeDamage_Distance
-    local ang = self.MeleeDamage_Angle
-    local type = self.MeleeDamage_Type
-    local amt = self.MeleeDamage
-    local hitSound = self.MeleeDamage_Sound
-    local hitSoundProps = self.MeleeDamage_Sound_Prop
-    local affectProps = self.MeleeDamage_AffectProps
-    local name = self.MeleeAttackName
-    
-    timer.Simple(self.MeleeDamage_Delay, function()
-        if !IsValid(self) then return end
-        if self:GetNPCState()==NPC_STATE_DEAD then return end
+    local dmgData = {
+        dist=self.MeleeDamage_Distance,
+        ang=self.MeleeDamage_Angle,
+        type=self.MeleeDamage_Type,
+        amt=self.MeleeDamage,
+        hitSound=self.MeleeDamage_Sound,
+        affectProps=self.MeleeDamage_AffectProps,
+        name = self.MeleeAttackName,
+        hitSoundProps = self.MeleeDamage_Sound_Prop,
+    }
 
-        self:MeleeAttackDamage({
-            dist=dist,
-            ang=ang,
-            type=type,
-            amt=amt,
-            hitSound=hitSound,
-            affectProps=affectProps,
-            name = name,
-            hitSoundProps = hitSoundProps,
-        })
-    end)
+    self.CurrentMeleeDMGData = dmgData
+
+    if self.MeleeDamage_Delay then
+        timer.Simple(self.MeleeDamage_Delay, function()
+            if !IsValid(self) then return end
+            if self:GetNPCState()==NPC_STATE_DEAD then return end
+
+            self:InternalMeleeAttackDamage(dmgData)
+        end)
+    end
     -----------------------------------------------------------------=#
 
 

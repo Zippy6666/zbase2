@@ -39,7 +39,7 @@ end
     -- Check if an entity or position is within a certain distance
     -- If tbl.within is given, return true if the entity is within x units from itself
     -- If tbl.away is given, return true if the entity is x units away from itself
-    -- Example: self:ZBaseDist( self:GetEnemy(), {within=400, away=200} )
+    -- Example: self:ZBaseDist( self:GetEnemy(), {within=400, away=200} ) --> Returns true if enemy is 200 units away, but still within 400 units
 function NPC:ZBaseDist( ent_or_pos, tbl )
     local dSqr
 
@@ -65,87 +65,22 @@ function NPC:IsFacing( ent )
 
     return yawDif < 22.5
 end
----------------------------------------------------------------------------------------------------------------------=#
-    -- 'duration' - ...
-    -- 'face' - ...
--- function NPC:PlayAnimation( anim, duration, face )
--- 	if !face then face = "none" end
-
---     -- Determine duration if not given
---     -- if !duration then
---     --     if isstring(anim) then
-
---     --         duration = self:SequenceDuration(anim)
-
---     --     elseif isnumber(anim) then
-
---     --         local seq = self:SelectWeightedSequence(anim)
---     --         duration = self:SequenceDuration(seq)
-
---     --     end
---     -- end
-
-
---     self.CurrentAnimation = anim
-
---     self.SequenceFaceType = face
--- 	self.AnimFacePos = self:GetPos()+self:GetForward()*100 -- Static face position
-    
-
--- 	if isstring(anim) then
---         -- Sequence, try to convert to activity
--- 		local act = self:GetSequenceActivity(self:LookupSequence(anim))
-
-        
--- 		if act == -1 then
---             -- No activity for the sequence, set it directly instead of setting the activity 
--- 			self:ResetSequence(self.CurrentAnimation)
---         else
---             -- Sequence has activity, play as such
---             self:ResetIdealActivity(act)
--- 		end
-	
--- 	elseif isnumber(anim) then
---         -- 'anim' is activity
--- 		self:ResetIdealActivity(anim)
--- 	end
-
---     -- Stop the NPC
---     if self.IsZBase_SNPC then
---         self:StopAndPreventSelectSchedule( duration )
---     else
---         self:ClearGoal()
---     end
-
---     -- Reset after duration
---     timer.Create("ZNPC_StopPlayAnimation"..self:EntIndex(), duration, 1, function()
---         if !IsValid(self) then return end
---         self.CurrentAnimation = nil
---         self.SequenceFaceType = nil
---         self.AnimFacePos = nil
---         self:ResetIdealActivity(ACT_IDLE)
---     end)
--- end
 --------------------------------------------------------------------------------=#
 
 
 	-- Make the NPC face certain directions
 	-- 'face' - A position or an entity to face, or a number representing the yaw.
     -- 'duration' - Face duration, if not set, you can run the function in think for example
-
 function NPC:Face( face, duration )
 	local function turn( yaw )
         local hasFreezeSched = self:IsCurrentSchedule(SCHED_NPC_FREEZE)
 
-        -- if !hasFreezeSched then
-		    self:SetIdealYawAndUpdate(yaw)
-        -- end
+		self:SetIdealYawAndUpdate(yaw)
 
         local yawspeed = self.m_fMaxYawSpeed or 20
 
 		-- Turning aid for SNPCs
 		if (self.IsZBase_SNPC && self:IsMoving())
-        -- or hasFreezeSched
         then
 			local myAngs = self:GetAngles()
 			local newAng = Angle(myAngs.pitch, yaw, myAngs.roll)
@@ -183,11 +118,31 @@ function NPC:Face( face, duration )
 end
 --------------------------------------------------------------------------------=#
 
-    -- Just like entity:EmitSound(), except it will prevent future idle sounds and such from playing over it
-    -- https://wiki.facepunch.com/gmod/Entity:EmitSound
+    -- Just like entity:EmitSound(), except it will prevent certain sounds from playing over it
 function NPC:EmitSound_Uninterupted( ... )
     ZBase_DontSpeakOverThisSound = true
     self:EmitSound(...)
     ZBase_DontSpeakOverThisSound = false
+end
+--------------------------------------------------------------------------------=#
+
+    -- Does the base melee attack damage code
+function NPC:MeleeAttackDamage()
+    local dmgData = self.CurrentMeleeDMGData
+
+    if !dmgData then
+        dmgData = {
+            dist=self.MeleeDamage_Distance,
+            ang=self.MeleeDamage_Angle,
+            type=self.MeleeDamage_Type,
+            amt=self.MeleeDamage,
+            hitSound=self.MeleeDamage_Sound,
+            affectProps=self.MeleeDamage_AffectProps,
+            name = self.MeleeAttackName,
+            hitSoundProps = self.MeleeDamage_Sound_Prop,
+        }
+    end
+
+    self:InternalMeleeAttackDamage(dmgData)
 end
 --------------------------------------------------------------------------------=#
