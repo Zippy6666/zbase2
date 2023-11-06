@@ -71,6 +71,12 @@
     -- https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/game/server/ai_basenpc.cpp
     -- https://github.com/Facepunch/garrysmod/tree/9bbd7c8af0dda5bed88e3f09fbdf5d4be7e012f2
 
+		-- NPCS FROM GAMES --
+	-- Black Mesa
+	-- Entropy Zero 2
+	-- Hl2 Overcharged
+	-- Insurgency??
+
 -------------------------------------------------------------------------------------------------------------------------=#
 
 // Global Savedata for npc
