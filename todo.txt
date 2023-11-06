@@ -6,7 +6,7 @@
         -- CURRENT --
 -- External PlayAnimation
     -- Secondary fire as PlayAnimation
--- Melee animation events
+-- > Melee animation events <
 -- Make some NPCs melee more somehow (vorts and metrocops for example)
 -- BOOLET DEFLECTIONnnn
 -- Make range attack code

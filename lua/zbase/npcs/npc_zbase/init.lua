@@ -78,7 +78,6 @@ NPC.MeleeAttackDistance = 75
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever you want
 
-
 -- Melee attack animations
 NPC.MeleeAttackAnimations = {} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
 NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack animation
@@ -86,7 +85,7 @@ NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack anima
 NPC.MeleeDamage = {10, 10} -- Melee damage {min, max}
 NPC.MeleeDamage_Distance = 100 -- Distance the damage travels
 NPC.MeleeDamage_Angle = 180 -- Damage angle (180 = everything in front of the NPC is damaged)
-NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes
+NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead)
 NPC.MeleeDamage_Type = DMG_GENERIC -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.MeleeDamage_Sound = "ZBase.Melee2" -- Sound when the melee attack hits an enemy
 NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
@@ -249,7 +248,12 @@ function NPC:MeleeDamageForce( dmgData )
     -- return {forward=500, up=500, right=0, randomness=100}
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:HandleAnimEvent( event, eventTime, cycle, type, options )
-    print( event, eventTime, cycle, type, options )
+
+    -- Called when the NPC (SNPC) fires an animation event (only works for SNPCs)
+function NPC:CustomHandleAnimEvent(event, eventTime, cycle, type, option) 
+    -- Example:
+    -- if event == 5 then
+    --     self:MeleeAttackDamage()
+    -- end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
