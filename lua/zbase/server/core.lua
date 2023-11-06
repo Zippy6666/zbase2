@@ -252,6 +252,8 @@ function NPC:OnOwnedEntCreated( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalSetAnimation( anim )
+    if GetConVar("ai_disabled"):GetBool() then return end
+
 	if isstring(anim) then
         -- Sequence
         if self.IsZBase_SNPC then
@@ -273,6 +275,8 @@ function NPC:InternalSetAnimation( anim )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace )
+    self.DoingPlayAnim = true
+
     -- Stop and shit
     self:ClearSchedule()
     self:ClearGoal()
@@ -311,6 +315,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
         if !IsValid(self)
         or self.TimeUntilStopAnimOverride < CurTime() then
 
+            self.DoingPlayAnim = false
             self.ZBaseSNPCSequence = nil
 
             if sched && IsValid(self) then
@@ -321,7 +326,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
             return
         end
 
-
+        
         if self.NextAnimTick > CurTime() then return end
 
 
@@ -357,6 +362,32 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)       
     self:CustomHandleAnimEvent(event, eventTime, cycle, type, options)     
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
+    -- Bullet reflection
+    if self.ArmorReflectsBullets && math.random(1, 2)==1 then
+        ZBaseReflectedBullet = true
+
+        local ent = ents.Create("base_gmodentity")
+        ent:SetNoDraw(true)
+        ent:DrawShadow(false)
+        ent:SetPos(tr.HitPos)
+        ent:Spawn()
+
+        local nrm = Vector()
+        nrm:Set(tr.HitNormal)
+        nrm:Rotate(AngleRand()*0.2)
+
+        ent:FireBullets({
+            Src = tr.HitPos,
+            Dir = nrm,
+            Damage = 0,
+            IgnoreEntity = self,
+        })
+
+        ZBaseReflectedBullet = false
+    end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 

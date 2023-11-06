@@ -58,11 +58,11 @@ NPC.HasArmor = {
     -- [HITGROUP_RIGHTLEG] = false,
     -- [HITGROUP_GEAR] = false,
 }
-NPC.ArmorPenChance = 2 -- 1/x Chance that the armor is penetrated
-NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this
+NPC.ArmorPenChance = 2 -- 1/x Chance that the armor is penetrated, false = never
+NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this, set to false to disable
 NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
 NPC.ArmorHitSpark = true -- Do a spark on armor hit
-
+NPC.ArmorReflectsBullets = false -- Should the armor visually reflect bullets?
 
 
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -167,12 +167,12 @@ function NPC:CustomAcceptInput( input, activator, caller, value ) end
     -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
 function NPC:HitArmor( dmginfo, HitGroup )
 
-    if dmginfo:GetDamage() >= self.ArmorAlwaysPenDamage then
+    if self.ArmorAlwaysPenDamage && dmginfo:GetDamage() >= self.ArmorAlwaysPenDamage then
         dmginfo:ScaleDamage(self.ArmorPenDamageMult)
         return
     end
 
-    if math.random(1, self.ArmorPenChance) != 1 then
+    if !self.ArmorPenChance or math.random(1, self.ArmorPenChance) != 1 then
     
         if self.ArmorHitSpark then
             local spark = ents.Create("env_spark")
