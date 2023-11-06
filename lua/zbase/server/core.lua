@@ -274,7 +274,7 @@ function NPC:InternalSetAnimation( anim )
 	end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace )
+function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed )
     self.DoingPlayAnim = true
 
     -- Stop and shit
@@ -306,7 +306,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
 
 
     if forceFace then
-        self:Face(forceFace, duration)
+        self:Face(forceFace, duration, faceSpeed)
     end
 
 

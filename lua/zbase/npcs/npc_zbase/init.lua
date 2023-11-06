@@ -199,12 +199,7 @@ end
 
     -- Select schedule (only used by SNPCs!)
 function NPC:ZBaseSNPC_SelectSchedule()
-	-- Example:
-    if IsValid(self:GetEnemy()) then
-        self:SetSchedule(SCHED_COMBAT_FACE)
-    else
-        self:SetSchedule(SCHED_IDLE_STAND)
-    end
+    self:SetSchedule(SCHED_COMBAT_FACE)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 

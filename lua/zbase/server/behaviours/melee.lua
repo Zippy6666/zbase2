@@ -3,7 +3,7 @@ local BEHAVIOUR = NPC.Behaviours
 
 BEHAVIOUR.MeleeAttack = {
     MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
-    MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
+    -- MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
 }
 BEHAVIOUR.PreMeleeAttack = {
     MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
@@ -115,14 +115,22 @@ function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )
     if !self.BaseMeleeAttack then return false end 
     if table.IsEmpty(self.MeleeAttackAnimations) then return false end
 
+    local ene = self:GetEnemy()
+    if !self.MeleeAttackFaceEnemy && !self:IsFacing(ene) then return false end
+
     return !self:TooBusyForMelee()
-    && self:WithinDistance(self:GetEnemy(), self.MeleeAttackDistance)
+    && self:WithinDistance(ene, self.MeleeAttackDistance)
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.MeleeAttack:Run( self )
         -- Animation --
-    local anim = table.Random(self.MeleeAttackAnimations)
-    self:InternalPlayAnimation(anim, nil, self.MeleeAttackAnimationSpeed, SCHED_NPC_FREEZE, self.MeleeAttackFaceEnemy && self:GetEnemy())
+    self:InternalPlayAnimation(
+        table.Random(self.MeleeAttackAnimations),
+        nil,
+        self.MeleeAttackAnimationSpeed,
+        SCHED_NPC_FREEZE,
+        self.MeleeAttackFaceEnemy && self:GetEnemy()
+    )
     -----------------------------------------------------------------=#
 
 
