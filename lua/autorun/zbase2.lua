@@ -62,10 +62,10 @@ local function IncludeFiles()
     include("zbase/shared/sounds.lua")
 
     if SERVER then
-        include("zbase/server/behaviour.lua")
-        include("zbase/server/hooks.lua")
-        include("zbase/server/spawn_npc.lua")
-        include("zbase/server/tasks.lua")
+        include("zbase/server/general/behaviour.lua")
+        include("zbase/server/general/hooks.lua")
+        include("zbase/server/general/spawn_npc.lua")
+        include("zbase/server/general/tasks.lua")
     end
 
     if CLIENT then
@@ -115,14 +115,14 @@ local function RegBase()
     AddCSLuaFile(npcpath.."cl_init.lua")
 
     if SERVER then
-        include("zbase/server/npc/core.lua")
-        include("zbase/server/npc/util.lua")
+        include("zbase/server/npc_base/core.lua")
+        include("zbase/server/npc_base/util.lua")
         include(npcpath.."init.lua")
 
         ZBaseNPCs["npc_zbase"].Behaviours = {}
 
-        local files = file.Find("zbase/server/npc/behaviours/*","LUA")
-        local behaviourPath = "zbase/server/npc/behaviours/"
+        local files = file.Find("zbase/server/npc_base/behaviours/*","LUA")
+        local behaviourPath = "zbase/server/npc_base/behaviours/"
 
         for _, v in ipairs(files) do
             include(behaviourPath..v)
