@@ -1,13 +1,12 @@
-        -- BUGS --
--- Squad error
--- Circular include error thingy
-
-
-        -- CURRENT --
--- Make range attack code
-
-
     -- TODO --
+-- Phys damage scale and combine ball damage scale (+explode combine ball option)
+-- > Range attack <
+    -- Bullet or projectile
+    -- RangeAttackProjectile function that can be edited, should include an out commented bullet code as well
+    -- Projectile base?
+    -- Support for looping animation
+    -- Shoot at last seen enemy pos if the pos is visible and not too close, do a function for it called RangeAttackPosition of something
+-- Expand weapon base
 -- Sounds
     -- LostEnemySounds
     -- SeeDangerSounds
@@ -18,15 +17,16 @@
     -- OnRangeSounds
     -- OnReloadSounds
     -- Stop sounds on death
--- Range attack code
 -- Damage scaling system (like vj immunity, but scale)
+    -- Comball damage scale
+    -- Phys damage scale
+    -- Damage type damage scale
 -- Jump system
 -- Hearing system
 -- Danger detection for SNPCs
 -- Custom blood system
     -- White blood decals for hunters
 -- Adjustable shoot distance
--- Range attack and melee attack should be able to have tables in their delay variable (so that the code fires many times)
 -- Aerial base (and aquatic maybe...)
     -- Ground node navigation system
 -- Controller (maybe)
@@ -46,8 +46,7 @@
 -- Pose parameter code
 -- Lots of "CustomOn" functions
 -- Play animation supports gestures
--- Face speed can be adjusted
--- Spawning utilities
+-- Spawning utilities (maybe)
 -- Ability to have npcs in regular spawn menu (maybe)
 -- Bodygroup system
 -- Submaterial system
@@ -55,6 +54,8 @@
     -- Health and damage sliders
     -- Behavior tick speed
 -- Vehicle base (maybe)
+-- Gib system (maybe)
+-- Don't use squads
 
 
 
@@ -75,3 +76,7 @@
 -- Hl2 Overcharged
 -- RTBR
 -- Insurgency
+
+        -- BUGS --
+-- Squad error
+-- Circular include error thingy

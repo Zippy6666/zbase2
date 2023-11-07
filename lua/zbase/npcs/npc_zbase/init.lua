@@ -74,6 +74,7 @@ NPC.ArmorReflectsBullets = false -- Should the armor visually reflect bullets?
 
 NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
 NPC.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
+NPC.MeleeAttackTurnSpeed = 5 -- Speed that it turns while trying to face the enemy when melee attacking
 NPC.MeleeAttackDistance = 75
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever you want
@@ -85,7 +86,7 @@ NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack anima
 NPC.MeleeDamage = {10, 10} -- Melee damage {min, max}
 NPC.MeleeDamage_Distance = 100 -- Distance the damage travels
 NPC.MeleeDamage_Angle = 180 -- Damage angle (180 = everything in front of the NPC is damaged)
-NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead)
+NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead for example)
 NPC.MeleeDamage_Type = DMG_GENERIC -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.MeleeDamage_Sound = "ZBase.Melee2" -- Sound when the melee attack hits an enemy
 NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
@@ -96,8 +97,18 @@ NPC.MeleeDamage_AffectProps = false -- Affect props and other entites
 
         -- BASE RANGE ATTACK --
 NPC.BaseRangeAttack = false -- Use ZBase range attack system
+NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
+NPC.RangeAttackTurnSpeed = 3 -- Speed that it turns while trying to face the enemy when range attacking
+NPC.RangeAttackDistance = {0, 1000} -- Distance that it initiates the range attack {min, max}
+NPC.RangeAttackCooldown = {0, 0} -- Range attack cooldown {min, max}
 
+-- Range attack animations
+NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
+NPC.RangeAttackAnimationSpeed = 1 -- Speed multiplier for the range attack animation
 
+-- Time until the projectile code is ran
+-- Set to false to disable the timer (if you want to use animation events instead for example)
+NPC.RangeProjectile_Delay = 1
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -162,10 +173,12 @@ function NPC:DealDamage( victimEnt, dmginfo ) end
 function NPC:CustomAcceptInput( input, activator, caller, value ) end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- On Armor hit, dmginfo:ScaleDamage(0) to prevent damage --
+    -- On armor hit --
     -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
     -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
 function NPC:HitArmor( dmginfo, HitGroup )
+
+    if !(dmginfo:IsDamageType(DMG_BULLET) or dmginfo:IsDamageType(DMG_BUCKSHOT)) then return end
 
     if self.ArmorAlwaysPenDamage && dmginfo:GetDamage() >= self.ArmorAlwaysPenDamage then
         dmginfo:ScaleDamage(self.ArmorPenDamageMult)
@@ -194,12 +207,6 @@ function NPC:HitArmor( dmginfo, HitGroup )
         dmginfo:ScaleDamage(self.ArmorPenDamageMult)
     end
 
-end
----------------------------------------------------------------------------------------------------------------------=#
-
-    -- Select schedule (only used by SNPCs!)
-function NPC:ZBaseSNPC_SelectSchedule()
-    self:SetSchedule(SCHED_COMBAT_FACE)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -244,11 +251,45 @@ function NPC:MeleeDamageForce( dmgData )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
+    -- The range attack projectile code
+    -- Can be called
+function NPC:RangeAttackProjectile()
+    local enemy = self:GetEnemy()
+
+    if IsValid(enemy) then
+        -- Projectile code
+        local proj = ents.Create("")
+        -- ...
+
+
+
+        -- Bullet code
+        -- self:FireBullets({table bulletInfo})
+        -- ...
+
+
+
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Called continiusly if the NPC has a range attack
+    -- Useful for changing things about the range attack based on given conditions
+function NPC:MultipleRangeAttacks()
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
     -- Called when the NPC (SNPC) fires an animation event (only works for SNPCs)
 function NPC:CustomHandleAnimEvent(event, eventTime, cycle, type, option) 
     -- Example:
     -- if event == 5 then
     --     self:MeleeAttackDamage()
     -- end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Select schedule (only used by SNPCs!)
+function NPC:ZBaseSNPC_SelectSchedule()
+    self:SetSchedule(SCHED_COMBAT_FACE)
 end
 ---------------------------------------------------------------------------------------------------------------------=#

@@ -2,11 +2,10 @@ local NPC = ZBaseNPCs["npc_zbase"]
 local BEHAVIOUR = NPC.Behaviours
 
 BEHAVIOUR.MeleeAttack = {
-    MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
-    -- MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
+    MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy? 
 }
 BEHAVIOUR.PreMeleeAttack = {
-    MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
+    MustHaveEnemy = true, -- Should it only run the behaviour if it has an enemy? 
 }
 
 local BusyScheds = {
@@ -129,7 +128,8 @@ function BEHAVIOUR.MeleeAttack:Run( self )
         nil,
         self.MeleeAttackAnimationSpeed,
         SCHED_NPC_FREEZE,
-        self.MeleeAttackFaceEnemy && self:GetEnemy()
+        self.MeleeAttackFaceEnemy && self:GetEnemy(),
+        self.RangeAttackTurnSpeed
     )
     -----------------------------------------------------------------=#
 

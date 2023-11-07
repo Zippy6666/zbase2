@@ -1,1 +1,0 @@
-local BEHAVIOUR = ZBaseNPCs["npc_zbase"].Behaviours
