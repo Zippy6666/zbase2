@@ -1,5 +1,9 @@
 local NPC = ZBaseNPCs["npc_zbase"]
 
+
+NPC.IsZBaseNPC = true
+
+
 local VJ_Translation = {
     ["CLASS_COMBINE"] = "combine",
     ["CLASS_ZOMBIE"] = "zombie",
@@ -252,8 +256,6 @@ function NPC:OnOwnedEntCreated( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalSetAnimation( anim )
-    if GetConVar("ai_disabled"):GetBool() then return end
-
 	if isstring(anim) then
         -- Sequence
         if self.IsZBase_SNPC then
@@ -275,6 +277,8 @@ function NPC:InternalSetAnimation( anim )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed )
+    if GetConVar("ai_disabled"):GetBool() then return end
+
     self.DoingPlayAnim = true
 
     -- Stop and shit
@@ -287,7 +291,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     self:InternalSetAnimation(anim)
 
     -- Duration stuff
-    duration = duration or self:SequenceDuration()*0.75
+    duration = duration or self:SequenceDuration() -- *0.75
     if playbackRate then
         duration = duration/playbackRate
     end
@@ -347,9 +351,6 @@ function NPC:ZBaseRunTask(name, data)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Depricated
-    -- Check if an entity is within a certain distance
-    -- If maxdist is given, return true if the entity is within x units from itself
-    -- If mindist is given, return true if the entity is x units away from itself
 function NPC:WithinDistance( ent, maxdist, mindist )
     if !IsValid(ent) then return false end
 
@@ -366,12 +367,10 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
     -- Bullet reflection
-    if self.ArmorReflectsBullets && math.random(1, 2)==1 then
+    if self.ArmorReflectsBullets then
         ZBaseReflectedBullet = true
 
         local ent = ents.Create("base_gmodentity")
-        ent:SetNoDraw(true)
-        ent:DrawShadow(false)
         ent:SetPos(tr.HitPos)
         ent:Spawn()
 
@@ -385,6 +384,8 @@ function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
             Damage = 0,
             IgnoreEntity = self,
         })
+
+        ent:Remove()
 
         ZBaseReflectedBullet = false
     end
