@@ -162,3 +162,15 @@ function NPC:MeleeAttackDamage()
     self:InternalMeleeAttackDamage(dmgData)
 end
 --------------------------------------------------------------------------------=#
+
+    -- Returns the spawn position for the NPCs projectile
+function NPC:Projectile_SpawnPos()
+    return self:WorldSpaceCenter()
+end
+--------------------------------------------------------------------------------=#
+
+    -- Returns the target position for the NPCs projectile
+function NPC:Projectile_TargetPos()
+    return Vector()
+end
+--------------------------------------------------------------------------------=#

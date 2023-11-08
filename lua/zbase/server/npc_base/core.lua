@@ -366,7 +366,6 @@ function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
-    PrintTable(bulletData)
     -- Bullet reflection
     if self.ArmorReflectsBullets then
         ZBaseReflectedBullet = true
@@ -374,10 +373,6 @@ function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
         local ent = ents.Create("base_gmodentity")
         ent:SetPos(tr.HitPos)
         ent:Spawn()
-
-        -- local nrm = Vector()
-        -- nrm:Set(tr.HitNormal)
-        -- nrm:Rotate(AngleRand()*0.2)
 
         ent:FireBullets({
             Src = tr.HitPos,

@@ -101,6 +101,7 @@ NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range at
 NPC.RangeAttackTurnSpeed = 3 -- Speed that it turns while trying to face the enemy when range attacking
 NPC.RangeAttackDistance = {0, 1000} -- Distance that it initiates the range attack {min, max}
 NPC.RangeAttackCooldown = {0, 0} -- Range attack cooldown {min, max}
+NPC.RangeAttack_SuppressEnemy = true -- ...
 
 -- Range attack animations
 NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
@@ -109,6 +110,14 @@ NPC.RangeAttackAnimationSpeed = 1 -- Speed multiplier for the range attack anima
 -- Time until the projectile code is ran
 -- Set to false to disable the timer (if you want to use animation events instead for example)
 NPC.RangeProjectile_Delay = 1
+
+-- Attachment to spawn the projectile on 
+-- If set to false the projectile will spawn from the NPCs center
+NPC.RangeProjectile_Attachment = false
+
+NPC.RangeProjectile_Offset = {forward=0, up=0, right=0} -- Projectile spawn offset
+NPC.RangeProjectile_Speed = 1000
+NPC.RangeProjectile_TargetEnemyPath = true -- ...
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -258,8 +267,12 @@ function NPC:RangeAttackProjectile()
 
     if IsValid(enemy) then
         -- Projectile code
-        local proj = ents.Create("")
-        -- ...
+        local proj = ents.Create("crossbow_bolt")
+        proj:SetPos(self:Projectile_SpawnPos())
+        proj:SetAngles(self:GetAngles())
+        proj:SetOwner(self)
+        proj:Spawn()
+        proj:SetVelocity(self:RangeAttackProjectileVelocity())
 
 
 
@@ -270,6 +283,13 @@ function NPC:RangeAttackProjectile()
 
 
     end
+end
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- ...
+function NPC:RangeAttackProjectileVelocity()
+    return Vector()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 

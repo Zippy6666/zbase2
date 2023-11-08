@@ -1,7 +1,6 @@
     -- TODO --
 -- Phys damage scale and combine ball damage scale (+explode combine ball option)
 -- > Range attack <
-    -- Bullet or projectile
     -- RangeAttackProjectile function that can be edited, should include an out commented bullet code as well
     -- Projectile base?
     -- Support for looping animation
