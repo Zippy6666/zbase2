@@ -267,21 +267,28 @@ function NPC:RangeAttackProjectile()
     local enemy = self:GetEnemy()
 
     if IsValid(enemy) then
-        -- Projectile code
-        local proj = ents.Create("crossbow_bolt")
+        -- Projectile code --
+        local proj = ents.Create("projectile_zbase")
         proj:SetPos(self:Projectile_SpawnPos())
         proj:SetAngles(self:GetAngles())
         proj:SetOwner(self)
         proj:Spawn()
-        proj:SetVelocity(self:RangeAttackProjectileVelocity())
+
+        local proj_phys = proj:GetPhysicsObject()
+
+        if IsValid(proj_phys) then
+            proj_phys:SetVelocity(self:RangeAttackProjectileVelocity())
+        else
+            proj:SetVelocity(self:RangeAttackProjectileVelocity())
+        end
+        ---------------------------------------=#
 
 
-
-        -- Bullet code
+        -- Bullet code --
         -- self:FireBullets({table bulletInfo})
         -- ...
 
-
+        ---------------------------------------=#
 
     end
 end

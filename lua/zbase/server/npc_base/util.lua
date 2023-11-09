@@ -86,10 +86,12 @@ function NPC:Face( face, duration, speed )
 
 
     local faceFunc
+    local faceIsEnt = false
 	if isnumber(face) then
 		faceFunc = function() turn(face) end
 	elseif IsValid(face) then
 		faceFunc = function() turn( (face:GetPos() - self:GetPos()):Angle().y ) end
+        faceIsEnt = true
 	elseif isvector(face) then
 		faceFunc = function() turn( (face - self:GetPos()):Angle().y ) end
 	end
@@ -101,7 +103,7 @@ function NPC:Face( face, duration, speed )
         self.TimeUntilStopFace = CurTime()+duration
 
         timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
-            if !IsValid(self) or self.TimeUntilStopFace < CurTime() then
+            if !IsValid(self) or (faceIsEnt && !IsValid(face)) or self.TimeUntilStopFace < CurTime() then
                 timer.Remove("ZBaseFace"..self:EntIndex())
                 return
             end
