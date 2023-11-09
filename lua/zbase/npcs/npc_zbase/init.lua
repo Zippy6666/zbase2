@@ -101,7 +101,7 @@ NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range at
 NPC.RangeAttackTurnSpeed = 3 -- Speed that it turns while trying to face the enemy when range attacking
 NPC.RangeAttackDistance = {0, 1000} -- Distance that it initiates the range attack {min, max}
 NPC.RangeAttackCooldown = {0, 0} -- Range attack cooldown {min, max}
-NPC.RangeAttack_SuppressEnemy = true -- ...
+NPC.RangeAttackSuppressEnemy = true -- If the enemy can't be seen, target the last seen position
 
 -- Range attack animations
 NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
@@ -115,9 +115,10 @@ NPC.RangeProjectile_Delay = 1
 -- If set to false the projectile will spawn from the NPCs center
 NPC.RangeProjectile_Attachment = false
 
-NPC.RangeProjectile_Offset = {forward=0, up=0, right=0} -- Projectile spawn offset
-NPC.RangeProjectile_Speed = 1000
-NPC.RangeProjectile_TargetEnemyPath = true -- ...
+NPC.RangeProjectile_Offset = false -- Projectile spawn offset, example: {forward=50, up=25, right=0}
+NPC.RangeProjectile_Speed = 1000 -- The speed of the projectile
+NPC.RangeProjectile_TargetEnemyPath = true -- Try launching the projectile in front of the enemy's path
+NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -289,7 +290,7 @@ end
 
     -- ...
 function NPC:RangeAttackProjectileVelocity()
-    return Vector()
+    return (self:Projectile_TargetPos() - self:Projectile_SpawnPos()):GetNormalized()*self.RangeProjectile_Speed
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 

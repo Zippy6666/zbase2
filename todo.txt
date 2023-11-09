@@ -1,10 +1,8 @@
     -- TODO --
--- Phys damage scale and combine ball damage scale (+explode combine ball option)
--- > Range attack <
-    -- RangeAttackProjectile function that can be edited, should include an out commented bullet code as well
-    -- Projectile base?
-    -- Support for looping animation
-    -- Shoot at last seen enemy pos if the pos is visible and not too close, do a function for it called RangeAttackPosition of something
+-- RangeAttackProjectile function that can be edited, should include an out commented bullet code as well
+-- > Projectile base <
+-- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
+-- Shoot at last seen enemy pos if the pos is visible and not too close
 -- Expand weapon base
 -- Sounds
     -- LostEnemySounds
@@ -17,7 +15,7 @@
     -- OnReloadSounds
     -- Stop sounds on death
 -- Damage scaling system (like vj immunity, but scale)
-    -- Comball damage scale
+    -- Comball damage scale (and explode option)
     -- Phys damage scale
     -- Damage type damage scale
 -- Jump system

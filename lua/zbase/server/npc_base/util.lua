@@ -1,7 +1,7 @@
 local NPC = ZBaseNPCs["npc_zbase"]
 
 
-        -- These are functions you can call! Don't change them! --
+        -- These are functions you can call --
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -163,14 +163,33 @@ function NPC:MeleeAttackDamage()
 end
 --------------------------------------------------------------------------------=#
 
-    -- Returns the spawn position for the NPCs projectile
+    -- Returns the spawn position for the NPC's projectile
 function NPC:Projectile_SpawnPos()
-    return self:WorldSpaceCenter()
+    local att = self.RangeProjectile_Attachment
+    local pos
+
+    if isstring(att) then
+        pos = self:GetAttachment(self:LookupAttachment(att)).Pos
+    elseif isnumber(att) then
+        pos = self:GetAttachment(att).Pos
+    else
+        pos = self:WorldSpaceCenter()
+    end
+
+    if self.RangeProjectile_Offset then
+        pos = pos + self.RangeProjectile_Offset
+        && self:GetForward()*(tbl.forward or 0)
+        + self:GetUp()*(tbl.up or 0)
+        + self:GetRight()*(tbl.right or 0)
+    end
+
+    return pos
 end
 --------------------------------------------------------------------------------=#
 
-    -- Returns the target position for the NPCs projectile
+    -- Returns the target position for the NPC's projectile
 function NPC:Projectile_TargetPos()
-    return Vector()
+    local ene = self:GetEnemy()
+    return IsValid(ene) && ene:WorldSpaceCenter() or self:Projectile_SpawnPos()+self:GetForward()*400
 end
 --------------------------------------------------------------------------------=#
