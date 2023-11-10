@@ -1,8 +1,7 @@
 include("shared.lua")
 util.AddNetworkString("base_ai_zbase_client_ragdoll")
 
-
-ENT.m_fMaxYawSpeed = 30 -- Max turning speed
+ENT.m_iClass = CLASS_NONE -- NPC Class
 ENT.IsZBase_SNPC = true
 
 
@@ -19,7 +18,7 @@ end
 --------------------------------------------------------------------------------=#
 function ENT:SelectSchedule( iNPCState )
 	if self.PreventSelectSched then return end
-	self:ZBaseSNPC_SelectSchedule()
+	self:SetSchedule(SCHED_COMBAT_FACE)
 end
 --------------------------------------------------------------------------------=#
 function ENT:ServerRagdoll( dmginfo )

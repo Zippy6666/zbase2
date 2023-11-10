@@ -7,12 +7,10 @@
         -- Ground node navigation system
     -- Vehicle base (maybe)
     -- "SNPC Section"
-        -- m_flFieldOfView, sight angle
         -- Pose parameter stuff
         -- Chase options
         -- Stationary option
         -- Danger detection options
-        -- Turn speed option
         -- Turn towards damage and other damage behaviours options
 -- Other
     -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
@@ -37,8 +35,6 @@
         -- White blood decals for hunters
     -- Adjustable shoot distance
     -- Controller (maybe)
-    -- Weapon switching?
-    -- Global weapon pickup?
     -- Ability to change movement animations
     -- Ability to trigger melee attacks and range attacks
     -- Flinch system
@@ -54,6 +50,7 @@
     -- Gib system (maybe)
     -- Don't use squads
     -- When a ZBase NPC hates an NPC, it should hate it back
+    -- Weapons have shoot dist multipliers
 
 ------------------------------------------------------------------------------------=#
     -- FINAL --
