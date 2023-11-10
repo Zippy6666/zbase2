@@ -84,21 +84,30 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent ) timer.Simple(0, function()
 end) end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("Think", "ZBASE", function()
-    if ZBaseNextThink > CurTime() then return end
+    if ZBaseNextThink < CurTime() then
+        for _, v in ipairs(ZBaseNPCInstances) do
 
-    for _, v in ipairs(ZBaseNPCInstances) do
+            if !IsValid(v) then
+                table.RemoveByValue(ZBaseNPCInstances, v)
+                return
+            end
 
-        if !IsValid(v) then
-            table.RemoveByValue(ZBaseNPCInstances, v)
-            return
+            v:ZBaseThink()
+            v:CustomThink()
+
         end
 
-        v:ZBaseThink()
-        v:CustomThink()
-
+        ZBaseNextThink = CurTime()+0.1
     end
 
-    ZBaseNextThink = CurTime()+0.1
+    -- for _, v in ipairs(ZBaseNPCInstances) do
+    --     if !IsValid(v) then
+    --         table.RemoveByValue(ZBaseNPCInstances, v)
+    --         return
+    --     end
+
+    --     v:ZBaseExpensiveThink()
+    -- end
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )

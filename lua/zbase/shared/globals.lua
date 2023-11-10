@@ -91,11 +91,15 @@ if SERVER then
     -----------------------------------------------------------------------------------------=#
 end
 -------------------------------------------------------------------------------------------------------------------------=#
-function FindZBaseTable(debuginfo)
+function ZBaseFileName(debuginfo)
     local shortsrc = debuginfo.short_src
     local split = string.Split(shortsrc, "/")
     local name = split[#split-1]
-    return ZBaseNPCs[name]
+    return name
+end
+-------------------------------------------------------------------------------------------------------------------------=#
+function FindZBaseTable(debuginfo)
+    return ZBaseNPCs[ZBaseFileName(debuginfo)]
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 function FindZBaseBehaviourTable(debuginfo)

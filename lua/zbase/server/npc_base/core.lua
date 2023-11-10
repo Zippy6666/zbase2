@@ -35,8 +35,10 @@ function NPC:ZBaseInit()
     self.NextPainSound = CurTime()
 
 
+    self:SetSaveValue("m_flFieldOfView", 1) -- Starts with no field of view
+
+
     -- Some calls based on attributes
-    self:SetMaxLookDistance(self.SightDistance)
     self:SetCurrentWeaponProficiency(self.WeaponProficiency)
     self:SetBloodColor(self.BloodColor)
 
@@ -74,6 +76,19 @@ function NPC:ZBaseInit()
 
     -- Custom init
     self:CustomInitialize()
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:ShootTargetTooFarAway()
+    local ene = self:GetEnemy()
+
+    return IsValid(ene)
+    && IsValid(self:GetActiveWeapon())
+    && self:ZBaseDist(ene, {away=self.MaxShootDistance})
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:PreventFarShoot()
+    self:SetSaveValue("m_flFieldOfView", 1)
+    self:SetMaxLookDistance(self.MaxShootDistance)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnEmitSound( data )
@@ -133,13 +148,11 @@ function NPC:ZBaseSquad()
 
 
     self:SetKeyValue("squadname", squadName)
-    --self.ZBaseSquadName = squadName
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseSetSaveValues()
     for k, v in pairs(self:GetTable()) do
         if string.StartWith(k, "m_") then
-            -- print(k, v)
             self:SetSaveValue(k, v)
         end
     end
@@ -162,19 +175,23 @@ function NPC:ZBaseAlertSound()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
-
     local ene = self:GetEnemy()
 
-    if ene != self.Alert_LastEnemy then
-        self.Alert_LastEnemy = ene
+    if ene != self.ZBase_LastEnemy then
+        self.ZBase_LastEnemy = ene
 
-        if self.Alert_LastEnemy then
-            self:StopSound(self.IdleSounds)
+        if self.ZBase_LastEnemy then
+            if self:ShootTargetTooFarAway() then
+                self:PreventFarShoot()
+            end
+
             self:ZBaseAlertSound()
         end
     end
 
+
     self:Relationships()
+
 
     -- Activity change detection
     local act = self:GetActivity()
@@ -183,6 +200,10 @@ function NPC:ZBaseThink()
         self:NewActivityDetected( self.ZBaseCurrentACT )
     end
 end
+---------------------------------------------------------------------------------------------------------------------=#
+-- function NPC:ZBaseExpensiveThink()
+
+-- end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:SetRelationship( ent, rel )
     self:AddEntityRelationship(ent, rel, 99)

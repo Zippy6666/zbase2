@@ -19,7 +19,9 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER	
 
-NPC.SightDistance = 7000 -- Sight distance
+NPC.SightDistance = 20000 -- Sight distance
+NPC.SightAngle = 60 -- Sight angle
+NPC.MaxShootDistance = 3000 -- Maximum distance the NPC can fire its weapon from
 NPC.StartHealth = 50 -- Max health
 NPC.CanPatrol = true -- Use base patrol behaviour
 NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
@@ -121,7 +123,11 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
+    -- SNPC ONLY --
+NPC.m_fMaxYawSpeed = 20 -- Max turning speed
 
+
+---------------------------------------------------------------------------------------------------------------------=#
 
 
         -- SOUNDS --
@@ -312,8 +318,16 @@ function NPC:MultipleRangeAttacks()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- Called when the NPC (SNPC) fires an animation event (only works for SNPCs)
-function NPC:CustomHandleAnimEvent(event, eventTime, cycle, type, option) 
+
+
+
+
+
+    -- SNPC only functions that you can change --
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Called when the SNPC fires an animation event
+function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option) 
     -- Example:
     -- if event == 5 then
     --     self:MeleeAttackDamage()
@@ -321,8 +335,7 @@ function NPC:CustomHandleAnimEvent(event, eventTime, cycle, type, option)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- Select schedule (only used by SNPCs!)
-function NPC:ZBaseSNPC_SelectSchedule()
-    self:SetSchedule(SCHED_COMBAT_STAND)
+    -- Custom select schedule
+function NPC:CustomSNPCSelectSchedule()
 end
 ---------------------------------------------------------------------------------------------------------------------=#

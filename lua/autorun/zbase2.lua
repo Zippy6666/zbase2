@@ -66,6 +66,13 @@ local function IncludeFiles()
         include("zbase/server/general/hooks.lua")
         include("zbase/server/general/spawn_npc.lua")
         include("zbase/server/general/tasks.lua")
+
+        local files = file.Find("zbase/server/npc_enhancements/*","LUA")
+        local enhPath = "zbase/server/npc_enhancements/"
+
+        for _, v in ipairs(files) do
+            include(enhPath..v)
+        end
     end
 
     if CLIENT then
