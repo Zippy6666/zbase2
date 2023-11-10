@@ -1,60 +1,69 @@
+------------------------------------------------------------------------------------=#
     -- TODO --
--- RangeAttackProjectile function that can be edited, should include an out commented bullet code as well
--- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
--- Shoot at last seen enemy pos if the pos is visible and not too close
--- Expand weapon base
--- Sounds
-    -- LostEnemySounds
-    -- SeeDangerSounds
-    -- SeeGrenadeSounds
-    -- HearDangerSounds
-    -- AllyDeathSounds
-    -- OnMeleeSounds
-    -- OnRangeSounds
-    -- OnReloadSounds
-    -- Stop sounds on death
--- Damage scaling system (like vj immunity, but scale)
-    -- Comball damage scale (and explode option)
-    -- Phys damage scale
-    -- Damage type damage scale
--- Jump system
--- Hearing system
--- Custom blood system
-    -- White blood decals for hunters
--- Adjustable shoot distance
--- Controller (maybe)
--- Weapon switching?
--- Global weapon pickup?
--- Ability to change movement animations
--- Attack props
--- Flinch system
--- Death animation system
--- Item drop system
--- Advanced dialogue system (maybe)
--- Lots of "CustomOn" functions
--- Play animation supports gestures
--- Spawning utilities (maybe)
--- Ability to have npcs in regular spawn menu (maybe)
--- Bodygroup system
--- Submaterial system
--- More menu options
-    -- Health and damage sliders
-    -- Behavior tick speed
--- Gib system (maybe)
--- Don't use squads
--- Finish SNPC base
-    -- Danger detection
-    -- Turn speed
-    -- Stationary SNPCs
-    -- Chasing system
-    -- Turn towards damage (and other behaviours maybe)
-    -- Surround bound thingy
-    -- Pose parameter code
+-- Range attack
+    -- Finish the rest of the functionality
+
+-- Other
+    -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
+    -- Expand weapon base
+    -- Sounds
+        -- LostEnemySounds
+        -- SeeDangerSounds
+        -- SeeGrenadeSounds
+        -- HearDangerSounds
+        -- AllyDeathSounds
+        -- OnMeleeSounds
+        -- OnRangeSounds
+        -- OnReloadSounds
+        -- Stop sounds on death
+    -- Damage scaling system (like vj immunity, but scale)
+        -- Comball damage scale (and explode option)
+        -- Phys damage scale
+        -- Damage type damage scale
+    -- Jump system
+    -- Hearing system
+    -- Custom blood system
+        -- White blood decals for hunters
+    -- Adjustable shoot distance
+    -- Controller (maybe)
+    -- Weapon switching?
+    -- Global weapon pickup?
+    -- Ability to change movement animations
+    -- Attack props
+    -- Flinch system
+    -- Death animation system
+    -- Item drop system
+    -- Advanced dialogue system (maybe)
+    -- Lots of "CustomOn" functions
+    -- Play animation supports gestures
+    -- Spawning utilities (maybe)
+    -- Ability to have npcs in regular spawn menu (maybe)
+    -- Bodygroup system
+    -- Submaterial system
+    -- More menu options
+        -- Health and damage sliders
+        -- Behavior tick speed
+    -- Gib system (maybe)
+    -- Don't use squads
+    -- When a ZBase NPC hates an NPC, it should hate it back
+
+-- SNPC base
+    -- Cleanup, make sure everything works as intended
+    -- Fix SNPCs not colliding with the projectile, proper physics stuff, surround bounds
     -- Aerial base (and aquatic maybe...)
         -- Ground node navigation system
     -- Vehicle base (maybe)
+    -- "SNPC Section"
+        -- m_flFieldOfView, sight angle
+        -- Pose parameter stuff
+        -- Chase options
+        -- Stationary option
+        -- Danger detection options
+        -- Turn speed option
+        -- Turn towards damage and other damage behaviours options
 
 
+------------------------------------------------------------------------------------=#
     -- FINAL --
 -- Make more user friendly
     -- Comments
@@ -65,14 +74,16 @@
     -- Make sure it works as intended with vj
     -- Compatible with my other addons
 -- Copyright stuff
-
+------------------------------------------------------------------------------------=#
 
     -- FUTURE NPCS --
 -- Entropy Zero 2
 -- Hl2 Overcharged
 -- RTBR
 -- Insurgency
-
+------------------------------------------------------------------------------------=#
         -- BUGS --
 -- Squad error
 -- Circular include error thingy
+
+------------------------------------------------------------------------------------=#
