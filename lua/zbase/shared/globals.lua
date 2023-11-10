@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 
 ZBaseCvar_Replace = CreateConVar("zbase_replace", "0", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
-ZBaseCvar_HL2WepDMG = CreateConVar("zbase_hl2_wep_damage", "0", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
+-- ZBaseCvar_HL2WepDMG = CreateConVar("zbase_hl2_wep_damage", "0", bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED))
 
 
 if !ZBaseNPCs then
@@ -91,15 +91,19 @@ if SERVER then
     -----------------------------------------------------------------------------------------=#
 end
 -------------------------------------------------------------------------------------------------------------------------=#
-function ZBaseFileName(debuginfo)
+function ZBaseEnhancementNPCClass(debuginfo)
     local shortsrc = debuginfo.short_src
     local split = string.Split(shortsrc, "/")
-    local name = split[#split-1]
-    return name
+    local name = split[#split]
+    local split2 = string.Split(name, ".")
+    return split2[1]
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 function FindZBaseTable(debuginfo)
-    return ZBaseNPCs[ZBaseFileName(debuginfo)]
+    local shortsrc = debuginfo.short_src
+    local split = string.Split(shortsrc, "/")
+    local name = split[#split-1]
+    return ZBaseNPCs[name]
 end
 -------------------------------------------------------------------------------------------------------------------------=#
 function FindZBaseBehaviourTable(debuginfo)

@@ -1,16 +1,16 @@
 util.AddNetworkString("ZBaseInitEnt")
 
 local grabbing_bullet_backup_data = false
+local PreventCallAccuracyBoost = false
 local ZBaseNextThink = CurTime()
 local ZBaseWeaponDMGs = {
-    ["weapon_pistol"] = {dmg=5, inflclass="bullet"},
-    ["weapon_357"] = {dmg=40, inflclass="bullet"},
-    ["weapon_ar2"] = {dmg=8, inflclass="bullet"},
-    ["weapon_shotgun"] = {dmg=56, inflclass="bullet"},
-    ["weapon_smg1"] = {dmg=4, inflclass="bullet"},
     ["weapon_rpg"] = {dmg=150, inflclass="rpg_missile"},
     ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
-    ["weapon_elitepolice_mp5k"] = {dmg=6, inflclass="bullet"},
+}
+local ZBaseWeaponAccuracyBoost = {
+    ["weapon_shotgun"] = 20,
+    ["weapon_smg1"] = 40,
+    ["weapon_pistol"] = 50,
 }
 
 
@@ -95,6 +95,10 @@ hook.Add("Think", "ZBASE", function()
             v:ZBaseThink()
             v:CustomThink()
 
+            if v.ZBaseEnhancedThink then
+                v:ZBaseEnhancedThink()
+            end
+
         end
 
         ZBaseNextThink = CurTime()+0.1
@@ -167,31 +171,30 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
             return r
         end
 
-        -- Proper damage values for hl2 weapons
-        if ZBaseCvar_HL2WepDMG:GetBool() then
-            local wep = attacker:GetActiveWeapon()
+        -- Proper damage values for some hl2 weapons --
+        local wep = attacker:GetActiveWeapon()
 
-            if IsValid(infl) && IsValid(wep) then
-                local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
+        if IsValid(infl) && IsValid(wep) then
+            local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
 
-                if dmgTbl
-                && ( (dmgTbl.inflclass=="bullet"&&dmg:IsBulletDamage()) or (dmgTbl.inflclass == infl:GetClass()) ) then
-                    local dmgFinal = dmgTbl.dmg
+            if dmgTbl
+            && ( (dmgTbl.inflclass=="bullet"&&dmg:IsBulletDamage()) or (dmgTbl.inflclass == infl:GetClass()) ) then
+                local dmgFinal = dmgTbl.dmg
 
-                    if dmg:IsDamageType(DMG_BUCKSHOT) then
-                        if attacker:WithinDistance(ent, 200) then
-                            dmgFinal = math.random(40, 56)
-                        elseif attacker:WithinDistance(ent, 400) then
-                            dmgFinal = math.random(16, 40)
-                        else
-                            dmgFinal = math.random(8, 16)
-                        end
+                if dmg:IsDamageType(DMG_BUCKSHOT) then
+                    if attacker:WithinDistance(ent, 200) then
+                        dmgFinal = math.random(40, 56)
+                    elseif attacker:WithinDistance(ent, 400) then
+                        dmgFinal = math.random(16, 40)
+                    else
+                        dmgFinal = math.random(8, 16)
                     end
-
-                    dmg:SetDamage(dmgFinal)
                 end
+
+                dmg:SetDamage(dmgFinal)
             end
         end
+        ------------------------------------------------=#
 
     end
 end)
@@ -329,7 +332,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 ZBaseReflectedBullet = false
 
-hook.Add("EntityFireBullets", "EntityFireBullets_RealisticBlood", function( ent, data, ... )
+hook.Add("EntityFireBullets", "ZBaseBulletReflect", function( ent, data, ... )
     local data_backup = data
     if grabbing_bullet_backup_data then return end
 
@@ -353,5 +356,26 @@ hook.Add("EntityFireBullets", "EntityFireBullets_RealisticBlood", function( ent,
     end
 
     return true
+end)
+---------------------------------------------------------------------------------------------------------------------=#
+hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
+    if PreventCallAccuracyBoost then return end
+
+    -- Boost accuracy for some weapons
+    if ent.IsZBaseNPC then
+        local wep = ent:GetActiveWeapon()
+        local ene = ent:GetEnemy()
+
+        if IsValid(wep) && IsValid(ene) && ZBaseWeaponAccuracyBoost[wep:GetClass()] then
+            local sprd = (5 - ent:GetCurrentWeaponProficiency())/ZBaseWeaponAccuracyBoost[wep:GetClass()]
+            data.Spread = Vector(sprd, sprd)
+            data.Dir = (ene:WorldSpaceCenter() - ent:GetShootPos()):GetNormalized()
+
+            PreventCallAccuracyBoost = true
+            hook.Run("EntityFireBullets", ent, data)
+            PreventCallAccuracyBoost = false
+            return true
+        end
+    end
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
