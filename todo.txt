@@ -48,9 +48,9 @@
         -- Health and damage sliders
         -- Behavior tick speed
     -- Gib system (maybe)
-    -- Don't use squads
     -- When a ZBase NPC hates an NPC, it should hate it back
     -- Weapons have shoot dist multipliers
+    -- Increase accuracy for some weapons
 
 ------------------------------------------------------------------------------------=#
     -- FINAL --
