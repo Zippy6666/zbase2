@@ -1,8 +1,8 @@
 local BEHAVIOUR = ZBaseNPCs["npc_zbase"].Behaviours
 
-
 BEHAVIOUR.AdjustSightAngAndDist = {
 }
+
 ------------------------------------------------------------------------=#
 -- Return true to allow the behaviour to run, otherwise return false
 function BEHAVIOUR.AdjustSightAngAndDist:ShouldDoBehaviour( self )

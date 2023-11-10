@@ -15,6 +15,8 @@
 -- Other
     -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
     -- Expand weapon base
+        -- Basic bullet code
+        -- NPC shoot distance mult
     -- Sounds
         -- LostEnemySounds
         -- SeeDangerSounds
@@ -46,11 +48,8 @@
     -- Submaterial system
     -- More menu options
         -- Health and damage sliders
-        -- Behavior tick speed
     -- Gib system (maybe)
     -- When a ZBase NPC hates an NPC, it should hate it back
-    -- Weapons have shoot dist multipliers
-    -- Increase accuracy for some weapons
 
 ------------------------------------------------------------------------------------=#
     -- FINAL --

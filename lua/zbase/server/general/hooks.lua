@@ -8,7 +8,7 @@ local ZBaseWeaponDMGs = {
     ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
 }
 local ZBaseWeaponAccuracyBoost = {
-    ["weapon_shotgun"] = 20,
+    ["weapon_shotgun"] = 30,
     ["weapon_smg1"] = 40,
     ["weapon_pistol"] = 50,
 }

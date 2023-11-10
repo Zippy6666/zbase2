@@ -28,6 +28,11 @@ local ReloadActs = {
     [ACT_RELOAD_PISTOL_LOW] = true,
 }
 
+local hl2wepShootDistMult = {
+    ["weapon_shotgun"] = 0.5,
+    ["weapon_crossbow"] = 2,
+}
+
 
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseInit()
@@ -78,17 +83,26 @@ function NPC:ZBaseInit()
     self:CustomInitialize()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:GetCurrentWeaponShootDist()
+    local wep = self:GetActiveWeapon()
+    if !IsValid(wep) then return end
+
+    local mult = hl2wepShootDistMult[wep:GetClass()] or 1
+
+    return self.MaxShootDistance*mult
+end
+---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ShootTargetTooFarAway()
     local ene = self:GetEnemy()
 
     return IsValid(ene)
     && IsValid(self:GetActiveWeapon())
-    && self:ZBaseDist(ene, {away=self.MaxShootDistance})
+    && self:ZBaseDist(ene, {away=self:GetCurrentWeaponShootDist()})
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:PreventFarShoot()
     self:SetSaveValue("m_flFieldOfView", 1)
-    self:SetMaxLookDistance(self.MaxShootDistance)
+    self:SetMaxLookDistance(self:GetCurrentWeaponShootDist())
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnEmitSound( data )
