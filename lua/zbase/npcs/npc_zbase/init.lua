@@ -100,7 +100,7 @@ NPC.BaseRangeAttack = false -- Use ZBase range attack system
 NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
 NPC.RangeAttackTurnSpeed = 3 -- Speed that it turns while trying to face the enemy when range attacking
 NPC.RangeAttackDistance = {0, 1000} -- Distance that it initiates the range attack {min, max}
-NPC.RangeAttackCooldown = {0, 0} -- Range attack cooldown {min, max}
+NPC.RangeAttackCooldown = {2, 4} -- Range attack cooldown {min, max}
 NPC.RangeAttackSuppressEnemy = true -- If the enemy can't be seen, target the last seen position
 
 -- Range attack animations
@@ -117,7 +117,6 @@ NPC.RangeProjectile_Attachment = false
 
 NPC.RangeProjectile_Offset = false -- Projectile spawn offset, example: {forward=50, up=25, right=0}
 NPC.RangeProjectile_Speed = 1000 -- The speed of the projectile
-NPC.RangeProjectile_TargetEnemyPath = true -- Try launching the projectile in front of the enemy's path
 NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
 
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -262,7 +261,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 
     -- The range attack projectile code
-    -- Can be called
+    -- Called by the base, but can be called whenever you like
 function NPC:RangeAttackProjectile()
     local enemy = self:GetEnemy()
 
@@ -295,9 +294,15 @@ end
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- ...
+    -- The velocity to apply to the projectile when it spawns
 function NPC:RangeAttackProjectileVelocity()
-    return (self:Projectile_TargetPos() - self:Projectile_SpawnPos()):GetNormalized()*self.RangeProjectile_Speed
+    local startPos = self:Projectile_SpawnPos()
+
+    if self.RangeProjectile_Inaccuracy > 0 then
+        startPos = startPos + VectorRand()*self.RangeProjectile_Inaccuracy
+    end
+
+    return (self:Projectile_TargetPos() - startPos):GetNormalized()*self.RangeProjectile_Speed  
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -318,6 +323,6 @@ end
 
     -- Select schedule (only used by SNPCs!)
 function NPC:ZBaseSNPC_SelectSchedule()
-    self:SetSchedule(SCHED_COMBAT_FACE)
+    self:SetSchedule(SCHED_COMBAT_STAND)
 end
 ---------------------------------------------------------------------------------------------------------------------=#

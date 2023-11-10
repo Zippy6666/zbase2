@@ -10,8 +10,23 @@ BEHAVIOUR.PreRangeAttack = {
 
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.RangeAttack:ShouldDoBehaviour( self )
-    if !self.BaseRangeAttack
-    or !self:ZBaseDist(self:GetEnemy(), {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end
+    -- Doesn't have range attack
+    if !self.BaseRangeAttack then return false end
+
+    local ene = self:GetEnemy()
+
+    -- In distance
+    if !self:ZBaseDist(self:Projectile_TargetPos(), {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end
+
+    local seeEnemy = IsValid(ene) && self:Visible(ene)
+
+    -- Supress disabled, and enemy not visible
+    if !self.RangeAttackSuppressEnemy && seeEnemy then return false end
+
+    -- Don't suppress enemy if behind it for example
+    if self.RangeAttackSuppressEnemy && !self:IsFacing( ene, 70 ) && !seeEnemy then
+        return false
+    end
 
     return true
 end
@@ -23,10 +38,11 @@ function BEHAVIOUR.RangeAttack:Run( self )
         nil,
         self.RangeAttackAnimationSpeed,
         SCHED_NPC_FREEZE,
-        self.RangeAttackFaceEnemy && self:GetEnemy(),
-        self.RangeAttackTurnSpeed
+        nil
     )
+    local duration = self:SequenceDuration() + 0.25
     -----------------------------------------------------------------=#
+
 
         -- Projectile --
     if self.RangeProjectile_Delay then
@@ -39,7 +55,29 @@ function BEHAVIOUR.RangeAttack:Run( self )
     end
     -----------------------------------------------------------------=#
 
-    ZBaseDelayBehaviour(self:SequenceDuration() + ZBaseRndTblRange(self.RangeAttackCooldown))
+
+    -- Special face code
+    self.TimeUntilStopFace = CurTime()+duration
+
+    timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
+        if !IsValid(self) or self.TimeUntilStopFace < CurTime() then
+            timer.Remove("ZBaseFace"..self:EntIndex())
+            return
+        end
+
+        if GetConVar("ai_disabled"):GetBool() then return end
+
+        local ene = self:GetEnemy()
+        local seeEnemy = IsValid(ene) && self:Visible(ene)
+        local facePos = seeEnemy && ene:WorldSpaceCenter() or self:Projectile_TargetPos()
+        local yaw = (facePos - self:GetPos()):Angle().y
+
+        self:SetIdealYawAndUpdate(yaw, self.RangeAttackTurnSpeed)
+    end)
+    -----------------------------------------------------------------=#
+
+
+    ZBaseDelayBehaviour(duration + ZBaseRndTblRange(self.RangeAttackCooldown))
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.PreRangeAttack:ShouldDoBehaviour( self )
