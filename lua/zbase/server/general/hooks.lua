@@ -187,6 +187,15 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     end
 end)
 ---------------------------------------------------------------------------------------=#
+hook.Add("PostEntityTakeDamage", "ZBASE", function( ent, dmg )
+    -- Fix NPCs being unkillable in SCHED_NPC_FREEZE
+    if ent.IsZBaseNPC && ent:IsCurrentSchedule(SCHED_NPC_FREEZE) && ent:Health() <= 0 && !ent.ZBaseDieFreezeFixDone then
+        ent:ClearSchedule()
+        ent:TakeDamageInfo(dmg)
+        ent.ZBaseDieFreezeFixDone = true
+    end
+end)
+---------------------------------------------------------------------------------------=#
 hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
     if !npc.IsZBaseNPC then return end
 

@@ -158,11 +158,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseAlertSound()
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
-    
-    timer.Simple(math.Rand(0, 1), function()
-        if !IsValid(self) then return end
-        self:EmitSound_Uninterupted(self.AlertSounds)
-    end)
+    self:EmitSound_Uninterupted(self.AlertSounds)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()

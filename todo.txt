@@ -1,8 +1,19 @@
 ------------------------------------------------------------------------------------=#
     -- TODO --
--- Range attack
-    -- Finish the rest of the functionality
-
+-- SNPC base
+    -- Cleanup, make sure everything works as intended
+    -- Fix SNPCs not colliding with the projectile, proper physics stuff, surround bounds
+    -- Aerial base (and aquatic maybe...)
+        -- Ground node navigation system
+    -- Vehicle base (maybe)
+    -- "SNPC Section"
+        -- m_flFieldOfView, sight angle
+        -- Pose parameter stuff
+        -- Chase options
+        -- Stationary option
+        -- Danger detection options
+        -- Turn speed option
+        -- Turn towards damage and other damage behaviours options
 -- Other
     -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
     -- Expand weapon base
@@ -29,15 +40,12 @@
     -- Weapon switching?
     -- Global weapon pickup?
     -- Ability to change movement animations
-    -- Attack props
+    -- Ability to trigger melee attacks and range attacks
     -- Flinch system
     -- Death animation system
     -- Item drop system
-    -- Advanced dialogue system (maybe)
     -- Lots of "CustomOn" functions
     -- Play animation supports gestures
-    -- Spawning utilities (maybe)
-    -- Ability to have npcs in regular spawn menu (maybe)
     -- Bodygroup system
     -- Submaterial system
     -- More menu options
@@ -46,22 +54,6 @@
     -- Gib system (maybe)
     -- Don't use squads
     -- When a ZBase NPC hates an NPC, it should hate it back
-
--- SNPC base
-    -- Cleanup, make sure everything works as intended
-    -- Fix SNPCs not colliding with the projectile, proper physics stuff, surround bounds
-    -- Aerial base (and aquatic maybe...)
-        -- Ground node navigation system
-    -- Vehicle base (maybe)
-    -- "SNPC Section"
-        -- m_flFieldOfView, sight angle
-        -- Pose parameter stuff
-        -- Chase options
-        -- Stationary option
-        -- Danger detection options
-        -- Turn speed option
-        -- Turn towards damage and other damage behaviours options
-
 
 ------------------------------------------------------------------------------------=#
     -- FINAL --
@@ -85,5 +77,4 @@
         -- BUGS --
 -- Squad error
 -- Circular include error thingy
-
 ------------------------------------------------------------------------------------=#

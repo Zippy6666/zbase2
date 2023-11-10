@@ -58,13 +58,13 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 
     -- Check if the NPC is facing an entity
-function NPC:IsFacing( ent )
+function NPC:IsFacing( ent, maxYawDifference )
     if !IsValid(ent) then return false end
 
     local ang = (ent:GetPos() - self:GetPos()):Angle()
     local yawDif = math.abs(self:WorldToLocalAngles(ang).Yaw)
 
-    return yawDif < 22.5
+    return yawDif < (maxYawDifference or 22.5)
 end
 --------------------------------------------------------------------------------=#
 
@@ -179,10 +179,9 @@ function NPC:Projectile_SpawnPos()
     end
 
     if self.RangeProjectile_Offset then
-        pos = pos + self.RangeProjectile_Offset
-        && self:GetForward()*(tbl.forward or 0)
-        + self:GetUp()*(tbl.up or 0)
-        + self:GetRight()*(tbl.right or 0)
+        pos = pos + self:GetForward()*(self.RangeProjectile_Offset.forward or 0)
+        + self:GetUp()*(self.RangeProjectile_Offset.up or 0)
+        + self:GetRight()*(self.RangeProjectile_Offset.right or 0)
     end
 
     return pos
@@ -192,6 +191,11 @@ end
     -- Returns the target position for the NPC's projectile
 function NPC:Projectile_TargetPos()
     local ene = self:GetEnemy()
-    return IsValid(ene) && ene:WorldSpaceCenter() or self:Projectile_SpawnPos()+self:GetForward()*400
+
+    if IsValid(ene) && self:Visible(ene) then
+        self.RangeAttack_LastEnemyPos = ene:WorldSpaceCenter()
+    end
+
+    return self.RangeAttack_LastEnemyPos or self:Projectile_SpawnPos()+self:GetForward()*400
 end
 --------------------------------------------------------------------------------=#
