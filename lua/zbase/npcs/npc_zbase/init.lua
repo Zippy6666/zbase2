@@ -337,7 +337,14 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- Custom select schedule
-function NPC:CustomSNPCSelectSchedule()
+    -- ADVANCED: Select schedule
+function NPC:SNPCSelectSchedule(iNPCState)
+    local ene = self:GetEnemy()
+
+    if IsValid(ene) then
+        self:StartSchedule(ZSched.CombatFace)
+    else
+        self:SetSchedule(SCHED_IDLE_STAND)
+    end
 end
 ---------------------------------------------------------------------------------------------------------------------=#

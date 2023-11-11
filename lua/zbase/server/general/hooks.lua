@@ -318,6 +318,7 @@ hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
     if ply.ZBaseNPCFactionOverride && ply.ZBaseNPCFactionOverride != "" then
         timer.Simple(0, function()
             if !IsValid(ent) or !IsValid(ply) then return end
+            if !ent.IsZBaseNPC then return end
 
             ent.ZBaseFaction = ply.ZBaseNPCFactionOverride
         end)

@@ -88,6 +88,11 @@ function NPC:ZBaseInit()
     self:ZBaseSetupBounds()
 
 
+    -- Custom scheds
+    -- if self.IsZBase_SNPC then
+    --     self:SNPCSetupSchedules()
+    -- end
+
     -- Custom init
     self:CustomInitialize()
 end
@@ -323,7 +328,6 @@ function NPC:InternalSetAnimation( anim )
 	if isstring(anim) then
         -- Sequence
         if self.IsZBase_SNPC then
-            self:SetSequence(anim)
             self.ZBaseSNPCSequence = anim
 
         else
@@ -345,7 +349,10 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
 
     self.DoingPlayAnim = true
 
-    -- Stop and shit
+
+    if self.IsZBase_SNPC then
+        self:ScheduleFinished()
+    end
     self:ClearSchedule()
     self:ClearGoal()
     self:StopMoving()
@@ -353,6 +360,12 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
 
 
     self:InternalSetAnimation(anim)
+
+    if isstring(anim) then
+        self:ResetSequence(anim)
+        self:ResetSequenceInfo()
+    end
+
 
     -- Duration stuff
     duration = duration or self:SequenceDuration()
@@ -370,6 +383,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     if self.ZBaseSNPCSequence then
         self.BaseDontSetPlaybackRate = false
         self.StopPlaySeqTime = CurTime()+duration*0.8
+        self:SetNPCState(NPC_STATE_SCRIPT)
     end
 
 
@@ -386,6 +400,10 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     timer.Create(timerName, 0, 0, function()
         if !IsValid(self)
         or self.TimeUntilStopAnimOverride < CurTime() then
+
+            if self.ZBaseSNPCSequence then
+                self:SetNPCState(NPC_STATE_NONE)
+            end
 
             self.DoingPlayAnim = false
             self.ZBaseSNPCSequence = nil

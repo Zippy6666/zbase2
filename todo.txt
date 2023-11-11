@@ -8,8 +8,9 @@
         -- Danger detection options
         -- Turn towards damage and other damage behaviours options
     -- Aerial base (and aquatic maybe...)
-        -- Ground node navigation system
+        -- Ground node navigation system (maybe)
     -- Vehicle base (maybe)
+    -- All bases in one, use ZBASE_SNPC_TYPE_ enum instead
 -- Other
     -- Ability to turn off death ragdoll
     -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
