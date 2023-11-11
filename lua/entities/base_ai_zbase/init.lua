@@ -5,14 +5,31 @@ util.AddNetworkString("base_ai_zbase_client_ragdoll")
 ENT.m_iClass = CLASS_NONE -- NPC Class
 ENT.IsZBase_SNPC = true
 
-
 --------------------------------------------------------------------------------=#
 function ENT:Initialize()
-	-- Some default calls to make the NPC function
-	self:SetHullType( HULL_MEDIUM )
+	self:SetHullType(self.HullType or HULL_MEDIUM)
 	self:SetHullSizeNormal()
-	self:SetSolid( SOLID_BBOX )
-	self:SetMoveType( MOVETYPE_STEP )
+	self:SetSolid(SOLID_OBB)
+
+	if self.Initialize_Aerial then
+		self:Initialize_Aerial()
+	end
+
+	self:SetMoveType(MOVETYPE_STEP)
+
+	self.Bullseye = ents.Create("npc_bullseye")
+	self.Bullseye:SetPos(self:GetPos())
+	self.Bullseye:SetAngles(self:GetAngles())
+	self.Bullseye:SetNotSolid(true)
+	self.Bullseye:SetParent(self)
+	self.Bullseye:AddEFlags(EFL_DONTBLOCKLOS)
+	self.Bullseye:Spawn()
+	self.Bullseye:Activate()
+end
+--------------------------------------------------------------------------------=#
+function ENT:Think()
+	local phys = self:GetPhysicsObject()
+	phys:SetPos(self:GetPos())
 end
 --------------------------------------------------------------------------------=#
 function ENT:SelectSchedule( iNPCState )
@@ -91,6 +108,7 @@ function ENT:Die( dmginfo )
 
 	-- Death notice and other stuff
 	hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
+	self:SetNPCState(NPC_STATE_DEAD)
 
 	if self:GetShouldServerRagdoll() or dmginfo:IsDamageType(DMG_DISSOLVE) then
 		self:ServerRagdoll( dmginfo )
@@ -126,13 +144,29 @@ function ENT:DoNPCState()
 	end
 end
 --------------------------------------------------------------------------------=#
+function ENT:DoSequence()
+	if self.StopPlaySeqTime > CurTime() then
+		self:SetSequence(self.ZBaseSNPCSequence)
+		
+	else
+		self:SetPlaybackRate(1)
+		-- self:SetSequence(self:SelectWeightedSequence(ACT_IDLE))
+		self:ResetIdealActivity(ACT_IDLE)
+		self.BaseDontSetPlaybackRate = true
+		-- return false
+	end
+
+	return true
+end
+--------------------------------------------------------------------------------=#
 function ENT:RunAI( strExp )
 	self:DoNPCState()
-
+	
 	-- Play sequence:
 	if self.ZBaseSNPCSequence then
-		self:SetSequence(self.ZBaseSNPCSequence)
-		return
+		local dontRunAI = self:DoSequence()
+		
+		if dontRunAI then return end
 	end
 
 	-- If we're running an Engine Side behaviour

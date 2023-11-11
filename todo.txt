@@ -1,17 +1,15 @@
 ------------------------------------------------------------------------------------=#
     -- TODO --
 -- SNPC base
-    -- Fix SNPCs not colliding with the projectile, proper physics stuff, surround bounds
-    -- Aerial base (and aquatic maybe...)
-        -- Ground node navigation system
-    -- Vehicle base (maybe)
     -- "SNPC Section"
         -- Pose parameter stuff
         -- Chase options
         -- Stationary option
         -- Danger detection options
         -- Turn towards damage and other damage behaviours options
-    -- SNPCs with the same model able to attack each other
+    -- Aerial base (and aquatic maybe...)
+        -- Ground node navigation system
+    -- Vehicle base (maybe)
 -- Other
     -- Ability to turn off death ragdoll
     -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
@@ -49,7 +47,6 @@
     -- More menu options
         -- Health and damage sliders
     -- Gib system (maybe)
-    -- When a ZBase NPC hates an NPC, it should hate it back
 
 ------------------------------------------------------------------------------------=#
     -- FINAL --
@@ -73,6 +70,4 @@
         -- BUGS --
 -- Squad error
 -- Circular include error thingy
--- Able to do things while dead
-    -- Secondary attack
 ------------------------------------------------------------------------------------=#

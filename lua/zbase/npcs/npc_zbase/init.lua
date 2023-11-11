@@ -28,7 +28,8 @@ NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
 NPC.SpawnFlagTbl = {} -- Ex. NPC.SpawnFlagTbl = {SF_NPC_NO_WEAPON_DROP}, https://wiki.facepunch.com/gmod/Enums/SF
 NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.CallForHelpDistance = 2000 -- Call for help distance
-
+NPC.HullType = false -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
+NPC.CollisionBounds = false -- Example: NPC.CollisionBounds = {min=Vector(-50, -50, 0), max=Vector(50, 50, 100)}, false = default
 
 -- Extra capabilities
 -- List of capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
@@ -146,6 +147,7 @@ NPC.KilledEnemySound = "" -- Sounds emitted when the NPC kills an enemy
 NPC.IdleSoundCooldown = {8, 16}
 NPC.IdleSounds_HasEnemyCooldown = {5, 10}
 NPC.PainSoundCooldown = {1, 2.5}
+NPC.AlertSoundCooldown = {4, 8}
 
 -- Idle sound stuff
 NPC.IdleSound_OnlyNearAllies = false -- Only do IdleSounds if there is another NPC in the same faction nearby
