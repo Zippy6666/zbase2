@@ -393,7 +393,7 @@ function NPC:WithinDistance( ent, maxdist, mindist )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)       
-    self:CustomHandleAnimEvent(event, eventTime, cycle, type, options)     
+    self:SNPCHandleAnimEvent(event, eventTime, cycle, type, options)     
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)

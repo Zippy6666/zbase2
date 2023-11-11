@@ -9,8 +9,19 @@ function BEHAVIOUR.Patrol:ShouldDoBehaviour( self )
     return self.CanPatrol
 end
 ------------------------------------------------------------------------=#
+function BEHAVIOUR.Patrol:Delay(self)
+    if self:IsMoving() then
+        debugoverlay.Text(self:WorldSpaceCenter(), "PATROL DELAYED...")
+
+        return math.random(8, 15)
+    end
+end
+------------------------------------------------------------------------=#
 function BEHAVIOUR.Patrol:Run( self )
+    debugoverlay.Text(self:WorldSpaceCenter(), "PATROL")
+
     self:SetSchedule(SCHED_PATROL_WALK)
+    
     ZBaseDelayBehaviour(math.random(8, 15))
 end
 ------------------------------------------------------------------------=#
