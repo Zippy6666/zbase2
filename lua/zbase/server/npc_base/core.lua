@@ -324,17 +324,20 @@ function NPC:OnOwnedEntCreated( ent )
     self:CustomOnOwnedEntCreated( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:AnimShouldBeSequence( anim )
+    if !isstring(anim) then return false end
+
+    return self:GetSequenceActivity(self:LookupSequence(anim)) == -1
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
 function NPC:InternalSetAnimation( anim )
 	if isstring(anim) then
         -- Sequence
         if self.IsZBase_SNPC then
             self.ZBaseSNPCSequence = anim
-
-        else
-            -- Normal NPCs can't play sequences that well, try to play as activity instead
-            local act = self:GetSequenceActivity(self:LookupSequence(anim))
-            self:SetActivity(act)
-
+        elseif !self:AnimShouldBeSequence(anim) then
+            self:SetActivity(self:GetSequenceActivity(self:LookupSequence(anim)))
         end
 
 	elseif isnumber(anim) then
@@ -350,6 +353,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     self.DoingPlayAnim = true
 
 
+    -- Reset stuff
     if self.IsZBase_SNPC then
         self:ScheduleFinished()
     end
@@ -357,21 +361,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     self:ClearGoal()
     self:StopMoving()
     self:TaskComplete()
-
-
-    self:InternalSetAnimation(anim)
-
-    if isstring(anim) then
-        self:ResetSequence(anim)
-        self:ResetSequenceInfo()
-    end
-
-
-    -- Duration stuff
-    duration = duration or self:SequenceDuration()
-    if playbackRate then
-        duration = duration/playbackRate
-    end
+    self:SetNPCState(NPC_STATE_SCRIPT)
 
 
     -- Set schedule
@@ -380,22 +370,38 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     end
 
 
-    if self.ZBaseSNPCSequence then
-        self.BaseDontSetPlaybackRate = false
-        self.StopPlaySeqTime = CurTime()+duration*0.8
-        self:SetNPCState(NPC_STATE_SCRIPT)
+    -- Play sequence if that is what the animation is
+    if self:AnimShouldBeSequence(anim) then
+        self:ResetSequence(anim)
+        self:ResetSequenceInfo()
+        self:SetCycle(0)
     end
 
 
-    self.TimeUntilStopAnimOverride = CurTime()+duration
-    self.NextAnimTick = CurTime()+0.1
+    -- Duration stuff
+    self:InternalSetAnimation(anim) -- So that SequenceDuration gives the right value
+    duration = duration or self:SequenceDuration()
+    if playbackRate then
+        duration = duration/playbackRate
+    end
 
 
+    -- SNPC sequence stuff
+    if self.ZBaseSNPCSequence then
+        self.BaseDontSetPlaybackRate = false
+        self.StopPlaySeqTime = CurTime()+duration*0.8
+    end
+
+
+    -- Face
     if forceFace then
         self:Face(forceFace, duration, faceSpeed)
     end
 
 
+    -- Timer
+    self.TimeUntilStopAnimOverride = CurTime()+duration
+    self.NextAnimTick = CurTime()+0.1
     local timerName = "ZBaseMeleeAnimOverride"..self:EntIndex()
     timer.Create(timerName, 0, 0, function()
         if !IsValid(self)
@@ -417,18 +423,14 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
             return
         end
 
-        
         if self.NextAnimTick > CurTime() then return end
-
 
         if !self.DontSetPlaybackRate then
             self:SetPlaybackRate(playbackRate or 1)
         end
 
         self:InternalSetAnimation(anim)
-
         self.NextAnimTick = CurTime()+0.1
-
     end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
