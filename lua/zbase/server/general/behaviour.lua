@@ -12,6 +12,8 @@ function ZBaseDelayBehaviour( delay, ent, name )
 end
 ---------------------------------------------------------------------------------------=#
 local function BehaviourTimer( ent )
+    if ent:GetNPCState() == NPC_STATE_DEAD then return end
+
     ZBaseDelayEnt = ent
 
     for BehaviourName, Behaviour in pairs(ent.Behaviours) do

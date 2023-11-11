@@ -70,7 +70,7 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent ) timer.Simple(0, function()
 
 
         -- Give ZBase faction to non zbase NPCs
-        if ent:IsNPC() && !ent.IsZBaseNPC then
+        if ent:IsNPC() && !ent.IsZBaseNPC && ent:GetClass() != "npc_bullseye" then
             ent.ZBaseFaction = ZBaseFactionTranslation[ent:Classify()]
             table.insert(ZBase_NonZBaseNPCs, ent)
             ent:CallOnRemove("ZBase_RemoveFromNPCTable", function() table.RemoveByValue(ZBase_NonZBaseNPCs, ent) end)

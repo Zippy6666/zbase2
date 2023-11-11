@@ -38,6 +38,7 @@ local hl2wepShootDistMult = {
 function NPC:ZBaseInit()
     -- Vars
     self.NextPainSound = CurTime()
+    self.NextAlertSound = CurTime()
 
 
     self:SetSaveValue("m_flFieldOfView", 1) -- Starts with no field of view
@@ -46,6 +47,10 @@ function NPC:ZBaseInit()
     -- Some calls based on attributes
     self:SetCurrentWeaponProficiency(self.WeaponProficiency)
     self:SetBloodColor(self.BloodColor)
+
+    if self.HullType && !self.IsZBase_SNPC then
+        self:SetHullType(self.HullType)
+    end
 
 
     -- Extra capabilities given
@@ -79,8 +84,31 @@ function NPC:ZBaseInit()
     ZBaseBehaviourInit( self )
 
 
+    -- Bounds
+    self:ZBaseSetupBounds()
+
+
     -- Custom init
     self:CustomInitialize()
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:ZBaseSetupBounds()
+    if self.CollisionBounds then
+        timer.Simple(0, function()
+            self:SetCollisionBounds(self.CollisionBounds.min, self.CollisionBounds.max)
+            self:SetSurroundingBounds(self.CollisionBounds.min*1.25, self.CollisionBounds.max*1.25)
+
+            if self.CollisionBounds.min.z < 0 then
+                local tr = util.TraceLine({
+                    start = self:GetPos(),
+                    endpos = self:GetPos() + Vector(0, 0, -self.CollisionBounds.min.z),
+                    mask = MASK_NPCWORLDSTATIC,
+                })
+
+                self:SetPos(tr.HitPos + tr.HitNormal*5)
+            end
+        end)
+    end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:GetCurrentWeaponShootDist()
@@ -184,8 +212,12 @@ function NPC:NewActivityDetected( act )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseAlertSound()
+    if self.NextAlertSound > CurTime() then return end
+
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
     self:EmitSound_Uninterupted(self.AlertSounds)
+
+    self.NextAlertSound = CurTime() + ZBaseRndTblRange(self.AlertSoundCooldown)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
@@ -215,13 +247,14 @@ function NPC:ZBaseThink()
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
--- function NPC:ZBaseExpensiveThink()
-
--- end
----------------------------------------------------------------------------------------------------------------------=#
 function NPC:SetRelationship( ent, rel )
     self:AddEntityRelationship(ent, rel, 99)
-    if ent:IsNPC() then
+
+    if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
+        self:AddEntityRelationship(ent.Bullseye, rel, 99)
+    end
+
+    if !ent.IsZBaseNPC && ent:IsNPC() then
         ent:AddEntityRelationship(self, rel, 99)
     end
 end
@@ -322,7 +355,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     self:InternalSetAnimation(anim)
 
     -- Duration stuff
-    duration = duration or self:SequenceDuration() -- *0.75
+    duration = duration or self:SequenceDuration()
     if playbackRate then
         duration = duration/playbackRate
     end
@@ -330,9 +363,13 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
 
     -- Set schedule
     if sched then
-        self:SetPlaybackRate(1) -- Am i hallucinating, or does this help?
         self:SetSchedule(sched)
-        self:SetPlaybackRate(1) -- Am i hallucinating, or does this help?
+    end
+
+
+    if self.ZBaseSNPCSequence then
+        self.BaseDontSetPlaybackRate = false
+        self.StopPlaySeqTime = CurTime()+duration*0.8
     end
 
 
@@ -358,6 +395,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
             end
 
             timer.Remove(timerName)
+
             return
         end
 
@@ -365,8 +403,11 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
         if self.NextAnimTick > CurTime() then return end
 
 
+        if !self.DontSetPlaybackRate then
+            self:SetPlaybackRate(playbackRate or 1)
+        end
+
         self:InternalSetAnimation(anim)
-        self:SetPlaybackRate(playbackRate or 1)
 
         self.NextAnimTick = CurTime()+0.1
 

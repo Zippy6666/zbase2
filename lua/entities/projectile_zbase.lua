@@ -18,8 +18,8 @@ ENT.StartHealth = false -- Health of the projectile, set to false to disable pro
 
 
 ENT.Gravity = false -- Should the projectile have gravity?
-ENT.GravityGun_Pickup = false -- Can the projectile be picked up by the gravity gun?
-ENT.GravityGun_Punt = false -- Can the projectile be punted by the gravity gun?
+ENT.GravityGun_Pickup = true -- Can the projectile be picked up by the gravity gun?
+ENT.GravityGun_Punt = true -- Can the projectile be punted by the gravity gun?
 
 
 ENT.OnHitDamage = 10 -- Projectile damage on hit, set to false to disable
@@ -39,26 +39,26 @@ ENT.Damage_Disorient = false -- Should any damage (direct or radius) from the pr
 function ENT:PostInit()
     -- Example:
 
-    -- if SERVER then
-    --     -- Dynamic light
-    --     local glow = ents.Create("light_dynamic")
-    --     glow:SetKeyValue("brightness", "2")
-    --     glow:SetKeyValue("distance", "200")
-    --     glow:SetPos(self:WorldSpaceCenter())
-    --     glow:SetParent(self)
-    --     glow:Fire("Color", "50 255 155")
-    --     glow:Spawn()
-    --     glow:Activate()
-    --     glow:Fire("TurnOn", "", 0)
-    --     self:DeleteOnRemove(glow)
+    if SERVER then
+        -- Dynamic light
+        local glow = ents.Create("light_dynamic")
+        glow:SetKeyValue("brightness", "2")
+        glow:SetKeyValue("distance", "200")
+        glow:SetPos(self:WorldSpaceCenter())
+        glow:SetParent(self)
+        glow:Fire("Color", "50 255 155")
+        glow:Spawn()
+        glow:Activate()
+        glow:Fire("TurnOn", "", 0)
+        self:DeleteOnRemove(glow)
 
-    --     -- Particle
-    --     ParticleEffectAttach("vortigaunt_hand_glow", PATTACH_ABSORIGIN_FOLLOW, self, 0)
+        -- Particle
+        ParticleEffectAttach("vortigaunt_hand_glow", PATTACH_ABSORIGIN_FOLLOW, self, 0)
 
-    --     -- Looping sound
-    --     self.HumSound = CreateSound( self, "Weapon_Gauss.ChargeLoop" )
-    --     self.HumSound:Play()
-    -- end
+        -- Looping sound
+        self.HumSound = CreateSound( self, "Weapon_Gauss.ChargeLoop" )
+        self.HumSound:Play()
+    end
 end
 ------------------------------------------------------------------------------------=#
 
@@ -80,10 +80,10 @@ end
 function ENT:OnThink()
     -- Example:
 
-    -- if SERVER then
-    --     -- Random pitches for the looping sound
-    --     self.HumSound:ChangePitch(math.random(60, 140), 1)
-    -- end
+    if SERVER then
+        -- Random pitches for the looping sound
+        self.HumSound:ChangePitch(math.random(60, 140), 1)
+    end
 end
 ------------------------------------------------------------------------------------=#
 
@@ -99,28 +99,28 @@ function ENT:OnKill(dmginfo)
     -- Blast/Radius damage --
     -- ProjectileBlastDamage( damage, damageType, radius, force )
     -- VVV Example VVV
-    -- self:ProjectileBlastDamage( 10, DMG_GENERIC, 400, 50 )
-    ------------------------------------------------------=#
+    self:ProjectileBlastDamage( 10, DMG_GENERIC, 400, 50 )
+    ----------------------------------------------------=#
 
     -- Sound
-    -- self:EmitSound("Weapon_Mortar.Impact")
+    self:EmitSound("Weapon_Mortar.Impact")
 
     -- Screen shake
-    -- util.ScreenShake(self:WorldSpaceCenter(), 5, 200, 1, 400)
+    util.ScreenShake(self:WorldSpaceCenter(), 5, 200, 1, 400)
 
     -- Dynamic light flash
-    -- local glow = ents.Create("light_dynamic")
-    -- glow:SetKeyValue("brightness", "5")
-    -- glow:SetKeyValue("distance", "500")
-    -- glow:SetPos(self:WorldSpaceCenter())
-    -- glow:Fire("Color", "50 50 255")
-    -- glow:Spawn()
-    -- glow:Activate()
-    -- glow:Fire("TurnOn", "", 0)
-    -- SafeRemoveEntityDelayed(glow, 0.15)
+    local glow = ents.Create("light_dynamic")
+    glow:SetKeyValue("brightness", "5")
+    glow:SetKeyValue("distance", "500")
+    glow:SetPos(self:WorldSpaceCenter())
+    glow:Fire("Color", "50 50 255")
+    glow:Spawn()
+    glow:Activate()
+    glow:Fire("TurnOn", "", 0)
+    SafeRemoveEntityDelayed(glow, 0.15)
 
     -- Explosion particle
-    -- ParticleEffect("Weapon_Combine_Ion_Cannon_Explosion", self:WorldSpaceCenter(), AngleRand())
+    ParticleEffect("Weapon_Combine_Ion_Cannon_Explosion", self:WorldSpaceCenter(), AngleRand())
 end
 ------------------------------------------------------------------------------------=#
 
@@ -128,10 +128,10 @@ end
 function ENT:CustomOnRemove()
     -- Example:
 
-    -- if SERVER then
-    --     -- Stop the looping sound
-    --     self.HumSound:Stop()
-    -- end
+    if SERVER then
+        -- Stop the looping sound
+        self.HumSound:Stop()
+    end
 end
 ------------------------------------------------------------------------------------=#
 
@@ -180,10 +180,6 @@ end
 ------------------------------------------------------------------------------------=#
 function ENT:PhysicsCollide( colData, collider )
     self:OnHit( colData.HitEntity, colData )
-
-    -- if util.GetSurfaceData( colData.TheirSurfaceProps ).material==MAT_GRATE then
-
-    -- end
 
     if self.OnHitDamage then
         self:ProjectileDamage(colData.HitEntity, self.OnHitDamage, self.OnHitDamageType)
