@@ -3,8 +3,6 @@
 -- SNPC base
     -- "SNPC Section"
         -- Pose parameter stuff
-        -- Chase options
-        -- Stationary option
         -- Danger detection options
         -- Turn towards damage and other damage behaviours options
     -- Aerial base (and aquatic maybe...)

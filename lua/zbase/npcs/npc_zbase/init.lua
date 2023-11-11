@@ -19,7 +19,7 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER	
 
-NPC.SightDistance = 20000 -- Sight distance
+NPC.SightDistance = 7000 -- Sight distance
 NPC.SightAngle = 90 -- Sight angle
 NPC.MaxShootDistance = 3000 -- Maximum distance the NPC can fire its weapon from
 NPC.StartHealth = 50 -- Max health
@@ -125,7 +125,7 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 ---------------------------------------------------------------------------------------------------------------------=#
 
     -- SNPC ONLY --
-NPC.m_fMaxYawSpeed = 20 -- Max turning speed
+NPC.m_fMaxYawSpeed = 10 -- Max turning speed
 
 
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -342,7 +342,7 @@ function NPC:SNPCSelectSchedule(iNPCState)
     local ene = self:GetEnemy()
 
     if IsValid(ene) then
-        self:StartSchedule(ZSched.CombatFace)
+        self:StartSchedule(ZSched.CombatChase)
     else
         self:SetSchedule(SCHED_IDLE_STAND)
     end
