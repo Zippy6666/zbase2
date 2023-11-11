@@ -20,7 +20,7 @@ NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER	
 
 NPC.SightDistance = 20000 -- Sight distance
-NPC.SightAngle = 60 -- Sight angle
+NPC.SightAngle = 90 -- Sight angle
 NPC.MaxShootDistance = 3000 -- Maximum distance the NPC can fire its weapon from
 NPC.StartHealth = 50 -- Max health
 NPC.CanPatrol = true -- Use base patrol behaviour

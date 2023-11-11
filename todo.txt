@@ -1,7 +1,6 @@
 ------------------------------------------------------------------------------------=#
     -- TODO --
 -- SNPC base
-    -- Cleanup, make sure everything works as intended
     -- Fix SNPCs not colliding with the projectile, proper physics stuff, surround bounds
     -- Aerial base (and aquatic maybe...)
         -- Ground node navigation system
@@ -12,7 +11,9 @@
         -- Stationary option
         -- Danger detection options
         -- Turn towards damage and other damage behaviours options
+    -- SNPCs with the same model able to attack each other
 -- Other
+    -- Ability to turn off death ragdoll
     -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
     -- Expand weapon base
         -- Basic bullet code
@@ -41,7 +42,6 @@
     -- Ability to trigger melee attacks and range attacks
     -- Flinch system
     -- Death animation system
-    -- Item drop system
     -- Lots of "CustomOn" functions
     -- Play animation supports gestures
     -- Bodygroup system
@@ -73,4 +73,6 @@
         -- BUGS --
 -- Squad error
 -- Circular include error thingy
+-- Able to do things while dead
+    -- Secondary attack
 ------------------------------------------------------------------------------------=#

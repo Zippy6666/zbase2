@@ -1,6 +1,6 @@
 -- https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/game/server/ai_basenpc.cpp
 -- https://github.com/Facepunch/garrysmod/tree/9bbd7c8af0dda5bed88e3f09fbdf5d4be7e012f2
-
+-- https://github.com/DrVrej/VJ-Base/commit/62b8e122e970ff41dbbf95c32dc025ef358744d5
 
 
 // Global Savedata for npc

@@ -1,23 +1,21 @@
 include("shared.lua")
 util.AddNetworkString("base_ai_zbase_client_ragdoll")
 
+
 ENT.m_iClass = CLASS_NONE -- NPC Class
 ENT.IsZBase_SNPC = true
 
 
 --------------------------------------------------------------------------------=#
 function ENT:Initialize()
-
 	-- Some default calls to make the NPC function
 	self:SetHullType( HULL_MEDIUM )
 	self:SetHullSizeNormal()
 	self:SetSolid( SOLID_BBOX )
 	self:SetMoveType( MOVETYPE_STEP )
-
 end
 --------------------------------------------------------------------------------=#
 function ENT:SelectSchedule( iNPCState )
-	if self.PreventSelectSched then return end
 	self:SetSchedule(SCHED_COMBAT_FACE)
 end
 --------------------------------------------------------------------------------=#
@@ -31,6 +29,11 @@ function ENT:ServerRagdoll( dmginfo )
 	rag:SetMaterial(self:GetMaterial())
 	rag:Spawn()
 	local ragPhys = rag:GetPhysicsObject()
+
+	if !IsValid(ragPhys) then
+		rag:Remove()
+		return
+	end
 
 	-- Ragdoll force
 	if dmginfo:IsBulletDamage() then
@@ -105,23 +108,11 @@ function ENT:Die( dmginfo )
 end
 --------------------------------------------------------------------------------=#
 function ENT:OnTakeDamage( dmginfo )
-
 	self:SetHealth( self:Health() - dmginfo:GetDamage() )
+
 	if self:Health() <= 0 then
 		self:Die( dmginfo )
 	end
-
-end
---------------------------------------------------------------------------------=#
-function ENT:StopAndPreventSelectSchedule( duration )
-	if self.PreventSelectSched then return end
-	self:ClearGoal()
-	self:ClearSchedule()
-	self.CurrentSchedule = nil
-	self.PreventSelectSched = true
-	timer.Create("SomeStupidTimerIdk"..self:EntIndex(), duration, 1, function() if IsValid(self) then
-		self.PreventSelectSched = false
-	end end)
 end
 --------------------------------------------------------------------------------=#
 function ENT:DoNPCState()
