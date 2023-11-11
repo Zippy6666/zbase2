@@ -10,7 +10,7 @@ function BEHAVIOUR.Patrol:ShouldDoBehaviour( self )
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.Patrol:Delay(self)
-    if self:IsMoving() then
+    if self:IsMoving() or self.DoingPlayAnim then
         debugoverlay.Text(self:WorldSpaceCenter(), "PATROL DELAYED...")
 
         return math.random(8, 15)

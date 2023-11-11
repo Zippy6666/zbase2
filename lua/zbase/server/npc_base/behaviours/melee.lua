@@ -41,6 +41,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         local disp = self:Disposition(ent)
         if disp == D_LI
         or (!dmgData.affectProps && disp == D_NU) then continue end
+        if self.ZBaseFaction == ent.ZBaseFaction then continue end
 
         if !self:Visible(ent) then continue end
 
