@@ -13,6 +13,8 @@ function ENT:Initialize()
 
 	if self.Initialize_Aerial then
 		self:Initialize_Aerial()
+	else
+		self:CapabilitiesAdd(CAP_MOVE_GROUND)
 	end
 
 	self:SetMoveType(MOVETYPE_STEP)
@@ -30,10 +32,13 @@ end
 function ENT:Think()
 	local phys = self:GetPhysicsObject()
 	phys:SetPos(self:GetPos())
+
+	self:NextThink( CurTime() ) -- Set the next think to run as soon as possible, i.e. the next frame.
+	return true -- Apply NextThink call
 end
 --------------------------------------------------------------------------------=#
 function ENT:SelectSchedule( iNPCState )
-	self:SetSchedule(SCHED_COMBAT_FACE)
+	self:SNPCSelectSchedule( iNPCState )
 end
 --------------------------------------------------------------------------------=#
 function ENT:ServerRagdoll( dmginfo )
@@ -134,33 +139,38 @@ function ENT:OnTakeDamage( dmginfo )
 end
 --------------------------------------------------------------------------------=#
 function ENT:DoNPCState()
-	local enemy = self:GetEnemy()
-	local enemyInvalidPlayer = IsValid(enemy) && enemy:IsPlayer() && (!enemy:Alive() or GetConVar("ai_ignoreplayers"):GetBool())
-	local stateNotIdle = self:GetNPCState() != NPC_STATE_IDLE
+	-- local enemy = self:GetEnemy()
+	-- local enemyInvalidPlayer = IsValid(enemy) && enemy:IsPlayer() && (!enemy:Alive() or GetConVar("ai_ignoreplayers"):GetBool())
+	-- local stateNotIdle = self:GetNPCState() != NPC_STATE_IDLE
 
-	-- Force set to idle when there is no enemy
-	if stateNotIdle && !(IsValid(enemy) && !enemyInvalidPlayer) then
-		self:SetNPCState(NPC_STATE_IDLE)
-	end
+	-- -- Force set to idle when there is no enemy
+	-- if stateNotIdle && !(IsValid(enemy) && !enemyInvalidPlayer) then
+	-- 	self:SetNPCState(NPC_STATE_IDLE)
+	-- end
 end
 --------------------------------------------------------------------------------=#
 function ENT:DoSequence()
 	if self.StopPlaySeqTime > CurTime() then
-		self:SetSequence(self.ZBaseSNPCSequence)
-		
+		-- self:SetSequence(self.ZBaseSNPCSequence)
 	else
 		self:SetPlaybackRate(1)
-		-- self:SetSequence(self:SelectWeightedSequence(ACT_IDLE))
 		self:ResetIdealActivity(ACT_IDLE)
 		self.BaseDontSetPlaybackRate = true
-		-- return false
 	end
 
 	return true
 end
 --------------------------------------------------------------------------------=#
+function ENT:StartEngineTask( iTaskID, TaskData )
+	-- return true
+end
+--------------------------------------------------------------------------------=#
+function ENT:RunEngineTask( iTaskID, TaskData )
+	-- return true
+end
+--------------------------------------------------------------------------------=#
 function ENT:RunAI( strExp )
-	self:DoNPCState()
+	-- self:DoNPCState()
 	
 	-- Play sequence:
 	if self.ZBaseSNPCSequence then
