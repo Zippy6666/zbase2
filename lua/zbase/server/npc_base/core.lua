@@ -354,13 +354,17 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
 
 
     -- Reset stuff
+    self:TaskComplete()
+    self:ClearGoal()
     if self.IsZBase_SNPC then
         self:ScheduleFinished()
     end
     self:ClearSchedule()
-    self:ClearGoal()
     self:StopMoving()
-    self:TaskComplete()
+    self:SetMoveVelocity(Vector())
+
+
+    local NPC_STATE = self:GetNPCState()
     self:SetNPCState(NPC_STATE_SCRIPT)
 
 
@@ -408,7 +412,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
         or self.TimeUntilStopAnimOverride < CurTime() then
 
             if self.ZBaseSNPCSequence then
-                self:SetNPCState(NPC_STATE_NONE)
+                self:SetNPCState(NPC_STATE)
             end
 
             self.DoingPlayAnim = false

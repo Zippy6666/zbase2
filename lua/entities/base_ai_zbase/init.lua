@@ -9,7 +9,7 @@ ENT.IsZBase_SNPC = true
 function ENT:Initialize()
 	self:SetHullType(self.HullType or HULL_MEDIUM)
 	self:SetHullSizeNormal()
-	self:SetSolid(SOLID_OBB)
+	self:SetSolid(SOLID_BBOX)
 
 	if self.Initialize_Aerial then
 		self:Initialize_Aerial()
@@ -30,6 +30,7 @@ function ENT:Initialize()
 end
 --------------------------------------------------------------------------------=#
 function ENT:Think()
+	-- Sussy phys object
 	local phys = self:GetPhysicsObject()
 	phys:SetPos(self:GetPos())
 
@@ -131,22 +132,35 @@ function ENT:Die( dmginfo )
 end
 --------------------------------------------------------------------------------=#
 function ENT:OnTakeDamage( dmginfo )
+	-- Face damage
+	if !IsValid(self:GetEnemy()) then
+		self:FullReset()
+		self:SetLastPosition(dmginfo:GetDamagePosition())
+
+		timer.Simple(0.1, function()
+			self:StartSchedule(ZSched.FaceLastPos)
+		end)
+	end
+
+	-- Decrease health
 	self:SetHealth( self:Health() - dmginfo:GetDamage() )
 
+	-- Die
 	if self:Health() <= 0 then
 		self:Die( dmginfo )
 	end
 end
 --------------------------------------------------------------------------------=#
 function ENT:DoNPCState()
-	-- local enemy = self:GetEnemy()
-	-- local enemyInvalidPlayer = IsValid(enemy) && enemy:IsPlayer() && (!enemy:Alive() or GetConVar("ai_ignoreplayers"):GetBool())
-	-- local stateNotIdle = self:GetNPCState() != NPC_STATE_IDLE
+	local enemy = self:GetEnemy()
+	local enemyInvalidPlayer = IsValid(enemy) && enemy:IsPlayer() && (!enemy:Alive() or GetConVar("ai_ignoreplayers"):GetBool())
 
-	-- -- Force set to idle when there is no enemy
-	-- if stateNotIdle && !(IsValid(enemy) && !enemyInvalidPlayer) then
-	-- 	self:SetNPCState(NPC_STATE_IDLE)
-	-- end
+
+	-- If there is no valid enemy and the NPC state is combat, set to idle
+	if !(IsValid(enemy) && !enemyInvalidPlayer)
+	&& self:GetNPCState() == NPC_STATE_COMBAT then
+		self:SetNPCState(NPC_STATE_IDLE)
+	end
 end
 --------------------------------------------------------------------------------=#
 function ENT:DoSequence()
@@ -161,16 +175,65 @@ function ENT:DoSequence()
 	return true
 end
 --------------------------------------------------------------------------------=#
-function ENT:StartEngineTask( iTaskID, TaskData )
-	-- return true
+function ENT:FullReset()
+    self:TaskComplete()
+    self:ClearGoal()
+    self:ScheduleFinished()
+    self:ClearSchedule()
+    self:StopMoving()
+    self:SetMoveVelocity(Vector())
 end
 --------------------------------------------------------------------------------=#
-function ENT:RunEngineTask( iTaskID, TaskData )
-	-- return true
+function ENT:GetCurrentCustomSched()
+	return self.CurrentSchedule && self.CurrentSchedule.DebugName
+end
+--------------------------------------------------------------------------------=#
+function ENT:StopUnwantedSchedules()
+	-- local sched = self:GetCurrentCustomSched()
+	-- local enemy = self:GetEnemy()
+	-- local enemyValid = IsValid(enemy)
+	-- local enemyVisible = enemyValid && self:Visible(enemy)
+
+
+	-- -- Can't reach the enemy when chasing
+	-- if enemyValid && sched=="CombatChase" && self:IsNavStuck() then
+	-- 	if enemyVisible then
+	-- 		-- Take cover if enemy is visible
+	-- 		self:FullReset()
+	-- 		self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
+
+	-- 	else
+	-- 		-- Patrol if enemy is not visible
+	-- 		self:FullReset()
+	-- 		self:SetSchedule(SCHED_COMBAT_PATROL)
+
+	-- 	end
+
+	-- 	return
+	-- end
+
+
+	-- -- Don't combat patrol if enemy is seen
+	-- if enemyValid && enemyVisible && self:IsCurrentSchedule(SCHED_COMBAT_PATROL) then
+	-- 	self:FullReset()
+
+	-- 	return
+	-- end
+end
+--------------------------------------------------------------------------------=#
+function ENT:IsNavStuck()
+	if !self.NextStuck then return false end
+	return self.NextStuck < CurTime()
+end
+--------------------------------------------------------------------------------=#
+function ENT:DetermineNavStuck()
+	if self:IsGoalActive() && self:GetCurWaypointPos()!=Vector() then
+		self.NextStuck = CurTime()+0.3
+	end
 end
 --------------------------------------------------------------------------------=#
 function ENT:RunAI( strExp )
-	-- self:DoNPCState()
+	self:DoNPCState()
 	
 	-- Play sequence:
 	if self.ZBaseSNPCSequence then
@@ -178,6 +241,9 @@ function ENT:RunAI( strExp )
 		
 		if dontRunAI then return end
 	end
+
+	self:StopUnwantedSchedules() -- Stop, or replace schedules that shouldn't play right now
+	self:DetermineNavStuck() -- Check if waypoint has been 0,0,0 for some time
 
 	-- If we're running an Engine Side behaviour
 	-- then return true and let it get on with it.
