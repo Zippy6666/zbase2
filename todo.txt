@@ -43,7 +43,7 @@
     -- Submaterial system
     -- More menu options
         -- Health and damage sliders
-        -- ZBase functionality for any NPC
+        -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
     -- Gib system
 
 ------------------------------------------------------------------------------------=#

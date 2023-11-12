@@ -17,11 +17,21 @@ end
 --------------------------------------------------------------------=#
 function ZSched:FaceLastPos( sched )
     sched:EngTask( "TASK_FACE_LASTPOSITION",  0 )
-    --sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
 end
 --------------------------------------------------------------------=#
 function ZSched:CombatChase( sched )
     sched:EngTask( "TASK_GET_PATH_TO_ENEMY",  0 )
+    sched:EngTask( "TASK_RUN_PATH",  0 )
+    sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
+end
+--------------------------------------------------------------------=#
+function ZSched:CombatChase_CannotReachEnemy_DoCover( sched )
+    sched:EngTask( "TASK_FIND_COVER_FROM_ORIGIN",  0 )
+    sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
+end
+--------------------------------------------------------------------=#
+function ZSched:CombatChase_CannotReachEnemy_MoveRandom( sched )
+    sched:EngTask( "TASK_GET_PATH_TO_RANDOM_NODE",  512 )
     sched:EngTask( "TASK_RUN_PATH",  0 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
 end
