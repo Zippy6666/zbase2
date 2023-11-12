@@ -337,13 +337,19 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- ADVANCED: Select schedule
+    -- Select schedule
+    -- Here you can change how the SNPC should behave entirely
+    -- This function is called whenever the SNPC isn't doing a schedule, allowing you to set it to whatever schedule you want
+    -- Use self:SetSchedule() for engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
+    -- Use self:StartSchedule() for custom schedules, such as the ZBase built in ones, or your own
 function NPC:SNPCSelectSchedule(iNPCState)
     local ene = self:GetEnemy()
 
     if IsValid(ene) then
+        -- Has enemy, try chasing it
         self:StartSchedule(ZSched.CombatChase)
     else
+        -- No enemy, just stand in idle
         self:SetSchedule(SCHED_IDLE_STAND)
     end
 end

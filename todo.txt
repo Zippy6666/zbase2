@@ -29,23 +29,22 @@
         -- Comball damage scale (and explode option)
         -- Phys damage scale
         -- Damage type damage scale
-    -- Jump system
     -- Hearing system
     -- Custom blood system
         -- White blood decals for hunters
-    -- Adjustable shoot distance
-    -- Controller (maybe)
+    -- Controller
     -- Ability to change movement animations
     -- Ability to trigger melee attacks and range attacks
     -- Flinch system
     -- Death animation system
-    -- Lots of "CustomOn" functions
+    -- Lots of "CustomOn" functions (use vj for reference)
     -- Play animation supports gestures
     -- Bodygroup system
     -- Submaterial system
     -- More menu options
         -- Health and damage sliders
-    -- Gib system (maybe)
+        -- ZBase functionality for any NPC
+    -- Gib system
 
 ------------------------------------------------------------------------------------=#
     -- FINAL --
@@ -60,12 +59,14 @@
 -- Copyright stuff
 ------------------------------------------------------------------------------------=#
 
-    -- FUTURE NPCS --
--- Entropy Zero 2
--- Hl2 Overcharged
--- RTBR
--- Insurgency
+    -- FUTURE IDEAS --
+-- Vehicle base
+-- HL2 Resurgence-like pack with NPCs from Entropy Zero 2, Hl2 Overcharged, RTBR, etc
+-- Insurgency NPC Pack
+-- Jump system
 ------------------------------------------------------------------------------------=#
+
+
         -- BUGS --
 -- Squad error
 -- Circular include error thingy
