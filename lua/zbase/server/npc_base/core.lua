@@ -185,7 +185,7 @@ function NPC:ZBaseSquad()
             end
         end
 
-        if squadMemberCount >= 4 then
+        if squadMemberCount >= 6 then
             i = i+1
             squadName = self.ZBaseFaction..i
         else
@@ -330,7 +330,6 @@ function NPC:AnimShouldBeSequence( anim )
     return self:GetSequenceActivity(self:LookupSequence(anim)) == -1
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-
 function NPC:InternalSetAnimation( anim )
 	if isstring(anim) then
         -- Sequence
@@ -436,14 +435,6 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
         self:InternalSetAnimation(anim)
         self.NextAnimTick = CurTime()+0.1
     end)
-end
----------------------------------------------------------------------------------------------------------------------=#
-function NPC:ZBaseStartTask(name, data)
-    self:StartEngineTask(ZBaseTaskID(name), data or 0)
-end
----------------------------------------------------------------------------------------------------------------------=#
-function NPC:ZBaseRunTask(name, data)
-    self:RunEngineTask(ZBaseTaskID(name), data or 0)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Depricated

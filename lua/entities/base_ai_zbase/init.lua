@@ -1,4 +1,5 @@
 include("shared.lua")
+include("zbase_ai.lua")
 util.AddNetworkString("base_ai_zbase_client_ragdoll")
 
 
@@ -27,6 +28,9 @@ function ENT:Initialize()
 	self.Bullseye:AddEFlags(EFL_DONTBLOCKLOS)
 	self.Bullseye:Spawn()
 	self.Bullseye:Activate()
+
+	self.NextDetermineNewSched = CurTime()
+	self:SetNotNavStuck()
 end
 --------------------------------------------------------------------------------=#
 function ENT:Think()
@@ -36,10 +40,6 @@ function ENT:Think()
 
 	self:NextThink( CurTime() ) -- Set the next think to run as soon as possible, i.e. the next frame.
 	return true -- Apply NextThink call
-end
---------------------------------------------------------------------------------=#
-function ENT:SelectSchedule( iNPCState )
-	self:SNPCSelectSchedule( iNPCState )
 end
 --------------------------------------------------------------------------------=#
 function ENT:ServerRagdoll( dmginfo )
@@ -149,127 +149,5 @@ function ENT:OnTakeDamage( dmginfo )
 	if self:Health() <= 0 then
 		self:Die( dmginfo )
 	end
-end
---------------------------------------------------------------------------------=#
-function ENT:DoNPCState()
-	local enemy = self:GetEnemy()
-	local enemyInvalidPlayer = IsValid(enemy) && enemy:IsPlayer() && (!enemy:Alive() or GetConVar("ai_ignoreplayers"):GetBool())
-
-
-	-- If there is no valid enemy and the NPC state is combat, set to idle
-	if !(IsValid(enemy) && !enemyInvalidPlayer)
-	&& self:GetNPCState() == NPC_STATE_COMBAT then
-		self:SetNPCState(NPC_STATE_IDLE)
-	end
-end
---------------------------------------------------------------------------------=#
-function ENT:DoSequence()
-	if self.StopPlaySeqTime > CurTime() then
-		-- self:SetSequence(self.ZBaseSNPCSequence)
-	else
-		self:SetPlaybackRate(1)
-		self:ResetIdealActivity(ACT_IDLE)
-		self.BaseDontSetPlaybackRate = true
-	end
-
-	return true
-end
---------------------------------------------------------------------------------=#
-function ENT:FullReset()
-    self:TaskComplete()
-    self:ClearGoal()
-    self:ScheduleFinished()
-    self:ClearSchedule()
-    self:StopMoving()
-    self:SetMoveVelocity(Vector())
-end
---------------------------------------------------------------------------------=#
-function ENT:GetCurrentCustomSched()
-	return self.CurrentSchedule && self.CurrentSchedule.DebugName
-end
---------------------------------------------------------------------------------=#
-function ENT:StopUnwantedSchedules()
-	-- local sched = self:GetCurrentCustomSched()
-	-- local enemy = self:GetEnemy()
-	-- local enemyValid = IsValid(enemy)
-	-- local enemyVisible = enemyValid && self:Visible(enemy)
-
-
-	-- -- Can't reach the enemy when chasing
-	-- if enemyValid && sched=="CombatChase" && self:IsNavStuck() then
-	-- 	if enemyVisible then
-	-- 		-- Take cover if enemy is visible
-	-- 		self:FullReset()
-	-- 		self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
-
-	-- 	else
-	-- 		-- Patrol if enemy is not visible
-	-- 		self:FullReset()
-	-- 		self:SetSchedule(SCHED_COMBAT_PATROL)
-
-	-- 	end
-
-	-- 	return
-	-- end
-
-
-	-- -- Don't combat patrol if enemy is seen
-	-- if enemyValid && enemyVisible && self:IsCurrentSchedule(SCHED_COMBAT_PATROL) then
-	-- 	self:FullReset()
-
-	-- 	return
-	-- end
-end
---------------------------------------------------------------------------------=#
-function ENT:IsNavStuck()
-	if !self.NextStuck then return false end
-	return self.NextStuck < CurTime()
-end
---------------------------------------------------------------------------------=#
-function ENT:DetermineNavStuck()
-	if self:IsGoalActive() && self:GetCurWaypointPos()!=Vector() then
-		self.NextStuck = CurTime()+0.3
-	end
-end
---------------------------------------------------------------------------------=#
-function ENT:RunAI( strExp )
-	self:DoNPCState()
-	
-	-- Play sequence:
-	if self.ZBaseSNPCSequence then
-		local dontRunAI = self:DoSequence()
-		
-		if dontRunAI then return end
-	end
-
-	self:StopUnwantedSchedules() -- Stop, or replace schedules that shouldn't play right now
-	self:DetermineNavStuck() -- Check if waypoint has been 0,0,0 for some time
-
-	-- If we're running an Engine Side behaviour
-	-- then return true and let it get on with it.
-	if ( self:IsRunningBehavior() ) then
-		return true
-	end
-
-	-- If we're doing an engine schedule then return true
-	-- This makes it do the normal AI stuff.
-	if ( self:DoingEngineSchedule() ) then
-		return true
-	end
-
-	-- If we're currently running a schedule then run it.
-	if ( self.CurrentSchedule ) then
-		self:DoSchedule( self.CurrentSchedule )
-	end
-
-	-- If we have no schedule (schedule is finished etc)
-	-- Then get the derived NPC to select what we should be doing
-	if ( !self.CurrentSchedule ) then
-		self:SelectSchedule()
-	end
-
-	-- Do animation system
-	self:MaintainActivity()
-
 end
 --------------------------------------------------------------------------------=#
