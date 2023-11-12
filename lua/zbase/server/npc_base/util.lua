@@ -12,7 +12,7 @@ function NPC:IsAlly( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
-    -- Get the nearest allied NPC/ent in a certain radius
+    -- Get the nearest allied within a in a certain radius
     -- Returns nil if none was found
 function NPC:GetNearestAlly( radius )
     local mindist
@@ -33,6 +33,12 @@ function NPC:GetNearestAlly( radius )
     end
 
     return ally
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Returns the name of the NPC's squad
+function NPC:SquadName()
+    return self:GetKeyValues().squadname
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 

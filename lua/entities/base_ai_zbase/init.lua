@@ -3,6 +3,10 @@ include("zbase_ai.lua")
 util.AddNetworkString("base_ai_zbase_client_ragdoll")
 
 
+local NPCMETA = FindMetaTable("NPC")
+if !ZBase_OldGetNearestSquadMember then ZBase_OldGetNearestSquadMember = NPCMETA.GetNearestSquadMember end
+
+
 ENT.m_iClass = CLASS_NONE -- NPC Class
 ENT.IsZBase_SNPC = true
 
@@ -30,6 +34,7 @@ function ENT:Initialize()
 	self.Bullseye:Activate()
 
 	self.NextDetermineNewSched = CurTime()
+	self.Move_AvoidSquadMembers = CurTime()
 	self:SetNotNavStuck()
 end
 --------------------------------------------------------------------------------=#
@@ -40,6 +45,30 @@ function ENT:Think()
 
 	self:NextThink( CurTime() ) -- Set the next think to run as soon as possible, i.e. the next frame.
 	return true -- Apply NextThink call
+end
+--------------------------------------------------------------------------------=#
+function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )
+	if !self.IsZBase_SNPC then return ZBase_OldGetNearestSquadMember(self) end
+
+	local mindist
+	local squadmember
+
+	for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius or 256)) do
+		if v == self then continue end
+		if !v:IsNPC() then continue end
+		if zbaseSNPCOnly && !v.IsZBase_SNPC then continue end
+
+		if self:SquadName() == v:GetKeyValues().squadname then
+			local dist = self:GetPos():DistToSqr(v:GetPos())
+
+			if !mindist or dist < mindist then
+				mindist = dist
+				squadmember = v
+			end
+		end
+	end
+
+	return squadmember
 end
 --------------------------------------------------------------------------------=#
 function ENT:ServerRagdoll( dmginfo )
@@ -132,15 +161,8 @@ function ENT:Die( dmginfo )
 end
 --------------------------------------------------------------------------------=#
 function ENT:OnTakeDamage( dmginfo )
-	-- Face damage
-	if !IsValid(self:GetEnemy()) then
-		self:FullReset()
-		self:SetLastPosition(dmginfo:GetDamagePosition())
-
-		timer.Simple(0.1, function()
-			self:StartSchedule(ZSched.FaceLastPos)
-		end)
-	end
+	-- On hurt behaviour
+	self:AI_OnHurt(dmginfo)
 
 	-- Decrease health
 	self:SetHealth( self:Health() - dmginfo:GetDamage() )
