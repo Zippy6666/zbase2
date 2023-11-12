@@ -130,7 +130,6 @@ end
 
 
     -- Play an activity or sequence
-    -- Note: NPCs cannot play sequences that aren't bound to an activity, SNPCs however, can do so.
     -- 'anim' - The sequence or activity to play, accepts sequences as strings
     -- 'faceEnemy' - Set to true to constantly face enemy while the animation is playing
     -- 'extraData' (table)

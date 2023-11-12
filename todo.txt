@@ -26,11 +26,8 @@
     -- Custom blood system
         -- White blood decals for hunters
     -- Controller
-    -- Ability to trigger melee attacks and range attacks
     -- Flinch system
     -- Death animation system
-    -- Lots of "CustomOn" functions (use vj for reference)
-    -- Play animation supports gestures
     -- Bodygroup system
     -- More menu options
         -- Health and damage sliders
@@ -41,6 +38,7 @@
     -- Comments
     -- Organize funcs and vars
     -- Separate snpc and npc base maybe...
+    -- Lots of "CustomOn" functions (use vj for reference)
     -- Dummy git
 -- Make sure everything works
     -- Multiplayer
@@ -58,6 +56,7 @@
 -- Jump system
 -- Gib system
 -- Global danger detection system
+-- Some kind of special gesture support
 ------------------------------------------------------------------------------------=#
 
 

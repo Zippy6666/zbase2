@@ -334,7 +334,8 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 ZBaseReflectedBullet = false
 
-hook.Add("EntityFireBullets", "ZBaseBulletReflect", function( ent, data, ... )
+hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
+    -- "Bullet Hit Hook" --
     local data_backup = data
     if grabbing_bullet_backup_data then return end
 
@@ -356,14 +357,10 @@ hook.Add("EntityFireBullets", "ZBaseBulletReflect", function( ent, data, ... )
 
         end
     end
+    --------------------------------------------------=#
 
-    return true
-end)
----------------------------------------------------------------------------------------------------------------------=#
-hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
-    if PreventCallAccuracyBoost then return end
 
-    -- Boost accuracy for some weapons
+    -- Boost accuracy for some weapons --
     if ent.IsZBaseNPC then
         local wep = ent:GetActiveWeapon()
         local ene = ent:GetEnemy()
@@ -372,12 +369,10 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
             local sprd = (5 - ent:GetCurrentWeaponProficiency())/ZBaseWeaponAccuracyBoost[wep:GetClass()]
             data.Spread = Vector(sprd, sprd)
             data.Dir = (ene:WorldSpaceCenter() - ent:GetShootPos()):GetNormalized()
-
-            PreventCallAccuracyBoost = true
-            hook.Run("EntityFireBullets", ent, data)
-            PreventCallAccuracyBoost = false
-            return true
         end
     end
+    --------------------------------------------------=#
+
+    return true
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
