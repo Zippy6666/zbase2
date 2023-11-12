@@ -117,6 +117,7 @@ end)
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
     if ent.IsZBaseNPC then
+        ent:InternalDamageScale(dmg)
         ent:OnHurt(dmg)
     end
 

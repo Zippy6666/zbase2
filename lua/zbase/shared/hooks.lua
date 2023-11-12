@@ -1,12 +1,6 @@
 AddCSLuaFile()
 
--------------------------------------------------------------------------------------------------------------=#
-hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
-	if swep.IsZBaseWeapon && class!="weapon_zbase" then
-		list.Add( "NPCUsableWeapons", { class = class, title = "ZBase - "..swep.PrintName } )
-	end
-end)
--------------------------------------------------------------------------------------------------------------=#
+---------------------------------------------------------------------------------------=#
 hook.Add("InitPostEntity", "ZBaseReplaceFuncsShared", function()
 	local listGet = list.Get
 
@@ -34,3 +28,21 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsShared", function()
 	---------------------------------------------------------------------------------------=#
 end)
 ---------------------------------------------------------------------------------------=#
+hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
+	if swep.IsZBaseWeapon && class!="weapon_zbase" then
+		list.Add( "NPCUsableWeapons", { class = class, title = "ZBase - "..swep.PrintName } )
+	end
+end)
+-------------------------------------------------------------------------------------------------------------=#
+hook.Add("CreateEntityRagdoll", "ZBaseNoRag", function(ent, rag)
+	if ent:GetNWBool("ZBaseNoRag") then
+		rag:Remove()
+	end
+end)
+-------------------------------------------------------------------------------------------------------------=#
+hook.Add("CreateClientsideRagdoll", "ZBaseNoRag", function(ent, rag)
+	if ent:GetNWBool("ZBaseNoRag") then
+		rag:Remove()
+	end
+end)
+-------------------------------------------------------------------------------------------------------------=#

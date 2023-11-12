@@ -32,52 +32,8 @@ function BEHAVIOUR.RangeAttack:ShouldDoBehaviour( self )
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.RangeAttack:Run( self )
-        -- Animation --
-    self:InternalPlayAnimation(
-        table.Random(self.RangeAttackAnimations),
-        nil,
-        self.RangeAttackAnimationSpeed,
-        SCHED_NPC_FREEZE,
-        nil
-    )
-    local duration = self:SequenceDuration() + 0.25
-    -----------------------------------------------------------------=#
-
-
-        -- Projectile --
-    if self.RangeProjectile_Delay then
-        timer.Simple(self.RangeProjectile_Delay, function()
-            if !IsValid(self) then return end
-            if self:GetNPCState()==NPC_STATE_DEAD then return end
-
-            self:RangeAttackProjectile()
-        end)
-    end
-    -----------------------------------------------------------------=#
-
-
-    -- Special face code
-    self.TimeUntilStopFace = CurTime()+duration
-
-    timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
-        if !IsValid(self) or self.TimeUntilStopFace < CurTime() then
-            timer.Remove("ZBaseFace"..self:EntIndex())
-            return
-        end
-
-        if GetConVar("ai_disabled"):GetBool() then return end
-
-        local ene = self:GetEnemy()
-        local seeEnemy = IsValid(ene) && self:Visible(ene)
-        local facePos = seeEnemy && ene:WorldSpaceCenter() or self:Projectile_TargetPos()
-        local yaw = (facePos - self:GetPos()):Angle().y
-
-        self:SetIdealYawAndUpdate(yaw, self.RangeAttackTurnSpeed)
-    end)
-    -----------------------------------------------------------------=#
-
-
-    ZBaseDelayBehaviour(duration + ZBaseRndTblRange(self.RangeAttackCooldown))
+    self:RangeAttack()
+    ZBaseDelayBehaviour(self:SequenceDuration() + 0.25 + ZBaseRndTblRange(self.RangeAttackCooldown))
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.PreRangeAttack:ShouldDoBehaviour( self )

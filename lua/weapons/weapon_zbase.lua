@@ -1,6 +1,7 @@
 AddCSLuaFile()
 
 	-- You can use this weapon base for your swep to have better control over how NPCs handle it --
+	-- NOTE: Your SWEP will be added to the NPC weapon menu automatically if you use this base --
 
 
 

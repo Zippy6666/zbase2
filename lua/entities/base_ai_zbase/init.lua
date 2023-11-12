@@ -162,7 +162,7 @@ end
 --------------------------------------------------------------------------------=#
 function ENT:OnTakeDamage( dmginfo )
 	-- On hurt behaviour
-	self:AI_OnHurt(dmginfo)
+	self:SNPCOnHurt(dmginfo)
 
 	-- Decrease health
 	self:SetHealth( self:Health() - dmginfo:GetDamage() )
@@ -171,5 +171,10 @@ function ENT:OnTakeDamage( dmginfo )
 	if self:Health() <= 0 then
 		self:Die( dmginfo )
 	end
+end
+--------------------------------------------------------------------------------=#
+function ENT:OnRemove()
+    self:SetSquad("") -- To prevent m_bDidDeathCleanup from crashing game.
+    if self.Dead then self:SetSaveValue("m_bDidDeathCleanup", true) end
 end
 --------------------------------------------------------------------------------=#

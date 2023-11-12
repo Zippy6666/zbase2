@@ -213,6 +213,7 @@ function ENT:FaceHurtPos(dmginfo)
 	self:SetLastPosition(dmginfo:GetDamagePosition())
 
 	timer.Simple(0.1, function()
+		if !IsValid(self) then return end
 		self:StartSchedule(ZSched.FaceLastPos)
 	end)
 end

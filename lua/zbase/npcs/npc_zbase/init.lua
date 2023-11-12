@@ -30,12 +30,12 @@ NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even 
 NPC.CallForHelpDistance = 2000 -- Call for help distance
 NPC.HullType = false -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
 NPC.CollisionBounds = false -- Example: NPC.CollisionBounds = {min=Vector(-50, -50, 0), max=Vector(50, 50, 100)}, false = default
+NPC.CanJump = true -- Can the NPC jump?
 
 -- Extra capabilities
 -- List of capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
 NPC.ExtraCapabilities = {
     CAP_OPEN_DOORS, -- Can open regular doors
-    CAP_MOVE_JUMP, -- Can jump
 }
 
 NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied
@@ -47,9 +47,10 @@ NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will b
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
+        -- DAMAGE AND DEATH --
 
 
-        -- ARMOR SYSTEM --
+    -- Armor System --
 NPC.HasArmor = {
     -- [HITGROUP_GENERIC] = false,
     -- [HITGROUP_HEAD] = false,
@@ -66,6 +67,21 @@ NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is mor
 NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
 NPC.ArmorHitSpark = true -- Do a spark on armor hit
 NPC.ArmorReflectsBullets = false -- Should the armor visually reflect bullets?
+
+-- Scale damage against certain damage types:
+-- https://wiki.facepunch.com/gmod/Enums/DMG
+NPC.DamageScaling = {
+    -- Example:
+    -- [DMG_BLAST] = 0.5,
+    -- [DMG_BULLET] = 2,
+}
+NPC.PhysDamageScale = 1 -- Damage scale from props
+NPC.EnergyBallDamageScale = 1 -- Damage scale from combine energy balls
+NPC.ExplodeEnergyBall = false -- Should combine energy balls explode when they hit this NPC?
+NPC.CanDissolve = true -- Can the NPC be dissolved?
+
+
+NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
 
 
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -351,18 +367,25 @@ function NPC:SNPCSelectSchedule(iNPCState)
     local ene = self:GetEnemy()
 
     if IsValid(ene) then
-        -- Has enemy, try chasing it
-        self:StartSchedule(ZSched.CombatChase)
+
+        if !self:Visible(ene) or self:IsFacing(ene) then
+            self:StartSchedule(ZSched.CombatChase)
+        else
+            self:StartSchedule(ZSched.CombatFace)
+        end
+
     else
+
         -- No enemy, just stand in idle
         self:SetSchedule(SCHED_IDLE_STAND)
+
     end
 end
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
     -- Called when the SNPC takes damage
-function ENT:SNPCOnHurt(dmginfo)
+function NPC:SNPCOnHurt(dmginfo)
     -- Example:
 	if !IsValid(self:GetEnemy()) then
         -- Face the direction of the damage
