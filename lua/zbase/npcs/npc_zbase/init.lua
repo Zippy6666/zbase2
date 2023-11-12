@@ -126,7 +126,11 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 
     -- SNPC ONLY --
 NPC.m_fMaxYawSpeed = 10 -- Max turning speed
+NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_HIDE -- ZBASE_CANTREACHENEMY_HIDE || ZBASE_CANTREACHENEMY_FACE
 
+-- Squadmembers of this NPC should try to make this amount of room to the NPC if its moving
+-- Only used when in combat
+NPC.SquadGiveSpace = 128
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -343,6 +347,7 @@ end
     -- Use self:SetSchedule() for engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
     -- Use self:StartSchedule() for custom schedules, such as the ZBase built in ones, or your own
 function NPC:SNPCSelectSchedule(iNPCState)
+    -- Example:
     local ene = self:GetEnemy()
 
     if IsValid(ene) then
@@ -352,5 +357,16 @@ function NPC:SNPCSelectSchedule(iNPCState)
         -- No enemy, just stand in idle
         self:SetSchedule(SCHED_IDLE_STAND)
     end
+end
+
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Called when the SNPC takes damage
+function ENT:SNPCOnHurt(dmginfo)
+    -- Example:
+	if !IsValid(self:GetEnemy()) then
+        -- Face the direction of the damage
+		self:FaceHurtPos(dmginfo)
+	end
 end
 ---------------------------------------------------------------------------------------------------------------------=#

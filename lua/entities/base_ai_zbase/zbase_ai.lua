@@ -1,3 +1,6 @@
+ZBASE_CANTREACHENEMY_HIDE = 1
+ZBASE_CANTREACHENEMY_FACE = 2
+
 --------------------------------------------------------------------------------=#
 function ENT:DoNPCState()
 	local enemy = self:GetEnemy()
@@ -24,10 +27,6 @@ function ENT:DoSequence()
 end
 --------------------------------------------------------------------------------=#
 function ENT:SelectSchedule( iNPCState )
-	if self.PreventSelectSched then
-		return
-	end
-
 	self:SNPCSelectSchedule( iNPCState )
 end
 --------------------------------------------------------------------------------=#
@@ -45,44 +44,38 @@ function ENT:GetCurrentCustomSched()
 end
 --------------------------------------------------------------------------------=#
 function ENT:IsCurrentCustomSched( sched )
-	return sched == self:GetCurrentCustomSched()
+	return "ZSched"..sched == self:GetCurrentCustomSched()
 end
 --------------------------------------------------------------------------------=#
 function ENT:DoingChaseFallbackSched()
 	return self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_DoCover")
 	or self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_MoveRandom")
-end
---------------------------------------------------------------------------------=#
-function ENT:PreventSelectSchedule( duration )
-	self.PreventSelectSched = true
-
-	timer.Create("StopPreventSelectSched"..self:EntIndex(), duration, 1, function()
-		if !IsValid(self) then return end
-
-		self.PreventSelectSched = false
-	end)
+	or self:IsCurrentCustomSched("CombatChase_CantReach_CoverEnemy")
 end
 --------------------------------------------------------------------------------=#
 function ENT:DetermineNewSchedule()
-	-- if self.NextDetermineNewSched > CurTime() then return end
-
-	
 	local enemy = self:GetEnemy()
 	local enemyValid = IsValid(enemy)
 	local enemyVisible = enemyValid && self:Visible(enemy)
 	local enemyUnreachable = enemyValid && self:IsUnreachable(enemy)
 
 
-	-- Can't reach the enemy when chasing
+	-- Can't reach the enemy when chasing fallback
 	if self:IsCurrentCustomSched("CombatChase")
 	&& enemyValid
+	&& !self:ZBaseDist(enemy, {within=100}) -- We have reached the enemy, no fallback needed
 	&& self:IsNavStuck() then
-		self:RememberUnreachable( enemy, math.Rand(3, 6) )
-		self:PreventSelectSchedule(3)
-
+		self:RememberUnreachable( enemy, 4 )
+	
 		if enemyVisible then
-			-- Do CombatChase_CannotReachEnemy_DoCover if enemy is visible
-			return "CombatChase_CannotReachEnemy_DoCover"
+			if self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_HIDE then
+				return (math.random(1, 2) == 1 && "CombatChase_CantReach_CoverOrigin")
+				or "CombatChase_CantReach_CoverEnemy"
+
+			elseif self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_FACE then
+				return "CombatFace"
+
+			end
 		else
 			-- Patrol if enemy is not visible
 			return SCHED_COMBAT_PATROL
@@ -98,11 +91,10 @@ function ENT:DetermineNewSchedule()
 	end
 
 
-	-- If we are doing CombatChase_CannotReachEnemy_DoCover but we can't find a place to hide:
-	if self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_DoCover")
+	-- Still can't navigate while doing fall back, do move random
+	if self:DoingChaseFallbackSched()
 	&& self:IsNavStuck() then
-		-- Move randomly instead
-		return "CombatChase_CannotReachEnemy_MoveRandom"
+		return "CombatChase_CantReach_MoveRandom"
 	end
 
 
@@ -110,6 +102,25 @@ function ENT:DetermineNewSchedule()
 	if self:DoingChaseFallbackSched()
 	&& !enemyUnreachable then
 		return false
+	end
+
+
+	-- Give space to squadmembers while moving
+	if self.Move_AvoidSquadMembers < CurTime() then
+		if self:IsMoving()
+		&& self:GetNPCState()==NPC_STATE_COMBAT then
+			local squadmember = self:GetNearestSquadMember( nil, true )
+
+			if IsValid(squadmember)
+			&& squadmember:IsMoving()
+			&& squadmember:GetNPCState() == NPC_STATE_COMBAT
+			&& self:ZBaseDist(squadmember, {within=squadmember.SquadGiveSpace}) then
+				debugoverlay.Text(self:GetPos(), "giving space: "..squadmember.SquadGiveSpace, 2)
+				return "CombatFace" -- Face instead
+			end
+		end
+
+		self.Move_AvoidSquadMembers = CurTime()+2
 	end
 end
 --------------------------------------------------------------------------------=#
@@ -128,9 +139,9 @@ function ENT:DetermineNavStuck()
 end
 --------------------------------------------------------------------------------=#
 function ENT:RunAI( strExp )
+	-- NPC State stuff
 	self:DoNPCState()
 	
-
 
 	-- Play sequence:
 	if self.ZBaseSNPCSequence then
@@ -140,35 +151,30 @@ function ENT:RunAI( strExp )
 	end
 
 
-
 	-- Check if waypoint has been 0,0,0 for some time
 	self:DetermineNavStuck() 
 
-	-- print(self:GetCurrentCustomSched())
 
 	-- Stop, or replace schedules that shouldn't play right now
-	if self.NextDetermineNewSched < CurTime() then
-		-- newsched == false -> stop schedule
-		-- newsched == nil -> do nothing
-		local newsched = self:DetermineNewSchedule()
-		if newsched or newsched==false then
-			self:FullReset()
+	-- newsched == false -> stop schedule
+	-- newsched == nil -> do nothing
+	local newsched = self:DetermineNewSchedule()
+	if newsched or newsched==false then
+		self:FullReset()
 
-			if isnumber(newsched) then
-				self:SetSchedule(newsched)
-			elseif isstring(newsched) then
-				self:StartSchedule(ZSched[newsched])
-			end
-
-			if GetConVar("developer"):GetBool() then
-				debugoverlay.Text(self:GetPos()+VectorRand()*50, "newsched = "..tostring(newsched), 4)
-			end
+		if isnumber(newsched) then
+			self:SetSchedule(newsched)
+		elseif isstring(newsched) then
+			self:StartSchedule(ZSched[newsched])
 		end
 
-		-- self.PreventSelectSched = true
-		self.NextDetermineNewSched = CurTime()+1
+		if GetConVar("developer"):GetBool() then
+			timer.Create("ZSchedDebug"..self:EntIndex(), 0.5, 1, function()
+				if !IsValid(self) then return end
+				debugoverlay.Text(self:GetPos()+VectorRand()*50, "newsched = "..tostring(newsched), 4)
+			end)
+		end
 	end
-
 
 
 	-- If we're running an Engine Side behaviour
@@ -178,7 +184,6 @@ function ENT:RunAI( strExp )
 	end
 
 
-
 	-- If we're doing an engine schedule then return true
 	-- This makes it do the normal AI stuff.
 	if ( self:DoingEngineSchedule() ) then
@@ -186,12 +191,10 @@ function ENT:RunAI( strExp )
 	end
 
 
-
 	-- If we're currently running a schedule then run it.
 	if ( self.CurrentSchedule ) then
 		self:DoSchedule( self.CurrentSchedule )
 	end
-
 
 
 	-- If we have no schedule (schedule is finished etc)
@@ -201,8 +204,16 @@ function ENT:RunAI( strExp )
 	end
 
 
-
 	-- Do animation system
 	self:MaintainActivity()
+end
+--------------------------------------------------------------------------------=#
+function ENT:FaceHurtPos(dmginfo)
+	self:FullReset()
+	self:SetLastPosition(dmginfo:GetDamagePosition())
+
+	timer.Simple(0.1, function()
+		self:StartSchedule(ZSched.FaceLastPos)
+	end)
 end
 --------------------------------------------------------------------------------=#

@@ -5,14 +5,14 @@ ZSched = {}
 --------------------------------------------------------------------=#
 local function SetupScheds()
     for k, func in pairs(ZSched) do
-        local sched = ai_schedule.New( k )
+        local sched = ai_schedule.New( "ZSched"..k )
         func( ZSched, sched )
         ZSched[k] = sched
     end
 end
 --------------------------------------------------------------------=#
 function ZSched:CombatFace( sched )
-    sched:EngTask( "TASK_WAIT_FACE_ENEMY",  2 )
+    sched:EngTask( "TASK_WAIT_FACE_ENEMY_RANDOM",  3 )
 end
 --------------------------------------------------------------------=#
 function ZSched:FaceLastPos( sched )
@@ -25,12 +25,21 @@ function ZSched:CombatChase( sched )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
 end
 --------------------------------------------------------------------=#
-function ZSched:CombatChase_CannotReachEnemy_DoCover( sched )
+function ZSched:CombatChase_CantReach_CoverOrigin( sched )
     sched:EngTask( "TASK_FIND_COVER_FROM_ORIGIN",  0 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
 end
 --------------------------------------------------------------------=#
-function ZSched:CombatChase_CannotReachEnemy_MoveRandom( sched )
+function ZSched:CombatChase_CantReach_CoverEnemy( sched )
+    sched:EngTask( "TASK_FIND_NODE_COVER_FROM_ENEMY",  0 )
+    sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
+end
+--------------------------------------------------------------------=#
+-- function ZSched:CombatChase_CantReach_Face( sched )
+--     sched:EngTask( "TASK_WAIT_FACE_ENEMY",  5 )
+-- end
+--------------------------------------------------------------------=#
+function ZSched:CombatChase_CantReach_MoveRandom( sched )
     sched:EngTask( "TASK_GET_PATH_TO_RANDOM_NODE",  512 )
     sched:EngTask( "TASK_RUN_PATH",  0 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
