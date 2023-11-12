@@ -123,43 +123,7 @@ function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.MeleeAttack:Run( self )
-        -- Animation --
-    self:InternalPlayAnimation(
-        table.Random(self.MeleeAttackAnimations),
-        nil,
-        self.MeleeAttackAnimationSpeed,
-        SCHED_NPC_FREEZE,
-        self.MeleeAttackFaceEnemy && self:GetEnemy(),
-        self.RangeAttackTurnSpeed
-    )
-    -----------------------------------------------------------------=#
-
-
-        -- Damage --
-    local dmgData = {
-        dist=self.MeleeDamage_Distance,
-        ang=self.MeleeDamage_Angle,
-        type=self.MeleeDamage_Type,
-        amt=self.MeleeDamage,
-        hitSound=self.MeleeDamage_Sound,
-        affectProps=self.MeleeDamage_AffectProps,
-        name = self.MeleeAttackName,
-        hitSoundProps = self.MeleeDamage_Sound_Prop,
-    }
-
-    self.CurrentMeleeDMGData = dmgData
-
-    if self.MeleeDamage_Delay then
-        timer.Simple(self.MeleeDamage_Delay, function()
-            if !IsValid(self) then return end
-            if self:GetNPCState()==NPC_STATE_DEAD then return end
-
-            self:InternalMeleeAttackDamage(dmgData)
-        end)
-    end
-    -----------------------------------------------------------------=#
-
-
+    self:MeleeAttack()
     ZBaseDelayBehaviour(self:SequenceDuration() + ZBaseRndTblRange(self.MeleeAttackCooldown))
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#

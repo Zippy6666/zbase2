@@ -3,7 +3,9 @@ local NPC = ZBaseNPCs["npc_zbase"]
 
         -- These are functions you can call --
 
+
 ---------------------------------------------------------------------------------------------------------------------=#
+
 
     -- Check if an entity is allied with the NPC
 function NPC:IsAlly( ent )
@@ -11,6 +13,7 @@ function NPC:IsAlly( ent )
     return ent.ZBaseFaction == self.ZBaseFaction
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+
 
     -- Get the nearest allied within a in a certain radius
     -- Returns nil if none was found
@@ -36,11 +39,13 @@ function NPC:GetNearestAlly( radius )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 
+
     -- Returns the name of the NPC's squad
 function NPC:SquadName()
     return self:GetKeyValues().squadname
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+
 
     -- Check if an entity or position is within a certain distance
     -- If tbl.within is given, return true if the entity is within x units from itself
@@ -62,6 +67,7 @@ function NPC:ZBaseDist( ent_or_pos, tbl )
     return true
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+
 
     -- Check if the NPC is facing an entity
 function NPC:IsFacing( ent, maxYawDifference )
@@ -122,6 +128,7 @@ function NPC:Face( face, duration, speed )
 end
 --------------------------------------------------------------------------------=#
 
+
     -- Play an activity or sequence
     -- Note: NPCs cannot play sequences that aren't bound to an activity, SNPCs however, can do so.
     -- 'anim' - The sequence or activity to play, accepts sequences as strings
@@ -150,7 +157,49 @@ function NPC:EmitSound_Uninterupted( ... )
 end
 --------------------------------------------------------------------------------=#
 
-    -- Does the base melee attack damage code
+
+    -- Triggers the base melee attack
+function NPC:MeleeAttack()
+        -- Animation --
+    self:InternalPlayAnimation(
+        table.Random(self.MeleeAttackAnimations),
+        nil,
+        self.MeleeAttackAnimationSpeed,
+        SCHED_NPC_FREEZE,
+        self.MeleeAttackFaceEnemy && self:GetEnemy(),
+        self.MeleeAttackTurnSpeed
+    )
+    -----------------------------------------------------------------=#
+
+
+        -- Damage --
+    local dmgData = {
+        dist=self.MeleeDamage_Distance,
+        ang=self.MeleeDamage_Angle,
+        type=self.MeleeDamage_Type,
+        amt=self.MeleeDamage,
+        hitSound=self.MeleeDamage_Sound,
+        affectProps=self.MeleeDamage_AffectProps,
+        name = self.MeleeAttackName,
+        hitSoundProps = self.MeleeDamage_Sound_Prop,
+    }
+
+    self.CurrentMeleeDMGData = dmgData
+
+    if self.MeleeDamage_Delay then
+        timer.Simple(self.MeleeDamage_Delay, function()
+            if !IsValid(self) then return end
+            if self:GetNPCState()==NPC_STATE_DEAD then return end
+
+            self:InternalMeleeAttackDamage(dmgData)
+        end)
+    end
+    -----------------------------------------------------------------=#
+end
+--------------------------------------------------------------------------------=#
+
+
+    -- Triggers the base melee attack damage code
 function NPC:MeleeAttackDamage()
     local dmgData = self.CurrentMeleeDMGData
 
@@ -170,6 +219,55 @@ function NPC:MeleeAttackDamage()
     self:InternalMeleeAttackDamage(dmgData)
 end
 --------------------------------------------------------------------------------=#
+
+
+    -- Triggers the base range attack
+function NPC:RangeAttack()
+        -- Animation --
+    self:InternalPlayAnimation(
+        table.Random(self.RangeAttackAnimations),
+        nil,
+        self.RangeAttackAnimationSpeed,
+        SCHED_NPC_FREEZE,
+        nil
+    )
+    -----------------------------------------------------------------=#
+
+
+        -- Projectile --
+    if self.RangeProjectile_Delay then
+        timer.Simple(self.RangeProjectile_Delay, function()
+            if !IsValid(self) then return end
+            if self:GetNPCState()==NPC_STATE_DEAD then return end
+
+            self:RangeAttackProjectile()
+        end)
+    end
+    -----------------------------------------------------------------=#
+
+
+    -- Special face code
+    self.TimeUntilStopFace = CurTime()+self:SequenceDuration() + 0.25
+
+    timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
+        if !IsValid(self) or self.TimeUntilStopFace < CurTime() then
+            timer.Remove("ZBaseFace"..self:EntIndex())
+            return
+        end
+
+        if GetConVar("ai_disabled"):GetBool() then return end
+
+        local ene = self:GetEnemy()
+        local seeEnemy = IsValid(ene) && self:Visible(ene)
+        local facePos = seeEnemy && ene:WorldSpaceCenter() or self:Projectile_TargetPos()
+        local yaw = (facePos - self:GetPos()):Angle().y
+
+        self:SetIdealYawAndUpdate(yaw, self.RangeAttackTurnSpeed)
+    end)
+    -----------------------------------------------------------------=#
+end
+--------------------------------------------------------------------------------=#
+
 
     -- Returns the spawn position for the NPC's projectile
 function NPC:Projectile_SpawnPos()
@@ -193,6 +291,7 @@ function NPC:Projectile_SpawnPos()
     return pos
 end
 --------------------------------------------------------------------------------=#
+
 
     -- Returns the target position for the NPC's projectile
 function NPC:Projectile_TargetPos()

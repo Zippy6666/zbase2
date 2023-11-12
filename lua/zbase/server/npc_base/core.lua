@@ -59,7 +59,7 @@ function NPC:ZBaseInit()
     end
 
 
-    -- Default capabilities for all zbase NPCs
+    -- Capabilities
     self:CapabilitiesAdd(bit.bor(
         CAP_SQUAD,
         CAP_TURN_HEAD,
@@ -67,6 +67,9 @@ function NPC:ZBaseInit()
         CAP_SKIP_NAV_GROUND_CHECK,
         CAP_FRIENDLY_DMG_IMMUNE
     ))
+    if self.CanJump && self:SelectWeightedSequence(ACT_JUMP) != -1 then
+        self:CapabilitiesAdd(CAP_MOVE_JUMP)
+    end
 
 
     -- Set specified internal variables
@@ -88,10 +91,17 @@ function NPC:ZBaseInit()
     self:ZBaseSetupBounds()
 
 
-    -- Custom scheds
-    -- if self.IsZBase_SNPC then
-    --     self:SNPCSetupSchedules()
-    -- end
+    -- Should it have a death ragdoll?
+    self:SetNWBool("ZBaseNoRag", !self.HasDeathRagdoll)
+
+
+    -- Phys damage scale
+    self:Fire("physdamagescale", self.PhysDamageScale)
+
+    if !self.CanDissolve then
+        self:AddEFlags(EFL_NO_DISSOLVE)
+    end
+
 
     -- Custom init
     self:CustomInitialize()
@@ -228,21 +238,20 @@ end
 function NPC:ZBaseThink()
     local ene = self:GetEnemy()
 
+
+    -- New enemy detected
     if ene != self.ZBase_LastEnemy then
         self.ZBase_LastEnemy = ene
 
         if self.ZBase_LastEnemy then
-            if self:ShootTargetTooFarAway() then
-                self:PreventFarShoot()
-            end
+            -- if self:ShootTargetTooFarAway() then
+            --     self:PreventFarShoot()
+            -- end
 
             self:ZBaseAlertSound()
         end
     end
-
-
-    self:Relationships()
-
+    
 
     -- Activity change detection
     local act = self:GetActivity()
@@ -250,6 +259,11 @@ function NPC:ZBaseThink()
         self.ZBaseCurrentACT = act
         self:NewActivityDetected( self.ZBaseCurrentACT )
     end
+
+
+    self:Relationships()
+    self:InternalDetectDanger()
+
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:SetRelationship( ent, rel )
@@ -475,6 +489,28 @@ function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
         ent:Remove()
 
         ZBaseReflectedBullet = false
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:InternalDetectDanger()
+	self.InternalCurrentDanger = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:InternalDamageScale(dmg)
+    local infl = dmg:GetInflictor()
+
+    if infl:GetClass()=="prop_combine_ball" then
+        dmg:ScaleDamage(self.EnergyBallDamageScale)
+        
+        if self.ExplodeEnergyBall then
+            infl:Fire("Explode")
+        end
+    end
+
+    for dmgType, mult in pairs(self.DamageScaling) do
+        if dmg:IsDamageType(dmgType) then
+            dmg:ScaleDamage(mult)
+        end
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#

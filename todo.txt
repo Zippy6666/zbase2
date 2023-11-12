@@ -1,15 +1,13 @@
 ------------------------------------------------------------------------------------=#
     -- TODO --
 -- SNPC base
-    -- "SNPC Section"
-        -- Pose parameter stuff
-        -- Danger detection options
-    -- Aerial base (and aquatic maybe...)
-        -- Ground node navigation system (maybe)
-    -- Vehicle base (maybe)
+    -- Pose parameter stuff
     -- All bases in one, use ZBASE_SNPC_TYPE_ enum instead
+    -- Aerial, aquatic, and stationary base, and maybe physics base
+        -- Ground node navigation system (maybe)
+    -- Improve range attack suppression code a bit
+
 -- Other
-    -- Ability to turn off death ragdoll
     -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
     -- Expand weapon base
         -- Basic bullet code
@@ -24,31 +22,25 @@
         -- OnRangeSounds
         -- OnReloadSounds
         -- Stop sounds on death
-    -- Damage scaling system (like vj immunity, but scale)
-        -- Comball damage scale (and explode option)
-        -- Phys damage scale
-        -- Damage type damage scale
     -- Hearing system
     -- Custom blood system
         -- White blood decals for hunters
     -- Controller
-    -- Ability to change movement animations
     -- Ability to trigger melee attacks and range attacks
     -- Flinch system
     -- Death animation system
     -- Lots of "CustomOn" functions (use vj for reference)
     -- Play animation supports gestures
     -- Bodygroup system
-    -- Submaterial system
     -- More menu options
         -- Health and damage sliders
         -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
-    -- Gib system
-
 ------------------------------------------------------------------------------------=#
     -- FINAL --
 -- Make more user friendly
     -- Comments
+    -- Organize funcs and vars
+    -- Separate snpc and npc base maybe...
     -- Dummy git
 -- Make sure everything works
     -- Multiplayer
@@ -59,10 +51,13 @@
 ------------------------------------------------------------------------------------=#
 
     -- FUTURE IDEAS --
+    -- Submaterial system
 -- Vehicle base
 -- HL2 Resurgence-like pack with NPCs from Entropy Zero 2, Hl2 Overcharged, RTBR, etc
 -- Insurgency NPC Pack
 -- Jump system
+-- Gib system
+-- Global danger detection system
 ------------------------------------------------------------------------------------=#
 
 
