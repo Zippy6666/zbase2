@@ -117,7 +117,7 @@ NPC.MeleeDamage_AffectProps = false -- Affect props and other entites
         -- BASE RANGE ATTACK --
 NPC.BaseRangeAttack = false -- Use ZBase range attack system
 NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
-NPC.RangeAttackTurnSpeed = 3 -- Speed that it turns while trying to face the enemy when range attacking
+NPC.RangeAttackTurnSpeed = 5 -- Speed that it turns while trying to face the enemy when range attacking
 NPC.RangeAttackDistance = {0, 1000} -- Distance that it initiates the range attack {min, max}
 NPC.RangeAttackCooldown = {2, 4} -- Range attack cooldown {min, max}
 NPC.RangeAttackSuppressEnemy = true -- If the enemy can't be seen, target the last seen position
@@ -141,12 +141,24 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 ---------------------------------------------------------------------------------------------------------------------=#
 
     -- SNPC ONLY --
+
+
+-- General
 NPC.m_fMaxYawSpeed = 10 -- Max turning speed
+NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
 NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_HIDE -- ZBASE_CANTREACHENEMY_HIDE || ZBASE_CANTREACHENEMY_FACE
 
 -- Squadmembers of this NPC should try to make this amount of room to the NPC if its moving
 -- Only used when in combat
 NPC.SquadGiveSpace = 128
+
+
+-- Flying
+NPC.Fly_DistanceFromGround = 200 -- Minimum distance to try to keep from the ground when flying
+NPC.Fly_FaceEnemy = false -- Should it face the enemy while fly moving?
+NPC.Fly_MoveSpeed = 150 -- Flying movement speed
+
+
 
 ---------------------------------------------------------------------------------------------------------------------=#
 
@@ -368,11 +380,7 @@ function NPC:SNPCSelectSchedule(iNPCState)
 
     if IsValid(ene) then
 
-        if !self:Visible(ene) or self:IsFacing(ene) then
-            self:StartSchedule(ZSched.CombatChase)
-        else
-            self:StartSchedule(ZSched.CombatFace)
-        end
+        self:StartSchedule(ZSched.CombatChase)
 
     else
 

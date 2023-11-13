@@ -374,7 +374,10 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     self:ClearSchedule()
     self:StopMoving()
     self:SetMoveVelocity(Vector())
-
+    if IsValid(self.Navigator) then
+        self.Navigator:Remove()
+    end
+    self.AerialGoal = nil
 
     local NPC_STATE = self:GetNPCState()
     self:SetNPCState(NPC_STATE_SCRIPT)

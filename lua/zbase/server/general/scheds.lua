@@ -19,6 +19,11 @@ function ZSched:FaceLastPos( sched )
     sched:EngTask( "TASK_FACE_LASTPOSITION",  0 )
 end
 --------------------------------------------------------------------=#
+-- function ZSched:AerialMove( sched )
+--     sched:EngTask( "TASK_SET_ACTIVITY",  ACT_IDLE )
+--     sched:EngTask( "TASK_WAIT",  3 )
+-- end
+--------------------------------------------------------------------=#
 function ZSched:CombatChase( sched )
     sched:EngTask( "TASK_GET_PATH_TO_ENEMY",  0 )
     sched:EngTask( "TASK_RUN_PATH",  0 )

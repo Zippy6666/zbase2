@@ -1,28 +1,37 @@
 include("shared.lua")
 include("zbase_ai.lua")
+include("zbase_aerial.lua")
 util.AddNetworkString("base_ai_zbase_client_ragdoll")
 
 
 local NPCMETA = FindMetaTable("NPC")
-if !ZBase_OldGetNearestSquadMember then ZBase_OldGetNearestSquadMember = NPCMETA.GetNearestSquadMember end
 
 
-ENT.m_iClass = CLASS_NONE -- NPC Class
+if !ZBaseSNPCGlobalsSet then
+	ZBase_OldGetNearestSquadMember = NPCMETA.GetNearestSquadMember
+	ZBase_OldSetSchedule = NPCMETA.SetSchedule
+
+	ZBaseSNPCGlobalsSet = true
+end
+
+
+ENT.m_iClass = CLASS_NONE
 ENT.IsZBase_SNPC = true
+
 
 --------------------------------------------------------------------------------=#
 function ENT:Initialize()
 	self:SetHullType(self.HullType or HULL_MEDIUM)
 	self:SetHullSizeNormal()
 	self:SetSolid(SOLID_BBOX)
-
-	if self.Initialize_Aerial then
-		self:Initialize_Aerial()
-	else
-		self:CapabilitiesAdd(CAP_MOVE_GROUND)
-	end
-
 	self:SetMoveType(MOVETYPE_STEP)
+
+	if self.SNPCType == ZBASE_SNPCTYPE_WALK then
+		self:CapabilitiesAdd(CAP_MOVE_GROUND)
+	elseif self.SNPCType == ZBASE_SNPCTYPE_FLY then
+		self:CapabilitiesAdd(CAP_MOVE_FLY)
+		self:SetNavType(NAV_FLY)
+	end
 
 	self.Bullseye = ents.Create("npc_bullseye")
 	self.Bullseye:SetPos(self:GetPos())
@@ -36,15 +45,29 @@ function ENT:Initialize()
 	self.NextDetermineNewSched = CurTime()
 	self.Move_AvoidSquadMembers = CurTime()
 	self:SetNotNavStuck()
+	self.Navigator = NULL
 end
 --------------------------------------------------------------------------------=#
 function ENT:Think()
-	-- Sussy phys object
+	-- Phys object workaround
 	local phys = self:GetPhysicsObject()
 	phys:SetPos(self:GetPos())
 
+
+	-- Aerial movement
+	self:AerialThink()
+
+
 	self:NextThink( CurTime() ) -- Set the next think to run as soon as possible, i.e. the next frame.
 	return true -- Apply NextThink call
+end
+--------------------------------------------------------------------------------=#
+function NPCMETA:SetSchedule( sched )
+    if self.SNPCType == ZBASE_SNPCTYPE_FLY then
+        self:AerialSetSchedule(sched)
+    end
+
+    return ZBase_OldSetSchedule(self, sched)
 end
 --------------------------------------------------------------------------------=#
 function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )

@@ -1,8 +1,8 @@
 AddCSLuaFile()
 AddCSLuaFile("cl_init.lua")
 
-ENT.Base = "base_ai_zbase"
+ENT.Base = "base_ai"
 ENT.Type = "ai"
-ENT.PrintName		= "Base AI ZBase Aerial"
+ENT.PrintName		= "ZBase Navigator"
 ENT.Author			= "Zippy"
 ENT.AutomaticFrameAdvance = false
