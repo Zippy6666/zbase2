@@ -1,6 +1,13 @@
-ZBASE_CANTREACHENEMY_HIDE = 1
-ZBASE_CANTREACHENEMY_FACE = 2
+--------------------------------------------------------------------------------=#
+function ENT:StartSchedule( sched )
+    if self.SNPCType == ZBASE_SNPCTYPE_FLY then
+        self:AerialSetSchedule(table.Copy(sched))
+    end
 
+	self.CurrentSchedule = sched
+	self.CurrentTaskID = 1
+	self:SetTask( sched:GetTask( 1 ) )
+end
 --------------------------------------------------------------------------------=#
 function ENT:DoNPCState()
 	local enemy = self:GetEnemy()
@@ -15,15 +22,11 @@ function ENT:DoNPCState()
 end
 --------------------------------------------------------------------------------=#
 function ENT:DoSequence()
-	if self.StopPlaySeqTime > CurTime() then
-		-- self:SetSequence(self.ZBaseSNPCSequence)
-	else
+	if self.StopPlaySeqTime < CurTime() then
 		self:SetPlaybackRate(1)
 		self:ResetIdealActivity(ACT_IDLE)
 		self.BaseDontSetPlaybackRate = true
 	end
-
-	return true
 end
 --------------------------------------------------------------------------------=#
 function ENT:SelectSchedule( iNPCState )
@@ -37,20 +40,28 @@ function ENT:FullReset()
     self:ClearSchedule()
     self:StopMoving()
     self:SetMoveVelocity(Vector())
+    if IsValid(self.Navigator) then
+        self.Navigator:Remove()
+    end
+	self.AerialGoal = nil
 end
 --------------------------------------------------------------------------------=#
-function ENT:GetCurrentCustomSched()
-	return self.CurrentSchedule && self.CurrentSchedule.DebugName
+function ENT:GetCurrentCustomSched(checkNavigator)
+	if checkNavigator && IsValid(self.Navigator) then
+		return self.Navigator.CurrentSchedule && self.Navigator.CurrentSchedule.DebugName
+	else
+		return self.CurrentSchedule && self.CurrentSchedule.DebugName
+	end
 end
 --------------------------------------------------------------------------------=#
-function ENT:IsCurrentCustomSched( sched )
+function ENT:IsCurrentCustomSched( sched, checkNavigator )
 	return "ZSched"..sched == self:GetCurrentCustomSched()
 end
 --------------------------------------------------------------------------------=#
-function ENT:DoingChaseFallbackSched()
-	return self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_DoCover")
-	or self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_MoveRandom")
-	or self:IsCurrentCustomSched("CombatChase_CantReach_CoverEnemy")
+function ENT:DoingChaseFallbackSched(checkNavigator)
+	return self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_DoCover", checkNavigator)
+	or self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_MoveRandom", checkNavigator)
+	or self:IsCurrentCustomSched("CombatChase_CantReach_CoverEnemy", checkNavigator)
 end
 --------------------------------------------------------------------------------=#
 function ENT:DetermineNewSchedule()
@@ -125,6 +136,7 @@ function ENT:DetermineNewSchedule()
 end
 --------------------------------------------------------------------------------=#
 function ENT:IsNavStuck()
+	if self.SNPCType == ZBASE_SNPCTYPE_STATIONARY then return false end
 	return self.NextStuck < CurTime()
 end
 --------------------------------------------------------------------------------=#
@@ -138,6 +150,32 @@ function ENT:DetermineNavStuck()
 	end
 end
 --------------------------------------------------------------------------------=#
+local ZBaseNavigatorSNPC_ForbiddenTasks = {
+	["TASK_WAIT_FOR_MOVEMENT"] = true
+}
+
+function ENT:DoSchedule( schedule )
+	if self.SNPCType != ZBASE_SNPCTYPE_WALK
+	&& self.CurrentTask
+	&& ZBaseNavigatorSNPC_ForbiddenTasks[self.CurrentTask.TaskName]
+	then
+		self:ScheduleFinished()
+		self:ClearGoal()
+		self:StopMoving()
+		return
+	end
+
+
+	if self.CurrentTask then
+		self:RunTask( self.CurrentTask )
+	end
+
+
+	if self:TaskFinished() then
+		self:NextTask( schedule )
+	end
+end
+--------------------------------------------------------------------------------=#
 function ENT:RunAI( strExp )
 	-- NPC State stuff
 	self:DoNPCState()
@@ -145,14 +183,13 @@ function ENT:RunAI( strExp )
 
 	-- Play sequence:
 	if self.ZBaseSNPCSequence then
-		local dontRunAI = self:DoSequence()
-		
-		if dontRunAI then return end
+		self:DoSequence()
+		return
 	end
 
 
 	-- Check if waypoint has been 0,0,0 for some time
-	self:DetermineNavStuck() 
+	self:DetermineNavStuck()
 
 
 	-- Stop, or replace schedules that shouldn't play right now
@@ -186,7 +223,8 @@ function ENT:RunAI( strExp )
 
 	-- If we're doing an engine schedule then return true
 	-- This makes it do the normal AI stuff.
-	if ( self:DoingEngineSchedule() ) then
+	if ( self:DoingEngineSchedule()
+	or (IsValid(self.Navigator) && self.Navigator:DoingEngineSchedule()) ) then
 		return true
 	end
 
@@ -199,7 +237,7 @@ function ENT:RunAI( strExp )
 
 	-- If we have no schedule (schedule is finished etc)
 	-- Then get the derived NPC to select what we should be doing
-	if ( !self.CurrentSchedule ) then
+	if ( !self.CurrentSchedule && !self.Navigator.CurrentSchedule ) then
 		self:SelectSchedule()
 	end
 
@@ -210,11 +248,6 @@ end
 --------------------------------------------------------------------------------=#
 function ENT:FaceHurtPos(dmginfo)
 	self:FullReset()
-	self:SetLastPosition(dmginfo:GetDamagePosition())
-
-	timer.Simple(0.1, function()
-		if !IsValid(self) then return end
-		self:StartSchedule(ZSched.FaceLastPos)
-	end)
+	self:Face(dmginfo:GetDamagePosition(), math.Rand(2, 4))
 end
 --------------------------------------------------------------------------------=#

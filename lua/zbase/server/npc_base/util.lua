@@ -69,13 +69,19 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 
 
-    -- Check if the NPC is facing an entity
-function NPC:IsFacing( ent, maxYawDifference )
-    if !IsValid(ent) then return false end
+    -- Check if the NPC is facing a position or entity
+function NPC:IsFacing( ent_or_pos, maxYawDifference )
+    if !ent_or_pos then return end
+    if ent_or_pos == NULL then return end
 
-    local ang = (ent:GetPos() - self:GetPos()):Angle()
+    local ang
+    if isvector(ent_or_pos) then
+        ang = (ent_or_pos - self:GetPos()):Angle()
+    elseif IsValid(ent_or_pos) then
+        ang = (ent_or_pos:GetPos() - self:GetPos()):Angle()
+    end
+
     local yawDif = math.abs(self:WorldToLocalAngles(ang).Yaw)
-
     return yawDif < (maxYawDifference or 22.5)
 end
 --------------------------------------------------------------------------------=#
