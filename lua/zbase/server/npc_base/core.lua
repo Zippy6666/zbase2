@@ -39,6 +39,8 @@ function NPC:ZBaseInit()
     -- Vars
     self.NextPainSound = CurTime()
     self.NextAlertSound = CurTime()
+    self.EnemyVisible = false
+    self.NextCheckEnemyVisible = CurTime()
 
 
     self:SetSaveValue("m_flFieldOfView", 1) -- Starts with no field of view
@@ -108,21 +110,19 @@ function NPC:ZBaseInit()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseSetupBounds()
-    if self.CollisionBounds then
-        timer.Simple(0, function()
-            self:SetCollisionBounds(self.CollisionBounds.min, self.CollisionBounds.max)
-            self:SetSurroundingBounds(self.CollisionBounds.min*1.25, self.CollisionBounds.max*1.25)
+    if !self.CollisionBounds then return end
 
-            if self.CollisionBounds.min.z < 0 then
-                local tr = util.TraceLine({
-                    start = self:GetPos(),
-                    endpos = self:GetPos() + Vector(0, 0, -self.CollisionBounds.min.z),
-                    mask = MASK_NPCWORLDSTATIC,
-                })
+    self:SetCollisionBounds(self.CollisionBounds.min, self.CollisionBounds.max)
+    self:SetSurroundingBounds(self.CollisionBounds.min*1.25, self.CollisionBounds.max*1.25)
 
-                self:SetPos(tr.HitPos + tr.HitNormal*5)
-            end
-        end)
+    if self.CollisionBounds.min.z < 0 then
+        local tr = util.TraceLine({
+            start = self:GetPos(),
+            endpos = self:GetPos() + Vector(0, 0, -self.CollisionBounds.min.z),
+            mask = MASK_NPCWORLDSTATIC,
+        })
+
+        self:SetPos(tr.HitPos + tr.HitNormal*5)
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -236,6 +236,10 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
     local ene = self:GetEnemy()
+    if self.NextCheckEnemyVisible < CurTime() then
+        self.EnemyVisible = IsValid(ene) && self:Visible(ene)
+        self.NextCheckEnemyVisible = CurTime()+0.3
+    end
 
 
     -- New enemy detected

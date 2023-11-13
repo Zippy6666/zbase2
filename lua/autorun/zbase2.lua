@@ -197,7 +197,7 @@ local function AddNPCsToSpawnMenu()
             OnFloor = t.OnFloor,
             OnCeiling = t.OnCeiling,
             NoDrop = t.NoDrop,
-            Offset = t.Offset,
+            Offset = t.Offset or (t.SNPCType == ZBASE_SNPCTYPE_FLY && t.Fly_DistanceFromGround),
             Rotate = t.Rotate,
             Skins = t.Skins,
             AdminOnly = t.AdminOnly,

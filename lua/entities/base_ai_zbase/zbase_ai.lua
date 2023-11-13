@@ -55,7 +55,7 @@ function ENT:GetCurrentCustomSched(checkNavigator)
 end
 --------------------------------------------------------------------------------=#
 function ENT:IsCurrentCustomSched( sched, checkNavigator )
-	return "ZSched"..sched == self:GetCurrentCustomSched()
+	return "ZSched"..sched == self:GetCurrentCustomSched(checkNavigator)
 end
 --------------------------------------------------------------------------------=#
 function ENT:DoingChaseFallbackSched(checkNavigator)
@@ -67,7 +67,7 @@ end
 function ENT:DetermineNewSchedule()
 	local enemy = self:GetEnemy()
 	local enemyValid = IsValid(enemy)
-	local enemyVisible = enemyValid && self:Visible(enemy)
+	local enemyVisible = enemyValid && self.EnemyVisible
 	local enemyUnreachable = enemyValid && self:IsUnreachable(enemy)
 
 
@@ -118,7 +118,7 @@ function ENT:DetermineNewSchedule()
 
 	-- Give space to squadmembers while moving
 	if self.Move_AvoidSquadMembers < CurTime() then
-		if self:IsMoving()
+		if (self:IsMoving() or self.AerialGoal)
 		&& self:GetNPCState()==NPC_STATE_COMBAT then
 			local squadmember = self:GetNearestSquadMember( nil, true )
 
@@ -136,7 +136,7 @@ function ENT:DetermineNewSchedule()
 end
 --------------------------------------------------------------------------------=#
 function ENT:IsNavStuck()
-	if self.SNPCType == ZBASE_SNPCTYPE_STATIONARY then return false end
+	if self.SNPCType != ZBASE_SNPCTYPE_WALK then return false end
 	return self.NextStuck < CurTime()
 end
 --------------------------------------------------------------------------------=#
@@ -238,7 +238,18 @@ function ENT:RunAI( strExp )
 	-- If we have no schedule (schedule is finished etc)
 	-- Then get the derived NPC to select what we should be doing
 	if ( !self.CurrentSchedule && !self.Navigator.CurrentSchedule ) then
+
 		self:SelectSchedule()
+
+		-- If chase schedule was selected and the NPC is flying
+		-- Do this crap
+		if self.SNPCType==ZBASE_SNPCTYPE_FLY
+		&& self:IsCurrentCustomSched("CombatChase") then
+			local ene = self:GetEnemy()
+			local seeEnemy = IsValid(ene) && self.EnemyVisible
+
+			self.AerialGoal = seeEnemy && ene:GetPos()
+		end
 	end
 
 
@@ -247,7 +258,9 @@ function ENT:RunAI( strExp )
 end
 --------------------------------------------------------------------------------=#
 function ENT:FaceHurtPos(dmginfo)
-	self:FullReset()
-	self:Face(dmginfo:GetDamagePosition(), math.Rand(2, 4))
+	if !IsValid(self:GetEnemy()) then
+		self:FullReset()
+		self:Face(dmginfo:GetDamagePosition(), math.Rand(2, 4))
+	end
 end
 --------------------------------------------------------------------------------=#

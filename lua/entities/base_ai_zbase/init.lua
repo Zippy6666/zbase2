@@ -44,18 +44,43 @@ function ENT:Initialize()
 
 	self.NextDetermineNewSched = CurTime()
 	self.Move_AvoidSquadMembers = CurTime()
+	self.Aerial_NextMoveFromGroundCheck = CurTime()
 	self:SetNotNavStuck()
 	self.Navigator = NULL
+	self.Aerial_CurSpeed = 0
+	self.Aerial_LastMoveDir = self:GetForward()
+	self.NextSlowThink = CurTime()
 end
 --------------------------------------------------------------------------------=#
 function ENT:Think()
-	-- Phys object workaround
-	local phys = self:GetPhysicsObject()
-	phys:SetPos(self:GetPos())
+	if self.NextSlowThink < CurTime() then
+		-- Phys object workaround
+		local phys = self:GetPhysicsObject()
+		if IsValid(phys) then
+			phys:SetPos(self:GetPos())
+			-- debugoverlay.Sphere(self:GetPos(), 100, 0.15, Color(255, 255, 255, 25))
+		end
+
+
+		self.NextSlowThink = CurTime()+0.15
+	end
 
 
 	-- Aerial movement
-	self:AerialThink()
+	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
+		self:Aerial_CalcVel()
+
+		
+        local ene = self:GetEnemy()
+        local seeEnemy = IsValid(ene) && self.EnemyVisible
+
+		if self.Aerial_CurrentDestination then
+        	self:Face( (self.Fly_FaceEnemy && seeEnemy && ene) or self.Aerial_CurrentDestination )
+		end
+
+		
+		self:SetLocalVelocity(self.Aerial_LastMoveDir*self.Aerial_CurSpeed)
+	end
 
 
 	self:NextThink( CurTime() ) -- Set the next think to run as soon as possible, i.e. the next frame.
