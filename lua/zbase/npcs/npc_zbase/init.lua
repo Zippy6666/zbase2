@@ -117,7 +117,7 @@ NPC.MeleeDamage_AffectProps = false -- Affect props and other entites
         -- BASE RANGE ATTACK --
 NPC.BaseRangeAttack = false -- Use ZBase range attack system
 NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
-NPC.RangeAttackTurnSpeed = 5 -- Speed that it turns while trying to face the enemy when range attacking
+NPC.RangeAttackTurnSpeed = 10 -- Speed that it turns while trying to face the enemy when range attacking
 NPC.RangeAttackDistance = {0, 1000} -- Distance that it initiates the range attack {min, max}
 NPC.RangeAttackCooldown = {2, 4} -- Range attack cooldown {min, max}
 NPC.RangeAttackSuppressEnemy = true -- If the enemy can't be seen, target the last seen position
@@ -154,10 +154,11 @@ NPC.SquadGiveSpace = 128
 
 
 -- Flying
-NPC.Fly_DistanceFromGround = 200 -- Minimum distance to try to keep from the ground when flying
+NPC.Fly_DistanceFromGround = 100 -- Minimum distance to try to keep from the ground when flying
 NPC.Fly_FaceEnemy = false -- Should it face the enemy while fly moving?
 NPC.Fly_MoveSpeed = 150 -- Flying movement speed
-
+NPC.Fly_Accelerate = 15 -- Flying movement accelerate speed
+NPC.Fly_Decelerate = 15 -- Flying movement decelerate speed
 
 
 ---------------------------------------------------------------------------------------------------------------------=#

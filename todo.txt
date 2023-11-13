@@ -2,8 +2,9 @@
     -- TODO --
 -- SNPC base
     -- Pose parameter stuff
-    -- Improve range attack suppression code a bit
-    -- Change SNPC type whenever you want
+    -- Improve range attack code
+    -- Finish aerial base
+        -- Melee broken?
 
 -- Other
     -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
@@ -65,4 +66,5 @@
         -- BUGS --
 -- Squad error
 -- Circular include error thingy
+-- Cannot duplicate mfs
 ------------------------------------------------------------------------------------=#

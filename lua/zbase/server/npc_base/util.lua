@@ -263,8 +263,7 @@ function NPC:RangeAttack()
         if GetConVar("ai_disabled"):GetBool() then return end
 
         local ene = self:GetEnemy()
-        local seeEnemy = IsValid(ene) && self:Visible(ene)
-        local facePos = seeEnemy && ene:WorldSpaceCenter() or self:Projectile_TargetPos()
+        local facePos = IsValid(ene) && self.EnemyVisible && ene:WorldSpaceCenter() or self:Projectile_TargetPos()
         local yaw = (facePos - self:GetPos()):Angle().y
 
         self:SetIdealYawAndUpdate(yaw, self.RangeAttackTurnSpeed)
@@ -302,7 +301,7 @@ end
 function NPC:Projectile_TargetPos()
     local ene = self:GetEnemy()
 
-    if IsValid(ene) && self:Visible(ene) then
+    if IsValid(ene) && self.EnemyVisible then
         self.RangeAttack_LastEnemyPos = ene:WorldSpaceCenter()
     end
 

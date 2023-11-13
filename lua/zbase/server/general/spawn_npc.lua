@@ -247,9 +247,16 @@ local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnF
 	--
 	-- Offset the position
 	--
-	local Offset = NPCData.Offset or 32
-	NPC:SetPos( Position + Normal * Offset )
+	NPC:SetPos( Position + Normal * 32 )
+	if NPCData.Offset then
+		timer.Simple(0, function()
+			if !IsValid(NPC) then return end
 
+			NPC:SetPos( Position + Normal * NPCData.Offset )
+		end)
+
+		bDropToFloor = false
+	end
 
 	-- Rotate to face player (expected behaviour)
 	local Angles = Angle( 0, 0, 0 )

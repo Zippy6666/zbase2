@@ -16,7 +16,8 @@ function ENT:Initialize()
 	self:CapabilitiesAdd( bit.bor(CAP_MOVE_GROUND, CAP_SKIP_NAV_GROUND_CHECK ))
 	self:AddFlags(FL_NOTARGET)
     self:AddFlags(EFL_DONTBLOCKLOS)
-    self:SetNoDraw(true)
+	self:SetMaterial("models/wireframe")
+    self:SetNoDraw(!GetConVar("developer"):GetBool())
 end
 -----------------------------------------------------------------------------------=#
 function ENT:SelectSchedule()
@@ -36,16 +37,24 @@ function ENT:SelectSchedule()
 
 	local own = self:GetOwner()
 	timer.Simple(0.5, function()
-		if IsValid(self) && IsValid(own) then
-			local waypoint = self:GetGoalPos()
+		if !(IsValid(self) && IsValid(own)) then return end
+		
+		local waypoint = self:GetGoalPos()
 
-			if waypoint:IsZero() then
-				self:Remove()
-			else
-				own.AerialGoal = waypoint+Vector(0, 0, own.Fly_DistanceFromGround)
-				debugoverlay.Sphere(waypoint, 35, 2, Color( 50, 155, 255, 100 ))
-			end
+		if waypoint:IsZero() then
+			self:Remove()
 		end
 	end)
+end
+-----------------------------------------------------------------------------------=#
+function ENT:Think()
+	local own = self:GetOwner()
+	local waypoint = self:GetCurWaypointPos()
+
+	if !waypoint:IsZero() && IsValid(own) && own.NavigatorWaypoint != waypoint then
+		own.NavigatorWaypoint = waypoint
+		own.AerialGoal = own.NavigatorWaypoint+Vector(0, 0, own.Fly_DistanceFromGround)
+		debugoverlay.Sphere(waypoint, 35, 2, Color( 50, 155, 255, 100 ))
+	end
 end
 -----------------------------------------------------------------------------------=#
