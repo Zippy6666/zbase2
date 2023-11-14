@@ -28,7 +28,7 @@ function ENT:AerialSetSchedule(sched)
     -- Navigator --
     local Navigator = ents.Create("zbase_navigator")
     Navigator:SetPos(self:AerialNavigatorPos(sched))
-    Navigator:SetAngles(self:GetAngles())
+    Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
     Navigator.Sched = sched
     Navigator:SetOwner(self)
     Navigator:Spawn()
@@ -51,11 +51,11 @@ function ENT:Aerial_TooCloseToGround()
 
     local tr = util.TraceLine({
         start = start,
-        endpos = start - Vector(0, 0, self.Fly_DistanceFromGround),
+        endpos = start - Vector(0, 0, self.InternalDistanceFromGround),
         mask = MASK_NPCWORLDSTATIC,
     })
 
-    return tr.Hit
+    return tr.Hit && tr.Fraction*self.InternalDistanceFromGround
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function ENT:Aerial_CalcVel()
@@ -68,21 +68,22 @@ function ENT:Aerial_CalcVel()
         local ene = self:GetEnemy()
         local seeEnemy = IsValid(ene) && self.EnemyVisible
 
-        self.Aerial_CurrentDestination = (seeEnemy && ene:GetPos()+Vector(0, 0, self.Fly_DistanceFromGround)) or self.AerialGoal
+        self.Aerial_CurrentDestination = (seeEnemy && ene:GetPos()+Vector(0, 0, self.InternalDistanceFromGround)) or self.AerialGoal
 
     elseif self.Aerial_NextMoveFromGroundCheck < CurTime() then
         -- Are we too close to the ground?
        
-        self.ShouldMoveFromGround = self:Aerial_TooCloseToGround()
+        local distCheckGround = self:Aerial_TooCloseToGround()
+        self.ShouldMoveFromGround = isnumber(distCheckGround)
         self.Aerial_NextMoveFromGroundCheck = CurTime()+2
 
         if self.ShouldMoveFromGround then
-            debugoverlay.Text(myPos, "too close to ground")
+            debugoverlay.Line(myPos, myPos-Vector(0, 0, distCheckGround), 1.5, Color( 255, 50, 0 ))
         end
-    elseif self.ShouldMoveFromGround then
+    -- elseif self.ShouldMoveFromGround then
 
-        -- Move away from the ground
-        self.Aerial_CurrentDestination = myPos + self:GetUp() * 100
+    --     -- Move away from the ground
+    --     self.Aerial_CurrentDestination = myPos + self:GetUp() * 100
     end
 
 
@@ -93,10 +94,10 @@ function ENT:Aerial_CalcVel()
 
 
     local curMoveDir = self.Aerial_CurrentDestination && (self.Aerial_CurrentDestination - myPos):GetNormalized()
-    local speedLimit = self.ShouldMoveFromGround && math.Clamp(self.Fly_DistanceFromGround*0.33, 0, self.Fly_MoveSpeed) or self.Fly_MoveSpeed
+    local speedLimit = self.Fly_MoveSpeed -- self.ShouldMoveFromGround && math.Clamp(self.InternalDistanceFromGround*0.33, 0, self.Fly_MoveSpeed) or self.Fly_MoveSpeed
     if curMoveDir then
         -- Accelerate, store last direction
-        self.Aerial_LastMoveDir = LerpVector(0.2, self.Aerial_LastMoveDir, curMoveDir)
+        self.Aerial_LastMoveDir = LerpVector(0.25, self.Aerial_LastMoveDir, curMoveDir)
         self.Aerial_CurSpeed = math.Clamp(self.Aerial_CurSpeed+self.Fly_Accelerate, 0, speedLimit)
 
         debugoverlay.Line(myPos, myPos+self.Aerial_LastMoveDir*75, 0.1, Color( 0, 0, 255 ))

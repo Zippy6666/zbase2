@@ -79,7 +79,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	end
 
 
-	-- Set temporary squad, which fixes stuff, like the metrocop arrest behaviour
+	-- Set squad
 	NPC:SetKeyValue( "squadname", "zbase_"..Class )
 
 
@@ -190,6 +190,13 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 
     -- "Register"
     table.insert(ZBaseNPCInstances, NPC)
+	NPC:CallOnRemove("ZBaseNPCInstancesRemove", function() table.RemoveByValue(ZBaseNPCInstances, NPC) end)
+	if !NPC.IsZBase_SNPC then
+		table.insert(ZBaseNPCInstances_NonScripted, NPC)
+		NPC:CallOnRemove("ZBaseNPCInstances_NonScripted_Remove", function() table.RemoveByValue(ZBaseNPCInstances_NonScripted, NPC) end)
+	end
+
+
     NPC:ZBaseInit()
 
 
@@ -333,5 +340,25 @@ end
 ---------------------------------------------------------------------------------------------------------=#
 concommand.Add( "zbase_spawnnpc", function( ply, cmd, args )
     Spawn_ZBaseNPC( ply, args[ 1 ], args[ 2 ] )
+end)
+---------------------------------------------------------------------------------------------------------=#
+concommand.Add( "zbase_debug_spawn_many", function( ply, cmd, args )
+	for x = 1, args[ 2 ] or 25 do
+		for y = 1, args[ 2 ] or 25 do
+			if ZBaseNPCs[args[ 1 ]] then
+				Spawn_ZBaseNPC( ply, args[ 1 ], nil, util.TraceLine({
+					start = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, 1000),
+					endpos = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, -1000),
+					mask = MASK_NPCWORLDSTATIC,
+				}) )
+			else
+				Spawn_NPC( ply, args[ 1 ], nil, util.TraceLine({
+					start = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, 1000),
+					endpos = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, -1000),
+					mask = MASK_NPCWORLDSTATIC,
+				}) )
+			end
+		end
+	end
 end)
 ---------------------------------------------------------------------------------------------------------=#

@@ -66,20 +66,3 @@ function ZBaseBehaviourInit( ent )
 
 end
 ---------------------------------------------------------------------------------------=#
-hook.Add("Think", "ZBaseBehaviourTimer", function()
-    if NextBehaviourThink > CurTime() then return end
-    if GetConVar("ai_disabled"):GetBool() then return end
-
-    for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
-
-        local entValid = func()
-
-        if !entValid then
-            table.remove(ZBaseBehaviourTimerFuncs, k)
-        end
-
-    end
-
-    NextBehaviourThink = CurTime() + 0.4
-end)
----------------------------------------------------------------------------------------=#

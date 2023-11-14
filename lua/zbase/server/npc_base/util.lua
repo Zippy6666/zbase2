@@ -92,8 +92,12 @@ end
     -- 'duration' - Face duration, if not set, you can run the function in think for example
     -- 'speed' - Turn speed, if not set, it will be the default turn speed
 function NPC:Face( face, duration, speed )
+    -- local hasMoveYawPoseParam = self:LookupPoseParameter( "move_yaw" )!=-1
+
 	local function turn( yaw )
         if GetConVar("ai_disabled"):GetBool() then return end
+        -- if !hasMoveYawPoseParam && self:IsMoving() then return end
+        if self:IsMoving() then return end
 
         local turnSpeed = speed
         or (self.IsZBase_SNPC && self.m_fMaxYawSpeed)
@@ -116,8 +120,8 @@ function NPC:Face( face, duration, speed )
 
     if !faceFunc then return end
 
-
     if duration then
+    
         self.TimeUntilStopFace = CurTime()+duration
 
         timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
@@ -128,8 +132,11 @@ function NPC:Face( face, duration, speed )
 
             faceFunc()
         end)
-    else
+
+    elseif !timer.Exists("ZBaseFace"..self:EntIndex()) then
+
         faceFunc()
+
     end
 end
 --------------------------------------------------------------------------------=#
