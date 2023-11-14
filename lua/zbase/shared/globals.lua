@@ -17,6 +17,7 @@ ZBASE_CANTREACHENEMY_FACE = 2
 if !ZBaseNPCs then
     ZBaseNPCs = {}
     ZBaseNPCInstances = {}
+    ZBaseNPCInstances_NonScripted = {}
     ZBaseBehaviourTimerFuncs = {}
     ZBase_NonZBaseNPCs = {}
     ZBaseSpawnMenuNPCList = {}
@@ -176,7 +177,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function ZBaseListFactions( _, ply )
     if SERVER then
-        local factions = {none=true, neutral=true}
+        local factions = {none=true, neutral=true, ally=true}
 
         for k, v in pairs(ZBaseNPCs) do
             if v.ZBaseFaction then

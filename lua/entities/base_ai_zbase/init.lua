@@ -19,6 +19,9 @@ ENT.m_iClass = CLASS_NONE
 ENT.IsZBase_SNPC = true
 
 
+local modelsWithPhysics = {}
+
+
 --------------------------------------------------------------------------------=#
 function ENT:Initialize()
 	self:SetHullType(self.HullType or HULL_MEDIUM)
@@ -49,42 +52,68 @@ function ENT:Initialize()
 	self.Navigator = NULL
 	self.Aerial_CurSpeed = 0
 	self.Aerial_LastMoveDir = self:GetForward()
-	self.NextSlowThink = CurTime()
+	self.SNPCNextSlowThink = CurTime()
+
+
+	local mdl = self:GetModel()
+	if modelsWithPhysics[self:GetModel()] == nil then
+		local phystest = ents.Create("prop_ragdoll")
+		phystest:SetModel(mdl)
+		phystest:Spawn()
+
+		modelsWithPhysics[mdl] = IsValid(phystest:GetPhysicsObject())
+
+		phystest:Remove()
+	end
+	self.ModelHasPhys = modelsWithPhysics[mdl]
+
+	-- if !IsValid(self:GetActiveWeapon()) then
+	-- 	self:Give("zbase_filz0_translate_act")
+	-- end
 end
 --------------------------------------------------------------------------------=#
 function ENT:Think()
-	if self.NextSlowThink < CurTime() then
+	if !self.ModelHasPhys && self.SNPCNextSlowThink < CurTime() then
 		-- Phys object workaround
 		local phys = self:GetPhysicsObject()
 		if IsValid(phys) then
 			phys:SetPos(self:GetPos())
-			-- debugoverlay.Sphere(self:GetPos(), 100, 0.15, Color(255, 255, 255, 25))
+			-- debugoverlay.Sphere(self:GetPos(), 100, 0.2, Color(255, 255, 255, 25))
 		end
 
 
-		self.NextSlowThink = CurTime()+0.15
+		self.SNPCNextSlowThink = CurTime()+0.2
 	end
 
 
 	-- Aerial movement
 	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
+	
 		self:Aerial_CalcVel()
 
 		
         local ene = self:GetEnemy()
         local seeEnemy = IsValid(ene) && self.EnemyVisible
 
+
 		if self.Aerial_CurrentDestination then
         	self:Face( (self.Fly_FaceEnemy && seeEnemy && ene) or self.Aerial_CurrentDestination )
 		end
 
-		
-		self:SetLocalVelocity(self.Aerial_LastMoveDir*self.Aerial_CurSpeed)
+
+		local vec = self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed)
+
+		if self.ShouldMoveFromGround then
+			vec = vec+Vector(0,0,35)
+		else
+			vec = vec+Vector(0,0,30)
+		end
+
+		self:SetLocalVelocity(vec)
 	end
 
 
-	self:NextThink( CurTime() ) -- Set the next think to run as soon as possible, i.e. the next frame.
-	return true -- Apply NextThink call
+	self:ZBaseThink()
 end
 --------------------------------------------------------------------------------=#
 function NPCMETA:SetSchedule( sched )

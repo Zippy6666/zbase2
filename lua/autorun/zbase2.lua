@@ -66,6 +66,7 @@ local function IncludeFiles()
         include("zbase/server/general/hooks.lua")
         include("zbase/server/general/spawn_npc.lua")
         include("zbase/server/general/scheds.lua")
+        include("zbase/server/general/relationship.lua")
 
         local files = file.Find("zbase/server/npc_enhancements/*","LUA")
         local enhPath = "zbase/server/npc_enhancements/"
@@ -231,7 +232,7 @@ if ZBaseInitialized then
     NPCsInherit()
     AddNPCsToSpawnMenu()
 
-    print("ZBase Reloaded!")
+    MsgN("ZBase Reloaded!")
 else
 
     IncludeFiles()

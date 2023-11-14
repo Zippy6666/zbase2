@@ -2,7 +2,10 @@ util.AddNetworkString("ZBaseInitEnt")
 
 local grabbing_bullet_backup_data = false
 local PreventCallAccuracyBoost = false
+
 local ZBaseNextThink = CurTime()
+local NextBehaviourThink = CurTime()
+
 local ZBaseWeaponDMGs = {
     ["weapon_rpg"] = {dmg=150, inflclass="rpg_missile"},
     ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
@@ -59,64 +62,65 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function() timer.Simple(0.
 end) end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("OnEntityCreated", "ZBASE", function( ent ) timer.Simple(0, function()
-        if !IsValid(ent) then return end
+    if !IsValid(ent) then return end
 
-        -- ZBase init stuff when not spawned from menu
-        local zbaseClass = ent:GetKeyValues().parentname
-        local zbaseNPCTable = ZBaseNPCs[ ent:GetKeyValues().parentname ]
-        if zbaseNPCTable then
-            ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
-        end
-
-
-        -- Give ZBase faction to non zbase NPCs
-        if ent:IsNPC() && !ent.IsZBaseNPC && ent:GetClass() != "npc_bullseye" then
-            local faction = ZBaseFactionTranslation[ent:Classify()]
-            
-            if faction then
-                ent.ZBaseFaction = faction
-            end
-
-            table.insert(ZBase_NonZBaseNPCs, ent)
-            ent:CallOnRemove("ZBase_RemoveFromNPCTable", function() table.RemoveByValue(ZBase_NonZBaseNPCs, ent) end)
-        end
+    -- ZBase init stuff when not spawned from menu
+    local zbaseClass = ent:GetKeyValues().parentname
+    local zbaseNPCTable = ZBaseNPCs[ ent:GetKeyValues().parentname ]
+    if zbaseNPCTable then
+        ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
+    end
 
 
-        local own = ent:GetOwner()
-        if IsValid(own) && own.IsZBaseNPC then
-            own:OnOwnedEntCreated( ent )
-        end
+    -- Give ZBase faction to non zbase NPCs
+    -- if ent:IsNPC() && !ent.IsZBaseNPC && ent:GetClass() != "npc_bullseye" then
+    --     local faction = ZBaseFactionTranslation[ent:Classify()]
+        
+    --     if faction then
+    --         ent.ZBaseFaction = faction
+    --     end
+
+    --     table.insert(ZBase_NonZBaseNPCs, ent)
+    --     ent:CallOnRemove("ZBase_RemoveFromNPCTable", function() table.RemoveByValue(ZBase_NonZBaseNPCs, ent) end)
+    -- end
+
+
+    local own = ent:GetOwner()
+    if IsValid(own) && own.IsZBaseNPC then
+        own:OnOwnedEntCreated( ent )
+    end
 end) end)
 ---------------------------------------------------------------------------------------=#
-hook.Add("Think", "ZBASE", function()
+hook.Add("Tick", "ZBASE", function()
+    -- Think for NPCs that aren't scripted
     if ZBaseNextThink < CurTime() then
-        for _, v in ipairs(ZBaseNPCInstances) do
-
-            if !IsValid(v) then
-                table.RemoveByValue(ZBaseNPCInstances, v)
-                return
-            end
-
+        for _, v in ipairs(ZBaseNPCInstances_NonScripted) do
             v:ZBaseThink()
-            v:CustomThink()
 
             if v.ZBaseEnhancedThink then
                 v:ZBaseEnhancedThink()
             end
-
         end
 
         ZBaseNextThink = CurTime()+0.1
     end
+    --------------------------------------------------------=#
 
-    -- for _, v in ipairs(ZBaseNPCInstances) do
-    --     if !IsValid(v) then
-    --         table.RemoveByValue(ZBaseNPCInstances, v)
-    --         return
-    --     end
 
-    --     v:ZBaseExpensiveThink()
-    -- end
+    -- Behaviour tick
+    if !GetConVar("ai_disabled"):GetBool()
+    && NextBehaviourThink < CurTime() then
+        for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
+            local entValid = func()
+
+            if !entValid then
+                table.remove(ZBaseBehaviourTimerFuncs, k)
+            end
+        end
+
+        NextBehaviourThink = CurTime() + 0.5
+    end
+    --------------------------------------------------------=#
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )

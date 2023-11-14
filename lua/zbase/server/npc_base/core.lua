@@ -4,20 +4,6 @@ local NPC = ZBaseNPCs["npc_zbase"]
 NPC.IsZBaseNPC = true
 
 
-local VJ_Translation = {
-    ["CLASS_COMBINE"] = "combine",
-    ["CLASS_ZOMBIE"] = "zombie",
-    ["CLASS_ANTLION"] = "antlion",
-    ["CLASS_PLAYER_ALLY"] = "ally",
-}
-
-local VJ_Translation_Flipped = {
-    ["combine"] = "CLASS_COMBINE",
-    ["zombie"] = "CLASS_ZOMBIE",
-    ["antlion"] = "CLASS_ANTLION",
-    ["ally"] = "CLASS_PLAYER_ALLY",
-}
-
 local ReloadActs = {
     [ACT_RELOAD] = true,
     [ACT_RELOAD_SHOTGUN] = true,
@@ -39,9 +25,9 @@ function NPC:ZBaseInit()
     -- Vars
     self.NextPainSound = CurTime()
     self.NextAlertSound = CurTime()
+    self.NPCNextSlowThink = CurTime()
     self.EnemyVisible = false
-    self.NextCheckEnemyVisible = CurTime()
-
+    self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 
     self:SetSaveValue("m_flFieldOfView", 1) -- Starts with no field of view
 
@@ -76,13 +62,6 @@ function NPC:ZBaseInit()
 
     -- Set specified internal variables
     self:ZBaseSetSaveValues()
-    
-
-    -- Group in squads
-    timer.Simple(1, function()
-        if !IsValid(self) then return end
-        self:ZBaseSquad()
-    end)
 
 
     -- Makes behaviour system function
@@ -180,33 +159,6 @@ function NPC:OnHurt( dmg )
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:ZBaseSquad()
-    if self.ZBaseFaction == "none" then return end
-
-
-    local squadName = self.ZBaseFaction.."1"
-    local i = 1
-    while true do
-        local squadMemberCount = 0
-
-        for _, v in ipairs(ZBaseNPCInstances) do
-            if IsValid(v) && v:GetKeyValues().squadname == squadName then
-                squadMemberCount = squadMemberCount+1
-            end
-        end
-
-        if squadMemberCount >= 6 then
-            i = i+1
-            squadName = self.ZBaseFaction..i
-        else
-            break
-        end
-    end
-
-
-    self:SetKeyValue("squadname", squadName)
-end
----------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseSetSaveValues()
     for k, v in pairs(self:GetTable()) do
         if string.StartWith(k, "m_") then
@@ -236,9 +188,29 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
     local ene = self:GetEnemy()
-    if self.NextCheckEnemyVisible < CurTime() then
-        self.EnemyVisible = IsValid(ene) && self:Visible(ene)
-        self.NextCheckEnemyVisible = CurTime()+0.3
+    if self.NPCNextSlowThink < CurTime() then
+
+
+        -- Flying SNPCs should get closer to the ground during melee
+        if self.IsZBase_SNPC
+        && self.BaseMeleeAttack
+        && self.SNPCType == ZBASE_SNPCTYPE_FLY
+        && self.Fly_DistanceFromGround_IgnoreWhenMelee
+        && IsValid(ene)
+        && self:WithinDistance(ene, self.MeleeAttackDistance*1.75) then
+            self.InternalDistanceFromGround = ene:WorldSpaceCenter():Distance(ene:GetPos())
+        else
+            self.InternalDistanceFromGround = self.Fly_DistanceFromGround
+        end
+
+
+        self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY) or (IsValid(ene) && self:Visible(ene))
+
+
+        self:InternalDetectDanger()
+
+
+        self.NPCNextSlowThink = CurTime()+0.4
     end
 
 
@@ -247,14 +219,10 @@ function NPC:ZBaseThink()
         self.ZBase_LastEnemy = ene
 
         if self.ZBase_LastEnemy then
-            -- if self:ShootTargetTooFarAway() then
-            --     self:PreventFarShoot()
-            -- end
-
             self:ZBaseAlertSound()
         end
     end
-    
+
 
     -- Activity change detection
     local act = self:GetActivity()
@@ -264,73 +232,7 @@ function NPC:ZBaseThink()
     end
 
 
-    self:Relationships()
-    self:InternalDetectDanger()
-
-end
----------------------------------------------------------------------------------------------------------------------=#
-function NPC:SetRelationship( ent, rel )
-    self:AddEntityRelationship(ent, rel, 99)
-
-    if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
-        self:AddEntityRelationship(ent.Bullseye, rel, 99)
-    end
-
-    if !ent.IsZBaseNPC && ent:IsNPC() then
-        ent:AddEntityRelationship(self, rel, 99)
-    end
-end
----------------------------------------------------------------------------------------------------------------------=#
-function NPC:ZBase_VJFriendly( ent )
-    if !ent.IsVJBaseSNPC then return false end
-
-    for _, v in ipairs(ent.VJ_NPC_Class) do
-        if VJ_Translation[v] == self.ZBaseFaction then return true end
-    end
-
-    return false
-end
----------------------------------------------------------------------------------------------------------------------=#
-function NPC:Relationship( ent )
-    -- Me or the ent has faction neutral, like
-    if self.ZBaseFaction == "neutral" or ent.ZBaseFaction=="neutral" then
-        self:SetRelationship( ent, D_LI )
-        return
-    end
-
-    -- My faction is none, hate everybody
-    if self.ZBaseFaction == "none" then
-        self:SetRelationship( ent, D_HT )
-        return
-    end
-
-    -- Are their factions the same?
-    if self.ZBaseFaction == ent.ZBaseFaction or self:ZBase_VJFriendly( ent ) then
-        self:SetRelationship( ent, D_LI )
-    else
-        self:SetRelationship( ent, D_HT )
-    end
-end
----------------------------------------------------------------------------------------------------------------------=#
-function NPC:Relationships()
-
-    if VJ_Translation_Flipped[self.ZBaseFaction] then
-        self.VJ_NPC_Class = {VJ_Translation_Flipped[self.ZBaseFaction]}
-    end
-
-    for _, v in ipairs(ZBaseNPCInstances) do
-        if !IsValid(v) then continue end
-        if v != self then self:Relationship(v) end
-    end
-
-    for _, v in ipairs(ZBase_NonZBaseNPCs) do
-        self:Relationship(v)
-    end
-
-    for _, v in ipairs(player.GetAll()) do
-        self:Relationship(v)
-    end
-
+    self:CustomThink()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:HasCapability( cap )
@@ -429,20 +331,24 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     timer.Create(timerName, 0, 0, function()
         if !IsValid(self)
         or self.TimeUntilStopAnimOverride < CurTime() then
-
-            if self.ZBaseSNPCSequence then
-                self:SetNPCState(NPC_STATE)
-            end
-
             self.DoingPlayAnim = false
             self.ZBaseSNPCSequence = nil
 
-            if sched && IsValid(self) then
-                self:ClearSchedule()
+
+            if IsValid(self) then
+                self:SetActivity(ACT_IDLE)
+
+                if sched then
+                    self:ClearSchedule()
+                end
+
+                if self.ZBaseSNPCSequence then
+                    self:SetNPCState(NPC_STATE)
+                end
             end
 
-            timer.Remove(timerName)
 
+            timer.Remove(timerName)
             return
         end
 

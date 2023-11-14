@@ -38,7 +38,7 @@ NPC.ExtraCapabilities = {
     CAP_OPEN_DOORS, -- Can open regular doors
 }
 
-NPC.ZBaseFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied
+NPC.ZBaseStartFaction = "none" -- Any string, all ZBase NPCs with this faction will be allied
 -- Default factions:
 -- "combine" || "ally" || "zombie" || "antlion" || "none" || "neutral"
     -- "none" = not allied with anybody
@@ -155,8 +155,9 @@ NPC.SquadGiveSpace = 128
 
 -- Flying
 NPC.Fly_DistanceFromGround = 100 -- Minimum distance to try to keep from the ground when flying
+NPC.Fly_DistanceFromGround_IgnoreWhenMelee = true -- Should it ignore the distance from ground limit when in melee attack distance?
 NPC.Fly_FaceEnemy = false -- Should it face the enemy while fly moving?
-NPC.Fly_MoveSpeed = 150 -- Flying movement speed
+NPC.Fly_MoveSpeed = 200 -- Flying movement speed
 NPC.Fly_Accelerate = 15 -- Flying movement accelerate speed
 NPC.Fly_Decelerate = 15 -- Flying movement decelerate speed
 
@@ -400,5 +401,17 @@ function NPC:SNPCOnHurt(dmginfo)
         -- Face the direction of the damage
 		self:FaceHurtPos(dmginfo)
 	end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+
+    -- Called continiusly for flying SNPCs
+    -- You can change anything about their flying velocity here
+function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
+    -- You can mess with their angles here
+    -- This example will cause them to tilt forward in the direction they are moving
+    -- local myang = self:GetAngles()
+    -- self:SetAngles(Angle(destinationCurrentSpeed*0.1, myang.yaw, myang.roll))
+
+    return destinationDirection*destinationCurrentSpeed
 end
 ---------------------------------------------------------------------------------------------------------------------=#
