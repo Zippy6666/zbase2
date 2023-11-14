@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------------------=#
 -- Other
-    -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
     -- Sounds
         -- LostEnemySounds
         -- SeeDangerSounds
@@ -31,9 +30,12 @@
     -- SNPC danger detect
         -- New ZSched that uses cover from origin with random move as fallback
     -- Add spacer for weapon menu
+    -- Gravity gun punt velocity
+    -- Movement animation override (should work with aerial npcs)
 
 ------------------------------------------------------------------------------------=#
     -- FINAL --
+-- Pack a few NPCs into the base
 -- Make more user friendly
     -- Comments
     -- Organize funcs and vars

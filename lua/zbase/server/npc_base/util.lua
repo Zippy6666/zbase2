@@ -156,7 +156,33 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     local enemy = self:GetEnemy()
     local face = extraData.face or (faceEnemy && IsValid(enemy) && enemy) or nil
 
-    self:InternalPlayAnimation(anim, extraData.cutOff, extraData.speedMult, SCHED_NPC_FREEZE, face, extraData.faceSpeed )
+    self:InternalPlayAnimation(anim, extraData.cutOff, extraData.speedMult, SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop )
+end
+--------------------------------------------------------------------------------=#
+
+
+    -- Stops the current NPC:PlayAnimation() animation from playing
+function NPC:StopCurrentAnimation()
+    local goalSeq = self:SelectWeightedSequence(ACT_IDLE)
+    local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
+
+    if transition != -1
+    && transition != goalSeq then
+        self:PlayAnimation(self:GetSequenceName(transition))
+        return
+    end
+    
+    self.DoingPlayAnim = false
+    self.ZBaseSNPCSequence = nil
+    self:SetActivity(ACT_IDLE)
+
+    self:ClearSchedule()
+
+    if self.ZBaseSNPCSequence then
+        self:SetNPCState(self.PreAnimNPCState)
+    end
+
+    timer.Remove("ZBasePlayAnim"..self:EntIndex())
 end
 --------------------------------------------------------------------------------=#
 

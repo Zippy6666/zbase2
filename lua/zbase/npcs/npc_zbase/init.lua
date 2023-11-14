@@ -1,10 +1,10 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-
----------------------------------------------------------------------------------------------------------------------=#
-
-
-
+--[[
+==================================================================================================
+                                           COOL SEPARATOR
+==================================================================================================
+--]]
 
         -- GENERAL --
 
@@ -45,7 +45,7 @@ NPC.ZBaseStartFaction = "none" -- Any string, all ZBase NPCs with this faction w
     -- "neutral" = allied with everybody
 
 
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
         -- DAMAGE AND DEATH --
 
@@ -84,7 +84,7 @@ NPC.CanDissolve = true -- Can the NPC be dissolved?
 NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
 
 
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
 
 
@@ -110,7 +110,7 @@ NPC.MeleeDamage_Type = DMG_GENERIC -- The damage type, https://wiki.facepunch.co
 NPC.MeleeDamage_Sound = "ZBase.Melee2" -- Sound when the melee attack hits an enemy
 NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
 NPC.MeleeDamage_AffectProps = false -- Affect props and other entites
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
 
 
@@ -138,7 +138,7 @@ NPC.RangeProjectile_Offset = false -- Projectile spawn offset, example: {forward
 NPC.RangeProjectile_Speed = 1000 -- The speed of the projectile
 NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
 
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- SNPC ONLY --
 
@@ -162,7 +162,7 @@ NPC.Fly_Accelerate = 15 -- Flying movement accelerate speed
 NPC.Fly_Decelerate = 15 -- Flying movement decelerate speed
 
 
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
 
         -- SOUNDS --
@@ -189,7 +189,7 @@ NPC.IdleSound_Chance = 3 -- 1 in X chance that the NPC will emit IdleSounds when
 
 
 
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
 
 
@@ -198,31 +198,31 @@ NPC.IdleSound_Chance = 3 -- 1 in X chance that the NPC will emit IdleSounds when
 
         -- Functions you can change --
 
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called when the NPC is created --
 function NPC:CustomInitialize()
     -- self:SetCollisionBounds( Vector(-100, -100, 0), Vector(100, 100, 100) )
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called continiously --
 function NPC:CustomThink() end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- On NPC hurt, dmginfo:ScaleDamage(0) to prevent damage --
     -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
     -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
 function NPC:CustomTakeDamage( dmginfo, HitGroup ) end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called when the NPC hurts an entity, return true to prevent damage --
 function NPC:DealDamage( victimEnt, dmginfo ) end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Accept input, return true to prevent --
 function NPC:CustomAcceptInput( input, activator, caller, value ) end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- On armor hit --
     -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
@@ -259,28 +259,28 @@ function NPC:HitArmor( dmginfo, HitGroup )
     end
 
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called when the NPC emits a sound
     -- Return true to apply all changes done to the data table.
     -- Return false to prevent the sound from playing.
     -- Return nil or nothing to play the sound without altering it.
 function NPC:CustomOnEmitSound( sndData ) end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called when the NPC kills another entity (player or NPC)
 function NPC:CustomOnKilledEnt( ent ) end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called a tick after an entity owned by this NPC is created
     -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
 function NPC:CustomOnOwnedEntCreated( ent ) end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called when the base detects that the NPC is playing a new activity
 function NPC:CustomNewActivityDetected( act )
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called continiusly if the NPC has a melee attack
     -- Useful for changing things about the melee attack based on given conditions
@@ -293,14 +293,14 @@ function NPC:MultipleMeleeAttacks()
     --     self.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
     -- end
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Force to apply to entities affected by the melee attack damage, relative to the NPC
 function NPC:MeleeDamageForce( dmgData )
     -- Example:
     -- return {forward=500, up=500, right=0, randomness=100}
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- The range attack projectile code
     -- Called by the base, but can be called whenever you like
@@ -334,7 +334,7 @@ function NPC:RangeAttackProjectile()
     end
 end
 
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- The velocity to apply to the projectile when it spawns
 function NPC:RangeAttackProjectileVelocity()
@@ -346,13 +346,13 @@ function NPC:RangeAttackProjectileVelocity()
 
     return (self:Projectile_TargetPos() - startPos):GetNormalized()*self.RangeProjectile_Speed  
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called continiusly if the NPC has a range attack
     -- Useful for changing things about the range attack based on given conditions
 function NPC:MultipleRangeAttacks()
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
 
 
@@ -360,7 +360,7 @@ end
 
 
     -- SNPC only functions that you can change --
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called when the SNPC fires an animation event
 function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option) 
@@ -369,7 +369,7 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
     --     self:MeleeAttackDamage()
     -- end
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Select schedule
     -- Here you can change how the SNPC should behave entirely
@@ -392,7 +392,7 @@ function NPC:SNPCSelectSchedule(iNPCState)
     end
 end
 
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called when the SNPC takes damage
 function NPC:SNPCOnHurt(dmginfo)
@@ -402,7 +402,7 @@ function NPC:SNPCOnHurt(dmginfo)
 		self:FaceHurtPos(dmginfo)
 	end
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
 
     -- Called continiusly for flying SNPCs
     -- You can change anything about their flying velocity here
@@ -414,4 +414,4 @@ function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
 
     return destinationDirection*destinationCurrentSpeed
 end
----------------------------------------------------------------------------------------------------------------------=#
+--[[===============================================================================================]]
