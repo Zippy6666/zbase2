@@ -80,10 +80,6 @@ function ENT:Aerial_CalcVel()
         if self.ShouldMoveFromGround then
             debugoverlay.Line(myPos, myPos-Vector(0, 0, distCheckGround), 1.5, Color( 255, 50, 0 ))
         end
-    -- elseif self.ShouldMoveFromGround then
-
-    --     -- Move away from the ground
-    --     self.Aerial_CurrentDestination = myPos + self:GetUp() * 100
     end
 
 

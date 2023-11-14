@@ -160,7 +160,7 @@ NPC.Fly_FaceEnemy = false -- Should it face the enemy while fly moving?
 NPC.Fly_MoveSpeed = 200 -- Flying movement speed
 NPC.Fly_Accelerate = 15 -- Flying movement accelerate speed
 NPC.Fly_Decelerate = 15 -- Flying movement decelerate speed
-
+NPC.Fly_GravGunPuntForceMult = 1
 
 --[[===============================================================================================]]
 
@@ -302,36 +302,45 @@ function NPC:MeleeDamageForce( dmgData )
 end
 --[[===============================================================================================]]
 
+    -- Called when a melee attack is started
+function NPC:OnMelee()
+end
+--[[===============================================================================================]]
+
     -- The range attack projectile code
     -- Called by the base, but can be called whenever you like
 function NPC:RangeAttackProjectile()
-    local enemy = self:GetEnemy()
-
-    if IsValid(enemy) then
-        -- Projectile code --
-        local proj = ents.Create("projectile_zbase")
-        proj:SetPos(self:Projectile_SpawnPos())
-        proj:SetAngles(self:GetAngles())
-        proj:SetOwner(self)
-        proj:Spawn()
-
-        local proj_phys = proj:GetPhysicsObject()
-
-        if IsValid(proj_phys) then
-            proj_phys:SetVelocity(self:RangeAttackProjectileVelocity())
-        else
-            proj:SetVelocity(self:RangeAttackProjectileVelocity())
-        end
-        ---------------------------------------=#
+    local projStartPos = self:Projectile_SpawnPos()
 
 
-        -- Bullet code --
-        -- self:FireBullets({table bulletInfo})
-        -- ...
+    -- Projectile code --
+    local proj = ents.Create("projectile_zbase")
+    proj:SetPos(projStartPos)
+    proj:SetAngles(self:GetAngles())
+    proj:SetOwner(self)
+    proj:Spawn()
 
-        ---------------------------------------=#
+    local proj_phys = proj:GetPhysicsObject()
 
+    if IsValid(proj_phys) then
+        proj_phys:SetVelocity(self:RangeAttackProjectileVelocity())
+    else
+        proj:SetVelocity(self:RangeAttackProjectileVelocity())
     end
+    ---------------------------------------=#
+
+
+    -- Bullet code --
+    -- self:FireBullets({
+    --     Attacker = self,
+    --     Inflictor = self,
+    --     Damage = 3,
+    --     Dir = (self:Projectile_TargetPos() - projStartPos):GetNormalized(),
+    --     Src = projStartPos,
+    --     Spread = Vector(self.RangeProjectile_Inaccuracy, self.RangeProjectile_Inaccuracy)
+    -- })
+    -- https://wiki.facepunch.com/gmod/Structures/Bullet
+    ---------------------------------------=#
 end
 
 --[[===============================================================================================]]
@@ -353,6 +362,13 @@ end
 function NPC:MultipleRangeAttacks()
 end
 --[[===============================================================================================]]
+
+    -- Called when a range attack is started
+function NPC:OnRangeAttack()
+end
+--[[===============================================================================================]]
+
+
 
 
 

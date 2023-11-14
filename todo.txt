@@ -1,37 +1,62 @@
 ------------------------------------------------------------------------------------=#
--- Other
-    -- Sounds
-        -- LostEnemySounds
-        -- SeeDangerSounds
-        -- SeeGrenadeSounds
-        -- HearDangerSounds
-        -- AllyDeathSounds
-        -- OnMeleeSounds
-        -- OnRangeSounds
-        -- OnReloadSounds
-        -- LoopSound
-        -- Stop sounds on death
-    -- Support global hearing system
-        -- Hear distance multiplier, 0 = deaf
-        -- HearDangerSounds  
-    -- Custom blood system
-        -- White blood decals for hunters
-    -- Flinch system
-        -- Implement gesture system (start with an internal one)
-    -- Death animation system
-    -- Bodygroup system
-    -- More menu options
-        -- Health and damage sliders
-        -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
-        -- Misc useful stuff
-    -- Improve range attack code
-        -- Limited suppression time?
-    -- Pose parameter looking
-    -- SNPC danger detect
-        -- New ZSched that uses cover from origin with random move as fallback
-    -- Add spacer for weapon menu
-    -- Gravity gun punt velocity
-    -- Movement animation override (should work with aerial npcs)
+-- TODO --
+-- Support global hearing system
+    -- Hear distance multiplier, 0 = deaf
+    -- HearDangerSounds
+-- Sounds
+    -- LostEnemySounds
+    -- SeeDangerSounds
+    -- SeeGrenadeSounds
+    -- HearDangerSounds
+    -- AllyDeathSounds
+    -- OnMeleeSounds
+    -- OnRangeSounds
+    -- OnReloadSounds
+    -- Stop sounds on death
+-- Custom blood system
+    -- White blood decals for hunters
+-- Flinch system
+    -- Playanimation gestures
+-- Death animation system
+-- Bodygroup system
+-- More menu options
+    -- Health and damage sliders
+    -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
+    -- Misc useful stuff
+-- Improve range attack code
+    -- Limited suppression time?
+-- Pose parameter looking
+-- SNPC danger detect
+    -- New ZSched that uses cover from origin with random move as fallback
+-- Add spacer for weapon menu
+-- Gravity gun punt velocity
+-- Movement animation override (should work with aerial npcs)
+-- Fix squad error
+-- Fix circular include error thingy
+-- Fix cannot duplicate mfs
+------------------------------------------------------------------------------------=#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ------------------------------------------------------------------------------------=#
     -- FINAL --
@@ -39,7 +64,7 @@
 -- Make more user friendly
     -- Comments
     -- Organize funcs and vars
-    -- Separate snpc and npc base maybe...
+    -- Separate snpc and npc base
     -- Lots of "CustomOn" functions (use vj for reference)
     -- All variables can be changed during the NPC's lifetime
     -- Dummy git
@@ -49,9 +74,25 @@
     -- Make sure ZBase handles all npc classes well (especially zombies!!)
     -- Make sure it works as intended with vj
     -- Compatible with my other addons
+    -- Test PlayAnimation on loads of NPCs
 -- Copyright stuff
 ------------------------------------------------------------------------------------=#
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------=#
     -- FUTURE IDEAS --
 -- Submaterial system
 -- Vehicle base
@@ -64,13 +105,4 @@
 -- Controller
 -- Gib system
 -- Jump system
-------------------------------------------------------------------------------------=#
-
-
-        -- BUGS --
--- Squad error
--- Circular include error thingy
--- Cannot duplicate mfs
--- Fix zbase_reload fucking up timers or something
--- Facing thing for aerial npcs
 ------------------------------------------------------------------------------------=#

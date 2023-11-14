@@ -93,6 +93,10 @@ function ENT:Think()
 
 
 		if self.Aerial_CurrentDestination then
+			if timer.Exists("ZBaseFace"..self:EntIndex()) then
+				timer.Remove("ZBaseFace"..self:EntIndex())
+			end
+
         	self:Face( (self.Fly_FaceEnemy && seeEnemy && ene) or self.Aerial_CurrentDestination )
 		end
 
