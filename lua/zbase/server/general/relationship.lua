@@ -41,7 +41,6 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:SetRelationship( ent, rel )
     self:AddEntityRelationship(ent, rel, 99)
-    print(self, rel, ent)
 
     if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
         self:AddEntityRelationship(ent.Bullseye, rel, 99)
@@ -49,7 +48,6 @@ function NPC:SetRelationship( ent, rel )
 
     if !ent.IsZBaseNPC && ent:IsNPC() then
         ent:AddEntityRelationship(self, rel, 99)
-        print(ent, rel, self)
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#

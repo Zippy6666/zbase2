@@ -109,7 +109,7 @@ function NPC:GetCurrentWeaponShootDist()
     local wep = self:GetActiveWeapon()
     if !IsValid(wep) then return end
 
-    local mult = hl2wepShootDistMult[wep:GetClass()] or 1
+    local mult = hl2wepShootDistMult[wep:GetClass()] or wep.NPCShootDistanceMult or 1
 
     return self.MaxShootDistance*mult
 end

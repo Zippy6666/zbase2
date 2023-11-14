@@ -1,9 +1,6 @@
 ------------------------------------------------------------------------------------=#
 -- Other
     -- Melee and range support looping animations (test range on crab synth, maybe have charge as a melee attack? :o)
-    -- Expand weapon base
-        -- Basic bullet code
-        -- NPC shoot distance mult
     -- Sounds
         -- LostEnemySounds
         -- SeeDangerSounds
@@ -21,14 +18,19 @@
     -- Custom blood system
         -- White blood decals for hunters
     -- Flinch system
+        -- Implement gesture system (start with an internal one)
     -- Death animation system
     -- Bodygroup system
     -- More menu options
         -- Health and damage sliders
         -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
+        -- Misc useful stuff
     -- Improve range attack code
         -- Limited suppression time?
     -- Pose parameter looking
+    -- SNPC danger detect
+        -- New ZSched that uses cover from origin with random move as fallback
+    -- Add spacer for weapon menu
 
 ------------------------------------------------------------------------------------=#
     -- FINAL --
@@ -49,17 +51,17 @@
 ------------------------------------------------------------------------------------=#
 
     -- FUTURE IDEAS --
-    -- Submaterial system
+-- Submaterial system
 -- Vehicle base
 -- HL2 Resurgence-like pack with NPCs from Entropy Zero 2, Hl2 Overcharged, RTBR, etc
 -- Insurgency NPC Pack
 -- Doom 3 SNPCs
--- Jump system
--- Gib system
 -- Global danger detection system
 -- Some kind of special gesture support
 -- Expanded support for the weapon base so that player functions work on NPCs
 -- Controller
+-- Gib system
+-- Jump system
 ------------------------------------------------------------------------------------=#
 
 
