@@ -66,10 +66,6 @@ function ENT:Initialize()
 		phystest:Remove()
 	end
 	self.ModelHasPhys = modelsWithPhysics[mdl]
-
-	-- if !IsValid(self:GetActiveWeapon()) then
-	-- 	self:Give("zbase_filz0_translate_act")
-	-- end
 end
 --------------------------------------------------------------------------------=#
 function ENT:Think()

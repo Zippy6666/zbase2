@@ -69,12 +69,13 @@ function ENT:DetermineNewSchedule()
 	local enemyValid = IsValid(enemy)
 	local enemyVisible = enemyValid && self.EnemyVisible
 	local enemyUnreachable = enemyValid && self:IsUnreachable(enemy)
+	local hasReachedEnemy = self:ZBaseDist(enemy, {within=self:OBBMaxs().x*2})
 
 
 	-- Can't reach the enemy when chasing fallback
 	if self:IsCurrentCustomSched("CombatChase")
 	&& enemyValid
-	&& !self:ZBaseDist(enemy, {within=100}) -- We have reached the enemy, no fallback needed
+	&& !hasReachedEnemy -- We have reached the enemy, no fallback needed
 	&& self:IsNavStuck() then
 		self:RememberUnreachable( enemy, 4 )
 	
@@ -91,6 +92,13 @@ function ENT:DetermineNewSchedule()
 			-- Patrol if enemy is not visible
 			return SCHED_COMBAT_PATROL
 		end
+	end
+
+
+	-- We have reached the enemy, no need to keep chasing
+	if self:IsCurrentCustomSched("CombatChase")
+	&& hasReachedEnemy then
+		return "CombatFace"
 	end
 
 
@@ -183,7 +191,7 @@ function ENT:RunAI( strExp )
 
 	-- Play sequence:
 	if self.ZBaseSNPCSequence then
-		self:DoSequence()
+		-- self:DoSequence()
 		return
 	end
 
@@ -258,7 +266,8 @@ function ENT:RunAI( strExp )
 end
 --------------------------------------------------------------------------------=#
 function ENT:FaceHurtPos(dmginfo)
-	if !IsValid(self:GetEnemy()) then
+	if !IsValid(self:GetEnemy())
+	&& !self.DoingPlayAnim then
 		self:FullReset()
 		self:Face(dmginfo:GetDamagePosition(), math.Rand(2, 4))
 	end

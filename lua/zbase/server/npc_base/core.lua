@@ -232,6 +232,12 @@ function NPC:ZBaseThink()
     end
 
 
+    -- Handle movement during PlayAnimation
+    if self.DoingPlayAnim then
+        self:AutoMovement( self:GetAnimTimeInterval() )
+    end
+
+
     self:CustomThink()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -265,102 +271,132 @@ function NPC:InternalSetAnimation( anim )
 	end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed )
+function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc )
     if GetConVar("ai_disabled"):GetBool() then return end
 
-    self.DoingPlayAnim = true
+    -- Main function --
+    local function playAnim()
+        self.DoingPlayAnim = true
 
 
-    -- Reset stuff
-    self:TaskComplete()
-    self:ClearGoal()
-    if self.IsZBase_SNPC then
-        self:ScheduleFinished()
-    end
-    self:ClearSchedule()
-    self:StopMoving()
-    self:SetMoveVelocity(Vector())
-    if IsValid(self.Navigator) then
-        self.Navigator:Remove()
-    end
-    self.AerialGoal = nil
+        -- Reset stuff --
+        self:TaskComplete()
+        self:ClearGoal()
 
-    local NPC_STATE = self:GetNPCState()
-    self:SetNPCState(NPC_STATE_SCRIPT)
+        if self.IsZBase_SNPC then
+            self:ScheduleFinished()
+        end
 
+        self:ClearSchedule()
+        self:StopMoving()
+        self:SetMoveVelocity(Vector())
 
-    -- Set schedule
-    if sched then
-        self:SetSchedule(sched)
-    end
+        if IsValid(self.Navigator) then
+            self.Navigator:Remove()
+        end
 
+        self.AerialGoal = nil
 
-    -- Play sequence if that is what the animation is
-    if self:AnimShouldBeSequence(anim) then
-        self:ResetSequence(anim)
-        self:ResetSequenceInfo()
-        self:SetCycle(0)
-    end
+        self.PreAnimNPCState = self:GetNPCState()
+        self:SetNPCState(NPC_STATE_SCRIPT)
+        ----------------------------------------------=#
 
 
-    -- Duration stuff
-    self:InternalSetAnimation(anim) -- So that SequenceDuration gives the right value
-    duration = duration or self:SequenceDuration()
-    if playbackRate then
-        duration = duration/playbackRate
-    end
+        -- Set schedule
+        if sched then
+            self:SetSchedule(sched)
+        end
 
 
-    -- SNPC sequence stuff
-    if self.ZBaseSNPCSequence then
-        self.BaseDontSetPlaybackRate = false
-        self.StopPlaySeqTime = CurTime()+duration*0.8
-    end
+        -- Play sequence if that is what the animation is
+        if self:AnimShouldBeSequence(anim) then
+            self:ResetSequence(anim)
+            self:ResetSequenceInfo()
+            self:SetCycle(0)
+        end
 
 
-    -- Face
-    if forceFace then
-        self:Face(forceFace, duration, faceSpeed)
-    end
+        -- Duration stuff
+        self:InternalSetAnimation(anim) -- So that SequenceDuration gives the right value
+        duration = duration or self:SequenceDuration()
+        if playbackRate then
+            duration = duration/playbackRate
+        end
 
 
-    -- Timer
-    self.TimeUntilStopAnimOverride = CurTime()+duration
-    self.NextAnimTick = CurTime()+0.1
-    local timerName = "ZBaseMeleeAnimOverride"..self:EntIndex()
-    timer.Create(timerName, 0, 0, function()
-        if !IsValid(self)
-        or self.TimeUntilStopAnimOverride < CurTime() then
-            self.DoingPlayAnim = false
-            self.ZBaseSNPCSequence = nil
+        -- Face
+        if forceFace && !loop then
+            self:Face(forceFace, duration, faceSpeed)
+        end
 
 
-            if IsValid(self) then
-                self:SetActivity(ACT_IDLE)
+        -- Timer --
+        self.TimeUntilStopAnimOverride = CurTime()+duration
+        self.NextAnimTick = CurTime()+0.1
 
-                if sched then
-                    self:ClearSchedule()
+        timer.Create("ZBasePlayAnim"..self:EntIndex(), 0, 0, function()
+            if !IsValid(self)
+            or (!loop && self.TimeUntilStopAnimOverride < CurTime()) then
+
+                if IsValid(self) then
+                    self:StopCurrentAnimation()
+
+                    if onFinishFunc then
+                        onFinishFunc()
+                    end
+                else
+                    timer.Remove("ZBasePlayAnim"..self:EntIndex())
                 end
 
-                if self.ZBaseSNPCSequence then
-                    self:SetNPCState(NPC_STATE)
-                end
+                return
+            end
+            
+            if self.NextAnimTick > CurTime() then return end
+
+
+            -- Play animation
+            self:SetPlaybackRate(playbackRate or 1)
+            self:InternalSetAnimation(anim)
+
+
+            -- Face
+            if forceFace && loop then
+                self:Face(forceFace, nil, faceSpeed)
             end
 
 
-            timer.Remove(timerName)
-            return
-        end
+            self.NextAnimTick = CurTime()+0.1
+        end)
+        --------------------------------------------------=#
+    end
+    ----------------------------------------------------------------=#
 
-        if self.NextAnimTick > CurTime() then return end
 
-        if !self.DontSetPlaybackRate then
-            self:SetPlaybackRate(playbackRate or 1)
-        end
+    -- Transition --
+    local goalSeq = isstring(anim)
+    && self:LookupSequence(anim) or self:SelectWeightedSequence(anim)
 
-        self:InternalSetAnimation(anim)
-        self.NextAnimTick = CurTime()+0.1
-    end)
+    local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
+
+    if transition != -1
+    && transition != goalSeq then
+        self:InternalPlayAnimation(
+            self:GetSequenceName(transition),
+            nil,
+            playbackRate,
+            SCHED_NPC_FREEZE,
+            forceFace,
+            faceSpeed,
+            false,
+            playAnim
+        )
+
+        return
+    end
+    -----------------------------------------------------------------=#
+
+
+    playAnim()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Depricated
