@@ -113,7 +113,6 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )
     if !self.BaseMeleeAttack then return false end 
-    if table.IsEmpty(self.MeleeAttackAnimations) then return false end
 
     local ene = self:GetEnemy()
     if !self.MeleeAttackFaceEnemy && !self:IsFacing(ene) then return false end

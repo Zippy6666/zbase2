@@ -29,7 +29,9 @@ function NPC:ZBaseInit()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 
-    self:SetSaveValue("m_flFieldOfView", 1) -- Starts with no field of view
+
+     -- Starts with no field of view
+    self:SetSaveValue("m_flFieldOfView", 1)
 
 
     -- Some calls based on attributes

@@ -96,7 +96,6 @@ function NPC:Face( face, duration, speed )
 
 	local function turn( yaw )
         if GetConVar("ai_disabled"):GetBool() then return end
-        -- if !hasMoveYawPoseParam && self:IsMoving() then return end
         if self:IsMoving() then return end
 
         local turnSpeed = speed
@@ -133,7 +132,7 @@ function NPC:Face( face, duration, speed )
             faceFunc()
         end)
 
-    elseif !timer.Exists("ZBaseFace"..self:EntIndex()) then
+    else
 
         faceFunc()
 
@@ -148,7 +147,7 @@ end
     -- 'extraData' (table)
         -- extraData.face - Position or entity to constantly face
         -- extraData.speedMult - Speed multiplier for the animation
-        -- extraData.cutOff - Stop the animation after this amount of time in seconds
+        -- extraData.duration - The animation duration
         -- extraData.faceSpeed - Face turn speed
 function NPC:PlayAnimation( anim, faceEnemy, extraData )
     extraData = extraData or {}
@@ -156,7 +155,7 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     local enemy = self:GetEnemy()
     local face = extraData.face or (faceEnemy && IsValid(enemy) && enemy) or nil
 
-    self:InternalPlayAnimation(anim, extraData.cutOff, extraData.speedMult, SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop )
+    self:InternalPlayAnimation(anim, extraData.duration, extraData.speedMult, SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop )
 end
 --------------------------------------------------------------------------------=#
 
@@ -199,14 +198,16 @@ end
     -- Triggers the base melee attack
 function NPC:MeleeAttack()
         -- Animation --
-    self:InternalPlayAnimation(
-        table.Random(self.MeleeAttackAnimations),
-        nil,
-        self.MeleeAttackAnimationSpeed,
-        SCHED_NPC_FREEZE,
-        self.MeleeAttackFaceEnemy && self:GetEnemy(),
-        self.MeleeAttackTurnSpeed
-    )
+    if !table.IsEmpty(self.MeleeAttackAnimations) then
+        self:InternalPlayAnimation(
+            table.Random(self.MeleeAttackAnimations),
+            nil,
+            self.MeleeAttackAnimationSpeed,
+            SCHED_NPC_FREEZE,
+            self.MeleeAttackFaceEnemy && self:GetEnemy(),
+            self.MeleeAttackTurnSpeed
+        )
+    end
     -----------------------------------------------------------------=#
 
 
@@ -233,6 +234,8 @@ function NPC:MeleeAttack()
         end)
     end
     -----------------------------------------------------------------=#
+
+    self:OnMelee()
 end
 --------------------------------------------------------------------------------=#
 
@@ -262,13 +265,15 @@ end
     -- Triggers the base range attack
 function NPC:RangeAttack()
         -- Animation --
-    self:InternalPlayAnimation(
-        table.Random(self.RangeAttackAnimations),
-        nil,
-        self.RangeAttackAnimationSpeed,
-        SCHED_NPC_FREEZE,
-        nil
-    )
+    if !table.IsEmpty(self.RangeAttackAnimations) then
+        self:InternalPlayAnimation(
+            table.Random(self.RangeAttackAnimations),
+            nil,
+            self.RangeAttackAnimationSpeed,
+            SCHED_NPC_FREEZE,
+            nil
+        )
+    end
     -----------------------------------------------------------------=#
 
 
@@ -285,23 +290,33 @@ function NPC:RangeAttack()
 
 
     -- Special face code
-    self.TimeUntilStopFace = CurTime()+self:SequenceDuration() + 0.25
+    if !table.IsEmpty(self.RangeAttackAnimations) then
+        self.TimeUntilStopFace = CurTime()+self:SequenceDuration() + 0.25
 
-    timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
-        if !IsValid(self) or self.TimeUntilStopFace < CurTime() then
-            timer.Remove("ZBaseFace"..self:EntIndex())
-            return
-        end
+        timer.Create("ZBaseRangeFace"..self:EntIndex(), 0, 0, function()
+            if !IsValid(self) or self.TimeUntilStopFace < CurTime() then
+                timer.Remove("ZBaseRangeFace"..self:EntIndex())
+                return
+            end
 
-        if GetConVar("ai_disabled"):GetBool() then return end
+            if GetConVar("ai_disabled"):GetBool() then return end
 
-        local ene = self:GetEnemy()
-        local facePos = IsValid(ene) && self.EnemyVisible && ene:WorldSpaceCenter() or self:Projectile_TargetPos()
-        local yaw = (facePos - self:GetPos()):Angle().y
-
-        self:SetIdealYawAndUpdate(yaw, self.RangeAttackTurnSpeed)
-    end)
+            self:Face(self:RangeAttack_IdealFacePos(), nil, self.RangeAttackTurnSpeed)
+        end)
+    end
     -----------------------------------------------------------------=#
+
+    self:OnRangeAttack()
+end
+--------------------------------------------------------------------------------=#
+
+
+    -- Returns the ideal position to face while range attacking
+function NPC:RangeAttack_IdealFacePos()
+    local ene = self:GetEnemy()
+    local pos = IsValid(ene) && self.EnemyVisible && ene:WorldSpaceCenter() or self:Projectile_TargetPos()
+    -- debugoverlay.Cross(pos, 20)
+    return pos
 end
 --------------------------------------------------------------------------------=#
 

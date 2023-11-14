@@ -385,3 +385,20 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
     return true
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
+hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
+    if ent.IsZBaseNPC && ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_GravGunPuntForceMult > 0 then
+        local timerName = "ZBaseNPCPuntVel"..ent:EntIndex()
+        local totalReps = 10
+        local speed = 500*ent.Fly_GravGunPuntForceMult
+
+        timer.Create(timerName, 0.1, totalReps, function()
+            if !IsValid(ent) then return end
+
+            local mult = ( speed - ((totalReps-timer.RepsLeft(timerName))/totalReps)*speed )
+            ent:SetVelocity(ply:GetAimVector() * mult)
+        end)
+
+        return true
+    end
+end)
+---------------------------------------------------------------------------------------------------------------------=#
