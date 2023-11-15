@@ -33,19 +33,6 @@ function ENT:SelectSchedule( iNPCState )
 	self:SNPCSelectSchedule( iNPCState )
 end
 --------------------------------------------------------------------------------=#
-function ENT:FullReset()
-    self:TaskComplete()
-    self:ClearGoal()
-    self:ScheduleFinished()
-    self:ClearSchedule()
-    self:StopMoving()
-    self:SetMoveVelocity(Vector())
-    if IsValid(self.Navigator) then
-        self.Navigator:Remove()
-    end
-	self.AerialGoal = nil
-end
---------------------------------------------------------------------------------=#
 function ENT:GetCurrentCustomSched(checkNavigator)
 	if checkNavigator && IsValid(self.Navigator) then
 		return self.Navigator.CurrentSchedule && self.Navigator.CurrentSchedule.DebugName

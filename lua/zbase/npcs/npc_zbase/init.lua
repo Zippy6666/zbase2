@@ -31,6 +31,7 @@ NPC.CallForHelpDistance = 2000 -- Call for help distance
 NPC.HullType = false -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
 NPC.CollisionBounds = false -- Example: NPC.CollisionBounds = {min=Vector(-50, -50, 0), max=Vector(50, 50, 100)}, false = default
 NPC.CanJump = true -- Can the NPC jump?
+NPC.HearDistMult = 1
 
 -- Extra capabilities
 -- List of capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
@@ -169,13 +170,21 @@ NPC.Fly_GravGunPuntForceMult = 1
         -- Use sound scripts to alter pitch and level etc..
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+NPC.IdleSound_OnlyNearAllies = false -- Only do IdleSounds if there is another NPC in the same faction nearby
+
 
 NPC.AlertSounds = "" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
-NPC.IdleSounds_HasEnemy = "" -- Sounds emitted while there is an enemy
+NPC.Idle_HasEnemy_Sounds = "" -- Sounds emitted while there is an enemy
 NPC.PainSounds = "" -- Sounds emitted on hurt
 NPC.DeathSounds = "" -- Sounds emitted on death
-NPC.KilledEnemySound = "" -- Sounds emitted when the NPC kills an enemy
+NPC.KilledEnemySounds = "" -- Sounds emitted when the NPC kills an enemy
+NPC.HearDangerSounds = ""
+NPC.LostEnemySounds = ""
+NPC.SeeDangerSounds = ""
+NPC.SeeGrenadeSounds = ""
+NPC.AllyDeathSounds = ""
+
 
 -- Sound cooldowns {min, max}
 NPC.IdleSoundCooldown = {8, 16}
@@ -183,8 +192,9 @@ NPC.IdleSounds_HasEnemyCooldown = {5, 10}
 NPC.PainSoundCooldown = {1, 2.5}
 NPC.AlertSoundCooldown = {4, 8}
 
--- Idle sound stuff
-NPC.IdleSound_OnlyNearAllies = false -- Only do IdleSounds if there is another NPC in the same faction nearby
+
+-- Sound chances (1/X)
+NPC.AllyDeathSound_Chance = 2
 NPC.IdleSound_Chance = 3 -- 1 in X chance that the NPC will emit IdleSounds when permitted
 
 
@@ -202,26 +212,29 @@ NPC.IdleSound_Chance = 3 -- 1 in X chance that the NPC will emit IdleSounds when
 
     -- Called when the NPC is created --
 function NPC:CustomInitialize()
-    -- self:SetCollisionBounds( Vector(-100, -100, 0), Vector(100, 100, 100) )
 end
 --[[===============================================================================================]]
 
     -- Called continiously --
-function NPC:CustomThink() end
+function NPC:CustomThink()
+end
 --[[===============================================================================================]]
 
     -- On NPC hurt, dmginfo:ScaleDamage(0) to prevent damage --
     -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
     -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
-function NPC:CustomTakeDamage( dmginfo, HitGroup ) end
+function NPC:CustomTakeDamage( dmginfo, HitGroup )
+end
 --[[===============================================================================================]]
 
     -- Called when the NPC hurts an entity, return true to prevent damage --
-function NPC:DealDamage( victimEnt, dmginfo ) end
+function NPC:DealDamage( victimEnt, dmginfo )
+end
 --[[===============================================================================================]]
 
     -- Accept input, return true to prevent --
-function NPC:CustomAcceptInput( input, activator, caller, value ) end
+function NPC:CustomAcceptInput( input, activator, caller, value )
+end
 --[[===============================================================================================]]
 
     -- On armor hit --
@@ -261,20 +274,21 @@ function NPC:HitArmor( dmginfo, HitGroup )
 end
 --[[===============================================================================================]]
 
-    -- Called when the NPC emits a sound
-    -- Return true to apply all changes done to the data table.
+    -- Return a new sound name to play that sound instead.
     -- Return false to prevent the sound from playing.
-    -- Return nil or nothing to play the sound without altering it.
-function NPC:CustomOnEmitSound( sndData ) end
+function NPC:CustomOnEmitSound( sndData, sndVarName )
+end
 --[[===============================================================================================]]
 
     -- Called when the NPC kills another entity (player or NPC)
-function NPC:CustomOnKilledEnt( ent ) end
+function NPC:CustomOnKilledEnt( ent )
+end
 --[[===============================================================================================]]
 
     -- Called a tick after an entity owned by this NPC is created
     -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
-function NPC:CustomOnOwnedEntCreated( ent ) end
+function NPC:CustomOnOwnedEntCreated( ent )
+end
 --[[===============================================================================================]]
 
     -- Called when the base detects that the NPC is playing a new activity
@@ -307,9 +321,15 @@ function NPC:OnMelee()
 end
 --[[===============================================================================================]]
 
+
     -- The range attack projectile code
     -- Called by the base, but can be called whenever you like
 function NPC:RangeAttackProjectile()
+
+    -- Don't let this function run when the NPC is dead
+    if self:GetNPCState() == NPC_STATE_DEAD then return end
+
+
     local projStartPos = self:Projectile_SpawnPos()
 
 
@@ -321,7 +341,6 @@ function NPC:RangeAttackProjectile()
     proj:Spawn()
 
     local proj_phys = proj:GetPhysicsObject()
-
     if IsValid(proj_phys) then
         proj_phys:SetVelocity(self:RangeAttackProjectileVelocity())
     else

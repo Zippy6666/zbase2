@@ -93,10 +93,6 @@ function ENT:Think()
 
 
 		if self.Aerial_CurrentDestination then
-			if timer.Exists("ZBaseFace"..self:EntIndex()) then
-				timer.Remove("ZBaseFace"..self:EntIndex())
-			end
-
         	self:Face( (self.Fly_FaceEnemy && seeEnemy && ene) or self.Aerial_CurrentDestination )
 		end
 
@@ -232,7 +228,7 @@ function ENT:Die( dmginfo )
         self:SetBloodColor(-1)
         self:CapabilitiesClear()
         self:SetNoDraw(true)
-        SafeRemoveEntityDelayed(self, 0.66)
+        -- SafeRemoveEntityDelayed(self, 0.66)
 	end
 
 end

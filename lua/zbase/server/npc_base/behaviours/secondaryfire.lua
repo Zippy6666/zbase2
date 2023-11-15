@@ -12,7 +12,6 @@ local SecondaryFireWeapons = {
 
 ------------------------------------------------------------------------=#
 function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
-
     local seq = self:LookupSequence("shootar2alt")
     if seq != -1 then
         -- Has comball animation, play it
@@ -22,49 +21,52 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
         wep:EmitSound("Weapon_CombineGuard.Special1")
     end
 
+
     timer.Simple(0.75, function()
-        if IsValid(self) && IsValid(wep) && IsValid(enemy) then
-            local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
+        if !(IsValid(self) && IsValid(wep) && IsValid(enemy)) then return end
+        if self:GetNPCState() == NPC_STATE_DEAD then return end
 
-            local ball_launcher = ents.Create( "point_combine_ball_launcher" )
-            ball_launcher:SetAngles( (enemy:WorldSpaceCenter() - startPos):Angle() )
-            ball_launcher:SetPos( startPos )
-            ball_launcher:SetKeyValue( "minspeed",1200 )
-            ball_launcher:SetKeyValue( "maxspeed", 1200 )
-            ball_launcher:SetKeyValue( "ballradius", "10" )
-            ball_launcher:SetKeyValue( "ballcount", "1" )
-            ball_launcher:SetKeyValue( "maxballbounces", "100" )
-            ball_launcher:Spawn()
-            ball_launcher:Activate()
-            ball_launcher:Fire( "LaunchBall" )
-            ball_launcher:Fire("kill","",0)
-            timer.Simple(0.01, function()
-                if IsValid(self) then
-                    for _, ball in ipairs(ents.FindInSphere(self:GetPos(), 100)) do
-                        if ball:GetClass() == "prop_combine_ball" then
 
-                            ball:SetOwner(self)
-                            ball.ZBaseComballOwner = self
+        local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
 
-                            timer.Simple(math.Rand(4, 6), function()
-                                if IsValid(ball) then
-                                    ball:Fire("Explode")
-                                end
-                            end)
-                        end
+        local ball_launcher = ents.Create( "point_combine_ball_launcher" )
+        ball_launcher:SetAngles( (enemy:WorldSpaceCenter() - startPos):Angle() )
+        ball_launcher:SetPos( startPos )
+        ball_launcher:SetKeyValue( "minspeed",1200 )
+        ball_launcher:SetKeyValue( "maxspeed", 1200 )
+        ball_launcher:SetKeyValue( "ballradius", "10" )
+        ball_launcher:SetKeyValue( "ballcount", "1" )
+        ball_launcher:SetKeyValue( "maxballbounces", "100" )
+        ball_launcher:Spawn()
+        ball_launcher:Activate()
+        ball_launcher:Fire( "LaunchBall" )
+        ball_launcher:Fire("kill","",0)
+        timer.Simple(0.01, function()
+            if IsValid(self)
+            && self:GetNPCState() != NPC_STATE_DEAD then
+                for _, ball in ipairs(ents.FindInSphere(self:GetPos(), 100)) do
+                    if ball:GetClass() == "prop_combine_ball" then
+
+                        ball:SetOwner(self)
+                        ball.ZBaseComballOwner = self
+
+                        timer.Simple(math.Rand(4, 6), function()
+                            if IsValid(ball) then
+                                ball:Fire("Explode")
+                            end
+                        end)
                     end
                 end
-            end)
-        
-            local effectdata = EffectData()
-            effectdata:SetFlags(5)
-            effectdata:SetEntity(wep)
-            util.Effect( "MuzzleFlash", effectdata, true, true )
+            end
+        end)
+    
+        local effectdata = EffectData()
+        effectdata:SetFlags(5)
+        effectdata:SetEntity(wep)
+        util.Effect( "MuzzleFlash", effectdata, true, true )
 
-            wep:EmitSound("Weapon_IRifle.Single")
-        end
+        wep:EmitSound("Weapon_IRifle.Single")
     end)
-
 end
 ------------------------------------------------------------------------=#
 function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
