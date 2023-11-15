@@ -1,12 +1,52 @@
 local NPC = FindMetaTable("NPC")
 if !ZBaseRelationshipEnts then ZBaseRelationshipEnts = {} end
 
+
+ZBaseFactionTranslation = {
+    [CLASS_COMBINE] = "combine",
+    [CLASS_COMBINE_GUNSHIP] = "combine",
+    [CLASS_MANHACK] = "combine",
+    [CLASS_METROPOLICE] = "combine",
+    [CLASS_MILITARY] = "combine",
+    [CLASS_SCANNER] = "combine",
+    [CLASS_STALKER] = "combine",
+    [CLASS_PROTOSNIPER] = "combine",
+    [CLASS_COMBINE_HUNTER] = "combine",
+
+    [CLASS_HACKED_ROLLERMINE] = "ally",
+    [CLASS_HUMAN_PASSIVE] = "ally",
+    [CLASS_VORTIGAUNT] = "ally",
+    [CLASS_PLAYER] = "ally",
+    [CLASS_PLAYER_ALLY] = "ally",
+    [CLASS_PLAYER_ALLY_VITAL] = "ally",
+    [CLASS_CITIZEN_PASSIVE] = "ally",
+    [CLASS_CITIZEN_REBEL] = "ally",
+
+    [CLASS_BARNACLE] = "xen",
+    [CLASS_ALIEN_MILITARY] = "xen",
+    [CLASS_ALIEN_MONSTER] = "xen",
+    [CLASS_ALIEN_PREDATOR] = "xen",
+
+    [CLASS_MACHINE] = "hecu",
+    [CLASS_HUMAN_MILITARY] = "hecu",
+
+    [CLASS_HEADCRAB] = "zombie",
+    [CLASS_ZOMBIE] = "zombie",
+    [CLASS_ALIEN_PREY] = "zombie",
+
+    [CLASS_ANTLION] = "antlion",
+
+    [CLASS_EARTH_FAUNA] = "neutral",
+}
+
+
 local VJ_Translation = {
     ["CLASS_COMBINE"] = "combine",
     ["CLASS_ZOMBIE"] = "zombie",
     ["CLASS_ANTLION"] = "antlion",
     ["CLASS_PLAYER_ALLY"] = "ally",
 }
+
 
 local VJ_Translation_Flipped = {
     ["combine"] = "CLASS_COMBINE",
@@ -15,6 +55,30 @@ local VJ_Translation_Flipped = {
     ["ally"] = "CLASS_PLAYER_ALLY",
 }
 
+
+util.AddNetworkString("ZBasePlayerFactionSwitch")
+util.AddNetworkString("ZBaseNPCFactionOverrideSwitch")
+
+
+---------------------------------------------------------------------------------------------------------------------=#
+net.Receive("ZBasePlayerFactionSwitch", function( _, ply )
+    local faction = net.ReadString()
+    ply.ZBaseFaction = faction
+
+    for _, v in ipairs(ZBaseRelationshipEnts) do
+        v:Relationships()
+    end
+end)
+---------------------------------------------------------------------------------------------------------------------=#
+net.Receive("ZBaseNPCFactionOverrideSwitch", function( _, ply )
+    local faction = net.ReadString()
+    
+    if faction == "No Override" then
+        ply.ZBaseNPCFactionOverride = nil
+    else
+        ply.ZBaseNPCFactionOverride = faction
+    end
+end)
 ---------------------------------------------------------------------------------------------------------------------=#
 hook.Add("OnEntityCreated", "ZBaseFactions", function( ent ) timer.Simple(0, function()
     if !IsValid(ent) then return end
@@ -32,7 +96,7 @@ hook.Add("OnEntityCreated", "ZBaseFactions", function( ent ) timer.Simple(0, fun
 end) end)
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:SetZBaseFaction(newFaction)
-    self.ZBaseFaction = self.ZBaseStartFaction or newFaction
+    self.ZBaseFaction = newFaction or self.ZBaseStartFaction
 
     for _, v in ipairs(ZBaseRelationshipEnts) do
         v:Relationships()

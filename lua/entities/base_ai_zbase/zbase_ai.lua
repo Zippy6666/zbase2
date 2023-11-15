@@ -260,3 +260,7 @@ function ENT:FaceHurtPos(dmginfo)
 	end
 end
 --------------------------------------------------------------------------------=#
+function ENT:SNPCHandleDanger()
+	local hint = self.InternalLoudestSoundHint
+end
+--------------------------------------------------------------------------------=#

@@ -113,7 +113,7 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent ) timer.Simple(0, function()
 
     -- ZBase init stuff when not spawned from menu
     local zbaseClass = ent:GetKeyValues().parentname
-    local zbaseNPCTable = ZBaseNPCs[ ent:GetKeyValues().parentname ]
+    local zbaseNPCTable = ZBaseNPCs[ zbaseClass ]
     if zbaseNPCTable then
         ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
     end
@@ -137,6 +137,15 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent ) timer.Simple(0, function()
         own:OnOwnedEntCreated( ent )
     end
 end) end)
+---------------------------------------------------------------------------------------=#
+duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
+    -- ZBase init stuff when spawned from dupe
+    local zbaseClass = data[1]
+    local zbaseNPCTable = ZBaseNPCs[ zbaseClass ]
+    if zbaseNPCTable then
+        ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
+    end
+end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("Tick", "ZBASE", function()
     -- Think for NPCs that aren't scripted
@@ -374,12 +383,13 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
 hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
+    print(ply.ZBaseNPCFactionOverride)
     if ply.ZBaseNPCFactionOverride && ply.ZBaseNPCFactionOverride != "" then
         timer.Simple(0, function()
             if !IsValid(ent) or !IsValid(ply) then return end
             if !ent.IsZBaseNPC then return end
 
-            ent.ZBaseFaction = ply.ZBaseNPCFactionOverride
+            ent:SetZBaseFaction(ply.ZBaseNPCFactionOverride)
         end)
     end
 end)
