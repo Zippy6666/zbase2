@@ -116,7 +116,7 @@ function BEHAVIOUR.Dialogue:Run( self )
             if IsValid(self) then
                 self:Face(ally, ally.InternalCurrentSoundDuration)
 
-                timer.Simple(ally.InternalCurrentSoundDuration, function()
+                timer.Simple(ally.InternalCurrentSoundDuration or 0, function()
                     if !IsValid(self) then return end
                     self:CancelConversation()
                 end)

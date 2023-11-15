@@ -1,26 +1,20 @@
 ------------------------------------------------------------------------------------=#
 -- TODO --
--- SNPC danger detect
-    -- New ZSched that uses cover from origin with random move as fallback
 -- Custom blood system
     -- White blood decals for hunters
 -- Flinch system
     -- Playanimation gestures
 -- Death animation system
--- Bodygroup system
 -- Improve range attack code
     -- Limited suppression time?
 -- Pose parameter looking
--- Add spacer for weapon menu
 -- Movement animation override (should work with aerial npcs)
--- Fix cannot duplicate mfs
 -- Pushing and/or attacking props
 -- More menu options
     -- Health and damage sliders
     -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
     -- Misc useful stuff
 -- Zippy gore mod support xddddddddddd
--- Relationship shit is bugged
 -- Improve melee attack by allowing more scheds
 ------------------------------------------------------------------------------------=#
 
@@ -58,6 +52,7 @@
     -- Dummy git
     -- ZBase reload tries to apply in realtime
     -- Get rid off WithinDistance, call it NPCDist maybe
+    -- Add spacer for weapon menu
 -- Make sure everything works
     -- Multiplayer
     -- Make sure ZBase handles all npc classes well (especially zombies!!)
@@ -95,4 +90,6 @@
 -- Controller
 -- Gib system
 -- Jump system
+-- SNPC danger detect
+    -- New ZSched that uses cover from origin with random move as fallback
 ------------------------------------------------------------------------------------=#

@@ -200,6 +200,9 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
     NPC:ZBaseInit()
 
 
+	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
+
+
 	return NPC
 end
 ---------------------------------------------------------------------------------=#

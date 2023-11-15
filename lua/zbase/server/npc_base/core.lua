@@ -262,13 +262,6 @@ function NPC:SquadMemberIsSpeaking( soundList )
     if squad == "" then return end
     local squadSpeakSndVar = ZBaseSpeakingSquads[squad] or false
 
-    -- if soundList then
-    --     for _, v in ipairs(soundList) do
-    --         if v == squadSpeakSndVar then return true end
-    --     end
-    -- end
-
-    print("SquadMemberIsSpeaking", squadSpeakSndVar)
     return squadSpeakSndVar
 end
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -282,6 +275,9 @@ function NPC:HandleDanger()
     if self.InternalLoudestSoundHint.type != SOUND_DANGER then return end
     local dangerOwn = self.InternalLoudestSoundHint.owner
 
+    if self.IsZBase_SNPC then
+        self:SNPCHandleDanger()
+    end
 
     if IsValid(dangerOwn)
     && (dangerOwn.IsZBaseGrenade or dangerOwn:GetClass() == "npc_grenade_frag") then
@@ -392,6 +388,7 @@ function NPC:InternalSetAnimation( anim )
         end
 
 	elseif isnumber(anim) then
+
         -- Activity
 		self:SetActivity(anim)
 
@@ -412,13 +409,11 @@ function NPC:FullReset()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc )
+    -- DONT EVEN BREATHE ON IT --
     if GetConVar("ai_disabled"):GetBool() then return end
 
     -- Main function --
     local function playAnim()
-        self.DoingPlayAnim = true
-
-
         -- Reset stuff --
         self:FullReset()
 
@@ -432,6 +427,10 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
         if sched then
             self:SetSchedule(sched)
         end
+
+
+        self.DoingPlayAnim = true
+
 
 
         -- Play sequence if that is what the animation is
@@ -588,4 +587,3 @@ function NPC:InternalDamageScale(dmg)
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-
