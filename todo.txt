@@ -1,11 +1,5 @@
 ------------------------------------------------------------------------------------=#
 -- TODO --
--- Sounds
-    -- OnMeleeSounds
-    -- OnRangeSounds
-    -- OnReloadSounds
-    -- Dialogue
-    -- Stop sounds on death
 -- SNPC danger detect
     -- New ZSched that uses cover from origin with random move as fallback
 -- Custom blood system
@@ -19,8 +13,6 @@
 -- Pose parameter looking
 -- Add spacer for weapon menu
 -- Movement animation override (should work with aerial npcs)
--- Fix squad error
--- Fix circular include error thingy
 -- Fix cannot duplicate mfs
 -- Pushing and/or attacking props
 -- More menu options
@@ -28,6 +20,8 @@
     -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
     -- Misc useful stuff
 -- Zippy gore mod support xddddddddddd
+-- Relationship shit is bugged
+-- Improve melee attack by allowing more scheds
 ------------------------------------------------------------------------------------=#
 
 
@@ -63,6 +57,7 @@
     -- All variables can be changed during the NPC's lifetime
     -- Dummy git
     -- ZBase reload tries to apply in realtime
+    -- Get rid off WithinDistance, call it NPCDist maybe
 -- Make sure everything works
     -- Multiplayer
     -- Make sure ZBase handles all npc classes well (especially zombies!!)

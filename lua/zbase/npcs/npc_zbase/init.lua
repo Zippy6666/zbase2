@@ -170,8 +170,6 @@ NPC.Fly_GravGunPuntForceMult = 1
         -- Use sound scripts to alter pitch and level etc..
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
-NPC.IdleSound_OnlyNearAllies = false -- Only do IdleSounds if there is another NPC in the same faction nearby
-
 
 NPC.AlertSounds = "" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
@@ -184,6 +182,11 @@ NPC.LostEnemySounds = ""
 NPC.SeeDangerSounds = ""
 NPC.SeeGrenadeSounds = ""
 NPC.AllyDeathSounds = ""
+NPC.OnMeleeSounds = ""
+NPC.OnRangeSounds = ""
+NPC.OnReloadSounds = ""
+NPC.Dialogue_Question_Sounds = ""
+NPC.Dialogue_Answer_Sounds = ""
 
 
 -- Sound cooldowns {min, max}
@@ -192,11 +195,12 @@ NPC.IdleSounds_HasEnemyCooldown = {5, 10}
 NPC.PainSoundCooldown = {1, 2.5}
 NPC.AlertSoundCooldown = {4, 8}
 
-
--- Sound chances (1/X)
+-- Sound chance 1/X
+NPC.IdleSound_Chance = 3
 NPC.AllyDeathSound_Chance = 2
-NPC.IdleSound_Chance = 3 -- 1 in X chance that the NPC will emit IdleSounds when permitted
-
+NPC.OnMeleeSound_Chance = 2
+NPC.OnRangeSound_Chance = 2
+NPC.OnReloadSound_Chance = 2
 
 
 --[[===============================================================================================]]

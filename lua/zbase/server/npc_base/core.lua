@@ -1,4 +1,10 @@
 local NPC = ZBaseNPCs["npc_zbase"]
+local NPCMETA = FindMetaTable("NPC")
+
+
+if !ZBase_NPC_OldSetSchedule then
+	ZBase_NPC_OldSetSchedule = NPCMETA.SetSchedule
+end
 
 
 NPC.IsZBaseNPC = true
@@ -27,6 +33,7 @@ function NPC:ZBaseInit()
     self.NextAlertSound = CurTime()
     self.NPCNextSlowThink = CurTime()
     self.NPCNextDangerSound = CurTime()
+    self.NextEmitHearDangerSound = CurTime()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 
@@ -89,6 +96,42 @@ function NPC:ZBaseInit()
 
     -- Custom init
     self:CustomInitialize()
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:PreventSetSched( sched )
+    return self.HavingConversation
+    or self.DoingPlayAnim
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPCMETA:SetSchedule( sched )
+    if self.IsZBaseNPC && self:PreventSetSched( sched ) && sched != SCHED_FORCED_GO then return end
+    return ZBase_NPC_OldSetSchedule(self, sched)
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:CancelConversation()
+    if !self.HavingConversation then return end
+
+    if IsValid(self.DialogueMate) then
+        self.DialogueMate.HavingConversation = false
+        self.DialogueMate.DialogueMate = nil
+        self.DialogueMate:FullReset()
+
+        self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Question_Sounds)
+        self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Answer_Sounds)
+
+        timer.Remove("DialogueAnswer"..self.DialogueMate:EntIndex())
+        timer.Remove("ZBaseFace"..self.DialogueMate:EntIndex())
+    end
+
+    self.HavingConversation = false
+    self.DialogueMate = nil
+    self:FullReset()
+
+    self:StopSound(self.Dialogue_Question_Sounds)
+    self:StopSound(self.Dialogue_Answer_Sounds)
+
+    timer.Remove("DialogueAnswer"..self:EntIndex())
+    timer.Remove("ZBaseFace"..self:EntIndex())
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseSetupBounds()
@@ -154,22 +197,36 @@ function NPC:ZBaseSetSaveValues()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:NewActivityDetected( act )
-    -- Reload ZBase weapon sound:
+    -- Reload weapon sounds:
     local wep = self:GetActiveWeapon()
-    if ReloadActs[act] && IsValid(wep) && wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
-        wep:EmitSound(wep.NPCReloadSound)
+    if ReloadActs[act] && IsValid(wep) then
+
+        if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
+            wep:EmitSound(wep.NPCReloadSound)
+        end
+
+        if math.random(1, self.OnReloadSound_Chance) == 1 then
+            self:EmitSound_Uninterupted(self.OnReloadSounds)
+        end
+
     end
+
 
     self:CustomNewActivityDetected( act )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseAlertSound()
     if self.NextAlertSound > CurTime() then return end
+
+
+    self:StopSound(self.IdleSounds)
+    self:CancelConversation()
+
+
     if self:SquadMemberIsSpeaking({"AlertSounds"}) then return end
 
-    -- ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
-    self:EmitSound_Uninterupted(self.AlertSounds)
 
+    self:EmitSound_Uninterupted(self.AlertSounds)
     self.NextAlertSound = CurTime() + ZBaseRndTblRange(self.AlertSoundCooldown)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
@@ -189,7 +246,7 @@ function NPC:OnEmitSound( data )
 
     -- Make sure squad doesn't speak over each other
     if squad != "" && ZBase_DontSpeakOverThisSound then
-        ZBaseSpeakingSquads[squad] = sndVarName or true
+        ZBaseSpeakingSquads[squad] = sndVarName
 
         timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
             ZBaseSpeakingSquads[squad] = nil
@@ -201,20 +258,18 @@ function NPC:OnEmitSound( data )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:SquadMemberIsSpeaking( soundList )
-    local squadSpeakSndVar = ZBaseSpeakingSquads[self:GetKeyValues().squadname]
+    local squad = self:SquadName()
+    if squad == "" then return end
+    local squadSpeakSndVar = ZBaseSpeakingSquads[squad] or false
 
+    -- if soundList then
+    --     for _, v in ipairs(soundList) do
+    --         if v == squadSpeakSndVar then return true end
+    --     end
+    -- end
 
-    if soundList then
-        for _, v in ipairs(soundList) do
-            print(v, v == squadSpeakSndVar)
-            if v == squadSpeakSndVar then return true end
-        end
-
-        return false
-    end
-
-
-    return squadSpeakSndVar && true or false
+    print("SquadMemberIsSpeaking", squadSpeakSndVar)
+    return squadSpeakSndVar
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:DangerSound( isGrenade )
@@ -269,8 +324,6 @@ function NPC:ZBaseThink()
 
     -- Enemy updated
     if ene != self.ZBase_LastEnemy then
-        -- print(self.ZBase_LastEnemy, "------>", ene)
-
         self.ZBase_LastEnemy = ene
 
         if IsValid(ene) then
