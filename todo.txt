@@ -29,11 +29,11 @@
 -- SNPC danger detect
     -- New ZSched that uses cover from origin with random move as fallback
 -- Add spacer for weapon menu
--- Gravity gun punt velocity
 -- Movement animation override (should work with aerial npcs)
 -- Fix squad error
 -- Fix circular include error thingy
 -- Fix cannot duplicate mfs
+-- Pushing and/or attacking props
 ------------------------------------------------------------------------------------=#
 
 
