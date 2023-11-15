@@ -142,8 +142,7 @@ local function RegBase()
         -- Get names of sound variables
         ZBaseNPCs["npc_zbase"].SoundVarNames = {}
         for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
-            if string.EndsWith(k, "Sounds")
-            or string.EndsWith(k, "Sound") then
+            if string.EndsWith(k, "Sounds") then
                 table.insert(ZBaseNPCs["npc_zbase"].SoundVarNames, k)
             end
         end

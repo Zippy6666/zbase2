@@ -242,6 +242,12 @@ function NPC:MeleeAttack()
     end
     -----------------------------------------------------------------=#
 
+
+    if math.random(1, self.OnMeleeSound_Chance) == 1 then
+        self:EmitSound_Uninterupted(self.OnMeleeSounds)
+    end
+
+
     self:OnMelee()
 end
 --------------------------------------------------------------------------------=#
@@ -315,6 +321,12 @@ function NPC:RangeAttack()
         end)
     end
     -----------------------------------------------------------------=#
+
+
+    if math.random(1, self.OnRangeSound_Chance) == 1 then
+        self:EmitSound_Uninterupted(self.OnRangeSounds)
+    end
+
 
     self:OnRangeAttack()
 end

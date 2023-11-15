@@ -48,10 +48,19 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function() timer.Simple(0.
 
 
 		if npc.IsZBaseNPC then
+
+            -- Stop sounds
+            for _, v in ipairs(npc.SoundVarNames) do
+                if !isstring(v) then return end
+                npc:StopSound(npc:GetTable()[v])
+            end
+
+
             -- Death sound
 			npc:EmitSound(npc.DeathSounds)
 
 
+            -- Ally death reaction
             local ally = npc:GetNearestAlly(600)
             local deathpos = npc:GetPos()
             if IsValid(ally) && ally:Visible(npc) then
@@ -63,7 +72,7 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function() timer.Simple(0.
 
                         if ally.AllyDeathSounds != "" then
                             ally:FullReset()
-                            ally:Face(deathpos, SoundDuration(ally.AllyDeathSounds))
+                            ally:Face(deathpos, ally.InternalCurrentSoundDuration)
                         end
                     end
                 end)
@@ -288,61 +297,61 @@ local function RestartSoundCycle( sndTbl, data )
 end
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityEmitSound", "ZBASE", function( data )
-
     if !IsValid(data.Entity) then return end
-
-    
-    if data.Entity.IsZBaseNPC then
-        local altered = false
+    if !data.Entity.IsZBaseNPC then return end
 
 
-        -- Mute default "engine" voice
-        if !ZBase_EmitSoundCall
-        && SERVER
-        && data.Entity.MuteDefaultVoice
-        && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
-            return false
-        end
+    local altered = false
 
 
-            -- Avoid sound repitition --
-        local sndTbl = sound.GetProperties(data.OriginalSoundName)
-
-        if sndTbl && istable(sndTbl.sound) && table.Count(sndTbl.sound) > 1 && ZBase_EmitSoundCall then
-            if !SoundIndexes[data.OriginalSoundName] then
-                RestartSoundCycle(sndTbl, data)
-            else
-                if SoundIndexes[data.OriginalSoundName] == table.Count(sndTbl.sound) then
-                    RestartSoundCycle(sndTbl, data)
-                else
-                    SoundIndexes[data.OriginalSoundName] = SoundIndexes[data.OriginalSoundName] + 1
-                end
-            end
-
-            local snds = ShuffledSoundTables[data.OriginalSoundName]
-            data.SoundName = snds[SoundIndexes[data.OriginalSoundName]]
-            altered = true
-
-            -- print(SoundIndexes[data.OriginalSoundName], data.SoundName)
-        end
-        -----------------------------------------------=#
-
-
-        -- "OnEmitSound"
-        local r = data.Entity:OnEmitSound(data)
-        if isstring(r) then
-            data.Entity:EmitSound(r)
-            return false
-        elseif r == false then
-            return false
-        end
-
-
-        if altered then
-            return true
-        end
+    -- Mute default "engine" voice
+    if !ZBase_EmitSoundCall
+    && SERVER
+    && data.Entity.MuteDefaultVoice
+    && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
+        return false
     end
 
+
+        -- Avoid sound repitition --
+    local sndTbl = sound.GetProperties(data.OriginalSoundName)
+
+    if sndTbl && istable(sndTbl.sound) && table.Count(sndTbl.sound) > 1 && ZBase_EmitSoundCall then
+        if !SoundIndexes[data.OriginalSoundName] then
+            RestartSoundCycle(sndTbl, data)
+        else
+            if SoundIndexes[data.OriginalSoundName] == table.Count(sndTbl.sound) then
+                RestartSoundCycle(sndTbl, data)
+            else
+                SoundIndexes[data.OriginalSoundName] = SoundIndexes[data.OriginalSoundName] + 1
+            end
+        end
+
+        local snds = ShuffledSoundTables[data.OriginalSoundName]
+        data.SoundName = snds[SoundIndexes[data.OriginalSoundName]]
+        altered = true
+
+        -- print(SoundIndexes[data.OriginalSoundName], data.SoundName)
+    end
+    -----------------------------------------------=#
+
+
+    -- "OnEmitSound"
+    local r = data.Entity:OnEmitSound(data)
+    if isstring(r) then
+        data.Entity:EmitSound(r)
+        return false
+    elseif r == false then
+        return false
+    end
+
+
+    data.Entity.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
+
+
+    if altered then
+        return true
+    end
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("AcceptInput", "ZBASE", function( ent, input, activator, caller, value )
