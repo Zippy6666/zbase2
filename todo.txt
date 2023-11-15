@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------------------=#
 -- TODO --
+-- Fix dialogue playing for the same npcs too often
 -- Custom blood system
     -- White blood decals for hunters
 -- Flinch system
@@ -15,7 +16,6 @@
     -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
     -- Misc useful stuff
 -- Zippy gore mod support xddddddddddd
--- Improve melee attack by allowing more scheds
 ------------------------------------------------------------------------------------=#
 
 

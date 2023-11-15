@@ -40,16 +40,6 @@ ZBase_DontSpeakOverThisSound = false
 ZBaseComballOwner = NULL
 
 
-local BloodEffects = {
-    [BLOOD_COLOR_RED] = "blood_impact_red_01",
-    [BLOOD_COLOR_ANTLION] = "blood_impact_antlion_01",
-    [BLOOD_COLOR_ANTLION_WORKER] = "blood_impact_antlion_worker_01",
-    [BLOOD_COLOR_GREEN] = "blood_impact_green_01",
-    [BLOOD_COLOR_ZOMBIE] = "blood_impact_zombie_01",
-    [BLOOD_COLOR_YELLOW] = "blood_impact_yellow_01",
-}
-
-
 -------------------------------------------------------------------------------------------------------------------------=#
 function ZBaseEnhancementNPCClass(debuginfo)
     local shortsrc = debuginfo.short_src

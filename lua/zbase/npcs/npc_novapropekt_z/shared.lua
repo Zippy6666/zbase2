@@ -1,7 +1,7 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
 NPC.Class = "npc_combine_s" -- NPC to base this NPC on
-NPC.Category = "Combine" -- Spawnmenu category
+NPC.Category = "ZBase" -- Spawnmenu category
 NPC.Name = "Nova Prospekt Soldier" -- Spawnmenu name
 NPC.Weapons = {
     "weapon_ar2",
