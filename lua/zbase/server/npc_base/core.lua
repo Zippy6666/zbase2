@@ -26,6 +26,7 @@ function NPC:ZBaseInit()
     self.NextPainSound = CurTime()
     self.NextAlertSound = CurTime()
     self.NPCNextSlowThink = CurTime()
+    self.NPCNextDangerSound = CurTime()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 
@@ -129,26 +130,9 @@ function NPC:PreventFarShoot()
     self:SetMaxLookDistance(self:GetCurrentWeaponShootDist())
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:OnEmitSound( data )
-    local val = self:CustomOnEmitSound( data )
-    local squad = self:GetKeyValues().squadname
-
-    if isstring(val) then
-        return val
-    elseif val == false then
-        return false
-    elseif squad != "" && ZBase_DontSpeakOverThisSound then
-        -- Make sure squad doesn't speak over each other
-        ZBaseSpeakingSquads[squad] = true
-        timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
-            ZBaseSpeakingSquads[squad] = nil
-        end) 
-    end
-end
----------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnKilledEnt( ent )
     if ent == self:GetEnemy() then
-        self:EmitSound_Uninterupted(self.KilledEnemySound)
+        self:EmitSound_Uninterupted(self.KilledEnemySounds)
     end
     
     self:CustomOnKilledEnt( ent )
@@ -181,14 +165,81 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseAlertSound()
     if self.NextAlertSound > CurTime() then return end
+    if self:SquadMemberIsSpeaking({"AlertSounds"}) then return end
 
-    ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
+    -- ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
     self:EmitSound_Uninterupted(self.AlertSounds)
 
     self.NextAlertSound = CurTime() + ZBaseRndTblRange(self.AlertSoundCooldown)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:OnEmitSound( data )
+    local sndVarName
+    for _, v in ipairs(self.SoundVarNames) do
+        if self[v] == data.OriginalSoundName then
+            sndVarName = v
+            break
+        end
+    end
+
+    
+    local val = self:CustomOnEmitSound( data, sndVarName )
+    local squad = self:GetKeyValues().squadname
+
+
+    -- Make sure squad doesn't speak over each other
+    if squad != "" && ZBase_DontSpeakOverThisSound then
+        ZBaseSpeakingSquads[squad] = sndVarName or true
+
+        timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
+            ZBaseSpeakingSquads[squad] = nil
+        end)
+    end
+
+
+    return val
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:SquadMemberIsSpeaking( soundList )
+    local squadSpeakSndVar = ZBaseSpeakingSquads[self:GetKeyValues().squadname]
+
+
+    if soundList then
+        for _, v in ipairs(soundList) do
+            print(v, v == squadSpeakSndVar)
+            if v == squadSpeakSndVar then return true end
+        end
+
+        return false
+    end
+
+
+    return squadSpeakSndVar && true or false
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:DangerSound( isGrenade )
+    if self.NPCNextDangerSound > CurTime() then return end
+    self:EmitSound(isGrenade && self.SeeGrenadeSounds!="" && self.SeeGrenadeSounds or self.SeeDangerSounds)
+    self.NPCNextDangerSound = CurTime()+math.Rand(2, 4)
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:HandleDanger()
+    if self.InternalLoudestSoundHint.type != SOUND_DANGER then return end
+    local dangerOwn = self.InternalLoudestSoundHint.owner
+
+
+    if IsValid(dangerOwn)
+    && (dangerOwn.IsZBaseGrenade or dangerOwn:GetClass() == "npc_grenade_frag") then
+        self:DangerSound(true)
+    else
+        self:DangerSound(false)
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
+    if self:GetNPCState() == NPC_STATE_DEAD then return end
+
+
     local ene = self:GetEnemy()
     if self.NPCNextSlowThink < CurTime() then
 
@@ -212,16 +263,31 @@ function NPC:ZBaseThink()
         self:InternalDetectDanger()
 
 
-        self.NPCNextSlowThink = CurTime()+0.4
+        self.NPCNextSlowThink = CurTime()+0.3
     end
 
 
-    -- New enemy detected
+    -- Enemy updated
     if ene != self.ZBase_LastEnemy then
+        -- print(self.ZBase_LastEnemy, "------>", ene)
+
         self.ZBase_LastEnemy = ene
 
-        if self.ZBase_LastEnemy then
+        if IsValid(ene) then
+            -- New enemy
             self:ZBaseAlertSound()
+        elseif !self.EnemyDied then
+            -- Check if enemy was lost
+            -- Wait some time until confirming the enemy is lost
+            timer.Simple(math.Rand(1, 2), function()
+                if !IsValid(self) then return end
+
+                -- Enemy lost
+                if !IsValid(self:GetEnemy())
+                && !self:SquadMemberIsSpeaking( {"LostEnemySounds"} ) then
+                    self:EmitSound_Uninterupted(self.LostEnemySounds)
+                end
+            end)
         end
     end
 
@@ -237,6 +303,12 @@ function NPC:ZBaseThink()
     -- Handle movement during PlayAnimation
     if self.DoingPlayAnim then
         self:AutoMovement( self:GetAnimTimeInterval() )
+    end
+
+
+    -- Handle danger
+    if self.InternalLoudestSoundHint then
+        self:HandleDanger()
     end
 
 
@@ -273,6 +345,19 @@ function NPC:InternalSetAnimation( anim )
 	end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:FullReset()
+    self:TaskComplete()
+    self:ClearGoal()
+    self:ClearSchedule()
+    self:StopMoving()
+    self:SetMoveVelocity(Vector())
+
+    if self.IsZBase_SNPC then
+        self:AerialResetNav()
+        self:ScheduleFinished()
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc )
     if GetConVar("ai_disabled"):GetBool() then return end
 
@@ -282,26 +367,12 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
 
 
         -- Reset stuff --
-        self:TaskComplete()
-        self:ClearGoal()
+        self:FullReset()
 
-        if self.IsZBase_SNPC then
-            self:ScheduleFinished()
-        end
 
-        self:ClearSchedule()
-        self:StopMoving()
-        self:SetMoveVelocity(Vector())
-
-        if IsValid(self.Navigator) then
-            self.Navigator:Remove()
-        end
-
-        self.AerialGoal = nil
-
+        -- Set state to scripted
         self.PreAnimNPCState = self:GetNPCState()
         self:SetNPCState(NPC_STATE_SCRIPT)
-        ----------------------------------------------=#
 
 
         -- Set schedule
@@ -443,7 +514,7 @@ function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalDetectDanger()
-	self.InternalCurrentDanger = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
+	self.InternalLoudestSoundHint = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalDamageScale(dmg)

@@ -92,16 +92,22 @@ end
     -- 'duration' - Face duration, if not set, you can run the function in think for example
     -- 'speed' - Turn speed, if not set, it will be the default turn speed
 function NPC:Face( face, duration, speed )
-    -- local hasMoveYawPoseParam = self:LookupPoseParameter( "move_yaw" )!=-1
 
 	local function turn( yaw )
         if GetConVar("ai_disabled"):GetBool() then return end
         if self:IsMoving() then return end
 
+
+        local sched = self:GetCurrentSchedule()
+        if sched > 88 then return end
+        if ZBaseForbiddenFaceScheds[sched] then return end
+        
+
         local turnSpeed = speed
         or (self.IsZBase_SNPC && self.m_fMaxYawSpeed)
         or 10
         
+
 		self:SetIdealYawAndUpdate(yaw, turnSpeed)
 	end
 
@@ -116,24 +122,25 @@ function NPC:Face( face, duration, speed )
 	elseif isvector(face) then
 		faceFunc = function() turn( (face - self:GetPos()):Angle().y ) end
 	end
-
     if !faceFunc then return end
 
-    if duration then
-    
-        self.TimeUntilStopFace = CurTime()+duration
 
+    if duration then
+
+        self.TimeUntilStopFace = CurTime()+duration
         timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
             if !IsValid(self) or (faceIsEnt && !IsValid(face)) or self.TimeUntilStopFace < CurTime() then
                 timer.Remove("ZBaseFace"..self:EntIndex())
                 return
             end
-
             faceFunc()
         end)
 
     else
 
+        if timer.Exists("ZBaseFace"..self:EntIndex()) then
+            timer.Remove("ZBaseFace"..self:EntIndex())
+        end
         faceFunc()
 
     end
@@ -242,8 +249,10 @@ end
 
     -- Triggers the base melee attack damage code
 function NPC:MeleeAttackDamage()
-    local dmgData = self.CurrentMeleeDMGData
+    if self:GetNPCState() == NPC_STATE_DEAD then return end
 
+
+    local dmgData = self.CurrentMeleeDMGData
     if !dmgData then
         dmgData = {
             dist=self.MeleeDamage_Distance,
@@ -256,6 +265,7 @@ function NPC:MeleeAttackDamage()
             hitSoundProps = self.MeleeDamage_Sound_Prop,
         }
     end
+
 
     self:InternalMeleeAttackDamage(dmgData)
 end

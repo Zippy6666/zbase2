@@ -23,7 +23,7 @@ function BEHAVIOUR.DoIdleSound:ShouldDoBehaviour( self )
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleSound:Delay( self )
-    if ZBaseSpeakingSquads[self:GetKeyValues().squadname] or math.random(1, self.IdleSound_Chance)==1 then
+    if self:SquadMemberIsSpeaking() or math.random(1, self.IdleSound_Chance)==1 then
         return ZBaseRndTblRange(self.IdleSoundCooldown)
     end
 end
@@ -42,21 +42,21 @@ function BEHAVIOUR.DoIdleSound:Run( self )
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleEnemySound:ShouldDoBehaviour( self )
-    if self.IdleSounds_HasEnemy == "" then return false end
+    if self.Idle_HasEnemy_Sounds == "" then return false end
     if self:GetNPCState() == NPC_STATE_DEAD then return false end
 
     return true
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleEnemySound:Delay( self )
-    if ZBaseSpeakingSquads[self:GetKeyValues().squadname] then
+    if self:SquadMemberIsSpeaking() then
         return ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown)
     end
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.DoIdleEnemySound:Run( self )
 
-    local snd = self.IdleSounds_HasEnemy
+    local snd = self.Idle_HasEnemy_Sounds
     local enemy = self:GetEnemy()
 
     self:EmitSound_Uninterupted(snd)

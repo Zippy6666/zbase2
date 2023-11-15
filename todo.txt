@@ -1,39 +1,33 @@
 ------------------------------------------------------------------------------------=#
 -- TODO --
--- Support global hearing system
-    -- Hear distance multiplier, 0 = deaf
-    -- HearDangerSounds
 -- Sounds
-    -- LostEnemySounds
-    -- SeeDangerSounds
-    -- SeeGrenadeSounds
-    -- HearDangerSounds
-    -- AllyDeathSounds
     -- OnMeleeSounds
     -- OnRangeSounds
     -- OnReloadSounds
+    -- Dialogue
     -- Stop sounds on death
+-- SNPC danger detect
+    -- New ZSched that uses cover from origin with random move as fallback
 -- Custom blood system
     -- White blood decals for hunters
 -- Flinch system
     -- Playanimation gestures
 -- Death animation system
 -- Bodygroup system
--- More menu options
-    -- Health and damage sliders
-    -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
-    -- Misc useful stuff
 -- Improve range attack code
     -- Limited suppression time?
 -- Pose parameter looking
--- SNPC danger detect
-    -- New ZSched that uses cover from origin with random move as fallback
 -- Add spacer for weapon menu
 -- Movement animation override (should work with aerial npcs)
 -- Fix squad error
 -- Fix circular include error thingy
 -- Fix cannot duplicate mfs
 -- Pushing and/or attacking props
+-- More menu options
+    -- Health and damage sliders
+    -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
+    -- Misc useful stuff
+-- Zippy gore mod support xddddddddddd
 ------------------------------------------------------------------------------------=#
 
 
@@ -75,6 +69,7 @@
     -- Make sure it works as intended with vj
     -- Compatible with my other addons
     -- Test PlayAnimation on loads of NPCs
+-- Add more stuff that vj has, or don't idk lol
 -- Copyright stuff
 ------------------------------------------------------------------------------------=#
 

@@ -127,7 +127,9 @@ local function RegBase()
         include("zbase/server/npc_base/util.lua")
         include(npcpath.."init.lua")
 
+
         ZBaseNPCs["npc_zbase"].Behaviours = {}
+
 
         local files = file.Find("zbase/server/npc_base/behaviours/*","LUA")
         local behaviourPath = "zbase/server/npc_base/behaviours/"
@@ -135,6 +137,18 @@ local function RegBase()
         for _, v in ipairs(files) do
             include(behaviourPath..v)
         end
+
+
+        -- Get names of sound variables
+        ZBaseNPCs["npc_zbase"].SoundVarNames = {}
+        for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
+            if string.EndsWith(k, "Sounds")
+            or string.EndsWith(k, "Sound") then
+                table.insert(ZBaseNPCs["npc_zbase"].SoundVarNames, k)
+            end
+        end
+
+        PrintTable(ZBaseNPCs["npc_zbase"].SoundVarNames)
     end
 
     include(npcpath.."shared.lua")

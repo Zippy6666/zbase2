@@ -16,7 +16,20 @@ local ZBaseWeaponAccuracyBoost = {
     ["weapon_pistol"] = 50,
 }
 
+---------------------------------------------------------------------------------------=#
+local function TellZBaseNPCsEnemyDied(npc)
+    for _, v in ipairs(ZBaseNPCInstances) do
+        if v:GetEnemy() == npc then
+            v.EnemyDied = true
 
+            timer.Create("ZBaseEnemyDied_False"..npc:EntIndex(), 2, 1, function()
+                if IsValid(v) then
+                    v.EnemyDied = false
+                end
+            end)
+        end
+    end
+end
 ---------------------------------------------------------------------------------------=#
 hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function() timer.Simple(0.5, function()
 	local ENT = FindMetaTable("Entity")
@@ -31,10 +44,35 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function() timer.Simple(0.
 			attacker:OnKilledEnt( npc )
 		end
 
+        TellZBaseNPCsEnemyDied(npc)
+
+
 		if npc.IsZBaseNPC then
             -- Death sound
 			npc:EmitSound(npc.DeathSounds)
+
+
+            local ally = npc:GetNearestAlly(600)
+            local deathpos = npc:GetPos()
+            if IsValid(ally) && ally:Visible(npc) then
+                timer.Simple(0.5, function()
+                    if IsValid(ally)
+                    && ally.AllyDeathSound_Chance
+                    && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+                        ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
+
+                        if ally.AllyDeathSounds != "" then
+                            ally:FullReset()
+                            ally:Face(deathpos, SoundDuration(ally.AllyDeathSounds))
+                        end
+                    end
+                end)
+            end
+
+
+            SafeRemoveEntityDelayed(npc, 0.15) -- Remove earlier
 		end
+
 
 		return OnNPCKilled(self, npc, ...)
 	end
@@ -322,6 +360,8 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:OnKilledEnt( ply )
     end
+
+    TellZBaseNPCsEnemyDied(ply)
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
 hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
