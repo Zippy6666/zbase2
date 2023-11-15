@@ -19,7 +19,8 @@ local BusyScheds = {
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function NPC:TooBusyForMelee()
     local sched = self:GetCurrentSchedule()
-    return BusyScheds[sched] or sched > 88 or self.DoingPlayAnim
+    -- return BusyScheds[sched] or sched > 88 or self.DoingPlayAnim
+    return self.DoingPlayAnim
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function NPC:CanBeMeleed( ent )
