@@ -87,6 +87,11 @@ if SERVER then
     net.Receive("ZBasePlayerFactionSwitch", function( _, ply )
         local faction = net.ReadString()
         ply.ZBaseFaction = faction
+
+        -- Update
+        for _, v in ipairs(ZBaseRelationshipEnts) do
+            v:Relationships()
+        end
     end)
     -----------------------------------------------------------------------------------------=#
     net.Receive("ZBaseNPCFactionOverrideSwitch", function( _, ply )
