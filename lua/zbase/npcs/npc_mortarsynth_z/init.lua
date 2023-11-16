@@ -21,7 +21,7 @@ NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this factio
 
 NPC.BaseRangeAttack = true -- Use ZBase range attack system
 NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
-NPC.RangeAttackCooldown = {3, 6} -- Range attack cooldown {min, max}
+NPC.RangeAttackCooldown = {1, 1} -- Range attack cooldown {min, max}
 NPC.RangeAttackDistance = {0, 3000} -- Distance that it initiates the range attack {min, max}
 
 -- Attachment to spawn the projectile on 

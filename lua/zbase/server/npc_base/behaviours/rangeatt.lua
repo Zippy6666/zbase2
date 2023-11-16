@@ -20,19 +20,22 @@ function BEHAVIOUR.RangeAttack:ShouldDoBehaviour( self )
 
 
     -- Can't see target position
-    -- if !self:VisibleVec(trgtPos) then return false end
+    if !self:VisibleVec(trgtPos) then print("cannot see target pos") return false end
 
 
     -- Not in distance
     if !self:ZBaseDist(trgtPos, {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end
 
 
-    -- Supress disabled, and enemy not visible
+    -- Suppress disabled, and enemy not visible
     if !self.RangeAttackSuppressEnemy && seeEnemy then return false end
 
 
-    -- Don't suppress enemy if behind it for example
-    if self.RangeAttackSuppressEnemy && !self:IsFacing( ene, 70 ) && !seeEnemy then
+    -- Don't suppress enemy with these conditions
+    if (self.RangeAttackSuppressEnemy && !seeEnemy)
+    && (!self.RangeAttack_LastEnemyPos
+    -- or ene:GetPos():DistToSqr(trgtPos) > 400^2
+    or !ene:VisibleVec(trgtPos)) then
         return false
     end
 

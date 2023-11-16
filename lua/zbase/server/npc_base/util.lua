@@ -152,7 +152,8 @@ end
     -- 'anim' - The sequence or activity to play, accepts sequences as strings
     -- 'faceEnemy' - Set to true to constantly face enemy while the animation is playing
     -- 'extraData' (table)
-        -- extraData.face - Position or entity to constantly face
+        -- extraData.isGesture - If true, it will play the animation as a gesture
+        -- extraData.face - Position or entity to constantly face, set to false to prevent facing during the animation
         -- extraData.speedMult - Speed multiplier for the animation
         -- extraData.duration - The animation duration
         -- extraData.faceSpeed - Face turn speed
@@ -162,7 +163,8 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     local enemy = self:GetEnemy()
     local face = extraData.face or (faceEnemy && IsValid(enemy) && enemy) or nil
 
-    self:InternalPlayAnimation(anim, extraData.duration, extraData.speedMult, SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop )
+    self:InternalPlayAnimation(anim, extraData.duration, extraData.speedMult,
+    SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop)
 end
 --------------------------------------------------------------------------------=#
 

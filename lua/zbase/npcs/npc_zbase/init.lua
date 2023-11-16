@@ -16,8 +16,6 @@ NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
-NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
--- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER	
 
 NPC.SightDistance = 7000 -- Sight distance
 NPC.SightAngle = 90 -- Sight angle
@@ -50,6 +48,10 @@ NPC.ZBaseStartFaction = "none" -- Any string, all ZBase NPCs with this faction w
 
         -- DAMAGE AND DEATH --
 
+NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
+-- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER
+NPC.CustomBloodParticles = false -- Table of custom particles.
+NPC.CustomBloodDecals = false
 
     -- Armor System --
 NPC.HasArmor = {
@@ -83,6 +85,11 @@ NPC.CanDissolve = true -- Can the NPC be dissolved?
 
 
 NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
+
+NPC.FlinchAnimations = {} -- Flinch animations to use, leave empty to disable the base flinch
+NPC.FlinchAnimationSpeed = 1 -- Speed of the flinch animation
+NPC.FlinchCooldown = 2 -- Flinch cooldown in seconds
+NPC.FlinchChance = 2 -- Flinch chance 1/x
 
 
 --[[===============================================================================================]]
@@ -233,6 +240,14 @@ end
 
     -- Called when the NPC hurts an entity, return true to prevent damage --
 function NPC:DealDamage( victimEnt, dmginfo )
+end
+--[[===============================================================================================]]
+
+    -- Called before the NPC flinches
+    -- Only called on ZBase flinches, not from engine ones
+    -- Return false to prevent the flinch
+function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
+
 end
 --[[===============================================================================================]]
 

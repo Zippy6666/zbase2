@@ -34,6 +34,7 @@ function NPC:ZBaseInit()
     self.NPCNextSlowThink = CurTime()
     self.NPCNextDangerSound = CurTime()
     self.NextEmitHearDangerSound = CurTime()
+    self.NextFlinch = CurTime()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 
@@ -408,12 +409,41 @@ function NPC:FullReset()
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:InternalPlayAnim_StopGesture()
+
+    -- local goalSeq = self:SelectWeightedSequence(ACT_IDLE)
+    -- local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
+
+    -- if transition != -1
+    -- && transition != goalSeq then
+    --     self:PlayAnimation(self:GetSequenceName(transition))
+    --     return
+    -- end
+end
+---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc )
     -- DONT EVEN BREATHE ON IT --
     if GetConVar("ai_disabled"):GetBool() then return end
 
     -- Main function --
     local function playAnim()
+        -- Do anim as gesture if it is one --
+        -- Don't do the rest of the code after that --
+        local gest = isstring(anim) &&
+        self:GetSequenceActivity(self:LookupSequence(anim)) or
+        isnumber(anim) && anim
+        
+        if gest then
+            self:AddGesture(gest)
+
+            if self:IsPlayingGesture(gest) then
+                return -- Stop here
+            end
+        end
+        --------------------------------------=#
+
+
+
         -- Reset stuff --
         self:FullReset()
 
@@ -567,6 +597,26 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalDetectDanger()
 	self.InternalLoudestSoundHint = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:ZBaseTakeDamage(dmg, hit_gr)
+
+    -- Flinch
+    if !table.IsEmpty(self.FlinchAnimations)
+    && math.random(1, self.FlinchChance) == 1
+    && self.NextFlinch < CurTime() then
+        local anim = table.Random(self.FlinchAnimations)
+
+        if self:OnFlinch(dmg, hit_gr, anim) != false then
+            self:PlayAnimation(anim, false, {
+                speedMult=self.FlinchAnimationSpeed,
+            })
+
+            self.NextFlinch = ZBaseRndTblRange(self.FlinchCooldown)
+        end
+    end
+    -----------------------=#
+
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalDamageScale(dmg)

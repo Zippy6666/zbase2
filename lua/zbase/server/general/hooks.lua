@@ -265,6 +265,27 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     end
 end)
 ---------------------------------------------------------------------------------------=#
+local function CustomBleed( ent, pos, dir )
+    -- Custom blood
+    if !ent.IsZBaseNPC then return end
+    if !ent.CustomBloodParticles && !ent.CustomBloodDecals then return end
+
+
+    local dmgPos = pos
+    if !ent:ZBaseDist( dmgPos, { within=math.max(ent:OBBMaxs().x, ent:OBBMaxs().z)*1.5 } ) then
+        dmgPos = ent:WorldSpaceCenter()+VectorRand()*15
+    end
+
+
+    if ent.CustomBloodParticles then
+        ParticleEffect(table.Random(ent.CustomBloodParticles), dmgPos, -dir:Angle())
+    end
+
+    if ent.CustomBloodDecals then
+        util.Decal(ent.CustomBloodDecals, dmgPos, dmgPos+dir*200, ent)
+    end
+end
+---------------------------------------------------------------------------------------=#
 hook.Add("PostEntityTakeDamage", "ZBASE", function( ent, dmg )
     -- Fix NPCs being unkillable in SCHED_NPC_FREEZE
     if ent.IsZBaseNPC && ent:IsCurrentSchedule(SCHED_NPC_FREEZE) && ent:Health() <= 0 && !ent.ZBaseDieFreezeFixDone then
@@ -272,15 +293,29 @@ hook.Add("PostEntityTakeDamage", "ZBASE", function( ent, dmg )
         ent:TakeDamageInfo(dmg)
         ent.ZBaseDieFreezeFixDone = true
     end
+
+
+    -- Custom blood
+    if dmg:GetDamage() > 0 then
+        if ent.ZBase_BulletHits then
+            for _, v in ipairs(ent.ZBase_BulletHits) do
+                CustomBleed(ent, v.pos, v.dir)
+            end
+        else
+            CustomBleed(ent, dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
+        end
+    end
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
     if !npc.IsZBaseNPC then return end
 
+
     local r = npc:CustomTakeDamage(dmg, hit_gr)
     if r then
         return r
     end
+
 
     if npc.HasArmor[hit_gr] then
         local r = npc:HitArmor(dmg, hit_gr)
@@ -288,6 +323,77 @@ hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
             return r
         end
     end
+
+
+    local r = npc:ZBaseTakeDamage(dmg, hit_gr)
+    if r then
+        return r
+    end
+
+
+    if dmg:IsBulletDamage() then
+        if !npc.ZBase_BulletHits then
+            npc.ZBase_BulletHits = {}
+        else
+            table.insert(npc.ZBase_BulletHits, {pos=dmg:GetDamagePosition(), dir=dmg:GetDamageForce():GetNormalized()})
+
+            timer.Simple(0, function()
+                if !IsValid(npc) then return end
+
+                npc.ZBase_BulletHits = nil
+            end)
+        end
+    end
+end)
+---------------------------------------------------------------------------------------------------------------------=#
+local function BulletHit( ent, tr, dmginfo, data )
+    if IsValid(tr.Entity) && tr.Entity.IsZBaseNPC then
+        tr.Entity:OnBulletHit(ent, tr, dmginfo, data)
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+ZBaseReflectedBullet = false
+
+hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
+    -- "Bullet Hit Hook" --
+    local data_backup = data
+    if grabbing_bullet_backup_data then return end
+
+    grabbing_bullet_backup_data = true
+    hook.Run("EntityFireBullets", ent, data, ...)
+    grabbing_bullet_backup_data = false
+
+    data = data_backup
+
+    if !ZBaseReflectedBullet then
+        local callback = data.Callback
+        data.Callback = function(callback_ent, tr, dmginfo, ...)
+
+            if callback then
+                callback(callback_ent, tr, dmginfo, ...)
+            end
+
+            BulletHit(callback_ent, tr, dmginfo, data)
+
+        end
+    end
+    --------------------------------------------------=#
+
+
+    -- Boost accuracy for some weapons --
+    if ent.IsZBaseNPC then
+        local wep = ent:GetActiveWeapon()
+        local ene = ent:GetEnemy()
+
+        if IsValid(wep) && IsValid(ene) && ZBaseWeaponAccuracyBoost[wep:GetClass()] then
+            local sprd = (5 - ent:GetCurrentWeaponProficiency())/ZBaseWeaponAccuracyBoost[wep:GetClass()]
+            data.Spread = Vector(sprd, sprd)
+            data.Dir = (ene:WorldSpaceCenter() - ent:GetShootPos()):GetNormalized()
+        end
+    end
+    --------------------------------------------------=#
+
+    return true
 end)
 ---------------------------------------------------------------------------------------=#
 local SoundIndexes = {}
@@ -392,56 +498,6 @@ hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
             ent:SetZBaseFaction(ply.ZBaseNPCFactionOverride)
         end)
     end
-end)
----------------------------------------------------------------------------------------------------------------------=#
-local function BulletHit( ent, tr, dmginfo, data )
-    if IsValid(tr.Entity) && tr.Entity.IsZBaseNPC then
-        tr.Entity:OnBulletHit(ent, tr, dmginfo, data)
-    end
-end
----------------------------------------------------------------------------------------------------------------------=#
-ZBaseReflectedBullet = false
-
-hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
-    -- "Bullet Hit Hook" --
-    local data_backup = data
-    if grabbing_bullet_backup_data then return end
-
-    grabbing_bullet_backup_data = true
-    hook.Run("EntityFireBullets", ent, data, ...)
-    grabbing_bullet_backup_data = false
-
-    data = data_backup
-
-    if !ZBaseReflectedBullet then
-        local callback = data.Callback
-        data.Callback = function(callback_ent, tr, dmginfo, ...)
-
-            if callback then
-                callback(callback_ent, tr, dmginfo, ...)
-            end
-
-            BulletHit(callback_ent, tr, dmginfo, data)
-
-        end
-    end
-    --------------------------------------------------=#
-
-
-    -- Boost accuracy for some weapons --
-    if ent.IsZBaseNPC then
-        local wep = ent:GetActiveWeapon()
-        local ene = ent:GetEnemy()
-
-        if IsValid(wep) && IsValid(ene) && ZBaseWeaponAccuracyBoost[wep:GetClass()] then
-            local sprd = (5 - ent:GetCurrentWeaponProficiency())/ZBaseWeaponAccuracyBoost[wep:GetClass()]
-            data.Spread = Vector(sprd, sprd)
-            data.Dir = (ene:WorldSpaceCenter() - ent:GetShootPos()):GetNormalized()
-        end
-    end
-    --------------------------------------------------=#
-
-    return true
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
 hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )

@@ -21,8 +21,9 @@ local function BehaviourTimer( ent )
         if !Behaviour.Run then continue end
         ZBaseDelayBehaviour_Name = BehaviourName
 
+
         if ent.ZBase_Behaviour_Delays[BehaviourName] > CurTime() then continue end
-        if Behaviour.ShouldDoBehaviour && !Behaviour:ShouldDoBehaviour( ent ) then continue end
+
 
         local enemy = ent:GetEnemy()
         local has_ene = IsValid(enemy)
@@ -33,6 +34,10 @@ local function BehaviourTimer( ent )
         or (Behaviour.MustFaceEnemy && !ent:IsFacing(enemy)) then
             continue
         end
+
+
+        if Behaviour.ShouldDoBehaviour && !Behaviour:ShouldDoBehaviour( ent ) then continue end
+        
 
         local delay = Behaviour.Delay && Behaviour:Delay( ent )
         if delay then
