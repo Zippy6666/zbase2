@@ -21,7 +21,7 @@ function NPC:CustomInitialize()
     timer.Simple(2, function()
         if !IsValid(self) then return end
 
-        self:PlayAnimation("gest_heal")
+        self:PlayAnimation("gest_heal", false, {isGesture=true})
     end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#

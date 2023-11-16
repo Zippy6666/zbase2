@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------------------=#
 -- TODO --
--- Playanimation gestures
 -- Death animation system
 -- Pose parameter looking
 -- Movement animation override (should work with aerial npcs)
@@ -49,10 +48,10 @@
 -- Make sure everything works
     -- Multiplayer
     -- Make sure ZBase handles all npc classes well (especially zombies!!)
-    -- Make sure it works as intended with vj
     -- Compatible with my other addons
-    -- Test PlayAnimation on loads of NPCs
     -- Make sure EVERYTHING works as intended
+        -- Stress test, do weird stuff
+        -- Test PlayAnimation on loads of NPCs
 -- Add more stuff that vj has, or don't idk lol
 -- Copyright stuff
 ------------------------------------------------------------------------------------=#
