@@ -9,3 +9,7 @@ NPC.StartHealth = 70 -- Max health
 NPC.m_iNumGrenades = 5
 NPC.m_nKickDamage = 20
 NPC.m_iTacticalVariant = 1
+
+NPC.DeathAnimations = {"rappel_a"} -- Death animations to use, leave empty to disable the base death animation
+NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
+NPC.DeathAnimationChance = 2 --  Flinch animation chance 1/x

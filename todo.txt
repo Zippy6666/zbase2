@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------------------=#
 -- TODO --
--- Death animation system
 -- Pose parameter looking
 -- Movement animation override (should work with aerial npcs)
 -- Pushing and/or attacking props
@@ -37,7 +36,7 @@
 -- Pack a few NPCs into the base
 -- Make more user friendly
     -- Comments
-    -- Organize funcs and vars
+    -- Organize hooks, funcs and vars
     -- Separate snpc and npc base
     -- Lots of "CustomOn" functions (use vj for reference)
     -- All variables can be changed during the NPC's lifetime
@@ -45,14 +44,14 @@
     -- ZBase reload tries to apply in realtime
     -- Get rid off WithinDistance, call it NPCDist maybe
     -- Add spacer for weapon menu
+    -- Add things that people probably want
 -- Make sure everything works
     -- Multiplayer
-    -- Make sure ZBase handles all npc classes well (especially zombies!!)
     -- Compatible with my other addons
     -- Make sure EVERYTHING works as intended
+        -- Make sure ZBase handles all npc classes well (especially zombies!!)
         -- Stress test, do weird stuff
         -- Test PlayAnimation on loads of NPCs
--- Add more stuff that vj has, or don't idk lol
 -- Copyright stuff
 ------------------------------------------------------------------------------------=#
 

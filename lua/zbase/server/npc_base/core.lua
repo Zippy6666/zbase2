@@ -288,10 +288,32 @@ function NPC:HandleDanger()
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function NPC:AnimShouldBeSequence( anim )
+    -- Old shit
+    if !isstring(anim) then return false end
+
+    return self:GetSequenceActivity(self:LookupSequence(anim)) == -1
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:InternalSetAnimation( anim )
+    -- Old shit
+	if isstring(anim) then
+        -- Sequence
+        if self.IsZBase_SNPC then
+            self.ZBaseSNPCSequence = anim
+        elseif !self:AnimShouldBeSequence(anim) then
+            self:SetActivity(self:GetSequenceActivity(self:LookupSequence(anim)))
+        end
+
+	elseif isnumber(anim) then
+
+        -- Activity
+		self:SetActivity(anim)
+
+	end
+end
+---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
-    if self:GetNPCState() == NPC_STATE_DEAD then return end
-
-
     local ene = self:GetEnemy()
     if self.NPCNextSlowThink < CurTime() then
 
@@ -350,9 +372,19 @@ function NPC:ZBaseThink()
     end
 
 
-    -- Handle movement during PlayAnimation
     if self.DoingPlayAnim then
+        -- Handle movement during PlayAnimation
         self:AutoMovement( self:GetAnimTimeInterval() )
+
+        -- Face during PlayAnimation
+        if self.PlayAnim_Face then
+            self:Face(self.PlayAnim_Face, nil, self.PlayAnim_FaceSpeed)
+        end
+
+        -- Playback rate for the animation
+        self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
+
+        -- self:InternalSetAnimation(anim)
     end
 
 
@@ -373,29 +405,6 @@ function NPC:OnOwnedEntCreated( ent )
     self:CustomOnOwnedEntCreated( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:AnimShouldBeSequence( anim )
-    if !isstring(anim) then return false end
-
-    return self:GetSequenceActivity(self:LookupSequence(anim)) == -1
-end
----------------------------------------------------------------------------------------------------------------------=#
-function NPC:InternalSetAnimation( anim )
-	if isstring(anim) then
-        -- Sequence
-        if self.IsZBase_SNPC then
-            self.ZBaseSNPCSequence = anim
-        elseif !self:AnimShouldBeSequence(anim) then
-            self:SetActivity(self:GetSequenceActivity(self:LookupSequence(anim)))
-        end
-
-	elseif isnumber(anim) then
-
-        -- Activity
-		self:SetActivity(anim)
-
-	end
-end
----------------------------------------------------------------------------------------------------------------------=#
 function NPC:FullReset()
     self:TaskComplete()
     self:ClearGoal()
@@ -409,19 +418,7 @@ function NPC:FullReset()
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:InternalPlayAnim_StopGesture()
-
-    -- local goalSeq = self:SelectWeightedSequence(ACT_IDLE)
-    -- local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
-
-    -- if transition != -1
-    -- && transition != goalSeq then
-    --     self:PlayAnimation(self:GetSequenceName(transition))
-    --     return
-    -- end
-end
----------------------------------------------------------------------------------------------------------------------=#
-function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc, isGest )
+function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc, isGest, isTransition )
     if GetConVar("ai_disabled"):GetBool() then return end
 
 
@@ -433,14 +430,15 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
         isnumber(anim) && anim
 
         local id = self:AddGesture(gest)
-        self:SetLayerBlendIn(id, 0.2)
-        self:SetLayerBlendOut(id, 0.2)
-        self:SetLayerPlaybackRate(id, (playbackRate or 1) )
+        if self.IsZBase_SNPC then
+            self:SetLayerBlendIn(id, 0.2)
+            self:SetLayerBlendOut(id, 0.2)
+            self:SetLayerPlaybackRate(id, (playbackRate or 1)*0.5 )
+        end
 
         return -- Stop here
     end
     --------------------------------------=#
-
 
 
     -- Main function --
@@ -455,104 +453,114 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
 
 
         -- Set schedule
-        if sched then
-            self:SetSchedule(sched)
-        end
+        self:SetSchedule(sched or SCHED_NPC_FREEZE)
 
 
         self.DoingPlayAnim = true
+        self.PlayAnim_PlayBackRate = playbackRate
+    
+
+        -- Convert activity to sequence
+        if isnumber(anim) then anim = self:SelectWeightedSequence(anim) end
+        self.PlayAnim_Seq = anim
 
 
-
-        -- Play sequence if that is what the animation is
-        if self:AnimShouldBeSequence(anim) then
-            self:ResetSequence(anim)
-            self:ResetSequenceInfo()
-            self:SetCycle(0)
-        end
+        -- Play the sequence
+        self:ResetSequence(anim)
+        self:ResetSequenceInfo()
+        self:SetCycle(0)
 
 
-        -- Duration stuff
-        self:InternalSetAnimation(anim) -- So that SequenceDuration gives the right value
-        duration = duration or self:SequenceDuration()
+        -- Decide duration
+        duration = duration or self:SequenceDuration(anim)
         if playbackRate then
             duration = duration/playbackRate
         end
 
 
         -- Face
-        if forceFace && !loop then
-            self:Face(forceFace, duration, faceSpeed)
+        if forceFace then
+            self.PlayAnim_Face = forceFace
+            self.PlayAnim_FaceSpeed = faceSpeed
         end
 
 
-        -- Timer --
-        self.TimeUntilStopAnimOverride = CurTime()+duration
-        self.NextAnimTick = CurTime()+0.1
+        -- Anim stop timer --
+        timer.Create("ZBasePlayAnim"..self:EntIndex(), duration, 1, function()
+            if !IsValid(self) then return end
 
-        timer.Create("ZBasePlayAnim"..self:EntIndex(), 0, 0, function()
-            if !IsValid(self)
-            or (!loop && self.TimeUntilStopAnimOverride < CurTime()) then
+            self:InternalStopAnimation(isTransition)
 
-                if IsValid(self) then
-                    self:StopCurrentAnimation()
-
-                    if onFinishFunc then
-                        onFinishFunc()
-                    end
-                else
-                    timer.Remove("ZBasePlayAnim"..self:EntIndex())
-                end
-
-                return
+            if onFinishFunc then
+                onFinishFunc()
             end
-            
-            if self.NextAnimTick > CurTime() then return end
-
-
-            -- Play animation
-            self:SetPlaybackRate(playbackRate or 1)
-            self:InternalSetAnimation(anim)
-
-
-            -- Face
-            if forceFace && loop then
-                self:Face(forceFace, nil, faceSpeed)
-            end
-
-
-            self.NextAnimTick = CurTime()+0.1
         end)
+
+        -- asdasfddfhsgfjdfgh --
+        -- self.TimeUntilStopAnimOverride = CurTime()+duration
+
+        -- timer.Create("ZBasePlayAnim"..self:EntIndex(), 0, 0, function()
+        --     self:InternalSetAnimation(anim)
+        -- end)
         --------------------------------------------------=#
     end
     ----------------------------------------------------------------=#
 
 
     -- Transition --
-    local goalSeq = isstring(anim)
-    && self:LookupSequence(anim) or self:SelectWeightedSequence(anim)
-
+    local goalSeq = isstring(anim) && self:LookupSequence(anim) or self:SelectWeightedSequence(anim)
     local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
 
     if transition != -1
     && transition != goalSeq then
-        self:InternalPlayAnimation(
-            self:GetSequenceName(transition),
-            nil,
-            playbackRate,
-            SCHED_NPC_FREEZE,
-            forceFace,
-            faceSpeed,
-            false,
-            playAnim
-        )
+        -- Recursion
+        self:InternalPlayAnimation( self:GetSequenceName(transition), nil, playbackRate,
+        SCHED_NPC_FREEZE, forceFace, faceSpeed, false, playAnim, false, true )
 
-        return
+        debugoverlay.Text(self:GetPos() - Vector(0, 0, 50), "transition in", 2)
+        return -- Stop here
     end
     -----------------------------------------------------------------=#
 
 
+    -- No transition, just play the animation
+    
     playAnim()
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:InternalStopAnimation(dontTransitionOut)
+    if !dontTransitionOut then
+        -- Out transition --
+        local goalSeq = self:SelectWeightedSequence(ACT_IDLE)
+        local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
+
+        if transition != -1
+        && transition != goalSeq then
+            -- Recursion
+            self:InternalPlayAnimation( self:GetSequenceName(transition), nil, playbackRate,
+            SCHED_NPC_FREEZE, forceFace, faceSpeed, false, nil, false )
+
+            debugoverlay.Text(self:GetPos() - Vector(0, 0, 50), "transition out", 2)
+
+            return -- Stop here
+        end
+        ---------------------------------------------------------------------------------=#
+    end
+
+
+    self:SetActivity(ACT_IDLE)
+    self:ClearSchedule()
+    self:SetNPCState(self.PreAnimNPCState)
+
+
+    self.DoingPlayAnim = false
+    self.PlayAnim_Face = nil
+    self.PlayAnim_FaceSpeed = nil
+    self.PlayAnim_PlayBackRate = nil
+    self.PlayAnim_Seq = nil
+
+
+    timer.Remove("ZBasePlayAnim"..self:EntIndex())
 end
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Depricated
