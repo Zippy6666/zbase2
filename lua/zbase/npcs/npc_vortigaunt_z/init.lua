@@ -18,10 +18,10 @@ NPC.MeleeAttackAnimationSpeed = 1.25
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Called when the NPC is created --
 function NPC:CustomInitialize()
-    -- timer.Simple(2, function()
-    --     if !IsValid(self) then return end
+    timer.Simple(2, function()
+        if !IsValid(self) then return end
 
-    --     self:PlayAnimation("heal_end", false, {face=Vector(0, 0, 0), speedMult=0.25})
-    -- end)
+        self:PlayAnimation("gest_heal")
+    end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#

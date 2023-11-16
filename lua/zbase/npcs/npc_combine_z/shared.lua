@@ -12,4 +12,3 @@ NPC.Weapons = {
 }
 NPC.IsZBaseNPC = true
 NPC.Inherit = "npc_zbase" -- Inherit features from an existing ZBase NPC
-NPC.Replace = "npc_combine_s" -- Put the spawn menu name of an existing NPC to make this NPC replace it in the spawn menu
