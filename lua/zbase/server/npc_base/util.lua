@@ -164,7 +164,7 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     local face = extraData.face or (faceEnemy && IsValid(enemy) && enemy) or nil
 
     self:InternalPlayAnimation(anim, extraData.duration, extraData.speedMult,
-    SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop)
+    SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop, nil, extraData.isGesture)
 end
 --------------------------------------------------------------------------------=#
 

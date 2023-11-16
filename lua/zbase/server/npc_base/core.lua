@@ -421,30 +421,31 @@ function NPC:InternalPlayAnim_StopGesture()
     -- end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc )
-    -- DONT EVEN BREATHE ON IT --
+function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc, isGest )
     if GetConVar("ai_disabled"):GetBool() then return end
 
-    -- Main function --
-    local function playAnim()
-        -- Do anim as gesture if it is one --
-        -- Don't do the rest of the code after that --
+
+    -- Do anim as gesture if it is one --
+    -- Don't do the rest of the code after that --
+    if isGest then
         local gest = isstring(anim) &&
         self:GetSequenceActivity(self:LookupSequence(anim)) or
         isnumber(anim) && anim
-        
-        if gest then
-            self:AddGesture(gest)
 
-            if self:IsPlayingGesture(gest) then
-                return -- Stop here
-            end
-        end
-        --------------------------------------=#
+        local id = self:AddGesture(gest)
+        self:SetLayerBlendIn(id, 0.2)
+        self:SetLayerBlendOut(id, 0.2)
+        self:SetLayerPlaybackRate(id, (playbackRate or 1) )
+
+        return -- Stop here
+    end
+    --------------------------------------=#
 
 
 
-        -- Reset stuff --
+    -- Main function --
+    local function playAnim()
+        -- Reset stuff
         self:FullReset()
 
 
@@ -610,6 +611,7 @@ function NPC:ZBaseTakeDamage(dmg, hit_gr)
         if self:OnFlinch(dmg, hit_gr, anim) != false then
             self:PlayAnimation(anim, false, {
                 speedMult=self.FlinchAnimationSpeed,
+                isGesture=self.FlinchIsGesture,
             })
 
             self.NextFlinch = ZBaseRndTblRange(self.FlinchCooldown)

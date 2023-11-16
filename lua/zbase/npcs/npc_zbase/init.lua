@@ -90,6 +90,7 @@ NPC.FlinchAnimations = {} -- Flinch animations to use, leave empty to disable th
 NPC.FlinchAnimationSpeed = 1 -- Speed of the flinch animation
 NPC.FlinchCooldown = 2 -- Flinch cooldown in seconds
 NPC.FlinchChance = 2 -- Flinch chance 1/x
+NPC.FlinchIsGesture = false
 
 
 --[[===============================================================================================]]
