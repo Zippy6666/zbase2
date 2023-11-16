@@ -89,7 +89,6 @@ function ENT:DetermineNewSchedule()
 	end
 
 
-
 	-- Don't combat patrol if enemy is seen
 	if self:IsCurrentSchedule(SCHED_COMBAT_PATROL)
 	&& enemyVisible then
@@ -176,8 +175,8 @@ function ENT:RunAI( strExp )
 	self:DoNPCState()
 	
 
-	-- Play sequence:
-	if self.ZBaseSNPCSequence then
+	-- Playing ZBase anim right now
+	if self.DoingPlayAnim then
 		-- self:DoSequence()
 		return
 	end

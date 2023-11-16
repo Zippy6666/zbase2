@@ -78,8 +78,14 @@ function ZBaseBleed( ent, pos, ang )
     if !ent.GetBloodColor then return end
     if ent.GetNPCState && ent:GetNPCState()==NPC_STATE_DEAD then return end
 
-    local bloodcol = ent:GetBloodColor()
 
+    local distFromSelf = ent:GetPos():DistToSqr(pos)
+    if distFromSelf > (math.max(ent:OBBMaxs().x, ent:OBBMaxs().z)*1.5)^2 then
+        pos = ent:WorldSpaceCenter()+VectorRand()*15
+    end
+
+
+    local bloodcol = ent:GetBloodColor()
     if bloodcol==BLOOD_COLOR_MECH then
         local spark = ents.Create("env_spark")
         spark:SetKeyValue("spawnflags", 256)

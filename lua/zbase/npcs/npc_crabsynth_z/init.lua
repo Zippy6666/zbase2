@@ -33,7 +33,7 @@ NPC.SquadGiveSpace = 256
 NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_FACE -- ZBASE_CANTREACHENEMY_HIDE || ZBASE_CANTREACHENEMY_FACE
 
         -- BASE RANGE ATTACK --
-NPC.BaseRangeAttack = true -- Use ZBase range attack system
+NPC.BaseRangeAttack = false -- Use ZBase range attack system
 NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
 NPC.RangeProjectile_Inaccuracy = 0.05
 NPC.RangeAttackCooldown = {8, 12} -- Range attack cooldown {min, max}
@@ -77,8 +77,8 @@ function NPC:MultipleMeleeAttacks()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:CustomThink()
-    if self:GetActivity() == ACT_RANGE_ATTACK1
-    or self:GetSequenceName(self:GetSequence()) == "range_start" then
+    local seqName = self:GetSequenceName(self:GetSequence())
+    if seqName == "range_loop" or seqName == "range_start" then
         self:Face(self:RangeAttack_IdealFacePos(), nil, self.RangeAttackTurnSpeed)
     end
 end

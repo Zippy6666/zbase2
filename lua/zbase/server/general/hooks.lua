@@ -180,23 +180,74 @@ hook.Add("Tick", "ZBASE", function()
 end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
-
-    if ent.IsZBaseNPC then
-        ent:InternalDamageScale(dmg)
-        ent:OnHurt(dmg)
-    end
-
-
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
 
 
-    -- if IsValid(attacker) then
-    --     ent.ZBaseLastAttacker = attacker
-    -- end
+    if ent.IsZBaseNPC then
+        if ent.DeathAnim_Finished then
+            return
+        end
 
+
+        if ent.DoingDeathAnim then
+            dmg:ScaleDamage(0)
+        end
+
+
+        ent:InternalDamageScale(dmg)
+        ent:OnHurt(dmg)
+
+
+        -- Death anim --
+        if !table.IsEmpty(ent.DeathAnimations) && !ent.DoingDeathAnim && ent:Health()-dmg:GetDamage() <= 0 then
+            local att = dmg:GetAttacker()
+            local inf = dmg:GetInflictor()
+            local dmgAmt = dmg:GetDamage()
+            local dmgt = dmg:GetDamageType()
+            local lastDMGinfo = {
+                ['att'] = att,
+                ['inf'] = inf,
+                ['dmgt'] = dmgt,
+            }
+
+
+            ent.DoingDeathAnim = true
+            dmg:ScaleDamage(0)
+
+
+            local duration = ent:PlayAnimation(table.Random(ent.DeathAnimations))
+
+
+            ent:SetHealth(1)
+            ent:AddFlags(FL_NOTARGET)
+            ent:CapabilitiesClear()
+            ent:SetNPCState(NPC_STATE_DEAD)
+
+
+            timer.Simple(duration, function()
+                if !IsValid(ent) then return end
+
+                ent.DeathAnim_Finished = true
+
+                local newDMGinfo = DamageInfo()
+                newDMGinfo:SetAttacker( IsValid(lastDMGinfo.att) && lastDMGinfo.att or ent )
+                newDMGinfo:SetInflictor( IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or ent )
+                newDMGinfo:SetDamage( 1 )
+
+                if ent.IsZBase_SNPC then
+                    ent:Die(newDMGinfo)
+                else
+                    ent:TakeDamageInfo( newDMGinfo )
+                end
+            end)
+        end
+        -------------------------------------------=#
+    end
+
+
+    -- Blow up zbase combine balls
     if IsValid(attacker.ZBaseComballOwner) then
-
         dmg:SetAttacker(attacker.ZBaseComballOwner)
 
         if ent:GetClass() == "npc_hunter" or ent:GetClass() == "npc_strider" then
@@ -213,33 +264,30 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
             end
 
         end
-
         attacker = attacker.ZBaseComballOwner
-
     end
 
 
-    -- Don't hurt NPCs in same faction
-    if attacker.IsZBaseNPC
-    && ent.IsZBaseNPC
-    && ent:HasCapability(CAP_FRIENDLY_DMG_IMMUNE)
-    && attacker.ZBaseFaction == ent.ZBaseFaction
-    && ent.ZBaseFaction != "none" then
-        dmg:ScaleDamage(0)
-        return true
-    end
-
-
+    -- Attacker is ZBase NPC
     if IsValid(attacker) && attacker.IsZBaseNPC then
-    
+        -- Don't hurt NPCs in same faction
+        if ent.IsZBaseNPC
+        && ent:HasCapability(CAP_FRIENDLY_DMG_IMMUNE)
+        && attacker.ZBaseFaction == ent.ZBaseFaction
+        && ent.ZBaseFaction != "none" then
+            dmg:ScaleDamage(0)
+            return true
+        end
+
+
         local r = attacker:DealDamage(ent, dmg)
         if r then
             return r
         end
 
+
         -- Proper damage values for some hl2 weapons --
         local wep = attacker:GetActiveWeapon()
-
         if IsValid(infl) && IsValid(wep) then
             local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
 
@@ -261,7 +309,6 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
             end
         end
         ------------------------------------------------=#
-
     end
 end)
 ---------------------------------------------------------------------------------------=#
@@ -288,7 +335,8 @@ end
 ---------------------------------------------------------------------------------------=#
 hook.Add("PostEntityTakeDamage", "ZBASE", function( ent, dmg )
     -- Fix NPCs being unkillable in SCHED_NPC_FREEZE
-    if ent.IsZBaseNPC && ent:IsCurrentSchedule(SCHED_NPC_FREEZE) && ent:Health() <= 0 && !ent.ZBaseDieFreezeFixDone then
+    if ent.IsZBaseNPC && ent:IsCurrentSchedule(SCHED_NPC_FREEZE) && ent:Health() <= 0
+    && !ent.ZBaseDieFreezeFixDone then
         ent:ClearSchedule()
         ent:TakeDamageInfo(dmg)
         ent.ZBaseDieFreezeFixDone = true
@@ -311,26 +359,18 @@ hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
     if !npc.IsZBaseNPC then return end
 
 
-    local r = npc:CustomTakeDamage(dmg, hit_gr)
-    if r then
-        return r
-    end
+    npc:CustomTakeDamage(dmg, hit_gr)
 
 
     if npc.HasArmor[hit_gr] then
-        local r = npc:HitArmor(dmg, hit_gr)
-        if r then
-            return r
-        end
+       npc:HitArmor(dmg, hit_gr)
     end
 
 
-    local r = npc:ZBaseTakeDamage(dmg, hit_gr)
-    if r then
-        return r
-    end
+    npc:ZBaseTakeDamage(dmg, hit_gr)
 
 
+    -- Bullet blood shit idk
     if dmg:IsBulletDamage() then
         if !npc.ZBase_BulletHits then
             npc.ZBase_BulletHits = {}
@@ -489,7 +529,6 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
 hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
-    print(ply.ZBaseNPCFactionOverride)
     if ply.ZBaseNPCFactionOverride && ply.ZBaseNPCFactionOverride != "" then
         timer.Simple(0, function()
             if !IsValid(ent) or !IsValid(ply) then return end

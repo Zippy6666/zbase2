@@ -216,7 +216,7 @@ function ENT:Die( dmginfo )
 
 	-- Death notice and other stuff
 	hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
-	self:SetNPCState(NPC_STATE_DEAD)
+	--self:SetNPCState(NPC_STATE_DEAD)
 
 	if self:GetShouldServerRagdoll() or dmginfo:IsDamageType(DMG_DISSOLVE) then
 		self:ServerRagdoll( dmginfo )

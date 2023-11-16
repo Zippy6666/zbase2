@@ -84,7 +84,7 @@ NPC.ExplodeEnergyBall = false -- Should combine energy balls explode when they h
 NPC.CanDissolve = true -- Can the NPC be dissolved?
 
 
-NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
+
 
 NPC.FlinchAnimations = {} -- Flinch animations to use, leave empty to disable the base flinch
 NPC.FlinchAnimationSpeed = 1 -- Speed of the flinch animation
@@ -92,6 +92,13 @@ NPC.FlinchCooldown = 2 -- Flinch cooldown in seconds
 NPC.FlinchChance = 2 -- Flinch chance 1/x
 NPC.FlinchIsGesture = false
 
+
+NPC.DeathAnimations = {} -- Death animations to use, leave empty to disable the base death animation
+NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
+NPC.DeathChance = 2 --  Flinch animation chance 1/x
+
+
+NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
 
 --[[===============================================================================================]]
 
