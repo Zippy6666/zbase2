@@ -1,20 +1,23 @@
 ------------------------------------------------------------------------------------=#
-    -- FINAL --
+
+
+    -- TODO --
 -- Pack a few NPCs into the base
 -- Make more user friendly
-    -- Comments
-    -- Organize hooks, funcs and vars
-    -- Separate snpc and npc base
     -- Lots of "CustomOn" functions (use vj for reference)
     -- All variables can be changed during the NPC's lifetime
     -- Dummy git
     -- ZBase reload tries to apply in realtime
-    -- Get rid off WithinDistance, call it NPCDist maybe
-    -- Add spacer for weapon menu
     -- Add things that people probably want
     -- More menu options
         -- Health and damage sliders
         -- Misc useful stuff
+
+
+------------------------------------------------------------------------------------=#
+
+
+    -- FINAL --
 -- Make sure everything works
     -- Multiplayer
     -- Compatible with my other addons
@@ -23,7 +26,12 @@
         -- Stress test, do weird stuff
         -- Test PlayAnimation on loads of NPCs
 -- Copyright stuff
+
+
 ------------------------------------------------------------------------------------=#
+
+
+
 
 
 

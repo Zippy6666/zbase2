@@ -1,10 +1,11 @@
 local NPC = ZBaseNPCs["npc_zbase"]
 
 
-        -- These are functions you can call --
-
-
----------------------------------------------------------------------------------------------------------------------=#
+--[[
+==================================================================================================
+                                           USEFUL
+==================================================================================================
+--]]
 
 
     -- Check if an entity is allied with the NPC
@@ -12,79 +13,49 @@ function NPC:IsAlly( ent )
     if self.ZBaseFaction == "none" then return false end
     return ent.ZBaseFaction == self.ZBaseFaction
 end
----------------------------------------------------------------------------------------------------------------------=#
 
 
-    -- Get the nearest allied within a in a certain radius
-    -- Returns nil if none was found
-function NPC:GetNearestAlly( radius )
-    local mindist
-    local ally
+    -- Play an activity or sequence
+    -- 'anim' - The sequence (as a string) or activity (https://wiki.facepunch.com/gmod/Enums/ACT) to play
+    -- 'faceEnemy' - Set to true to constantly face enemy while the animation is playing
+    -- 'extraData' (table)
+        -- extraData.isGesture - If true, it will play the animation as a gesture
+        -- extraData.face - Position or entity to constantly face
+        -- extraData.speedMult - Speed multiplier for the animation
+        -- extraData.duration - The animation duration
+        -- extraData.faceSpeed - Face turn speed
+function NPC:PlayAnimation( anim, faceEnemy, extraData )
+    extraData = extraData or {}
 
-    for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius)) do
-        if v == self then continue end
-        if !v:IsNPC() then continue end
 
-        if self:IsAlly(v) then
-            local dist = self:GetPos():DistToSqr(v:GetPos())
+    local enemy = self:GetEnemy()
+    local face = extraData.face or (faceEnemy && IsValid(enemy) && enemy) or nil
 
-            if !mindist or dist < mindist then
-                mindist = dist
-                ally = v
-            end
-        end
-    end
 
-    return ally
+    self:InternalPlayAnimation(anim, extraData.duration, extraData.speedMult,
+    SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop, nil, extraData.isGesture)
+
+
+    -- if extraData.duration && extraData.speedMult then
+    --     return extraData.duration/extraData.speedMult
+    -- end
+    
+    -- if !extraData.duration && extraData.speedMult then
+    --     return self:SequenceDuration()/extraData.speedMult
+    -- end
+
+    -- if extraData.duration && !extraData.speedMult then
+    --     return extraData.duration
+    -- end
+
+    return self:SequenceDuration()
 end
----------------------------------------------------------------------------------------------------------------------=#
 
 
-    -- Returns the name of the NPC's squad
-function NPC:SquadName()
-    return self:GetKeyValues().squadname
+    -- Stops the current NPC:PlayAnimation() animation from playing
+function NPC:StopCurrentAnimation()
+    self:InternalStopAnimation()
 end
----------------------------------------------------------------------------------------------------------------------=#
-
-
-    -- Check if an entity or position is within a certain distance
-    -- If tbl.within is given, return true if the entity is within x units from itself
-    -- If tbl.away is given, return true if the entity is x units away from itself
-    -- Example: self:ZBaseDist( self:GetEnemy(), {within=400, away=200} ) --> Returns true if enemy is 200 units away, but still within 400 units
-function NPC:ZBaseDist( ent_or_pos, tbl )
-    local dSqr
-
-    if isvector(ent_or_pos) then
-        dSqr = self:GetPos():DistToSqr(ent_or_pos)
-    elseif IsValid(ent_or_pos) then
-        dSqr = self:GetPos():DistToSqr(ent_or_pos:GetPos())
-    end
-
-    if !dSqr then return false end
-    if tbl.away && dSqr < tbl.away^2 then return false end
-    if tbl.within && dSqr > tbl.within^2 then return false end
-
-    return true
-end
----------------------------------------------------------------------------------------------------------------------=#
-
-
-    -- Check if the NPC is facing a position or entity
-function NPC:IsFacing( ent_or_pos, maxYawDifference )
-    if !ent_or_pos then return end
-    if ent_or_pos == NULL then return end
-
-    local ang
-    if isvector(ent_or_pos) then
-        ang = (ent_or_pos - self:GetPos()):Angle()
-    elseif IsValid(ent_or_pos) then
-        ang = (ent_or_pos:GetPos() - self:GetPos()):Angle()
-    end
-
-    local yawDif = math.abs(self:WorldToLocalAngles(ang).Yaw)
-    return yawDif < (maxYawDifference or 22.5)
-end
---------------------------------------------------------------------------------=#
 
 
 	-- Make the NPC face certain directions
@@ -145,61 +116,51 @@ function NPC:Face( face, duration, speed )
 
     end
 end
---------------------------------------------------------------------------------=#
 
 
-    -- Play an activity or sequence
-    -- 'anim' - The sequence or activity to play, accepts sequences as strings
-    -- 'faceEnemy' - Set to true to constantly face enemy while the animation is playing
-    -- 'extraData' (table)
-        -- extraData.isGesture - If true, it will play the animation as a gesture
-        -- extraData.face - Position or entity to constantly face, set to false to prevent facing during the animation
-        -- extraData.speedMult - Speed multiplier for the animation
-        -- extraData.duration - The animation duration
-        -- extraData.faceSpeed - Face turn speed
-function NPC:PlayAnimation( anim, faceEnemy, extraData )
-    extraData = extraData or {}
+    -- Check if the NPC is facing a position or entity
+function NPC:IsFacing( ent_or_pos, maxYawDifference )
+    if !ent_or_pos then return end
+    if ent_or_pos == NULL then return end
 
-
-    local enemy = self:GetEnemy()
-    local face = extraData.face or (faceEnemy && IsValid(enemy) && enemy) or nil
-
-
-    self:InternalPlayAnimation(anim, extraData.duration, extraData.speedMult,
-    SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop, nil, extraData.isGesture)
-
-
-    if extraData.duration && extraData.speedMult then
-        return extraData.duration/extraData.speedMult
-    end
-    
-    if !extraData.duration && extraData.speedMult then
-        return self:SequenceDuration()/extraData.speedMult
+    local ang
+    if isvector(ent_or_pos) then
+        ang = (ent_or_pos - self:GetPos()):Angle()
+    elseif IsValid(ent_or_pos) then
+        ang = (ent_or_pos:GetPos() - self:GetPos()):Angle()
     end
 
-    if extraData.duration && !extraData.speedMult then
-        return extraData.duration
+    local yawDif = math.abs(self:WorldToLocalAngles(ang).Yaw)
+    return yawDif < (maxYawDifference or 22.5)
+end
+
+
+    -- Check if an entity or position is within a certain distance
+    -- If tbl.within is given, return true if the entity is within x units from itself
+    -- If tbl.away is given, return true if the entity is x units away from itself
+    -- Example: self:ZBaseDist( self:GetEnemy(), {within=400, away=200} ) --> Returns true if enemy is 200 units away, but still within 400 units
+function NPC:ZBaseDist( ent_or_pos, tbl )
+    local dSqr
+
+    if isvector(ent_or_pos) then
+        dSqr = self:GetPos():DistToSqr(ent_or_pos)
+    elseif IsValid(ent_or_pos) then
+        dSqr = self:GetPos():DistToSqr(ent_or_pos:GetPos())
     end
 
-    return self:SequenceDuration()
+    if !dSqr then return false end
+    if tbl.away && dSqr < tbl.away^2 then return false end
+    if tbl.within && dSqr > tbl.within^2 then return false end
+
+    return true
 end
---------------------------------------------------------------------------------=#
 
 
-    -- Stops the current NPC:PlayAnimation() animation from playing
-function NPC:StopCurrentAnimation()
-    self:InternalStopAnimation()
-end
---------------------------------------------------------------------------------=#
-
-
-    -- Just like entity:EmitSound(), except it will prevent certain sounds from playing over it
-function NPC:EmitSound_Uninterupted( ... )
-    ZBase_DontSpeakOverThisSound = true
-    self:EmitSound(...)
-    ZBase_DontSpeakOverThisSound = false
-end
---------------------------------------------------------------------------------=#
+--[[
+==================================================================================================
+                                           MELEE ATTACK
+==================================================================================================
+--]]
 
 
     -- Triggers the base melee attack
@@ -250,7 +211,6 @@ function NPC:MeleeAttack()
 
     self:OnMelee()
 end
---------------------------------------------------------------------------------=#
 
 
     -- Triggers the base melee attack damage code
@@ -275,7 +235,13 @@ function NPC:MeleeAttackDamage()
 
     self:InternalMeleeAttackDamage(dmgData)
 end
---------------------------------------------------------------------------------=#
+
+
+--[[
+==================================================================================================
+                                           RANGE ATTACK
+==================================================================================================
+--]]
 
 
     -- Triggers the base range attack
@@ -330,7 +296,6 @@ function NPC:RangeAttack()
 
     self:OnRangeAttack()
 end
---------------------------------------------------------------------------------=#
 
 
     -- Returns the ideal position to face while range attacking
@@ -340,7 +305,6 @@ function NPC:RangeAttack_IdealFacePos()
     -- debugoverlay.Cross(pos, 20)
     return pos
 end
---------------------------------------------------------------------------------=#
 
 
     -- Returns the spawn position for the NPC's projectile
@@ -364,7 +328,6 @@ function NPC:Projectile_SpawnPos()
 
     return pos
 end
---------------------------------------------------------------------------------=#
 
 
     -- Returns the target position for the NPC's projectile
@@ -377,4 +340,48 @@ function NPC:Projectile_TargetPos()
 
     return self.RangeAttack_LastEnemyPos or self:Projectile_SpawnPos()+self:GetForward()*400
 end
---------------------------------------------------------------------------------=#
+
+
+--[[
+==================================================================================================
+                                           OTHER
+==================================================================================================
+--]]
+
+
+    -- Just like entity:EmitSound(), except it will prevent certain sounds from playing over it
+function NPC:EmitSound_Uninterupted( ... )
+    ZBase_DontSpeakOverThisSound = true
+    self:EmitSound(...)
+    ZBase_DontSpeakOverThisSound = false
+end
+
+
+    -- Get the nearest allied within a in a certain radius
+    -- Returns nil if none was found
+function NPC:GetNearestAlly( radius )
+    local mindist
+    local ally
+
+    for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius)) do
+        if v == self then continue end
+        if !v:IsNPC() then continue end
+
+        if self:IsAlly(v) then
+            local dist = self:GetPos():DistToSqr(v:GetPos())
+
+            if !mindist or dist < mindist then
+                mindist = dist
+                ally = v
+            end
+        end
+    end
+
+    return ally
+end
+
+
+    -- Returns the name of the NPC's squad
+function NPC:SquadName()
+    return self:GetKeyValues().squadname
+end

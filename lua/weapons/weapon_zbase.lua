@@ -5,6 +5,13 @@ AddCSLuaFile()
 	-- SWEP.Base = "weapon_zbase"
 
 
+--[[
+==================================================================================================
+                                           GENERAL
+==================================================================================================
+--]]
+
+
 SWEP.PrintName = "ZBase Weapon"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
@@ -16,7 +23,14 @@ SWEP.WorldModel = Model( "models/weapons/w_smg1.mdl" )
 SWEP.IsZBaseWeapon = true
 
 
--- NPC Stuff
+--[[
+==================================================================================================
+                                           NPC HANDLING
+==================================================================================================
+--]]
+
+
+
 SWEP.NPCOnly = true -- Should only NPCs be able to use this weapon?
 SWEP.NPCCanPickUp = true -- Can NPCs pick up this weapon from the ground
 SWEP.NPCBurstMin = 1 -- Minimum amount of bullets the NPC can fire when firing a burst
@@ -29,7 +43,13 @@ SWEP.NPCReloadSound = "" -- Sound when the NPC reloads the gun
 SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number with this weapon
 
 
--- Basic primary attack stuff
+--[[
+==================================================================================================
+                                           BASIC PRIMARY ATTACK
+==================================================================================================
+--]]
+
+
 SWEP.PrimaryShootSound = "Weapon_SMG1.NPC_Single" -- Shoot sound
 SWEP.PrimarySpread = 0.02 -- Spread
 SWEP.PrimaryDamage = 3 -- Damage
@@ -38,12 +58,18 @@ SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 
 
 
-	-- Change these to whatever you like --
---------------------------------------------------------=#
+--[[
+==================================================================================================
+                                    CUSTOMIZABLE FUNCTIONS
+==================================================================================================
+--]]
+
+
 function SWEP:Initialize()
 	self:SetHoldType( "smg" )
 end
---------------------------------------------------------=#
+
+
 function SWEP:PrimaryAttack()
 	if !self:CanPrimaryAttack() then return end
 
@@ -63,36 +89,30 @@ function SWEP:PrimaryAttack()
 	self:SetNextPrimaryFire(CurTime() + 0.1)
 	self:EmitSound(self.PrimaryShootSound)
 end
---------------------------------------------------------=#
 
 
+--[[
+==================================================================================================
+                            !!! DON'T USE THE FUNCTIONS BELOW !!!
+==================================================================================================
+--]]
 
 
-
-
-	-- Don't touch anything below this! --
---------------------------------------------------------=#
-hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
-	if wep.IsZBaseWeapon && wep.NPCOnly then
-		ply:GiveAmmo(wep:GetMaxClip1(), wep:GetPrimaryAmmoType())
-		wep:Remove()
-		return false
-	end
-end)
---------------------------------------------------------=#
 function SWEP:CanBePickedUpByNPCs()
 	return true
 end
---------------------------------------------------------=#
+
+
 function SWEP:GetNPCRestTimes()
 	return self.NPCFireRestTimeMin, self.NPCFireRestTimeMax
 end
---------------------------------------------------------=#
+
+
 function SWEP:GetNPCBurstSettings()
 	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
 end
---------------------------------------------------------=#
+
+
 function SWEP:GetNPCBulletSpread( proficiency )
 	return (7 - proficiency)*self.NPCBulletSpreadMult
 end
---------------------------------------------------------=#
