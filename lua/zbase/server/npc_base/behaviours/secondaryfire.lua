@@ -99,7 +99,7 @@ function BEHAVIOUR.SecondaryFire:ShouldDoBehaviour( self )
 
     if self:GetActivity()!=ACT_RANGE_ATTACK1 then return false end
 
-    return self:WithinDistance( self:GetEnemy(), wepTbl.dist, wepTbl.mindist )
+    return self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
 end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.SecondaryFire:Delay( self )

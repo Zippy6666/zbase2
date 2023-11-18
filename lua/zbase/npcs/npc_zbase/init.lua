@@ -16,6 +16,11 @@ NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
+NPC.MoveActivityOverride = {
+    [NPC_STATE_IDLE] = ACT_WALK,
+    [NPC_STATE_ALERT] = ACT_WALK_AGITATED,
+    [NPC_STATE_COMBAT] = ACT_RUN,
+}
 
 NPC.SightDistance = 7000 -- Sight distance
 NPC.SightAngle = 90 -- Sight angle
@@ -177,6 +182,11 @@ NPC.Fly_MoveSpeed = 200 -- Flying movement speed
 NPC.Fly_Accelerate = 15 -- Flying movement accelerate speed
 NPC.Fly_Decelerate = 15 -- Flying movement decelerate speed
 NPC.Fly_GravGunPuntForceMult = 1
+NPC.Fly_MovementAnims = {
+    [NPC_STATE_IDLE] = false,
+    [NPC_STATE_ALERT] = false,
+    [NPC_STATE_COMBAT] = false,
+}
 
 --[[===============================================================================================]]
 

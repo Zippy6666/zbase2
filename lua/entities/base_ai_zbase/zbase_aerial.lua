@@ -103,3 +103,31 @@ function ENT:Aerial_CalcVel()
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
+function ENT:AerialMoveAnim()
+    if self.Aerial_CurSpeed > 0 then
+        local cusMoveAnim = self.Fly_MovementAnims[self:GetNPCState()]
+        if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
+            self:SetActivity(cusMoveAnim)
+
+
+            if !self.DoingAerialMoveAnim then
+                self:SetCycle(0)
+            end
+
+            if self:IsSequenceFinished() then
+                self:ResetSequence(self:SelectWeightedSequence(cusMoveAnim))
+            end
+
+
+            self.DoingAerialMoveAnim = true
+        end
+    else
+        if self.DoingAerialMoveAnim then
+            self:SetActivity(ACT_IDLE)
+        end
+
+
+        self.DoingAerialMoveAnim = false
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#

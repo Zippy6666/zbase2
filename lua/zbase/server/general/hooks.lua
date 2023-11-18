@@ -222,7 +222,7 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
             ent:SetHealth(1)
             ent:AddFlags(FL_NOTARGET)
             ent:CapabilitiesClear()
-            ent:SetNPCState(NPC_STATE_DEAD)
+            -- ent:SetNPCState(NPC_STATE_DEAD) -- dont do dat
 
 
             timer.Simple(duration, function()

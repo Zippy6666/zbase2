@@ -119,7 +119,7 @@ function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )
     if !self.MeleeAttackFaceEnemy && !self:IsFacing(ene) then return false end
 
     return !self:TooBusyForMelee()
-    && self:WithinDistance(ene, self.MeleeAttackDistance)
+    && self:ZBaseDist(ene, {within=self.MeleeAttackDistance})
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.MeleeAttack:Run( self )
