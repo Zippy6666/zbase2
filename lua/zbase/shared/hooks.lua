@@ -30,7 +30,15 @@ end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 	if swep.IsZBaseWeapon && class!="weapon_zbase" then
-		list.Add( "NPCUsableWeapons", { class = class, title = "ZBase - "..swep.PrintName } )
+		list.Add( "NPCUsableWeapons", { class = class, title = "[ZBase] "..swep.PrintName } )
+	end
+end)
+-------------------------------------------------------------------------------------------------------------=#
+hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
+	if wep.IsZBaseWeapon && wep.NPCOnly then
+		ply:GiveAmmo(wep:GetMaxClip1(), wep:GetPrimaryAmmoType())
+		wep:Remove()
+		return false
 	end
 end)
 -------------------------------------------------------------------------------------------------------------=#
