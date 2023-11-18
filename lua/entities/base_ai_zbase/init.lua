@@ -7,11 +7,8 @@ util.AddNetworkString("base_ai_zbase_client_ragdoll")
 local NPCMETA = FindMetaTable("NPC")
 
 
-if !ZBaseSNPCGlobalsSet then
+if !ZBase_OldGetNearestSquadMember then
 	ZBase_OldGetNearestSquadMember = NPCMETA.GetNearestSquadMember
-	ZBase_OldSetSchedule = NPCMETA.SetSchedule
-
-	ZBaseSNPCGlobalsSet = true
 end
 
 
@@ -98,14 +95,15 @@ function ENT:Think()
 
 
 		local vec = self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed)
-
 		if self.ShouldMoveFromGround then
 			vec = vec+Vector(0,0,35)
 		else
 			vec = vec+Vector(0,0,30)
 		end
-
 		self:SetLocalVelocity(vec)
+
+
+		self:AerialMoveAnim()
 	end
 
 

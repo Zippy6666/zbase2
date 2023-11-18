@@ -146,8 +146,6 @@ local function RegBase()
                 table.insert(ZBaseNPCs["npc_zbase"].SoundVarNames, k)
             end
         end
-
-        PrintTable(ZBaseNPCs["npc_zbase"].SoundVarNames)
     end
 
     include(npcpath.."shared.lua")

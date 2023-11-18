@@ -2,8 +2,8 @@ local NPC = ZBaseNPCs["npc_zbase"]
 local NPCMETA = FindMetaTable("NPC")
 
 
-if !ZBase_NPC_OldSetSchedule then
-	ZBase_NPC_OldSetSchedule = NPCMETA.SetSchedule
+if !ZBase_OldSetSchedule then
+	ZBase_OldSetSchedule = NPCMETA.SetSchedule
 end
 
 
@@ -90,6 +90,8 @@ function NPC:ZBaseInit()
     -- Phys damage scale
     self:Fire("physdamagescale", self.PhysDamageScale)
 
+
+    -- Can dissolve
     if !self.CanDissolve then
         self:AddEFlags(EFL_NO_DISSOLVE)
     end
@@ -106,7 +108,12 @@ end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPCMETA:SetSchedule( sched )
     if self.IsZBaseNPC && self:PreventSetSched( sched ) && sched != SCHED_FORCED_GO then return end
-    return ZBase_NPC_OldSetSchedule(self, sched)
+
+    if self.SNPCType == ZBASE_SNPCTYPE_FLY then
+        self:AerialSetSchedule(sched)
+    end
+
+    return ZBase_OldSetSchedule(self, sched)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:CancelConversation()
@@ -140,16 +147,6 @@ function NPC:ZBaseSetupBounds()
 
     self:SetCollisionBounds(self.CollisionBounds.min, self.CollisionBounds.max)
     self:SetSurroundingBounds(self.CollisionBounds.min*1.25, self.CollisionBounds.max*1.25)
-
-    if self.CollisionBounds.min.z < 0 then
-        local tr = util.TraceLine({
-            start = self:GetPos(),
-            endpos = self:GetPos() + Vector(0, 0, -self.CollisionBounds.min.z),
-            mask = MASK_NPCWORLDSTATIC,
-        })
-
-        self:SetPos(tr.HitPos + tr.HitNormal*5)
-    end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:GetCurrentWeaponShootDist()
@@ -288,55 +285,86 @@ function NPC:HandleDanger()
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:AnimShouldBeSequence( anim )
-    -- Old shit
-    if !isstring(anim) then return false end
+function NPC:DoSlowThink()
+    local ene = self:GetEnemy()
+    
+    
+        -- Flying SNPCs should get closer to the ground during melee
+    if self.IsZBase_SNPC
+    && self.BaseMeleeAttack
+    && self.SNPCType == ZBASE_SNPCTYPE_FLY
+    && self.Fly_DistanceFromGround_IgnoreWhenMelee
+    && IsValid(ene)
+    && self:WithinDistance(ene, self.MeleeAttackDistance*1.75) then
+        self.InternalDistanceFromGround = ene:WorldSpaceCenter():Distance(ene:GetPos())
+    else
+        self.InternalDistanceFromGround = self.Fly_DistanceFromGround
+    end
 
-    return self:GetSequenceActivity(self:LookupSequence(anim)) == -1
+
+    self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY) or (IsValid(ene) && self:Visible(ene))
+
+
+    self:InternalDetectDanger()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:InternalSetAnimation( anim )
-    -- Old shit
-	if isstring(anim) then
-        -- Sequence
-        if self.IsZBase_SNPC then
-            self.ZBaseSNPCSequence = anim
-        elseif !self:AnimShouldBeSequence(anim) then
-            self:SetActivity(self:GetSequenceActivity(self:LookupSequence(anim)))
-        end
+function NPC:DoNewEnemy()
+    local ene = self:GetEnemy()
 
-	elseif isnumber(anim) then
 
-        -- Activity
-		self:SetActivity(anim)
+    if IsValid(ene) then
 
-	end
+        -- New enemy
+        self:ZBaseAlertSound()
+
+    elseif !self.EnemyDied then
+        -- Check if enemy was lost
+        -- Wait some time until confirming the enemy is lost
+
+        timer.Simple(math.Rand(1, 2), function()
+            if !IsValid(self) then return end
+
+
+            -- Enemy lost
+            if !IsValid(self:GetEnemy())
+            && !self:SquadMemberIsSpeaking( {"LostEnemySounds"} ) then
+                self:EmitSound_Uninterupted(self.LostEnemySounds)
+            end
+        end)
+    end
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:DoPlayAnim()
+    -- Handle movement during PlayAnimation
+    self:AutoMovement( self:GetAnimTimeInterval() )
+
+
+    -- Face during PlayAnimation
+    if self.PlayAnim_Face then
+        self:Face(self.PlayAnim_Face, nil, self.PlayAnim_FaceSpeed)
+    end
+
+
+    -- Playback rate for the animation
+    self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
+
+
+    -- self:SetSaveValue("m_flTimeLastMovement", 1)
+end
+---------------------------------------------------------------------------------------------------------------------=#
+function NPC:DoCustomMoveAnim()
+    local cusMoveAnim = self.MoveActivityOverride[self:GetNPCState()]
+    
+    if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
+        self:SetMovementActivity(cusMoveAnim)
+    end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseThink()
     local ene = self:GetEnemy()
+
     if self.NPCNextSlowThink < CurTime() then
-
-
-        -- Flying SNPCs should get closer to the ground during melee
-        if self.IsZBase_SNPC
-        && self.BaseMeleeAttack
-        && self.SNPCType == ZBASE_SNPCTYPE_FLY
-        && self.Fly_DistanceFromGround_IgnoreWhenMelee
-        && IsValid(ene)
-        && self:WithinDistance(ene, self.MeleeAttackDistance*1.75) then
-            self.InternalDistanceFromGround = ene:WorldSpaceCenter():Distance(ene:GetPos())
-        else
-            self.InternalDistanceFromGround = self.Fly_DistanceFromGround
-        end
-
-
-        self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY) or (IsValid(ene) && self:Visible(ene))
-
-
-        self:InternalDetectDanger()
-
-
+        self:DoSlowThink()
         self.NPCNextSlowThink = CurTime()+0.3
     end
 
@@ -344,47 +372,26 @@ function NPC:ZBaseThink()
     -- Enemy updated
     if ene != self.ZBase_LastEnemy then
         self.ZBase_LastEnemy = ene
-
-        if IsValid(ene) then
-            -- New enemy
-            self:ZBaseAlertSound()
-        elseif !self.EnemyDied then
-            -- Check if enemy was lost
-            -- Wait some time until confirming the enemy is lost
-            timer.Simple(math.Rand(1, 2), function()
-                if !IsValid(self) then return end
-
-                -- Enemy lost
-                if !IsValid(self:GetEnemy())
-                && !self:SquadMemberIsSpeaking( {"LostEnemySounds"} ) then
-                    self:EmitSound_Uninterupted(self.LostEnemySounds)
-                end
-            end)
-        end
+        self:DoNewEnemy()
     end
 
 
     -- Activity change detection
-    local act = self:GetActivity()
-    if act && act != self.ZBaseCurrentACT then
-        self.ZBaseCurrentACT = act
-        self:NewActivityDetected( self.ZBaseCurrentACT )
+    if self:GetActivity() != self.ZBaseLastACT then
+        self.ZBaseLastACT = self:GetActivity()
+        self:NewActivityDetected( self.ZBaseLastACT )
     end
 
 
+    -- Stuff to make play anim work as intended
     if self.DoingPlayAnim then
-        -- Handle movement during PlayAnimation
-        self:AutoMovement( self:GetAnimTimeInterval() )
+        self:DoPlayAnim()
+    end
 
-        -- Face during PlayAnimation
-        if self.PlayAnim_Face then
-            self:Face(self.PlayAnim_Face, nil, self.PlayAnim_FaceSpeed)
-        end
 
-        -- Playback rate for the animation
-        self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
-
-        -- self:InternalSetAnimation(anim)
+    -- Movement animation override
+    if self:IsMoving() then
+        self:DoCustomMoveAnim()
     end
 
 
@@ -453,7 +460,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
 
 
         -- Set schedule
-        self:SetSchedule(sched or SCHED_NPC_FREEZE)
+        if sched then self:SetSchedule(sched) end
 
 
         self.DoingPlayAnim = true
@@ -495,13 +502,6 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
                 onFinishFunc()
             end
         end)
-
-        -- asdasfddfhsgfjdfgh --
-        -- self.TimeUntilStopAnimOverride = CurTime()+duration
-
-        -- timer.Create("ZBasePlayAnim"..self:EntIndex(), 0, 0, function()
-        --     self:InternalSetAnimation(anim)
-        -- end)
         --------------------------------------------------=#
     end
     ----------------------------------------------------------------=#
@@ -527,7 +527,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     
     playAnim()
 end
----------------------------------------------------------------------------------------------------------------------=#
+-- ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalStopAnimation(dontTransitionOut)
     if !dontTransitionOut then
         -- Out transition --
@@ -561,17 +561,6 @@ function NPC:InternalStopAnimation(dontTransitionOut)
 
 
     timer.Remove("ZBasePlayAnim"..self:EntIndex())
-end
----------------------------------------------------------------------------------------------------------------------=#
-    -- Depricated
-function NPC:WithinDistance( ent, maxdist, mindist )
-    if !IsValid(ent) then return false end
-
-    local dSqr = self:GetPos():DistToSqr(ent:GetPos())
-    if mindist && dSqr < mindist^2 then return false end
-    if maxdist && dSqr > maxdist^2 then return false end
-
-    return true
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)       

@@ -175,9 +175,7 @@ function ENT:RunAI( strExp )
 	self:DoNPCState()
 	
 
-	-- Playing ZBase anim right now
-	if self.DoingPlayAnim then
-		-- self:DoSequence()
+	if self.DoingPlayAnim or self.DoingAerialMoveAnim then
 		return
 	end
 

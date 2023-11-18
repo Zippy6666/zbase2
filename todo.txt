@@ -1,37 +1,4 @@
 ------------------------------------------------------------------------------------=#
--- TODO --
--- Pose parameter looking
--- Movement animation override (should work with aerial npcs)
--- Pushing and/or attacking props
--- More menu options
-    -- Health and damage sliders
-    -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
-    -- Misc useful stuff
-------------------------------------------------------------------------------------=#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-------------------------------------------------------------------------------------=#
     -- FINAL --
 -- Pack a few NPCs into the base
 -- Make more user friendly
@@ -45,6 +12,9 @@
     -- Get rid off WithinDistance, call it NPCDist maybe
     -- Add spacer for weapon menu
     -- Add things that people probably want
+    -- More menu options
+        -- Health and damage sliders
+        -- Misc useful stuff
 -- Make sure everything works
     -- Multiplayer
     -- Compatible with my other addons
@@ -84,4 +54,5 @@
 -- Jump system
 -- SNPC danger detect
     -- New ZSched that uses cover from origin with random move as fallback
+-- ZBase functionality for any NPC, except ANP NPCs and SNPCs
 ------------------------------------------------------------------------------------=#
