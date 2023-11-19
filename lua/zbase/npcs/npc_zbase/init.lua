@@ -8,6 +8,12 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 --]]
 
 
+-- NOTE FOR ADVANCED USERS: You can change any internal variable by doing NPC.m_iNameOfInternalVar here
+-- Combine soldier example:
+-- NPC.m_iNumGrenades = 1
+-- NPC.m_nKickDamage = 15
+
+
 -- Spawn with a random model from this table
 -- Leave empty to use the default model for the NPC
 NPC.Models = {}
