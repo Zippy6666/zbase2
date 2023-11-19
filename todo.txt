@@ -55,7 +55,6 @@
 -- Insurgency NPC Pack
 -- Doom 3 SNPCs
 -- Global danger detection system
--- Some kind of special gesture support
 -- Expanded support for the weapon base so that player functions work on NPCs
 -- Controller
 -- Gib system
