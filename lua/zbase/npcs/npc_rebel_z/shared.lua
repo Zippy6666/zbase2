@@ -8,7 +8,7 @@ local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 NPC.Class = "npc_citizen"
 
 
-NPC.Name = "Base" -- Name of your NPC
-NPC.Category = "Other" -- Category in the ZBase tab
+NPC.Name = "Rebel" -- Name of your NPC
+NPC.Category = "Default" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
-NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
+NPC.Inherit = "npc_citizen_z" -- Inherit features from any existing zbase npc
