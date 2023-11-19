@@ -9,9 +9,8 @@ hook.Add("OnEntityCreated", my_cls.."_zbaseenhanced", function( NPC ) timer.Simp
 
 
     ------------------------------------------------------------------------------------=#
-    function NPC:ZBaseEnhancedThink()
-        print(NPC:GetCurrentSchedule())
-    end
+    -- function NPC:ZBaseEnhancedThink()
+    -- end
     ------------------------------------------------------------------------------------=#
 
 end) end)
