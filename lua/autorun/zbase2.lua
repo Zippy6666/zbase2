@@ -55,11 +55,11 @@ local function IncludeFiles()
     AddCSLuaFile("zbase/client/spawnmenu.lua")
     AddCSLuaFile("zbase/client/toolmenu.lua")
     AddCSLuaFile("zbase/client/hooks.lua")
-    
 
     include("zbase/shared/globals.lua")
     include("zbase/shared/hooks.lua")
     include("zbase/shared/sounds.lua")
+    
 
     if SERVER then
         include("zbase/server/general/behaviour.lua")
@@ -67,6 +67,7 @@ local function IncludeFiles()
         include("zbase/server/general/spawn_npc.lua")
         include("zbase/server/general/scheds.lua")
         include("zbase/server/general/relationship.lua")
+        include("zbase/server/decals.lua")
 
         local files = file.Find("zbase/server/npc_enhancements/*","LUA")
         local enhPath = "zbase/server/npc_enhancements/"
