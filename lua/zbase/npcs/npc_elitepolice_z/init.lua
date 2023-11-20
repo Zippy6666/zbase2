@@ -1,6 +1,6 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-NPC.Models = {"models/zippy/elitepolice.mdl"}
+NPC.Models = {"models/zippy/ElitePolice.mdl"}
 NPC.StartHealth = 60 -- Max health
 
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_PERFECT -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
@@ -28,10 +28,10 @@ NPC.LostEnemySounds = "ZBaseElitePolice.LostEnemy"
 NPC.SeeDangerSounds = "ZBaseElitePolice.SeeDanger"
 NPC.AllyDeathSounds = "ZBaseElitePolice.AllyDeath"
 NPC.HearDangerSounds = "ZBaseElitePolice.HearDanger"
-NPC.Dialogue_Question_Sounds = "npc/elitepolice/fire_scream2.wav"
-NPC.Dialogue_Answer_Sounds = "npc/elitepolice/fire_scream3.wav"
+NPC.Dialogue_Question_Sounds = "ZBaseElitePolice.Question"
+NPC.Dialogue_Answer_Sounds = "ZBaseElitePolice.Answer"
 
----------------------------------------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
     -- Return a new sound name to play that sound instead.
     -- Return false to prevent the sound from playing.
@@ -64,7 +64,7 @@ function NPC:CustomOnEmitSound( sndData, sndVarName )
         return "ZBaseElitePolice.HearDangerClose"
     end
 end
----------------------------------------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
     -- Called when the base detects that the NPC is playing a new activity
 function NPC:CustomNewActivityDetected( act )
@@ -73,4 +73,4 @@ function NPC:CustomNewActivityDetected( act )
         self:EmitSound_Uninterupted("ZBaseElitePolice.Deploy")
     end
 end
----------------------------------------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]

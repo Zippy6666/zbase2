@@ -22,11 +22,6 @@ NPC.HasArmor = {
 NPC.m_nKickDamage = 15
 
 
--- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
--- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
-NPC.HearDangerSounds = "ZBaseOverwatchSoldier.HearSound"
-
-
 --]]==============================================================================================]]
 
     -- Return a new sound name to play that sound instead.
