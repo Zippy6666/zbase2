@@ -15,7 +15,6 @@ hook.Add("OnEntityCreated", my_cls.."_zbaseenhanced", function( NPC ) timer.Simp
         -- Allows multiple combines in the same squad to fire at once
         if self:GetInternalVariable("m_iMySquadSlot") == -1 then
             self:SetSaveValue("m_iMySquadSlot", 1)
-            print("asdasdasdasdasdasdasd")
         end
 
         -- Stop running away dammit

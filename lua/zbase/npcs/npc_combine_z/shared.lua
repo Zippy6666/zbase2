@@ -12,13 +12,3 @@ NPC.Name = "Overwatch Soldier" -- Name of your NPC
 NPC.Category = "Default" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_smg1", "weapon_smg1", "weapon_ar2", "weapon_shotgun"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
-
-
-ZBaseCreateVoiceSounds("ZBaseOverwatchSoldier.HearSound", {
-    "npc/combine_soldier/vo/motioncheckallradials.wav",
-    "npc/combine_soldier/vo/overwatchreportspossiblehostiles.wav",
-    "npc/combine_soldier/vo/readyweaponshostilesinbound.wav",
-    "npc/combine_soldier/vo/stayalertreportsightlines.wav",
-    "npc/combine_soldier/vo/weaponsoffsafeprepforcontact.wav",
-    "npc/combine_soldier/vo/confirmsectornotsterile.wav",
-})
