@@ -89,6 +89,7 @@ end
 ------------------------------------------------------------------------=#
 function BEHAVIOUR.SecondaryFire:ShouldDoBehaviour( self )
     if !self.CanSecondaryAttack then return false end
+    if self.DoingPlayAnim then return false end
 
     local wep = self:GetActiveWeapon()
 

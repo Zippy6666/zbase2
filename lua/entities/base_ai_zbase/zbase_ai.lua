@@ -251,9 +251,11 @@ end
 --------------------------------------------------------------------------------=#
 function ENT:FaceHurtPos(dmginfo)
 	if !IsValid(self:GetEnemy())
+	&& self.NextFaceHurtPos < CurTime()
 	&& !self.DoingPlayAnim then
 		self:FullReset()
 		self:Face(dmginfo:GetDamagePosition(), math.Rand(2, 4))
+		self.NextFaceHurtPos = CurTime() + math.Rand(0.5, 1.5)
 	end
 end
 --------------------------------------------------------------------------------=#

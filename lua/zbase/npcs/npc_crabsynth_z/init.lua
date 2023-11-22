@@ -1,7 +1,7 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 NPC.Models = {"models/zippy/Synth.mdl"}
-NPC.StartHealth = 300
+NPC.StartHealth = 320
 
 
 NPC.BloodColor = DONT_BLEED
@@ -39,22 +39,24 @@ NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_FACE -- ZBASE_CANTREACHENEMY_
 
 
         -- BASE RANGE ATTACK --
-NPC.BaseRangeAttack = false -- Use ZBase range attack system
+NPC.BaseRangeAttack = true -- Use ZBase range attack system
 NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
-NPC.RangeProjectile_Inaccuracy = 0.05
+NPC.RangeProjectile_Inaccuracy = 0.07
 NPC.RangeAttackCooldown = {8, 12} -- Range attack cooldown {min, max}
-NPC.RangeAttackDistance = {300, 1000} -- Distance that it initiates the range attack {min, max}
+NPC.RangeAttackDistance = {300, 2000} -- Distance that it initiates the range attack {min, max}
 NPC.RangeAttackTurnSpeed = 10 -- Speed that it turns while trying to face the enemy when range attacking
+NPC.RangeProjectile_Attachment = "muzzle"
+
 
 -- Time until the projectile code is ran
 -- Set to false to disable the timer (if you want to use animation events instead for example)
 NPC.RangeProjectile_Delay = false
 
 
--- NPC.FlinchAnimations = {"attack2"} -- Flinch animations to use, leave empty to disable the base flinch
--- NPC.FlinchAnimationSpeed = 2 -- Speed of the flinch animation
--- NPC.FlinchCooldown = {1, 3} -- Flinch cooldown in seconds {min, max}
--- NPC.FlinchChance = 2 -- Flinch chance 1/x
+NPC.FlinchAnimations = {ACT_BIG_FLINCH} -- Flinch animations to use, leave empty to disable the base flinch
+NPC.FlinchAnimationSpeed = 1 -- Speed of the flinch animation
+NPC.FlinchCooldown = {5, 7} -- Flinch cooldown in seconds {min, max}
+NPC.FlinchChance = 1 -- Flinch chance 1/x
 
 
 --]]==============================================================================================]]
@@ -89,6 +91,7 @@ end
 --]]==============================================================================================]]
 function NPC:CustomThink()
     local seqName = self:GetSequenceName(self:GetSequence())
+
     if seqName == "range_loop" or seqName == "range_start" then
         self:Face(self:RangeAttack_IdealFacePos(), nil, self.RangeAttackTurnSpeed)
     end
@@ -96,21 +99,51 @@ end
 --]]==============================================================================================]]
 function NPC:OnRangeAttack()
     local duration = math.Rand(3, 6)
+
     self:PlayAnimation(ACT_RANGE_ATTACK1, false, {duration=duration})
+    self.CurTargetPos = nil -- Reset
+    self.CurTrackSpeed = 0.01
 end
 --]]==============================================================================================]]
 function NPC:RangeAttackProjectile()
+    if !self.CurTrackSpeed then return end
+
+
     local projStartPos = self:Projectile_SpawnPos()
+    local projEndPos = self:Projectile_TargetPos()
+
+
+    -- Track the enemy's position more slowly --
+
+    if !self.CurTargetPos then
+        -- Target pos reset, set to in front of itself
+        self.CurTargetPos = self:GetAttachment(1).Pos+self:GetForward()*100
+    else
+        -- Steer towards projectile target pos, increase the speed of the tracking as well
+        -- Only track the position slowly if the enemy is far away
+        self.CurTargetPos = (self:ZBaseDist(projEndPos, {away=400}) or !self:IsFacing(projEndPos, 90))
+        && Lerp(self.CurTrackSpeed, self.CurTargetPos, projEndPos)
+        or projEndPos
+
+        self.CurTrackSpeed = self.CurTrackSpeed+0.005
+    end
 
     self:FireBullets({
         Attacker = self,
         Inflictor = self,
         Damage = 3,
-        Dir = (self:Projectile_TargetPos() - projStartPos):GetNormalized(),
+        Dir = (self.CurTargetPos - projStartPos):GetNormalized(),
         Src = projStartPos,
         Spread = Vector(self.RangeProjectile_Inaccuracy, self.RangeProjectile_Inaccuracy),
         TracerName = "HelicopterTracer",
     })
+    --------------------------------------=#
+
+
+    local effectdata = EffectData()
+    effectdata:SetEntity(self)
+    effectdata:SetAttachment(1)
+    util.Effect("ChopperMuzzleFlash", effectdata, true, true)
 end
 --]]==============================================================================================]]
 function NPC:MeleeDamageForce( dmgData )
@@ -134,5 +167,15 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
 end
 --]]==============================================================================================]]
 function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
+    if dmginfo:GetDamage() < 80 then return false end
+    if !dmginfo:IsExplosionDamage() then return false end
+    return true
+end
+--]]==============================================================================================]]
+    -- On NPC hurt, dmginfo:ScaleDamage(0) to prevent damage --
+    -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
+    -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
+function NPC:CustomTakeDamage( dmginfo, HitGroup )
+    --dmginfo
 end
 --]]==============================================================================================]]

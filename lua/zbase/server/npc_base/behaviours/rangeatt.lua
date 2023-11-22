@@ -10,8 +10,8 @@ BEHAVIOUR.PreRangeAttack = {
 
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.RangeAttack:ShouldDoBehaviour( self )
-    -- Doesn't have range attack
-    if !self.BaseRangeAttack then return false end
+    if !self.BaseRangeAttack then return false end -- Doesn't have range attack
+    if self.DoingPlayAnim then return false end
 
 
     local ene = self:GetEnemy()
