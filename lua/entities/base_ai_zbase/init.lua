@@ -50,6 +50,7 @@ function ENT:Initialize()
 	self.Aerial_CurSpeed = 0
 	self.Aerial_LastMoveDir = self:GetForward()
 	self.SNPCNextSlowThink = CurTime()
+	self.NextFaceHurtPos = CurTime()
 
 
 	local mdl = self:GetModel()
@@ -151,31 +152,37 @@ function ENT:ServerRagdoll( dmginfo )
 	rag:SetColor(self:GetColor())
 	rag:SetMaterial(self:GetMaterial())
 	rag:Spawn()
-	local ragPhys = rag:GetPhysicsObject()
 
+
+	local ragPhys = rag:GetPhysicsObject()
 	if !IsValid(ragPhys) then
 		rag:Remove()
 		return
 	end
 
-	-- Ragdoll force
-	if dmginfo:IsBulletDamage() then
-		ragPhys:SetVelocity(dmginfo:GetDamageForce()*0.1)
-	else
-		ragPhys:SetVelocity(dmginfo:GetDamageForce())
-	end
 
-	-- Placement
 	local physcount = rag:GetPhysicsObjectCount()
 	for i = 0, physcount - 1 do
+		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
 		local pos, ang = self:GetBonePosition(self:TranslatePhysBoneToBone(i))
 		physObj:SetPos( pos )
 		physObj:SetAngles( ang )
 	end
 
+
+	-- Ragdoll force
+	local force = self:CalculateRagdollForce(dmginfo:GetDamageForce())
+	if dmginfo:IsBulletDamage() then
+		ragPhys:SetVelocity(force*0.1)
+	else
+		ragPhys:SetVelocity(force)
+	end
+
+
 	-- Hook
 	hook.Run("CreateEntityRagdoll", self, rag)
+
 
 	-- Dissolve
 	if dmginfo:IsDamageType(DMG_DISSOLVE) then
@@ -194,6 +201,7 @@ function ENT:ServerRagdoll( dmginfo )
 		cleanup.ReplaceEntity( rag, NULL )
 	end
 
+
 	-- Ignite
 	if self:IsOnFire() then
 		rag:Ignite(math.Rand(4,8))
@@ -203,8 +211,33 @@ end
 function ENT:ClientRagdoll( dmginfo )
 	net.Start("base_ai_zbase_client_ragdoll")
 	net.WriteEntity(self)
-	net.WriteVector(dmginfo:GetDamageForce())
+	net.WriteVector(self:CalculateRagdollForce(dmginfo:GetDamageForce()))
 	net.Broadcast()
+end
+--------------------------------------------------------------------------------=#
+function ENT:CalculateRagdollForce( force )
+	local rag = ents.Create("prop_ragdoll")
+	rag:SetModel(self:GetModel())
+	rag:Spawn()
+
+
+	local ragPhys = rag:GetPhysicsObject()
+	if !IsValid(ragPhys) then
+		rag:Remove()
+		return Vector()
+	end
+
+
+	local totMass = 0
+	local physcount = rag:GetPhysicsObjectCount()
+	for i = 0, physcount - 1 do
+		physObj = rag:GetPhysicsObjectNum(i)
+		totMass = totMass+physObj:GetMass()
+	end
+
+
+	rag:Remove()
+	return force/(totMass/180)
 end
 --------------------------------------------------------------------------------=#
 function ENT:Die( dmginfo )

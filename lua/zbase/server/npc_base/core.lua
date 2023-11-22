@@ -340,8 +340,13 @@ function NPC:DoPlayAnim()
 
 
     -- Face during PlayAnimation
-    if self.PlayAnim_Face then
-        self:Face(self.PlayAnim_Face, nil, self.PlayAnim_FaceSpeed)
+    if self.PlayAnim_Face != nil then
+        if self.PlayAnim_Face == false then
+            timer.Remove("ZBaseFace"..self:EntIndex())
+            self:SetAngles(self.PlayAnim_LockAng)
+        else
+            self:Face(self.PlayAnim_Face, nil, self.PlayAnim_FaceSpeed)
+        end
     end
 
 
@@ -349,7 +354,8 @@ function NPC:DoPlayAnim()
     self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
 
 
-    -- self:SetSaveValue("m_flTimeLastMovement", 1)
+    -- Stop movement
+    self:SetSaveValue("m_flTimeLastMovement", 1)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:DoCustomMoveAnim()
@@ -425,7 +431,7 @@ function NPC:FullReset()
     end
 end
 ---------------------------------------------------------------------------------------------------------------------=#
-function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc, isGest, isTransition )
+function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFace, faceSpeed, loop, onFinishFunc, isGest, isTransition, noTransitions)
     if GetConVar("ai_disabled"):GetBool() then return end
 
 
@@ -467,13 +473,16 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
         self.PlayAnim_PlayBackRate = playbackRate
     
 
-        -- Convert activity to sequence
-        if isnumber(anim) then anim = self:SelectWeightedSequence(anim) end
-        self.PlayAnim_Seq = anim
+        -- Anim is activity
+        if isnumber(anim) then
+            self:ResetIdealActivity(anim) -- Play as activity, fixes shit
+            anim = self:SelectWeightedSequence(anim) -- Convert activity to sequence
+        end
 
 
         -- Play the sequence
         self:ResetSequence(anim)
+        self.PlayAnim_Seq = anim
         self:ResetSequenceInfo()
         self:SetCycle(0)
 
@@ -486,9 +495,10 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
 
 
         -- Face
-        if forceFace then
+        if forceFace!=nil then
             self.PlayAnim_Face = forceFace
             self.PlayAnim_FaceSpeed = faceSpeed
+            self.PlayAnim_LockAng = self:GetAngles()
         end
 
 
@@ -496,7 +506,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
         timer.Create("ZBasePlayAnim"..self:EntIndex(), duration, 1, function()
             if !IsValid(self) then return end
 
-            self:InternalStopAnimation(isTransition)
+            self:InternalStopAnimation(isTransition or noTransitions)
 
             if onFinishFunc then
                 onFinishFunc()
@@ -511,7 +521,8 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched, forceFa
     local goalSeq = isstring(anim) && self:LookupSequence(anim) or self:SelectWeightedSequence(anim)
     local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
 
-    if transition != -1
+    if !noTransitions
+    && transition != -1
     && transition != goalSeq then
         -- Recursion
         self:InternalPlayAnimation( self:GetSequenceName(transition), nil, playbackRate,
@@ -558,6 +569,7 @@ function NPC:InternalStopAnimation(dontTransitionOut)
     self.PlayAnim_FaceSpeed = nil
     self.PlayAnim_PlayBackRate = nil
     self.PlayAnim_Seq = nil
+    self.PlayAnim_LockAng = nil
 
 
     timer.Remove("ZBasePlayAnim"..self:EntIndex())
@@ -609,9 +621,11 @@ function NPC:ZBaseTakeDamage(dmg, hit_gr)
             self:PlayAnimation(anim, false, {
                 speedMult=self.FlinchAnimationSpeed,
                 isGesture=self.FlinchIsGesture,
+                face = false,
+                noTransitions = true,
             })
 
-            self.NextFlinch = ZBaseRndTblRange(self.FlinchCooldown)
+            self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
         end
     end
     -----------------------=#
