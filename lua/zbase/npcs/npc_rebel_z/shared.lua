@@ -10,5 +10,5 @@ NPC.Class = "npc_citizen"
 
 NPC.Name = "Rebel" -- Name of your NPC
 NPC.Category = "Default" -- Category in the ZBase tab
-NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+NPC.Weapons = {"weapon_ar2", "weapon_smg1", "weapon_shotgun"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_citizen_z" -- Inherit features from any existing zbase npc

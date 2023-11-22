@@ -102,7 +102,7 @@ function BEHAVIOUR.Dialogue:Run( self )
         ally.HavingConversation = true
         ally.DialogueMate = self
 
-        timer.Create("DialogueAnswer"..ally:EntIndex(), self.InternalCurrentSoundDuration, 1, function()
+        timer.Create("DialogueAnswer"..ally:EntIndex(), self.InternalCurrentSoundDuration+0.4, 1, function()
             if IsValid(ally) then
                 ally:EmitSound_Uninterupted(ally.Dialogue_Answer_Sounds)
                 ally:Face(self, ally.InternalCurrentSoundDuration)

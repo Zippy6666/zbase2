@@ -91,9 +91,10 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 --]]
 
 
+-- Default engine blood color, set to DONT_BLEED if you want to use custom blood instead
 NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER
-NPC.CustomBloodParticles = false -- Table of custom particles.
+NPC.CustomBloodParticles = false -- Table of custom particles
 NPC.CustomBloodDecals = false -- String name of custom decal
 
 

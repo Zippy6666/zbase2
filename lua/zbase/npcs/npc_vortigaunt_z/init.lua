@@ -15,17 +15,8 @@ NPC.MeleeDamage_Sound = "ZBase.Melee1"
 NPC.MeleeDamage_Delay = 0.5
 NPC.MeleeAttackAnimationSpeed = 1.25
 
-NPC.DeathAnimations = {"butcher"} -- Death animations to use, leave empty to disable the base death animation
-NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
-NPC.DeathAnimationChance = 2 --  Flinch animation chance 1/x
-
 ---------------------------------------------------------------------------------------------------------------------=#
     -- Called when the NPC is created --
 function NPC:CustomInitialize()
-    timer.Simple(2, function()
-        if !IsValid(self) then return end
-
-        self:PlayAnimation("gest_heal", false, {isGesture=true})
-    end)
 end
 ---------------------------------------------------------------------------------------------------------------------=#
