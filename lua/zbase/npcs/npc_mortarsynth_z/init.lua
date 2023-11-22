@@ -30,3 +30,9 @@ NPC.RangeAttackDistance = {0, 3000} -- Distance that it initiates the range atta
 
 NPC.RangeProjectile_Speed = 750 -- The speed of the projectile
 NPC.RangeProjectile_Inaccuracy = 15 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
+
+
+--]]==============================================================================================]]
+function NPC:CustomInitialize()
+end
+--]]==============================================================================================]]

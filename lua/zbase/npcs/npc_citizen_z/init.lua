@@ -18,3 +18,9 @@ NPC.BaseMeleeAttack = true
 NPC.MeleeAttackAnimations = {"swing"}
 NPC.MeleeAttackAnimationSpeed = 1
 NPC.MeleeDamage_Delay = 0.5 -- Time until the damage strikes
+
+
+--]]==============================================================================================]]
+function NPC:CustomInitialize()
+end
+--]]==============================================================================================]]
