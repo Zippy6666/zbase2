@@ -23,6 +23,9 @@ NPC.m_nKickDamage = 15
 
 
 --]]==============================================================================================]]
+function NPC:CustomInitialize()
+end
+--]]==============================================================================================]]
 
     -- Return a new sound name to play that sound instead.
     -- Return false to prevent the sound from playing.

@@ -23,3 +23,9 @@ NPC.MeleeAttackAnimations = {
 local SF_ARREST = 2097152
 NPC.SpawnFlagTbl = {SF_ARREST, SF_NPC_DROP_HEALTHKIT}
 NPC.KeyValues = {weapondrawn="1"}
+
+
+--]]==============================================================================================]]
+function NPC:CustomInitialize()
+end
+--]]==============================================================================================]]

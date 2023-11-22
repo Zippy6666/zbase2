@@ -151,6 +151,61 @@ $sequence range_end "fire01" {
 	frame 78 141
 }
 
+$collisionjoints crabrag.smd {
+
+	$mass 5000.0
+	$inertia 1.00
+	$damping 1.00
+	$rotdamping 1.00
+	$rootbone "bip02"
+
+	$jointconstrain "bip02 spine1" x limit 0.00 0.00 0.00
+	$jointconstrain "bip02 spine1" y limit 0.00 0.00 0.00
+	$jointconstrain "bip02 spine1" z limit -15.00 15.00 0.00
+
+	$jointconstrain "bip02 l upperarm" x limit -48.00 41.00 0.00
+	$jointconstrain "bip02 l upperarm" y limit 0.00 0.00 0.00
+	$jointconstrain "bip02 l upperarm" z limit 0.00 0.00 0.00
+
+	$jointconstrain "bip02 l forearm" x limit 0.00 0.00 0.00
+	$jointconstrain "bip02 l forearm" y limit 0.00 0.00 0.00
+	$jointconstrain "bip02 l forearm" z limit 0.00 0.00 0.00
+
+	$jointconstrain "bip02 r upperarm" x limit -61.00 46.00 0.00
+	$jointconstrain "bip02 r upperarm" y limit 0.00 0.00 0.00
+	$jointconstrain "bip02 r upperarm" z limit 0.00 0.00 0.00
+
+	$jointconstrain "bip02 r thigh" x limit 0.00 0.00 0.00
+	$jointconstrain "bip02 r thigh" y limit 0.00 30.00 0.00
+	$jointconstrain "bip02 r thigh" z limit -21.00 41.00 0.00
+
+	$jointconstrain "bip02 r calf" x limit 0.00 0.00 0.00
+	$jointconstrain "bip02 r calf" y limit 0.00 0.00 0.00
+	$jointconstrain "bip02 r calf" z limit 0.00 15.00 0.00
+
+	$jointconstrain "bip02 r horselink" x limit 0.00 0.00 0.00
+	$jointconstrain "bip02 r horselink" y limit 0.00 0.00 0.00
+	$jointconstrain "bip02 r horselink" z limit 0.00 0.00 0.00
+
+	$jointconstrain "bip02 l thigh" x limit 0.00 0.00 0.00
+	$jointconstrain "bip02 l thigh" y limit -30.00 0.00 0.00
+	$jointconstrain "bip02 l thigh" z limit -39.00 28.00 0.00
+
+	$jointconstrain "bip02 l calf" x limit 0.00 0.00 0.00
+	$jointconstrain "bip02 l calf" y limit 0.00 0.00 0.00
+	$jointconstrain "bip02 l calf" z limit 0.00 15.00 0.00
+
+	$jointconstrain "bip02 l horselink" x limit 0.00 0.00 0.00
+	$jointconstrain "bip02 l horselink" y limit 0.00 0.00 0.00
+	$jointconstrain "bip02 l horselink" z limit 0.00 0.00 0.00
+
+	$jointconstrain "bip02 r forearm" x limit 0.00 0.00 0.00
+	$jointconstrain "bip02 r forearm" y limit 0.00 0.00 0.00
+	$jointconstrain "bip02 r forearm" z limit 0.00 0.00 0.00
+}
+$sequence ragdoll 		"synth_reference.smd" 		FPS 30 		activity ACT_DIERAGDOLL 1
+
+
 // $animblocksize 32
 
 // $sequence alert01 "alert01" fps 30 ACT_STAND 1
