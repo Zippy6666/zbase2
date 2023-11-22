@@ -101,8 +101,8 @@ local function NPCsInherit()
         && ZBaseNPCs[ZBase_Inherit] then
             for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
                 if t[k] == nil then 
-                    -- print(cls, "ZBase_Inherit", k, v)
-                    t[k] = v
+
+                    t[k] = istable(v) && table.Copy(v) or v
                 end
             end
         end
@@ -110,12 +110,13 @@ local function NPCsInherit()
         for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
             if t[k] == nil then
                 -- print(cls, "npc_zbase", k, v)
-                t[k] = v
+                t[k] = istable(v) && table.Copy(v) or v
             end
         end
 
+
         if SERVER then
-            local path = "zbase_npcs/"..cls
+            local path = "zbase/npcs/"..cls
             local bh = path.."/behaviour.lua"
             if file.Exists(bh, "LUA") then
                 include(bh)
@@ -171,6 +172,7 @@ local function NPCReg( name )
         local sh = path.."shared.lua"
         local cl = path.."cl_init.lua"
         local sv = path.."init.lua"
+        local bh = path.."behaviour.lua"
 
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA") then
@@ -185,6 +187,10 @@ local function NPCReg( name )
 
             if SERVER then
                 include(sv)
+
+                -- if file.Exists(bh, "LUA") then
+                --     include(bh)
+                -- end
             end
 
             if file.Exists(cl, "LUA") && CLIENT then

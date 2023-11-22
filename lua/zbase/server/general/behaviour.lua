@@ -17,7 +17,6 @@ local function BehaviourTimer( ent )
     ZBaseDelayEnt = ent
 
     for BehaviourName, Behaviour in pairs(ent.Behaviours) do
-
         if !Behaviour.Run then continue end
         ZBaseDelayBehaviour_Name = BehaviourName
 
@@ -30,7 +29,7 @@ local function BehaviourTimer( ent )
 
         if (Behaviour.MustHaveEnemy && !has_ene)
         or (Behaviour.MustNotHaveEnemy && has_ene)
-        or (Behaviour.MustHaveVisibleEnemy && has_ene && !ent:Visible(enemy) )
+        or (Behaviour.MustHaveVisibleEnemy && !(has_ene && ent.EnemyVisible) )
         or (Behaviour.MustFaceEnemy && !ent:IsFacing(enemy)) then
             continue
         end

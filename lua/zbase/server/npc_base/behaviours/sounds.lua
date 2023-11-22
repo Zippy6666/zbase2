@@ -19,7 +19,7 @@ BEHAVIOUR.Dialogue = {
 --]]
 function BEHAVIOUR.DoIdleSound:ShouldDoBehaviour( self )
     if self.IdleSounds == "" then return false end
-    if self:GetNPCState() == NPC_STATE_DEAD then return false end
+    if self:GetNPCState() != NPC_STATE_IDLE then return false end
     if self.HavingConversation then return false end
 
     return true
@@ -69,7 +69,7 @@ end
 --]]
 function BEHAVIOUR.Dialogue:ShouldDoBehaviour( self )
     if self.Dialogue_Question_Sounds == "" then return false end
-    if self:GetNPCState() == NPC_STATE_DEAD then return false end
+    if self:GetNPCState() != NPC_STATE_IDLE then return false end
     if self.HavingConversation then return false end
 
     return true
@@ -85,10 +85,14 @@ function BEHAVIOUR.Dialogue:Run( self )
     local ally = self:GetNearestAlly(350)
 
 
+    local extraBehaviourDelay = 0
+
+
     if IsValid(ally)
     && ally.IsZBaseNPC
     && !IsValid(ally:GetEnemy())
     && !ally.HavingConversation
+    && self:Visible(ally)
     && ally.Dialogue_Answer_Sounds != "" then
         self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
 
@@ -102,6 +106,8 @@ function BEHAVIOUR.Dialogue:Run( self )
         ally.HavingConversation = true
         ally.DialogueMate = self
 
+        extraBehaviourDelay = self.InternalCurrentSoundDuration+0.2
+
         timer.Create("DialogueAnswer"..ally:EntIndex(), self.InternalCurrentSoundDuration+0.4, 1, function()
             if IsValid(ally) then
                 ally:EmitSound_Uninterupted(ally.Dialogue_Answer_Sounds)
@@ -111,6 +117,8 @@ function BEHAVIOUR.Dialogue:Run( self )
                     if !IsValid(ally) then return end
                     ally:CancelConversation()
                 end)
+
+                ZBaseDelayBehaviour( ZBaseRndTblRange(ally.IdleSoundCooldown), ally, "Dialogue" )
             end
 
             if IsValid(self) then
@@ -125,6 +133,6 @@ function BEHAVIOUR.Dialogue:Run( self )
     end
 
 
-    ZBaseDelayBehaviour( ZBaseRndTblRange(self.IdleSoundCooldown) )
+    ZBaseDelayBehaviour( ZBaseRndTblRange(self.IdleSoundCooldown)+extraBehaviourDelay )
 end
 --[[===============================================================================================]]

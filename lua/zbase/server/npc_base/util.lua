@@ -3,16 +3,9 @@ local NPC = ZBaseNPCs["npc_zbase"]
 
 --[[
 ==================================================================================================
-                                           USEFUL
+                                           ANIMATION
 ==================================================================================================
 --]]
-
-
-    -- Check if an entity is allied with the NPC
-function NPC:IsAlly( ent )
-    if self.ZBaseFaction == "none" then return false end
-    return ent.ZBaseFaction == self.ZBaseFaction
-end
 
 
     -- Play an activity or sequence
@@ -63,6 +56,19 @@ end
 function NPC:StopCurrentAnimation()
     self:InternalStopAnimation()
 end
+
+
+    -- Check if the NPC is currently busy playing an animation
+function NPC:BusyPlayingAnimation()
+    return self.DoingPlayAnim
+end
+
+
+--[[
+==================================================================================================
+                                           FACING
+==================================================================================================
+--]]
 
 
 	-- Make the NPC face certain directions
@@ -124,6 +130,7 @@ end
 
 
     -- Check if the NPC is facing a position or entity
+    -- 'maxYawDifference' - If the yaw difference is less than this, we are facing the entity/position (default 22.5 degrees)
 function NPC:IsFacing( ent_or_pos, maxYawDifference )
     if !ent_or_pos then return end
     if ent_or_pos == NULL then return end
@@ -137,27 +144,6 @@ function NPC:IsFacing( ent_or_pos, maxYawDifference )
 
     local yawDif = math.abs(self:WorldToLocalAngles(ang).Yaw)
     return yawDif < (maxYawDifference or 22.5)
-end
-
-
-    -- Check if an entity or position is within a certain distance
-    -- If tbl.within is given, return true if the entity is within x units from itself
-    -- If tbl.away is given, return true if the entity is x units away from itself
-    -- Example: self:ZBaseDist( self:GetEnemy(), {within=400, away=200} ) --> Returns true if enemy is 200 units away, but still within 400 units
-function NPC:ZBaseDist( ent_or_pos, tbl )
-    local dSqr
-
-    if isvector(ent_or_pos) then
-        dSqr = self:GetPos():DistToSqr(ent_or_pos)
-    elseif IsValid(ent_or_pos) then
-        dSqr = self:GetPos():DistToSqr(ent_or_pos:GetPos())
-    end
-
-    if !dSqr then return false end
-    if tbl.away && dSqr < tbl.away^2 then return false end
-    if tbl.within && dSqr > tbl.within^2 then return false end
-
-    return true
 end
 
 
@@ -219,6 +205,7 @@ end
 
 
     -- Triggers the base melee attack damage code
+    -- Returns the entities that was hit by the damage
 function NPC:MeleeAttackDamage()
     if self:GetNPCState() == NPC_STATE_DEAD then return end
 
@@ -238,7 +225,7 @@ function NPC:MeleeAttackDamage()
     end
 
 
-    self:InternalMeleeAttackDamage(dmgData)
+    return self:InternalMeleeAttackDamage(dmgData)
 end
 
 
@@ -354,11 +341,39 @@ end
 --]]
 
 
-    -- Just like entity:EmitSound(), except it will prevent certain sounds from playing over it
+    -- Check if an entity or position is within a certain distance
+    -- If tbl.within is given, return true if the entity is within x units from itself
+    -- If tbl.away is given, return true if the entity is x units away from itself
+    -- Example: self:ZBaseDist( self:GetEnemy(), {within=400, away=200} ) --> Returns true if enemy is 200 units away, but still within 400 units
+function NPC:ZBaseDist( ent_or_pos, tbl )
+    local dSqr
+
+    if isvector(ent_or_pos) then
+        dSqr = self:GetPos():DistToSqr(ent_or_pos)
+    elseif IsValid(ent_or_pos) then
+        dSqr = self:GetPos():DistToSqr(ent_or_pos:GetPos())
+    end
+
+    if !dSqr then return false end
+    if tbl.away && dSqr < tbl.away^2 then return false end
+    if tbl.within && dSqr > tbl.within^2 then return false end
+
+    return true
+end
+
+
+    -- Just like Entity:EmitSound(), except it will prevent certain sounds from playing over it
 function NPC:EmitSound_Uninterupted( ... )
     ZBase_DontSpeakOverThisSound = true
     self:EmitSound(...)
     ZBase_DontSpeakOverThisSound = false
+end
+
+
+    -- Check if an entity is allied with the NPC
+function NPC:IsAlly( ent )
+    if self.ZBaseFaction == "none" then return false end
+    return ent.ZBaseFaction == self.ZBaseFaction
 end
 
 

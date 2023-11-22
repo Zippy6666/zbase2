@@ -34,15 +34,15 @@ function NPC:InternalMeleeAttackDamage(dmgData)
     local mypos = self:WorldSpaceCenter()
     local soundEmitted = false
     local soundPropEmitted = false
+    local hurtEnts = {}
+
 
     for _, ent in ipairs(ents.FindInSphere(mypos, dmgData.dist)) do
         if ent == self then continue end
         if ent.GetNPCState && ent:GetNPCState() == NPC_STATE_DEAD then continue end
 
         local disp = self:Disposition(ent)
-        if disp == D_LI
-        or (!dmgData.affectProps && disp == D_NU) then continue end
-        if self.ZBaseFaction == ent.ZBaseFaction then continue end
+        if (!dmgData.affectProps && disp == D_NU) then continue end
 
         if !self:Visible(ent) then continue end
 
@@ -75,7 +75,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
 
         -- Push
-        if forcevec then
+        if forcevec && !self:IsAlly(ent) then
             local phys = ent:GetPhysicsObject()
 
             if IsValid(phys) then
@@ -87,7 +87,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
 
         -- Damage
-        if !undamagable then
+        if !undamagable && !self:IsAlly(ent) then
             local dmg = DamageInfo()
             dmg:SetAttacker(self)
             dmg:SetInflictor(self)
@@ -109,7 +109,11 @@ function NPC:InternalMeleeAttackDamage(dmgData)
             ent:EmitSound(dmgData.hitSound)
             soundEmitted = true
         end
+
+        table.insert(hurtEnts, ent)
     end
+
+    return hurtEnts
 end
 -----------------------------------------------------------------------------------------------------------------------------------------=#
 function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )

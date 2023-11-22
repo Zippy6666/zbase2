@@ -98,6 +98,7 @@ $sequence charge_start "charge01" {
 	walkframe 98 LX LY
 	frame 0 36
 	transition idle charge
+	ACT_TRANSITION 1
 }
 
 $sequence charge_loop "chargeloop" {
@@ -157,14 +158,14 @@ $collisionjoints crabrag.smd {
 	$mass 5000.0
 	$inertia 1.00
 	$damping 1.00
-	$rotdamping 1.00
+	$rotdamping 2.00
 	$rootbone "bip02"
 
 	$jointconstrain "bip02 spine1" x limit 0.00 0.00 0.00
 	$jointconstrain "bip02 spine1" y limit 0.00 0.00 0.00
 	$jointconstrain "bip02 spine1" z limit -15.00 15.00 0.00
 
-	$jointconstrain "bip02 l upperarm" x limit -48.00 41.00 0.00
+	$jointconstrain "bip02 l upperarm" x limit -30.00 15.00 0.00
 	$jointconstrain "bip02 l upperarm" y limit 0.00 0.00 0.00
 	$jointconstrain "bip02 l upperarm" z limit 0.00 0.00 0.00
 
@@ -172,7 +173,7 @@ $collisionjoints crabrag.smd {
 	$jointconstrain "bip02 l forearm" y limit 0.00 0.00 0.00
 	$jointconstrain "bip02 l forearm" z limit 0.00 0.00 0.00
 
-	$jointconstrain "bip02 r upperarm" x limit -61.00 46.00 0.00
+	$jointconstrain "bip02 r upperarm" x limit -30.00 15.00 0.00
 	$jointconstrain "bip02 r upperarm" y limit 0.00 0.00 0.00
 	$jointconstrain "bip02 r upperarm" z limit 0.00 0.00 0.00
 
@@ -203,6 +204,9 @@ $collisionjoints crabrag.smd {
 	$jointconstrain "bip02 r forearm" x limit 0.00 0.00 0.00
 	$jointconstrain "bip02 r forearm" y limit 0.00 0.00 0.00
 	$jointconstrain "bip02 r forearm" z limit 0.00 0.00 0.00
+
+	$jointcollide "bip02 l upperarm" "bip02 l forearm"
+	$jointcollide "bip02 r upperarm" "bip02 r forearm"
 }
 $sequence ragdoll 		"synth_reference.smd" 		FPS 30 		activity ACT_DIERAGDOLL 1
 
