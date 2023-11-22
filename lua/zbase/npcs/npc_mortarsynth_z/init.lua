@@ -3,13 +3,14 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 -- Spawn with a random model from this table
 -- Leave empty to use the default model for the NPC
-NPC.Models = {"models/mortarsynth.mdl"}
-NPC.CollisionBounds = {min=Vector(-26, -26, -26), max=Vector(26, 26, 26)}
-NPC.HullType = HULL_SMALL_CENTERED -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
+NPC.Models = {"models/zippy/mortarsynth.mdl"}
+NPC.CollisionBounds = {min=Vector(-30, -30, -30), max=Vector(30, 30, 30)}
+NPC.HullType = HULL_LARGE_CENTERED -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
 NPC.SNPCType = ZBASE_SNPCTYPE_FLY -- ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
 
-NPC.BloodColor = DONT_BLEED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
--- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER
+NPC.BloodColor = DONT_BLEED
+NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
+NPC.CustomBloodDecals = "ZBaseBloodWhite" -- String name of custom decal
 
 
 NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this faction will be allied

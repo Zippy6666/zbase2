@@ -223,9 +223,10 @@ function NPC:ZBaseAlertSound()
 
     if self:SquadMemberIsSpeaking({"AlertSounds"}) then return end
 
-
+    
     self:EmitSound_Uninterupted(self.AlertSounds)
     self.NextAlertSound = CurTime() + ZBaseRndTblRange(self.AlertSoundCooldown)
+    ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnEmitSound( data )
@@ -244,7 +245,7 @@ function NPC:OnEmitSound( data )
 
     -- Make sure squad doesn't speak over each other
     if squad != "" && ZBase_DontSpeakOverThisSound then
-        ZBaseSpeakingSquads[squad] = sndVarName
+        ZBaseSpeakingSquads[squad] = sndVarName or true
 
         timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
             ZBaseSpeakingSquads[squad] = nil
@@ -258,9 +259,24 @@ end
 function NPC:SquadMemberIsSpeaking( soundList )
     local squad = self:SquadName()
     if squad == "" then return end
+
+
     local squadSpeakSndVar = ZBaseSpeakingSquads[squad] or false
 
-    return squadSpeakSndVar
+
+    if soundList then
+        for _, v in ipairs(soundList) do
+            print(v, squadSpeakSndVar)
+            if v == squadSpeakSndVar then
+                return v
+            end
+        end
+    else
+        return squadSpeakSndVar
+    end
+
+
+    return false
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:DangerSound( isGrenade )
@@ -288,8 +304,7 @@ end
 function NPC:DoSlowThink()
     local ene = self:GetEnemy()
     
-    
-        -- Flying SNPCs should get closer to the ground during melee
+    -- Flying SNPCs should get closer to the ground during melee --
     if self.IsZBase_SNPC
     && self.BaseMeleeAttack
     && self.SNPCType == ZBASE_SNPCTYPE_FLY
@@ -300,12 +315,42 @@ function NPC:DoSlowThink()
     else
         self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     end
+    ---------------------------------------------------------------=#
 
 
     self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY) or (IsValid(ene) && self:Visible(ene))
 
 
     self:InternalDetectDanger()
+
+
+    -- Loose enemy
+    if IsValid(ene)
+    && !self.EnemyVisible
+    && self:GetEnemyLastKnownPos():DistToSqr(ene:GetPos()) > 10000 then
+        self:MarkEnemyAsEluded()
+        self:LostEnemySound()
+
+        debugoverlay.Text(self:GetPos(), "lost enemy", 2)
+        debugoverlay.Text(self:GetEnemyLastKnownPos()+Vector(0, 0, 100), "last seen enemy pos", 2)
+        debugoverlay.Cross(self:GetEnemyLastKnownPos(), 40, 2, Color( 255, 0, 0 ))
+    end
+    -----------------------=#
+
+
+    -- Stop being alert after some time
+    if self:GetNPCState() == NPC_STATE_ALERT && !self.NextStopAlert then
+        self.NextStopAlert = CurTime()+math.Rand(10, 15)
+    end
+
+    if self.NextStopAlert && self.NextStopAlert < CurTime() then
+        self:SetNPCState(NPC_STATE_IDLE)
+        self.NextStopAlert = nil
+    end
+    --------------------------=#
+
+    
+
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:DoNewEnemy()
@@ -476,6 +521,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
         -- Anim is activity
         if isnumber(anim) then
             self:ResetIdealActivity(anim) -- Play as activity, fixes shit
+            self:SetActivity(anim)
             anim = self:SelectWeightedSequence(anim) -- Convert activity to sequence
         end
 
@@ -488,7 +534,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
 
 
         -- Decide duration
-        duration = duration or self:SequenceDuration(anim)
+        duration = duration or self:SequenceDuration(anim)*0.9
         if playbackRate then
             duration = duration/playbackRate
         end
@@ -520,12 +566,13 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
     -- Transition --
     local goalSeq = isstring(anim) && self:LookupSequence(anim) or self:SelectWeightedSequence(anim)
     local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
+    local transitionAct = self:GetSequenceActivity(transition)
 
     if !noTransitions
     && transition != -1
     && transition != goalSeq then
         -- Recursion
-        self:InternalPlayAnimation( self:GetSequenceName(transition), nil, playbackRate,
+        self:InternalPlayAnimation( transitionAct != -1 && transitionAct or self:GetSequenceName(transition), nil, playbackRate,
         SCHED_NPC_FREEZE, forceFace, faceSpeed, false, playAnim, false, true )
 
         debugoverlay.Text(self:GetPos() - Vector(0, 0, 50), "transition in", 2)
@@ -544,11 +591,12 @@ function NPC:InternalStopAnimation(dontTransitionOut)
         -- Out transition --
         local goalSeq = self:SelectWeightedSequence(ACT_IDLE)
         local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
+        local transitionAct = self:GetSequenceActivity(transition)
 
         if transition != -1
         && transition != goalSeq then
             -- Recursion
-            self:InternalPlayAnimation( self:GetSequenceName(transition), nil, playbackRate,
+            self:InternalPlayAnimation( transitionAct != -1 && transitionAct or self:GetSequenceName(transition), nil, playbackRate,
             SCHED_NPC_FREEZE, forceFace, faceSpeed, false, nil, false )
 
             debugoverlay.Text(self:GetPos() - Vector(0, 0, 50), "transition out", 2)

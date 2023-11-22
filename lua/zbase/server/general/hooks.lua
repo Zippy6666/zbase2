@@ -312,14 +312,14 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     end
 end)
 ---------------------------------------------------------------------------------------=#
-local function CustomBleed( ent, pos, dir )
+local function CustomBleed( ent, pos, dir, bulletdmg )
     -- Custom blood
     if !ent.IsZBaseNPC then return end
     if !ent.CustomBloodParticles && !ent.CustomBloodDecals then return end
 
 
     local dmgPos = pos
-    if !ent:ZBaseDist( dmgPos, { within=math.max(ent:OBBMaxs().x, ent:OBBMaxs().z)*1.5 } ) then
+    if !bulletdmg && !ent:ZBaseDist( dmgPos, { within=math.max(ent:OBBMaxs().x, ent:OBBMaxs().z)*1.5 } ) then
         dmgPos = ent:WorldSpaceCenter()+VectorRand()*15
     end
 
@@ -347,7 +347,7 @@ hook.Add("PostEntityTakeDamage", "ZBASE", function( ent, dmg )
     if dmg:GetDamage() > 0 then
         if ent.ZBase_BulletHits then
             for _, v in ipairs(ent.ZBase_BulletHits) do
-                CustomBleed(ent, v.pos, v.dir)
+                CustomBleed(ent, v.pos, v.dir, true)
             end
         else
             CustomBleed(ent, dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())

@@ -91,7 +91,17 @@ ZBaseCreateVoiceSounds("ZBaseElitePolice.AlertArmed", {
 })
 --]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseElitePolice.IdleEnemy", {
+    "npc/elitepolice/deploy01.wav",
+    "npc/elitepolice/deploy04.wav",
+    "npc/elitepolice/pointer01.wav",
+    "npc/elitepolice/pointer02.wav",
+    "npc/elitepolice/pointer03.wav",
+    "npc/elitepolice/pointer05.wav",
     "npc/elitepolice/takedown.wav",
+    "npc/elitepolice/surprise1.wav",
+    "npc/elitepolice/surprise2.wav",
+    "npc/elitepolice/surprise3.wav",
+    "npc/elitepolice/surprise4.wav",
 })
 --]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseElitePolice.IdleEnemyOccluded", {

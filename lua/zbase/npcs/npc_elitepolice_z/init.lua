@@ -57,7 +57,7 @@ function NPC:CustomOnEmitSound( sndData, sndVarName )
     end
 
 
-    if sndVarName == "IdleSounds_HasEnemy" && IsValid(ene) && !self:Visible(ene) then
+    if sndVarName == "Idle_HasEnemy_Sounds" && IsValid(ene) && !self:Visible(ene) then
         return "ZBaseElitePolice.IdleEnemyOccluded"
     end
 end

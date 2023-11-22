@@ -15,7 +15,7 @@ NPC.HasArmor = {
 }
 
 NPC.BaseMeleeAttack = true
-NPC.MeleeDamage_Delay = 0.4
+NPC.MeleeDamage_Delay = 0.5
 NPC.MeleeAttackAnimations = {
     "Swing",
 }

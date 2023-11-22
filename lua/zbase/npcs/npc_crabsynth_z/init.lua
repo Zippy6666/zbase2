@@ -5,7 +5,8 @@ NPC.StartHealth = 320
 
 
 NPC.BloodColor = DONT_BLEED
-
+NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
+NPC.CustomBloodDecals = "ZBaseBloodWhite" -- String name of custom decal
 
 NPC.CollisionBounds = {min=Vector(-75, -75, 0), max=Vector(75, 75, 90)}
 NPC.HullType = HULL_LARGE -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
@@ -19,7 +20,6 @@ NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 NPC.MeleeDamage_AffectProps = true -- Affect props and other entites
 NPC.MeleeAttackAnimationSpeed = 1.33 -- Speed multiplier for the melee attack animation
 NPC.MeleeDamage = {20, 30} -- Melee damage {min, max}
-NPC.MeleeDamage_Distance = 200 -- Distance the damage travels
 NPC.MeleeDamage_Type = DMG_SLASH -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.MeleeDamage_Delay = false -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead)
 
@@ -54,8 +54,8 @@ NPC.RangeProjectile_Delay = false
 
 
 NPC.FlinchAnimations = {ACT_BIG_FLINCH} -- Flinch animations to use, leave empty to disable the base flinch
-NPC.FlinchAnimationSpeed = 1 -- Speed of the flinch animation
-NPC.FlinchCooldown = {5, 7} -- Flinch cooldown in seconds {min, max}
+NPC.FlinchAnimationSpeed = 1.5 -- Speed of the flinch animation
+NPC.FlinchCooldown = {4, 5} -- Flinch cooldown in seconds {min, max}
 NPC.FlinchChance = 1 -- Flinch chance 1/x
 
 
@@ -65,35 +65,80 @@ end
 --]]==============================================================================================]]
 function NPC:MultipleMeleeAttacks()
     local rnd = math.random(1, 3)
+
+    
     if rnd == 1 then
+
         self.MeleeAttackAnimations = {"attack2"}
         self.MeleeDamage = {20, 30} -- Melee damage {min, max}
         self.MeleeDamage_Angle = 180 -- Damage angle (180 = everything in front of the NPC is damaged)
         self.MeleeAttackName = "bigmelee" -- Serves no real purpose, you can use it for whatever you want
         self.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
         self.MeleeAttackDistance = 190
+        self.MeleeDamage_Distance = 200 -- Distance the damage travels
+
     elseif rnd == 2 then
+
         self.MeleeAttackAnimations = {"attack1"}
         self.MeleeDamage = {20, 20} -- Melee damage {min, max}
         self.MeleeDamage_Angle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
         self.MeleeAttackName = "smallmelee" -- Serves no real purpose, you can use it for whatever you want
         self.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
         self.MeleeAttackDistance = 190
+        self.MeleeDamage_Distance = 200 -- Distance the damage travels
+
     elseif rnd == 3 then
+
         self.MeleeAttackAnimations = {ACT_MELEE_ATTACK2}
         self.MeleeDamage = {20, 20} -- Melee damage {min, max}
         self.MeleeDamage_Angle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
         self.MeleeAttackName = "runmelee" -- Serves no real purpose, you can use it for whatever you want
         self.MeleeAttackFaceEnemy = false -- Should it face enemy while doing the melee attack?
         self.MeleeAttackDistance = 250
+        self.MeleeDamage_Distance = 200 -- Distance the damage travels
+
     end
 end
 --]]==============================================================================================]]
 function NPC:CustomThink()
     local seqName = self:GetSequenceName(self:GetSequence())
 
+
+    -- Range attack face code
     if seqName == "range_loop" or seqName == "range_start" then
         self:Face(self:RangeAttack_IdealFacePos(), nil, self.RangeAttackTurnSpeed)
+    end
+
+
+    -- Charge attack think
+    if seqName == "charge_loop" then
+        -- Charge attack does melee damage
+        self.MeleeDamage = {20, 30} -- Melee damage {min, max}
+        self.MeleeDamage_Angle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
+        self.MeleeAttackName = "runmelee" -- Serves no real purpose, you can use it for whatever you want
+        self.MeleeDamage_Distance = 115 -- Distance the damage travels
+        local ChargeHitEnts = self:MeleeAttackDamage()
+
+
+        -- Hit wall, stop
+        local startPos = self:GetPos()+self:GetUp()*20
+        local tr = util.TraceEntity({
+            start = startPos,
+            endpos = startPos+self:GetForward()*80,
+            mask = MASK_NPCWORLDSTATIC,
+        }, self)
+        if tr.Hit then
+            self:StopCurrentAnimation()
+        end
+
+
+        -- Hit target, stop
+        for _, ent in ipairs(ChargeHitEnts) do
+            if ent:IsNPC() or ent:IsPlayer() or ent:IsNextBot() then
+                self:StopCurrentAnimation()
+                break
+            end
+        end
     end
 end
 --]]==============================================================================================]]
@@ -161,6 +206,7 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
         self:MeleeAttackDamage()
     end
 
+
     if event == 2042 then
         self:RangeAttackProjectile()
     end
@@ -169,13 +215,17 @@ end
 function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
     if dmginfo:GetDamage() < 80 then return false end
     if !dmginfo:IsExplosionDamage() then return false end
+
+
     return true
 end
 --]]==============================================================================================]]
-    -- On NPC hurt, dmginfo:ScaleDamage(0) to prevent damage --
-    -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
-    -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
 function NPC:CustomTakeDamage( dmginfo, HitGroup )
-    --dmginfo
+    local damageHeight = (dmginfo:GetDamagePosition().z - self:WorldSpaceCenter().z)+10
+
+
+    if !(damageHeight < 0 && dmginfo:IsExplosionDamage() && self:GetSequenceName(self:GetSequence()) != "bodythrow") then
+        dmginfo:ScaleDamage(0.1)
+    end
 end
 --]]==============================================================================================]]
