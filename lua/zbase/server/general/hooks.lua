@@ -329,7 +329,7 @@ local function CustomBleed( ent, pos, dir )
     end
 
     if ent.CustomBloodDecals then
-        util.Decal(ent.CustomBloodDecals, dmgPos, dmgPos+dir*200, ent)
+        util.Decal(ent.CustomBloodDecals, dmgPos, dmgPos+dir*250+VectorRand()*50, ent)
     end
 end
 ---------------------------------------------------------------------------------------=#
@@ -374,15 +374,17 @@ hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
     if dmg:IsBulletDamage() then
         if !npc.ZBase_BulletHits then
             npc.ZBase_BulletHits = {}
-        else
-            table.insert(npc.ZBase_BulletHits, {pos=dmg:GetDamagePosition(), dir=dmg:GetDamageForce():GetNormalized()})
-
-            timer.Simple(0, function()
-                if !IsValid(npc) then return end
-
-                npc.ZBase_BulletHits = nil
-            end)
         end
+
+
+        table.insert(npc.ZBase_BulletHits, {pos=dmg:GetDamagePosition(), dir=dmg:GetDamageForce():GetNormalized()})
+
+
+        timer.Simple(0, function()
+            if !IsValid(npc) then return end
+
+            npc.ZBase_BulletHits = nil
+        end)
     end
 end)
 ---------------------------------------------------------------------------------------------------------------------=#

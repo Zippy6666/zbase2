@@ -10,7 +10,7 @@ NPC.Class = "npc_combine_s"
 
 NPC.Name = "Nova Prospekt Soldier" -- Name of your NPC
 NPC.Category = "Default" -- Category in the ZBase tab
-NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+NPC.Weapons = {"weapon_smg1", "weapon_smg1", "weapon_ar2", "weapon_shotgun"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_combine_z" -- Inherit features from any existing zbase npc
 
 

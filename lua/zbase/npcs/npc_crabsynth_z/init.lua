@@ -44,10 +44,10 @@ NPC.RangeAttackTurnSpeed = 10 -- Speed that it turns while trying to face the en
 -- Set to false to disable the timer (if you want to use animation events instead for example)
 NPC.RangeProjectile_Delay = false
 
-NPC.FlinchAnimations = {"attack2"} -- Flinch animations to use, leave empty to disable the base flinch
-NPC.FlinchAnimationSpeed = 2 -- Speed of the flinch animation
-NPC.FlinchCooldown = {1, 3} -- Flinch cooldown in seconds {min, max}
-NPC.FlinchChance = 2 -- Flinch chance 1/x
+-- NPC.FlinchAnimations = {"attack2"} -- Flinch animations to use, leave empty to disable the base flinch
+-- NPC.FlinchAnimationSpeed = 2 -- Speed of the flinch animation
+-- NPC.FlinchCooldown = {1, 3} -- Flinch cooldown in seconds {min, max}
+-- NPC.FlinchChance = 2 -- Flinch chance 1/x
 
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:MultipleMeleeAttacks()

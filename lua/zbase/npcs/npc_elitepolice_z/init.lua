@@ -19,8 +19,7 @@ NPC.MuteDefaultVoice = true -- Mute all default voice sounds emitted by this NPC
 NPC.IdleSound_OnlyNearAllies = true -- Only do IdleSounds if there is another NPC in the same faction nearby
 
 NPC.AlertSounds = "ZBaseElitePolice.Alert" -- Sounds emitted when an enemy is seen for the first time
-NPC.IdleSounds = "ZBaseElitePolice.Idle" -- Sounds emitted while there is no enemy
-NPC.IdleSounds_HasEnemy = "ZBaseElitePolice.IdleEnemy" -- Sounds emitted while there is an enemy
+NPC.Idle_HasEnemy_Sounds = "ZBaseElitePolice.IdleEnemy" -- Sounds emitted while there is an enemy
 NPC.PainSounds = "ZBaseElitePolice.Pain" -- Sounds emitted on hurt
 NPC.DeathSounds = "ZBaseElitePolice.Death" -- Sounds emitted on death
 NPC.KilledEnemySound = "ZBaseElitePolice.KilledEnemy" -- Sounds emitted when the NPC kills an enemy
@@ -31,6 +30,11 @@ NPC.HearDangerSounds = "ZBaseElitePolice.HearDanger"
 NPC.Dialogue_Question_Sounds = "ZBaseElitePolice.Question"
 NPC.Dialogue_Answer_Sounds = "ZBaseElitePolice.Answer"
 
+
+
+--]]==============================================================================================]]
+function NPC:CustomInitialize()
+end
 --]]==============================================================================================]]
 
     -- Return a new sound name to play that sound instead.
@@ -53,15 +57,8 @@ function NPC:CustomOnEmitSound( sndData, sndVarName )
     end
 
 
-    if sndVarName == "IdleSounds" && IsValid(ene) && !self:Visible(ene) then
+    if sndVarName == "IdleSounds_HasEnemy" && IsValid(ene) && !self:Visible(ene) then
         return "ZBaseElitePolice.IdleEnemyOccluded"
-    end
-
-
-    if sndVarName == "HearDangerSounds"
-    && IsValid(self.HearDanger_SoundEmitter)
-    && self:ZBaseDist(self.HearDanger_SoundEmitter, {within=600}) then
-        return "ZBaseElitePolice.HearDangerClose"
     end
 end
 --]]==============================================================================================]]
