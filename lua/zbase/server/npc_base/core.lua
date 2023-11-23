@@ -658,8 +658,7 @@ function NPC:InternalDetectDanger()
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:ZBaseTakeDamage(dmg, hit_gr)
-
-    -- Flinch
+    -- Flinch --
     if !table.IsEmpty(self.FlinchAnimations)
     && math.random(1, self.FlinchChance) == 1
     && self.NextFlinch < CurTime() then
@@ -677,12 +676,13 @@ function NPC:ZBaseTakeDamage(dmg, hit_gr)
         end
     end
     -----------------------=#
-
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:InternalDamageScale(dmg)
     local infl = dmg:GetInflictor()
 
+
+    -- Combine ball stuff
     if infl:GetClass()=="prop_combine_ball" then
         dmg:ScaleDamage(self.EnergyBallDamageScale)
         
@@ -691,6 +691,8 @@ function NPC:InternalDamageScale(dmg)
         end
     end
 
+
+    -- self.DamageScaling
     for dmgType, mult in pairs(self.DamageScaling) do
         if dmg:IsDamageType(dmgType) then
             dmg:ScaleDamage(mult)

@@ -5,7 +5,7 @@ local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 -- Can be any existing NPC in the game
 -- If you want to make a human that can use weapons, you should probably use "npc_combine_s" or "npc_citizen" for example
 -- Use "npc_zbase_snpc" if you want to create a brand new SNPC
-NPC.Class = "base_ai_zbase"
+NPC.Class = "npc_zbase_snpc"
 
 
 NPC.Name = "Crab Synth" -- Name of your NPC
@@ -110,7 +110,7 @@ sound.Add({
 --]]==============================================================================================]]
 sound.Add({
     name = "ZBaseCrabSynth.MinigunLoop",
-	channel = CHAN_VOICE,
+	channel = CHAN_AUTO,
 	volume = 0.9,
 	level = 105,
 	pitch = {100, 100},
@@ -121,7 +121,7 @@ sound.Add({
 --]]==============================================================================================]]
 sound.Add({
     name = "ZBaseCrabSynth.MinigunStart",
-	channel = CHAN_VOICE,
+	channel = CHAN_AUTO,
 	volume = 0.8,
 	level = 105,
 	pitch = {95, 105},
@@ -132,12 +132,12 @@ sound.Add({
 --]]==============================================================================================]]
 sound.Add({
     name = "ZBaseCrabSynth.MinigunStop",
-	channel = CHAN_VOICE,
+	channel = CHAN_AUTO,
 	volume = 0.8,
 	level = 105,
 	pitch = {95, 105},
 	sound = {
-		"npc/crabsynth/minigun_stop.ogg",
+		"npc/crabsynth/minigun_stop.wav",
     }
 })
 --]]==============================================================================================]]
