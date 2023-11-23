@@ -1,7 +1,7 @@
 "DecalModulate"
 {
 	"$translucent" 1
-	"$basetexture" "Decals/zbase_blood_white/Blood2"
+	"$basetexture" "Decals/zbase_blood_synth/Blood3"
 	"$decal" 1
 	"$decalscale" 0.15
 }

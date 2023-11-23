@@ -6,7 +6,7 @@ NPC.StartHealth = 320
 
 NPC.BloodColor = DONT_BLEED
 NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
-NPC.CustomBloodDecals = "ZBaseBloodWhite" -- String name of custom decal
+NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 NPC.CollisionBounds = {min=Vector(-75, -75, 0), max=Vector(75, 75, 90)}
 NPC.HullType = HULL_LARGE -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
@@ -22,6 +22,8 @@ NPC.MeleeAttackAnimationSpeed = 1.33 -- Speed multiplier for the melee attack an
 NPC.MeleeDamage = {20, 30} -- Melee damage {min, max}
 NPC.MeleeDamage_Type = DMG_SLASH -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.MeleeDamage_Delay = false -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead)
+NPC.MeleeDamage_Sound = "ZBaseCrabSynth.MeleeHit" -- Sound when the melee attack hits an enemy
+NPC.MeleeDamage_Sound_Prop = "ZBaseCrabSynth.Melee2" -- Sound when the melee attack hits props
 
 
         -- ARMOR SYSTEM --
@@ -59,8 +61,43 @@ NPC.FlinchCooldown = {4, 5} -- Flinch cooldown in seconds {min, max}
 NPC.FlinchChance = 1 -- Flinch chance 1/x
 
 
+-- Sounds (Use sound scripts to alter pitch and level and such!)
+NPC.AlertSounds = "ZBaseCrabSynth.Alert" -- Sounds emitted when an enemy is seen for the first time
+NPC.IdleSounds = "ZBaseCrabSynth.Idle" -- Sounds emitted while there is no enemy
+NPC.Idle_HasEnemy_Sounds = "ZBaseCrabSynth.Idle" -- Sounds emitted while there is an enemy
+NPC.PainSounds = "ZBaseCrabSynth.Pain" -- Sounds emitted on hurt
+NPC.DeathSounds = "ZBaseCrabSynth.Death" -- Sounds emitted on death
+NPC.KilledEnemySounds = "" -- Sounds emitted when the NPC kills an enemy
+
+NPC.LostEnemySounds = "ZBaseCrabSynth.LostEnemy" -- Sounds emitted when the enemy is lost
+NPC.SeeDangerSounds = "" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
+NPC.SeeGrenadeSounds = "" -- Sounds emitted when the NPC spots a grenade
+NPC.AllyDeathSounds = "" -- Sounds emitted when an ally dies
+NPC.OnMeleeSounds = "ZBaseCrabSynth.Announce" -- Sounds emitted when the NPC does its melee attack
+NPC.OnRangeSounds = "ZBaseCrabSynth.Announce" -- Sounds emitted when the NPC does its range attack
+NPC.OnReloadSounds = "" -- Sounds emitted when the NPC reloads
+
+-- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
+-- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
+NPC.HearDangerSounds = "ZBaseCrabSynth.HearSound"
+
+-- Sound cooldowns {min, max}
+NPC.IdleSoundCooldown = {5, 10}
+NPC.IdleSounds_HasEnemyCooldown = {5, 10}
+NPC.PainSoundCooldown = {1, 2.5}
+NPC.AlertSoundCooldown = {4, 8}
+
+-- Sound chance 1/X
+NPC.IdleSound_Chance = 3
+NPC.AllyDeathSound_Chance = 2
+NPC.OnMeleeSound_Chance = 2
+NPC.OnRangeSound_Chance = 2
+NPC.OnReloadSound_Chance = 2
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
+    self.MinigunShootSound = CreateSound(self, "ZBaseCrabSynth.MinigunLoop")
 end
 --]]==============================================================================================]]
 function NPC:MultipleMeleeAttacks()
@@ -107,6 +144,14 @@ function NPC:CustomThink()
     -- Range attack face code
     if seqName == "range_loop" or seqName == "range_start" then
         self:Face(self:RangeAttack_IdealFacePos(), nil, self.RangeAttackTurnSpeed)
+    end
+
+
+    -- Shoot loop sound
+    if seqName == "range_loop" && !self.MinigunShootSound:IsPlaying() then
+        self.MinigunShootSound:Play()
+    elseif seqName != "range_loop" && self.MinigunShootSound:IsPlaying() then
+        self.MinigunShootSound:Stop()
     end
 
 

@@ -52,7 +52,6 @@ function ENT:Initialize()
 	self.SNPCNextSlowThink = CurTime()
 	self.NextFaceHurtPos = CurTime()
 
-
 	local mdl = self:GetModel()
 	if modelsWithPhysics[self:GetModel()] == nil then
 		local phystest = ents.Create("prop_ragdoll")

@@ -10,7 +10,7 @@ NPC.SNPCType = ZBASE_SNPCTYPE_FLY -- ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY |
 
 NPC.BloodColor = DONT_BLEED
 NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
-NPC.CustomBloodDecals = "ZBaseBloodWhite" -- String name of custom decal
+NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 
 NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this faction will be allied
