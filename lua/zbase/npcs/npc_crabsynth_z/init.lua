@@ -18,7 +18,6 @@ NPC.ZBaseStartFaction = "combine"
 NPC.BaseMeleeAttack = true -- Use ZBase melee attack system
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 NPC.MeleeDamage_AffectProps = true -- Affect props and other entites
-NPC.MeleeAttackAnimationSpeed = 1.33 -- Speed multiplier for the melee attack animation
 NPC.MeleeDamage = {20, 30} -- Melee damage {min, max}
 NPC.MeleeDamage_Type = DMG_SLASH -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.MeleeDamage_Delay = false -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead)
@@ -34,6 +33,21 @@ NPC.ArmorPenChance = false -- 1/x Chance that the armor is penetrated, false = n
 NPC.ArmorAlwaysPenDamage = false -- Always penetrate the armor if the damage is more than this, set to false to disable
 NPC.ArmorHitSpark = false -- Do a spark on armor hit
 NPC.ArmorReflectsBullets = true -- Should the armor reflect bullets?
+
+-- Scale damage against certain damage types:
+-- https://wiki.facepunch.com/gmod/Enums/DMG
+NPC.DamageScaling = {
+    [DMG_GENERIC] = 0,
+    [DMG_NEVERGIB] = 0,
+    [DMG_SLASH] = 0,
+    [DMG_BURN] = 0,
+    [DMG_CLUB] = 0,
+}
+NPC.PhysDamageScale = 0 -- Damage scale from props
+
+
+NPC.EnergyBallDamageScale = 0.1 -- Damage scale from combine energy balls
+NPC.ExplodeEnergyBall = true -- Should combine energy balls explode when they hit this NPC?
 
 
 NPC.SquadGiveSpace = 256
@@ -67,25 +81,18 @@ NPC.IdleSounds = "ZBaseCrabSynth.Idle" -- Sounds emitted while there is no enemy
 NPC.Idle_HasEnemy_Sounds = "ZBaseCrabSynth.Idle" -- Sounds emitted while there is an enemy
 NPC.PainSounds = "ZBaseCrabSynth.Pain" -- Sounds emitted on hurt
 NPC.DeathSounds = "ZBaseCrabSynth.Death" -- Sounds emitted on death
-NPC.KilledEnemySounds = "" -- Sounds emitted when the NPC kills an enemy
-
 NPC.LostEnemySounds = "ZBaseCrabSynth.LostEnemy" -- Sounds emitted when the enemy is lost
-NPC.SeeDangerSounds = "" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
-NPC.SeeGrenadeSounds = "" -- Sounds emitted when the NPC spots a grenade
-NPC.AllyDeathSounds = "" -- Sounds emitted when an ally dies
-NPC.OnMeleeSounds = "ZBaseCrabSynth.Announce" -- Sounds emitted when the NPC does its melee attack
-NPC.OnRangeSounds = "ZBaseCrabSynth.Announce" -- Sounds emitted when the NPC does its range attack
-NPC.OnReloadSounds = "" -- Sounds emitted when the NPC reloads
-
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = "ZBaseCrabSynth.HearSound"
+
 
 -- Sound cooldowns {min, max}
 NPC.IdleSoundCooldown = {5, 10}
 NPC.IdleSounds_HasEnemyCooldown = {5, 10}
 NPC.PainSoundCooldown = {1, 2.5}
 NPC.AlertSoundCooldown = {4, 8}
+
 
 -- Sound chance 1/X
 NPC.IdleSound_Chance = 3
@@ -98,6 +105,7 @@ NPC.OnReloadSound_Chance = 2
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
     self.MinigunShootSound = CreateSound(self, "ZBaseCrabSynth.MinigunLoop")
+    self:CallOnRemove("StopShootSoundLoop", function() self.MinigunShootSound:Stop() end)
 end
 --]]==============================================================================================]]
 function NPC:MultipleMeleeAttacks()
@@ -113,6 +121,7 @@ function NPC:MultipleMeleeAttacks()
         self.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
         self.MeleeAttackDistance = 190
         self.MeleeDamage_Distance = 200 -- Distance the damage travels
+        self.MeleeAttackAnimationSpeed = 1.33 -- Speed multiplier for the melee attack animation
 
     elseif rnd == 2 then
 
@@ -123,6 +132,7 @@ function NPC:MultipleMeleeAttacks()
         self.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
         self.MeleeAttackDistance = 190
         self.MeleeDamage_Distance = 200 -- Distance the damage travels
+        self.MeleeAttackAnimationSpeed = 1.33 -- Speed multiplier for the melee attack animation
 
     elseif rnd == 3 then
 
@@ -133,6 +143,7 @@ function NPC:MultipleMeleeAttacks()
         self.MeleeAttackFaceEnemy = false -- Should it face enemy while doing the melee attack?
         self.MeleeAttackDistance = 250
         self.MeleeDamage_Distance = 200 -- Distance the damage travels
+        self.MeleeAttackAnimationSpeed = 1.33 -- Speed multiplier for the melee attack animation
 
     end
 end
@@ -147,41 +158,64 @@ function NPC:CustomThink()
     end
 
 
-    -- Shoot loop sound
-    if seqName == "range_loop" && !self.MinigunShootSound:IsPlaying() then
-        self.MinigunShootSound:Play()
-    elseif seqName != "range_loop" && self.MinigunShootSound:IsPlaying() then
+    -- Stop shoot loop sound if it should not be playing
+    if seqName != "range_loop" && self.MinigunShootSound:IsPlaying() then
         self.MinigunShootSound:Stop()
+        self:EmitSound("ZBaseCrabSynth.MinigunStop")
     end
 
 
     -- Charge attack think
-    if seqName == "charge_loop" then
-        -- Charge attack does melee damage
-        self.MeleeDamage = {20, 30} -- Melee damage {min, max}
-        self.MeleeDamage_Angle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
-        self.MeleeAttackName = "runmelee" -- Serves no real purpose, you can use it for whatever you want
-        self.MeleeDamage_Distance = 115 -- Distance the damage travels
-        local ChargeHitEnts = self:MeleeAttackDamage()
-
-
-        -- Hit wall, stop
+    if seqName == "charge_loop" or seqName == "charge_start" then 
+        -- Trace check
         local startPos = self:GetPos()+self:GetUp()*20
         local tr = util.TraceEntity({
             start = startPos,
-            endpos = startPos+self:GetForward()*80,
-            mask = MASK_NPCWORLDSTATIC,
+            endpos = startPos+self:GetForward()*200,
+            filter = self,
         }, self)
         if tr.Hit then
-            self:StopCurrentAnimation()
+            print(tr.Entity)
+
+            if tr.HitWorld && tr.Fraction > 0.5 then
+                -- Hit world
+                self:StopCurrentAnimation()
+            elseif IsValid(tr.Entity) then
+                -- Hit target, stop
+                local mtype = tr.Entity:GetMoveType()
+                if mtype == MOVETYPE_STEP or mtype == MOVETYPE_WALK then
+                    self:StopCurrentAnimation()
+
+                    -- Try to melee as well
+                    self.MeleeAttackAnimations = {ACT_MELEE_ATTACK2}
+                    self.MeleeDamage = {20, 30} -- Melee damage {min, max}
+                    self.MeleeDamage_Angle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
+                    self.MeleeAttackName = "runmelee" -- Serves no real purpose, you can use it for whatever you want
+                    self.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
+                    self.MeleeAttackDistance = 250
+                    self.MeleeDamage_Distance = 200 -- Distance the damage travels
+                    self.MeleeAttackAnimationSpeed = 1.75 -- Speed multiplier for the melee attack animation
+                    self:MeleeAttack()
+                end
+            end
         end
 
 
-        -- Hit target, stop
-        for _, ent in ipairs(ChargeHitEnts) do
-            if ent:IsNPC() or ent:IsPlayer() or ent:IsNextBot() then
-                self:StopCurrentAnimation()
-                break
+        -- Push entities that it hits
+        for _, ent in ipairs(ents.FindInSphere(self:GetPos(), 130)) do
+            if ent == self then continue end
+
+            local mtype = ent:GetMoveType()
+
+            
+            if mtype == MOVETYPE_VPHYSICS then
+                local phys = ent:GetPhysicsObject()
+
+                if IsValid(phys) then
+                    phys:SetVelocity(self:GetForward()*400 + VectorRand()*100)
+                end
+            elseif mtype == MOVETYPE_STEP or mtype == MOVETYPE_WALK then
+                self:SetVelocity(self:GetForward()*400 + VectorRand()*100)
             end
         end
     end
@@ -193,6 +227,9 @@ function NPC:OnRangeAttack()
     self:PlayAnimation(ACT_RANGE_ATTACK1, false, {duration=duration})
     self.CurTargetPos = nil -- Reset
     self.CurTrackSpeed = 0.01
+
+    self.MinigunCanFire = false -- Cannot fire right now, will be able to fire after windup
+    self.MinigunStartDone = false -- Has not started to wind up yet
 end
 --]]==============================================================================================]]
 function NPC:RangeAttackProjectile()
@@ -210,10 +247,15 @@ function NPC:RangeAttackProjectile()
         self.CurTargetPos = self:GetAttachment(1).Pos+self:GetForward()*100
     else
         -- Steer towards projectile target pos, increase the speed of the tracking as well
-        -- Only track the position slowly if the enemy is far away
-        self.CurTargetPos = (self:ZBaseDist(projEndPos, {away=400}) or !self:IsFacing(projEndPos, 90))
+        self.CurTargetPos = (self:ZBaseDist(projEndPos, {away=300}))
         && Lerp(self.CurTrackSpeed, self.CurTargetPos, projEndPos)
         or projEndPos
+
+
+        if self:IsFacing(projEndPos) then
+            self.CurTargetPos = projEndPos
+        end
+
 
         self.CurTrackSpeed = self.CurTrackSpeed+0.005
     end
@@ -252,14 +294,30 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
     end
 
 
+    -- Minigun code
     if event == 2042 then
-        self:RangeAttackProjectile()
+        if !self.MinigunStartDone then
+            -- Winds up first
+            self.MinigunStartDone = true
+            self:EmitSound("ZBaseCrabSynth.MinigunStart")
+        
+            timer.Simple(1.7, function()
+                if !(IsValid(self) && self:GetSequenceName(self:GetSequence())=="range_loop") then return end
+                self.MinigunCanFire = true
+                self.MinigunShootSound:Play()
+            end)
+        end
+
+
+        if self.MinigunCanFire then
+            self:RangeAttackProjectile()
+        end
     end
 end
 --]]==============================================================================================]]
 function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
     if dmginfo:GetDamage() < 80 then return false end
-    if !dmginfo:IsExplosionDamage() then return false end
+    if !dmginfo:IsExplosionDamage() && !dmginfo:IsDamageType(DMG_DISSOLVE) then return false end
 
 
     return true
@@ -267,7 +325,6 @@ end
 --]]==============================================================================================]]
 function NPC:CustomTakeDamage( dmginfo, HitGroup )
     local damageHeight = (dmginfo:GetDamagePosition().z - self:WorldSpaceCenter().z)+10
-
 
     if !(damageHeight < 0 && dmginfo:IsExplosionDamage() && self:GetSequenceName(self:GetSequence()) != "bodythrow") then
         dmginfo:ScaleDamage(0.1)
