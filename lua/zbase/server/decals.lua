@@ -8,13 +8,13 @@ game.AddDecal("ZBaseBloodBlack", {
     "decals/zbase_blood_black/blood6",
 })
 --]]=================================================================================================================]]
-game.AddDecal("ZBaseBloodWhite", {
-    "decals/zbase_blood_white/blood1",
-    "decals/zbase_blood_white/blood2",
-    "decals/zbase_blood_white/blood3",
-    "decals/zbase_blood_white/blood4",
-    "decals/zbase_blood_white/blood5",
-    "decals/zbase_blood_white/blood6",
+game.AddDecal("ZBaseBloodSynth", {
+    "decals/zbase_blood_synth/blood1",
+    "decals/zbase_blood_synth/blood2",
+    "decals/zbase_blood_synth/blood3",
+    "decals/zbase_blood_synth/blood4",
+    "decals/zbase_blood_synth/blood5",
+    "decals/zbase_blood_synth/blood6",
 })
 --]]=================================================================================================================]]
 game.AddDecal("ZBaseBloodRed", {

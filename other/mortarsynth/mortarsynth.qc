@@ -8,7 +8,7 @@ $bodygroup "Body"
 }
 
 
-$surfaceprop "antlion"
+$surfaceprop "alienflesh"
 
 $contents "solid"
 

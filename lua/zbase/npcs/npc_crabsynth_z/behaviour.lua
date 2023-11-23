@@ -16,6 +16,10 @@ end
 -- Called before running the behaviour
 -- Return a number to suppress and delay the behaviour by said number (in seconds)
 function BEHAVIOUR.ChargeAttack:Delay( self )
+    if !self:ZBaseDist(self:GetEnemy(), {within=1250, away=300})
+    or math.abs(self:GetPos().z - self:GetEnemy():GetPos().z) > 100 then
+        return math.Rand(2, 4)
+    end
 end
 ------------------------------------------------------------------------=#
 -- Called continiously as long as it should do the behaviour 

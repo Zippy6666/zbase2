@@ -180,8 +180,8 @@ function NPC:OnKilledEnt( ent )
 end
 ---------------------------------------------------------------------------------------------------------------------=#
 function NPC:OnHurt( dmg )
-    if self.NextPainSound < CurTime() then
-        self:EmitSound(self.PainSounds)
+    if self.NextPainSound < CurTime() && dmg:GetDamage() > 0 then
+        self:EmitSound_Uninterupted(self.PainSounds)
         self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
     end
 end
