@@ -521,27 +521,12 @@ hook.Add("AcceptInput", "ZBASE", function( ent, input, activator, caller, value 
     end
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
-hook.Add("PlayerInitialSpawn", "ZBASE", function( ply )
-    ply.ZBaseFaction = "ally"
-end)
----------------------------------------------------------------------------------------------------------------------=#
 hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:OnKilledEnt( ply )
     end
 
     TellZBaseNPCsEnemyDied(ply)
-end)
----------------------------------------------------------------------------------------------------------------------=#
-hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
-    if ply.ZBaseNPCFactionOverride && ply.ZBaseNPCFactionOverride != "" then
-        timer.Simple(0, function()
-            if !IsValid(ent) or !IsValid(ply) then return end
-            if !ent.IsZBaseNPC then return end
-
-            ent:SetZBaseFaction(ply.ZBaseNPCFactionOverride)
-        end)
-    end
 end)
 ---------------------------------------------------------------------------------------------------------------------=#
 hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
