@@ -607,5 +607,4 @@ end
     -- Called before death
     -- Return true to not spawn ragdoll
 function NPC:ShouldGib( dmginfo, hit_gr )
-    return true
 end

@@ -1,4 +1,3 @@
-AddCSLuaFile("cl_init.lua")
 AddCSLuaFile()
 
 ENT.Base = "base_ai"
