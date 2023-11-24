@@ -97,7 +97,7 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
             ent:CallOnRemove("ZBaseRelationshipEntsRemove", function() table.RemoveByValue(ZBaseRelationshipEnts, ent) end)
 
 
-            ent:SetZBaseFaction(!ent.IsZBaseNPC && faction)
+            ZBaseSetFaction(ent, !ent.IsZBaseNPC && faction)
         end)
     end
 end)
@@ -469,16 +469,13 @@ end)
 
 
 hook.Add("CreateEntityRagdoll", "ZBaseNoRag", function(ent, rag)
-	if ent:GetNWBool("ZBaseNoRag") or ent.Gibbed then
-		rag:Remove()
-	end
+    
 end)
 
 
 -- Disable client ragdolls
 hook.Add("CreateClientsideRagdoll", "ZBaseNoRag", function(ent, rag)
-	if ent.IsZBaseNPC then
+	if ent:GetNWBool("IsZBaseNPC") then
 		rag:Remove()
 	end
 end)
-
