@@ -217,7 +217,6 @@ ZBaseBehaviourTimerFuncs = {}
 ZBaseSpawnMenuNPCList = {}
 ZBaseSpeakingSquads = {}
 ZBaseEnhancementTable = {}
--- ZBase_NonZBaseNPCs = {} -- wtf even is this, why did i create it
 
 
 -- For the zbase face function
@@ -348,6 +347,7 @@ end
 local function RegBase()
     ZBaseNPCs["npc_zbase"] = {}
     ZBaseNPCs["npc_zbase"].Behaviours = {}
+    ZBaseNPCs["npc_zbase"].IsZBaseNPC = true
 
 
     local NPCBasePrefix = "zbase/npc_base_"

@@ -1,0 +1,13 @@
+-- Submaterial system
+-- Vehicle base
+-- HL2 Resurgence-like pack with NPCs from Entropy Zero 2, Hl2 Overcharged, RTBR, etc
+-- Insurgency NPC Pack
+-- Doom 3 SNPCs
+-- Global danger detection system
+-- Expanded support for the weapon base so that player functions work on NPCs
+-- Controller
+-- Gib system
+-- Jump system
+-- SNPC danger detect
+    -- New ZSched that uses cover from origin with random move as fallback
+-- ZBase functionality for any NPC, except ANP NPCs and SNPCs

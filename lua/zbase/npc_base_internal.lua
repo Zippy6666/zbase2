@@ -2,9 +2,6 @@ local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 
-NPC.IsZBaseNPC = true
-
-
 --[[
 ==================================================================================================
                                            INIT BRUV
@@ -22,6 +19,10 @@ function NPC:ZBaseInit()
     self.NextFlinch = CurTime()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
+
+
+    -- Network IsZBaseNPC
+    self:SetNWBool("IsZBaseNPC", true)
 
 
      -- Starts with no field of view
@@ -68,10 +69,6 @@ function NPC:ZBaseInit()
         self:SetCollisionBounds(self.CollisionBounds.min, self.CollisionBounds.max)
         self:SetSurroundingBounds(self.CollisionBounds.min*1.25, self.CollisionBounds.max*1.25)
     end
-
-
-    -- Should it have a death ragdoll?
-    self:SetNWBool("ZBaseNoRag", !self.HasDeathRagdoll)
 
 
     -- Phys damage scale
@@ -219,15 +216,6 @@ local VJ_Translation_Flipped = {
     ["antlion"] = "CLASS_ANTLION",
     ["ally"] = "CLASS_PLAYER_ALLY",
 }
-
-
-function NPC:SetZBaseFaction(newFaction)
-    self.ZBaseFaction = newFaction or self.ZBaseStartFaction
-
-    for _, v in ipairs(ZBaseRelationshipEnts) do
-        v:Relationships()
-    end
-end
 
 
 function NPC:SetRelationship( ent, rel )
@@ -1594,7 +1582,8 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     self.Gibbed = self:ShouldGib(dmg, hit_gr)
 
 
-    -- SafeRemoveEntityDelayed(self, 0.15) -- Remove earlier
+    self:SetShouldServerRagdoll(false)
+    self:Remove()
 end
 
 
