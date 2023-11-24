@@ -14,6 +14,7 @@ ZSched = {}
 local function SetupScheds()
     for k, func in pairs(ZSched) do
         local sched = ai_schedule.New( "ZSched"..k )
+        
         func( ZSched, sched )
         ZSched[k] = sched
     end
@@ -68,3 +69,6 @@ end
 function ZSched:FaceLastPos( sched )
     sched:EngTask( "TASK_FACE_LASTPOSITION",  0 )
 end
+
+
+SetupScheds()

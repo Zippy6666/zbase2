@@ -197,6 +197,79 @@ sound.Add( {
 } )
 
 
+
+--[[
+======================================================================================================================================================
+                                           ESSENTIAL GLOBALS
+======================================================================================================================================================
+--]]
+
+
+if SERVER then
+    util.AddNetworkString("ZBaseListFactions")
+    util.AddNetworkString("ZBase_GetFactionsFromServer")
+    net.Receive("ZBase_GetFactionsFromServer", ZBaseListFactions)
+end
+
+
+ZBaseNPCs = {}
+ZBaseBehaviourTimerFuncs = {}
+ZBaseSpawnMenuNPCList = {}
+ZBaseSpeakingSquads = {}
+ZBaseEnhancementTable = {}
+-- ZBase_NonZBaseNPCs = {} -- wtf even is this, why did i create it
+
+
+-- For the zbase face function
+if SERVER then
+    ZBaseForbiddenFaceScheds = {
+        [SCHED_ALERT_FACE]	= true,
+        [SCHED_ALERT_FACE_BESTSOUND]	= true,
+        [SCHED_COMBAT_FACE] 	= true,
+        [SCHED_FEAR_FACE] 	= true,	
+        [SCHED_SCRIPTED_FACE] 	= true,	
+        [SCHED_TARGET_FACE]	= true,
+    }
+end
+
+
+if !ZBaseNPCInstances then
+    ZBaseNPCInstances = {}
+    ZBaseNPCInstances_NonScripted = {}
+end
+
+
+function ZBaseEnhancementNPCClass(debuginfo)
+    local shortsrc = debuginfo.short_src
+    local split = string.Split(shortsrc, "/")
+    local name = split[#split]
+    local split2 = string.Split(name, ".")
+    return split2[1]
+end
+
+
+function ZBaseListFactions( _, ply )
+    if SERVER then
+        local factions = {none=true, neutral=true, ally=true}
+
+        for k, v in pairs(ZBaseNPCs) do
+            if v.ZBaseStartFaction then
+                factions[v.ZBaseStartFaction] = true
+            end
+        end
+
+        net.Start("ZBaseListFactions")
+        net.WriteTable(factions)
+        net.Send(ply)
+    end
+
+    if CLIENT then
+        net.Start("ZBase_GetFactionsFromServer")
+        net.SendToServer()
+    end
+end
+
+
 --[[
 ======================================================================================================================================================
                                            INCLUDES
@@ -205,26 +278,19 @@ sound.Add( {
 
 
 local function IncludeFiles()
-    -- old nasty code
-    include("zbase/shared/globals.lua")
+    -- Globals
+    AddCSLuaFile("zbase/globals.lua")
+    include("zbase/globals.lua")
 
-
-
-    -- new
+    -- Hooks
     AddCSLuaFile("zbase/hooks.lua")
     include("zbase/hooks.lua")
-    
-
 
 
     if SERVER then
-        -- new
+
+        -- Schedules
         include("zbase/schedules.lua")
-
-
-        -- old nasty code
-        --include("zbase/server/general/hooks.lua")
-        --include("zbase/server/general/relationship.lua")
 
 
         -- Include NPC enhancement files
@@ -233,6 +299,7 @@ local function IncludeFiles()
         for _, v in ipairs(files) do
             include(enhPath..v)
         end
+
     end
 end
 
@@ -387,9 +454,6 @@ end)
 
 
 if ZBaseInitialized then
-    table.Empty( ZBaseNPCs )
-    table.Empty( ZBaseSpawnMenuNPCList )
-    
     IncludeFiles()
     registerNPCs()
 

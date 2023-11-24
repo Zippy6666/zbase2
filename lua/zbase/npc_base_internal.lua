@@ -515,8 +515,32 @@ end
 --]]
 
 
+ZBase_DontSpeakOverThisSound = false
+
+
+local SoundIndexes = {}
+local ShuffledSoundTables = {}
+
+
+function NPC:RestartSoundCycle( sndTbl, data )
+    SoundIndexes[data.OriginalSoundName] = 1
+
+    local shuffle = table.Copy(sndTbl.sound)
+    table.Shuffle(shuffle)
+    ShuffledSoundTables[data.OriginalSoundName] = shuffle
+
+    -- print("-----------------", data.OriginalSoundName, "-----------------")
+    -- PrintTable(ShuffledSoundTables[data.OriginalSoundName])
+    -- print("--------------------------------------------------")
+end
+
+
 function NPC:OnEmitSound( data )
+    local altered = false
     local sndVarName
+
+
+    -- What sound variable was it? if any
     for _, v in ipairs(self.SoundVarNames) do
         if self[v] == data.OriginalSoundName then
             sndVarName = v
@@ -524,14 +548,66 @@ function NPC:OnEmitSound( data )
         end
     end
 
-    
-    local val = self:CustomOnEmitSound( data, sndVarName )
-    local squad = self:GetKeyValues().squadname
+
+    -- Mute default "engine" voice
+    if !ZBase_EmitSoundCall
+    && SERVER
+    && self.MuteDefaultVoice
+    && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
+        return false
+    end
+
+
+        -- Avoid sound repitition --
+    local sndTbl = sound.GetProperties(data.OriginalSoundName)
+
+    if sndTbl && istable(sndTbl.sound) && table.Count(sndTbl.sound) > 1 && ZBase_EmitSoundCall then
+        if !SoundIndexes[data.OriginalSoundName] then
+            self:RestartSoundCycle(sndTbl, data)
+        else
+            if SoundIndexes[data.OriginalSoundName] == table.Count(sndTbl.sound) then
+                self:RestartSoundCycle(sndTbl, data)
+            else
+                SoundIndexes[data.OriginalSoundName] = SoundIndexes[data.OriginalSoundName] + 1
+            end
+        end
+
+        local snds = ShuffledSoundTables[data.OriginalSoundName]
+        data.SoundName = snds[SoundIndexes[data.OriginalSoundName]]
+        altered = true
+
+        -- print(SoundIndexes[data.OriginalSoundName], data.SoundName)
+    end
+    -----------------------------------------------=#
+
+
+    -- Custom on emit sound, allow the user to replace what sound to play
+    local value = self:CustomOnEmitSound( data, sndVarName )
+    if isstring(value) then
+
+        self.TempSoundCvar = sndVarName
+
+
+        if ZBase_DontSpeakOverThisSound then
+            self:EmitSound_Uninterupted(value)
+        else
+            self:EmitSound(value)
+        end
+
+
+        self.TempSoundCvar = nil
+        return false
+
+    elseif value == false then
+        return false
+    end
 
 
     -- Make sure squad doesn't speak over each other
+    local squad = self:GetKeyValues().squadname
     if squad != "" && ZBase_DontSpeakOverThisSound then
-        ZBaseSpeakingSquads[squad] = sndVarName or true
+        ZBaseSpeakingSquads[squad] = self.TempSoundCvar or sndVarName or true
+        print(ZBaseSpeakingSquads[squad])
 
         timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
             ZBaseSpeakingSquads[squad] = nil
@@ -539,7 +615,12 @@ function NPC:OnEmitSound( data )
     end
 
 
-    return val
+    self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
+
+
+    if altered then
+        return true
+    end
 end
 
 
@@ -553,7 +634,6 @@ function NPC:SquadMemberIsSpeaking( soundList )
 
     if soundList then
         for _, v in ipairs(soundList) do
-            print(v, squadSpeakSndVar)
             if v == squadSpeakSndVar then
                 return v
             end
@@ -900,6 +980,9 @@ end
                                            SECONDARY FIRE
 ==================================================================================================
 --]]
+
+
+ZBaseComballOwner = NULL
 
 
 NPCB.SecondaryFire = {
@@ -1317,6 +1400,249 @@ end
 
 --[[
 ==================================================================================================
+                                           DAMAGE
+==================================================================================================
+--]]
+
+
+function NPC:CustomBleed( pos, dir, IsBulletDamage )
+    if !self.CustomBloodParticles && !self.CustomBloodDecals then return end
+
+
+    local dmgPos = pos
+    if !IsBulletDamage && !self:ZBaseDist( dmgPos, { within=math.max(self:OBBMaxs().x, self:OBBMaxs().z)*1.5 } ) then
+        dmgPos = self:WorldSpaceCenter()+VectorRand()*15
+    end
+
+
+    if self.CustomBloodParticles then
+        ParticleEffect(table.Random(self.CustomBloodParticles), dmgPos, -dir:Angle())
+    end
+
+
+    if self.CustomBloodDecals then
+        util.Decal(self.CustomBloodDecals, dmgPos, dmgPos+dir*250+VectorRand()*50, self)
+    end
+end
+
+
+    -- Called first
+function NPC:OnScaleNPCDamage( dmg, hit_gr )
+    local infl = dmg:GetInflictor()
+
+
+    -- Combine ball stuff
+    if infl:GetClass()=="prop_combine_ball" then
+        dmg:ScaleDamage(self.EnergyBallDamageScale)
+
+        if self.ExplodeEnergyBall then
+            infl:Fire("Explode")
+        end
+    end
+
+
+    -- self.DamageScaling
+    for dmgType, mult in pairs(self.DamageScaling) do
+        if dmg:IsDamageType(dmgType) then
+            dmg:ScaleDamage(mult)
+        end
+    end
+
+
+    -- Armor
+    if self.HasArmor[hit_gr] then
+        self:HitArmor(dmg, hit_gr)
+    end
+
+
+    -- Custom damage
+    self:CustomTakeDamage( dmg, hit_gr )
+
+
+    -- Bullet blood shit idk
+    if dmg:IsBulletDamage() then
+        if !self.ZBase_BulletHits then
+            self.ZBase_BulletHits = {}
+        end
+
+
+        table.insert(self.ZBase_BulletHits, {pos=dmg:GetDamagePosition(), dir=dmg:GetDamageForce():GetNormalized()})
+
+
+        timer.Simple(0, function()
+            if !IsValid(self) then return end
+
+            self.ZBase_BulletHits = nil
+        end)
+    end
+end
+
+
+    -- Called second
+function NPC:OnEntityTakeDamage( dmg )
+    if self.DoingDeathAnim && !self.DeathAnim_Finished then dmg:ScaleDamage(0) return end
+end
+
+
+    -- Called last
+function NPC:OnPostEntityTakeDamage( dmg )
+    if self.Dead then return end
+
+
+    -- Remember last dmginfo and hitgroup
+    self.LastDMGINFO, self.LastHitGroup = dmg, hit_gr
+
+
+    -- Death animation
+    if !table.IsEmpty(self.DeathAnimations) && self:Health()-dmg:GetDamage() <= 0 then
+        self:DeathAnimation(dmg)
+        return
+    end
+
+
+    -- Fix NPCs being unkillable in SCHED_NPC_FREEZE
+    if self.IsZBaseNPC && self:IsCurrentSchedule(SCHED_NPC_FREEZE) && self:Health() <= 0
+    && !self.ZBaseDieFreezeFixDone then
+        self:ClearSchedule()
+        self:TakeDamageInfo(dmg)
+        self.ZBaseDieFreezeFixDone = true
+    end
+
+
+    -- Pain sound
+    if self.NextPainSound < CurTime() && dmg:GetDamage() > 0 then
+        self:EmitSound_Uninterupted(self.PainSounds)
+        self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
+    end
+
+
+    -- Flinch
+    if !table.IsEmpty(self.FlinchAnimations)
+    && math.random(1, self.FlinchChance) == 1
+    && self.NextFlinch < CurTime() then
+        local anim = table.Random(self.FlinchAnimations)
+
+        if self:OnFlinch(dmg, hit_gr, anim) != false then
+            self:PlayAnimation(anim, false, {
+                speedMult=self.FlinchAnimationSpeed,
+                isGesture=self.FlinchIsGesture,
+                face = false,
+                noTransitions = true,
+            })
+
+            self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
+        end
+    end
+
+
+    -- Custom blood
+    if dmg:GetDamage() > 0 then
+        if self.ZBase_BulletHits then
+            for _, v in ipairs(self.ZBase_BulletHits) do
+                self:CustomBleed(v.pos, v.dir, true)
+            end
+        else
+            self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
+        end
+    end
+end
+
+
+--[[
+==================================================================================================
+                                           DEATH
+==================================================================================================
+--]]
+
+
+function NPC:OnDeath( attacker, infl, dmg, hit_gr )
+    self.Dead = true
+
+
+    -- Stop sounds
+    for _, v in ipairs(self.SoundVarNames) do
+        if !isstring(v) then return end
+        self:StopSound(self:GetTable()[v])
+    end
+
+
+    -- Death sound
+    self:EmitSound(self.DeathSounds)
+
+
+    -- Ally death reaction
+    local ally = self:GetNearestAlly(600)
+    local deathpos = self:GetPos()
+    if IsValid(ally) && ally:Visible(self) then
+        timer.Simple(0.5, function()
+            if IsValid(ally)
+            && ally.AllyDeathSound_Chance
+            && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+
+                ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
+
+                if ally.AllyDeathSounds != "" then
+                    ally:FullReset()
+                    ally:Face(deathpos, ally.InternalCurrentSoundDuration)
+                end
+            
+            end
+        end)
+    end
+
+
+    self.Gibbed = self:ShouldGib(dmg, hit_gr)
+
+
+    -- SafeRemoveEntityDelayed(self, 0.15) -- Remove earlier
+end
+
+
+function NPC:DeathAnimation( dmg )
+    local att = dmg:GetAttacker()
+    local inf = dmg:GetInflictor()
+    local dmgAmt = dmg:GetDamage()
+    local dmgt = dmg:GetDamageType()
+    local lastDMGinfo = {
+        ['att'] = att,
+        ['inf'] = inf,
+        ['dmgt'] = dmgt,
+    }
+
+
+    self.DoingDeathAnim = true
+    dmg:ScaleDamage(0)
+
+
+    local duration = self:PlayAnimation(table.Random(self.DeathAnimations))
+
+
+    self:SetHealth(1)
+    self:AddFlags(FL_NOTARGET)
+    self:CapabilitiesClear()
+
+
+    timer.Simple(duration, function()
+        if !IsValid(self) then return end
+
+        self.DeathAnim_Finished = true
+
+        local newDMGinfo = DamageInfo()
+        newDMGinfo:SetAttacker( IsValid(lastDMGinfo.att) && lastDMGinfo.att or self )
+        newDMGinfo:SetInflictor( IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or self )
+        newDMGinfo:SetDamage( 1 )
+
+        if self.IsZBase_SNPC then
+            self:Die(newDMGinfo)
+        else
+            self:TakeDamageInfo( newDMGinfo )
+        end
+    end)
+end
+
+
+--[[
+==================================================================================================
                                            OTHER CRAP
 ==================================================================================================
 --]]
@@ -1328,14 +1654,6 @@ function NPC:OnKilledEnt( ent )
     end
     
     self:CustomOnKilledEnt( ent )
-end
-
-
-function NPC:OnHurt( dmg )
-    if self.NextPainSound < CurTime() && dmg:GetDamage() > 0 then
-        self:EmitSound_Uninterupted(self.PainSounds)
-        self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
-    end
 end
 
 
@@ -1439,51 +1757,6 @@ function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
         ent:Remove()
 
         ZBaseReflectedBullet = false
-    end
-end
-
-
-function NPC:ZBaseTakeDamage(dmg, hit_gr)
-    -- Flinch --
-    if !table.IsEmpty(self.FlinchAnimations)
-    && math.random(1, self.FlinchChance) == 1
-    && self.NextFlinch < CurTime() then
-        local anim = table.Random(self.FlinchAnimations)
-
-        if self:OnFlinch(dmg, hit_gr, anim) != false then
-            self:PlayAnimation(anim, false, {
-                speedMult=self.FlinchAnimationSpeed,
-                isGesture=self.FlinchIsGesture,
-                face = false,
-                noTransitions = true,
-            })
-
-            self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
-        end
-    end
-    -----------------------=#
-end
-
-
-function NPC:InternalDamageScale(dmg)
-    local infl = dmg:GetInflictor()
-
-
-    -- Combine ball stuff
-    if infl:GetClass()=="prop_combine_ball" then
-        dmg:ScaleDamage(self.EnergyBallDamageScale)
-        
-        if self.ExplodeEnergyBall then
-            infl:Fire("Explode")
-        end
-    end
-
-
-    -- self.DamageScaling
-    for dmgType, mult in pairs(self.DamageScaling) do
-        if dmg:IsDamageType(dmgType) then
-            dmg:ScaleDamage(mult)
-        end
     end
 end
 
