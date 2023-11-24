@@ -11,7 +11,7 @@ NPC.Class = "npc_metropolice"
 NPC.Name = "Civil Protection Elite" -- Name of your NPC
 NPC.Category = "Default" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_elitepolice_mp5k", "weapon_pistol", "weapon_pistol"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
-NPC.Inherit = "npc_police_z" -- Inherit features from any existing zbase npc
+NPC.Inherit = "zb_metropolice" -- Inherit features from any existing zbase npc
 
 
 --]]==============================================================================================]]

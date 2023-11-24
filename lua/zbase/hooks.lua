@@ -97,7 +97,7 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
             ent:CallOnRemove("ZBaseRelationshipEntsRemove", function() table.RemoveByValue(ZBaseRelationshipEnts, ent) end)
 
 
-            ZBaseSetFaction(ent, !ent.IsZBaseNPC && faction)
+            -- ZBaseSetFaction(ent, !ent.IsZBaseNPC && faction)
         end)
     end
 end)
