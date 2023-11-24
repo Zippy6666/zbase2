@@ -26,7 +26,8 @@ end
 
 
 if BRANCH != "x86-64" && BRANCH != "dev" then
-    --]]===================================================================================================================]]
+    
+    
     if SERVER then
         util.AddNetworkString("ZBaseError")
 
@@ -37,14 +38,16 @@ if BRANCH != "x86-64" && BRANCH != "dev" then
             end)
         end)
     end
-    --]]===================================================================================================================]]
+    
+    
     if CLIENT then
         net.Receive("ZBaseError", function()
             chat.AddText(Color(255, 0, 0), "[ZBase] Fatal error!")
             chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
         end)
     end
-    --]]===================================================================================================================]]
+    
+    
     return
 end
 
@@ -56,7 +59,6 @@ end
 --]]
 
 
---]]===================================================================================================================]]
 if CLIENT then
     net.Receive("ZBaseReload", function()
         include("autorun/zbase.lua")
@@ -64,7 +66,8 @@ if CLIENT then
 else
     util.AddNetworkString("ZBaseReload")
 end
---]]===================================================================================================================]]
+
+
 concommand.Add("zbase_reload", function( ply )
     if ply:IsSuperAdmin() then
         include("autorun/zbase.lua")
@@ -72,7 +75,6 @@ concommand.Add("zbase_reload", function( ply )
         net.Broadcast()
     end
 end)
---]]===================================================================================================================]]
 
 
 --[[
@@ -206,7 +208,6 @@ sound.Add( {
 --]]
 
 
---]]===================================================================================================================]]
 local function IncludeFiles()
     include("zbase/shared/globals.lua")
     include("zbase/shared/hooks.lua")
@@ -224,7 +225,6 @@ local function IncludeFiles()
         end
     end
 end
---]]===================================================================================================================]]
 
 
 --[[
@@ -235,7 +235,6 @@ end
 --]]
 
 
---]]===================================================================================================================]]
 local function NPCsInherit()
     for cls, t in pairs(ZBaseNPCs) do
         local ZBase_Inherit = t.Inherit
@@ -267,7 +266,8 @@ local function NPCsInherit()
         end
     end
 end
---]]===================================================================================================================]]
+
+
 -- local function RegBase()
 --     ZBaseNPCs["npc_zbase"] = {}
 
@@ -308,10 +308,36 @@ end
 --         include(npcpath.."cl_init.lua")
 --     end
 -- end
---]]===================================================================================================================]]
+
+
 local function RegBase()
+    ZBaseNPCs["npc_zbase"] = {}
+    ZBaseNPCs["npc_zbase"].Behaviours = {}
+
+
+    local NPCBasePrefix = "zbase/npc_base_"
+
+
+    AddCSLuaFile(NPCBasePrefix.."shared.lua")
+    include(NPCBasePrefix.."shared.lua")
+
+
+    if SERVER then
+        include(NPCBasePrefix.."internal.lua")
+        include(NPCBasePrefix.."util.lua")
+        include(NPCBasePrefix.."init.lua")
+
+        -- Get names of sound variables
+        ZBaseNPCs["npc_zbase"].SoundVarNames = {}
+        for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
+            if string.EndsWith(k, "Sounds") then
+                table.insert(ZBaseNPCs["npc_zbase"].SoundVarNames, k)
+            end
+        end
+    end
 end
---]]===================================================================================================================]]
+
+
 local function NPCReg( name )
     if string.StartsWith(name, "npc_") && name != "npc_zbase" then
         local path = "zbase/npcs/"..name.."/"
@@ -340,7 +366,8 @@ local function NPCReg( name )
         end
     end
 end
---]]===================================================================================================================]]
+
+
 local function registerNPCs()
     local _, dirs = file.Find("zbase/npcs/*","LUA")
 
@@ -353,7 +380,8 @@ local function registerNPCs()
 
     -- PrintTable(ZBaseNPCs)
 end
---]]===================================================================================================================]]
+
+
 local function AddNPCsToSpawnMenu()
     for cls, t in pairs( ZBaseNPCs ) do
         local ZBaseSpawnMenuTbl = {
@@ -381,13 +409,13 @@ local function AddNPCsToSpawnMenu()
         ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
     end
 end
---]]===================================================================================================================]]
+
+
 hook.Add("Initialize", "ZBASE", function()
     NPCsInherit()
     AddNPCsToSpawnMenu()
     ZBaseInitialized = true
 end)
---]]===================================================================================================================]]
 
 
 if ZBaseInitialized then

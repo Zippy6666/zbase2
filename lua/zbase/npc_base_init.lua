@@ -1,4 +1,4 @@
-local NPC = FindZBaseTable(debug.getinfo(1,'S'))
+local NPC = ZBaseNPCs["npc_zbase"]
 
 
 --[[

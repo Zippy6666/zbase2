@@ -1,30 +1,8 @@
 local NPC = ZBaseNPCs["npc_zbase"]
-local NPCMETA = FindMetaTable("NPC")
+local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 
 NPC.IsZBaseNPC = true
-
-
-if !ZBase_OldSetSchedule then
-	ZBase_OldSetSchedule = NPCMETA.SetSchedule
-end
-
-
-local ReloadActs = {
-    [ACT_RELOAD] = true,
-    [ACT_RELOAD_SHOTGUN] = true,
-    [ACT_RELOAD_SHOTGUN_LOW] = true,
-    [ACT_RELOAD_SMG1] = true,
-    [ACT_RELOAD_SMG1_LOW] = true,
-    [ACT_RELOAD_PISTOL] = true,
-    [ACT_RELOAD_PISTOL_LOW] = true,
-}
-
-
-local hl2wepShootDistMult = {
-    ["weapon_shotgun"] = 0.5,
-    ["weapon_crossbow"] = 2,
-}
 
 
 --[[
@@ -222,355 +200,11 @@ end
 
 --[[
 ==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:PreventSetSched( sched )
-    return self.HavingConversation
-    or self.DoingPlayAnim
-end
-
-function NPCMETA:SetSchedule( sched )
-    if self.IsZBaseNPC && self:PreventSetSched( sched ) && sched != SCHED_FORCED_GO then return end
-
-    if self.SNPCType == ZBASE_SNPCTYPE_FLY then
-        self:AerialSetSchedule(sched)
-    end
-
-    return ZBase_OldSetSchedule(self, sched)
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:CancelConversation()
-    if !self.HavingConversation then return end
-
-    if IsValid(self.DialogueMate) then
-        self.DialogueMate.HavingConversation = false
-        self.DialogueMate.DialogueMate = nil
-        self.DialogueMate:FullReset()
-
-        self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Question_Sounds)
-        self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Answer_Sounds)
-
-        timer.Remove("DialogueAnswer"..self.DialogueMate:EntIndex())
-        timer.Remove("ZBaseFace"..self.DialogueMate:EntIndex())
-    end
-
-    self.HavingConversation = false
-    self.DialogueMate = nil
-    self:FullReset()
-
-    self:StopSound(self.Dialogue_Question_Sounds)
-    self:StopSound(self.Dialogue_Answer_Sounds)
-
-    timer.Remove("DialogueAnswer"..self:EntIndex())
-    timer.Remove("ZBaseFace"..self:EntIndex())
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:GetCurrentWeaponShootDist()
-    local wep = self:GetActiveWeapon()
-    if !IsValid(wep) then return end
-
-    local mult = hl2wepShootDistMult[wep:GetClass()] or wep.NPCShootDistanceMult or 1
-
-    return self.MaxShootDistance*mult
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:ShootTargetTooFarAway()
-    local ene = self:GetEnemy()
-
-    return IsValid(ene)
-    && IsValid(self:GetActiveWeapon())
-    && self:ZBaseDist(ene, {away=self:GetCurrentWeaponShootDist()})
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:PreventFarShoot()
-    self:SetSaveValue("m_flFieldOfView", 1)
-    self:SetMaxLookDistance(self:GetCurrentWeaponShootDist())
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:OnKilledEnt( ent )
-    if ent == self:GetEnemy() then
-        self:EmitSound_Uninterupted(self.KilledEnemySounds)
-    end
-    
-    self:CustomOnKilledEnt( ent )
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:OnHurt( dmg )
-    if self.NextPainSound < CurTime() && dmg:GetDamage() > 0 then
-        self:EmitSound_Uninterupted(self.PainSounds)
-        self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
-    end
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:NewActivityDetected( act )
-    -- Reload weapon sounds:
-    local wep = self:GetActiveWeapon()
-    if ReloadActs[act] && IsValid(wep) then
-
-        if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
-            wep:EmitSound(wep.NPCReloadSound)
-        end
-
-        if math.random(1, self.OnReloadSound_Chance) == 1 then
-            self:EmitSound_Uninterupted(self.OnReloadSounds)
-        end
-
-    end
-
-
-    self:CustomNewActivityDetected( act )
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:ZBaseAlertSound()
-    if self.NextAlertSound > CurTime() then return end
-
-
-    self:StopSound(self.IdleSounds)
-    self:CancelConversation()
-
-
-    if self:SquadMemberIsSpeaking({"AlertSounds"}) then return end
-
-    
-    self:EmitSound_Uninterupted(self.AlertSounds)
-    self.NextAlertSound = CurTime() + ZBaseRndTblRange(self.AlertSoundCooldown)
-    ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:OnEmitSound( data )
-    local sndVarName
-    for _, v in ipairs(self.SoundVarNames) do
-        if self[v] == data.OriginalSoundName then
-            sndVarName = v
-            break
-        end
-    end
-
-    
-    local val = self:CustomOnEmitSound( data, sndVarName )
-    local squad = self:GetKeyValues().squadname
-
-
-    -- Make sure squad doesn't speak over each other
-    if squad != "" && ZBase_DontSpeakOverThisSound then
-        ZBaseSpeakingSquads[squad] = sndVarName or true
-
-        timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
-            ZBaseSpeakingSquads[squad] = nil
-        end)
-    end
-
-
-    return val
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:SquadMemberIsSpeaking( soundList )
-    local squad = self:SquadName()
-    if squad == "" then return end
-
-
-    local squadSpeakSndVar = ZBaseSpeakingSquads[squad] or false
-
-
-    if soundList then
-        for _, v in ipairs(soundList) do
-            print(v, squadSpeakSndVar)
-            if v == squadSpeakSndVar then
-                return v
-            end
-        end
-    else
-        return squadSpeakSndVar
-    end
-
-
-    return false
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:DangerSound( isGrenade )
-    if self.NPCNextDangerSound > CurTime() then return end
-    self:EmitSound(isGrenade && self.SeeGrenadeSounds!="" && self.SeeGrenadeSounds or self.SeeDangerSounds)
-    self.NPCNextDangerSound = CurTime()+math.Rand(2, 4)
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:HandleDanger()
-    if self.InternalLoudestSoundHint.type != SOUND_DANGER then return end
-    local dangerOwn = self.InternalLoudestSoundHint.owner
-
-    if self.IsZBase_SNPC then
-        self:SNPCHandleDanger()
-    end
-
-    if IsValid(dangerOwn)
-    && (dangerOwn.IsZBaseGrenade or dangerOwn:GetClass() == "npc_grenade_frag") then
-        self:DangerSound(true)
-    else
-        self:DangerSound(false)
-    end
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:DoNewEnemy()
-    local ene = self:GetEnemy()
-
-
-    if IsValid(ene) then
-
-        -- New enemy
-        self:ZBaseAlertSound()
-
-    elseif !self.EnemyDied then
-        -- Check if enemy was lost
-        -- Wait some time until confirming the enemy is lost
-
-        timer.Simple(math.Rand(1, 2), function()
-            if !IsValid(self) then return end
-
-
-            -- Enemy lost
-            if !IsValid(self:GetEnemy())
-            && !self:SquadMemberIsSpeaking( {"LostEnemySounds"} ) then
-                self:EmitSound_Uninterupted(self.LostEnemySounds)
-            end
-        end)
-    end
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:DoPlayAnim()
-    -- Handle movement during PlayAnimation
-    self:AutoMovement( self:GetAnimTimeInterval() )
-
-
-    -- Face during PlayAnimation
-    if self.PlayAnim_Face != nil then
-        if self.PlayAnim_Face == false then
-            timer.Remove("ZBaseFace"..self:EntIndex())
-            self:SetAngles(self.PlayAnim_LockAng)
-        else
-            self:Face(self.PlayAnim_Face, nil, self.PlayAnim_FaceSpeed)
-        end
-    end
-
-
-    -- Playback rate for the animation
-    self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
-
-
-    -- Stop movement
-    self:SetSaveValue("m_flTimeLastMovement", 1)
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:DoCustomMoveAnim()
-    local cusMoveAnim = self.MoveActivityOverride[self:GetNPCState()]
-    
-    if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
-        self:SetMovementActivity(cusMoveAnim)
-    end
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
+                                           ANIMATION
 ==================================================================================================
 --]]
 
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:HasCapability( cap )
-    return bit.band(self:CapabilitiesGet(), cap)==cap
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:OnOwnedEntCreated( ent )
-    self:CustomOnOwnedEntCreated( ent )
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:FullReset()
-    self:TaskComplete()
-    self:ClearGoal()
-    self:ClearSchedule()
-    self:StopMoving()
-    self:SetMoveVelocity(Vector())
 
-    if self.IsZBase_SNPC then
-        self:AerialResetNav()
-        self:ScheduleFinished()
-    end
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
 function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFace, faceSpeed, loop, onFinishFunc, isGest, isTransition, noTransitions)
     if GetConVar("ai_disabled"):GetBool() then return end
 
@@ -680,11 +314,33 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
     
     playAnim()
 end
--- --[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
+
+
+function NPC:DoPlayAnim()
+    -- Handle movement during PlayAnimation
+    self:AutoMovement( self:GetAnimTimeInterval() )
+
+
+    -- Face during PlayAnimation
+    if self.PlayAnim_Face != nil then
+        if self.PlayAnim_Face == false then
+            timer.Remove("ZBaseFace"..self:EntIndex())
+            self:SetAngles(self.PlayAnim_LockAng)
+        else
+            self:Face(self.PlayAnim_Face, nil, self.PlayAnim_FaceSpeed)
+        end
+    end
+
+
+    -- Playback rate for the animation
+    self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
+
+
+    -- Stop movement
+    self:SetSaveValue("m_flTimeLastMovement", 1)
+end
+
+
 function NPC:InternalStopAnimation(dontTransitionOut)
     if !dontTransitionOut then
         -- Out transition --
@@ -721,19 +377,943 @@ function NPC:InternalStopAnimation(dontTransitionOut)
 
     timer.Remove("ZBasePlayAnim"..self:EntIndex())
 end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
+
+
+function NPC:FullReset()
+    self:TaskComplete()
+    self:ClearGoal()
+    self:ClearSchedule()
+    self:StopMoving()
+    self:SetMoveVelocity(Vector())
+
+    if self.IsZBase_SNPC then
+        self:AerialResetNav()
+        self:ScheduleFinished()
+    end
+end
+
+
+function NPC:DoCustomMoveAnim()
+    local cusMoveAnim = self.MoveActivityOverride[self:GetNPCState()]
+    
+    if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
+        self:SetMovementActivity(cusMoveAnim)
+    end
+end
+
+
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)       
     self:SNPCHandleAnimEvent(event, eventTime, cycle, type, options)     
 end
+
+
 --[[
 ==================================================================================================
-                                           WHAT THE DOG DOIN
+                                           SOUND
 ==================================================================================================
 --]]
+
+
+function NPC:OnEmitSound( data )
+    local sndVarName
+    for _, v in ipairs(self.SoundVarNames) do
+        if self[v] == data.OriginalSoundName then
+            sndVarName = v
+            break
+        end
+    end
+
+    
+    local val = self:CustomOnEmitSound( data, sndVarName )
+    local squad = self:GetKeyValues().squadname
+
+
+    -- Make sure squad doesn't speak over each other
+    if squad != "" && ZBase_DontSpeakOverThisSound then
+        ZBaseSpeakingSquads[squad] = sndVarName or true
+
+        timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
+            ZBaseSpeakingSquads[squad] = nil
+        end)
+    end
+
+
+    return val
+end
+
+
+function NPC:SquadMemberIsSpeaking( soundList )
+    local squad = self:SquadName()
+    if squad == "" then return end
+
+
+    local squadSpeakSndVar = ZBaseSpeakingSquads[squad] or false
+
+
+    if soundList then
+        for _, v in ipairs(soundList) do
+            print(v, squadSpeakSndVar)
+            if v == squadSpeakSndVar then
+                return v
+            end
+        end
+    else
+        return squadSpeakSndVar
+    end
+
+
+    return false
+end
+
+
+--[[
+==================================================================================================
+                                           IDLE SOUNDS
+==================================================================================================
+--]]
+
+
+NPCB.DoIdleSound = {
+    MustNotHaveEnemy = true, 
+}
+
+
+function NPCB.DoIdleSound:ShouldDoBehaviour( self )
+    if self.IdleSounds == "" then return false end
+    if self:GetNPCState() != NPC_STATE_IDLE then return false end
+    if self.HavingConversation then return false end
+
+    return true
+end
+
+
+function NPCB.DoIdleSound:Delay( self )
+    if self:SquadMemberIsSpeaking({"IdleSounds"}) or math.random(1, self.IdleSound_Chance)==1 then
+        return ZBaseRndTblRange(self.IdleSoundCooldown)
+    end
+end
+
+
+function NPCB.DoIdleSound:Run( self )
+    self:EmitSound_Uninterupted(self.IdleSounds)
+    ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSoundCooldown))
+end
+
+
+--[[
+==================================================================================================
+                                           IDLE ENEMY SOUNDS
+==================================================================================================
+--]]
+
+
+NPCB.DoIdleEnemySound = {
+    MustHaveEnemy = true,
+}
+
+
+function NPCB.DoIdleEnemySound:ShouldDoBehaviour( self )
+    if self.Idle_HasEnemy_Sounds == "" then return false end
+    if self:GetNPCState() == NPC_STATE_DEAD then return false end
+
+    return true
+end
+
+
+function NPCB.DoIdleEnemySound:Delay( self )
+    if self:SquadMemberIsSpeaking() then
+        return ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown)
+    end
+end
+
+
+function NPCB.DoIdleEnemySound:Run( self )
+
+    local snd = self.Idle_HasEnemy_Sounds
+    local enemy = self:GetEnemy()
+
+    self:EmitSound_Uninterupted(snd)
+    ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown))
+
+end
+
+
+--[[
+==================================================================================================
+                                           DIALOGUE
+==================================================================================================
+--]]
+
+
+NPCB.Dialogue = {
+    MustNotHaveEnemy = true, 
+}
+
+
+function NPCB.Dialogue:ShouldDoBehaviour( self )
+    if self.Dialogue_Question_Sounds == "" then return false end
+    if self:GetNPCState() != NPC_STATE_IDLE then return false end
+    if self.HavingConversation then return false end
+
+    return true
+end
+
+
+function NPCB.Dialogue:Delay( self )
+    if self:SquadMemberIsSpeaking() or self.HavingConversation or math.random(1, self.IdleSound_Chance)==1 then
+        return ZBaseRndTblRange(self.IdleSoundCooldown)
+    end
+end
+
+
+function NPCB.Dialogue:Run( self )
+    local ally = self:GetNearestAlly(350)
+
+
+    local extraBehaviourDelay = 0
+
+
+    if IsValid(ally)
+    && ally.IsZBaseNPC
+    && !IsValid(ally:GetEnemy())
+    && !ally.HavingConversation
+    && self:Visible(ally)
+    && ally.Dialogue_Answer_Sounds != "" then
+        self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
+
+        self:FullReset()
+        self:Face(ally, self.InternalCurrentSoundDuration+0.2)
+        self.HavingConversation = true
+        self.DialogueMate = ally
+
+        ally:FullReset()
+        ally:Face(self, self.InternalCurrentSoundDuration+0.2)
+        ally.HavingConversation = true
+        ally.DialogueMate = self
+
+        extraBehaviourDelay = self.InternalCurrentSoundDuration+0.2
+
+        timer.Create("DialogueAnswer"..ally:EntIndex(), self.InternalCurrentSoundDuration+0.4, 1, function()
+            if IsValid(ally) then
+                ally:EmitSound_Uninterupted(ally.Dialogue_Answer_Sounds)
+                ally:Face(self, ally.InternalCurrentSoundDuration)
+
+                timer.Simple(ally.InternalCurrentSoundDuration, function()
+                    if !IsValid(ally) then return end
+                    ally:CancelConversation()
+                end)
+
+                ZBaseDelayBehaviour( ZBaseRndTblRange(ally.IdleSoundCooldown), ally, "Dialogue" )
+            end
+
+            if IsValid(self) then
+                self:Face(ally, ally.InternalCurrentSoundDuration)
+
+                timer.Simple(ally.InternalCurrentSoundDuration or 0, function()
+                    if !IsValid(self) then return end
+                    self:CancelConversation()
+                end)
+            end
+        end)
+    end
+
+
+    ZBaseDelayBehaviour( ZBaseRndTblRange(self.IdleSoundCooldown)+extraBehaviourDelay )
+end
+
+
+function NPC:CancelConversation()
+    if !self.HavingConversation then return end
+
+    if IsValid(self.DialogueMate) then
+        self.DialogueMate.HavingConversation = false
+        self.DialogueMate.DialogueMate = nil
+        self.DialogueMate:FullReset()
+
+        self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Question_Sounds)
+        self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Answer_Sounds)
+
+        timer.Remove("DialogueAnswer"..self.DialogueMate:EntIndex())
+        timer.Remove("ZBaseFace"..self.DialogueMate:EntIndex())
+    end
+
+    self.HavingConversation = false
+    self.DialogueMate = nil
+    self:FullReset()
+
+    self:StopSound(self.Dialogue_Question_Sounds)
+    self:StopSound(self.Dialogue_Answer_Sounds)
+
+    timer.Remove("DialogueAnswer"..self:EntIndex())
+    timer.Remove("ZBaseFace"..self:EntIndex())
+end
+
+
+--[[
+==================================================================================================
+                                           PATROL
+==================================================================================================
+--]]
+
+
+NPCB.Patrol = {
+    MustNotHaveEnemy = true, 
+}
+
+
+local SchedsToReplaceWithPatrol = {
+    [SCHED_IDLE_STAND] = true,
+    [SCHED_ALERT_STAND] = true,
+    [SCHED_ALERT_FACE] = true,
+    [SCHED_ALERT_WALK] = true,
+}
+
+
+function NPCB.Patrol:ShouldDoBehaviour( self )
+    return self.CanPatrol
+    && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()]
+end
+
+
+function NPCB.Patrol:Delay(self)
+    if self:IsMoving()
+    or self.DoingPlayAnim then
+        debugoverlay.Text(self:WorldSpaceCenter(), "PATROL DELAYED...")
+
+        return math.random(8, 15)
+    end
+end
+
+
+function NPCB.Patrol:Run( self )
+    debugoverlay.Text(self:WorldSpaceCenter(), "PATROL")
+
+    if self:GetNPCState() == NPC_STATE_ALERT then
+        self:SetSchedule(SCHED_PATROL_RUN)
+    else
+        self:SetSchedule(SCHED_PATROL_WALK)
+    end
+    
+    ZBaseDelayBehaviour(math.random(8, 15))
+end
+
+
+--[[
+==================================================================================================
+                                           CALL FOR HELP
+==================================================================================================
+--]]
+
+
+NPCB.FactionCallForHelp = {
+    MustHaveEnemy = true,
+}
+
+
+function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
+    return self.CallForHelp!=false && self.ZBaseFaction != "none"
+end
+
+
+function NPCB.FactionCallForHelp:Run( self )
+    for _, v in ipairs(ents.FindInSphere(self:GetPos(), self.CallForHelpDistance)) do
+
+        if !v:IsNPC() then continue end
+        if v == self then continue end
+        if v.ZBaseFaction == "none" then continue end
+        if IsValid(v:GetEnemy()) then continue end -- Ally already busy with an enemy
+
+        if v.ZBaseFaction == self.ZBaseFaction then
+            local ene = self:GetEnemy()
+            v:UpdateEnemyMemory(ene, ene:GetPos())
+            v:AlertSound()
+        end
+
+    end
+
+    ZBaseDelayBehaviour(math.Rand(2, 3.5))
+end
+
+
+--[[
+==================================================================================================
+                                           WEAPON HANDLING
+==================================================================================================
+--]]
+
+
+local hl2wepShootDistMult = {
+    ["weapon_shotgun"] = 0.5,
+    ["weapon_crossbow"] = 2,
+}
+
+
+function NPC:GetCurrentWeaponShootDist()
+    local wep = self:GetActiveWeapon()
+    if !IsValid(wep) then return end
+
+    local mult = hl2wepShootDistMult[wep:GetClass()] or wep.NPCShootDistanceMult or 1
+
+    return self.MaxShootDistance*mult
+end
+
+
+function NPC:ShootTargetTooFarAway()
+    local ene = self:GetEnemy()
+
+    return IsValid(ene)
+    && IsValid(self:GetActiveWeapon())
+    && self:ZBaseDist(ene, {away=self:GetCurrentWeaponShootDist()})
+end
+
+
+function NPC:PreventFarShoot()
+    self:SetSaveValue("m_flFieldOfView", 1)
+    self:SetMaxLookDistance(self:GetCurrentWeaponShootDist())
+end
+
+
+NPCB.AdjustSightAngAndDist = {}
+
+
+function NPCB.AdjustSightAngAndDist:ShouldDoBehaviour( self )
+    return true
+end
+
+
+function NPCB.AdjustSightAngAndDist:Run( self )
+    local ene = self:GetEnemy()
+
+    if self:ShootTargetTooFarAway() then
+        self:PreventFarShoot()
+    else
+        local fieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
+        self:SetSaveValue("m_flFieldOfView", fieldOfView)
+        self:SetMaxLookDistance(self.SightDistance)
+    end
+end
+
+
+--[[
+==================================================================================================
+                                           SECONDARY FIRE
+==================================================================================================
+--]]
+
+
+NPCB.SecondaryFire = {
+    MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
+    MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
+}
+
+
+local SecondaryFireWeapons = {
+    ["weapon_ar2"] = {dist=4000, mindist=100},
+    ["weapon_smg1"] = {dist=1500, mindist=250},
+}
+
+
+function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
+    local seq = self:LookupSequence("shootar2alt")
+    if seq != -1 then
+        -- Has comball animation, play it
+        self:PlayAnimation("shootar2alt", true)
+    else
+        -- Charge sound (would normally play in the comball anim)
+        wep:EmitSound("Weapon_CombineGuard.Special1")
+    end
+
+
+    timer.Simple(0.75, function()
+        if !(IsValid(self) && IsValid(wep) && IsValid(enemy)) then return end
+        if self:GetNPCState() == NPC_STATE_DEAD then return end
+
+
+        local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
+
+        local ball_launcher = ents.Create( "point_combine_ball_launcher" )
+        ball_launcher:SetAngles( (enemy:WorldSpaceCenter() - startPos):Angle() )
+        ball_launcher:SetPos( startPos )
+        ball_launcher:SetKeyValue( "minspeed",1200 )
+        ball_launcher:SetKeyValue( "maxspeed", 1200 )
+        ball_launcher:SetKeyValue( "ballradius", "10" )
+        ball_launcher:SetKeyValue( "ballcount", "1" )
+        ball_launcher:SetKeyValue( "maxballbounces", "100" )
+        ball_launcher:Spawn()
+        ball_launcher:Activate()
+        ball_launcher:Fire( "LaunchBall" )
+        ball_launcher:Fire("kill","",0)
+        timer.Simple(0.01, function()
+            if IsValid(self)
+            && self:GetNPCState() != NPC_STATE_DEAD then
+                for _, ball in ipairs(ents.FindInSphere(self:GetPos(), 100)) do
+                    if ball:GetClass() == "prop_combine_ball" then
+
+                        ball:SetOwner(self)
+                        ball.ZBaseComballOwner = self
+
+                        timer.Simple(math.Rand(4, 6), function()
+                            if IsValid(ball) then
+                                ball:Fire("Explode")
+                            end
+                        end)
+                    end
+                end
+            end
+        end)
+    
+        local effectdata = EffectData()
+        effectdata:SetFlags(5)
+        effectdata:SetEntity(wep)
+        util.Effect( "MuzzleFlash", effectdata, true, true )
+
+        wep:EmitSound("Weapon_IRifle.Single")
+    end)
+end
+
+
+function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
+
+    local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
+    local grenade = ents.Create("grenade_ar2")
+    grenade:SetOwner(self)
+    grenade:SetPos(startPos)
+    grenade:Spawn()
+    grenade:SetVelocity((enemy:GetPos() - startPos):GetNormalized()*1250 + Vector(0,0,200))
+    grenade:SetLocalAngularVelocity(AngleRand())
+    wep:EmitSound("Weapon_AR2.Double")
+
+    local effectdata = EffectData()
+    effectdata:SetFlags(7)
+    effectdata:SetEntity(wep)
+    util.Effect( "MuzzleFlash", effectdata, true, true )
+
+end
+
+
+function NPCB.SecondaryFire:ShouldDoBehaviour( self )
+    if !self.CanSecondaryAttack then return false end
+    if self.DoingPlayAnim then return false end
+
+    local wep = self:GetActiveWeapon()
+
+    if !IsValid(wep) then return false end
+
+    local wepTbl = SecondaryFireWeapons[wep:GetClass()]
+    if !wepTbl then return false end
+
+    if self:GetActivity()!=ACT_RANGE_ATTACK1 then return false end
+
+    return self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
+end
+
+
+function NPCB.SecondaryFire:Delay( self )
+
+    if math.random(1, 2) == 1 then
+        return math.Rand(4, 8)
+    end
+
+end
+
+
+function NPCB.SecondaryFire:Run( self )
+    local enemy = self:GetEnemy()
+    local wep = self:GetActiveWeapon()
+    SecondaryFireWeapons[wep:GetClass()]:Func( self, wep, enemy )
+    ZBaseDelayBehaviour(math.Rand(4, 8))
+end
+
+
+--[[
+==================================================================================================
+                                           MELEE ATTACK
+==================================================================================================
+--]]
+
+
+NPCB.MeleeAttack = {
+    MustHaveEnemy = true,
+}
+
+
+NPCB.PreMeleeAttack = {
+    MustHaveEnemy = true,
+}
+
+
+local BusyScheds = {
+    [SCHED_MELEE_ATTACK1] = true,
+    [SCHED_MELEE_ATTACK2] = true,
+    [SCHED_RANGE_ATTACK1] = true,
+    [SCHED_RANGE_ATTACK2] = true,
+    [SCHED_RELOAD] = true,
+}
+
+
+function NPC:TooBusyForMelee()
+    local sched = self:GetCurrentSchedule()
+    -- return BusyScheds[sched] or sched > 88 or self.DoingPlayAnim
+    return self.DoingPlayAnim
+end
+
+
+function NPC:CanBeMeleed( ent )
+    local mtype = ent:GetMoveType()
+    return mtype == MOVETYPE_STEP -- NPC
+    or mtype == MOVETYPE_VPHYSICS -- Prop
+    or mtype == MOVETYPE_WALK -- Player
+end
+
+
+function NPC:InternalMeleeAttackDamage(dmgData)
+    local mypos = self:WorldSpaceCenter()
+    local soundEmitted = false
+    local soundPropEmitted = false
+    local hurtEnts = {}
+
+
+    for _, ent in ipairs(ents.FindInSphere(mypos, dmgData.dist)) do
+        if ent == self then continue end
+        if ent.GetNPCState && ent:GetNPCState() == NPC_STATE_DEAD then continue end
+
+        local disp = self:Disposition(ent)
+        if (!dmgData.affectProps && disp == D_NU) then continue end
+
+        if !self:Visible(ent) then continue end
+
+
+        local entpos = ent:WorldSpaceCenter()
+        local undamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
+        local forcevec 
+
+
+        -- Angle check
+        if dmgData.ang != 360 then
+            local yawDiff = math.abs( self:WorldToLocalAngles( (entpos-mypos):Angle() ).Yaw )*2
+            if dmgData.ang < yawDiff then continue end
+        end
+
+
+        if self:CanBeMeleed(ent) then
+            local tbl = self:MeleeDamageForce(dmgData)
+
+            if tbl then
+                forcevec = self:GetForward()*(tbl.forward or 0) + self:GetUp()*(tbl.up or 0) + self:GetRight()*(tbl.right or 0)
+
+                if tbl.randomness then
+                    forcevec = forcevec + VectorRand()*tbl.randomness
+                end
+            end
+        else
+            continue
+        end
+
+
+        -- Push
+        if forcevec && !self:IsAlly(ent) then
+            local phys = ent:GetPhysicsObject()
+
+            if IsValid(phys) then
+                phys:SetVelocity(forcevec)
+            end
+
+            ent:SetVelocity(forcevec)
+        end
+
+
+        -- Damage
+        if !undamagable && !self:IsAlly(ent) then
+            local dmg = DamageInfo()
+            dmg:SetAttacker(self)
+            dmg:SetInflictor(self)
+            dmg:SetDamage(ZBaseRndTblRange(dmgData.amt))
+            dmg:SetDamageType(dmgData.type)
+            ent:TakeDamageInfo(dmg)
+
+            if !(ent:IsPlayer() && dmg:IsDamageType(DMG_SLASH)) && dmg:GetDamage()>0 then
+                ZBaseBleed( ent, entpos+VectorRand(-15, 15) ) -- Bleed
+            end
+        end
+    
+
+        -- Sound
+        if disp == D_NU && !soundPropEmitted then -- Prop probably
+            sound.Play(dmgData.hitSoundProps, entpos)
+            soundPropEmitted = true
+        elseif !soundEmitted && dist != D_NU then
+            ent:EmitSound(dmgData.hitSound)
+            soundEmitted = true
+        end
+
+        table.insert(hurtEnts, ent)
+    end
+
+    return hurtEnts
+end
+
+
+function NPCB.MeleeAttack:ShouldDoBehaviour( self )
+    if !self.BaseMeleeAttack then return false end 
+
+    local ene = self:GetEnemy()
+    if !self.MeleeAttackFaceEnemy && !self:IsFacing(ene) then return false end
+
+    return !self:TooBusyForMelee()
+    && self:ZBaseDist(ene, {within=self.MeleeAttackDistance})
+end
+
+
+function NPCB.MeleeAttack:Run( self )
+    self:MeleeAttack()
+    ZBaseDelayBehaviour(self:SequenceDuration() + ZBaseRndTblRange(self.MeleeAttackCooldown))
+end
+
+
+function NPCB.PreMeleeAttack:ShouldDoBehaviour( self )
+    if !self.BaseMeleeAttack then return false end 
+    if self:TooBusyForMelee() then return false end
+
+    return true
+end
+
+
+function NPCB.PreMeleeAttack:Run( self )
+    self:MultipleMeleeAttacks()
+end
+
+
+--[[
+==================================================================================================
+                                           RANGE ATTACK
+==================================================================================================
+--]]
+
+
+NPCB.RangeAttack = {
+    MustHaveEnemy = true,
+}
+
+
+NPCB.PreRangeAttack = {
+    MustHaveEnemy = true,
+}
+
+
+function NPCB.RangeAttack:ShouldDoBehaviour( self )
+    if !self.BaseRangeAttack then return false end -- Doesn't have range attack
+    if self.DoingPlayAnim then return false end
+
+
+    local ene = self:GetEnemy()
+    local seeEnemy = self.EnemyVisible -- IsValid(ene) && self:Visible(ene)
+    local trgtPos = self:Projectile_TargetPos()
+
+
+    -- Can't see target position
+    if !self:VisibleVec(trgtPos) then print("cannot see target pos") return false end
+
+
+    -- Not in distance
+    if !self:ZBaseDist(trgtPos, {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end
+
+
+    -- Suppress disabled, and enemy not visible
+    if !self.RangeAttackSuppressEnemy && seeEnemy then return false end
+
+
+    -- Don't suppress enemy with these conditions
+    if (self.RangeAttackSuppressEnemy && !seeEnemy)
+    && (!self.RangeAttack_LastEnemyPos
+    -- or ene:GetPos():DistToSqr(trgtPos) > 400^2
+    or !ene:VisibleVec(trgtPos)) then
+        return false
+    end
+
+
+    return true
+end
+
+
+function NPCB.RangeAttack:Run( self )
+    self:RangeAttack()
+    ZBaseDelayBehaviour(self:SequenceDuration() + 0.25 + ZBaseRndTblRange(self.RangeAttackCooldown))
+end
+
+
+function NPCB.PreRangeAttack:ShouldDoBehaviour( self )
+    if !self.BaseRangeAttack then return false end
+
+    return true
+end
+
+
+function NPCB.PreRangeAttack:Run( self )
+    self:MultipleRangeAttacks()
+end
+
+
+--[[
+==================================================================================================
+                                           CUSTOM SETSCHEDULE
+==================================================================================================
+--]]
+
+
+local NPCMETA = FindMetaTable("NPC")
+
+
+if !ZBase_OldSetSchedule then
+	ZBase_OldSetSchedule = NPCMETA.SetSchedule
+end
+
+
+function NPC:PreventSetSched( sched )
+    return self.HavingConversation
+    or self.DoingPlayAnim
+end
+
+
+function NPCMETA:SetSchedule( sched )
+    if self.IsZBaseNPC && self:PreventSetSched( sched ) && sched != SCHED_FORCED_GO then return end
+
+    if self.SNPCType == ZBASE_SNPCTYPE_FLY then
+        self:AerialSetSchedule(sched)
+    end
+
+    return ZBase_OldSetSchedule(self, sched)
+end
+
+
+--[[
+==================================================================================================
+                                           DANGER DETECTION
+==================================================================================================
+--]]
+
+
+
+function NPC:HandleDanger()
+    if self.InternalLoudestSoundHint.type != SOUND_DANGER then return end
+    local dangerOwn = self.InternalLoudestSoundHint.owner
+    local isGrenade = IsValid(dangerOwn) && (dangerOwn.IsZBaseGrenade or dangerOwn:GetClass() == "npc_grenade_frag")
+
+    if self.IsZBase_SNPC then
+        self:SNPCHandleDanger()
+    end
+
+    self:EmitSound_Uninterupted(isGrenade && self.SeeGrenadeSounds!="" && self.SeeGrenadeSounds or self.SeeDangerSounds)
+
+    self.NPCNextDangerSound = CurTime()+math.Rand(2, 4)
+end
+
+
+function NPC:InternalDetectDanger()
+	self.InternalLoudestSoundHint = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
+end
+
+
+--[[
+==================================================================================================
+                                           OTHER CRAP
+==================================================================================================
+--]]
+
+
+function NPC:OnKilledEnt( ent )
+    if ent == self:GetEnemy() then
+        self:EmitSound_Uninterupted(self.KilledEnemySounds)
+    end
+    
+    self:CustomOnKilledEnt( ent )
+end
+
+
+function NPC:OnHurt( dmg )
+    if self.NextPainSound < CurTime() && dmg:GetDamage() > 0 then
+        self:EmitSound_Uninterupted(self.PainSounds)
+        self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
+    end
+end
+
+
+local ReloadActs = {
+    [ACT_RELOAD] = true,
+    [ACT_RELOAD_SHOTGUN] = true,
+    [ACT_RELOAD_SHOTGUN_LOW] = true,
+    [ACT_RELOAD_SMG1] = true,
+    [ACT_RELOAD_SMG1_LOW] = true,
+    [ACT_RELOAD_PISTOL] = true,
+    [ACT_RELOAD_PISTOL_LOW] = true,
+}
+
+
+function NPC:NewActivityDetected( act )
+    -- Reload weapon sounds:
+    local wep = self:GetActiveWeapon()
+    if ReloadActs[act] && IsValid(wep) then
+
+        if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
+            wep:EmitSound(wep.NPCReloadSound)
+        end
+
+        if math.random(1, self.OnReloadSound_Chance) == 1 then
+            self:EmitSound_Uninterupted(self.OnReloadSounds)
+        end
+
+    end
+
+
+    self:CustomNewActivityDetected( act )
+end
+
+
+function NPC:DoNewEnemy()
+    local ene = self:GetEnemy()
+
+
+    if IsValid(ene) then
+        -- New enemy
+        -- Do alert sound
+        if self.NextAlertSound < CurTime() then
+            self:StopSound(self.IdleSounds)
+            self:CancelConversation()
+
+
+            if !self:SquadMemberIsSpeaking({"AlertSounds"}) then
+                self:EmitSound_Uninterupted(self.AlertSounds)
+                self.NextAlertSound = CurTime() + ZBaseRndTblRange(self.AlertSoundCooldown)
+                ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
+            end
+        end
+    elseif !self.EnemyDied then
+        -- Check if enemy was lost
+        -- Wait some time until confirming the enemy is lost
+
+        timer.Simple(math.Rand(1, 2), function()
+            if !IsValid(self) then return end
+
+
+            -- Enemy lost
+            if !IsValid(self:GetEnemy())
+            && !self:SquadMemberIsSpeaking( {"LostEnemySounds"} ) then
+                self:EmitSound_Uninterupted(self.LostEnemySounds)
+            end
+        end)
+    end
+end
+
+
+function NPC:HasCapability( cap )
+    return bit.band(self:CapabilitiesGet(), cap)==cap
+end
+
+
+function NPC:OnOwnedEntCreated( ent )
+    self:CustomOnOwnedEntCreated( ent )
+end
+
+
 function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
     -- Bullet reflection
     if self.ArmorReflectsBullets then
@@ -759,19 +1339,8 @@ function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
         ZBaseReflectedBullet = false
     end
 end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
-function NPC:InternalDetectDanger()
-	self.InternalLoudestSoundHint = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
-end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
+
+
 function NPC:ZBaseTakeDamage(dmg, hit_gr)
     -- Flinch --
     if !table.IsEmpty(self.FlinchAnimations)
@@ -792,11 +1361,8 @@ function NPC:ZBaseTakeDamage(dmg, hit_gr)
     end
     -----------------------=#
 end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
+
+
 function NPC:InternalDamageScale(dmg)
     local infl = dmg:GetInflictor()
 
@@ -818,8 +1384,3 @@ function NPC:InternalDamageScale(dmg)
         end
     end
 end
---[[
-==================================================================================================
-                                           WHAT THE DOG DOIN
-==================================================================================================
---]]
