@@ -1,111 +1,19 @@
 --[[
 ======================================================================================================================================================
-                                           GLOBAL LOCALS (WHAT)
+                                           INIT POST ENTITY
 ======================================================================================================================================================
 --]]
 
 
-local function TellZBaseNPCsEnemyDied(npc)
-    for _, v in ipairs(ZBaseNPCInstances) do
-        if v:GetEnemy() == npc then
-            v.EnemyDied = true
+hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
 
-            timer.Create("ZBaseEnemyDied_False"..npc:EntIndex(), 2, 1, function()
-                if IsValid(v) then
-                    v.EnemyDied = false
-                end
-            end)
-        end
-    end
-end
+    -- Override functions
+    timer.Simple(0.5, function()
+        AddCSLuaFile("zbase/override_functions.lua")
+        include("zbase/override_functions.lua")
+    end)
 
-
---[[
-======================================================================================================================================================
-                                           REPLACE FUNCS
-======================================================================================================================================================
---]]
-
-
-hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function() timer.Simple(0.5, function()
-	local ENT = FindMetaTable("Entity")
-	local emitSound = ENT.EmitSound
-	local OnNPCKilled = GAMEMODE.OnNPCKilled
-	local SpawnNPC = Spawn_NPC
-
-
-	----------------------------------------------------------------------------------------------=#
-	function GAMEMODE:OnNPCKilled( npc, attacker, ... )
-		if IsValid(attacker) && attacker.IsZBaseNPC then
-			attacker:OnKilledEnt( npc )
-		end
-
-        TellZBaseNPCsEnemyDied(npc)
-
-
-		if npc.IsZBaseNPC then
-
-            -- Stop sounds
-            for _, v in ipairs(npc.SoundVarNames) do
-                if !isstring(v) then return end
-                npc:StopSound(npc:GetTable()[v])
-            end
-
-
-            -- Death sound
-			npc:EmitSound(npc.DeathSounds)
-
-
-            -- Ally death reaction
-            local ally = npc:GetNearestAlly(600)
-            local deathpos = npc:GetPos()
-            if IsValid(ally) && ally:Visible(npc) then
-                timer.Simple(0.5, function()
-                    if IsValid(ally)
-                    && ally.AllyDeathSound_Chance
-                    && math.random(1, ally.AllyDeathSound_Chance) == 1 then
-                        ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
-
-                        if ally.AllyDeathSounds != "" then
-                            ally:FullReset()
-                            ally:Face(deathpos, ally.InternalCurrentSoundDuration)
-                        end
-                    end
-                end)
-            end
-
-
-            npc.Gibbed = npc:ShouldGib(npc.LastDMGINFO, npc.LastHitGroup)
-
-
-            SafeRemoveEntityDelayed(npc, 0.15) -- Remove earlier
-		end
-
-
-		return OnNPCKilled(self, npc, ...)
-	end
-	----------------------------------------------------------------------------------------------=#
-	function Spawn_NPC( ply, NPCClassName, WeaponName, tr, ... )
-        if ZBaseNPCs[NPCClassName] then
-            return Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr, ... )
-        else
-		    return SpawnNPC( ply, NPCClassName, WeaponName, tr, ... )
-        end
-	end
-	----------------------------------------------------------------------------------------------=#
-	function ENT:EmitSound( snd, ... )
-
-		if self.IsZBaseNPC && snd == "" then return end
-
-		ZBase_EmitSoundCall = true
-		local v = emitSound(self, snd, ...)
-		ZBase_EmitSoundCall = false
-
-		return v
-
-	end
-	----------------------------------------------------------------------------------------------=#
-end) end)
+end)
 
 
 --[[
@@ -116,7 +24,19 @@ end) end)
 
 
 hook.Add("OnEntityCreated", "ZBASE", function( ent ) 
-    if !IsValid(ent) then return end
+    -- ZBase init stuff when not spawned from menu
+    if SERVER then
+        timer.Simple(0, function()
+            if !IsValid(ent) then return end
+
+            
+            local zbaseClass = ent:GetKeyValues().parentname
+            local zbaseNPCTable = ZBaseNPCs[ zbaseClass ]
+            if zbaseNPCTable then
+                ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
+            end
+        end)
+    end
 
 
     -- Relationship stuff
@@ -270,3 +190,21 @@ if SERVER then
         end
     end)
 end
+
+
+--[[
+======================================================================================================================================================
+                                           OTHER
+======================================================================================================================================================
+--]]
+
+
+hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
+    if IsValid(attacker) && attacker.IsZBaseNPC then
+        attacker:OnKilledEnt( ply )
+    end
+
+    for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
+        zbaseNPC:MarkEnemyAsDead(ply, 2)
+    end
+end)

@@ -1486,3 +1486,15 @@ function NPC:InternalDamageScale(dmg)
         end
     end
 end
+
+
+function NPC:MarkEnemyAsDead( ene, time )
+    if self:GetEnemy() == ene then
+        self.EnemyDied = true
+
+        timer.Create("ZBaseEnemyDied_False"..self:EntIndex(), time, 1, function()
+            if !IsValid(self) then return end
+            self.EnemyDied = false
+        end)
+    end
+end
