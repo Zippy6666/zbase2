@@ -197,98 +197,6 @@ end
 
 --[[
 ==================================================================================================
-                                           RELATIONSHIP STUFF
-==================================================================================================
---]]
-
-
-local VJ_Translation = {
-    ["CLASS_COMBINE"] = "combine",
-    ["CLASS_ZOMBIE"] = "zombie",
-    ["CLASS_ANTLION"] = "antlion",
-    ["CLASS_PLAYER_ALLY"] = "ally",
-}
-
-
-local VJ_Translation_Flipped = {
-    ["combine"] = "CLASS_COMBINE",
-    ["zombie"] = "CLASS_ZOMBIE",
-    ["antlion"] = "CLASS_ANTLION",
-    ["ally"] = "CLASS_PLAYER_ALLY",
-}
-
-
-function NPC:SetRelationship( ent, rel )
-    self:AddEntityRelationship(ent, rel, 99)
-
-    if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
-        self:AddEntityRelationship(ent.Bullseye, rel, 99)
-    end
-
-    if !ent.IsZBaseNPC && ent:IsNPC() then
-        ent:AddEntityRelationship(self, rel, 99)
-    end
-end
-
-
-function NPC:ZBase_VJFriendly( ent )
-    if !ent.IsVJBaseSNPC then return false end
-
-    for _, v in ipairs(ent.VJ_NPC_Class) do
-        if VJ_Translation[v] == self.ZBaseFaction then return true end
-    end
-
-    return false
-end
-
-
-function NPC:Relationship( ent )
-    -- Me or the ent has faction neutral, like
-    local myFaction = self.ZBaseFaction
-    local theirFaction = ent.ZBaseFaction
-
-    if myFaction == "neutral" or theirFaction=="neutral" then
-        self:SetRelationship( ent, D_LI )
-        return
-    end
-
-    -- My faction is none, hate everybody
-    if myFaction == "none" then
-        self:SetRelationship( ent, D_HT )
-        return
-    end
-
-    -- Are their factions the same?
-    if myFaction == theirFaction or self:ZBase_VJFriendly( ent ) then
-        self:SetRelationship( ent, D_LI )
-    else
-        self:SetRelationship( ent, D_HT )
-    end
-end
-
-
-function NPC:Relationships()
-    if !self.IsZBaseNPC then return end
-
-    -- Set my VJ class
-    if VJ_Translation_Flipped[self.ZBaseFaction] then
-        self.VJ_NPC_Class = {VJ_Translation_Flipped[self.ZBaseFaction]}
-    end
-
-    -- Update relationships between all NPCs
-    for _, v in ipairs(ZBaseRelationshipEnts) do
-        if v != self then self:Relationship(v) end
-    end
-
-    -- Update relationships with players
-    for _, v in ipairs(player.GetAll()) do
-        self:Relationship(v)
-    end
-end
-
-
---[[
-==================================================================================================
                                            ANIMATION
 ==================================================================================================
 --]]
@@ -517,9 +425,9 @@ function NPC:RestartSoundCycle( sndTbl, data )
     table.Shuffle(shuffle)
     ShuffledSoundTables[data.OriginalSoundName] = shuffle
 
-    -- print("-----------------", data.OriginalSoundName, "-----------------")
-    -- PrintTable(ShuffledSoundTables[data.OriginalSoundName])
-    -- print("--------------------------------------------------")
+    -- MsgN("-----------------", data.OriginalSoundName, "-----------------")
+    -- MsgN(ShuffledSoundTables[data.OriginalSoundName])
+    -- MsgN("--------------------------------------------------")
 end
 
 
@@ -564,7 +472,7 @@ function NPC:OnEmitSound( data )
         data.SoundName = snds[SoundIndexes[data.OriginalSoundName]]
         altered = true
 
-        -- print(SoundIndexes[data.OriginalSoundName], data.SoundName)
+        -- MsgN(SoundIndexes[data.OriginalSoundName], data.SoundName)
     end
     -----------------------------------------------=#
 
@@ -595,7 +503,6 @@ function NPC:OnEmitSound( data )
     local squad = self:GetKeyValues().squadname
     if squad != "" && ZBase_DontSpeakOverThisSound then
         ZBaseSpeakingSquads[squad] = self.TempSoundCvar or sndVarName or true
-        print(ZBaseSpeakingSquads[squad])
 
         timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
             ZBaseSpeakingSquads[squad] = nil
@@ -1283,7 +1190,7 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
 
 
     -- Can't see target position
-    if !self:VisibleVec(trgtPos) then print("cannot see target pos") return false end
+    if !self:VisibleVec(trgtPos) then return false end
 
 
     -- Not in distance
