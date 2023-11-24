@@ -43,13 +43,14 @@ hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
 end)
 -------------------------------------------------------------------------------------------------------------=#
 hook.Add("CreateEntityRagdoll", "ZBaseNoRag", function(ent, rag)
-	if ent:GetNWBool("ZBaseNoRag") then
+	if ent:GetNWBool("ZBaseNoRag") or ent.Gibbed then
 		rag:Remove()
 	end
 end)
 -------------------------------------------------------------------------------------------------------------=#
 hook.Add("CreateClientsideRagdoll", "ZBaseNoRag", function(ent, rag)
-	if ent:GetNWBool("ZBaseNoRag") then
+	-- fuk off client ragdolls
+	if ent.IsZBaseNPC then
 		rag:Remove()
 	end
 end)

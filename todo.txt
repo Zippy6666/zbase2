@@ -2,6 +2,8 @@
 
 
     -- TODO --
+-- Clean tf up
+-- Server ragdolls only
 -- Pack a few NPCs into the base
     -- Custom npcs that use the new blood colors
 -- Make more user friendly

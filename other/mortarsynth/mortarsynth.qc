@@ -124,6 +124,25 @@ $sequence "idle" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
+}
+
+$sequence "walk" {
+	"mortarsynth_anims\idle.smd"
+	activity "ACT_WALK" 1
+	fadein 0.2
+	fadeout 0.2
+	fps 30
+	node idle
+}
+
+$sequence "run" {
+	"mortarsynth_anims\idle.smd"
+	activity "ACT_RUN" 1
+	fadein 0.2
+	fadeout 0.2
+	fps 30
+	node idle
 }
 
 $sequence "Mortar_Forward" {
@@ -131,7 +150,7 @@ $sequence "Mortar_Forward" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
-	ACT_FLY 1
+	node idle
 }
 
 $sequence "Mortar_Back" {
@@ -139,6 +158,7 @@ $sequence "Mortar_Back" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
 }
 
 $sequence "Mortar_Flinch_Left" {
@@ -146,6 +166,7 @@ $sequence "Mortar_Flinch_Left" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
 }
 
 $sequence "Mortar_Flinch_Right" {
@@ -153,6 +174,7 @@ $sequence "Mortar_Flinch_Right" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
 }
 
 $sequence "Mortar_Flinch_Front" {
@@ -160,6 +182,7 @@ $sequence "Mortar_Flinch_Front" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
 }
 
 $sequence "Mortar_Flinch_Back" {
@@ -167,6 +190,7 @@ $sequence "Mortar_Flinch_Back" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
 }
 
 $sequence "Mortar_BigFlinch_Left" {
@@ -175,6 +199,7 @@ $sequence "Mortar_BigFlinch_Left" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
 }
 
 $sequence "Mortar_BigFlinch_Right" {
@@ -183,6 +208,7 @@ $sequence "Mortar_BigFlinch_Right" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
 }
 
 $sequence "Mortar_BigFlinch_Front" {
@@ -191,6 +217,7 @@ $sequence "Mortar_BigFlinch_Front" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
 }
 
 $sequence "Mortar_BigFlinch_Back" {
@@ -199,6 +226,7 @@ $sequence "Mortar_BigFlinch_Back" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
 }
 
 $sequence "Mortar_Shoot" {
@@ -208,6 +236,24 @@ $sequence "Mortar_Shoot" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
+}
+
+$sequence "Mortar_Shoot2Transition" {
+	"mortarsynth_anims\Mortar_Forward.smd"
+	fadein 0.2
+	fadeout 0.2
+	fps 45
+	transition idle range2
+}
+
+$sequence "Mortar_Shoot2" {
+	"mortarsynth_anims\Mortar_Flinch_Front.smd"
+	activity "ACT_RANGE_ATTACK2" 1
+	fadein 0.2
+	fadeout 0.2
+	fps 30
+	node range2
 }
 
 $sequence "Mortar_Corpse" {
@@ -215,4 +261,10 @@ $sequence "Mortar_Corpse" {
 	fadein 0.2
 	fadeout 0.2
 	fps 30
+	node idle
+}
+
+$collisionmodel "mortphy.smd"
+{
+	$mass 70.0
 }
