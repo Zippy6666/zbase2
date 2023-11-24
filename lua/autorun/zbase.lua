@@ -292,6 +292,11 @@ local function IncludeFiles()
     include("zbase/hooks.lua")
 
 
+    -- CVars
+    AddCSLuaFile("zbase/cvars.lua")
+    include("zbase/cvars.lua")
+
+
     if SERVER then
 
         -- Schedules

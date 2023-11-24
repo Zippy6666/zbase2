@@ -19,7 +19,7 @@ ENT.IsZBase_SNPC = true
 local modelsWithPhysics = {}
 
 
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:Initialize()
 	self:SetHullType(self.HullType or HULL_MEDIUM)
 	self:SetHullSizeNormal()
@@ -64,7 +64,7 @@ function ENT:Initialize()
 	end
 	self.ModelHasPhys = modelsWithPhysics[mdl]
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:Think()
 	if !self.ModelHasPhys && self.SNPCNextSlowThink < CurTime() then
 		-- Phys object workaround
@@ -109,7 +109,7 @@ function ENT:Think()
 
 	self:ZBaseThink()
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function NPCMETA:SetSchedule( sched )
     if self.SNPCType == ZBASE_SNPCTYPE_FLY then
         self:AerialSetSchedule(sched)
@@ -117,7 +117,7 @@ function NPCMETA:SetSchedule( sched )
 
     return ZBase_OldSetSchedule(self, sched)
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )
 	if !self.IsZBase_SNPC then return ZBase_OldGetNearestSquadMember(self) end
 
@@ -141,143 +141,24 @@ function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )
 
 	return squadmember
 end
---------------------------------------------------------------------------------=#
-function ENT:ServerRagdoll( dmginfo )
-	local rag = ents.Create("prop_ragdoll")
-	rag:SetModel(self:GetModel())
-	rag:SetPos(self:GetPos())
-	rag:SetAngles(self:GetAngles())
-	rag:SetSkin(self:GetSkin())
-	rag:SetColor(self:GetColor())
-	rag:SetMaterial(self:GetMaterial())
-	rag:Spawn()
-
-
-	local ragPhys = rag:GetPhysicsObject()
-	if !IsValid(ragPhys) then
-		rag:Remove()
-		return
-	end
-
-
-	local physcount = rag:GetPhysicsObjectCount()
-	for i = 0, physcount - 1 do
-		-- Placement
-		local physObj = rag:GetPhysicsObjectNum(i)
-		local pos, ang = self:GetBonePosition(self:TranslatePhysBoneToBone(i))
-		physObj:SetPos( pos )
-		physObj:SetAngles( ang )
-	end
-
-
-	-- Ragdoll force
-	local force = self:CalculateRagdollForce(dmginfo:GetDamageForce())
-	if dmginfo:IsBulletDamage() then
-		ragPhys:SetVelocity(force*0.1)
-	else
-		ragPhys:SetVelocity(force)
-	end
-
-
-	-- Hook
-	hook.Run("CreateEntityRagdoll", self, rag)
-
-
-	-- Dissolve
-	if dmginfo:IsDamageType(DMG_DISSOLVE) then
-		rag:SetName( "base_ai_ext_rag" .. rag:EntIndex() )
-
-		local dissolve = ents.Create("env_entity_dissolver")
-		dissolve:SetKeyValue("target", rag:GetName())
-		dissolve:SetKeyValue("dissolvetype", dmginfo:IsDamageType(DMG_SHOCK) && 2 or 0)
-		dissolve:Fire("Dissolve", rag:GetName())
-		dissolve:Spawn()
-		rag:DeleteOnRemove(dissolve)
-
-		rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-
-		undo.ReplaceEntity( rag, NULL )
-		cleanup.ReplaceEntity( rag, NULL )
-	end
-
-
-	-- Ignite
-	if self:IsOnFire() then
-		rag:Ignite(math.Rand(4,8))
-	end
-end
---------------------------------------------------------------------------------=#
-function ENT:ClientRagdoll( dmginfo )
-	net.Start("base_ai_zbase_client_ragdoll")
-	net.WriteEntity(self)
-	net.WriteVector(self:CalculateRagdollForce(dmginfo:GetDamageForce()))
-	net.Broadcast()
-end
---------------------------------------------------------------------------------=#
-function ENT:CalculateRagdollForce( force )
-	local rag = ents.Create("prop_ragdoll")
-	rag:SetModel(self:GetModel())
-	rag:Spawn()
-
-
-	local ragPhys = rag:GetPhysicsObject()
-	if !IsValid(ragPhys) then
-		rag:Remove()
-		return Vector()
-	end
-
-
-	local totMass = 0
-	local physcount = rag:GetPhysicsObjectCount()
-	for i = 0, physcount - 1 do
-		physObj = rag:GetPhysicsObjectNum(i)
-		totMass = totMass+physObj:GetMass()
-	end
-
-
-	rag:Remove()
-	return force/(totMass/180)
-end
---------------------------------------------------------------------------------=#
-function ENT:Die( dmginfo )
-
-	if self.Dead then return end
-	self.Dead = true
-
-	-- Death notice and other stuff
-	hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
-	--self:SetNPCState(NPC_STATE_DEAD)
-
-	if self:GetShouldServerRagdoll() or dmginfo:IsDamageType(DMG_DISSOLVE) then
-		self:ServerRagdoll( dmginfo )
-		self:Remove()
-	else
-		self:ClientRagdoll( dmginfo )
-        self:AddFlags(FL_NOTARGET)
-        self:SetCollisionBounds(Vector(), Vector())
-        self:SetBloodColor(-1)
-        self:CapabilitiesClear()
-        self:SetNoDraw(true)
-        -- SafeRemoveEntityDelayed(self, 0.66)
-	end
-
-end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:OnTakeDamage( dmginfo )
 	-- On hurt behaviour
 	self:SNPCOnHurt(dmginfo)
 
+
 	-- Decrease health
 	self:SetHealth( self:Health() - dmginfo:GetDamage() )
 
+
 	-- Die
 	if self:Health() <= 0 then
-		self:Die( dmginfo )
+		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
 	end
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:OnRemove()
     self:SetSquad("") -- To prevent m_bDidDeathCleanup from crashing game.
     if self.Dead then self:SetSaveValue("m_bDidDeathCleanup", true) end
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]

@@ -1326,6 +1326,10 @@ function NPC:OnScaleNPCDamage( dmg, hit_gr )
     local infl = dmg:GetInflictor()
 
 
+    -- Remember last hitgroup
+    self.LastHitGroup = dmg, hit_gr
+
+
     -- Combine ball stuff
     if infl:GetClass()=="prop_combine_ball" then
         dmg:ScaleDamage(self.EnergyBallDamageScale)
@@ -1376,6 +1380,10 @@ end
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
     if self.DoingDeathAnim && !self.DeathAnim_Finished then dmg:ScaleDamage(0) return end
+
+
+    -- Remember last dmginfo
+    self.LastDMGINFO = dmg
 end
 
 
@@ -1384,8 +1392,8 @@ function NPC:OnPostEntityTakeDamage( dmg )
     if self.Dead then return end
 
 
-    -- Remember last dmginfo and hitgroup
-    self.LastDMGINFO, self.LastHitGroup = dmg, hit_gr
+    -- Remember last dmginfo again for accuracy sake
+    self.LastDMGINFO = dmg
 
 
     -- Death animation
@@ -1450,6 +1458,9 @@ end
 --]]
 
 
+ZBaseRagdolls = {}
+
+
 function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     self.Dead = true
 
@@ -1486,11 +1497,125 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     end
 
 
-    self.Gibbed = self:ShouldGib(dmg, hit_gr)
+    local Gibbed = self:ShouldGib(dmg, hit_gr)
+
+
+    
+
+
+    if !Gibbed then
+        self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
+    end
 
 
     self:SetShouldServerRagdoll(false)
     self:Remove()
+end
+
+
+function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
+	local rag = ents.Create("prop_ragdoll")
+	rag:SetModel(self:GetModel())
+	rag:SetPos(self:GetPos())
+	rag:SetAngles(self:GetAngles())
+	rag:SetSkin(self:GetSkin())
+	rag:SetColor(self:GetColor())
+	rag:SetMaterial(self:GetMaterial())
+	rag:Spawn()
+
+
+	local ragPhys = rag:GetPhysicsObject()
+	if !IsValid(ragPhys) then
+		rag:Remove()
+		return
+	end
+
+
+    local totMass = 0
+	local physcount = rag:GetPhysicsObjectCount()
+	for i = 0, physcount - 1 do
+		-- Placement
+		local physObj = rag:GetPhysicsObjectNum(i)
+		local pos, ang = self:GetBonePosition(self:TranslatePhysBoneToBone(i))
+		physObj:SetPos( pos )
+		physObj:SetAngles( ang )
+
+        -- Sum mass
+        totMass = totMass+physObj:GetMass()
+	end
+
+
+	-- Ragdoll force
+	local force = dmg:GetDamageForce()/(totMass/120)
+	if dmg:IsBulletDamage() then
+		ragPhys:SetVelocity(force*0.1)
+	else
+		ragPhys:SetVelocity(force)
+	end
+
+
+	-- Hook
+	hook.Run("CreateEntityRagdoll", self, rag)
+
+
+	-- Dissolve
+	if dmg:IsDamageType(DMG_DISSOLVE) then
+		rag:SetName( "base_ai_ext_rag" .. rag:EntIndex() )
+
+		local dissolve = ents.Create("env_entity_dissolver")
+		dissolve:SetKeyValue("target", rag:GetName())
+		dissolve:SetKeyValue("dissolvetype", dmg:IsDamageType(DMG_SHOCK) && 2 or 0)
+		dissolve:Fire("Dissolve", rag:GetName())
+		dissolve:Spawn()
+		rag:DeleteOnRemove(dissolve)
+
+		rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+
+		undo.ReplaceEntity( rag, NULL )
+		cleanup.ReplaceEntity( rag, NULL )
+	end
+
+
+	-- Ignite
+	if self:IsOnFire() then
+		rag:Ignite(math.Rand(4,8))
+	end
+
+    
+    -- Handle corpse
+    if !keep_corpse then
+        print("not keeping corpse")
+
+
+        -- Nocollide
+        rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+
+
+        -- Put in ragdoll table
+        table.insert(ZBaseRagdolls, rag)
+
+
+        -- Remove one ragdoll if there are too many
+        if #ZBaseRagdolls > ZBCVAR.MaxRagdolls:GetInt() then
+
+            local ragToRemove = ZBaseRagdolls[1]
+            table.remove(ZBaseRagdolls, 1)
+            ragToRemove:Remove()
+
+        end
+        
+
+        -- Remove ragdoll after delay if that is active
+        if ZBCVAR.RemoveRagdollTime:GetBool() then
+            SafeRemoveEntityDelayed(rag, ZBCVAR.RemoveRagdollTime:GetInt())
+        end
+
+
+        -- Remove from table on ragdoll removed
+        rag:CallOnRemove("ZBase_RemoveFromRagdollTable", function()
+            table.RemoveByValue(ZBaseRagdolls, rag)
+        end)
+    end
 end
 
 
