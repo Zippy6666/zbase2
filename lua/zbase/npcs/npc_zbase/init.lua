@@ -595,3 +595,11 @@ end
     -- Called when the base detects that the NPC is playing a new activity
 function NPC:CustomNewActivityDetected( act )
 end
+
+
+    -- Called before death
+    -- Return true to not spawn ragdoll
+function NPC:ShouldGib( dmginfo, hit_gr )
+    print( dmginfo, hit_gr )
+    return true
+end

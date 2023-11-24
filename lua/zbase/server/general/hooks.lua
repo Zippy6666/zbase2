@@ -79,6 +79,9 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function() timer.Simple(0.
             end
 
 
+            npc.Gibbed = npc:ShouldGib(npc.LastDMGINFO, npc.LastHitGroup)
+
+
             SafeRemoveEntityDelayed(npc, 0.15) -- Remove earlier
 		end
 
@@ -357,7 +360,7 @@ end)
 ---------------------------------------------------------------------------------------=#
 hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
     if !npc.IsZBaseNPC then return end
-
+    npc.LastDMGINFO, npc.LastHitGroup = dmg, hit_gr
 
     npc:CustomTakeDamage(dmg, hit_gr)
 
