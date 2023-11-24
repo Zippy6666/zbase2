@@ -97,7 +97,6 @@ PrecacheParticleSystem("blood_impact_zbase_blue")
 --]]
 
 
---]]=================================================================================================================]]
 if SERVER then
     game.AddDecal("ZBaseBloodBlack", {
         "decals/zbase_blood_black/blood1",
@@ -144,7 +143,6 @@ if SERVER then
         "decals/zbase_blood_blue/blood6",
     })
 end
---]]=================================================================================================================]]
 
 
 --[[
@@ -154,7 +152,6 @@ end
 --]]
 
 
---]]=================================================================================================================]]
 sound.Add( {
 	name = "ZBase.Melee1",
 	channel = CHAN_AUTO,
@@ -167,7 +164,7 @@ sound.Add( {
 		"npc/fast_zombie/claw_strike3.wav",
     }
 } )
---]]=================================================================================================================]]
+
 sound.Add( {
 	name = "ZBase.Melee2",
 	channel = CHAN_AUTO,
@@ -183,7 +180,7 @@ sound.Add( {
 		"physics/body/body_medium_impact_hard6.wav",
     }
 } )
---]]=================================================================================================================]]
+
 sound.Add( {
 	name = "ZBase.Ricochet",
 	channel = CHAN_AUTO,
@@ -198,7 +195,6 @@ sound.Add( {
         "weapons/fx/rics/ric5.wav"
     }
 } )
---]]=================================================================================================================]]
 
 
 --[[
@@ -209,17 +205,30 @@ sound.Add( {
 
 
 local function IncludeFiles()
+    -- old nasty code
     include("zbase/shared/globals.lua")
-    include("zbase/shared/hooks.lua")
+
+
+
+    -- new
+    AddCSLuaFile("zbase/external.lua")
+    include("zbase/external.lua")
+
+
 
     if SERVER then
-        include("zbase/server/general/hooks.lua")
-        include("zbase/server/general/scheds.lua")
-        include("zbase/server/general/relationship.lua")
+        -- new
+        include("zbase/schedules.lua")
 
+
+        -- old nasty code
+        --include("zbase/server/general/hooks.lua")
+        --include("zbase/server/general/relationship.lua")
+
+
+        -- Include NPC enhancement files
         local files = file.Find("zbase/npc_enhancements/*","LUA")
         local enhPath = "zbase/npc_enhancements/"
-
         for _, v in ipairs(files) do
             include(enhPath..v)
         end
@@ -268,48 +277,6 @@ local function NPCsInherit()
 end
 
 
--- local function RegBase()
---     ZBaseNPCs["npc_zbase"] = {}
-
---     local npcpath = "zbase/npcs/npc_zbase/"
-
---     AddCSLuaFile(npcpath.."shared.lua")
---     AddCSLuaFile(npcpath.."cl_init.lua")
-
---     if SERVER then
---         include("zbase/server/npc_base/core.lua")
---         include("zbase/server/npc_base/util.lua")
---         include(npcpath.."init.lua")
-
-
---         ZBaseNPCs["npc_zbase"].Behaviours = {}
-
-
---         local files = file.Find("zbase/server/npc_base/behaviours/*","LUA")
---         local behaviourPath = "zbase/server/npc_base/behaviours/"
-
---         for _, v in ipairs(files) do
---             include(behaviourPath..v)
---         end
-
-
---         -- Get names of sound variables
---         ZBaseNPCs["npc_zbase"].SoundVarNames = {}
---         for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
---             if string.EndsWith(k, "Sounds") then
---                 table.insert(ZBaseNPCs["npc_zbase"].SoundVarNames, k)
---             end
---         end
---     end
-
---     include(npcpath.."shared.lua")
-
---     if CLIENT then
---         include(npcpath.."cl_init.lua")
---     end
--- end
-
-
 local function RegBase()
     ZBaseNPCs["npc_zbase"] = {}
     ZBaseNPCs["npc_zbase"].Behaviours = {}
@@ -339,8 +306,8 @@ end
 
 
 local function NPCReg( name )
-    if string.StartsWith(name, "npc_") && name != "npc_zbase" then
-        local path = "zbase/npcs/"..name.."/"
+    if name != "npc_zbase" then
+        local path = "zbase/entities/"..name.."/"
         local sh = path.."shared.lua"
         local cl = path.."cl_init.lua"
         local sv = path.."init.lua"
@@ -369,7 +336,7 @@ end
 
 
 local function registerNPCs()
-    local _, dirs = file.Find("zbase/npcs/*","LUA")
+    local _, dirs = file.Find("zbase/entities/*","LUA")
 
     RegBase() -- Register base
 
