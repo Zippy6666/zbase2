@@ -1458,9 +1458,6 @@ end
 --]]
 
 
-ZBaseRagdolls = {}
-
-
 function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     self.Dead = true
 
@@ -1511,6 +1508,16 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     self:SetShouldServerRagdoll(false)
     self:Remove()
 end
+
+
+--[[
+==================================================================================================
+                                           RAGDOLL
+==================================================================================================
+--]]
+
+
+ZBaseRagdolls = {}
 
 
 function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
@@ -1617,6 +1624,48 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
         end)
     end
 end
+
+--[[
+==================================================================================================
+                                           GIBS
+==================================================================================================
+--]]
+
+
+function NPC:InternalCreateGib( model, data )
+    data = data or {}
+
+
+    local Gib = ents.Create("base_gmodentity")
+    Gib:SetModel(model)
+
+
+    -- Position
+    local pos = self:WorldSpaceCenter()
+    if data.offset then
+        pos = pos + data.offset
+    end
+    Gib:SetPos(pos)
+    Gib:SetAngles(self:GetAngles())
+
+
+    Gib:Spawn()
+    Gib:PhysicsInit(SOLID_VPHYSICS)
+
+
+    local phys = Gib:GetPhysicsObject()
+    phys:Wake()
+
+
+    return Gib
+end
+
+
+--[[
+==================================================================================================
+                                           DEATH ANIMATION
+==================================================================================================
+--]]
 
 
 function NPC:DeathAnimation( dmg )
