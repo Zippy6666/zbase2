@@ -6,15 +6,15 @@
 
 
 if !ZBaseInitialized then
-    print("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
-    print("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
-    print("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
-    print("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
-    print("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
-    print("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --") 
-    print("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
-    print("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
-    print("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
+    MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
+    MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
+    MsgN("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
+    MsgN("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
+    MsgN("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
+    MsgN("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --") 
+    MsgN("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
+    MsgN("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
+    MsgN("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
 end   
 
 
@@ -208,7 +208,6 @@ sound.Add( {
 if SERVER then
     util.AddNetworkString("ZBaseListFactions")
     util.AddNetworkString("ZBase_GetFactionsFromServer")
-    net.Receive("ZBase_GetFactionsFromServer", ZBaseListFactions)
 end
 
 
@@ -269,6 +268,13 @@ function ZBaseListFactions( _, ply )
 end
 
 
+if SERVER then
+    net.Receive("ZBase_GetFactionsFromServer", function(_, ply)
+        ZBaseListFactions(_, ply)
+    end)
+end
+
+
 --[[
 ======================================================================================================================================================
                                            INCLUDES
@@ -290,6 +296,10 @@ local function IncludeFiles()
 
         -- Schedules
         include("zbase/schedules.lua")
+
+
+        -- NPC meta
+        include("zbase/meta_npc_extended.lua")
 
 
         -- Include NPC enhancement files
@@ -327,7 +337,6 @@ local function NPCsInherit()
     
         for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
             if t[k] == nil then
-                -- print(cls, "npc_zbase", k, v)
                 t[k] = istable(v) && table.Copy(v) or v
             end
         end
@@ -412,8 +421,6 @@ local function registerNPCs()
     for _, v in ipairs(dirs) do
         NPCReg(v)
     end
-
-    -- PrintTable(ZBaseNPCs)
 end
 
 
