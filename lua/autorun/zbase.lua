@@ -211,8 +211,9 @@ local function IncludeFiles()
 
 
     -- new
-    AddCSLuaFile("zbase/external.lua")
-    include("zbase/external.lua")
+    AddCSLuaFile("zbase/hooks.lua")
+    include("zbase/hooks.lua")
+    
 
 
 
