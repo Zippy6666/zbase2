@@ -14,8 +14,11 @@ if SERVER then
 	local SpawnNPC = Spawn_NPC
 
 
+	ZBase_EmitSoundCall = false
+
+
 	--]]==========================================================================================]]
-	function GAMEMODE:OnNPCKilled( npc, attacker, ... )
+	function GAMEMODE:OnNPCKilled( npc, attacker, infl )
 		if IsValid(attacker) && attacker.IsZBaseNPC then
 			attacker:OnKilledEnt( npc )
 		end
@@ -27,45 +30,11 @@ if SERVER then
 
 
 		if npc.IsZBaseNPC then
-
-            -- Stop sounds
-            for _, v in ipairs(npc.SoundVarNames) do
-                if !isstring(v) then return end
-                npc:StopSound(npc:GetTable()[v])
-            end
-
-
-            -- Death sound
-			npc:EmitSound(npc.DeathSounds)
-
-
-            -- Ally death reaction
-            local ally = npc:GetNearestAlly(600)
-            local deathpos = npc:GetPos()
-            if IsValid(ally) && ally:Visible(npc) then
-                timer.Simple(0.5, function()
-                    if IsValid(ally)
-                    && ally.AllyDeathSound_Chance
-                    && math.random(1, ally.AllyDeathSound_Chance) == 1 then
-                        ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
-
-                        if ally.AllyDeathSounds != "" then
-                            ally:FullReset()
-                            ally:Face(deathpos, ally.InternalCurrentSoundDuration)
-                        end
-                    end
-                end)
-            end
-
-
-            npc.Gibbed = npc:ShouldGib(npc.LastDMGINFO, npc.LastHitGroup)
-
-
-            SafeRemoveEntityDelayed(npc, 0.15) -- Remove earlier
+            npc:OnDeath( attacker, infl, npc.LastDMGINFO, npc.LastHitGroup )
 		end
 
 
-		return OnNPCKilled(self, npc, ...)
+		return OnNPCKilled(self, npc, infl)
 	end
 	--]]==========================================================================================]]
 	function Spawn_NPC( ply, NPCClassName, WeaponName, tr, ... )
@@ -93,33 +62,42 @@ end
 
 --[[
 ======================================================================================================================================================
+                                           SHARED
+======================================================================================================================================================
+--]]
+
+
+local listGet = list.Get
+
+
+function list:Get()
+    if !ZBase_JustReloadedSpawnmenu && self == "NPC" then
+        -- Add ZBase NPCs to NPC list
+
+        local ZBaseTableAdd = {}
+        for k, v in pairs(ZBaseSpawnMenuNPCList) do
+            local ZBaseNPC = table.Copy(v)
+
+            ZBaseNPC.Category = "ZBase"
+            ZBaseNPC.KeyValues = {parentname=k}
+            ZBaseTableAdd[k] = ZBaseNPC
+        end
+
+        local t = table.Merge(listGet(self), ZBaseTableAdd)
+
+        return t
+    end
+
+    return listGet(self)
+end
+
+
+--[[
+======================================================================================================================================================
                                            CLIENT
 ======================================================================================================================================================
 --]]
 
 
 if CLIENT then
-	local listGet = list.Get
-
-
-	function list:Get()
-		if !ZBase_JustReloadedSpawnmenu && self == "NPC" then
-			-- Add ZBase NPCs to NPC list
-
-			local ZBaseTableAdd = {}
-			for k, v in pairs(ZBaseSpawnMenuNPCList) do
-				local ZBaseNPC = table.Copy(v)
-
-				ZBaseNPC.Category = "ZBase"
-				ZBaseNPC.KeyValues = {parentname=k}
-				ZBaseTableAdd[k] = ZBaseNPC
-			end
-
-			local t = table.Merge(listGet(self), ZBaseTableAdd)
-
-			return t
-		end
-
-		return listGet(self)
-	end
 end

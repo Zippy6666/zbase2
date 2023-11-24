@@ -350,20 +350,67 @@ function NPC:CustomOnOwnedEntCreated( ent )
 end
 
 
+    -- Return a new sound name to play that sound instead.
+    -- Return false to prevent the sound from playing.
+function NPC:CustomOnEmitSound( sndData, sndVarName )
+end
+
+--[[
+==================================================================================================
+                                           TAKE DAMAGE FUNCTIONS
+==================================================================================================
+--]]
+
+
     -- On NPC hurt, dmginfo:ScaleDamage(0) to prevent damage --
     -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
     -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
 function NPC:CustomTakeDamage( dmginfo, HitGroup )
 end
 
-    -- Called when the NPC hurts an entity, return true to prevent damage --
-function NPC:DealDamage( victimEnt, dmginfo )
+
+    -- Called before the NPC flinches
+    -- Only called on ZBase flinches, not from engine ones
+    -- Return false to prevent the flinch
+function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
+
 end
 
 
-    -- Return a new sound name to play that sound instead.
-    -- Return false to prevent the sound from playing.
-function NPC:CustomOnEmitSound( sndData, sndVarName )
+    -- On armor hit --
+    -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
+    -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
+function NPC:HitArmor( dmginfo, HitGroup )
+
+    if !(dmginfo:IsDamageType(DMG_BULLET) or dmginfo:IsDamageType(DMG_BUCKSHOT)) then return end
+
+    if self.ArmorAlwaysPenDamage && dmginfo:GetDamage() >= self.ArmorAlwaysPenDamage then
+        dmginfo:ScaleDamage(self.ArmorPenDamageMult)
+        return
+    end
+
+    if !self.ArmorPenChance or math.random(1, self.ArmorPenChance) != 1 then
+    
+        if self.ArmorHitSpark then
+            local spark = ents.Create("env_spark")
+            spark:SetKeyValue("spawnflags", 256)
+            spark:SetKeyValue("TrailLength", 1)
+            spark:SetKeyValue("Magnitude", 1)
+            spark:SetPos(dmginfo:GetDamagePosition())
+            spark:SetAngles(-dmginfo:GetDamageForce():Angle())
+            spark:Spawn()
+            spark:Activate()
+            spark:Fire("SparkOnce")
+            SafeRemoveEntityDelayed(spark, 0.1)
+        end
+
+        self:EmitSound("ZBase.Ricochet")
+        dmginfo:ScaleDamage(0)
+
+    else
+        dmginfo:ScaleDamage(self.ArmorPenDamageMult)
+    end
+
 end
 
 
@@ -542,48 +589,8 @@ function NPC:CustomAcceptInput( input, activator, caller, value )
 end
 
 
-    -- Called before the NPC flinches
-    -- Only called on ZBase flinches, not from engine ones
-    -- Return false to prevent the flinch
-function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
-
-end
-
-
-    -- On armor hit --
-    -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
-    -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
-function NPC:HitArmor( dmginfo, HitGroup )
-
-    if !(dmginfo:IsDamageType(DMG_BULLET) or dmginfo:IsDamageType(DMG_BUCKSHOT)) then return end
-
-    if self.ArmorAlwaysPenDamage && dmginfo:GetDamage() >= self.ArmorAlwaysPenDamage then
-        dmginfo:ScaleDamage(self.ArmorPenDamageMult)
-        return
-    end
-
-    if !self.ArmorPenChance or math.random(1, self.ArmorPenChance) != 1 then
-    
-        if self.ArmorHitSpark then
-            local spark = ents.Create("env_spark")
-            spark:SetKeyValue("spawnflags", 256)
-            spark:SetKeyValue("TrailLength", 1)
-            spark:SetKeyValue("Magnitude", 1)
-            spark:SetPos(dmginfo:GetDamagePosition())
-            spark:SetAngles(-dmginfo:GetDamageForce():Angle())
-            spark:Spawn()
-            spark:Activate()
-            spark:Fire("SparkOnce")
-            SafeRemoveEntityDelayed(spark, 0.1)
-        end
-
-        self:EmitSound("ZBase.Ricochet")
-        dmginfo:ScaleDamage(0)
-
-    else
-        dmginfo:ScaleDamage(self.ArmorPenDamageMult)
-    end
-
+    -- Called when the NPC hurts an entity, return true to prevent damage --
+function NPC:DealDamage( victimEnt, dmginfo )
 end
 
 
