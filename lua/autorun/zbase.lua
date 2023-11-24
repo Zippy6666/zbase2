@@ -1,17 +1,30 @@
---]]===================================================================================================================]]
+--[[
+======================================================================================================================================================
+                                           WELCOME MESSAGE OR SOMETHING IDK
+======================================================================================================================================================
+--]]
+
+
 if !ZBaseInitialized then
     print("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
     print("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
     print("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
     print("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
     print("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
-    print("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --")
-        
+    print("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --") 
     print("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
     print("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
     print("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
 end   
---]]===================================================================================================================]]
+
+
+--[[
+======================================================================================================================================================
+                                           DONT BE ON SOME SHIT BRANCH
+======================================================================================================================================================
+--]]
+
+
 if BRANCH != "x86-64" && BRANCH != "dev" then
     --]]===================================================================================================================]]
     if SERVER then
@@ -34,9 +47,19 @@ if BRANCH != "x86-64" && BRANCH != "dev" then
     --]]===================================================================================================================]]
     return
 end
+
+
+--[[
+======================================================================================================================================================
+                                           ZBASE_RELOAD
+======================================================================================================================================================
+--]]
+
+
+--]]===================================================================================================================]]
 if CLIENT then
     net.Receive("ZBaseReload", function()
-        include("autorun/zbase2.lua")
+        include("autorun/zbase.lua")
     end)
 else
     util.AddNetworkString("ZBaseReload")
@@ -44,7 +67,7 @@ end
 --]]===================================================================================================================]]
 concommand.Add("zbase_reload", function( ply )
     if ply:IsSuperAdmin() then
-        include("autorun/zbase2.lua")
+        include("autorun/zbase.lua")
         net.Start("ZBaseReload")
         net.Broadcast()
     end
@@ -52,46 +75,166 @@ end)
 --]]===================================================================================================================]]
 
 
-    -- Shit particles
+--[[
+======================================================================================================================================================
+                                           PARTICLES
+======================================================================================================================================================
+--]]
+
+
 game.AddParticles("particles/zbase_blood_impact.pcf")
 PrecacheParticleSystem("blood_impact_zbase_green")
 PrecacheParticleSystem("blood_impact_zbase_black")
 PrecacheParticleSystem("blood_impact_zbase_blue")
 
 
+--[[
+======================================================================================================================================================
+                                           DECALS
+======================================================================================================================================================
+--]]
+
+
+--]]=================================================================================================================]]
+if SERVER then
+    game.AddDecal("ZBaseBloodBlack", {
+        "decals/zbase_blood_black/blood1",
+        "decals/zbase_blood_black/blood2",
+        "decals/zbase_blood_black/blood3",
+        "decals/zbase_blood_black/blood4",
+        "decals/zbase_blood_black/blood5",
+        "decals/zbase_blood_black/blood6",
+    })
+
+    game.AddDecal("ZBaseBloodSynth", {
+        "decals/zbase_blood_synth/blood1",
+        "decals/zbase_blood_synth/blood2",
+        "decals/zbase_blood_synth/blood3",
+        "decals/zbase_blood_synth/blood4",
+        "decals/zbase_blood_synth/blood5",
+        "decals/zbase_blood_synth/blood6",
+    })
+
+    game.AddDecal("ZBaseBloodRed", {
+        "decals/zbase_blood_red/blood1",
+        "decals/zbase_blood_red/blood2",
+        "decals/zbase_blood_red/blood3",
+        "decals/zbase_blood_red/blood4",
+        "decals/zbase_blood_red/blood5",
+        "decals/zbase_blood_red/blood6",
+    })
+
+    game.AddDecal("ZBaseBloodGreen", {
+        "decals/zbase_blood_green/blood1",
+        "decals/zbase_blood_green/blood2",
+        "decals/zbase_blood_green/blood3",
+        "decals/zbase_blood_green/blood4",
+        "decals/zbase_blood_green/blood5",
+        "decals/zbase_blood_green/blood6",
+    })
+
+    game.AddDecal("ZBaseBloodBlue", {
+        "decals/zbase_blood_blue/blood1",
+        "decals/zbase_blood_blue/blood2",
+        "decals/zbase_blood_blue/blood3",
+        "decals/zbase_blood_blue/blood4",
+        "decals/zbase_blood_blue/blood5",
+        "decals/zbase_blood_blue/blood6",
+    })
+end
+--]]=================================================================================================================]]
+
+
+--[[
+======================================================================================================================================================
+                                           SOUNDS
+======================================================================================================================================================
+--]]
+
+
+--]]=================================================================================================================]]
+sound.Add( {
+	name = "ZBase.Melee1",
+	channel = CHAN_AUTO,
+	volume = 0.8,
+	level = 75,
+	pitch = {95, 105},
+	sound = {
+        "npc/fast_zombie/claw_strike1.wav",
+		"npc/fast_zombie/claw_strike2.wav",
+		"npc/fast_zombie/claw_strike3.wav",
+    }
+} )
+--]]=================================================================================================================]]
+sound.Add( {
+	name = "ZBase.Melee2",
+	channel = CHAN_AUTO,
+	volume = 0.8,
+	level = 75,
+	pitch = {95, 105},
+	sound = {
+        "physics/body/body_medium_impact_hard1.wav",
+		"physics/body/body_medium_impact_hard2.wav",
+		"physics/body/body_medium_impact_hard3.wav",
+        "physics/body/body_medium_impact_hard4.wav",
+		"physics/body/body_medium_impact_hard5.wav",
+		"physics/body/body_medium_impact_hard6.wav",
+    }
+} )
+--]]=================================================================================================================]]
+sound.Add( {
+	name = "ZBase.Ricochet",
+	channel = CHAN_AUTO,
+	volume = 0.8,
+	level = 75,
+	pitch = {90, 110},
+	sound = {
+        "weapons/fx/rics/ric1.wav",
+        "weapons/fx/rics/ric2.wav",
+        "weapons/fx/rics/ric3.wav",
+        "weapons/fx/rics/ric4.wav",
+        "weapons/fx/rics/ric5.wav"
+    }
+} )
+--]]=================================================================================================================]]
+
+
+--[[
+======================================================================================================================================================
+                                           INCLUDES
+======================================================================================================================================================
+--]]
+
+
 --]]===================================================================================================================]]
 local function IncludeFiles()
-    AddCSLuaFile("zbase/client/spawnmenu.lua")
-    AddCSLuaFile("zbase/client/toolmenu.lua")
-    AddCSLuaFile("zbase/client/hooks.lua")
-
     include("zbase/shared/globals.lua")
     include("zbase/shared/hooks.lua")
-    include("zbase/shared/sounds.lua")
-    
 
     if SERVER then
-        include("zbase/server/general/behaviour.lua")
         include("zbase/server/general/hooks.lua")
-        include("zbase/server/general/spawn_npc.lua")
         include("zbase/server/general/scheds.lua")
         include("zbase/server/general/relationship.lua")
-        include("zbase/server/decals.lua")
 
-        local files = file.Find("zbase/server/npc_enhancements/*","LUA")
-        local enhPath = "zbase/server/npc_enhancements/"
+        local files = file.Find("zbase/npc_enhancements/*","LUA")
+        local enhPath = "zbase/npc_enhancements/"
 
         for _, v in ipairs(files) do
             include(enhPath..v)
         end
     end
-
-    if CLIENT then
-        include("zbase/client/spawnmenu.lua")
-        include("zbase/client/toolmenu.lua")
-        include("zbase/client/hooks.lua")
-    end
 end
+--]]===================================================================================================================]]
+
+
+--[[
+======================================================================================================================================================
+                                           REGISTER THE BLOODY NPC BASE
+                                           ADD NPCS TO SPAWNMENU
+======================================================================================================================================================
+--]]
+
+
 --]]===================================================================================================================]]
 local function NPCsInherit()
     for cls, t in pairs(ZBaseNPCs) do
@@ -266,3 +409,16 @@ else
     registerNPCs()
 
 end
+
+
+--[[
+======================================================================================================================================================
+                                           SCHIZOPHRENIA
+======================================================================================================================================================
+--]]
+
+
+-- IF YOU ARE READING THIS
+-- SHE NEEDS TO BE MY WIFE
+-- I CANNOT RAISE THE FIRST BORN CHILD THAT IS ZBASE AS A LONE PARENT
+-- ZBASE NEEDS THE MOTHERLY LOVE THAT IT DESERVES
