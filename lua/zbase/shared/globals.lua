@@ -21,7 +21,6 @@ if !ZBaseNPCs then
     ZBaseSpawnMenuNPCList = {}
     ZBaseSpeakingSquads = {}
     ZBaseEnhancementTable = {}
-    print(ZBaseEnhancementTable)
 end
 
 

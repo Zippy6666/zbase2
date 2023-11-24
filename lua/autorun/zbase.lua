@@ -268,45 +268,48 @@ local function NPCsInherit()
     end
 end
 --]]===================================================================================================================]]
+-- local function RegBase()
+--     ZBaseNPCs["npc_zbase"] = {}
+
+--     local npcpath = "zbase/npcs/npc_zbase/"
+
+--     AddCSLuaFile(npcpath.."shared.lua")
+--     AddCSLuaFile(npcpath.."cl_init.lua")
+
+--     if SERVER then
+--         include("zbase/server/npc_base/core.lua")
+--         include("zbase/server/npc_base/util.lua")
+--         include(npcpath.."init.lua")
+
+
+--         ZBaseNPCs["npc_zbase"].Behaviours = {}
+
+
+--         local files = file.Find("zbase/server/npc_base/behaviours/*","LUA")
+--         local behaviourPath = "zbase/server/npc_base/behaviours/"
+
+--         for _, v in ipairs(files) do
+--             include(behaviourPath..v)
+--         end
+
+
+--         -- Get names of sound variables
+--         ZBaseNPCs["npc_zbase"].SoundVarNames = {}
+--         for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
+--             if string.EndsWith(k, "Sounds") then
+--                 table.insert(ZBaseNPCs["npc_zbase"].SoundVarNames, k)
+--             end
+--         end
+--     end
+
+--     include(npcpath.."shared.lua")
+
+--     if CLIENT then
+--         include(npcpath.."cl_init.lua")
+--     end
+-- end
+--]]===================================================================================================================]]
 local function RegBase()
-    ZBaseNPCs["npc_zbase"] = {}
-
-    local npcpath = "zbase/npcs/npc_zbase/"
-
-    AddCSLuaFile(npcpath.."shared.lua")
-    AddCSLuaFile(npcpath.."cl_init.lua")
-
-    if SERVER then
-        include("zbase/server/npc_base/core.lua")
-        include("zbase/server/npc_base/util.lua")
-        include(npcpath.."init.lua")
-
-
-        ZBaseNPCs["npc_zbase"].Behaviours = {}
-
-
-        local files = file.Find("zbase/server/npc_base/behaviours/*","LUA")
-        local behaviourPath = "zbase/server/npc_base/behaviours/"
-
-        for _, v in ipairs(files) do
-            include(behaviourPath..v)
-        end
-
-
-        -- Get names of sound variables
-        ZBaseNPCs["npc_zbase"].SoundVarNames = {}
-        for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
-            if string.EndsWith(k, "Sounds") then
-                table.insert(ZBaseNPCs["npc_zbase"].SoundVarNames, k)
-            end
-        end
-    end
-
-    include(npcpath.."shared.lua")
-
-    if CLIENT then
-        include(npcpath.."cl_init.lua")
-    end
 end
 --]]===================================================================================================================]]
 local function NPCReg( name )
@@ -315,7 +318,6 @@ local function NPCReg( name )
         local sh = path.."shared.lua"
         local cl = path.."cl_init.lua"
         local sv = path.."init.lua"
-        local bh = path.."behaviour.lua"
 
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA") then
@@ -330,10 +332,6 @@ local function NPCReg( name )
 
             if SERVER then
                 include(sv)
-
-                -- if file.Exists(bh, "LUA") then
-                --     include(bh)
-                -- end
             end
 
             if file.Exists(cl, "LUA") && CLIENT then
