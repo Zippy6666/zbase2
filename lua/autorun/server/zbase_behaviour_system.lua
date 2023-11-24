@@ -1,6 +1,8 @@
 local ZBaseDelayEnt = NULL
 local ZBaseDelayBehaviour_Name
 local NextBehaviourThink = CurTime()
+
+
 ---------------------------------------------------------------------------------------=#
 function ZBaseDelayBehaviour( delay, ent, name )
     local Ent = ent or ZBaseDelayEnt

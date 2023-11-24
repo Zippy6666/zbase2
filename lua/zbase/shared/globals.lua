@@ -1,16 +1,6 @@
 AddCSLuaFile()
 
 
--- game.AddDecal( "ZBaseSynthBlood", {
---     "decals/zsynthblood1",
---     -- "decals/zsynthblood2",
---     -- "decals/zsynthblood3",
---     -- "decals/zsynthblood4",
---     -- "decals/zsynthblood5",
---     -- "decals/zsynthblood6",
--- } )
-
-
 ZBASE_SNPCTYPE_WALK = 1
 ZBASE_SNPCTYPE_FLY = 2
 ZBASE_SNPCTYPE_STATIONARY = 3
@@ -30,6 +20,8 @@ if !ZBaseNPCs then
     ZBase_NonZBaseNPCs = {}
     ZBaseSpawnMenuNPCList = {}
     ZBaseSpeakingSquads = {}
+    ZBaseEnhancementTable = {}
+    print(ZBaseEnhancementTable)
 end
 
 
