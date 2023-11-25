@@ -362,6 +362,18 @@ function NPC:ZBaseDist( ent_or_pos, tbl )
 end
 
 
+
+    -- Creates a gib entity with the given model
+    -- Returns the gib so that you can do whatever you want with it after creation
+    -- 'model' - The model to use
+    -- 'data' (table)
+        -- 'data.offset' - Vector position offset relative to itself
+        -- 'data.DontBleed' - If true, the gib will not have blood effects
+function NPC:CreateGib( model, data )
+    return self:InternalCreateGib( model, data )
+end
+
+
     -- Just like Entity:EmitSound(), except it will prevent certain sounds from playing over it
 function NPC:EmitSound_Uninterupted( ... )
     ZBase_DontSpeakOverThisSound = true

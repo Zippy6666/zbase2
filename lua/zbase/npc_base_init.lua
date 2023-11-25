@@ -369,13 +369,6 @@ function NPC:CustomTakeDamage( dmginfo, HitGroup )
 end
 
 
-    -- Called before the NPC flinches
-    -- Only called on ZBase flinches, not from engine ones
-    -- Return false to prevent the flinch
-function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
-
-end
-
 
     -- On armor hit --
     -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
@@ -411,6 +404,26 @@ function NPC:HitArmor( dmginfo, HitGroup )
         dmginfo:ScaleDamage(self.ArmorPenDamageMult)
     end
 
+end
+
+--[[
+==================================================================================================
+                                           FLINCH FUNCTIONS
+==================================================================================================
+--]]
+
+
+    -- Called before the NPC flinches
+    -- Only called on ZBase flinches, not from engine ones
+    -- Return false to prevent the flinch
+function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
+end
+
+
+    -- Called before the NPC flinches
+    -- Only called on ZBase flinches, not from engine ones
+    -- Return a animation to be used instead of the ones from the FlinchAnimations table (string sequence, or number activity)
+function NPC:GetFlinchAnimation(dmginfo, HitGroup)
 end
 
 
@@ -456,16 +469,11 @@ end
     -- The range attack projectile code
     -- Called by the base, but can be called whenever you like
 function NPC:RangeAttackProjectile()
-
-    -- Don't let this function run when the NPC is dead
-    if self:GetNPCState() == NPC_STATE_DEAD then return end
-
-
     local projStartPos = self:Projectile_SpawnPos()
 
 
     -- Projectile code --
-    local proj = ents.Create("projectile_zbase")
+    local proj = ents.Create("zb_projectile")
     proj:SetPos(projStartPos)
     proj:SetAngles(self:GetAngles())
     proj:SetOwner(self)

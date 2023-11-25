@@ -2,6 +2,7 @@
 -- Pack a few NPCs into the base
     -- Finish mortar synth
     -- "Antlion spitter" (hl alyx worker inspired)
+    -- Add some hl2 npcs that would be nice to have
 -- Make sure everything works
     -- Multiplayer
     -- Compatible with my other addons
@@ -14,6 +15,7 @@
     -- All variables can be changed during the NPC's lifetime
     -- Dummy git
     -- ZBase reload tries to apply in realtime
+    -- Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
     -- Add things that people probably want
         -- Image path
         -- Glowing eyes for bines (maybe)
