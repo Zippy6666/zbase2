@@ -441,11 +441,6 @@ hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
 end)
 
 
-hook.Add("CreateEntityRagdoll", "ZBaseNoRag", function(ent, rag)
-    
-end)
-
-
 -- Disable client ragdolls
 hook.Add("CreateClientsideRagdoll", "ZBaseNoRag", function(ent, rag)
 	if ent:GetNWBool("IsZBaseNPC") then

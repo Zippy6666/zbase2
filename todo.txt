@@ -1,7 +1,14 @@
     -- TODO --
 -- Pack a few NPCs into the base
     -- Finish mortar synth
-    -- Custom npcs that use the new blood colors
+    -- "Antlion spitter" (hl alyx worker inspired)
+-- Make sure everything works
+    -- Multiplayer
+    -- Compatible with my other addons
+    -- Make sure EVERYTHING works as intended
+        -- Make sure all hl2 npcs work as intended with zbase
+        -- Stress test, do weird stuff
+        -- Test PlayAnimation on loads of NPCs
 -- Make more user friendly
     -- Lots of "CustomOn" functions (use vj for reference)
     -- All variables can be changed during the NPC's lifetime
@@ -14,12 +21,5 @@
             -- Health and damage sliders
             -- Misc useful stuff
             -- Option to not think outside of pvs
--- Make sure everything works
-    -- Multiplayer
-    -- Compatible with my other addons
-    -- Make sure EVERYTHING works as intended
-        -- Make sure all hl2 npcs work as intended with zbase
-        -- Stress test, do weird stuff
-        -- Test PlayAnimation on loads of NPCs
 -- Copyright stuff
 -- Make a cool workshop page with a psychotic description

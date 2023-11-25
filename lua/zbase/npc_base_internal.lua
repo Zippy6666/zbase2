@@ -1122,10 +1122,10 @@ function NPC:InternalMeleeAttackDamage(dmgData)
     
 
         -- Sound
-        if disp == D_NU && !soundPropEmitted then -- Prop probably
+        if disp == D_NU or undamagable && !soundPropEmitted then -- Prop probably
             sound.Play(dmgData.hitSoundProps, entpos)
             soundPropEmitted = true
-        elseif !soundEmitted && dist != D_NU then
+        elseif !soundEmitted && disp != D_NU then
             ent:EmitSound(dmgData.hitSound)
             soundEmitted = true
         end
@@ -1732,27 +1732,82 @@ end
 --]]
 
 
+ZBaseGibs = {}
+
+
 function NPC:InternalCreateGib( model, data )
     data = data or {}
 
 
+    -- Create
     local Gib = ents.Create("base_gmodentity")
     Gib:SetModel(model)
+    Gib.IsZBaseGib = true
+    Gib.BloodColor = self:GetBloodColor()
+    Gib.CustomBloodDecals = self.CustomBloodDecals
+    Gib.CustomBloodParticles = self.CustomBloodParticles
+    Gib.CustomBleed = self.CustomBleed
+    Gib.ShouldBleed = !data.DontBleed
+    Gib.ZBaseDist = self.ZBaseDist
+
+
+    -- Phys collide function
+    Gib.PhysicsCollide = function(_, colData, collider)
+
+        -- Bleed
+        if Gib.ShouldBleed && colData.Speed > 200 then
+            ZBaseBleed( Gib, colData.HitPos, colData.HitNormal:Angle() )
+        end
+
+    end
+
+
+    -- Don't collide with stuff too much m8
+    -- if !ZBCVAR.GibCollide:GetBool() then
+    --     Gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+    -- end
+    Gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 
 
     -- Position
     local pos = self:WorldSpaceCenter()
     if data.offset then
-        pos = pos + data.offset
+        pos = pos + self:GetForward()*data.offset.x + self:GetRight()*data.offset.y + self:GetUp()*data.offset.z
     end
     Gib:SetPos(pos)
     Gib:SetAngles(self:GetAngles())
 
 
+    -- Initialize
     Gib:Spawn()
     Gib:PhysicsInit(SOLID_VPHYSICS)
 
 
+    -- Put in gib table
+    table.insert(ZBaseGibs, Gib)
+
+
+    -- Remove one gib if there are too many
+    if #ZBaseGibs > ZBCVAR.MaxGibs:GetInt() then
+        local gibToRemove = ZBaseGibs[1]
+        table.remove(ZBaseGibs, 1)
+        gibToRemove:Remove()
+    end
+
+
+    -- Remove gib after delay if that is active
+    if ZBCVAR.RemoveGibTime:GetBool() then
+        SafeRemoveEntityDelayed(Gib, ZBCVAR.RemoveGibTime:GetInt())
+    end
+
+
+    -- Remove from table on gib removed
+    Gib:CallOnRemove("ZBase_RemoveFromGibTable", function()
+        table.RemoveByValue(ZBaseGibs, Gib)
+    end)
+
+
+    -- Phys wake
     local phys = Gib:GetPhysicsObject()
     phys:Wake()
 
