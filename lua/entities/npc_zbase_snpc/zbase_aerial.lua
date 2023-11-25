@@ -1,4 +1,4 @@
----------------------------------------------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:AerialNavigatorPos(sched)
     local start = self:GetPos() + self:GetForward()*self:OBBMaxs().x*2.5
 
@@ -19,7 +19,7 @@ function ENT:AerialNavigatorPos(sched)
 
     return tr.HitPos+tr.HitNormal*5
 end
----------------------------------------------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:AerialSetSchedule(sched)
     self:AerialResetNav()
 
@@ -37,7 +37,7 @@ function ENT:AerialSetSchedule(sched)
     self:DeleteOnRemove(Navigator)
     self.Navigator = Navigator
 end
----------------------------------------------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:AerialResetNav()
     self.AerialGoal = nil
 
@@ -45,7 +45,7 @@ function ENT:AerialResetNav()
         self.Navigator:Remove()
     end
 end
----------------------------------------------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:Aerial_TooCloseToGround()
     local start = self:GetPos()
 
@@ -57,7 +57,7 @@ function ENT:Aerial_TooCloseToGround()
 
     return tr.Hit && tr.Fraction*self.InternalDistanceFromGround
 end
----------------------------------------------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:Aerial_CalcVel()
     local myPos = self:GetPos()
     self.Aerial_CurrentDestination = nil
@@ -102,7 +102,7 @@ function ENT:Aerial_CalcVel()
         self.Aerial_CurSpeed = math.Clamp(self.Aerial_CurSpeed-self.Fly_Decelerate, 0, speedLimit)
     end
 end
----------------------------------------------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:AerialMoveAnim()
     if self.Aerial_CurSpeed > 0 then
         local cusMoveAnim = self.Fly_MovementAnims[self:GetNPCState()]
@@ -130,4 +130,4 @@ function ENT:AerialMoveAnim()
         self.DoingAerialMoveAnim = false
     end
 end
----------------------------------------------------------------------------------------------------------------------=#
+--]]======================================================================================================]]

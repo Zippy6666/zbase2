@@ -1,5 +1,9 @@
     -- TODO --
+-- Fix sus errors from duping npc
+-- Glowing eyes for bines (maybe)
+-- Full damage for smg grenades
 -- Pack a few NPCs into the base
+    -- Finish mortar synth
     -- Custom npcs that use the new blood colors
 -- Make more user friendly
     -- Lots of "CustomOn" functions (use vj for reference)
@@ -10,6 +14,7 @@
         -- More menu options
             -- Health and damage sliders
             -- Misc useful stuff
+            -- Option to not think outside of pvs
 -- Make sure everything works
     -- Multiplayer
     -- Compatible with my other addons

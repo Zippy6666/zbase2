@@ -1,4 +1,4 @@
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:StartSchedule( sched )
     if self.SNPCType == ZBASE_SNPCTYPE_FLY then
         self:AerialSetSchedule(table.Copy(sched))
@@ -8,7 +8,7 @@ function ENT:StartSchedule( sched )
 	self.CurrentTaskID = 1
 	self:SetTask( sched:GetTask( 1 ) )
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:DoNPCState()
 	local enemy = self:GetEnemy()
 	local enemyInvalidPlayer = IsValid(enemy) && enemy:IsPlayer() && (!enemy:Alive() or GetConVar("ai_ignoreplayers"):GetBool())
@@ -20,7 +20,7 @@ function ENT:DoNPCState()
 		self:SetNPCState(NPC_STATE_IDLE)
 	end
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:DoSequence()
 	if self.StopPlaySeqTime < CurTime() then
 		self:SetPlaybackRate(1)
@@ -28,11 +28,11 @@ function ENT:DoSequence()
 		self.BaseDontSetPlaybackRate = true
 	end
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:SelectSchedule( iNPCState )
 	self:SNPCSelectSchedule( iNPCState )
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:GetCurrentCustomSched(checkNavigator)
 	if checkNavigator && IsValid(self.Navigator) then
 		return self.Navigator.CurrentSchedule && self.Navigator.CurrentSchedule.DebugName
@@ -40,17 +40,17 @@ function ENT:GetCurrentCustomSched(checkNavigator)
 		return self.CurrentSchedule && self.CurrentSchedule.DebugName
 	end
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:IsCurrentCustomSched( sched, checkNavigator )
 	return "ZSched"..sched == self:GetCurrentCustomSched(checkNavigator)
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:DoingChaseFallbackSched(checkNavigator)
 	return self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_DoCover", checkNavigator)
 	or self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_MoveRandom", checkNavigator)
 	or self:IsCurrentCustomSched("CombatChase_CantReach_CoverEnemy", checkNavigator)
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:DetermineNewSchedule()
 	local enemy = self:GetEnemy()
 	local enemyValid = IsValid(enemy)
@@ -128,22 +128,22 @@ function ENT:DetermineNewSchedule()
 		self.Move_AvoidSquadMembers = CurTime()+2
 	end
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:IsNavStuck()
 	if self.SNPCType != ZBASE_SNPCTYPE_WALK then return false end
 	return self.NextStuck < CurTime()
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:SetNotNavStuck()
 	self.NextStuck = CurTime()+0.3
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:DetermineNavStuck()
 	if self:IsGoalActive() && self:GetCurWaypointPos()!=Vector() then
 		self:SetNotNavStuck()
 	end
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 local ZBaseNavigatorSNPC_ForbiddenTasks = {
 	["TASK_WAIT_FOR_MOVEMENT"] = true
 }
@@ -169,7 +169,7 @@ function ENT:DoSchedule( schedule )
 		self:NextTask( schedule )
 	end
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:RunAI( strExp )
 	-- NPC State stuff
 	self:DoNPCState()
@@ -248,7 +248,7 @@ function ENT:RunAI( strExp )
 	-- Do animation system
 	self:MaintainActivity()
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:FaceHurtPos(dmginfo)
 	if !IsValid(self:GetEnemy())
 	&& self.NextFaceHurtPos < CurTime()
@@ -258,8 +258,8 @@ function ENT:FaceHurtPos(dmginfo)
 		self.NextFaceHurtPos = CurTime() + math.Rand(0.5, 1.5)
 	end
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]
 function ENT:SNPCHandleDanger()
 	local hint = self.InternalLoudestSoundHint
 end
---------------------------------------------------------------------------------=#
+--]]======================================================================================================]]

@@ -1591,9 +1591,6 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     
     -- Handle corpse
     if !keep_corpse then
-        print("not keeping corpse")
-
-
         -- Nocollide
         rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 
