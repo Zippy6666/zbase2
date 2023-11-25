@@ -75,8 +75,10 @@ end
 
 function ZBaseBleed( ent, pos, ang )
     if !SERVER then return end
-    if !ent.GetBloodColor then return end
-    if ent.GetNPCState && ent:GetNPCState()==NPC_STATE_DEAD then return end
+    if !ent:IsNPC() && !ent.IsZBaseGib then return end
+
+
+    local bloodcol = (ent.IsZBaseGib && ent.BloodColor) or ent:GetBloodColor()
 
 
     local distFromSelf = ent:GetPos():DistToSqr(pos)
@@ -85,7 +87,6 @@ function ZBaseBleed( ent, pos, ang )
     end
 
 
-    local bloodcol = ent:GetBloodColor()
     if bloodcol==BLOOD_COLOR_MECH then
         local spark = ents.Create("env_spark")
         spark:SetKeyValue("spawnflags", 256)
@@ -112,6 +113,11 @@ function ZBaseBleed( ent, pos, ang )
         if effect then
             ParticleEffect(effect, pos, ang or AngleRand())
         end
+    end
+
+
+    if ent.IsZBaseGib or ent.IsZBaseNPC then
+        ent:CustomBleed( pos, (ang && ang:Forward()) or VectorRand(), false )
     end
 end
 

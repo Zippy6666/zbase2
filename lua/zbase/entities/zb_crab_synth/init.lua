@@ -22,7 +22,7 @@ NPC.MeleeDamage = {20, 30} -- Melee damage {min, max}
 NPC.MeleeDamage_Type = DMG_SLASH -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.MeleeDamage_Delay = false -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead)
 NPC.MeleeDamage_Sound = "ZBaseCrabSynth.MeleeHit" -- Sound when the melee attack hits an enemy
-NPC.MeleeDamage_Sound_Prop = "ZBaseCrabSynth.Melee2" -- Sound when the melee attack hits props
+NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
 
 
         -- ARMOR SYSTEM --

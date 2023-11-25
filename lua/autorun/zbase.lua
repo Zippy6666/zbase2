@@ -84,10 +84,16 @@ end)
 --]]
 
 
+-- New blood impacts
 game.AddParticles("particles/zbase_blood_impact.pcf")
 PrecacheParticleSystem("blood_impact_zbase_green")
 PrecacheParticleSystem("blood_impact_zbase_black")
 PrecacheParticleSystem("blood_impact_zbase_blue")
+
+
+-- Mortar synth gib effect
+game.AddParticles("particles/striderbuster.pcf")
+PrecacheParticleSystem("striderbuster_break")
 
 
 --[[

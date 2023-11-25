@@ -7,6 +7,8 @@ NPC.Models = {"models/zippy/mortarsynth.mdl"}
 NPC.CollisionBounds = {min=Vector(-30, -30, -30), max=Vector(30, 30, 30)}
 NPC.HullType = HULL_LARGE_CENTERED -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
 NPC.SNPCType = ZBASE_SNPCTYPE_FLY -- ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
+NPC.StartHealth = 100
+
 
 NPC.BloodColor = DONT_BLEED
 NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
@@ -25,6 +27,7 @@ NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK2} -- Example: N
 NPC.RangeAttackCooldown = {1, 1} -- Range attack cooldown {min, max}
 NPC.RangeAttackDistance = {0, 3000} -- Distance that it initiates the range attack {min, max}
 
+
 -- Attachment to spawn the projectile on 
 -- If set to false the projectile will spawn from the NPCs center
 -- NPC.RangeProjectile_Attachment = "1"
@@ -35,5 +38,19 @@ NPC.RangeProjectile_Inaccuracy = 15 -- Inaccuracy, 0 = perfect, higher numbers =
 
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
+end
+--]]==============================================================================================]]
+function NPC:ShouldGib( dmginfo, hit_gr )
+    self:InternalCreateGib("models/gibs/mortarsynth_gib_01.mdl", {offset=Vector(0, 0, 0)})
+    self:InternalCreateGib("models/gibs/mortarsynth_gib_02.mdl", {offset=Vector(-20, 0, 0)})
+    self:InternalCreateGib("models/gibs/mortarsynth_gib_03.mdl", {offset=Vector(0, 0, -15)})
+    self:InternalCreateGib("models/gibs/mortarsynth_gib_04.mdl", {offset=Vector(15, -28, -30)})
+    self:InternalCreateGib("models/gibs/mortarsynth_gib_05.mdl", {offset=Vector(15, 28, -30)})
+
+
+    ParticleEffect("striderbuster_break", self:GetPos(), self:GetAngles())
+
+
+    return true
 end
 --]]==============================================================================================]]
