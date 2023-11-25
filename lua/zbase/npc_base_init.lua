@@ -590,7 +590,7 @@ end
 
 
     -- Called when the NPC hurts an entity, return true to prevent damage --
-function NPC:DealDamage( victimEnt, dmginfo )
+function NPC:CustomDealDamage( victimEnt, dmginfo )
 end
 
 

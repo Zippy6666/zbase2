@@ -106,6 +106,10 @@ function NPC:ZBaseThink()
     end
 
 
+    -- Enemy visible
+    self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY)
+
+
     -- Enemy updated
     if ene != self.ZBase_LastEnemy then
         self.ZBase_LastEnemy = ene
@@ -159,7 +163,8 @@ function NPC:DoSlowThink()
     ---------------------------------------------------------------=#
 
 
-    self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY) or (IsValid(ene) && self:Visible(ene))
+    -- "Expensive" visibility check
+    self.EnemyVisible = self.EnemyVisible or (IsValid(ene) && self:Visible(ene))
 
 
     self:InternalDetectDanger()
@@ -1293,9 +1298,107 @@ function NPC:InternalDetectDanger()
 end
 
 
+
 --[[
 ==================================================================================================
-                                           DAMAGE
+                                           DEAL DAMAGE
+==================================================================================================
+--]]
+
+
+local ZBaseWeaponDMGs = {
+    ["weapon_pistol"] = {dmg=5, inflclass="bullet"},
+    ["weapon_357"] = {dmg=40, inflclass="bullet"},
+    ["weapon_ar2"] = {dmg=8, inflclass="bullet"},
+    ["weapon_rpg"] = {dmg=150, inflclass="bullet"},
+    ["weapon_shotgun"] = {dmg=56, inflclass="bullet"},
+    ["weapon_smg1"] = {dmg=4, inflclass="bullet", dmgSecondary=100, inflclassSecondary="grenade_ar2"},
+    ["weapon_rpg"] = {dmg=150, inflclass="rpg_missile"},
+    ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
+}
+
+
+function NPC:DealDamage( dmg, ent )
+    local infl = dmg:GetInflictor()
+
+
+    -- Don't hurt NPCs in same faction
+    if ent.IsZBaseNPC && ent:HasCapability(CAP_FRIENDLY_DMG_IMMUNE) && self.ZBaseFaction == ent.ZBaseFaction && ent.ZBaseFaction != "none" then
+        dmg:ScaleDamage(0)
+        return true
+    end
+
+
+    local value = self:CustomDealDamage(ent, dmg)
+    if value != nil then
+        return value
+    end
+
+
+    -- Proper damage values for hl2 weapons --
+    local wep = self:GetActiveWeapon()
+
+    if (IsValid(infl) && IsValid(wep))
+    && (ZBCVAR.FullHL2WepDMG_NPC:GetBool() && (ent:IsNPC() or ent:IsNextBot())) or (ZBCVAR.FullHL2WepDMG_PLY:GetBool() && ent:IsPlayer()) then
+        local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
+
+
+        if dmgTbl then
+            local IsPrimaryInfl = (dmgTbl.inflclass == "bullet" && dmg:IsBulletDamage()) or infl:GetClass() == dmgTbl.inflclass
+            local dmgFinal
+            
+            if IsPrimaryInfl then
+                dmgFinal = dmgTbl.dmg
+            else
+                local IsSecondaryInfl = infl:GetClass() == dmgTbl.inflclassSecondary
+
+                if IsSecondaryInfl then
+                    dmgFinal = dmgTbl.dmgSecondary
+                end
+            end
+
+
+            if dmgFinal then
+
+
+                -- Shotgun damage degrade over distance
+                if dmg:IsDamageType(DMG_BUCKSHOT) then
+                    if self:ZBaseDist(ent, {within=200}) then
+                        dmgFinal = math.random(40, 56)
+                    elseif self:ZBaseDist(ent, {within=400}) then
+                        dmgFinal = math.random(16, 40)
+                    else
+                        dmgFinal = math.random(8, 16)
+                    end
+                end
+
+
+                -- Explosion damage degrade over distance
+                if dmg:IsExplosionDamage() then
+                    local Dist = ent:GetPos():DistToSqr(dmg:GetDamagePosition())
+                    
+                    if Dist > 100^2 then
+                        -- Distant
+                        dmgFinal = math.random(dmgFinal*0.66, dmgFinal)
+                    elseif Dist > 50^2 then
+                        -- Close
+                        dmgFinal = math.random(1, dmgFinal*0.33)
+                    end
+                end
+
+
+                dmg:SetDamage(dmgFinal)
+
+
+            end
+        end
+    end
+end
+
+
+--[[
+==================================================================================================
+                                           TAKE DAMAGE
 ==================================================================================================
 --]]
 
@@ -1757,6 +1860,10 @@ end
 
 function NPC:DoNewEnemy()
     local ene = self:GetEnemy()
+
+
+    -- "Expensive" visibility check
+    self.EnemyVisible = self.EnemyVisible or (IsValid(ene) && self:Visible(ene))
 
 
     if IsValid(ene) then

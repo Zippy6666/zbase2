@@ -1,7 +1,4 @@
     -- TODO --
--- Fix sus errors from duping npc
--- Glowing eyes for bines (maybe)
--- Full damage for smg grenades
 -- Pack a few NPCs into the base
     -- Finish mortar synth
     -- Custom npcs that use the new blood colors
@@ -11,6 +8,8 @@
     -- Dummy git
     -- ZBase reload tries to apply in realtime
     -- Add things that people probably want
+        -- Image path
+        -- Glowing eyes for bines (maybe)
         -- More menu options
             -- Health and damage sliders
             -- Misc useful stuff
@@ -19,7 +18,8 @@
     -- Multiplayer
     -- Compatible with my other addons
     -- Make sure EVERYTHING works as intended
-        -- Make sure ZBase handles all npc classes well (especially zombies!!)
+        -- Make sure all hl2 npcs work as intended with zbase
         -- Stress test, do weird stuff
         -- Test PlayAnimation on loads of NPCs
 -- Copyright stuff
+-- Make a cool workshop page with a psychotic description

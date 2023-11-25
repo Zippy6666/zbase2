@@ -117,24 +117,19 @@ local NextBehaviourThink = CurTime()
 hook.Add("Tick", "ZBASE", function()
     -- Think for NPCs that aren't scripted
     if NextThink < CurTime() then
-        for _, v in ipairs(ZBaseNPCInstances_NonScripted) do
-            if !IsValid(v) then
-                table.RemoveByValue(ZBaseNPCInstances_NonScripted, v)
-                return
+        for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
+
+            zbaseNPC:ZBaseThink()
+
+
+            if zbaseNPC.ZBaseEnhancedThink then
+                zbaseNPC:ZBaseEnhancedThink()
             end
 
-
-            v:ZBaseThink()
-
-
-            if v.ZBaseEnhancedThink then
-                v:ZBaseEnhancedThink()
-            end
         end
 
         NextThink = CurTime()+0.1
     end
-    --------------------------------------------------------=#
 
 
     -- Behaviour tick
@@ -148,9 +143,8 @@ hook.Add("Tick", "ZBASE", function()
             end
         end
 
-        NextBehaviourThink = CurTime() + 0.5
+        NextBehaviourThink = CurTime() + 0.4
     end
-    --------------------------------------------------------=#
 end)
 
 
@@ -217,85 +211,56 @@ end
 --]]
 
 
-local ZBaseWeaponDMGs = {
-    ["weapon_rpg"] = {dmg=150, inflclass="rpg_missile"},
-    ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
-}
-
-
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
 
 
+    -- Victim is ZBase NPC
     if ent.IsZBaseNPC then
         ent:OnEntityTakeDamage( dmg )
     end
 
 
-    -- Blow up zbase combine balls
-    if IsValid(attacker.ZBaseComballOwner) then
-        dmg:SetAttacker(attacker.ZBaseComballOwner)
-
-        if ent:GetClass() == "npc_hunter" or ent:GetClass() == "npc_strider" then
-
-            attacker:Fire("Explode")
-
-            if attacker.ZBaseComballOwner.ZBaseFaction != ent.ZBaseFaction
-            or attacker.ZBaseComballOwner.ZBaseFaction == "none" then
-                local dmg2 = DamageInfo()
-                dmg2:SetDamage(ent:GetClass() == "npc_strider" && 100 or 1000)
-                dmg2:SetDamageType(DMG_DISSOLVE)
-                dmg2:SetAttacker(dmg:GetAttacker())
-                ent:TakeDamageInfo(dmg2)
-            end
-
-        end
-        attacker = attacker.ZBaseComballOwner
+    -- Attacker is ZBase NPC
+    if IsValid(attacker) && attacker.IsZBaseNPC then
+        attacker:DealDamage( dmg, ent )
     end
 
 
-    -- Attacker is ZBase NPC
-    if IsValid(attacker) && attacker.IsZBaseNPC then
-        -- Don't hurt NPCs in same faction
-        if ent.IsZBaseNPC
-        && ent:HasCapability(CAP_FRIENDLY_DMG_IMMUNE)
-        && attacker.ZBaseFaction == ent.ZBaseFaction
-        && ent.ZBaseFaction != "none" then
-            dmg:ScaleDamage(0)
-            return true
-        end
+    -- Handle combine balls fired by ZBase NPCs
+    if IsValid(attacker.ZBaseComballOwner) then
+        dmg:SetAttacker(attacker.ZBaseComballOwner)
 
 
-        local r = attacker:DealDamage(ent, dmg)
-        if r then
-            return r
-        end
+        -- Set to 15 damage if it shouldn't use "full" damage
+        if (!ZBCVAR.FullHL2WepDMG_NPC:GetBool() && (ent:IsNPC() or ent:IsNextBot()))
+        or (!ZBCVAR.FullHL2WepDMG_PLY:GetBool() && ent:IsPlayer()) then
+
+            dmg:SetDamage(15)
+
+        elseif (ZBCVAR.FullHL2WepDMG_NPC:GetBool() && (ent:IsNPC() or ent:IsNextBot())) then
+            -- NPC comball full damage
 
 
-        -- Proper damage values for some hl2 weapons --
-        local wep = attacker:GetActiveWeapon()
-        if IsValid(infl) && IsValid(wep) then
-            local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
+            -- Explotano
+            if ent:GetClass() == "npc_hunter"
+            or ent:GetClass() == "npc_strider" then
+                attacker:Fire("Explode")
 
-            if dmgTbl
-            && ( (dmgTbl.inflclass=="bullet"&&dmg:IsBulletDamage()) or (dmgTbl.inflclass == infl:GetClass()) ) then
-                local dmgFinal = dmgTbl.dmg
-
-                if dmg:IsDamageType(DMG_BUCKSHOT) then
-                    if attacker:WithinDistance(ent, 200) then
-                        dmgFinal = math.random(40, 56)
-                    elseif attacker:WithinDistance(ent, 400) then
-                        dmgFinal = math.random(16, 40)
-                    else
-                        dmgFinal = math.random(8, 16)
-                    end
+                if attacker.ZBaseComballOwner.ZBaseFaction != ent.ZBaseFaction
+                or attacker.ZBaseComballOwner.ZBaseFaction == "none" then
+                    local dmg2 = DamageInfo()
+                    dmg2:SetDamage(ent:GetClass() == "npc_strider" && 100 or 1000)
+                    dmg2:SetDamageType(DMG_DISSOLVE)
+                    dmg2:SetAttacker(dmg:GetAttacker())
+                    ent:TakeDamageInfo(dmg2)
                 end
-
-                dmg:SetDamage(dmgFinal)
             end
         end
-        ------------------------------------------------=#
+
+
+        attacker = attacker.ZBaseComballOwner
     end
 end)
 
@@ -450,6 +415,7 @@ end)
 
 -- ZBase init stuff when spawned from dupe
 duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
+    print("duplicator.RegisterEntityModifier", ent)
     local zbaseClass = data[1]
     local zbaseNPCTable = ZBaseNPCs[ zbaseClass ]
     if zbaseNPCTable then

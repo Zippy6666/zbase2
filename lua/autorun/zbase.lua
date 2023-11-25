@@ -231,10 +231,10 @@ if SERVER then
 end
 
 
-if !ZBaseNPCInstances then
+--if !ZBaseNPCInstances then
     ZBaseNPCInstances = {}
     ZBaseNPCInstances_NonScripted = {}
-end
+--end
 
 
 function ZBaseEnhancementNPCClass(debuginfo)
