@@ -19,6 +19,7 @@ function NPC:ZBaseInit()
     self.NextFlinch = CurTime()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
+    self.LastHitGroup = 0
 
 
     -- Network IsZBaseNPC
@@ -1185,6 +1186,7 @@ NPCB.PreRangeAttack = {
 
 
 function NPCB.RangeAttack:ShouldDoBehaviour( self )
+    if !self.FirstPreMeleeRan then return end
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
     if self.DoingPlayAnim then return false end
 
@@ -1227,6 +1229,7 @@ end
 
 function NPCB.PreRangeAttack:ShouldDoBehaviour( self )
     if !self.BaseRangeAttack then return false end
+    if self.DoingPlayAnim then return false end
 
     return true
 end
@@ -1234,6 +1237,7 @@ end
 
 function NPCB.PreRangeAttack:Run( self )
     self:MultipleRangeAttacks()
+    self.FirstPreMeleeRan = true
 end
 
 
@@ -1523,12 +1527,13 @@ function NPC:OnPostEntityTakeDamage( dmg )
 
 
     -- Flinch
-    if !table.IsEmpty(self.FlinchAnimations)
-    && math.random(1, self.FlinchChance) == 1
-    && self.NextFlinch < CurTime() then
-        local anim = table.Random(self.FlinchAnimations)
+    if !table.IsEmpty(self.FlinchAnimations) && math.random(1, self.FlinchChance) == 1 && self.NextFlinch < CurTime() then
+        local cusAnim = self:GetFlinchAnimation(dmg, self.LastHitGroup)
+        local anim = (isstring(cusAnim) or isnumber(cusAnim)) && cusAnim or table.Random(self.FlinchAnimations)
 
-        if self:OnFlinch(dmg, hit_gr, anim) != false then
+
+        if self:OnFlinch(dmg, self.LastHitGroup, anim) != false then
+
             self:PlayAnimation(anim, false, {
                 speedMult=self.FlinchAnimationSpeed,
                 isGesture=self.FlinchIsGesture,
@@ -1537,6 +1542,7 @@ function NPC:OnPostEntityTakeDamage( dmg )
             })
 
             self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
+
         end
     end
 
@@ -1562,6 +1568,9 @@ end
 
 
 function NPC:OnDeath( attacker, infl, dmg, hit_gr )
+    if self.Dead then return end
+
+
     self.Dead = true
 
 
@@ -1597,10 +1606,8 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     end
 
 
+
     local Gibbed = self:ShouldGib(dmg, hit_gr)
-
-
-    
 
 
     if !Gibbed then

@@ -33,7 +33,7 @@ ENT.Damage_Disorient = false -- Should any damage (direct or radius) from the pr
 
     -- Change these functions to your liking --
 
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
     -- When the projectile is created
 function ENT:PostInit()
@@ -60,13 +60,13 @@ function ENT:PostInit()
         -- self.HumSound:Play()
     end
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
     -- When the projectile's physics object is created
     -- Change things about it here
 function ENT:PhysInit( phys )
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
     -- When the projectile hits an entity
 function ENT:OnHit( ent, data )
@@ -74,7 +74,7 @@ function ENT:OnHit( ent, data )
 
     self:Die()
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
     -- Called continiously
 function ENT:OnThink()
@@ -85,12 +85,12 @@ function ENT:OnThink()
     --     self.HumSound:ChangePitch(math.random(60, 140), 1)
     -- end
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
     -- When the projectile takes damage
 function ENT:CustomOnTakeDamage(dmginfo)
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
     -- When the projectile "dies"
 function ENT:OnKill(dmginfo)
@@ -122,7 +122,7 @@ function ENT:OnKill(dmginfo)
     -- -- Explosion particle
     -- ParticleEffect("Weapon_Combine_Ion_Cannon_Explosion", self:WorldSpaceCenter(), AngleRand())
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
     -- When the projectile is removed
 function ENT:CustomOnRemove()
@@ -133,7 +133,7 @@ function ENT:CustomOnRemove()
     --     self.HumSound:Stop()
     -- end
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 
 
 
@@ -141,7 +141,7 @@ end
 
     -- Don't change these! --
 
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 function ENT:Initialize()
     self:SetModel(self.Model)
     self:SetNoDraw(self.Invisible)
@@ -173,11 +173,11 @@ function ENT:Initialize()
 
     self:PostInit()
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 function ENT:Think()
     self:OnThink()
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 function ENT:PhysicsCollide( colData, collider )
     self:OnHit( colData.HitEntity, colData )
 
@@ -185,7 +185,7 @@ function ENT:PhysicsCollide( colData, collider )
         self:ProjectileDamage(colData.HitEntity, self.OnHitDamage, self.OnHitDamageType)
     end
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 function ENT:ProjectileDamage( ent, dmg, dmgtype )
     if !SERVER then return end
 
@@ -206,7 +206,7 @@ function ENT:ProjectileDamage( ent, dmg, dmgtype )
 
     ZBaseBleed(ent, self:WorldSpaceCenter()+VectorRand()*10)
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 function ENT:ProjectileBlastDamage( dmg, dmgtype, radius, force )
     if !SERVER then return end
 
@@ -235,7 +235,7 @@ function ENT:ProjectileBlastDamage( dmg, dmgtype, radius, force )
 
     util.BlastDamageInfo(dmginfo, self:WorldSpaceCenter(), radius)
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 function ENT:Die( dmg )
     if self.Dead then return end
     self.Dead = true
@@ -243,7 +243,7 @@ function ENT:Die( dmg )
     self:SetMoveType(MOVETYPE_NONE)
     self:Remove()
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 function ENT:OnTakeDamage( dmg )
     if !self.StartHealth then return end
 
@@ -257,11 +257,11 @@ function ENT:OnTakeDamage( dmg )
 
     return dmg:GetDamage()
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 function ENT:OnRemove()
     self:CustomOnRemove()
 end
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 hook.Add("PostEntityTakeDamage", "ZBaseProjectile", function( ent, dmg )
     local infl = dmg:GetInflictor()
 
@@ -269,7 +269,7 @@ hook.Add("PostEntityTakeDamage", "ZBaseProjectile", function( ent, dmg )
         ent:SetDSP(32)
     end
 end)
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 hook.Add("GravGunPunt", "ZBaseProjectile", function( ply, ent )
     if ent.IsZBaseProjectile then
         if ent.GravityGun_Punt then
@@ -285,10 +285,10 @@ hook.Add("GravGunPunt", "ZBaseProjectile", function( ply, ent )
         end
     end
 end)
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]
 hook.Add("GravGunPickupAllowed", "ZBaseProjectile", function( ply, ent )
     if ent.IsZBaseProjectile && !ent.GravityGun_Pickup then
         return false
     end
 end)
-------------------------------------------------------------------------------------=#
+--]]==============================================================================================]]

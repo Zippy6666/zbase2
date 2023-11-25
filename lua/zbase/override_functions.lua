@@ -19,6 +19,9 @@ if SERVER then
 
 	--]]==========================================================================================]]
 	function GAMEMODE:OnNPCKilled( npc, attacker, infl )
+		if npc.IsZBaseNPC && npc.Dead then return end
+
+	
 		if IsValid(attacker) && attacker.IsZBaseNPC then
 			attacker:OnKilledEnt( npc )
 		end
