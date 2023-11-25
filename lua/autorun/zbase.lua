@@ -348,7 +348,7 @@ local function NPCsInherit()
 
 
         if SERVER then
-            local path = "zbase/npcs/"..cls
+            local path = "zbase/entities/"..cls
             local bh = path.."/behaviour.lua"
             if file.Exists(bh, "LUA") then
                 include(bh)

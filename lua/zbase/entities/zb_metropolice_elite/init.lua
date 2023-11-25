@@ -50,14 +50,15 @@ function NPC:CustomOnEmitSound( sndData, sndVarName )
 
     if sndVarName == "AlertSounds"
     && IsValid(ene)
-    && self:Visible(ene)
+    && self.EnemyVisible
     && self:ZBaseDist(ene, {within=1500})
     && IsValid(ene:GetActiveWeapon()) then
         return "ZBaseElitePolice.AlertArmed"
     end
 
 
-    if sndVarName == "Idle_HasEnemy_Sounds" && IsValid(ene) && !self:Visible(ene) then
+    if sndVarName == "Idle_HasEnemy_Sounds" && IsValid(ene)
+    && !self.EnemyVisible && math.random(1, 2) == 1 then
         return "ZBaseElitePolice.IdleEnemyOccluded"
     end
 end

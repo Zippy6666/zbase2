@@ -118,7 +118,14 @@ hook.Add("Tick", "ZBASE", function()
     -- Think for NPCs that aren't scripted
     if NextThink < CurTime() then
         for _, v in ipairs(ZBaseNPCInstances_NonScripted) do
+            if !IsValid(v) then
+                table.RemoveByValue(ZBaseNPCInstances_NonScripted, v)
+                return
+            end
+
+
             v:ZBaseThink()
+
 
             if v.ZBaseEnhancedThink then
                 v:ZBaseEnhancedThink()

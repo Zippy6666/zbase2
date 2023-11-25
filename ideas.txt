@@ -11,3 +11,4 @@
 -- SNPC danger detect
     -- New ZSched that uses cover from origin with random move as fallback
 -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
+-- Guarding mode, or something like that

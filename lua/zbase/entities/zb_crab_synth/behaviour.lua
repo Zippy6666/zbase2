@@ -26,7 +26,7 @@ end
 function BEHAVIOUR.ChargeAttack:Delay( self )
     if !self:ZBaseDist(self:GetEnemy(), {within=1250, away=300})
     or math.abs(self:GetPos().z - self:GetEnemy():GetPos().z) > 100
-    or math.random(1, 1) > 1 then
+    or math.random(1, 3) > 1 then
         return math.Rand(2, 4)
     end
 end
