@@ -37,6 +37,8 @@ local function TryFixPropPosition( ply, ent, hitpos )
 end
 ---------------------------------------------------------------------------------------------------------=#
 function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSpawnedOnCeiling, bDropToFloor )
+	if NPC.ZBaseInitialized then return end
+
 
         -- Table "transfer" --
     NPC.ZBase_Inherit = ZBaseNPCs[Class].Inherit
@@ -180,6 +182,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
     -- "Register"
     table.insert(ZBaseNPCInstances, NPC)
 	NPC:CallOnRemove("ZBaseNPCInstancesRemove", function() table.RemoveByValue(ZBaseNPCInstances, NPC) end)
+
 	if !NPC.IsZBase_SNPC then
 		table.insert(ZBaseNPCInstances_NonScripted, NPC)
 		NPC:CallOnRemove("ZBaseNPCInstances_NonScripted_Remove", function() table.RemoveByValue(ZBaseNPCInstances_NonScripted, NPC) end)
@@ -204,6 +207,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
 
 
+	NPC.ZBaseInitialized = true
 	return NPC
 end
 ---------------------------------------------------------------------------------=#
