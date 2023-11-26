@@ -20,6 +20,7 @@ function NPC:ZBaseInit()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = 0
+    self.SchedDebug = GetConVar("developer"):GetBool()
 
 
     -- Network IsZBaseNPC
@@ -144,6 +145,16 @@ function NPC:ZBaseThink()
     end
 
 
+    -- Sched debug
+    if self.SchedDebug then
+        local sched = ( (self.GetCurrentCustomSched && self:GetCurrentCustomSched()) or ZBaseEngineSchedName(self:GetCurrentSchedule()) )
+
+        if sched then
+            debugoverlay.Text(self:WorldSpaceCenter(), sched, 0.13)
+        end
+    end
+
+
     self:CustomThink()
 end
 
@@ -173,15 +184,13 @@ function NPC:DoSlowThink()
 
 
     -- Loose enemy
-    if IsValid(ene)
-    && !self.EnemyVisible
-    && self:GetEnemyLastKnownPos():DistToSqr(ene:GetPos()) > 10000 then
+    if IsValid(ene) && !self.EnemyVisible && self:GetEnemyLastKnownPos():DistToSqr(ene:GetPos()) > 10000 then
         self:MarkEnemyAsEluded()
         self:LostEnemySound()
 
-        debugoverlay.Text(self:GetPos(), "lost enemy", 2)
-        debugoverlay.Text(self:GetEnemyLastKnownPos()+Vector(0, 0, 100), "last seen enemy pos", 2)
-        debugoverlay.Cross(self:GetEnemyLastKnownPos(), 40, 2, Color( 255, 0, 0 ))
+        -- debugoverlay.Text(self:GetPos(), "lost enemy", 2)
+        -- debugoverlay.Text(self:GetEnemyLastKnownPos()+Vector(0, 0, 100), "last seen enemy pos", 2)
+        -- debugoverlay.Cross(self:GetEnemyLastKnownPos(), 40, 2, Color( 255, 0, 0 ))
     end
     -----------------------=#
 
@@ -307,8 +316,6 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
         -- Recursion
         self:InternalPlayAnimation( transitionAct != -1 && transitionAct or self:GetSequenceName(transition), nil, playbackRate,
         SCHED_NPC_FREEZE, forceFace, faceSpeed, false, playAnim, false, true )
-
-        debugoverlay.Text(self:GetPos() - Vector(0, 0, 50), "transition in", 2)
         return -- Stop here
     end
     -----------------------------------------------------------------=#
@@ -357,9 +364,6 @@ function NPC:InternalStopAnimation(dontTransitionOut)
             -- Recursion
             self:InternalPlayAnimation( transitionAct != -1 && transitionAct or self:GetSequenceName(transition), nil, playbackRate,
             SCHED_NPC_FREEZE, forceFace, faceSpeed, false, nil, false )
-
-            debugoverlay.Text(self:GetPos() - Vector(0, 0, 50), "transition out", 2)
-
             return -- Stop here
         end
         ---------------------------------------------------------------------------------=#
@@ -761,16 +765,12 @@ end
 function NPCB.Patrol:Delay(self)
     if self:IsMoving()
     or self.DoingPlayAnim then
-        debugoverlay.Text(self:WorldSpaceCenter(), "PATROL DELAYED...")
-
         return math.random(8, 15)
     end
 end
 
 
 function NPCB.Patrol:Run( self )
-    debugoverlay.Text(self:WorldSpaceCenter(), "PATROL")
-
     if self:GetNPCState() == NPC_STATE_ALERT then
         self:SetSchedule(SCHED_PATROL_RUN)
     else
