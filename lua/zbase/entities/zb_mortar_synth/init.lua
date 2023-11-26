@@ -9,10 +9,11 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 -- Spawn with a random model from this table
 -- Leave empty to use the default model for the NPC
 NPC.Models = {"models/zippy/mortarsynth.mdl"}
-NPC.CollisionBounds = {min=Vector(-30, -30, -30), max=Vector(30, 30, 30)}
+NPC.RenderMode = RENDERMODE_TRANSALPHA -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
+NPC.CollisionBounds = {min=Vector(-26, -26, -26), max=Vector(26, 26, 26)}
 NPC.HullType = HULL_LARGE_CENTERED -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
 NPC.SNPCType = ZBASE_SNPCTYPE_FLY -- ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
-NPC.StartHealth = 100
+NPC.StartHealth = 110
 
 
 NPC.BloodColor = DONT_BLEED
@@ -37,18 +38,18 @@ NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this factio
 NPC.BaseRangeAttack = true -- Use ZBase range attack system
 NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
 NPC.RangeAttackTurnSpeed = 10 -- Speed that it turns while trying to face the enemy when range attacking
-NPC.RangeAttackDistance = {0, 1000} -- Distance that it initiates the range attack {min, max}
-NPC.RangeAttackCooldown = {3, 6} -- Range attack cooldown {min, max}
+NPC.RangeAttackDistance = {0, 2000} -- Distance that it initiates the range attack {min, max}
+NPC.RangeAttackCooldown = {1, 3} -- Range attack cooldown {min, max}
 NPC.RangeAttackSuppressEnemy = true -- If the enemy can't be seen, target the last seen position
 
 
 NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
-NPC.RangeAttackAnimationSpeed = 1 -- Speed multiplier for the range attack animation
+NPC.RangeAttackAnimationSpeed = 1.3 -- Speed multiplier for the range attack animation
 
 
 -- Time until the projectile code is ran
 -- Set to false to disable the timer (if you want to use animation events instead for example)
-NPC.RangeProjectile_Delay = 1
+NPC.RangeProjectile_Delay = 0.8
 
 
 -- Attachment to spawn the projectile on 
@@ -67,7 +68,7 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 
 
 NPC.FlinchAnimations = {"mortar_corpse"} -- Flinch animations to use, leave empty to disable the base flinch
-NPC.FlinchAnimationSpeed = 1.25 -- Speed of the flinch animation
+NPC.FlinchAnimationSpeed = 1.5 -- Speed of the flinch animation
 NPC.FlinchCooldown = {2, 3} -- Flinch cooldown in seconds {min, max}
 NPC.FlinchChance = 1 -- Flinch chance 1/x
 NPC.FlinchIsGesture = false -- Should the flinch animation be played as a gesture?
@@ -89,7 +90,7 @@ function NPC:CustomInitialize()
 end
 --]]==============================================================================================]]
 function NPC:MultipleRangeAttacks()
-    if math.random(1, 2) == 1 then
+    if math.random(1, 1) == 1 then
         -- Mortar
         self.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
         self.RangeAttackType = RANGE_ATTACK_MORTAR
@@ -105,8 +106,6 @@ function NPC:RangeAttackProjectile()
 
 
     if self.RangeAttackType == RANGE_ATTACK_MORTAR then
-
-        print("ehlo")
 
         -- Mortar --
         local proj = ents.Create("zb_mortar")
@@ -125,8 +124,47 @@ function NPC:RangeAttackProjectile()
 
     elseif self.RangeAttackType == RANGE_ATTACK_BOLT then
 
-        
+        -- Electric bolt
 
+
+        local TargetPos = self:Projectile_TargetPos()
+        local StartPos_Dmg = self:WorldSpaceCenter()
+        local Nrm = (TargetPos - self:WorldSpaceCenter()):GetNormalized()
+
+
+        -- Effect
+        for i = 1, 3 do
+            local tr = util.TraceLine({
+                start = StartPos_Dmg,
+                endpos = StartPos_Dmg+Nrm*10000,
+                filter = self,
+            })
+
+            local StartPos = self:GetAttachment(i).Pos
+            util.ParticleTracerEx("vortigaunt_beam", StartPos, tr.HitPos, false, self:EntIndex(), i)
+        end
+    
+        -- Damage
+        local tr = util.TraceLine({
+            start = StartPos_Dmg,
+            endpos = StartPos_Dmg+Nrm*10000,
+            filter = self,
+        })
+
+        local dmginfo = DamageInfo()
+        dmginfo:SetAttacker(self)
+        dmginfo:SetInflictor(self)
+        dmginfo:SetDamage(10)
+        dmginfo:SetDamageType(DMG_SHOCK)
+        util.BlastDamageInfo(dmginfo, tr.HitPos, 75)
+    end
+end
+--]]==============================================================================================]]
+function NPC:CustomTakeDamage( dmginfo, HitGroup )
+    -- More damage if it was from its own projectile
+    local infl = dmginfo:GetInflictor()
+    if IsValid(infl) && infl.IsMortarSynthProjectile then
+        dmginfo:ScaleDamage(2.5)
     end
 end
 --]]==============================================================================================]]

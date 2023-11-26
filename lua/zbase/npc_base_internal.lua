@@ -33,6 +33,7 @@ function NPC:ZBaseInit()
     -- Some calls based on attributes
     self:SetCurrentWeaponProficiency(self.WeaponProficiency)
     self:SetBloodColor(self.BloodColor)
+    self:SetRenderMode(self.RenderMode)
     if self.HullType && !self.IsZBase_SNPC then
         self:SetHullType(self.HullType)
     end
