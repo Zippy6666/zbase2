@@ -1,6 +1,6 @@
     -- TODO --
 -- Pack a few NPCs into the base
-    -- Rebel hunter that fires crossbow bolts
+    -- Rebel hunter that fires crossbow bolts (hunter first!!)
     -- Finish mortar synth
     -- "Antlion spitter" (hl alyx worker inspired)
     -- Add some hl2 npcs that would be nice to have
@@ -28,3 +28,4 @@
 -- Make a cool workshop page
     -- Psychotic description for the funnies
     -- Show list of future ideas to hype mfs
+    -- Credit crunchy soap!!!!!!!!!!!!!

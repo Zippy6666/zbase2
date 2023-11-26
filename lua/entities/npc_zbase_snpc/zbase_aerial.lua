@@ -23,7 +23,7 @@ end
 function ENT:AerialSetSchedule(sched)
     self:AerialResetNav()
 
-    debugoverlay.Text(self:GetPos()+Vector(0,0,75), "aerial sched: "..tostring(sched), 3)
+    -- debugoverlay.Text(self:GetPos()+Vector(0,0,75), "aerial sched: "..tostring(sched), 3)
 
     -- Navigator --
     local Navigator = ents.Create("zbase_navigator")
@@ -77,9 +77,9 @@ function ENT:Aerial_CalcVel()
         self.ShouldMoveFromGround = isnumber(distCheckGround)
         self.Aerial_NextMoveFromGroundCheck = CurTime()+2
 
-        if self.ShouldMoveFromGround then
-            debugoverlay.Line(myPos, myPos-Vector(0, 0, distCheckGround), 1.5, Color( 255, 50, 0 ))
-        end
+        -- if self.ShouldMoveFromGround then
+        --     debugoverlay.Line(myPos, myPos-Vector(0, 0, distCheckGround), 1.5, Color( 255, 50, 0 ))
+        -- end
     end
 
 

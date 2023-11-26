@@ -1,7 +1,6 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 
--- Range attacks
 -- Sounds
 -- Movement tilt
 
@@ -26,6 +25,14 @@ NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this factio
 -- "combine" || "ally" || "zombie" || "antlion" || "none" || "neutral"
     -- "none" = not allied with anybody
     -- "neutral" = allied with everybody
+
+
+-- When chasing and enemy is closer than ChaseMinDistance:
+-- ZBASE_TOOCLOSEBEHAVIOUR_NONE - Don't do any behaviour
+-- ZBASE_TOOCLOSEBEHAVIOUR_FACE - Stand still and face the enemy
+-- ZBASE_TOOCLOSEBEHAVIOUR_BACK - Move away from enemy
+NPC.ChaseMinDistanceBehaviour = ZBASE_TOOCLOSEBEHAVIOUR_FACE
+NPC.ChaseMinDistance = 500 -- Minimum distance it chases before doing its ChaseMinDistanceBehaviour
 
 
 --[[
@@ -68,7 +75,6 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 
 
 NPC.FlinchAnimations = {"mortar_corpse"} -- Flinch animations to use, leave empty to disable the base flinch
-NPC.FlinchAnimationSpeed = 1.5 -- Speed of the flinch animation
 NPC.FlinchCooldown = {2, 3} -- Flinch cooldown in seconds {min, max}
 NPC.FlinchChance = 1 -- Flinch chance 1/x
 NPC.FlinchIsGesture = false -- Should the flinch animation be played as a gesture?
@@ -182,8 +188,13 @@ end
 function NPC:GetFlinchAnimation(dmginfo, HitGroup)
     -- Decide if it is a big or small flinch
     local FlinchType = "mortar_flinch_"
-    if dmginfo:GetDamage() >= 40 then
+    self.FlinchAnimationSpeed = 2 -- Speed of the flinch animation
+
+    if dmginfo:GetDamage() >= 50 then
+
         FlinchType = "mortar_bigflinch_"
+        self.FlinchAnimationSpeed = 1.5 -- Speed of the flinch animation
+
     end
 
 

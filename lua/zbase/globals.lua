@@ -16,6 +16,11 @@ ZBASE_CANTREACHENEMY_HIDE = 1
 ZBASE_CANTREACHENEMY_FACE = 2
 
 
+ZBASE_TOOCLOSEBEHAVIOUR_NONE = 0
+ZBASE_TOOCLOSEBEHAVIOUR_FACE = 1
+ZBASE_TOOCLOSEBEHAVIOUR_BACK = 2
+
+
 --[[
 ======================================================================================================================================================
                                            ESSENTIAL FUNCTIONS
