@@ -1,7 +1,8 @@
     -- TODO --
+-- Fix bloody aerial npcs...
 -- Pack a few NPCs into the base
-    -- Rebel hunter that fires crossbow bolts (hunter first!!)
     -- Finish mortar synth
+    -- Rebel hunter that fires crossbow bolts (hunter first!!)
     -- "Antlion spitter" (hl alyx worker inspired)
     -- Add some hl2 npcs that would be nice to have
 -- Make sure everything works

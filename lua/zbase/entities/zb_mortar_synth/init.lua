@@ -27,12 +27,9 @@ NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this factio
     -- "neutral" = allied with everybody
 
 
--- When chasing and enemy is closer than ChaseMinDistance:
--- ZBASE_TOOCLOSEBEHAVIOUR_NONE - Don't do any behaviour
--- ZBASE_TOOCLOSEBEHAVIOUR_FACE - Stand still and face the enemy
--- ZBASE_TOOCLOSEBEHAVIOUR_BACK - Move away from enemy
-NPC.ChaseMinDistanceBehaviour = ZBASE_TOOCLOSEBEHAVIOUR_FACE
-NPC.ChaseMinDistance = 500 -- Minimum distance it chases before doing its ChaseMinDistanceBehaviour
+-- Minimum distance it chases before doing it runs SNPCChase_TooClose
+-- SNPCChase_TooClose will by default cause the SNPC to stop and face the enemy
+NPC.ChaseMinDistance = 500
 
 
 --[[
@@ -93,6 +90,10 @@ local RANGE_ATTACK_BOLT = 2
 
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
+end
+--]]==============================================================================================]]
+function NPC:SNPCChase_TooClose()
+    return ZSched.BackAwayFromEnemy
 end
 --]]==============================================================================================]]
 function NPC:MultipleRangeAttacks()

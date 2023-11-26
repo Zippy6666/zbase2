@@ -33,6 +33,8 @@ function ENT:NewSched( newsched )
 		self:SetSchedule(newsched)
 	elseif isstring(newsched) then
 		self:StartSchedule(ZSched[newsched])
+	elseif istable(newsched) then
+		self:StartSchedule(newsched)
 	end
 end
 --]]======================================================================================================]]
@@ -53,25 +55,15 @@ function ENT:SelectSchedule( iNPCState )
 
 	-- Don't chase if we are too close
 	if sched==ZSched.CombatChase && self:TooCloseForCombatChase() then
-		local TooCloseSched = self:SNPCChase_TooClose()
-
-		if TooCloseSched then
-			self:StartSchedule(TooCloseSched)
-		end
-		
-		return
+		sched = self:SNPCChase_TooClose()
 	end
 
 
-	-- DO DA THINGIES
-	if istable(sched) then
-		self:StartSchedule(sched)
-	elseif isnumber(sched) then
-		self:SetSchedule(sched)
-	end
+	self:NewSched( sched )
 end
 --]]======================================================================================================]]
 function ENT:GetCurrentCustomSched(checkNavigator)
+	checkNavigator = true -- Test, always check navigator
 
 	if isstring(self.GetBetterSchedule_CheckSched) then
 		return self.GetBetterSchedule_CheckSched
