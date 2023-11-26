@@ -1,5 +1,6 @@
     -- TODO --
 -- Pack a few NPCs into the base
+    -- Rebel hunter that fires crossbow bolts
     -- Finish mortar synth
     -- "Antlion spitter" (hl alyx worker inspired)
     -- Add some hl2 npcs that would be nice to have

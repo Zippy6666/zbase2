@@ -1815,9 +1815,16 @@ function NPC:InternalCreateGib( model, data )
     end)
 
 
-    -- Phys wake
+    -- Phys stuff
     local phys = Gib:GetPhysicsObject()
-    phys:Wake()
+    if IsValid(phys) then
+        phys:Wake()
+
+        if self.LastDMGINFO then
+            local ForceDir = self.LastDMGINFO:GetDamageForce()/(phys:GetMass()*2)
+            phys:SetVelocity( (ForceDir) + VectorRand()*(ForceDir:Length()*0.33) ) 
+        end
+    end
 
 
     return Gib
