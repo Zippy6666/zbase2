@@ -16,9 +16,12 @@ $illumposition -0.003 -11.44 -8.9
 
 $cdmaterials "models\mortarsynth\"
 
-$attachment "0" "RArm Tip Bone" 0 0 0 rotate 0 0 0
-$attachment "1" "LArm Tip Bone" 0 0 0 rotate 0 0 0
-$attachment "2" "LTentacle Curve" 0 0 0 rotate 0 0 0
+
+$attachment "rightarm" "RArm Tip Bone" 0 0 0 rotate 0 0 0
+$attachment "leftarm" "LArm Tip Bone" 0 0 0 rotate 0 0 0
+$attachment "tentacle" "LTentacle Curve" 0 0 0 rotate 0 0 0
+$attachment "catapult" "LShoulder Bone Base" 27.00 12.00 -18.00 rotate -0 135 -180
+
 
 $cbox 0 0 0 0 0 0
 

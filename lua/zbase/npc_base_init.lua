@@ -17,6 +17,7 @@ local NPC = ZBaseNPCs["npc_zbase"]
 -- Spawn with a random model from this table
 -- Leave empty to use the default model for the NPC
 NPC.Models = {}
+NPC.RenderMode = RENDERMODE_NORMAL -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
 
 
 NPC.StartHealth = 50 -- Max health

@@ -10,11 +10,11 @@ ENT.Category = "ZBase"
 ENT.IsZBaseProjectile = true
 
 
-ENT.Model = "models/spitball_medium.mdl" -- Model to use
+ENT.Model = "models/spitball_large.mdl" -- Model to use
 ENT.Invisible = true -- Should the model be invisible?
 
 
-ENT.StartHealth = false -- Health of the projectile, set to false to disable projectile health
+ENT.StartHealth = 10 -- Health of the projectile, set to false to disable projectile health
 
 
 ENT.Gravity = true -- Should the projectile have gravity?
@@ -23,8 +23,13 @@ ENT.GravityGun_Punt = true -- Can the projectile be punted by the gravity gun?
 
 
 ENT.OnHitDamage = false -- Projectile damage on hit, set to false to disable
-ENT.Damage_Disorient = true -- Should any damage (direct or radius) from the projectile disorient players (be deafening)?
+ENT.OnHitDamageType = bit.bor(DMG_DISSOLVE, DMG_SHOCK) -- Projectile damage type on hit
 
+
+ENT.Damage_Disorient = false -- Should any damage (direct or radius) from the projectile disorient players (be deafening)?
+
+
+ENT.IsMortarSynthProjectile = true
 
 --]]=================================================================================================================================]]
 function ENT:PostInit()
@@ -33,24 +38,59 @@ function ENT:PostInit()
         self.CombineBallEffect:SetNotSolid(true)
         self.CombineBallEffect:SetPos(self:GetPos())
         self.CombineBallEffect:SetParent(self)
-        self.CombineBallEffect:SetSaveValue("m_flRadius", 12)
+        self.CombineBallEffect:SetSaveValue("m_flRadius", 15)
         self.CombineBallEffect:Spawn()
+        
+        self:EmitSound("NPC_CombineBall.HoldingInPhysCannon")
     end
 end
 --]]=================================================================================================================================]]
 function ENT:PhysInit( phys )
+
 end
 --]]=================================================================================================================================]]
 function ENT:OnHit( ent, data )
-    if self.DieTimerStarted then return end
+    -- Explode from hitting something hard
+    if self.ExplodeOnImpact then
+        self:Die()
+        return
+    end
 
-    self.DieTimerStarted = true
 
-    timer.Simple(3, function()
-        if IsValid(self) then
-            self:Die()
-        end
-    end)
+    if data.Speed > 50 then
+        -- Impact effect
+
+        local effectdata = EffectData()
+        effectdata:SetOrigin(data.HitPos)
+        effectdata:SetNormal(-data.HitNormal)
+        effectdata:SetRadius(10)
+        util.Effect("cball_bounce", effectdata, true, true)
+
+        self:EmitSound("NPC_CombineBall.Impact")
+    end
+
+
+    if data.Speed > 150 then
+        self.OnHitDamage = 15 -- Projectile damage on hit, set to false to disable
+    else
+        self.OnHitDamage = false -- Projectile damage on hit, set to false to disable
+    end
+
+
+    -- Explode after some time
+    if !self.DieTimerStarted then
+        self.DieTimerStarted = true
+
+        timer.Simple(2.5, function()
+            if IsValid(self) then
+                self:Die()
+            end
+        end)
+    end
+end
+--]]==============================================================================================]]
+function ENT:OnGravityGunPunt()
+    self.ExplodeOnImpact = true
 end
 --]]=================================================================================================================================]]
 function ENT:OnThink()
@@ -67,10 +107,11 @@ function ENT:OnKill(dmginfo)
         self.CombineBallEffect:Fire("Explode")
     end
 
+    self.Damage_Disorient = true -- Should any damage (direct or radius) from the projectile disorient players (be deafening)?
     self:ProjectileBlastDamage( 20, bit.bor(DMG_DISSOLVE, DMG_SHOCK), 400, 50 )
 end
 --]]=================================================================================================================================]]
 function ENT:CustomOnRemove()
-
+    self:StopSound("NPC_CombineBall.HoldingInPhysCannon")
 end
 --]]=================================================================================================================================]]

@@ -24,4 +24,6 @@
             -- Misc useful stuff
             -- Option to not think outside of pvs
 -- Copyright stuff
--- Make a cool workshop page with a psychotic description
+-- Make a cool workshop page
+    -- Psychotic description for the funnies
+    -- Show list of future ideas to hype mfs

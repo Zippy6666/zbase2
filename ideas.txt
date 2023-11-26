@@ -13,3 +13,4 @@
 -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
 -- Guarding mode, or something like that
 -- Grab ZBase flying NPCs with gravity gun
+-- Flying snpcs use air nodes too (not just ground)

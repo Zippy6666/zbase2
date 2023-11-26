@@ -87,6 +87,19 @@ function ENT:OnThink()
 end
 --]]==============================================================================================]]
 
+    -- Called when it's pushed by the gravity gun
+function ENT:OnGravityGunPunt()
+end
+--]]==============================================================================================]]
+
+    -- Called when a player tries to pick it up with their gravity gun
+    -- Return true to allow
+    -- Return false to not
+function ENT:OnTryGravityGunPickup()
+    return true
+end
+--]]==============================================================================================]]
+
     -- When the projectile takes damage
 function ENT:CustomOnTakeDamage(dmginfo)
 end
@@ -273,6 +286,7 @@ end)
 hook.Add("GravGunPunt", "ZBaseProjectile", function( ply, ent )
     if ent.IsZBaseProjectile then
         if ent.GravityGun_Punt then
+
             ent.GravGunPlayer = ply
             ent:SetOwner(NULL)
 
@@ -280,6 +294,10 @@ hook.Add("GravGunPunt", "ZBaseProjectile", function( ply, ent )
                 if !IsValid(ent) then return end
                 ent.GravGunPlayer = NULL
             end)
+
+
+            ent:OnGravityGunPunt()
+
         else
             return false
         end
@@ -287,8 +305,12 @@ hook.Add("GravGunPunt", "ZBaseProjectile", function( ply, ent )
 end)
 --]]==============================================================================================]]
 hook.Add("GravGunPickupAllowed", "ZBaseProjectile", function( ply, ent )
-    if ent.IsZBaseProjectile && !ent.GravityGun_Pickup then
-        return false
+    if ent.IsZBaseProjectile then
+        if ent.GravityGun_Pickup then
+            return ent:OnTryGravityGunPickup()
+        else
+            return false
+        end
     end
 end)
 --]]==============================================================================================]]
