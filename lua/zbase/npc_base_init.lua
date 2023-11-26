@@ -249,9 +249,8 @@ NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_HIDE -- ZBASE_CANTREACHENEMY_
 
 
 -- When chasing and enemy is closer than ChaseMinDistance:
--- ZBASE_TOOCLOSEBEHAVIOUR_NONE - Don't do any behaviour
--- ZBASE_TOOCLOSEBEHAVIOUR_FACE - Stand still and face the enemy
--- ZBASE_TOOCLOSEBEHAVIOUR_BACK - Move away from enemy
+-- ZBASE_TOOCLOSEBEHAVIOUR_NONE - Don't do anything, keep chasing
+-- ZBASE_TOOCLOSEBEHAVIOUR_CUSTOM - Do whatever is in SNPCChase_TooClose (face enemy is default)
 NPC.ChaseMinDistanceBehaviour = ZBASE_TOOCLOSEBEHAVIOUR_NONE
 NPC.ChaseMinDistance = 1000 -- Minimum distance it chases before doing its ChaseMinDistanceBehaviour
 
@@ -566,6 +565,15 @@ function NPC:SNPCSelectSchedule(iNPCState)
         return SCHED_IDLE_STAND
 
     end
+end
+
+
+    -- Do this when we are too close to the enemy for chase
+    -- Return a engine or custom schedule to set schedule
+    -- Engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
+function NPC:SNPCChase_TooClose()
+    -- Stand still and face enemy if we are too close
+    return ZSched.FaceEnemy
 end
 
 

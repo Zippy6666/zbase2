@@ -1,3 +1,8 @@
+-- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
+-- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
+-- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
+-- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
+-- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
 --]]======================================================================================================]]
 function ENT:StartSchedule( sched )
     if self.SNPCType == ZBASE_SNPCTYPE_FLY then
@@ -32,20 +37,38 @@ function ENT:NewSched( newsched )
 end
 --]]======================================================================================================]]
 function ENT:SelectSchedule( iNPCState )
+	local ene = self:GetEnemy()
 
+
+	-- Schedule given by user
 	local sched = self:SNPCSelectSchedule( iNPCState )
-	local newsched = self:GetBetterSchedule()
-	if newsched or newsched==false then
-		sched = newsched
+
+
+	-- Fixes enemy not being registered as visible after some bs happends idk
+	-- Plz don't remove future zippy :(
+	if !self.EnemyVisible then
+    	self.EnemyVisible = self.EnemyVisible or (IsValid(ene) && self:Visible(ene))
 	end
 
 
+	-- Don't chase if we are too close
+	if sched==ZSched.CombatChase && self:TooCloseForCombatChase() then
+		local TooCloseSched = self:SNPCChase_TooClose()
+
+		if TooCloseSched then
+			self:StartSchedule(TooCloseSched)
+		end
+		
+		return
+	end
+
+
+	-- DO DA THINGIES
 	if istable(sched) then
 		self:StartSchedule(sched)
 	elseif isnumber(sched) then
 		self:SetSchedule(sched)
 	end
-
 end
 --]]======================================================================================================]]
 function ENT:GetCurrentCustomSched(checkNavigator)
@@ -71,6 +94,10 @@ function ENT:DoingChaseFallbackSched(checkNavigator)
 	return self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_DoCover", checkNavigator)
 	or self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_MoveRandom", checkNavigator)
 	or self:IsCurrentCustomSched("CombatChase_CantReach_CoverEnemy", checkNavigator)
+end
+--]]======================================================================================================]]
+function ENT:TooCloseForCombatChase()
+	return self.ChaseMinDistance > 0 && self.EnemyVisible && self:ZBaseDist(self:GetEnemy(), {within=self.ChaseMinDistance})
 end
 --]]======================================================================================================]]
 
@@ -111,9 +138,8 @@ function ENT:GetBetterSchedule( sched )
 
 
 		-- Chase min distance reached, stop
-		if self:IsCurrentCustomSched("CombatChase", true) && self.ChaseMinDistanceBehaviour != ZBASE_TOOCLOSEBEHAVIOUR_NONE && enemyVisible
-		&& self:ZBaseDist(enemy, {within=self.ChaseMinDistance}) then
-			return "CombatFace"
+		if self:IsCurrentCustomSched("CombatChase", true) && self:TooCloseForCombatChase() then
+			return self:SNPCChase_TooClose()
 		end
 
 
@@ -136,24 +162,22 @@ function ENT:GetBetterSchedule( sched )
 
 
 		-- Enemy is reachable, stop doing chase fallback
-		if self:DoingChaseFallbackSched()
-		&& !enemyUnreachable then
+		if self:DoingChaseFallbackSched() && !enemyUnreachable then
 			return false
 		end
 
 
 		-- Give space to squadmembers while moving
 		if self.Move_AvoidSquadMembers < CurTime() then
-			if (self:IsMoving() or self.AerialGoal)
-			&& self:GetNPCState()==NPC_STATE_COMBAT then
+			if (self:IsMoving() or self.AerialGoal) && self:GetNPCState()==NPC_STATE_COMBAT then
 				local squadmember = self:GetNearestSquadMember( nil, true )
 
-				if IsValid(squadmember)
-				&& squadmember:IsMoving()
-				&& squadmember:GetNPCState() == NPC_STATE_COMBAT
+				if IsValid(squadmember) && squadmember:IsMoving() && squadmember:GetNPCState() == NPC_STATE_COMBAT
 				&& self:ZBaseDist(squadmember, {within=squadmember.SquadGiveSpace}) then
+				
 					debugoverlay.Text(self:GetPos(), "giving space: "..squadmember.SquadGiveSpace, 2)
 					return "CombatFace" -- Face instead
+
 				end
 			end
 
@@ -165,11 +189,7 @@ function ENT:GetBetterSchedule( sched )
 	local value = GetNewSched()
 	self.GetBetterSchedule_CheckSched = nil
 
-	-- local sched1 = istable(sched) && sched.DebugName or sched
-	-- local sched2 = betterSched == false && "stop schedule" or betterSched or "no replacement"
-	-- local text = sched1.." ---> "..sched2
-	-- debugoverlay.Text(self:GetPos()+VectorRand()*50, text, 4)
-	
+
 	return value
 end
 --]]======================================================================================================]]
