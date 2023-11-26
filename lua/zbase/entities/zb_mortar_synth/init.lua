@@ -54,7 +54,7 @@ NPC.RangeProjectile_Delay = 0.8
 
 -- Attachment to spawn the projectile on 
 -- If set to false the projectile will spawn from the NPCs center
-NPC.RangeProjectile_Attachment = false
+NPC.RangeProjectile_Attachment = 4
 NPC.RangeProjectile_Offset = false -- Projectile spawn offset, example: {forward=50, up=25, right=0}
 NPC.RangeProjectile_Speed = 1000 -- The speed of the projectile
 NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
@@ -90,7 +90,7 @@ function NPC:CustomInitialize()
 end
 --]]==============================================================================================]]
 function NPC:MultipleRangeAttacks()
-    if math.random(1, 1) == 1 then
+    if math.random(1, 2) == 1 then
         -- Mortar
         self.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
         self.RangeAttackType = RANGE_ATTACK_MORTAR
@@ -114,13 +114,24 @@ function NPC:RangeAttackProjectile()
         proj:SetOwner(self)
         proj:Spawn()
 
+
         local proj_phys = proj:GetPhysicsObject()
+
 
         if IsValid(proj_phys) then
             proj_phys:SetVelocity(self:RangeAttackProjectileVelocity())
         else
             proj:SetVelocity(self:RangeAttackProjectileVelocity())
         end
+
+
+        self:EmitSound("Weapon_Mortar.Single")
+
+
+        local effectdata = EffectData()
+        effectdata:SetEntity(self)
+        effectdata:SetAttachment(4)
+        util.Effect("ChopperMuzzleFlash", effectdata, true, true)
 
     elseif self.RangeAttackType == RANGE_ATTACK_BOLT then
 

@@ -1,0 +1,16 @@
+"vertexlitgeneric"
+{
+	"$baseTexture" "models/huntey/huntey_armor_basecolor"
+	"$bumpmap" "models/huntey/huntey_armor_normal"
+	"$halflambert" 1
+	"$model" "1"
+	// -- From here down is new stuff which will only be applied if $phong is set to 1 --
+ 
+ 	"$phong"     "1"
+ 	"$phongboost"   "5"
+
+	//"$phongexponent"   "20"
+	"$phongexponenttexture" "models/huntey/huntey_skin_exponent"
+ 	"$phongfresnelranges"   "[.1 .5 1]"
+ 	"$phongalbedotint" 1
+}

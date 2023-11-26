@@ -109,6 +109,8 @@ function ENT:OnKill(dmginfo)
 
     self.Damage_Disorient = true -- Should any damage (direct or radius) from the projectile disorient players (be deafening)?
     self:ProjectileBlastDamage( 20, bit.bor(DMG_DISSOLVE, DMG_SHOCK), 400, 50 )
+
+    -- self:EmitSound("Weapon_Mortar.Impact")
 end
 --]]=================================================================================================================================]]
 function ENT:CustomOnRemove()
