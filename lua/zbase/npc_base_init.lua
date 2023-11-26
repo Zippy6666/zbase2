@@ -242,7 +242,18 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 
 NPC.m_fMaxYawSpeed = 10 -- Max turning speed
 NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
+
+
+-- When chasing:
 NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_HIDE -- ZBASE_CANTREACHENEMY_HIDE || ZBASE_CANTREACHENEMY_FACE
+
+
+-- When chasing and enemy is closer than ChaseMinDistance:
+-- ZBASE_TOOCLOSEBEHAVIOUR_NONE - Don't do any behaviour
+-- ZBASE_TOOCLOSEBEHAVIOUR_FACE - Stand still and face the enemy
+-- ZBASE_TOOCLOSEBEHAVIOUR_BACK - Move away from enemy
+NPC.ChaseMinDistanceBehaviour = ZBASE_TOOCLOSEBEHAVIOUR_NONE
+NPC.ChaseMinDistance = 1000 -- Minimum distance it chases before doing its ChaseMinDistanceBehaviour
 
 
 -- Squadmembers of this NPC should try to make this amount of room to the NPC if its moving
@@ -536,20 +547,23 @@ end
     -- Select schedule
     -- Here you can change how the SNPC should behave entirely
     -- This function is called whenever the SNPC isn't doing a schedule, allowing you to set it to whatever schedule you want
-    -- Use self:SetSchedule() for engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
-    -- Use self:StartSchedule() for custom schedules
+    -- Do so by returning said schedule
+    -- Engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
+    -- Supports any custom schedule!
 function NPC:SNPCSelectSchedule(iNPCState)
     -- Example:
     local ene = self:GetEnemy()
 
     if IsValid(ene) then
 
-        self:StartSchedule(ZSched.CombatChase)
+        -- ZBase advanced chase schedule
+        -- Strongly recommended if you want the SNPC to chase the enemy
+        return ZSched.CombatChase
 
     else
 
         -- No enemy, just stand in idle
-        self:SetSchedule(SCHED_IDLE_STAND)
+        return SCHED_IDLE_STAND
 
     end
 end

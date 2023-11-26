@@ -1244,7 +1244,7 @@ end
 
 --[[
 ==================================================================================================
-                                           CUSTOM SETSCHEDULE
+                                    ENGINE SCHEDULE FUNCTION THINGS
 ==================================================================================================
 --]]
 
@@ -1254,6 +1254,7 @@ local NPCMETA = FindMetaTable("NPC")
 
 if !ZBase_OldSetSchedule then
 	ZBase_OldSetSchedule = NPCMETA.SetSchedule
+    ZBase_OldIsCurrentSchedule = NPCMETA.IsCurrentSchedule
 end
 
 
@@ -1271,6 +1272,16 @@ function NPCMETA:SetSchedule( sched )
     end
 
     return ZBase_OldSetSchedule(self, sched)
+end
+
+function NPCMETA:IsCurrentSchedule( sched )
+    -- i can't even explain wth this does
+    -- but it's important
+    if self.GetBetterSchedule_CheckSched == false or isnumber( self.GetBetterSchedule_CheckSched ) then
+        return self.GetBetterSchedule_CheckSched==sched
+    end
+
+    return ZBase_OldIsCurrentSchedule(self, sched)
 end
 
 

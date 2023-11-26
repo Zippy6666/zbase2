@@ -10,35 +10,57 @@ function ENT:StartSchedule( sched )
 end
 --]]======================================================================================================]]
 function ENT:DoNPCState()
-	local enemy = self:GetEnemy()
-	local enemyInvalidPlayer = IsValid(enemy) && enemy:IsPlayer() && (!enemy:Alive() or GetConVar("ai_ignoreplayers"):GetBool())
+	-- local enemy = self:GetEnemy()
+	-- local enemyInvalidPlayer = IsValid(enemy) && enemy:IsPlayer() && (!enemy:Alive() or GetConVar("ai_ignoreplayers"):GetBool())
 
 
-	-- If there is no valid enemy and the NPC state is combat, set to idle
-	if !(IsValid(enemy) && !enemyInvalidPlayer)
-	&& self:GetNPCState() == NPC_STATE_COMBAT then
-		self:SetNPCState(NPC_STATE_IDLE)
-	end
+	-- -- If there is no valid enemy and the NPC state is combat, set to alert
+	-- if !(IsValid(enemy) && !enemyInvalidPlayer)
+	-- && self:GetNPCState() == NPC_STATE_COMBAT then
+	-- 	self:SetNPCState(NPC_STATE_ALERT)
+	-- end
 end
 --]]======================================================================================================]]
-function ENT:DoSequence()
-	if self.StopPlaySeqTime < CurTime() then
-		self:SetPlaybackRate(1)
-		self:ResetIdealActivity(ACT_IDLE)
-		self.BaseDontSetPlaybackRate = true
+function ENT:NewSched( newsched )
+	self:FullReset()
+
+	if isnumber(newsched) then
+		self:SetSchedule(newsched)
+	elseif isstring(newsched) then
+		self:StartSchedule(ZSched[newsched])
 	end
 end
 --]]======================================================================================================]]
 function ENT:SelectSchedule( iNPCState )
-	self:SNPCSelectSchedule( iNPCState )
+
+	local sched = self:SNPCSelectSchedule( iNPCState )
+	local newsched = self:GetBetterSchedule()
+	if newsched or newsched==false then
+		sched = newsched
+	end
+
+
+	if istable(sched) then
+		self:StartSchedule(sched)
+	elseif isnumber(sched) then
+		self:SetSchedule(sched)
+	end
+
 end
 --]]======================================================================================================]]
 function ENT:GetCurrentCustomSched(checkNavigator)
+
+	if isstring(self.GetBetterSchedule_CheckSched) then
+		return self.GetBetterSchedule_CheckSched
+	end
+
+
 	if checkNavigator && IsValid(self.Navigator) then
 		return self.Navigator.CurrentSchedule && self.Navigator.CurrentSchedule.DebugName
 	else
 		return self.CurrentSchedule && self.CurrentSchedule.DebugName
 	end
+
 end
 --]]======================================================================================================]]
 function ENT:IsCurrentCustomSched( sched, checkNavigator )
@@ -51,82 +73,104 @@ function ENT:DoingChaseFallbackSched(checkNavigator)
 	or self:IsCurrentCustomSched("CombatChase_CantReach_CoverEnemy", checkNavigator)
 end
 --]]======================================================================================================]]
-function ENT:DetermineNewSchedule()
-	local enemy = self:GetEnemy()
-	local enemyValid = IsValid(enemy)
-	local enemyVisible = enemyValid && self.EnemyVisible
-	local enemyUnreachable = enemyValid && self:IsUnreachable(enemy)
-	local hasReachedEnemy = self:ZBaseDist(enemy, {within=self:OBBMaxs().x*2})
+
+-- 'sched' - The schedule to get a better replacement for
+-- If not given, it will be the default schedule
+function ENT:GetBetterSchedule( sched )
+	if sched then
+		self.GetBetterSchedule_CheckSched = istable(sched) && sched.DebugName or sched
+	end
 
 
-	-- Can't reach the enemy when chasing fallback
-	if self:IsCurrentCustomSched("CombatChase")
-	&& enemyValid
-	&& !hasReachedEnemy -- We have reached the enemy, no fallback needed
-	&& self:IsNavStuck() then
-		self:RememberUnreachable( enemy, 4 )
+	local function GetNewSched()
+		local enemy = self:GetEnemy()
+		local enemyValid = IsValid(enemy)
+		local enemyVisible = enemyValid && self.EnemyVisible
+		local enemyUnreachable = enemyValid && self:IsUnreachable(enemy)
+		local hasReachedEnemy = self:ZBaseDist(enemy, {within=self:OBBMaxs().x*2})
+
+
+		-- Can't reach the enemy when chasing fallback
+		if self:IsCurrentCustomSched("CombatChase") && enemyValid && !hasReachedEnemy && self:IsNavStuck() then
+			self:RememberUnreachable( enemy, 4 )
+		
+			if enemyVisible then
+				if self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_HIDE then
+					return (math.random(1, 2) == 1 && "CombatChase_CantReach_CoverOrigin")
+					or "CombatChase_CantReach_CoverEnemy"
+
+				elseif self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_FACE then
+					return "CombatFace"
+
+				end
+			else
+				-- Patrol if enemy is not visible
+				return SCHED_COMBAT_PATROL
+			end
+		end
+
+
+		-- Chase min distance reached, stop
+		if self:IsCurrentCustomSched("CombatChase", true) && self.ChaseMinDistanceBehaviour != ZBASE_TOOCLOSEBEHAVIOUR_NONE && enemyVisible
+		&& self:ZBaseDist(enemy, {within=self.ChaseMinDistance}) then
+			return "CombatFace"
+		end
+
+
+		-- We have reached the enemy, no need to keep chasing
+		if self:IsCurrentCustomSched("CombatChase") && hasReachedEnemy then
+			return "CombatFace"
+		end
+
+
+		-- Don't combat patrol if enemy is seen
+		if self:IsCurrentSchedule(SCHED_COMBAT_PATROL) && enemyVisible then
+			return false
+		end
+
+
+		-- Still can't navigate while doing fall back, do move random
+		if self:DoingChaseFallbackSched() && self:IsNavStuck() then
+			return "CombatChase_CantReach_MoveRandom"
+		end
+
+
+		-- Enemy is reachable, stop doing chase fallback
+		if self:DoingChaseFallbackSched()
+		&& !enemyUnreachable then
+			return false
+		end
+
+
+		-- Give space to squadmembers while moving
+		if self.Move_AvoidSquadMembers < CurTime() then
+			if (self:IsMoving() or self.AerialGoal)
+			&& self:GetNPCState()==NPC_STATE_COMBAT then
+				local squadmember = self:GetNearestSquadMember( nil, true )
+
+				if IsValid(squadmember)
+				&& squadmember:IsMoving()
+				&& squadmember:GetNPCState() == NPC_STATE_COMBAT
+				&& self:ZBaseDist(squadmember, {within=squadmember.SquadGiveSpace}) then
+					debugoverlay.Text(self:GetPos(), "giving space: "..squadmember.SquadGiveSpace, 2)
+					return "CombatFace" -- Face instead
+				end
+			end
+
+			self.Move_AvoidSquadMembers = CurTime()+2
+		end
+	end
+
+
+	local value = GetNewSched()
+	self.GetBetterSchedule_CheckSched = nil
+
+	-- local sched1 = istable(sched) && sched.DebugName or sched
+	-- local sched2 = betterSched == false && "stop schedule" or betterSched or "no replacement"
+	-- local text = sched1.." ---> "..sched2
+	-- debugoverlay.Text(self:GetPos()+VectorRand()*50, text, 4)
 	
-		if enemyVisible then
-			if self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_HIDE then
-				return (math.random(1, 2) == 1 && "CombatChase_CantReach_CoverOrigin")
-				or "CombatChase_CantReach_CoverEnemy"
-
-			elseif self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_FACE then
-				return "CombatFace"
-
-			end
-		else
-			-- Patrol if enemy is not visible
-			return SCHED_COMBAT_PATROL
-		end
-	end
-
-
-	-- We have reached the enemy, no need to keep chasing
-	if self:IsCurrentCustomSched("CombatChase")
-	&& hasReachedEnemy then
-		return "CombatFace"
-	end
-
-
-	-- Don't combat patrol if enemy is seen
-	if self:IsCurrentSchedule(SCHED_COMBAT_PATROL)
-	&& enemyVisible then
-		return false
-	end
-
-
-	-- Still can't navigate while doing fall back, do move random
-	if self:DoingChaseFallbackSched()
-	&& self:IsNavStuck() then
-		return "CombatChase_CantReach_MoveRandom"
-	end
-
-
-	-- Enemy is reachable, stop doing chase fallback
-	if self:DoingChaseFallbackSched()
-	&& !enemyUnreachable then
-		return false
-	end
-
-
-	-- Give space to squadmembers while moving
-	if self.Move_AvoidSquadMembers < CurTime() then
-		if (self:IsMoving() or self.AerialGoal)
-		&& self:GetNPCState()==NPC_STATE_COMBAT then
-			local squadmember = self:GetNearestSquadMember( nil, true )
-
-			if IsValid(squadmember)
-			&& squadmember:IsMoving()
-			&& squadmember:GetNPCState() == NPC_STATE_COMBAT
-			&& self:ZBaseDist(squadmember, {within=squadmember.SquadGiveSpace}) then
-				debugoverlay.Text(self:GetPos(), "giving space: "..squadmember.SquadGiveSpace, 2)
-				return "CombatFace" -- Face instead
-			end
-		end
-
-		self.Move_AvoidSquadMembers = CurTime()+2
-	end
+	return value
 end
 --]]======================================================================================================]]
 function ENT:IsNavStuck()
@@ -173,7 +217,7 @@ end
 function ENT:RunAI( strExp )
 	-- NPC State stuff
 	self:DoNPCState()
-	
+
 
 	if self.DoingPlayAnim or self.DoingAerialMoveAnim then
 		return
@@ -187,22 +231,9 @@ function ENT:RunAI( strExp )
 	-- Stop, or replace schedules that shouldn't play right now
 	-- newsched == false -> stop schedule
 	-- newsched == nil -> do nothing
-	local newsched = self:DetermineNewSchedule()
+	local newsched = self:GetBetterSchedule()
 	if newsched or newsched==false then
-		self:FullReset()
-
-		if isnumber(newsched) then
-			self:SetSchedule(newsched)
-		elseif isstring(newsched) then
-			self:StartSchedule(ZSched[newsched])
-		end
-
-		if GetConVar("developer"):GetBool() then
-			timer.Create("ZSchedDebug"..self:EntIndex(), 0.5, 1, function()
-				if !IsValid(self) then return end
-				debugoverlay.Text(self:GetPos()+VectorRand()*50, "newsched = "..tostring(newsched), 4)
-			end)
-		end
+		self:NewSched(newsched)
 	end
 
 

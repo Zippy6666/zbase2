@@ -24,6 +24,13 @@ NPC.MeleeDamage_Delay = false -- Time until the damage strikes, set to false to 
 NPC.MeleeDamage_Sound = "ZBaseCrabSynth.MeleeHit" -- Sound when the melee attack hits an enemy
 NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
 
+-- When chasing and enemy is closer than ChaseMinDistance:
+-- ZBASE_TOOCLOSEBEHAVIOUR_NONE - Don't do any behaviour
+-- ZBASE_TOOCLOSEBEHAVIOUR_FACE - Stand still and face the enemy
+-- ZBASE_TOOCLOSEBEHAVIOUR_BACK - Move away from enemy
+NPC.ChaseMinDistanceBehaviour = ZBASE_TOOCLOSEBEHAVIOUR_FACE
+NPC.ChaseMinDistance = 1000 -- Minimum distance it chases before doing its ChaseMinDistanceBehaviour
+
 
         -- ARMOR SYSTEM --
 NPC.HasArmor = {
