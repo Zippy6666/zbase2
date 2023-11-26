@@ -71,4 +71,11 @@ function ZSched:FaceLastPos( sched )
 end
 
 
+function ZSched:BackAwayFromEnemy( sched )
+    sched:EngTask( "TASK_FIND_COVER_FROM_ENEMY",  0 )
+    sched:EngTask( "TASK_RUN_PATH",  0 )
+    sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
+end
+
+
 SetupScheds()

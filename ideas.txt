@@ -13,3 +13,6 @@
 -- Guarding mode, or something like that
 -- Grab ZBase flying NPCs with gravity gun
 -- Flying snpcs use air nodes too (not just ground)
+-- Custom schedules for regular NPCs
+-- Ability to use snpc functions on regular npcs
+-- Item drop

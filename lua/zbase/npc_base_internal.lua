@@ -147,7 +147,8 @@ function NPC:ZBaseThink()
 
     -- Sched debug
     if self.SchedDebug then
-        local sched = ( (self.GetCurrentCustomSched && self:GetCurrentCustomSched()) or ZBaseEngineSchedName(self:GetCurrentSchedule()) )
+        local ent = IsValid(self.Navigator) && self.Navigator or self
+        local sched = ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched()) or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
 
         if sched then
             debugoverlay.Text(self:WorldSpaceCenter(), sched, 0.13)
