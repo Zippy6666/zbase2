@@ -17,8 +17,8 @@ NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 sound.Add({
     name = "ZBaseMortarSynth.Alert",
 	channel = CHAN_VOICE,
-	volume = 0.9,
-	level = 80,
+	volume = 1,
+	level = 85,
 	pitch = {95, 105},
 	sound = {
         "npc/mortarsynth/alert1.wav",
@@ -41,7 +41,7 @@ sound.Add({
     name = "ZBaseMortarSynth.Hurt",
 	channel = CHAN_VOICE,
 	volume = 1,
-	level = 80,
+	level = 85,
 	pitch = {50, 60},
 	sound = {
         "npc/mortarsynth/hurt1.wav",
