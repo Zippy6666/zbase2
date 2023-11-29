@@ -18,8 +18,6 @@ NPC.SubMaterials = {
     [2] = "models/huntey/huntey_armor_basecolor",
 }
 
-
-
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 
@@ -36,6 +34,12 @@ function NPC:CustomOnOwnedEntCreated( ent )
         proj:SetVelocity(ent:GetVelocity())
 
         ent:Remove()
+
+        local effectdata = EffectData()
+        effectdata:SetEntity(self)
+        effectdata:SetAttachment(self:GetInternalVariable("m_bTopMuzzle") && 4 or 5)
+        effectdata:SetMagnitude(1)
+        util.Effect("ChopperMuzzleFlash", effectdata, true, true)
 
     end
 end

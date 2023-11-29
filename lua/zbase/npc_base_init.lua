@@ -267,7 +267,7 @@ NPC.SquadGiveSpace = 128
 --]]
 
 
-NPC.Fly_DistanceFromGround = 100 -- Minimum distance to try to keep from the ground when flying
+NPC.Fly_DistanceFromGround = 60 -- Minimum distance to try to keep from the ground when flying
 NPC.Fly_DistanceFromGround_IgnoreWhenMelee = true -- Should it ignore the distance from ground limit when in melee attack distance?
 NPC.Fly_FaceEnemy = false -- Should it face the enemy while fly moving?
 NPC.Fly_MoveSpeed = 200 -- Flying movement speed

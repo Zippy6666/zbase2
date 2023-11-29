@@ -415,7 +415,6 @@ end)
 
 -- ZBase init stuff when spawned from dupe
 duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
-    print("duplicator.RegisterEntityModifier", ent)
     local zbaseClass = data[1]
     local zbaseNPCTable = ZBaseNPCs[ zbaseClass ]
     if zbaseNPCTable then
