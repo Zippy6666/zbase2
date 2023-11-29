@@ -3,6 +3,8 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 -- Sounds
 -- Movement tilt
+-- Mortar trail
+-- New die particle
 
 
 -- Spawn with a random model from this table
@@ -16,8 +18,8 @@ NPC.StartHealth = 110
 
 
 NPC.BloodColor = DONT_BLEED
-NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
-NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
+NPC.CustomBloodParticles = {"zbase_blood_impact_blue"} -- {"blood_impact_synth_01"} -- Table of custom particles
+--NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 
 NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this faction will be allied
@@ -93,18 +95,23 @@ function NPC:CustomInitialize()
 end
 --]]==============================================================================================]]
 function NPC:SNPCChase_TooClose()
+    -- back away boy
+    -- aerial base needs fix
     return ZSched.BackAwayFromEnemy
 end
 --]]==============================================================================================]]
 function NPC:MultipleRangeAttacks()
-    if math.random(1, 2) == 1 then
-        -- Mortar
-        self.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
-        self.RangeAttackType = RANGE_ATTACK_MORTAR
-    else
+    if ( math.random(1, 2) == 1 && self:ZBaseDist(self:GetEnemy(), {within=1000}) ) or self:ZBaseDist(self:GetEnemy(), {within=400}) then
         -- Electric bolt
         self.RangeAttackAnimations = {ACT_RANGE_ATTACK2}
         self.RangeAttackType = RANGE_ATTACK_BOLT
+
+
+
+    else
+        -- Mortar
+        self.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
+        self.RangeAttackType = RANGE_ATTACK_MORTAR
     end
 end
 --]]==============================================================================================]]
@@ -126,9 +133,7 @@ function NPC:RangeAttackProjectile()
 
 
         if IsValid(proj_phys) then
-            proj_phys:SetVelocity(self:RangeAttackProjectileVelocity())
-        else
-            proj:SetVelocity(self:RangeAttackProjectileVelocity())
+            proj_phys:SetVelocity(self:RangeAttackProjectileVelocity()+Vector(0,0,200))
         end
 
 

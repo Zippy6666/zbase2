@@ -1188,9 +1188,11 @@ NPCB.PreRangeAttack = {
 
 
 function NPCB.RangeAttack:ShouldDoBehaviour( self )
-    if !self.FirstPreMeleeRan then return end
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
     if self.DoingPlayAnim then return false end
+
+
+    self:MultipleRangeAttacks()
 
 
     local ene = self:GetEnemy()
@@ -1229,18 +1231,18 @@ function NPCB.RangeAttack:Run( self )
 end
 
 
-function NPCB.PreRangeAttack:ShouldDoBehaviour( self )
-    if !self.BaseRangeAttack then return false end
-    if self.DoingPlayAnim then return false end
+-- function NPCB.PreRangeAttack:ShouldDoBehaviour( self )
+--     if !self.BaseRangeAttack then return false end
+--     if self.DoingPlayAnim then return false end
 
-    return true
-end
+--     return true
+-- end
 
 
-function NPCB.PreRangeAttack:Run( self )
-    self:MultipleRangeAttacks()
-    self.FirstPreMeleeRan = true
-end
+-- function NPCB.PreRangeAttack:Run( self )
+    
+--     self.FirstPreMeleeRan = true
+-- end
 
 
 --[[
