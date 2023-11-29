@@ -1,5 +1,4 @@
     -- TODO --
--- INCLUDE SPITBALLS!!!
 -- Pack a few NPCs into the base
     -- Finish mortar synth
     -- Rebel hunter that fires crossbow bolts (hunter first!!)
