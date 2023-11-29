@@ -1340,6 +1340,7 @@ local ZBaseWeaponDMGs = {
     ["weapon_smg1"] = {dmg=4, inflclass="bullet", dmgSecondary=100, inflclassSecondary="grenade_ar2"},
     ["weapon_rpg"] = {dmg=150, inflclass="rpg_missile"},
     ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
+    ["weapon_elitepolice_mp5k"] = {dmg=5, inflclass="bullet"},
 }
 
 
