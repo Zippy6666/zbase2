@@ -31,6 +31,9 @@ ENT.Damage_Disorient = false -- Should any damage (direct or radius) from the pr
 
 ENT.IsMortarSynthProjectile = true
 
+
+local white = Color(255,255,255,255)
+
 --]]=================================================================================================================================]]
 function ENT:PostInit()
     if SERVER then
@@ -40,6 +43,7 @@ function ENT:PostInit()
         self.CombineBallEffect:SetParent(self)
         self.CombineBallEffect:SetSaveValue("m_flRadius", 15)
         self.CombineBallEffect:Spawn()
+        util.SpriteTrail(self.CombineBallEffect, 0, white, true, 9, 0, 0.75, 20, "trails/plasma")
         
         self:EmitSound("NPC_CombineBall.HoldingInPhysCannon")
     end
@@ -81,7 +85,7 @@ function ENT:OnHit( ent, data )
     if !self.DieTimerStarted then
         self.DieTimerStarted = true
 
-        timer.Simple(2.5, function()
+        timer.Simple(2, function()
             if IsValid(self) then
                 self:Die()
             end
@@ -94,7 +98,6 @@ function ENT:OnGravityGunPunt()
 end
 --]]=================================================================================================================================]]
 function ENT:OnThink()
-    print(self)
 end
 --]]=================================================================================================================================]]
 function ENT:CustomOnTakeDamage(dmginfo)

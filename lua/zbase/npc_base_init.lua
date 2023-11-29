@@ -18,6 +18,7 @@ local NPC = ZBaseNPCs["npc_zbase"]
 -- Leave empty to use the default model for the NPC
 NPC.Models = {}
 NPC.RenderMode = RENDERMODE_NORMAL -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
+NPC.SubMaterials = {} -- Submaterials {*number index* = *string name*}
 
 
 NPC.StartHealth = 50 -- Max health
@@ -589,8 +590,8 @@ end
     -- Called continiusly for flying SNPCs
     -- You can change anything about their flying velocity here
 function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
-    -- You can mess with their angles here
-    -- This example will cause them to tilt forward in the direction they are moving
+    --You can mess with their angles here
+    --This example will cause them to tilt forward when they are moving
     -- local myang = self:GetAngles()
     -- self:SetAngles(Angle(destinationCurrentSpeed*0.1, myang.yaw, myang.roll))
 
