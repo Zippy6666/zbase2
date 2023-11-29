@@ -40,6 +40,12 @@ function NPC:ZBaseInit()
     end
 
 
+    -- Submaterials
+    for k, v in pairs(self.SubMaterials) do
+        self:SetSubMaterial(k-1, v)
+    end
+
+
     -- Extra capabilities given
     for _, v in ipairs(self.ExtraCapabilities) do
         self:CapabilitiesAdd(v)
@@ -1653,7 +1659,18 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	rag:SetSkin(self:GetSkin())
 	rag:SetColor(self:GetColor())
 	rag:SetMaterial(self:GetMaterial())
+
+
+
+
+
 	rag:Spawn()
+
+
+    for k, v in pairs(self.SubMaterials) do
+        print(k, v)
+        rag:SetSubMaterial(k-1, v)
+    end
 
 
 	local ragPhys = rag:GetPhysicsObject()

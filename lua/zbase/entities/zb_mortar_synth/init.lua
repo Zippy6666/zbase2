@@ -1,10 +1,6 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-
--- Sounds
--- Movement tilt
--- Mortar trail
--- New die particle
+-- Separate effects from vort, maybe make fancier
 
 
 -- Spawn with a random model from this table
@@ -18,8 +14,8 @@ NPC.StartHealth = 110
 
 
 NPC.BloodColor = DONT_BLEED
-NPC.CustomBloodParticles = {"zbase_blood_impact_blue"} -- {"blood_impact_synth_01"} -- Table of custom particles
---NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
+NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
+NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 
 NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this faction will be allied
@@ -77,6 +73,20 @@ NPC.FlinchAnimations = {"mortar_corpse"} -- Flinch animations to use, leave empt
 NPC.FlinchCooldown = {2, 3} -- Flinch cooldown in seconds {min, max}
 NPC.FlinchChance = 1 -- Flinch chance 1/x
 NPC.FlinchIsGesture = false -- Should the flinch animation be played as a gesture?
+
+
+--[[
+==================================================================================================
+                                           SOUNDS
+==================================================================================================
+--]]
+
+
+-- Sounds (Use sound scripts to alter pitch and level and such!)
+NPC.AlertSounds = "ZBaseMortarSynth.Alert" -- Sounds emitted when an enemy is seen for the first time
+NPC.PainSounds = "ZBaseMortarSynth.Hurt" -- Sounds emitted on hurt
+NPC.DeathSounds = "ZBaseMortarSynth.Die" -- Sounds emitted on death
+NPC.HearDangerSounds = "ZBaseMortarSynth.Alert"
 
 
 --[[
@@ -180,6 +190,8 @@ function NPC:RangeAttackProjectile()
         dmginfo:SetDamage(10)
         dmginfo:SetDamageType(DMG_SHOCK)
         util.BlastDamageInfo(dmginfo, tr.HitPos, 75)
+
+        self:EmitSound("ZBaseMortarSynth.Shock")
     end
 end
 --]]==============================================================================================]]
@@ -233,6 +245,13 @@ function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
     end
 end
 --]]==============================================================================================]]
+function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
+    local myang = self:GetAngles()
+    self:SetAngles(Angle(destinationCurrentSpeed*0.05, myang.yaw, myang.roll))
+
+    return destinationDirection*destinationCurrentSpeed
+end
+--]]==============================================================================================]]
 function NPC:ShouldGib( dmginfo, hit_gr )
     self:InternalCreateGib("models/gibs/mortarsynth_gib_01.mdl", {offset=Vector(0, 0, 0)})
     self:InternalCreateGib("models/gibs/mortarsynth_gib_02.mdl", {offset=Vector(-20, 0, 0)})
@@ -241,7 +260,13 @@ function NPC:ShouldGib( dmginfo, hit_gr )
     self:InternalCreateGib("models/gibs/mortarsynth_gib_05.mdl", {offset=Vector(15, 28, -30)})
 
 
-    ParticleEffect("striderbuster_break", self:GetPos(), self:GetAngles())
+    ParticleEffect("striderbuster_break_shell", self:GetPos(), self:GetAngles())
+    local explosion = ents.Create("env_explosion")
+    explosion:SetPos(self:WorldSpaceCenter())
+    explosion:SetKeyValue("spawnflags", bit.bor(1, 64, 256))
+    explosion:Spawn()
+    explosion:Fire("Explode")
+    explosion:Remove()
 
 
     return true

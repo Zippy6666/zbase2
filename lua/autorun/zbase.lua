@@ -91,8 +91,8 @@ PrecacheParticleSystem("blood_impact_zbase_black")
 PrecacheParticleSystem("blood_impact_zbase_blue")
 
 
--- Mortar synth gib effect
 game.AddParticles("particles/striderbuster.pcf")
+game.AddParticles("particles/mortarsynth_fx.pcf")
 PrecacheParticleSystem("striderbuster_break")
 PrecacheParticleSystem("striderbuster_break_shell")
 
@@ -401,9 +401,13 @@ local function NPCReg( name )
         local cl = path.."cl_init.lua"
         local sv = path.."init.lua"
 
+
         if file.Exists(sh, "LUA")
         && file.Exists(sv, "LUA") then
             ZBaseNPCs[name] = {}
+
+            -- local NPCPrev = NPC
+            -- NPC = ZBaseNPCs[name]
 
             include(sh)
             AddCSLuaFile(sh)
@@ -419,6 +423,8 @@ local function NPCReg( name )
             if file.Exists(cl, "LUA") && CLIENT then
                 include(cl)
             end
+
+            NPC = NPCPrev
         end
     end
 end
@@ -457,6 +463,7 @@ local function AddNPCsToSpawnMenu()
             OnDuplicated = t.OnDuplicated,
             BodyGroups = BodyGroups,
             StartHealth = t.StartHealth,
+            Material = t.Material,
         }
 
 
@@ -479,7 +486,7 @@ if ZBaseInitialized then
     NPCsInherit()
     AddNPCsToSpawnMenu()
 
-    PrintMessage(HUD_PRINTTALK, "ZBase Reloaded!")
+    MsgN("ZBase Reloaded!")
 else
 
     IncludeFiles()
