@@ -6,6 +6,7 @@
         -- Make sure all hl2 npcs work as intended with zbase
         -- Stress test, do weird stuff
         -- Test PlayAnimation on loads of NPCs
+-- add movement noise to base
 -- Make more user friendly
     -- Lots of "CustomOn" functions (use vj for reference)
     -- All variables can be changed during the NPC's lifetime
@@ -19,12 +20,7 @@
             -- Health and damage sliders
             -- Misc useful stuff
             -- Option to not think outside of pvs
--- Pack a few NPCs into the base
-    -- Finish mortar synth
-        -- add movement noise to base
-    -- Rebel hunter that fires crossbow bolts (hunter first!!)
-    -- "Antlion spitter" (hl alyx worker inspired)
-    -- Add some hl2 npcs that would be nice to have
+-- Make sure everething is finished
 -- Copyright stuff
 -- Make a cool workshop page
     -- Psychotic description for the funnies
