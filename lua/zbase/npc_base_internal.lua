@@ -1662,9 +1662,6 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	rag:SetMaterial(self:GetMaterial())
 
 
-
-
-
 	rag:Spawn()
 
 
@@ -1718,11 +1715,6 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		dissolve:Fire("Dissolve", rag:GetName())
 		dissolve:Spawn()
 		rag:DeleteOnRemove(dissolve)
-
-		rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-
-		undo.ReplaceEntity( rag, NULL )
-		cleanup.ReplaceEntity( rag, NULL )
 	end
 
 
@@ -1733,7 +1725,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
     
     -- Handle corpse
-    if !keep_corpse then
+    if !keep_corpse or dmg:IsDamageType(DMG_DISSOLVE) then
         -- Nocollide
         rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 
@@ -1762,6 +1754,9 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
         rag:CallOnRemove("ZBase_RemoveFromRagdollTable", function()
             table.RemoveByValue(ZBaseRagdolls, rag)
         end)
+
+		undo.ReplaceEntity( rag, NULL )
+		cleanup.ReplaceEntity( rag, NULL )
     end
 end
 

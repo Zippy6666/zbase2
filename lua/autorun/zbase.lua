@@ -400,17 +400,18 @@ local function NPCReg( name )
         local sh = path.."shared.lua"
         local cl = path.."cl_init.lua"
         local sv = path.."init.lua"
-
+        
 
         if file.Exists(sh, "LUA")
-        && file.Exists(sv, "LUA") then
+        && (CLIENT or file.Exists(sv, "LUA")) then
             ZBaseNPCs[name] = {}
 
             -- local NPCPrev = NPC
             -- NPC = ZBaseNPCs[name]
 
-            include(sh)
             AddCSLuaFile(sh)
+            include(sh)
+
 
             if file.Exists(cl, "LUA") then
                 AddCSLuaFile(cl)

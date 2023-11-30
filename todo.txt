@@ -1,26 +1,24 @@
     -- TODO --
 -- Make sure everything works
-    -- Multiplayer
-    -- Compatible with my other addons
     -- Make sure EVERYTHING works as intended
         -- Make sure all hl2 npcs work as intended with zbase
-        -- Stress test, do weird stuff
-        -- Test PlayAnimation on loads of NPCs
--- add movement noise to base
+        -- Stress test, do weird stuff, test PlayAnimation on loads of NPCs
+-- Add things that people probably want
+    -- Image path
+    -- Glowing eyes for bines (maybe)
+    -- More menu options
+        -- Health and damage sliders
+        -- Misc useful stuff
+        -- Option to not think outside of pvs
+        -- Movement noise to aerial snpc base
 -- Make more user friendly
     -- Lots of "CustomOn" functions (use vj for reference)
     -- All variables can be changed during the NPC's lifetime
     -- Dummy git
     -- ZBase reload tries to apply in realtime
     -- Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
-    -- Add things that people probably want
-        -- Image path
-        -- Glowing eyes for bines (maybe)
-        -- More menu options
-            -- Health and damage sliders
-            -- Misc useful stuff
-            -- Option to not think outside of pvs
--- Make sure everething is finished
+-- Multiplayer
+-- Make sure everything is finished
 -- Copyright stuff
 -- Make a cool workshop page
     -- Psychotic description for the funnies
