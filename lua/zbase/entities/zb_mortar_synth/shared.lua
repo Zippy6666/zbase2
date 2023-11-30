@@ -59,3 +59,14 @@ sound.Add({
         "npc/mortarsynth/shock.wav",
     }
 })
+
+sound.Add({
+    name = "ZBaseMortarSynth.hover",
+	channel = CHAN_AUTO,
+	volume = 0.7,
+	level = 80,
+	pitch = 100,
+	sound = {
+        "npc/mortarsynth/hover.wav",
+    }
+})

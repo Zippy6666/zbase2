@@ -23,8 +23,9 @@ function NPC:ZBaseInit()
     self.SchedDebug = GetConVar("developer"):GetBool()
 
 
-    -- Network IsZBaseNPC
+    -- Network shit
     self:SetNWBool("IsZBaseNPC", true)
+    self:SetNWString("ZBaseName", self.Name)
 
 
      -- Starts with no field of view
@@ -88,6 +89,9 @@ function NPC:ZBaseInit()
     if !self.CanDissolve then
         self:AddEFlags(EFL_NO_DISSOLVE)
     end
+
+
+    self:CallOnRemove("ZBaseOnRemove", function() self:OnRemove() end)
 
 
     -- Makes behaviour system function
