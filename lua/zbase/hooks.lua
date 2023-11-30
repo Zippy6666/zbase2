@@ -274,6 +274,8 @@ end)
 
 
 hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
+    local attacker = dmg:GetAttacker()
+
     if npc.IsZBaseNPC then
         npc:OnScaleNPCDamage( dmg, hit_gr )
     end
