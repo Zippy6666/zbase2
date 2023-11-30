@@ -142,6 +142,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 
     -- Spawn
 	if isNotFirstSpawn then
+		NPC:BeforeSpawn()
 		NPC:Spawn()
 		NPC:Activate()
 	end

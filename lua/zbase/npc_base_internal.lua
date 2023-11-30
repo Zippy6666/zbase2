@@ -54,13 +54,6 @@ function NPC:ZBaseInit()
 
 
     -- Capabilities
-    self:CapabilitiesAdd(bit.bor(
-        CAP_SQUAD,
-        CAP_TURN_HEAD,
-        CAP_ANIMATEDFACE,
-        CAP_SKIP_NAV_GROUND_CHECK,
-        CAP_FRIENDLY_DMG_IMMUNE
-    ))
     if self.CanJump && self:SelectWeightedSequence(ACT_JUMP) != -1 then
         self:CapabilitiesAdd(CAP_MOVE_JUMP)
     end
@@ -100,6 +93,19 @@ function NPC:ZBaseInit()
 
     -- Custom init
     self:CustomInitialize()
+end
+
+
+function NPC:BeforeSpawn()
+    self:CapabilitiesAdd(bit.bor(
+        CAP_SQUAD,
+        CAP_TURN_HEAD,
+        CAP_ANIMATEDFACE,
+        CAP_SKIP_NAV_GROUND_CHECK,
+        CAP_USE_WEAPONS,
+        CAP_USE_SHOT_REGULATOR,
+        CAP_FRIENDLY_DMG_IMMUNE
+    ))
 end
 
 
@@ -914,7 +920,7 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
     local seq = self:LookupSequence("shootar2alt")
     if seq != -1 then
         -- Has comball animation, play it
-        self:PlayAnimation("shootar2alt", true)
+        self:PlayAnimation(seq, true)
     else
         -- Charge sound (would normally play in the comball anim)
         wep:EmitSound("Weapon_CombineGuard.Special1")
@@ -1201,7 +1207,6 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
     if self.DoingPlayAnim then return false end
 
-
     self:MultipleRangeAttacks()
 
 
@@ -1229,6 +1234,9 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
     or !ene:VisibleVec(trgtPos)) then
         return false
     end
+
+
+    if self:PreventRangeAttack() then return false end
 
 
     return true
@@ -1510,6 +1518,16 @@ function NPC:OnScaleNPCDamage( dmg, hit_gr )
 end
 
 
+local IsZombie = {
+    ["npc_zombie"] = true,
+    ["npc_fastzombie"] = true,
+    ["npc_fastzombie_torso"] = true,
+    ["npc_poisonzombie"] = true,
+    ["npc_zombie_torso"] = true,
+    ["npc_zombine"] = true,
+}
+
+
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
     if self.DoingDeathAnim && !self.DeathAnim_Finished then dmg:ScaleDamage(0) return end
@@ -1517,6 +1535,26 @@ function NPC:OnEntityTakeDamage( dmg )
 
     -- Remember last dmginfo
     self.LastDMGINFO = dmg
+
+
+    local boutaDie = self:Health()-dmg:GetDamage() <= 0 -- mf bouta die lmfao
+
+
+    -- Death animation
+    if !table.IsEmpty(self.DeathAnimations) && boutaDie then
+        self:DeathAnimation(dmg)
+        return
+    end
+
+
+    if IsZombie[self:GetClass()] && (dmg:IsDamageType(DMG_SLASH) or dmg:IsDamageType(DMG_BLAST)) then
+        dmg:SetDamageType(DMG_NEVERGIB)
+    end
+
+
+    if boutaDie then
+        dmg:SetDamageType( bit.bor(dmg:GetDamageType(), DMG_NEVERGIB) )
+    end
 end
 
 
@@ -1527,13 +1565,6 @@ function NPC:OnPostEntityTakeDamage( dmg )
 
     -- Remember last dmginfo again for accuracy sake
     self.LastDMGINFO = dmg
-
-
-    -- Death animation
-    if !table.IsEmpty(self.DeathAnimations) && self:Health()-dmg:GetDamage() <= 0 then
-        self:DeathAnimation(dmg)
-        return
-    end
 
 
     -- Fix NPCs being unkillable in SCHED_NPC_FREEZE

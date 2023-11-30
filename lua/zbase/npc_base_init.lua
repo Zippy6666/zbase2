@@ -65,7 +65,7 @@ NPC.ExtraCapabilities = {
 -- Movement activity override https://wiki.facepunch.com/gmod/Enums/ACT
 NPC.MoveActivityOverride = {
     [NPC_STATE_IDLE] = ACT_WALK, -- In idle
-    [NPC_STATE_ALERT] = ACT_WALK_AGITATED, -- When alert, for example, after combat
+    [NPC_STATE_ALERT] = ACT_RUN, -- When alert, for example, after combat
     [NPC_STATE_COMBAT] = ACT_RUN, -- In combat
 }
 NPC.CanPatrol = true -- Use base patrol behaviour
@@ -533,6 +533,13 @@ end
 
     -- Called when a range attack is started
 function NPC:OnRangeAttack()
+end
+
+
+    -- Called before a range attack is started
+    -- Return true to prevent it
+function NPC:PreventRangeAttack()
+    return false 
 end
 
 
