@@ -366,6 +366,7 @@ function NPC:DoPlayAnim()
 
     -- Stop movement
     self:SetSaveValue("m_flTimeLastMovement", 1)
+    self:SetMoveVelocity(Vector())
 end
 
 
