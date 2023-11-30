@@ -18,6 +18,8 @@ NPC.SubMaterials = {
     [2] = "models/huntey/huntey_armor_basecolor",
 }
 
+
+local trailcol = Color(255,150,100)
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 
@@ -32,6 +34,7 @@ function NPC:CustomOnOwnedEntCreated( ent )
         proj:SetOwner(self)
         proj:Spawn()
         proj:SetVelocity(ent:GetVelocity())
+        util.SpriteTrail(proj, 0, trailcol, true, 2, 0, 0.75, 20, "trails/plasma")
 
         ent:Remove()
 
