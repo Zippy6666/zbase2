@@ -29,6 +29,11 @@ NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this factio
 -- SNPCChase_TooClose will by default cause the SNPC to stop and face the enemy
 NPC.ChaseMinDistance = 500
 
+NPC.Fly_DistanceFromGround = 80 -- Minimum distance to try to keep from the ground when flying
+NPC.Fly_MoveSpeed = 350 -- Flying movement speed
+NPC.Fly_Accelerate = 25 -- Flying movement accelerate speed
+NPC.Fly_Decelerate = 25 -- Flying movement decelerate speed
+
 
 --[[
 ==================================================================================================
@@ -102,6 +107,8 @@ local RANGE_ATTACK_BOLT = 2
 
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
+    self.HumSound = CreateSound( self, "ZBaseMortarSynth.hover" )
+    self.HumSound:Play()
 end
 --]]==============================================================================================]]
 function NPC:SNPCChase_TooClose()
@@ -249,6 +256,8 @@ function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
     local myang = self:GetAngles()
     self:SetAngles(Angle(destinationCurrentSpeed*0.05, myang.yaw, myang.roll))
 
+    self.HumSound:ChangePitch(80 + destinationCurrentSpeed*0.3, 1)
+
     return destinationDirection*destinationCurrentSpeed
 end
 --]]==============================================================================================]]
@@ -270,5 +279,9 @@ function NPC:ShouldGib( dmginfo, hit_gr )
 
 
     return true
+end
+--]]==============================================================================================]]
+function NPC:OnRemove()
+    self.HumSound:Stop()
 end
 --]]==============================================================================================]]

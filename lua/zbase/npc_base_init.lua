@@ -639,3 +639,8 @@ end
     -- Return true to not spawn ragdoll
 function NPC:ShouldGib( dmginfo, hit_gr )
 end
+
+
+    -- Called when the NPC is removed
+function NPC:OnRemove()
+end
