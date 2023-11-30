@@ -9,6 +9,6 @@ NPC.Class = "npc_combine_s"
 
 
 NPC.Name = "Overwatch Elite" -- Name of your NPC
-NPC.Category = "Default" -- Category in the ZBase tab
+NPC.Category = "Combine" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_ar2"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_combine_soldier" -- Inherit features from any existing zbase npc
