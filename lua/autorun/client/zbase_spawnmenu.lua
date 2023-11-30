@@ -156,7 +156,18 @@ function PANEL:GetAllFactions( factions )
 	self.PlyFactionDropDown:ChooseOption(self.PlyFactionDropDown.StartVal)
 	self.NPCFactionDropDown:ChooseOption(self.NPCFactionDropDown.StartVal)
 end
-net.Receive("ZBaseListFactions", function() LocalPlayer().ZBaseDDrawer:GetAllFactions(net.ReadTable()) end)
+-----------------------------------------------------------------------------------------=#
+net.Receive("ZBaseListFactions", function()
+	local tbl = table.Copy(net.ReadTable())
+
+
+	timer.Create("ZBasePlayerDDrawerGiveFactionTable", 1, 1, function()
+		if LocalPlayer().ZBaseDDrawer then
+			LocalPlayer().ZBaseDDrawer:GetAllFactions(tbl)
+			timer.Remove("ZBasePlayerDDrawerGiveFactionTable")
+		end
+	end)
+end)
 -----------------------------------------------------------------------------------------=#
 function PANEL:AddDropdown( text, func, startVal )
 	local label = vgui.Create("DLabel", self)
@@ -215,9 +226,18 @@ spawnmenu.AddCreationTab( "ZBase", function(...)
     local pnlContent = vgui.Create( "SpawnmenuContentPanel" )
 	pnlContent:CallPopulateHook( "PopulateZBase" )
 
+
 	local sidebar = pnlContent.ContentNavBar
 	sidebar.Options = vgui.Create( "ZBaseSussyBaka", sidebar )
-	LocalPlayer().ZBaseDDrawer = sidebar.Options
+
+
+	timer.Create("ZBasePlayerDDrawer", 1, 1, function()
+		if IsValid(LocalPlayer()) then
+			LocalPlayer().ZBaseDDrawer = sidebar.Options
+			timer.Remove("ZBasePlayerDDrawer")
+		end
+	end)
+
 
     return pnlContent
 

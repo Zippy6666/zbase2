@@ -43,7 +43,7 @@ function ENT:PostInit()
         self.CombineBallEffect:SetParent(self)
         self.CombineBallEffect:SetSaveValue("m_flRadius", 15)
         self.CombineBallEffect:Spawn()
-        util.SpriteTrail(self.CombineBallEffect, 0, white, true, 9, 0, 0.75, 20, "trails/plasma")
+        util.SpriteTrail(self, 0, white, true, 9, 0, 0.75, 20, "trails/plasma")
         
         self:EmitSound("NPC_CombineBall.HoldingInPhysCannon")
     end
