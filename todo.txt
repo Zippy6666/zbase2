@@ -1,10 +1,4 @@
     -- TODO --
--- Pack a few NPCs into the base
-    -- Finish mortar synth
-        -- add movement noise to base
-    -- Rebel hunter that fires crossbow bolts (hunter first!!)
-    -- "Antlion spitter" (hl alyx worker inspired)
-    -- Add some hl2 npcs that would be nice to have
 -- Make sure everything works
     -- Multiplayer
     -- Compatible with my other addons
@@ -25,6 +19,12 @@
             -- Health and damage sliders
             -- Misc useful stuff
             -- Option to not think outside of pvs
+-- Pack a few NPCs into the base
+    -- Finish mortar synth
+        -- add movement noise to base
+    -- Rebel hunter that fires crossbow bolts (hunter first!!)
+    -- "Antlion spitter" (hl alyx worker inspired)
+    -- Add some hl2 npcs that would be nice to have
 -- Copyright stuff
 -- Make a cool workshop page
     -- Psychotic description for the funnies

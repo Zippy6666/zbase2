@@ -1,8 +1,8 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 NPC.Models = {"models/vortigaunt.mdl", "models/vortigaunt.mdl", "models/vortigaunt_slave.mdl"}
-NPC.StartHealth = 10
-NPC.BloodColor = BLOOD_COLOR_YELLOW
+NPC.StartHealth = 150
+NPC.BloodColor = BLOOD_COLOR_GREEN
 NPC.ZBaseStartFaction = "ally"
 
 
