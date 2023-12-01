@@ -12,3 +12,76 @@ NPC.Name = "Dr. Isaac Kleiner" -- Name of your NPC
 NPC.Category = "Humans + Resistance" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_shotgun"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
+
+
+
+
+
+ZBaseCreateVoiceSounds("ZBaseKleiner.Alert", {
+    "vo/k_lab/kl_fiddlesticks.wav",
+    "vo/k_lab/kl_getoutrun02.wav",
+    "vo/k_lab/kl_getoutrun03.wav",
+    "vo/k_lab/kl_interference.wav",
+    "vo/k_lab/kl_ohdear.wav",
+})
+
+ZBaseCreateVoiceSounds("ZBaseKleiner.Die", {
+    "vo/k_lab/kl_ahhhh.wav",
+})
+
+ZBaseCreateVoiceSounds("ZBaseKleiner.Question", {
+    "vo/k_lab/kl_blast.wav",
+    "vo/k_lab/kl_finalsequence.wav",
+    "vo/k_lab/kl_fruitlessly.wav",
+    "vo/k_lab/kl_hesnotthere.wav",
+    "vo/k_lab/kl_holdup02.wav",
+    "vo/k_lab/kl_initializing.wav",
+    "vo/k_lab/kl_initializing2.wav",
+    "vo/k_lab/kl_masslessfieldflux.wav",
+    "vo/k_lab/kl_modifications01.wav",
+    "vo/k_lab/kl_modifications02.wav",
+    "vo/k_lab/kl_moduli02.wav",
+    "vo/k_lab/kl_mygoodness03.wav",
+    "vo/k_lab/kl_opportunetime02.wav",
+    "vo/k_lab/kl_redletterday02.wav",
+    "vo/k_lab/kl_weowe.wav",
+    
+})
+
+ZBaseCreateVoiceSounds("ZBaseKleiner.Answer", {
+    "vo/k_lab/kl_almostforgot.wav",
+    "vo/k_lab/kl_dearme.wav",
+    "vo/k_lab/kl_excellent.wav",
+    "vo/k_lab/kl_fewmoments01.wav",
+    "vo/k_lab/kl_fewmoments02.wav",
+    "vo/k_lab/kl_mygoodness01.wav",
+    "vo/k_lab/kl_nonsense.wav",
+    "vo/k_lab/kl_nownow01.wav",
+    "vo/k_lab/kl_nownow02.wav",
+    "vo/k_lab/kl_packing01.wav",
+    "vo/k_lab/kl_wishiknew.wav",
+    "vo/k_lab/kl_whatisit.wav",
+})
+
+ZBaseCreateVoiceSounds("ZBaseKleiner.AllyDeath", {
+    "vo/k_lab/kl_bonvoyage.wav",
+    "vo/k_lab/kl_cantwade.wav",
+    "vo/k_lab/kl_hedyno03.wav",
+})
+
+ZBaseCreateVoiceSounds("ZBaseKleiner.HearDanger", {
+    "vo/k_lab/kl_comeout.wav",
+    "vo/k_lab/kl_hedyno01.wav",
+    "vo/k_lab/kl_hedyno02.wav",
+})
+
+ZBaseCreateVoiceSounds("ZBaseKleiner.KillEnemy", {
+    "vo/k_lab/kl_relieved.wav",
+})
+
+
+
+
+
+
+

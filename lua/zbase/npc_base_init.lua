@@ -55,6 +55,15 @@ NPC.ExtraCapabilities = {
 }
 
 
+NPC.OnCeiling = false -- Spawn this NPC on the ceiling
+NPC.Offset = false -- NPC Spawn offset from ground, false = default
+
+
+-- Health regen
+NPC.HealthRegenAmount = 0
+NPC.HealthCooldown = 0.2
+
+
 --[[
 ==================================================================================================
                                            MOVEMENT

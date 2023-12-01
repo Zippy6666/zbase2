@@ -17,6 +17,7 @@ function NPC:ZBaseInit()
     self.NPCNextDangerSound = CurTime()
     self.NextEmitHearDangerSound = CurTime()
     self.NextFlinch = CurTime()
+    self.NextHealthRegen = CurTime()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = 0
@@ -85,6 +86,12 @@ function NPC:ZBaseInit()
 
 
     self:CallOnRemove("ZBaseOnRemove", function() self:OnRemove() end)
+
+
+    -- No squad if faction is none
+    if self.ZBaseFaction == "none" && self:SquadName()!="" then
+        self:SetSquad("")
+    end
 
 
     -- Makes behaviour system function
@@ -172,6 +179,13 @@ function NPC:ZBaseThink()
     end
 
 
+    -- Regen
+    if self.HealthRegenAmount > 0 && self:Health() < self:GetMaxHealth() && self.NextHealthRegen < CurTime() then
+        self:SetHealth(math.Clamp(self:Health()+self.HealthRegenAmount, 0, self:GetMaxHealth()))
+        self.NextHealthRegen = CurTime()+self.HealthCooldown
+    end
+
+
     self:CustomThink()
 end
 
@@ -214,7 +228,7 @@ function NPC:DoSlowThink()
 
     -- Stop being alert after some time
     if self:GetNPCState() == NPC_STATE_ALERT && !self.NextStopAlert then
-        self.NextStopAlert = CurTime()+math.Rand(10, 15)
+        self.NextStopAlert = CurTime()+math.Rand(15, 20)
     end
 
     if self.NextStopAlert && self.NextStopAlert < CurTime() then
@@ -223,7 +237,9 @@ function NPC:DoSlowThink()
     end
     --------------------------=#
 
-    
+    if self.ZBaseFaction == "none" && self:SquadName()!="" then
+        self:SetSquad("")
+    end
 
 end
 
@@ -366,7 +382,7 @@ function NPC:DoPlayAnim()
 
     -- Stop movement
     self:SetSaveValue("m_flTimeLastMovement", 1)
-    self:SetMoveVelocity(Vector())
+    self:SetMoveVelocity(Vector( ))
 end
 
 
@@ -777,6 +793,7 @@ local SchedsToReplaceWithPatrol = {
 function NPCB.Patrol:ShouldDoBehaviour( self )
     return self.CanPatrol
     && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()]
+    && self:GetMoveType() == MOVETYPE_STEP
 end
 
 
