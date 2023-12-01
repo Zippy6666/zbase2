@@ -24,7 +24,7 @@ end)
 --]]
 
 
-hook.Add("OnEntityCreated", "ZBASE", function( ent ) 
+hook.Add("OnEntityCreated", "ZBASE", function( ent )
     -- ZBase init stuff when not spawned from menu
     if SERVER then
         timer.Simple(0, function()

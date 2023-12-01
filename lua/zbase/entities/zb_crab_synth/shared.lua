@@ -81,8 +81,18 @@ sound.Add({
 	level = 95,
 	pitch = {95, 105},
 	sound = {
-        "npc/crabsynth/cs_roar01.wav",
         "npc/crabsynth/cs_roar02.wav",
+    }
+})
+--]]==============================================================================================]]
+sound.Add({
+    name = "ZBaseCrabSynth.SeeDanger",
+	channel = CHAN_VOICE,
+	volume = 0.9,
+	level = 95,
+	pitch = {95, 105},
+	sound = {
+        "npc/crabsynth/cs_roar01.wav",
     }
 })
 --]]==============================================================================================]]

@@ -1,3 +1,6 @@
+util.AddNetworkString("ZBaseGlowEyes")
+
+
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
@@ -91,6 +94,16 @@ function NPC:ZBaseInit()
     -- No squad if faction is none
     if self.ZBaseFaction == "none" && self:SquadName()!="" then
         self:SetSquad("")
+    end
+
+
+    -- Glowing eyes
+    local bone = self:LookupBone("ValveBiped.Bip01_Head1")
+    if bone then
+        net.Start("ZBaseGlowEyes")
+        net.WriteEntity(self)
+        net.WriteInt(bone, 8)
+        net.Broadcast()
     end
 
 

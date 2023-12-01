@@ -58,7 +58,7 @@ NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_FACE -- ZBASE_CANTREACHENEMY_
 
 
         -- BASE RANGE ATTACK --
-NPC.BaseRangeAttack = false--true -- Use ZBase range attack system
+NPC.BaseRangeAttack = true--true -- Use ZBase range attack system
 NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
 NPC.RangeProjectile_Inaccuracy = 0.07
 NPC.RangeAttackCooldown = {8, 12} -- Range attack cooldown {min, max}
@@ -88,7 +88,7 @@ NPC.LostEnemySounds = "ZBaseCrabSynth.LostEnemy" -- Sounds emitted when the enem
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = "ZBaseCrabSynth.HearSound"
-NPC.SeeDangerSounds = "ZBaseCrabSynth.Pain"
+NPC.SeeDangerSounds = "ZBaseCrabSynth.SeeDanger"
 
 
 -- Sound cooldowns {min, max}
