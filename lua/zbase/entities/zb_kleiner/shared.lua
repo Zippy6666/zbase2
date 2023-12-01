@@ -22,10 +22,13 @@ ZBaseCreateVoiceSounds("ZBaseKleiner.Alert", {
     "vo/k_lab/kl_getoutrun02.wav",
     "vo/k_lab/kl_getoutrun03.wav",
     "vo/k_lab/kl_interference.wav",
-    "vo/k_lab/kl_ohdear.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseKleiner.Die", {
+    "vo/k_lab/kl_ohdear.wav",
+})
+
+ZBaseCreateVoiceSounds("ZBaseKleiner.SeeDanger", {
     "vo/k_lab/kl_ahhhh.wav",
 })
 
@@ -45,6 +48,9 @@ ZBaseCreateVoiceSounds("ZBaseKleiner.Question", {
     "vo/k_lab/kl_opportunetime02.wav",
     "vo/k_lab/kl_redletterday02.wav",
     "vo/k_lab/kl_weowe.wav",
+    "vo/k_lab2/kl_blowyoustruck02.wav",
+    "vo/k_lab2/kl_givenuphope.wav",
+    "vo/k_lab2/kl_nolongeralone_b.wav",
     
 })
 
@@ -61,12 +67,17 @@ ZBaseCreateVoiceSounds("ZBaseKleiner.Answer", {
     "vo/k_lab/kl_packing01.wav",
     "vo/k_lab/kl_wishiknew.wav",
     "vo/k_lab/kl_whatisit.wav",
+    "vo/k_lab2/kl_aweekago01.wav",
+    "vo/k_lab2/kl_blowyoustruck01.wav",
+    "vo/k_lab2/kl_cantleavelamarr.wav",
+    "vo/k_lab2/kl_slowteleport01.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseKleiner.AllyDeath", {
     "vo/k_lab/kl_bonvoyage.wav",
     "vo/k_lab/kl_cantwade.wav",
     "vo/k_lab/kl_hedyno03.wav",
+    "vo/k_lab2/kl_atthecitadel01.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseKleiner.HearDanger", {
@@ -77,6 +88,7 @@ ZBaseCreateVoiceSounds("ZBaseKleiner.HearDanger", {
 
 ZBaseCreateVoiceSounds("ZBaseKleiner.KillEnemy", {
     "vo/k_lab/kl_relieved.wav",
+    "vo/k_lab2/kl_greatscott.wav",
 })
 
 
