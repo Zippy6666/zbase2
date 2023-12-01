@@ -12,6 +12,9 @@ NPC.CollisionBounds = {min=Vector(-75, -75, 0), max=Vector(75, 75, 90)}
 NPC.HullType = HULL_LARGE -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
 
 
+NPC.ForceAvoidDanger = true -- Force this NPC to avoid dangers such as grenades
+
+
 NPC.ZBaseStartFaction = "combine"
 
 
@@ -23,13 +26,6 @@ NPC.MeleeDamage_Type = DMG_SLASH -- The damage type, https://wiki.facepunch.com/
 NPC.MeleeDamage_Delay = false -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead)
 NPC.MeleeDamage_Sound = "ZBaseCrabSynth.MeleeHit" -- Sound when the melee attack hits an enemy
 NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
-
--- When chasing and enemy is closer than ChaseMinDistance:
--- ZBASE_TOOCLOSEBEHAVIOUR_NONE - Don't do any behaviour
--- ZBASE_TOOCLOSEBEHAVIOUR_FACE - Stand still and face the enemy
--- ZBASE_TOOCLOSEBEHAVIOUR_BACK - Move away from enemy
-NPC.ChaseMinDistanceBehaviour = ZBASE_TOOCLOSEBEHAVIOUR_FACE
-NPC.ChaseMinDistance = 1000 -- Minimum distance it chases before doing its ChaseMinDistanceBehaviour
 
 
         -- ARMOR SYSTEM --
@@ -62,7 +58,7 @@ NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_FACE -- ZBASE_CANTREACHENEMY_
 
 
         -- BASE RANGE ATTACK --
-NPC.BaseRangeAttack = true -- Use ZBase range attack system
+NPC.BaseRangeAttack = false--true -- Use ZBase range attack system
 NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
 NPC.RangeProjectile_Inaccuracy = 0.07
 NPC.RangeAttackCooldown = {8, 12} -- Range attack cooldown {min, max}
@@ -92,6 +88,7 @@ NPC.LostEnemySounds = "ZBaseCrabSynth.LostEnemy" -- Sounds emitted when the enem
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = "ZBaseCrabSynth.HearSound"
+NPC.SeeDangerSounds = "ZBaseCrabSynth.Pain"
 
 
 -- Sound cooldowns {min, max}
@@ -205,6 +202,20 @@ function NPC:CustomThink()
                     self:MeleeAttack()
                 end
             end
+        end
+
+
+        -- Stop if there is no ground underneath it
+        local Start = self:WorldSpaceCenter()
+        local End = Start+self:GetForward()*100-self:GetUp()*100
+        local tr = util.TraceLine({
+            start = Start,
+            endpos = End,
+            mask = MASK_NPCWORLDSTATIC,
+        })
+        --debugoverlay.Line(Start, End)
+        if !tr.Hit then
+            self:StopCurrentAnimation()
         end
 
 
