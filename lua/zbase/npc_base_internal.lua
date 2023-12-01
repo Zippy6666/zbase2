@@ -113,6 +113,9 @@ function NPC:BeforeSpawn()
         CAP_USE_SHOT_REGULATOR,
         CAP_FRIENDLY_DMG_IMMUNE
     ))
+
+    self.AllowedCustomEScheds = {}
+    self.ProhibitCustomEScheds = false
 end
 
 
@@ -126,14 +129,22 @@ end
 function NPC:ZBaseThink()
     local ene = self:GetEnemy()
 
+
+    -- Enemy visible
+    self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY)
+
+
+    -- Slow think
     if self.NPCNextSlowThink < CurTime() then
         self:DoSlowThink()
         self.NPCNextSlowThink = CurTime()+0.3
     end
 
 
-    -- Enemy visible
-    self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY)
+    -- NPC think (not SNPC)
+    if !self.IsZBase_SNPC then
+        self:HL2NPCThink()
+    end
 
 
     -- Enemy updated
@@ -172,9 +183,15 @@ function NPC:ZBaseThink()
     if self.SchedDebug then
         local ent = IsValid(self.Navigator) && self.Navigator or self
         local sched = ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched()) or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
+        or "schedule "..tostring(ent:GetCurrentSchedule())
 
         if sched then
             debugoverlay.Text(self:WorldSpaceCenter(), sched, 0.13)
+
+            if self.Debug_ProhibitedCusESched then
+                MsgN("NPC ["..self:EntIndex().."] prohibited sched "..self.Debug_ProhibitedCusESched)
+                self.Debug_ProhibitedCusESched = false
+            end
         end
     end
 
@@ -187,6 +204,49 @@ function NPC:ZBaseThink()
 
 
     self:CustomThink()
+end
+
+
+function NPC:HL2NPCThink()
+    local ene = self:GetEnemy()
+
+
+    if self.ProhibitCustomEScheds then
+        local state = self:GetNPCState()
+        local sched = self:GetCurrentSchedule()
+
+
+        if sched > 88 && !self.AllowedCustomEScheds[sched] then
+            self.Debug_ProhibitedCusESched = sched
+
+            self:SetSchedule(
+                (state==NPC_STATE_IDLE && SCHED_IDLE_STAND)
+                or (state==NPC_STATE_ALERT && SCHED_ALERT_STAND)
+                or (state==NPC_STATE_COMBAT && SCHED_COMBAT_FACE)
+            )
+        end
+    end
+
+
+    -- Reload now if hiding spot is too far away
+    if self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) && self:ZBaseDist(self:GetGoalPos(), {away=1000}) then
+        self:SetSchedule(SCHED_RELOAD)
+    end
+
+
+    -- Don't take cover from enemy if we have a melee attack
+    -- Chase instead
+    if IsValid(ene) && self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
+    && self:Disposition(ene)==D_HT && self.BaseMeleeAttack then
+        self:SetSchedule(SCHED_CHASE_ENEMY)
+    end
+
+
+    -- SCHED_ESTABLISH_LINE_OF_FIRE failed
+    -- Do chase instead
+    if self:IsCurrentSchedule(SCHED_ESTABLISH_LINE_OF_FIRE) && self:GetGoalPos()==Vector() then
+        self:SetSchedule(SCHED_CHASE_ENEMY)
+    end
 end
 
 
@@ -938,7 +998,7 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
     local seq = self:LookupSequence("shootar2alt")
     if seq != -1 then
         -- Has comball animation, play it
-        self:PlayAnimation(seq, true)
+        self:PlayAnimation("shootar2alt", true)
     else
         -- Charge sound (would normally play in the comball anim)
         wep:EmitSound("Weapon_CombineGuard.Special1")
@@ -1332,18 +1392,41 @@ end
 
 
 
+local Class_ShouldRunRandomOnDanger = {
+    [CLASS_PLAYER_ALLY_VITAL] = true,
+    [CLASS_COMBINE] = true,
+    [CLASS_METROPOLICE] = true,
+    [CLASS_PLAYER_ALLY] = true,
+}
+
+
 function NPC:HandleDanger()
     if self.InternalLoudestSoundHint.type != SOUND_DANGER then return end
+
+
     local dangerOwn = self.InternalLoudestSoundHint.owner
     local isGrenade = IsValid(dangerOwn) && (dangerOwn.IsZBaseGrenade or dangerOwn:GetClass() == "npc_grenade_frag")
+
 
     if self.IsZBase_SNPC then
         self:SNPCHandleDanger()
     end
 
+
+    -- Sound
     if self.NPCNextDangerSound < CurTime() then
         self:EmitSound_Uninterupted(isGrenade && self.SeeGrenadeSounds!="" && self.SeeGrenadeSounds or self.SeeDangerSounds)
         self.NPCNextDangerSound = CurTime()+math.Rand(2, 4)
+    end
+
+
+    if (Class_ShouldRunRandomOnDanger[self:Classify()] or self.ForceAvoidDanger) && self:GetCurrentSchedule() <= 88 && !self:IsCurrentSchedule(SCHED_RUN_RANDOM) then
+        self:SetSchedule(SCHED_RUN_RANDOM)
+    end
+
+
+    if self.HavingConversation then
+        self:CancelConversation()
     end
 end
 

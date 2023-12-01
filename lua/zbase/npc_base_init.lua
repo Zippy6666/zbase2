@@ -20,7 +20,6 @@ NPC.Models = {}
 NPC.RenderMode = RENDERMODE_NORMAL -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
 NPC.SubMaterials = {} -- Submaterials {*number index* = *string name*}
 
-
 NPC.StartHealth = 50 -- Max health
 
 
@@ -64,6 +63,9 @@ NPC.HealthRegenAmount = 0
 NPC.HealthCooldown = 0.2
 
 
+NPC.ForceAvoidDanger = false -- Force this NPC to avoid dangers such as grenades
+
+
 --[[
 ==================================================================================================
                                            MOVEMENT
@@ -73,9 +75,9 @@ NPC.HealthCooldown = 0.2
 
 -- Movement activity override https://wiki.facepunch.com/gmod/Enums/ACT
 NPC.MoveActivityOverride = {
-    [NPC_STATE_IDLE] = ACT_WALK, -- In idle
-    [NPC_STATE_ALERT] = ACT_RUN, -- When alert, for example, after combat
-    [NPC_STATE_COMBAT] = ACT_RUN, -- In combat
+    -- [NPC_STATE_IDLE] = ACT_WALK, -- In idle
+    -- [NPC_STATE_ALERT] = ACT_RUN, -- When alert, for example, after combat
+    -- [NPC_STATE_COMBAT] = ACT_RUN, -- In combat
 }
 NPC.CanPatrol = true -- Use base patrol behaviour
 NPC.CanJump = true -- Can the NPC jump?

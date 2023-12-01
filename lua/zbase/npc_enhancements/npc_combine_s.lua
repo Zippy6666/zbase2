@@ -6,6 +6,17 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         -- Don't allow combines to be elites
         -- All bines should be able to throw grenades and ar2 altfire!!!!
         self.m_fIsElite = false
+        self.m_iTacticalVariant = 1
+
+        self.ProhibitCustomEScheds = true
+        self.AllowedCustomEScheds = {
+            [270] = true,
+            [100] = true,
+            [92] = true,
+            [93] = true,
+            [98] = true,
+            [103] = true,
+        }
 
     end
     --]]============================================================================================================]]
@@ -15,13 +26,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         -- Allows multiple combines in the same squad to fire at once
         if self:GetInternalVariable("m_iMySquadSlot") == -1 then
             self:SetSaveValue("m_iMySquadSlot", 1)
-        end
-
-
-        -- Stop running away dammit
-        local sched = self:GetCurrentSchedule()
-        if sched == 186 or sched == 102 then
-            self:SetSchedule(SCHED_COMBAT_FACE)
         end
 
     end
