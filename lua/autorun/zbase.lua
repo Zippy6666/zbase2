@@ -304,6 +304,13 @@ local function IncludeFiles()
     include("zbase/cvars.lua")
 
 
+    -- Glowing eyes framework thingy idkfgsdgdhrhgfm
+    AddCSLuaFile("zbase/glowing_eyes.lua")
+    if CLIENT then
+        include("zbase/glowing_eyes.lua")
+    end
+
+
     if SERVER then
 
         -- Schedules

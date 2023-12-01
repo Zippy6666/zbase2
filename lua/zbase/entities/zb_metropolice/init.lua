@@ -27,5 +27,8 @@ NPC.KeyValues = {weapondrawn="1"}
 
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
+    local Manhacks = math.random(0, 1)
+    self.m_iManhacks = Manhacks
+    self:SetBodygroup(0, Manhacks)
 end
 --]]==============================================================================================]]
