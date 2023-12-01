@@ -32,7 +32,7 @@ NPC.KilledEnemySounds = "ZBaseKleiner.KillEnemy" -- Sounds emitted when the NPC 
 
 
 NPC.LostEnemySounds = "" -- Sounds emitted when the enemy is lost
-NPC.SeeDangerSounds = "" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
+NPC.SeeDangerSounds = "ZBaseKleiner.SeeDanger" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
 NPC.SeeGrenadeSounds = "" -- Sounds emitted when the NPC spots a grenade
 NPC.AllyDeathSounds = "ZBaseKleiner.AllyDeath" -- Sounds emitted when an ally dies
 NPC.OnMeleeSounds = "" -- Sounds emitted when the NPC does its melee attack
