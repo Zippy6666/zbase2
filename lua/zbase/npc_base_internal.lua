@@ -25,6 +25,7 @@ function NPC:ZBaseInit()
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = 0
     self.SchedDebug = GetConVar("developer"):GetBool()
+    print(self:GetCollisionBounds())
 
 
     -- Network shit
@@ -1440,6 +1441,7 @@ local Class_ShouldRunRandomOnDanger = {
 
 
 function NPC:HandleDanger()
+    if self:BusyPlayingAnimation() then return end
     if self.InternalLoudestSoundHint.type != SOUND_DANGER then return end
 
 
@@ -1658,13 +1660,15 @@ function NPC:OnScaleDamage( dmg, hit_gr )
 end
 
 
-local IsZombie = {
+local ShouldPreventGib = {
     ["npc_zombie"] = true,
     ["npc_fastzombie"] = true,
     ["npc_fastzombie_torso"] = true,
     ["npc_poisonzombie"] = true,
     ["npc_zombie_torso"] = true,
     ["npc_zombine"] = true,
+    ["npc_antlion"] = true,
+    ["npc_antlion_worker"] = true,
 }
 
 
@@ -1692,8 +1696,12 @@ function NPC:OnEntityTakeDamage( dmg )
     local boutaDie = self:Health()-dmg:GetDamage() <= 0 -- mf bouta die lmfao
 
 
-    if boutaDie then
-        dmg:SetDamageType(DMG_NEVERGIB)
+    if boutaDie && ShouldPreventGib[self:GetClass()] then
+        if dmg:IsDamageType(DMG_DISSOLVE) then
+            dmg:SetDamageType(bit.bor(DMG_DISSOLVE, DMG_NEVERGIB))
+        else
+            dmg:SetDamageType(DMG_NEVERGIB)
+        end
     end
 
 
@@ -1834,7 +1842,19 @@ end
 ZBaseRagdolls = {}
 
 
+local RagdollBlacklist = {
+    ["npc_clawscanner"] = true,
+    ["npc_manhack"] = true,
+    ["npc_cscanner"] = true,
+    ["npc_combinegunship"] = true,
+    ["npc_combinedropship"] = true,
+}
+
+
 function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
+    if RagdollBlacklist[self:GetClass()] then return end
+
+
 	local rag = ents.Create("prop_ragdoll")
 	rag:SetModel(self:GetModel())
 	rag:SetPos(self:GetPos())
@@ -1842,13 +1862,11 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	rag:SetSkin(self:GetSkin())
 	rag:SetColor(self:GetColor())
 	rag:SetMaterial(self:GetMaterial())
-
-
+    rag.IsZBaseRag = true
 	rag:Spawn()
 
 
     for k, v in pairs(self.SubMaterials) do
-        print(k, v)
         rag:SetSubMaterial(k-1, v)
     end
 
@@ -2227,4 +2245,12 @@ function NPC:MarkEnemyAsDead( ene, time )
             self.EnemyDied = false
         end)
     end
+end
+
+
+function NPC:SetModel_MaintainBounds(model)
+    local mins, maxs = self:GetCollisionBounds()
+    self:SetModel(model)
+    self:SetCollisionBounds(mins, maxs)
+    self:ResetIdealActivity(ACT_IDLE)
 end

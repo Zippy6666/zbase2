@@ -68,7 +68,8 @@ function ENT:Aerial_CalcVel()
         local ene = self:GetEnemy()
         local seeEnemy = IsValid(ene) && self.EnemyVisible
 
-        self.Aerial_CurrentDestination = (seeEnemy && ene:GetPos()+Vector(0, 0, self.InternalDistanceFromGround)) or self.AerialGoal
+        self.Aerial_CurrentDestination = (self:IsCurrentCustomSched("CombatChase") && seeEnemy && ene:GetPos()+Vector(0, 0, self.InternalDistanceFromGround))
+        or self.AerialGoal
 
     elseif self.Aerial_NextMoveFromGroundCheck < CurTime() then
         -- Are we too close to the ground?
@@ -90,7 +91,12 @@ function ENT:Aerial_CalcVel()
 
 
     local curMoveDir = self.Aerial_CurrentDestination && (self.Aerial_CurrentDestination - myPos):GetNormalized()
-    local speedLimit = self.Fly_MoveSpeed -- self.ShouldMoveFromGround && math.Clamp(self.InternalDistanceFromGround*0.33, 0, self.Fly_MoveSpeed) or self.Fly_MoveSpeed
+
+    
+    local speedLimit = self:IsFacing(self.Aerial_CurrentDestination) && self.Fly_MoveSpeed or self.Fly_MoveSpeed*0.35
+    if self:GetNPCState()==NPC_STATE_IDLE then speedLimit=speedLimit*0.5 end
+
+
     if curMoveDir then
         -- Accelerate, store last direction
         self.Aerial_LastMoveDir = LerpVector(0.25, self.Aerial_LastMoveDir, curMoveDir)
