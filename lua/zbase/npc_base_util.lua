@@ -433,3 +433,19 @@ end
 function NPC:SquadName()
     return self:GetKeyValues().squadname
 end
+
+
+    -- Give zombie NPCs headcrabs
+function NPC:Zombie_GiveHeadCrabs()
+    self:SetSaveValue("m_fIsHeadless", false)
+    self:SetBodygroup(1, 1)
+
+    if self:GetClass()=="npc_poisonzombie" then
+        self:SetSaveValue("m_nCrabCount", 4)
+        self:SetSaveValue("m_bCrabs", {true, true, true, true})
+
+        for i = 2, 5 do
+            self:SetBodygroup(i, 1)
+        end
+    end
+end

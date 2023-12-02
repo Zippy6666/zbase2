@@ -377,11 +377,6 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
         self.PreAnimNPCState = self:GetNPCState()
         self:SetNPCState(NPC_STATE_SCRIPT)
 
-
-        self.DoingPlayAnim = true
-        self.PlayAnim_PlayBackRate = playbackRate
-    
-
         
         if isnumber(anim) then
             -- Anim is activity
@@ -402,8 +397,6 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
         self:ResetSequenceInfo()
         self:SetCycle(0)
         self:ResetSequence(anim)
-        self.PlayAnim_Seq = anim
-
 
 
         -- Decide duration
@@ -411,15 +404,6 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
         if playbackRate then
             duration = duration/playbackRate
         end
-
-
-        -- Face
-        if forceFace!=nil then
-            self.PlayAnim_Face = forceFace
-            self.PlayAnim_FaceSpeed = faceSpeed
-            self.PlayAnim_LockAng = self:GetAngles()
-        end
-
 
         -- Anim stop timer --
         timer.Create("ZBasePlayAnim"..self:EntIndex(), duration, 1, function()
@@ -432,6 +416,18 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
             end
         end)
         --------------------------------------------------=#
+
+
+        -- Face
+        if forceFace!=nil then
+            self.PlayAnim_Face = forceFace
+            self.PlayAnim_FaceSpeed = faceSpeed
+            self.PlayAnim_LockAng = self:GetAngles()
+        end
+
+
+        self.PlayAnim_PlayBackRate = playbackRate
+        self.DoingPlayAnim = true
     end
     ----------------------------------------------------------------=#
 
@@ -453,7 +449,6 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
 
 
     -- No transition, just play the animation
-    
     playAnim()
 end
 
@@ -510,7 +505,6 @@ function NPC:InternalStopAnimation(dontTransitionOut)
     self.PlayAnim_Face = nil
     self.PlayAnim_FaceSpeed = nil
     self.PlayAnim_PlayBackRate = nil
-    self.PlayAnim_Seq = nil
     self.PlayAnim_LockAng = nil
 
 
@@ -1338,6 +1332,12 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
     if self.DoingPlayAnim then return false end
 
+    -- Don't range attack in mid-air
+    if self:GetNavType() == 0
+    && self:GetClass() != "npc_manhack"
+    && !self:IsOnGround() then return false end
+    
+    
     self:MultipleRangeAttacks()
 
 
@@ -1378,20 +1378,6 @@ function NPCB.RangeAttack:Run( self )
     self:RangeAttack()
     ZBaseDelayBehaviour(self:SequenceDuration() + 0.25 + ZBaseRndTblRange(self.RangeAttackCooldown))
 end
-
-
--- function NPCB.PreRangeAttack:ShouldDoBehaviour( self )
---     if !self.BaseRangeAttack then return false end
---     if self.DoingPlayAnim then return false end
-
---     return true
--- end
-
-
--- function NPCB.PreRangeAttack:Run( self )
-    
---     self.FirstPreMeleeRan = true
--- end
 
 
 --[[
@@ -1706,20 +1692,15 @@ function NPC:OnEntityTakeDamage( dmg )
     local boutaDie = self:Health()-dmg:GetDamage() <= 0 -- mf bouta die lmfao
 
 
-    -- Death animation
-    if !table.IsEmpty(self.DeathAnimations) && boutaDie then
-        self:DeathAnimation(dmg)
-        return
-    end
-
-
-    if IsZombie[self:GetClass()] && (dmg:IsDamageType(DMG_SLASH) or dmg:IsDamageType(DMG_BLAST)) then
+    if boutaDie then
         dmg:SetDamageType(DMG_NEVERGIB)
     end
 
 
-    if boutaDie then
-        dmg:SetDamageType( bit.bor(dmg:GetDamageType(), DMG_NEVERGIB) )
+    -- Death animation
+    if !table.IsEmpty(self.DeathAnimations) && boutaDie then
+        self:DeathAnimation(dmg)
+        return
     end
 end
 
