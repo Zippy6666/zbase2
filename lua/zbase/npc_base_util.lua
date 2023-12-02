@@ -84,7 +84,20 @@ function NPC:Face( face, duration, speed )
 
         local sched = self:GetCurrentSchedule()
         if sched > 88 then return end
-        if ZBaseForbiddenFaceScheds[sched] then return end
+    
+
+        local ForbiddenScheds = {
+            [SCHED_ALERT_FACE]	= true,
+            [SCHED_ALERT_FACE_BESTSOUND]	= true,
+            [SCHED_COMBAT_FACE] 	= true,
+            [SCHED_FEAR_FACE] 	= true,	
+            [SCHED_SCRIPTED_FACE] 	= true,	
+            [SCHED_TARGET_FACE]	= true,
+            [SCHED_RANGE_ATTACK1] = true,
+        }
+
+
+        if ForbiddenScheds[sched] then return end
         
 
         local turnSpeed = speed
@@ -384,7 +397,10 @@ end
 
     -- Check if an entity is allied with the NPC
 function NPC:IsAlly( ent )
+    if !IsValid(ent) then return false end
+    if ent==self then return false end
     if self.ZBaseFaction == "none" then return false end
+
     return ent.ZBaseFaction == self.ZBaseFaction
 end
 

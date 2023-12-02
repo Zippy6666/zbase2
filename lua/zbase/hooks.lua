@@ -217,15 +217,24 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     local infl = dmg:GetInflictor()
 
 
-    -- Victim is ZBase NPC
-    if ent.IsZBaseNPC then
-        ent:OnEntityTakeDamage( dmg )
-    end
-
-
     -- Attacker is ZBase NPC
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:DealDamage( dmg, ent )
+
+
+        if attacker.ZBaseEnhancedDealDamage then
+            attacker:ZBaseEnhancedDealDamage( dmg, ent )
+        end
+    end
+
+
+    -- Victim is ZBase NPC
+    if ent.IsZBaseNPC then
+        local value = ent:OnEntityTakeDamage( dmg )
+
+        if value != nil then
+            return value
+        end
     end
 
 
@@ -272,15 +281,17 @@ hook.Add("PostEntityTakeDamage", "ZBASE", function( ent, dmg )
     end
 end)
 
-
-hook.Add("ScaleNPCDamage", "ZBASE", function( npc, hit_gr, dmg )
+local function ScaleDamage( ent, hit_gr, dmg )
     local attacker = dmg:GetAttacker()
 
-    if npc.IsZBaseNPC then
-        npc:OnScaleNPCDamage( dmg, hit_gr )
+    if ent.IsZBaseNPC then
+        ent:OnScaleDamage( dmg, hit_gr )
     end
-end)
+end
 
+
+hook.Add("ScaleNPCDamage", "ZBASE", ScaleDamage)
+hook.Add("ScalePlayerDamage", "ZBASE", ScaleDamage)
 
 
 --[[

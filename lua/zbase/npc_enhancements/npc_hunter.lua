@@ -23,4 +23,17 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
     function NPC:ZBaseEnhancedThink()
     end
     --]]============================================================================================================]]
+    function NPC:ZBaseEnhancedDealDamage(dmg, ent)
+        -- Fixes hunters being unable to hurt eachother
+        if ent:GetClass() == "npc_hunter" && !self:IsAlly(ent) && !self.DoingHunterDamageFix then
+
+            self.DoingHunterDamageFix = true
+            ent:TakeDamage(dmg:GetDamage(), self, self)
+            return
+
+        end
+
+        self.DoingHunterDamageFix = false
+    end
+    --]]============================================================================================================]]
 end

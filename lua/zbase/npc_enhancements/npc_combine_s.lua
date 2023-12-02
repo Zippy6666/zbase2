@@ -7,17 +7,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         -- All bines should be able to throw grenades and ar2 altfire!!!!
         self.m_fIsElite = false
         self.m_iTacticalVariant = 1
-
-        self.ProhibitCustomEScheds = true
-        self.AllowedCustomEScheds = {
-            [270] = true,
-            [100] = true,
-            [92] = true,
-            [93] = true,
-            [98] = true,
-            [103] = true,
-        }
-
         self:SetAllowedEScheds({
             "SCHED_COMBINE_COMBAT_FAIL",
             "SCHED_COMBINE_HIDE_AND_RELOAD",
@@ -25,18 +14,16 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             "SCHED_COMBINE_RANGE_ATTACK1",
             "SCHED_COMBINE_TAKE_COVER_FROM_BEST_SOUND",
             "SCHED_COMBINE_RUN_AWAY_FROM_BEST_SOUND",
-            "SCHED_COMBINE_GRENADE_COVER1",
-            "SCHED_COMBINE_TOSS_GRENADE_COVER1",
             "SCHED_COMBINE_TAKECOVER_FAILED",
-            "SCHED_COMBINE_GRENADE_AND_RELOAD",
             "SCHED_COMBINE_BUGBAIT_DISTRACTION",
-            "SCHED_COMBINE_DROP_GRENADE",
             "SCHED_COMBINE_CHARGE_PLAYER",
             "SCHED_COMBINE_BURNING_STAND",
             "SCHED_COMBINE_AR2_ALTFIRE",
             "SCHED_COMBINE_FORCED_GRENADE_THROW",
             "SCHED_COMBINE_MOVE_TO_FORCED_GREN_LOS",
         })
+        self.NextCombineGrenade = CurTime()
+        
     end
     --]]============================================================================================================]]
     function NPC:ZBaseEnhancedThink()
@@ -45,6 +32,22 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         -- Allows multiple combines in the same squad to fire at once
         if self:GetInternalVariable("m_iMySquadSlot") == -1 then
             self:SetSaveValue("m_iMySquadSlot", 1)
+        end
+
+        -- Grenade
+        local ene = self:GetEnemy()
+        if IsValid(ene) && self.NextCombineGrenade < CurTime() then
+            local should_throw_visible = self.EnemyVisible && math.random(1, 4)==1
+            local should_throw_occluded = !self.EnemyVisible && math.random(1, 2)==1
+
+
+            if should_throw_visible or should_throw_occluded then
+                ene:SetKeyValue("targetname", "zbasecombinegrentarget")
+                self:Fire("ThrowGrenadeAtTarget", "zbasecombinegrentarget")
+            end
+
+
+            self.NextCombineGrenade = CurTime()+math.Rand(4, 8)
         end
 
     end
