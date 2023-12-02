@@ -1,27 +1,27 @@
     -- TODO --
--- Make sure everything works
+-- General
+    -- Improve playanim for some npcs
     -- Make sure EVERYTHING works as intended
-        -- Make sure all hl2 npcs work as intended with zbase
-        -- Stress test, do weird stuff, test PlayAnimation on loads of NPCs
--- Add things that people probably want
-    -- Image path
-    -- Glowing eyes for bines (maybe)
-    -- More menu options
-        -- Health and damage sliders
-        -- Misc useful stuff
-        -- Option to not think outside of pvs
+    -- Add things that people probably want
+        -- Image path
         -- Movement noise to aerial snpc base
--- Make more user friendly
-    -- Lots of "CustomOn" functions (use vj for reference)
-    -- All variables can be changed during the NPC's lifetime
-    -- Dummy git
-    -- ZBase reload tries to apply in realtime
-    -- Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
--- Multiplayer
--- Make sure everything is finished
--- Copyright stuff
--- Make a cool workshop page
-    -- Psychotic description for the funnies
-    -- Show list of future ideas to hype mfs
-    -- Credit crunchy soap!!!!!!!!!!!!!
-    -- requiresd good boi branch!!!
+        -- More menu options
+            -- Health and damage sliders
+            -- Misc useful stuff
+            -- Option to not think outside of pvs
+    -- Make more user friendly
+        -- Lots of "CustomOn" functions (use vj for reference)
+        -- All variables can be changed during the NPC's lifetime
+        -- Dummy git
+        -- ZBase reload tries to apply in realtime
+        -- Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
+    -- Multiplayer
+        -- Glowing eyes
+--Final stuff
+    -- Make sure everything is finished
+    -- Copyright stuff
+    -- Make a cool workshop page
+        -- Psychotic description for the funnies
+        -- Show list of future ideas to hype mfs
+        -- Credit crunchy soap!!!!!!!!!!!!!
+        -- requiresd good boi branch!!!

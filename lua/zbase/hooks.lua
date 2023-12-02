@@ -374,6 +374,64 @@ end)
 
 --[[
 ======================================================================================================================================================
+                                           GLOWING EYES
+======================================================================================================================================================
+--]]
+
+if SERVER then
+    util.AddNetworkString("ZBaseAddGlowEyes")
+end
+
+
+if !ZBaseEntsWithGlowingEyes then
+    ZBaseEntsWithGlowingEyes = {}
+end
+
+
+ZBaseGlowingEyes = {}
+
+
+if CLIENT then
+    net.Receive("ZBaseAddGlowEyes", function()
+        local Ent = net.ReadEntity()
+        local Eyes = net.ReadTable()
+        Ent.GlowEyes = table.Copy(Eyes)
+        
+        table.insert(ZBaseEntsWithGlowingEyes, Ent)
+        Ent:CallOnRemove("RemoveEntsWithGlowingEyes", function() table.RemoveByValue(ZBaseEntsWithGlowingEyes, Ent) end)
+    end)
+end
+
+
+local mat = Material( "effects/blueflare1" )
+hook.Add( "RenderScreenspaceEffects", "ZBaseGlowingEyes", function()
+
+    for _, ent in ipairs(ZBaseEntsWithGlowingEyes) do
+        if !ent.GlowEyes then continue end
+
+        
+        for _, eye in ipairs(ent.GlowEyes) do
+            if ent:GetSkin() != eye.skin then continue end
+
+            local matrix = ent:GetBoneMatrix(eye.bone or 0)
+            if matrix then
+                local BonePos = matrix:GetTranslation()
+                local BoneAng = matrix:GetAngles()
+                local pos = BonePos + BoneAng:Forward()*eye.offset.x + BoneAng:Right()*eye.offset.y + BoneAng:Up()*eye.offset.z
+
+                cam.Start3D()
+                    render.SetMaterial(mat)
+                    render.DrawSprite( pos, eye.scale, eye.scale, eye.color)
+                cam.End3D()
+            end
+        end
+    end
+
+end)
+
+
+--[[
+======================================================================================================================================================
                                            OTHER
 ======================================================================================================================================================
 --]]

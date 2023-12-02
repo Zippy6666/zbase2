@@ -59,22 +59,19 @@ function ZBaseSetFaction( ent, newFaction )
 end
 
 
---[[
-======================================================================================================================================================
-                                           CONVINIENT FUNCTIONS
-======================================================================================================================================================
---]]
+function ZBaseAddGlowingEye(model, skin, bone, offset, scale, color)
+    if !ZBaseGlowingEyes[model] then ZBaseGlowingEyes[model] = {} end
 
+    local Eye = {}
+    Eye.skin = skin
+    Eye.bone = bone
+    Eye.offset = offset
+    Eye.scale = scale
+    Eye.color = color
 
-function ZBaseCreateVoiceSounds( name, tbl )
-    sound.Add( {
-        name = name,
-        channel = CHAN_VOICE,
-        volume = 0.5,
-        level = 90,
-        pitch = {95, 105},
-        sound = tbl,
-    } )
+    table.insert(ZBaseGlowingEyes[model], Eye)
+
+    PrintTable(ZBaseGlowingEyes)
 end
 
 
@@ -124,11 +121,6 @@ function ZBaseBleed( ent, pos, ang )
     if ent.IsZBaseGib or ent.IsZBaseNPC then
         ent:CustomBleed( pos, (ang && ang:Forward()) or VectorRand(), false )
     end
-end
-
-
-function ZBaseRndTblRange( tbl )
-    return math.Rand(tbl[1], tbl[2])
 end
 
 
@@ -224,4 +216,33 @@ function ZBaseEngineSchedName( sched )
         [4] = 'SCHED_WAKE_ANGRY', --	4	Spot an enemy and go from an idle state to combat state.
     }
     return schednames[sched]
+end
+
+
+function ZBaseESchedID( name )
+    return ai.GetScheduleID(name)-1000000000
+end
+
+
+--[[
+======================================================================================================================================================
+                                           CONVINIENT FUNCTIONS
+======================================================================================================================================================
+--]]
+
+
+function ZBaseCreateVoiceSounds( name, tbl )
+    sound.Add( {
+        name = name,
+        channel = CHAN_VOICE,
+        volume = 0.5,
+        level = 90,
+        pitch = {95, 105},
+        sound = tbl,
+    } )
+end
+
+
+function ZBaseRndTblRange( tbl )
+    return math.Rand(tbl[1], tbl[2])
 end

@@ -98,13 +98,7 @@ function NPC:ZBaseInit()
 
 
     -- Glowing eyes
-    local bone = self:LookupBone("ValveBiped.Bip01_Head1")
-    if bone then
-        net.Start("ZBaseGlowEyes")
-        net.WriteEntity(self)
-        net.WriteInt(bone, 8)
-        net.Broadcast()
-    end
+    self:GlowEyeInit()
 
 
     -- Makes behaviour system function
@@ -113,6 +107,26 @@ function NPC:ZBaseInit()
 
     -- Custom init
     self:CustomInitialize()
+end
+
+
+function NPC:GlowEyeInit()
+    local Eyes = ZBaseGlowingEyes[self:GetModel()]
+    if !Eyes then return end
+
+
+    Eyes = table.Copy(Eyes)
+
+
+    for _, eye in ipairs(Eyes) do
+        eye.bone = self:LookupBone(eye.bone)
+    end
+
+
+    net.Start("ZBaseAddGlowEyes")
+    net.WriteEntity(self)
+    net.WriteTable(Eyes)
+    net.Broadcast()
 end
 
 
@@ -196,7 +210,7 @@ function NPC:ZBaseThink()
     if self.SchedDebug then
         local ent = IsValid(self.Navigator) && self.Navigator or self
         local sched = ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched()) or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
-        or "schedule "..tostring(ent:GetCurrentSchedule())
+        or self.AllowedCustomEScheds[ent:GetCurrentSchedule()] or "schedule "..tostring(ent:GetCurrentSchedule())
 
         if sched then
             debugoverlay.Text(self:WorldSpaceCenter(), sched, 0.13)
@@ -242,7 +256,8 @@ function NPC:HL2NPCThink()
 
 
     -- Reload now if hiding spot is too far away
-    if self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) && self:ZBaseDist(self:GetGoalPos(), {away=1000}) then
+    if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) or self:IsCurrentSchedule(ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")))
+    && self:ZBaseDist(self:GetGoalPos(), {away=1000}) then
         self:SetSchedule(SCHED_RELOAD)
     end
 
@@ -2062,6 +2077,14 @@ end
                                            OTHER CRAP
 ==================================================================================================
 --]]
+
+
+function NPC:SetAllowedEScheds( escheds )
+    self.ProhibitCustomEScheds = true
+    for _, v in ipairs(escheds) do
+        self.AllowedCustomEScheds[ZBaseESchedID(v)] = v
+    end
+end
 
 
 function NPC:OnKilledEnt( ent )

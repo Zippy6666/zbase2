@@ -1,6 +1,6 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-
+NPC.Models = {"models/zippy/ResistanceHunter.mdl"}
 NPC.StartHealth = 310 -- Max health
 
 

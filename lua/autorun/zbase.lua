@@ -238,10 +238,10 @@ if SERVER then
 end
 
 
---if !ZBaseNPCInstances then
+if !ZBaseNPCInstances then
     ZBaseNPCInstances = {}
     ZBaseNPCInstances_NonScripted = {}
---end
+end
 
 
 function ZBaseEnhancementNPCClass(debuginfo)
@@ -302,13 +302,6 @@ local function IncludeFiles()
     -- CVars
     AddCSLuaFile("zbase/cvars.lua")
     include("zbase/cvars.lua")
-
-
-    -- Glowing eyes framework thingy idkfgsdgdhrhgfm
-    AddCSLuaFile("zbase/glowing_eyes.lua")
-    if CLIENT then
-        include("zbase/glowing_eyes.lua")
-    end
 
 
     if SERVER then

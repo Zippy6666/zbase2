@@ -12,3 +12,6 @@ NPC.Name = "Overwatch Elite" -- Name of your NPC
 NPC.Category = "Combine" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_ar2"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_combine_soldier" -- Inherit features from any existing zbase npc
+
+
+ZBaseAddGlowingEye("models/combine_super_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(5, 5.5, 0), 16, Color(190, 25, 0))

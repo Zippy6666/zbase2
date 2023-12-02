@@ -18,6 +18,25 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             [103] = true,
         }
 
+        self:SetAllowedEScheds({
+            "SCHED_COMBINE_COMBAT_FAIL",
+            "SCHED_COMBINE_HIDE_AND_RELOAD",
+            "SCHED_COMBINE_PRESS_ATTACK",
+            "SCHED_COMBINE_RANGE_ATTACK1",
+            "SCHED_COMBINE_TAKE_COVER_FROM_BEST_SOUND",
+            "SCHED_COMBINE_RUN_AWAY_FROM_BEST_SOUND",
+            "SCHED_COMBINE_GRENADE_COVER1",
+            "SCHED_COMBINE_TOSS_GRENADE_COVER1",
+            "SCHED_COMBINE_TAKECOVER_FAILED",
+            "SCHED_COMBINE_GRENADE_AND_RELOAD",
+            "SCHED_COMBINE_BUGBAIT_DISTRACTION",
+            "SCHED_COMBINE_DROP_GRENADE",
+            "SCHED_COMBINE_CHARGE_PLAYER",
+            "SCHED_COMBINE_BURNING_STAND",
+            "SCHED_COMBINE_AR2_ALTFIRE",
+            "SCHED_COMBINE_FORCED_GRENADE_THROW",
+            "SCHED_COMBINE_MOVE_TO_FORCED_GREN_LOS",
+        })
     end
     --]]============================================================================================================]]
     function NPC:ZBaseEnhancedThink()
