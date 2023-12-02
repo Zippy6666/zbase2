@@ -49,6 +49,11 @@ NPC.RangeProjectile_Speed = 2000 -- The speed of the projectile
 NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
 NPC.OnRangeSounds = "NPC_Antlion.Distracted" -- Sounds emitted when the NPC does its range attack
 NPC.OnRangeSound_Chance = 1
+
+
+NPC.GibMaterial = "models/antlionspitter/antlionhigh_sheet2"
+NPC.GibParticle = "blood_impact_zbase_blue"
+
 --]]==============================================================================================]]
 function NPC:CustomDealDamage( victimEnt, dmginfo )
     if dmginfo:IsDamageType(DMG_SLASH) then
@@ -59,7 +64,6 @@ end
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
     self:SetSkin(1)
-    bit.bor(DMG_POISON, DMG_ACID)
 end
 --]]==============================================================================================]]
 function NPC:RangeAttackProjectile()

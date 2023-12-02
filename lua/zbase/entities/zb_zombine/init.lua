@@ -1,8 +1,11 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 
---]]==============================================================================================]]
-function NPC:CustomInitialize()
+NPC.StartHealth = 120 -- Max health
 
-end
---]]==============================================================================================]]
+
+NPC.HasArmor = {
+    [HITGROUP_GENERIC] = true,
+    [HITGROUP_CHEST] = true,
+    [HITGROUP_STOMACH] = true,
+}

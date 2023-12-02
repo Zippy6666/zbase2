@@ -29,3 +29,14 @@ ZBCVAR.GibCollide = CreateConVar("zbase_gib_collide", "0", Flags)
 
 ZBCVAR.FullHL2WepDMG_NPC = CreateConVar("zbase_full_hl2_wep_damage_npc", "1", Flags)
 ZBCVAR.FullHL2WepDMG_PLY = CreateConVar("zbase_full_hl2_wep_damage_ply", "0", Flags)
+
+
+--[[
+==================================================================================================
+                                           ZOMBIES
+==================================================================================================
+--]]
+
+
+ZBCVAR.ZombieHeadcrabs = CreateConVar("zbase_zombie_headcrabs", "0", Flags)
+ZBCVAR.ZombieRedBlood = CreateConVar("zbase_zombie_red_blood", "1", Flags)
