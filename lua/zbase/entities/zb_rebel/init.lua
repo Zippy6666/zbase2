@@ -19,6 +19,9 @@ NPC.HasArmor = {
 }
 
 
+NPC.MeleeAttackAnimations = {"meleeattack01"}
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 end

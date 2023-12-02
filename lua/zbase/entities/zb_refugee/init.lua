@@ -17,6 +17,9 @@ NPC.CanPatrol = true -- Use base patrol behaviour
 NPC.KeyValues = {citizentype = CT_REFUGEE} -- Keyvalues
 
 
+NPC.MeleeAttackAnimations = {"meleeattack01"}
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 

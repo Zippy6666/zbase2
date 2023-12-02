@@ -369,32 +369,41 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
         self:FullReset()
 
 
+        -- Set schedule
+        if sched then self:SetSchedule(sched) end
+
+
         -- Set state to scripted
         self.PreAnimNPCState = self:GetNPCState()
         self:SetNPCState(NPC_STATE_SCRIPT)
-
-
-        -- Set schedule
-        if sched then self:SetSchedule(sched) end
 
 
         self.DoingPlayAnim = true
         self.PlayAnim_PlayBackRate = playbackRate
     
 
-        -- Anim is activity
+        
         if isnumber(anim) then
-            self:ResetIdealActivity(anim) -- Play as activity, fixes shit
+            -- Anim is activity
+            -- Play as activity first, fixes shit
+            self:ResetIdealActivity(anim)
             self:SetActivity(anim)
-            anim = self:SelectWeightedSequence(anim) -- Convert activity to sequence
+
+             -- Convert activity to sequence
+            anim = self:SelectWeightedSequence(anim)
+        else
+            -- Fixes jankyness for some NPCs
+            self:ResetIdealActivity(ACT_IDLE)
+            self:SetActivity(ACT_IDLE)
         end
 
 
         -- Play the sequence
-        self:ResetSequence(anim)
-        self.PlayAnim_Seq = anim
         self:ResetSequenceInfo()
         self:SetCycle(0)
+        self:ResetSequence(anim)
+        self.PlayAnim_Seq = anim
+
 
 
         -- Decide duration
@@ -466,12 +475,11 @@ function NPC:DoPlayAnim()
 
 
     -- Playback rate for the animation
-    self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
+    self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1.05)
 
 
     -- Stop movement
-    self:SetSaveValue("m_flTimeLastMovement", 1)
-    self:SetMoveVelocity(Vector( ))
+    self:SetSaveValue("m_flTimeLastMovement", 2)
 end
 
 
