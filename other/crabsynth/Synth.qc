@@ -211,6 +211,7 @@ $collisionjoints crabrag.smd {
 $sequence ragdoll 		"synth_reference.smd" 		FPS 30 		activity ACT_DIERAGDOLL 1
 
 $attachment "muzzle" "Box05" -13.00 5.00 -0.00 rotate 0 180 180
+$attachment "flashlight" "Box03" 0 0 0 rotate 0 180 180
 
 
 

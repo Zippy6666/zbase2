@@ -70,8 +70,6 @@ function ZBaseAddGlowingEye(model, skin, bone, offset, scale, color)
     Eye.color = color
 
     table.insert(ZBaseGlowingEyes[model], Eye)
-
-    PrintTable(ZBaseGlowingEyes)
 end
 
 

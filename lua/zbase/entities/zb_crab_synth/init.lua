@@ -162,10 +162,18 @@ function NPC:CustomThink()
     end
 
 
-    -- Stop shoot loop sound if it should not be playing
-    if seqName != "range_loop" && self.MinigunShootSound:IsPlaying() then
-        self.MinigunShootSound:Stop()
-        self:EmitSound("ZBaseCrabSynth.MinigunStop")
+    -- Not range attacking currently
+    if seqName != "range_loop" then
+        -- Stop shoot loop sound
+        if self.MinigunShootSound:IsPlaying() then
+            self.MinigunShootSound:Stop()
+            self:EmitSound("ZBaseCrabSynth.MinigunStop")
+        end
+
+        -- Disable flashlight
+        if IsValid(self.FlashLight) then
+            self:DisableFlashlight()
+        end
     end
 
 
@@ -239,12 +247,62 @@ function NPC:CustomThink()
     end
 end
 --]]==============================================================================================]]
-function NPC:OnRangeAttack()
-    local duration = math.Rand(3, 6)
+function NPC:EnableFlashlight(duration)
+    self:DisableFlashlight()
 
-    self:PlayAnimation(ACT_RANGE_ATTACK1, false, {duration=duration})
+
+    local projtexture = ents.Create("env_projectedtexture")
+    projtexture:SetPos( self:GetPos() )
+    projtexture:SetAngles( self:GetAngles() )
+    projtexture:SetKeyValue('lightcolor', "175 175 255")
+    projtexture:SetKeyValue('lightfov', '60')
+    projtexture:SetKeyValue('shadowquality', '0')
+    projtexture:Fire( "SpotlightTexture", "effects/flashlight001" )
+    projtexture:SetParent(self)
+    projtexture:Spawn()
+    projtexture:Activate()
+    projtexture:Fire("setparentattachment", "flashlight")
+    self:DeleteOnRemove(projtexture)
+
+
+    local spotlight = ents.Create("point_spotlight")
+    spotlight:SetPos( self:GetPos() )
+    spotlight:SetAngles( projtexture:GetAngles() )
+    spotlight:SetKeyValue( "spawnflags", "1" + "2" )
+    spotlight:SetKeyValue( "spotlightlength", "50" )
+    spotlight:SetKeyValue( "spotlightwidth", "20" )
+    spotlight:SetKeyValue( "HaloScale", "0.1" )
+    spotlight:SetColor(Color(175,175,255))
+    spotlight:SetParent(self)
+    spotlight:Spawn()
+    spotlight:Activate()
+    spotlight:Fire("SetParentAttachment", "flashlight")
+    self:DeleteOnRemove(spotlight)
+
+
+    SafeRemoveEntityDelayed(spotlight, duration)
+    SafeRemoveEntityDelayed(projtexture, duration)
+
+
+    self.FlashLight = spotlight
+    self.FlashLightProj = projtexture
+end
+--]]==============================================================================================]]
+function NPC:DisableFlashlight() 
+    if IsValid(self.FlashLight) then
+        self.FlashLight:Remove()
+        self.FlashLightProj:Remove()
+    end
+end
+--]]==============================================================================================]]
+function NPC:OnRangeAttack()
+    self.RangeAttackDuration = math.Rand(3, 6)
+
+
+    self:PlayAnimation(ACT_RANGE_ATTACK1, false, {duration=self.RangeAttackDuration})
     self.CurTargetPos = nil -- Reset
     self.CurTrackSpeed = 0.01
+
 
     self.MinigunCanFire = false -- Cannot fire right now, will be able to fire after windup
     self.MinigunStartDone = false -- Has not started to wind up yet
@@ -318,6 +376,7 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
             -- Winds up first
             self.MinigunStartDone = true
             self:EmitSound("ZBaseCrabSynth.MinigunStart")
+            self:EnableFlashlight(self.RangeAttackDuration)
         
             timer.Simple(1.7, function()
                 if !(IsValid(self) && self:GetSequenceName(self:GetSequence())=="range_loop") then return end

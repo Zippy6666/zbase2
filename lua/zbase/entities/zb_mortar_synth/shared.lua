@@ -14,7 +14,7 @@ NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 
-ZBaseAddGlowingEye("models/zippy/mortarsynth.mdl", 0, "Eye Bone Base", Vector(-7,0,0), 30, Color(0, 50, 125))
+ZBaseAddGlowingEye("models/zippy/mortarsynth.mdl", 0, "Eye Bone Base", Vector(-7,0,0), 30, Color(0, 50, 100))
 
 
 sound.Add({

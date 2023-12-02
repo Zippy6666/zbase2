@@ -131,18 +131,20 @@ end
 
 
 function NPC:BeforeSpawn()
+
     self:CapabilitiesAdd(bit.bor(
         CAP_SQUAD,
         CAP_TURN_HEAD,
         CAP_ANIMATEDFACE,
         CAP_SKIP_NAV_GROUND_CHECK,
         CAP_USE_WEAPONS,
-        CAP_USE_SHOT_REGULATOR,
-        CAP_FRIENDLY_DMG_IMMUNE
+        CAP_USE_SHOT_REGULATOR
     ))
+
 
     self.AllowedCustomEScheds = {}
     self.ProhibitCustomEScheds = false
+
 end
 
 
@@ -158,7 +160,7 @@ function NPC:ZBaseThink()
 
 
     -- Enemy visible
-    self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY)
+    self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY) or (IsValid(ene) && self:Visible(ene))
 
 
     -- Slow think
@@ -256,7 +258,8 @@ function NPC:HL2NPCThink()
 
 
     -- Reload now if hiding spot is too far away
-    if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) or self:IsCurrentSchedule(ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")))
+    if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD)
+    or ( self:GetClass()=="npc_combine_s" && self:IsCurrentSchedule(ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")) ) )
     && self:ZBaseDist(self:GetGoalPos(), {away=1000}) then
         self:SetSchedule(SCHED_RELOAD)
     end
@@ -270,9 +273,11 @@ function NPC:HL2NPCThink()
     end
 
 
-    -- SCHED_ESTABLISH_LINE_OF_FIRE failed
-    -- Do chase instead
-    if self:IsCurrentSchedule(SCHED_ESTABLISH_LINE_OF_FIRE) && self:GetGoalPos()==Vector() then
+    -- Run up to enemy to use melee weapons
+    if self:HasMeleeWeapon()
+    && (self:IsCurrentSchedule(SCHED_MOVE_TO_WEAPON_RANGE)
+    or self:IsCurrentSchedule(SCHED_ESTABLISH_LINE_OF_FIRE)
+    or self:IsCurrentSchedule(SCHED_COMBAT_FACE)) then
         self:SetSchedule(SCHED_CHASE_ENEMY)
     end
 end
@@ -293,10 +298,6 @@ function NPC:DoSlowThink()
         self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     end
     ---------------------------------------------------------------=#
-
-
-    -- "Expensive" visibility check
-    self.EnemyVisible = self.EnemyVisible or (IsValid(ene) && self:Visible(ene))
 
 
     self:InternalDetectDanger()
@@ -1160,10 +1161,25 @@ local BusyScheds = {
 }
 
 
+local MeleeWeapons = {
+    ["weapon_crowbar"] = true,
+    ["weapon_stunstick"] = true,
+}
+
+
+function NPC:HasMeleeWeapon()
+    local wep = self:GetActiveWeapon()
+
+
+    if !IsValid(wep) then return false end
+
+
+    return MeleeWeapons[wep:GetClass()] or false
+end
+
+
 function NPC:TooBusyForMelee()
-    local sched = self:GetCurrentSchedule()
-    -- return BusyScheds[sched] or sched > 88 or self.DoingPlayAnim
-    return self.DoingPlayAnim
+    return self.DoingPlayAnim or self:HasMeleeWeapon()
 end
 
 
@@ -1263,7 +1279,8 @@ end
 
 
 function NPCB.MeleeAttack:ShouldDoBehaviour( self )
-    if !self.BaseMeleeAttack then return false end 
+    if !self.BaseMeleeAttack then return false end
+
 
     local ene = self:GetEnemy()
     if !self.MeleeAttackFaceEnemy && !self:IsFacing(ene) then return false end
@@ -1280,7 +1297,7 @@ end
 
 
 function NPCB.PreMeleeAttack:ShouldDoBehaviour( self )
-    if !self.BaseMeleeAttack then return false end 
+    if !self.BaseMeleeAttack then return false end
     if self:TooBusyForMelee() then return false end
 
     return true
@@ -1489,13 +1506,6 @@ function NPC:DealDamage( dmg, ent )
     local infl = dmg:GetInflictor()
 
 
-    -- Don't hurt NPCs in same faction
-    if ent.IsZBaseNPC && ent:HasCapability(CAP_FRIENDLY_DMG_IMMUNE) && self.ZBaseFaction == ent.ZBaseFaction && ent.ZBaseFaction != "none" then
-        dmg:ScaleDamage(0)
-        return true
-    end
-
-
     local value = self:CustomDealDamage(ent, dmg)
     if value != nil then
         return value
@@ -1592,12 +1602,19 @@ end
 
 
     -- Called first
-function NPC:OnScaleNPCDamage( dmg, hit_gr )
+function NPC:OnScaleDamage( dmg, hit_gr )
     local infl = dmg:GetInflictor()
+    local attacker = dmg:GetAttacker()
 
 
     -- Remember last hitgroup
     self.LastHitGroup = dmg, hit_gr
+
+
+    -- Don't get hurt by NPCs in the same faction
+    if self:IsAlly(attacker) then
+        dmg:ScaleDamage(0)
+    end
 
 
     -- Combine ball stuff
@@ -1659,7 +1676,19 @@ local IsZombie = {
 
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
-    if self.DoingDeathAnim && !self.DeathAnim_Finished then dmg:ScaleDamage(0) return end
+    local attacker = dmg:GetAttacker()
+
+
+    if self.DoingDeathAnim && !self.DeathAnim_Finished then
+        dmg:ScaleDamage(0)
+        return true
+    end
+
+
+    if self:IsAlly(attacker) then
+        dmg:ScaleDamage(0)
+        return true
+    end
 
 
     -- Remember last dmginfo
@@ -2129,10 +2158,6 @@ end
 
 function NPC:DoNewEnemy()
     local ene = self:GetEnemy()
-
-
-    -- "Expensive" visibility check
-    self.EnemyVisible = self.EnemyVisible or (IsValid(ene) && self:Visible(ene))
 
 
     if IsValid(ene) then

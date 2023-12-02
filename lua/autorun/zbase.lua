@@ -225,19 +225,6 @@ ZBaseSpeakingSquads = {}
 ZBaseEnhancementTable = {}
 
 
--- For the zbase face function
-if SERVER then
-    ZBaseForbiddenFaceScheds = {
-        [SCHED_ALERT_FACE]	= true,
-        [SCHED_ALERT_FACE_BESTSOUND]	= true,
-        [SCHED_COMBAT_FACE] 	= true,
-        [SCHED_FEAR_FACE] 	= true,	
-        [SCHED_SCRIPTED_FACE] 	= true,	
-        [SCHED_TARGET_FACE]	= true,
-    }
-end
-
-
 if !ZBaseNPCInstances then
     ZBaseNPCInstances = {}
     ZBaseNPCInstances_NonScripted = {}
