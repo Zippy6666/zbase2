@@ -14,6 +14,18 @@ NPC.Weapons = {"weapon_smg1", "weapon_smg1", "weapon_ar2", "weapon_shotgun"} -- 
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 
+--]]==============================================================================================]]
+
+
+ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(0, 50, 255))
+ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(0, 50, 255))
+
+
+ZBaseAddGlowingEye("models/combine_soldier.mdl", 1, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(155, 20, 0))
+ZBaseAddGlowingEye("models/combine_soldier.mdl", 1, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(155, 20, 0))
+
+
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseCombine.Idle", {
     "npc/combine_soldier/vo/prison_soldier_activatecentral.wav",
     "npc/combine_soldier/vo/prison_soldier_boomersinbound.wav",
@@ -31,8 +43,7 @@ ZBaseCreateVoiceSounds("ZBaseCombine.Idle", {
     "npc/combine_soldier/vo/prison_soldier_tohighpoints.wav",
     "npc/combine_soldier/vo/prison_soldier_visceratorsa5.wav",
 })
-
-
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseCombine.Question", {
     "npc/combine_soldier/vo/gridsundown46.wav",
     "npc/combine_soldier/vo/noviscon.wav",
@@ -48,14 +59,12 @@ ZBaseCreateVoiceSounds("ZBaseCombine.Question", {
     "npc/combine_soldier/vo/unitisclosing.wav",
     "npc/combine_soldier/vo/wehavenontaggedviromes.wav",
 })
-
-
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseCombine.Answer", {
     "npc/combine_soldier/vo/copy.wav",
     "npc/combine_soldier/vo/copythat.wav",
 })
-
-
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseCombine.Alert", {
     "npc/combine_soldier/vo/contact.wav",
     "npc/combine_soldier/vo/viscon.wav",
@@ -65,8 +74,7 @@ ZBaseCreateVoiceSounds("ZBaseCombine.Alert", {
     "npc/combine_soldier/vo/outbreak.wav",
     "npc/combine_soldier/vo/fixsightlinesmovein.wav",
 })
-
-
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseCombine.KillEnemy", {
     "npc/combine_soldier/vo/targetcompromisedmovein.wav",
     "npc/combine_soldier/vo/targetblackout.wav",
@@ -77,14 +85,12 @@ ZBaseCreateVoiceSounds("ZBaseCombine.KillEnemy", {
     "npc/combine_soldier/vo/onecontained.wav",
     "npc/combine_soldier/vo/payback.wav",
 })
-
-
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseCombine.Reload", {
     "npc/combine_soldier/vo/cover.wav",
     "npc/combine_soldier/vo/coverme.wav",
 })
-
-
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseCombine.HearSound", {
     "npc/combine_soldier/vo/motioncheckallradials.wav",
     "npc/combine_soldier/vo/overwatchreportspossiblehostiles.wav",
@@ -98,17 +104,9 @@ ZBaseCreateVoiceSounds("ZBaseCombine.HearSound", {
     "npc/combine_soldier/vo/weaponsoffsafeprepforcontact.wav",
     "npc/combine_soldier/vo/confirmsectornotsterile.wav",
 })
-
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseCombine.LostEnemy", {
     "npc/combine_soldier/vo/skyshieldreportslostcontact.wav",
     "npc/combine_soldier/vo/lostcontact.wav",
 })
-
-
-
-
-
-
-
-
-
+--]]==============================================================================================]]
