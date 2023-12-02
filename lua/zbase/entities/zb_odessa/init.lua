@@ -14,6 +14,9 @@ NPC.HealthRegenAmount = 1
 NPC.HealthCooldown = 0.2
 
 
+NPC.MeleeAttackAnimations = {"meleeattack01"}
+
+
 
 -- Dialogue sounds
 -- The NPCs will face each other as if they are talking

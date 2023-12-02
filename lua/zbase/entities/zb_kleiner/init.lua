@@ -22,6 +22,9 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_PERFECT -- WEAPON_PROFICIENCY_POOR ||
 NPC.ZBaseStartFaction = "ally"
 
 
+NPC.MeleeAttackAnimations = {"meleeattack01"}
+
+
 -- Sounds (Use sound scripts to alter pitch and level and such!)
 NPC.AlertSounds = "ZBaseKleiner.Alert" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
