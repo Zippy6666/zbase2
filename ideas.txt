@@ -16,3 +16,4 @@
 -- Custom schedules for regular NPCs
 -- Ability to use snpc functions on regular npcs
 -- Item drop
+-- Movement noise to aerial snpc base

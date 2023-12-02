@@ -5,7 +5,7 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
 
         local MyModel = table.Random(self.NPCTable.Models)
         if MyModel then
-            self:SetModel(MyModel)
+            self:SetModel_MaintainBounds(MyModel)
         end
 
         self:SetAllowedEScheds({

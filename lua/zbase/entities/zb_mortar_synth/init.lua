@@ -33,7 +33,7 @@ NPC.Fly_DistanceFromGround = 80 -- Minimum distance to try to keep from the grou
 NPC.Fly_MoveSpeed = 350 -- Flying movement speed
 NPC.Fly_Accelerate = 25 -- Flying movement accelerate speed
 NPC.Fly_Decelerate = 25 -- Flying movement decelerate speed
-
+NPC.Fly_FaceEnemy = true
 
 --[[
 ==================================================================================================
@@ -112,8 +112,6 @@ function NPC:CustomInitialize()
 end
 --]]==============================================================================================]]
 function NPC:SNPCChase_TooClose()
-    -- back away boy
-    -- aerial base needs fix
     return ZSched.BackAwayFromEnemy
 end
 --]]==============================================================================================]]
@@ -253,9 +251,6 @@ function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
 end
 --]]==============================================================================================]]
 function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
-    local myang = self:GetAngles()
-    self:SetAngles(Angle(destinationCurrentSpeed*0.05, myang.yaw, myang.roll))
-
     self.HumSound:ChangePitch(80 + destinationCurrentSpeed*0.3, 1)
 
     return destinationDirection*destinationCurrentSpeed

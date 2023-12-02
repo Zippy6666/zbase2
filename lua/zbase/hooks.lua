@@ -522,3 +522,11 @@ hook.Add("CreateClientsideRagdoll", "ZBaseNoRag", function(ent, rag)
 		rag:Remove()
 	end
 end)
+
+
+-- Disable default server ragdolls
+hook.Add("CreateEntityRagdoll", "ZBaseNoRag", function(ent, rag)
+    if ent.IsZBaseNPC && !rag.IsZBaseRag then
+        rag:Remove()
+    end
+end)
