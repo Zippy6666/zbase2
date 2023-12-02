@@ -14,7 +14,7 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             self:SetBodygroup(3, 0)
             self:SetBodygroup(4, 0)
             self:SetBodygroup(5, 0)
-            self:SetSaveValue("m_bCrabs", {false, false, false, false})
+            self:SetSaveValue("m_bCrabs", {false, false, false})
         end
 
     end

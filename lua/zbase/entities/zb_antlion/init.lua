@@ -18,8 +18,36 @@ NPC.BloodColor = BLOOD_COLOR_ANTLION -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_C
 NPC.ZBaseStartFaction = "antlion"
 
 
+NPC.GibMaterial = false
+NPC.GibParticle = "AntlionGib"
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 
+end
+--]]==============================================================================================]]
+function NPC:ShouldGib( dmginfo, hit_gr )
+    if dmginfo:GetDamage() < 40 then return end
+
+    local Gibs  = {
+        self:InternalCreateGib("models/gibs/antlion_gib_large_1.mdl", {offset=Vector(0, 0, 0)}),
+        self:InternalCreateGib("models/gibs/antlion_gib_large_2.mdl", {offset=Vector(0, 0, 0)}),
+        self:InternalCreateGib("models/gibs/antlion_gib_large_3.mdl", {offset=Vector(0, 0, 0)}),
+        self:InternalCreateGib("models/gibs/antlion_gib_medium_1.mdl", {offset=Vector(0, 0, 0)}),
+        self:InternalCreateGib("models/gibs/antlion_gib_medium_2.mdl", {offset=Vector(0, 0, 0)}),
+        self:InternalCreateGib("models/gibs/antlion_gib_small_1.mdl", {offset=Vector(0, 0, 0)}),
+        self:InternalCreateGib("models/gibs/antlion_gib_small_2.mdl", {offset=Vector(0, 0, 0)}),   
+    }
+
+    if self.GibMaterial then
+        for _, v in ipairs(Gibs) do
+            v:SetMaterial(self.GibMaterial)
+        end
+    end
+
+    ParticleEffect(self.GibParticle, self:GetPos(), self:GetAngles())
+    self:EmitSound("NPC_Antlion.RunOverByVehicle")
+
+    return true
 end
 --]]==============================================================================================]]

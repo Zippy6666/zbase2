@@ -1,8 +1,4 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 
---]]==============================================================================================]]
-function NPC:CustomInitialize()
-    -- self:Zombie_GiveHeadCrabs()
-end
---]]==============================================================================================]]
+NPC.StartHealth = 200 -- Max health

@@ -441,10 +441,10 @@ function NPC:Zombie_GiveHeadCrabs()
     self:SetBodygroup(1, 1)
 
     if self:GetClass()=="npc_poisonzombie" then
-        self:SetSaveValue("m_nCrabCount", 4)
-        self:SetSaveValue("m_bCrabs", {true, true, true, true})
+        self:SetSaveValue("m_nCrabCount", 3)
+        self:SetSaveValue("m_bCrabs", {true, true, true})
 
-        for i = 2, 5 do
+        for i = 2, 4 do
             self:SetBodygroup(i, 1)
         end
     end
