@@ -48,6 +48,10 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
             local own = ent:GetOwner()
             if IsValid(own) && own.IsZBaseNPC then
                 own:OnOwnedEntCreated( ent )
+
+                if own.ZBaseEnhancedCreateEnt then
+                    own:ZBaseEnhancedCreateEnt( ent )
+                end
             end
         end)
     end
