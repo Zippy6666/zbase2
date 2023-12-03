@@ -350,8 +350,9 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
     --------------------------------------------------=#
 
 
-    -- Boost accuracy for some weapons --
+    
     if ent.IsZBaseNPC then
+        -- Boost accuracy for some weapons --
         local wep = ent:GetActiveWeapon()
         local ene = ent:GetEnemy()
 
@@ -361,8 +362,7 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
             data.Dir = (ene:WorldSpaceCenter() - ent:GetShootPos()):GetNormalized()
         end
     end
-    --------------------------------------------------=#
-
+    
 
     return true
 end)

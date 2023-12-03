@@ -137,16 +137,25 @@ function NPC:GlowEyeInit()
 end
 
 
+function NPC:CanHaveWeapons()
+    return self:GetClass()!="npc_zbase_snpc"
+end
+
+
 function NPC:BeforeSpawn()
     
     self:CapabilitiesAdd(bit.bor(
         CAP_SQUAD,
         CAP_TURN_HEAD,
         CAP_ANIMATEDFACE,
-        CAP_SKIP_NAV_GROUND_CHECK,
-        CAP_USE_WEAPONS,
-        CAP_USE_SHOT_REGULATOR
+        CAP_SKIP_NAV_GROUND_CHECK
     ))
+
+
+    if self:CanHaveWeapons() then
+        self:CapabilitiesAdd(CAP_USE_WEAPONS)
+        self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
+    end
 
 
     self.AllowedCustomEScheds = {}
@@ -1531,9 +1540,10 @@ function NPC:DealDamage( dmg, ent )
 
     -- Proper damage values for hl2 weapons --
     local wep = self:GetActiveWeapon()
+    local ScaleForNPC = ZBCVAR.FullHL2WepDMG_NPC:GetBool() && (ent:IsNPC() or ent:IsNextBot())
+    local ScaleForPlayer = ZBCVAR.FullHL2WepDMG_PLY:GetBool() && ent:IsPlayer()
 
-    if (IsValid(infl) && IsValid(wep))
-    && (ZBCVAR.FullHL2WepDMG_NPC:GetBool() && (ent:IsNPC() or ent:IsNextBot())) or (ZBCVAR.FullHL2WepDMG_PLY:GetBool() && ent:IsPlayer()) then
+    if IsValid(infl) && IsValid(wep) && (ScaleForNPC or ScaleForPlayer) then
         local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
 
 
@@ -1581,9 +1591,10 @@ function NPC:DealDamage( dmg, ent )
                 end
 
 
-                dmg:SetDamage(dmgFinal)
-
-
+                -- dmg:SetDamage(dmgFinal)s
+                if dmg:GetDamage() > 0 then
+                    dmg:ScaleDamage((1/dmg:GetDamage())*dmgFinal)
+                end
             end
         end
     end
@@ -1762,8 +1773,9 @@ end
     -- Called last
 function NPC:OnPostEntityTakeDamage( dmg )
     -- Custom blood
-    self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
-
+    if dmg:GetDamage() > 0 then
+        self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
+    end
 
 
     if self.Dead then return end
