@@ -40,3 +40,37 @@ ZBCVAR.FullHL2WepDMG_PLY = CreateConVar("zbase_full_hl2_wep_damage_ply", "0", Fl
 
 ZBCVAR.ZombieHeadcrabs = CreateConVar("zbase_zombie_headcrabs", "0", Flags)
 ZBCVAR.ZombieRedBlood = CreateConVar("zbase_zombie_red_blood", "1", Flags)
+
+
+
+--[[
+==================================================================================================
+                                           CLIENT
+==================================================================================================
+--]]
+
+if CLIENT then
+
+
+    ZBCVAR.GlowingEyes = CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)
+
+
+end
+
+--[[
+==================================================================================================
+                                           DEBUG
+==================================================================================================
+--]]
+
+
+ZBCVAR.NoThink = CreateConVar("zbase_no_think", "0", Flags)
+
+
+--[[
+==================================================================================================
+                                           OTHER
+==================================================================================================
+--]]
+
+ZBCVAR.SvGlowingEyes = CreateConVar("zbase_sv_glowing_eyes", "1", Flags)

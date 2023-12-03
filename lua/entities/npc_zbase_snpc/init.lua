@@ -51,6 +51,8 @@ function ENT:Initialize()
 	self.Aerial_LastMoveDir = self:GetForward()
 	self.SNPCNextSlowThink = CurTime()
 	self.NextFaceHurtPos = CurTime()
+	self.NextGetBetterSchedule = CurTime()
+	self.NextSelectSchedule = CurTime()
 
 	local mdl = self:GetModel()
 	if modelsWithPhysics[self:GetModel()] == nil then
@@ -66,17 +68,7 @@ function ENT:Initialize()
 end
 --]]======================================================================================================]]
 function ENT:Think()
-	if !self.ModelHasPhys && self.SNPCNextSlowThink < CurTime() then
-		-- Phys object workaround
-		local phys = self:GetPhysicsObject()
-		if IsValid(phys) then
-			phys:SetPos(self:GetPos())
-			-- debugoverlay.Sphere(self:GetPos(), 100, 0.2, Color(255, 255, 255, 25))
-		end
-
-
-		self.SNPCNextSlowThink = CurTime()+0.2
-	end
+	if ZBCVAR.NoThink:GetBool() then return end
 
 
 	-- Aerial movement
@@ -94,7 +86,7 @@ function ENT:Think()
 		end
 
 
-		local vec = self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed)
+		local vec = !GetConVar("ai_disabled"):GetBool() && self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed) or Vector()
 		if self.ShouldMoveFromGround then
 			vec = vec+Vector(0,0,35)
 		else

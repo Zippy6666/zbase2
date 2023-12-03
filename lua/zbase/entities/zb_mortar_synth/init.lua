@@ -31,9 +31,9 @@ NPC.ChaseMinDistance = 500
 
 NPC.Fly_DistanceFromGround = 80 -- Minimum distance to try to keep from the ground when flying
 NPC.Fly_MoveSpeed = 350 -- Flying movement speed
-NPC.Fly_Accelerate = 25 -- Flying movement accelerate speed
-NPC.Fly_Decelerate = 25 -- Flying movement decelerate speed
-NPC.Fly_FaceEnemy = true
+NPC.Fly_Accelerate = 15 -- Flying movement accelerate speed
+NPC.Fly_Decelerate = 15 -- Flying movement decelerate speed
+NPC.Fly_FaceEnemy = false
 
 --[[
 ==================================================================================================
@@ -42,7 +42,7 @@ NPC.Fly_FaceEnemy = true
 --]]
 
 
-NPC.BaseRangeAttack = true -- Use ZBase range attack system
+NPC.BaseRangeAttack = false -- Use ZBase range attack system
 NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
 NPC.RangeAttackTurnSpeed = 10 -- Speed that it turns while trying to face the enemy when range attacking
 NPC.RangeAttackDistance = {0, 2000} -- Distance that it initiates the range attack {min, max}
@@ -120,9 +120,6 @@ function NPC:MultipleRangeAttacks()
         -- Electric bolt
         self.RangeAttackAnimations = {ACT_RANGE_ATTACK2}
         self.RangeAttackType = RANGE_ATTACK_BOLT
-
-
-
     else
         -- Mortar
         self.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
@@ -250,18 +247,12 @@ function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
     end
 end
 --]]==============================================================================================]]
-function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
-    self.HumSound:ChangePitch(80 + destinationCurrentSpeed*0.3, 1)
-
-    return destinationDirection*destinationCurrentSpeed
-end
---]]==============================================================================================]]
 function NPC:ShouldGib( dmginfo, hit_gr )
-    self:InternalCreateGib("models/gibs/mortarsynth_gib_01.mdl", {offset=Vector(0, 0, 0)})
-    self:InternalCreateGib("models/gibs/mortarsynth_gib_02.mdl", {offset=Vector(-20, 0, 0)})
-    self:InternalCreateGib("models/gibs/mortarsynth_gib_03.mdl", {offset=Vector(0, 0, -15)})
-    self:InternalCreateGib("models/gibs/mortarsynth_gib_04.mdl", {offset=Vector(15, -28, -30)})
-    self:InternalCreateGib("models/gibs/mortarsynth_gib_05.mdl", {offset=Vector(15, 28, -30)})
+    self:CreateGib("models/gibs/mortarsynth_gib_01.mdl", {offset=Vector(0, 0, 0)})
+    self:CreateGib("models/gibs/mortarsynth_gib_02.mdl", {offset=Vector(-20, 0, 0)})
+    self:CreateGib("models/gibs/mortarsynth_gib_03.mdl", {offset=Vector(0, 0, -15)})
+    self:CreateGib("models/gibs/mortarsynth_gib_04.mdl", {offset=Vector(15, -28, -30)})
+    self:CreateGib("models/gibs/mortarsynth_gib_05.mdl", {offset=Vector(15, 28, -30)})
 
 
     ParticleEffect("striderbuster_break_shell", self:GetPos(), self:GetAngles())
