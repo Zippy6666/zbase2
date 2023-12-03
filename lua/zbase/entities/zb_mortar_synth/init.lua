@@ -42,9 +42,9 @@ NPC.Fly_FaceEnemy = false
 --]]
 
 
-NPC.BaseRangeAttack = false -- Use ZBase range attack system
+NPC.BaseRangeAttack = true -- Use ZBase range attack system
 NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
-NPC.RangeAttackTurnSpeed = 10 -- Speed that it turns while trying to face the enemy when range attacking
+NPC.RangeAttackTurnSpeed = 5 -- Speed that it turns while trying to face the enemy when range attacking
 NPC.RangeAttackDistance = {0, 2000} -- Distance that it initiates the range attack {min, max}
 NPC.RangeAttackCooldown = {1, 3} -- Range attack cooldown {min, max}
 NPC.RangeAttackSuppressEnemy = true -- If the enemy can't be seen, target the last seen position

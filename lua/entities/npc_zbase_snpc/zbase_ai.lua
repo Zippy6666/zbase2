@@ -91,7 +91,7 @@ function ENT:GetBetterSchedule( sched )
 	local enemyValid = IsValid(enemy)
 	local enemyVisible = enemyValid && self.EnemyVisible
 	local enemyUnreachable = enemyValid && self:IsUnreachable(enemy)
-	local hasReachedEnemy = self:ZBaseDist(enemy, {within=self:OBBMaxs().x*2})
+	local hasReachedEnemy = self:ZBaseDist(enemy, {within=self:OBBMaxs().x*3})
 
 
 	-- Can't reach the enemy when chasing fallback
@@ -149,7 +149,7 @@ function ENT:GetBetterSchedule( sched )
 		if (self:IsMoving() or self.AerialGoal) && self:GetNPCState()==NPC_STATE_COMBAT then
 			local squadmember = self:GetNearestSquadMember( nil, true )
 
-			if IsValid(squadmember) && squadmember:IsMoving() && squadmember:GetNPCState() == NPC_STATE_COMBAT
+			if IsValid(squadmember) && squadmember.SquadGiveSpace>0 && squadmember:IsMoving() && squadmember:GetNPCState() == NPC_STATE_COMBAT
 			&& self:ZBaseDist(squadmember, {within=squadmember.SquadGiveSpace}) then
 			
 				debugoverlay.Text(self:GetPos(), "giving space: "..squadmember.SquadGiveSpace, 2)
@@ -197,7 +197,20 @@ function ENT:DoSchedule( schedule )
 
 
 	if self.CurrentTask then
-		--self:RunTask( self.CurrentTask )
+		self:RunTask( self.CurrentTask )
+
+
+		-- Tell aerial base to follow the player directly instead of navigating if the enemy is visible
+		local task = self.CurrentTask.TaskName
+		if "TASK_RUN_PATH" && self.LastTask_TASK_GET_PATH_TO_ENEMY && self.EnemyVisible then
+			self.AerialShouldFollowPlayerDirectly = true
+		elseif task=="TASK_GET_PATH_TO_ENEMY" then
+			self.LastTask_TASK_GET_PATH_TO_ENEMY = true
+		else
+			self.LastTask_TASK_GET_PATH_TO_ENEMY = false
+			self.AerialShouldFollowPlayerDirectly = false
+		end
+		
 	end
 
 
@@ -252,14 +265,10 @@ function ENT:RunAI( strExp )
 
 		self:SelectSchedule()
 
-		-- If chase schedule was selected and the NPC is flying
-		-- Do this crap
+		-- Tell aerial base to follow the player directly instead of navigating if the enemy is visible
 		if self.SNPCType==ZBASE_SNPCTYPE_FLY
-		&& self:IsCurrentCustomSched("CombatChase") then
-			local ene = self:GetEnemy()
-			local seeEnemy = IsValid(ene) && self.EnemyVisible
-
-			self.AerialGoal = seeEnemy && ene:GetPos()
+		&& self.AerialShouldFollowPlayerDirectly then
+			self.AerialGoal = self:GetEnemy():GetPos()
 		end
 	end
 

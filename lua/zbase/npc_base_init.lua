@@ -264,7 +264,7 @@ NPC.ChaseMinDistance = 0
 
 -- Squadmembers of this NPC should try to make this amount of room to the NPC if its moving
 -- Only used when in combat
-NPC.SquadGiveSpace = 128
+NPC.SquadGiveSpace = 0
 
 
 --[[
