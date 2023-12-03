@@ -2,9 +2,9 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            GENERAL
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -20,10 +20,10 @@ NPC.Models = {}
 NPC.RenderMode = RENDERMODE_NORMAL -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
 NPC.SubMaterials = {[1]="models/shadertest/shader5"} -- Submaterials {*number index* = *string name*}
 
-NPC.StartHealth = 300 -- Max health
+NPC.StartHealth = 20 -- Max health
 
 
-NPC.SightDistance = 300 -- Sight distance
+NPC.SightDistance = 30000 -- Sight distance
 NPC.SightAngle = 360 -- Sight angle
 NPC.CallForHelp = false -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.CallForHelpDistance = 2000 -- Call for help distance
@@ -55,7 +55,7 @@ NPC.ExtraCapabilities = {
 
 
 NPC.OnCeiling = false -- Spawn this NPC on the ceiling
-NPC.Offset = false -- NPC Spawn offset from ground, false = default
+NPC.Offset = 0 -- NPC Spawn offset from ground, false = default
 
 
 -- Health regen
@@ -67,9 +67,9 @@ NPC.ForceAvoidDanger = false -- Force this NPC to avoid dangers such as grenades
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            MOVEMENT
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -79,42 +79,42 @@ NPC.MoveActivityOverride = {
     -- [NPC_STATE_ALERT] = ACT_RUN, -- When alert, for example, after combat
     -- [NPC_STATE_COMBAT] = ACT_RUN, -- In combat
 }
-NPC.CanPatrol = true -- Use base patrol behaviour
-NPC.CanJump = true -- Can the NPC jump?
+NPC.CanPatrol = false -- Use base patrol behaviour
+NPC.CanJump = false -- Can the NPC jump?
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            WEAPON HANDLING
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
-NPC.MaxShootDistance = 3000 -- Maximum distance the NPC can fire its weapon from
-NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
-NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
+NPC.MaxShootDistance = 10000 -- Maximum distance the NPC can fire its weapon from
+NPC.CanSecondaryAttack = false -- Can use weapon secondary attacks
+NPC.WeaponProficiency = WEAPON_PROFICIENCY_POOR -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            BLOOD
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
 -- Default engine blood color, set to DONT_BLEED if you want to use custom blood instead
-NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
+NPC.BloodColor = BLOOD_COLOR_ANTLION_WORKER -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER
-NPC.CustomBloodParticles = false -- Table of custom particles
-NPC.CustomBloodDecals = false -- String name of custom decal
+NPC.CustomBloodParticles = {"blood_impact_zbase_green"} -- Table of custom particles
+NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            DAMAGE
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -122,21 +122,13 @@ NPC.CustomBloodDecals = false -- String name of custom decal
 -- These hitgroups will be armored
 -- https://wiki.facepunch.com/gmod/Enums/HITGROUP
 NPC.HasArmor = {
-    -- [HITGROUP_GENERIC] = false,
-    -- [HITGROUP_HEAD] = false,
-    -- [HITGROUP_CHEST] = false,
-    -- [HITGROUP_STOMACH] = false,
-    -- [HITGROUP_LEFTARM] = false,
-    -- [HITGROUP_RIGHTARM] = false,
-    -- [HITGROUP_LEFTLEG] = false,
-    -- [HITGROUP_RIGHTLEG] = false,
-    -- [HITGROUP_GEAR] = false,
+    [HITGROUP_HEAD] = true,
 }
-NPC.ArmorPenChance = 2 -- 1/x Chance that the armor is penetrated, false = never
-NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this, set to false to disable
+NPC.ArmorPenChance = false -- 1/x Chance that the armor is penetrated, false = never
+NPC.ArmorAlwaysPenDamage = false -- Always penetrate the armor if the damage is more than this, set to false to disable
 NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
 NPC.ArmorHitSpark = true -- Do a spark on armor hit
-NPC.ArmorReflectsBullets = false -- Should the armor visually reflect bullets?
+NPC.ArmorReflectsBullets = true -- Should the armor visually reflect bullets?
 
 
 -- Scale damage against certain damage types:
@@ -149,106 +141,106 @@ NPC.DamageScaling = {
 NPC.PhysDamageScale = 1 -- Damage scale from props
 
 
-NPC.EnergyBallDamageScale = 1 -- Damage scale from combine energy balls
-NPC.ExplodeEnergyBall = false -- Should combine energy balls explode when they hit this NPC?
+NPC.EnergyBallDamageScale = 0.001 -- Damage scale from combine energy balls
+NPC.ExplodeEnergyBall = true -- Should combine energy balls explode when they hit this NPC?
 NPC.CanDissolve = true -- Can the NPC be dissolved?
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            FLINCH
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
-NPC.FlinchAnimations = {} -- Flinch animations to use, leave empty to disable the base flinch
-NPC.FlinchAnimationSpeed = 1 -- Speed of the flinch animation
+NPC.FlinchAnimations = {"fear_reaction_gesture"} -- Flinch animations to use, leave empty to disable the base flinch
+NPC.FlinchAnimationSpeed = 2 -- Speed of the flinch animation
 NPC.FlinchCooldown = {1, 2} -- Flinch cooldown in seconds {min, max}
-NPC.FlinchChance = 2 -- Flinch chance 1/x
-NPC.FlinchIsGesture = false -- Should the flinch animation be played as a gesture?
+NPC.FlinchChance = 1 -- Flinch chance 1/x
+NPC.FlinchIsGesture = true -- Should the flinch animation be played as a gesture?
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            DEATH
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
-NPC.DeathAnimations = {} -- Death animations to use, leave empty to disable the base death animation
-NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
-NPC.DeathChance = 2 --  Flinch animation chance 1/x
+NPC.DeathAnimations = {"deathpose_front"} -- Death animations to use, leave empty to disable the base death animation
+NPC.DeathAnimationSpeed = 2 -- Speed of the death animation
+NPC.DeathAnimationChance = 1 --  Flinch animation chance 1/x
+NPC.DeathAnimationDuration = 3 -- Duration of death animation
 
-
-NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
+NPC.HasDeathRagdoll = false -- Should the NPC spawn a ragdoll when it dies?
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            MELEE ATTACK
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
-NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
+NPC.BaseMeleeAttack = true -- Use ZBase melee attack system
 NPC.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
 NPC.MeleeAttackTurnSpeed = 15 -- Speed that it turns while trying to face the enemy when melee attacking
-NPC.MeleeAttackDistance = 75 -- Distance that it initiates the melee attack from
-NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
+NPC.MeleeAttackDistance = 50 -- Distance that it initiates the melee attack from
+NPC.MeleeAttackCooldown = {3, 5} -- Melee attack cooldown {min, max}
 NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever you want
 
 
-NPC.MeleeAttackAnimations = {} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
+NPC.MeleeAttackAnimations = {"preskewer"} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
 NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack animation
 
 
 NPC.MeleeDamage = {10, 10} -- Melee damage {min, max}
 NPC.MeleeDamage_Distance = 100 -- Damage reach distance
-NPC.MeleeDamage_Angle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
-NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead for example)
-NPC.MeleeDamage_Type = DMG_GENERIC -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
-NPC.MeleeDamage_Sound = "ZBase.Melee2" -- Sound when the melee attack hits an enemy
-NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
+NPC.MeleeDamage_Angle = 180 -- Damage angle (180 = everything in front of the NPC is damaged)
+NPC.MeleeDamage_Delay = 0.1 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead for example)
+NPC.MeleeDamage_Type = DMG_ACID -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
+NPC.MeleeDamage_Sound = "d1_canals.citizenpunch_punch_1" -- Sound when the melee attack hits an enemy
+NPC.MeleeDamage_Sound_Prop = "d1_canals.citizenpunch_punch_1" -- Sound when the melee attack hits props
 NPC.MeleeDamage_AffectProps = false -- Affect props and other entites
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            RANGE ATTACK
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
 
-NPC.BaseRangeAttack = false -- Use ZBase range attack system
+NPC.BaseRangeAttack = true -- Use ZBase range attack system
 NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
 NPC.RangeAttackTurnSpeed = 10 -- Speed that it turns while trying to face the enemy when range attacking
-NPC.RangeAttackDistance = {0, 1000} -- Distance that it initiates the range attack {min, max}
+NPC.RangeAttackDistance = {100, 20000} -- Distance that it initiates the range attack {min, max}
 NPC.RangeAttackCooldown = {2, 4} -- Range attack cooldown {min, max}
 NPC.RangeAttackSuppressEnemy = true -- If the enemy can't be seen, target the last seen position
 
 
-NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
-NPC.RangeAttackAnimationSpeed = 1 -- Speed multiplier for the range attack animation
+NPC.RangeAttackAnimations = {"kick_door"} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
+NPC.RangeAttackAnimationSpeed = 2 -- Speed multiplier for the range attack animation
 
 
 -- Time until the projectile code is ran
 -- Set to false to disable the timer (if you want to use animation events instead for example)
-NPC.RangeProjectile_Delay = 1
+NPC.RangeProjectile_Delay = 0.5
 
 
 -- Attachment to spawn the projectile on 
 -- If set to false the projectile will spawn from the NPCs center
 NPC.RangeProjectile_Attachment = false
-NPC.RangeProjectile_Offset = false -- Projectile spawn offset, example: {forward=50, up=25, right=0}
-NPC.RangeProjectile_Speed = 1000 -- The speed of the projectile
-NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
+NPC.RangeProjectile_Offset = {up=100} -- Projectile spawn offset, example: {forward=50, up=25, right=0}
+NPC.RangeProjectile_Speed = 2000 -- The speed of the projectile
+NPC.RangeProjectile_Inaccuracy = 150 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            SNPC ONLY
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -272,9 +264,9 @@ NPC.SquadGiveSpace = 128
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            FLYING SNPC ONLY
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -296,37 +288,37 @@ NPC.Fly_MovementAnims = {
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            SOUNDS
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
-NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+NPC.MuteDefaultVoice = true -- Mute all default voice sounds emitted by this NPC
 
 
 -- Sounds (Use sound scripts to alter pitch and level and such!)
 NPC.AlertSounds = "" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
-NPC.Idle_HasEnemy_Sounds = "" -- Sounds emitted while there is an enemy
-NPC.PainSounds = "" -- Sounds emitted on hurt
-NPC.DeathSounds = "" -- Sounds emitted on death
+NPC.Idle_HasEnemy_Sounds = "k_lab.eyescanner_fail" -- Sounds emitted while there is an enemy
+NPC.PainSounds = "d1_canals.citizenpunch_pain_1" -- Sounds emitted on hurt
+NPC.DeathSounds = "NPC_PoisonZombie.Die" -- Sounds emitted on death
 NPC.KilledEnemySounds = "" -- Sounds emitted when the NPC kills an enemy
 
 
 NPC.LostEnemySounds = "" -- Sounds emitted when the enemy is lost
 NPC.SeeDangerSounds = "" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
 NPC.SeeGrenadeSounds = "" -- Sounds emitted when the NPC spots a grenade
-NPC.AllyDeathSounds = "" -- Sounds emitted when an ally dies
-NPC.OnMeleeSounds = "" -- Sounds emitted when the NPC does its melee attack
+NPC.AllyDeathSounds = "k_lab.ba_careful01" -- Sounds emitted when an ally dies
+NPC.OnMeleeSounds = "odessa.nlo_citizen_drivesafe" -- Sounds emitted when the NPC does its melee attack
 NPC.OnRangeSounds = "" -- Sounds emitted when the NPC does its range attack
 NPC.OnReloadSounds = "" -- Sounds emitted when the NPC reloads
 
 
 -- Dialogue sounds
 -- The NPCs will face each other as if they are talking
-NPC.Dialogue_Question_Sounds = "" -- Dialogue questions, emitted when the NPC starts talking to another NPC
-NPC.Dialogue_Answer_Sounds = "" -- Dialogue answers, emitted when the NPC is spoken to
+NPC.Dialogue_Question_Sounds = "odessa.nlo_greet_freeman" -- Dialogue questions, emitted when the NPC starts talking to another NPC
+NPC.Dialogue_Answer_Sounds = "odessa.nlo_greet_freeman" -- Dialogue answers, emitted when the NPC is spoken to
 
 
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
@@ -344,15 +336,15 @@ NPC.AlertSoundCooldown = {4, 8}
 -- Sound chance 1/X
 NPC.IdleSound_Chance = 3
 NPC.AllyDeathSound_Chance = 2
-NPC.OnMeleeSound_Chance = 2
+NPC.OnMeleeSound_Chance = 1
 NPC.OnRangeSound_Chance = 2
 NPC.OnReloadSound_Chance = 2
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            MISC USEFUL FUNCTIONS
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -369,18 +361,20 @@ end
     -- Called a tick after an entity owned by this NPC is created
     -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
 function NPC:CustomOnOwnedEntCreated( ent )
+    print(ent)
 end
 
 
     -- Return a new sound name to play that sound instead.
     -- Return false to prevent the sound from playing.
 function NPC:CustomOnEmitSound( sndData, sndVarName )
+    print(sndVarName)
 end
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            TAKE DAMAGE FUNCTIONS
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -429,9 +423,9 @@ function NPC:HitArmor( dmginfo, HitGroup )
 end
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            FLINCH FUNCTIONS
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -439,6 +433,7 @@ end
     -- Only called on ZBase flinches, not from engine ones
     -- Return false to prevent the flinch
 function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
+    self:SetColor(ColorRand())
 end
 
 
@@ -450,9 +445,9 @@ end
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            MELEE ATTACK FUNCTIONS
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -472,19 +467,20 @@ end
     -- Force to apply to entities affected by the melee attack damage, relative to the NPC
 function NPC:MeleeDamageForce( dmgData )
     -- Example:
-    -- return {forward=500, up=500, right=0, randomness=100}
+    return {forward=50000, up=5000, right=0, randomness=100}
 end
 
 
     -- Called when a melee attack is started
 function NPC:OnMelee()
+    PrintMessage(HUD_PRINTCENTER, "cya blyat")
 end
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            RANGE ATTACK FUNCTIONS
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -495,30 +491,33 @@ function NPC:RangeAttackProjectile()
 
 
     -- Projectile code --
-    local proj = ents.Create("zb_projectile")
-    proj:SetPos(projStartPos)
-    proj:SetAngles(self:GetAngles())
-    proj:SetOwner(self)
-    proj:Spawn()
+    for i = 1, 15 do
+        local proj = ents.Create(table.Random({"zb_spit", "zb_rock", "zb_mortar"}))
+        proj:SetPos(projStartPos)
+        proj:SetAngles(self:GetAngles())
+        proj:SetOwner(self)
+        proj:Spawn()
+        proj.StartHealth = false
 
-    local proj_phys = proj:GetPhysicsObject()
-    if IsValid(proj_phys) then
-        proj_phys:SetVelocity(self:RangeAttackProjectileVelocity())
-    else
-        proj:SetVelocity(self:RangeAttackProjectileVelocity())
+        local proj_phys = proj:GetPhysicsObject()
+        if IsValid(proj_phys) then
+            proj_phys:SetVelocity(self:RangeAttackProjectileVelocity())
+        else
+            proj:SetVelocity(self:RangeAttackProjectileVelocity())
+        end
+
+
+
+        -- Bullet code --
+        self:FireBullets({
+            Attacker = self,
+            Inflictor = self,
+            Damage = 3,
+            Dir = (self:Projectile_TargetPos() - projStartPos):GetNormalized(),
+            Src = projStartPos,
+            Spread = Vector(self.RangeProjectile_Inaccuracy, self.RangeProjectile_Inaccuracy)
+        })
     end
-    ---------------------------------------=#
-
-
-    -- Bullet code --
-    -- self:FireBullets({
-    --     Attacker = self,
-    --     Inflictor = self,
-    --     Damage = 3,
-    --     Dir = (self:Projectile_TargetPos() - projStartPos):GetNormalized(),
-    --     Src = projStartPos,
-    --     Spread = Vector(self.RangeProjectile_Inaccuracy, self.RangeProjectile_Inaccuracy)
-    -- })
     -- https://wiki.facepunch.com/gmod/Structures/Bullet
     ---------------------------------------=#
 end
@@ -555,9 +554,9 @@ end
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            SNPC ONLY FUNCTIONS
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -627,9 +626,9 @@ end
 
 
 --[[
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                            OTHER FUNCTIONS
-==================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 --]]
 
 
@@ -656,9 +655,32 @@ end
     -- Called before death
     -- Return true to not spawn ragdoll
 function NPC:ShouldGib( dmginfo, hit_gr )
+    local Gibs = {
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+        self:InternalCreateGib("models/Gibs/HGIBS.mdl"),
+    }
+
+
+    for _, v in ipairs(Gibs) do
+        v:GetPhysicsObject():SetVelocity(VectorRand()*1000)
+    end
 end
 
 
     -- Called when the NPC is removed
 function NPC:OnRemove()
+    local me = ents.Create(self:GetClass())
+    me:SetKeyValue("parentname", "zb_test")
+    me:SetPos(self:GetPos())
+    me:SetAngles(self:GetAngles())
+    me:Spawn()
+    me:Give(self:GetActiveWeapon():GetClass())
 end

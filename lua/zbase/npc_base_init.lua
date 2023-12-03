@@ -54,6 +54,7 @@ NPC.ExtraCapabilities = {
 }
 
 
+-- Do "zbase_reload" followed by "spawnmenu_reload" to apply the changes, or restart map
 NPC.OnCeiling = false -- Spawn this NPC on the ceiling
 NPC.Offset = false -- NPC Spawn offset from ground, false = default
 
@@ -149,11 +150,6 @@ NPC.DamageScaling = {
 NPC.PhysDamageScale = 1 -- Damage scale from props
 
 
-NPC.EnergyBallDamageScale = 1 -- Damage scale from combine energy balls
-NPC.ExplodeEnergyBall = false -- Should combine energy balls explode when they hit this NPC?
-NPC.CanDissolve = true -- Can the NPC be dissolved?
-
-
 --[[
 ==================================================================================================
                                            FLINCH
@@ -177,8 +173,8 @@ NPC.FlinchIsGesture = false -- Should the flinch animation be played as a gestur
 
 NPC.DeathAnimations = {} -- Death animations to use, leave empty to disable the base death animation
 NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
-NPC.DeathChance = 2 --  Flinch animation chance 1/x
-
+NPC.DeathAnimationChance = 2 --  Flinch animation chance 1/x
+NPC.DeathAnimationDuration = 1 -- Duration of death animation
 
 NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
 

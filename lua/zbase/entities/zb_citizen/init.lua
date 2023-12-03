@@ -23,7 +23,7 @@ NPC.MeleeDamage_Delay = 0.5 -- Time until the damage strikes
 NPC.BaseRangeAttack = true -- Use ZBase range attack system
 NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
 NPC.RangeAttackTurnSpeed = 20 -- Speed that it turns while trying to face the enemy when range attacking
-NPC.RangeAttackDistance = {200, 1200} -- Distance that it initiates the range attack {min, max}
+NPC.RangeAttackDistance = {200, 1500} -- Distance that it initiates the range attack {min, max}
 NPC.RangeAttackCooldown = {2, 3} -- Range attack cooldown {min, max}
 NPC.RangeAttackSuppressEnemy = false -- If the enemy can't be seen, target the last seen position
 
@@ -64,7 +64,6 @@ function NPC:RangeAttackProjectile()
 end
 --]]==============================================================================================]]
 function NPC:PreventRangeAttack()
-    -- Don't throw rocks if we have a weapon
     return IsValid(self:GetActiveWeapon()) or !self:IsFacing(self:GetEnemy(), 45)
 end
 --]]==============================================================================================]]

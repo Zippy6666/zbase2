@@ -1,7 +1,7 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 
-NPC.StartHealth = 60 -- Max health
+NPC.StartHealth = 80 -- Max health
 
 
 -- Default engine blood color, set to DONT_BLEED if you want to use custom blood instead

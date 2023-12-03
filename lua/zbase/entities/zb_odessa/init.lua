@@ -17,7 +17,6 @@ NPC.HealthCooldown = 0.2
 NPC.MeleeAttackAnimations = {"meleeattack01"}
 
 
-
 -- Dialogue sounds
 -- The NPCs will face each other as if they are talking
 NPC.Dialogue_Question_Sounds = "ZBaseOdessa.Question" -- Dialogue questions, emitted when the NPC starts talking to another NPC
