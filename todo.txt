@@ -1,9 +1,7 @@
 >>> TODO <<<
 
-- Make sure EVERYTHING works as intended
+[zbase2] addons/zbase2/lua/autorun/client/zbase_spawnmenu.lua:89: bad argument #1 to 'pairs' (table expected, got nil)
 
-- Performance test
-    - Think cvar
 
 - Add things that people probably want
     - Image path
@@ -11,7 +9,7 @@
     - More menu options
         - Health, damage sliders
         - Misc useful stuff
-        - Sleepstate
+        - Sleepstate (spawnmenu)
 
 - Make more user friendly
     - Lots of "CustomOn" functions (use vj for reference)
@@ -20,10 +18,9 @@
     - ZBase reload tries to apply in realtime
     - Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
 
-- Multiplayer
-    - Glowing eyes
-
 - Make sure everything is finished
+
+- Make it fancy, add more npcs/more features to npcs
 
 - Copyright stuff
 

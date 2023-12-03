@@ -130,10 +130,41 @@ function NPC:GlowEyeInit()
     end
 
 
-    net.Start("ZBaseAddGlowEyes")
-    net.WriteEntity(self)
-    net.WriteTable(Eyes)
-    net.Broadcast()
+    -- Try applying eyes right away to players that can see it
+    timer.Simple(0.1, function()
+        if IsValid(self) then
+            net.Start("ZBaseAddGlowEyes")
+            net.WriteEntity(self)
+            net.WriteTable(Eyes)
+            net.SendPVS(self:GetPos())
+        end
+    end)
+
+
+    -- Make sure all clients see the NPCs glowing eyes
+    timer.Create("ApplyGlowEyes"..self:EntIndex(), 2, 0, function()
+
+        if !IsValid(self) then
+            timer.Remove("ApplyGlowEyes"..self:EntIndex())
+            return
+        end
+
+
+        for _, ply in pairs(player.GetAll()) do
+            if !ply.NPCsWithGlowEyes then ply.NPCsWithGlowEyes = {} end
+
+
+            if !ply.NPCsWithGlowEyes[self:EntIndex()] then
+                net.Start("ZBaseAddGlowEyes")
+                net.WriteEntity(self)
+                net.WriteTable(Eyes)
+                net.SendPVS(self:GetPos())
+
+                print(ply)
+            end
+        end
+
+    end)
 end
 
 
@@ -444,6 +475,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
             self.PlayAnim_Face = forceFace
             self.PlayAnim_FaceSpeed = faceSpeed
             self.PlayAnim_LockAng = self:GetAngles()
+            self:Face(self.PlayAnim_Face, duration, self.PlayAnim_FaceSpeed)
         end
 
 
@@ -476,24 +508,10 @@ end
 
 
 function NPC:DoPlayAnim()
-    -- Don't stop playing the sequence
-    -- if self:GetSequenceName(self:GetSequence())!=self.PlayAnim_Seq then
-    --     self:SetSequence(self.PlayAnim_Seq)
-    -- end
-
-
-    -- Handle movement during PlayAnimation
-    self:AutoMovement( self:GetAnimTimeInterval() )
-
-
     -- Face during PlayAnimation
-    if self.PlayAnim_Face != nil then
-        if self.PlayAnim_Face == false then
-            timer.Remove("ZBaseFace"..self:EntIndex())
-            self:SetAngles(self.PlayAnim_LockAng)
-        else
-            self:Face(self.PlayAnim_Face, nil, self.PlayAnim_FaceSpeed)
-        end
+    if self.PlayAnim_Face == false then
+        timer.Remove("ZBaseFace"..self:EntIndex())
+        self:SetAngles(self.PlayAnim_LockAng)
     end
 
 
@@ -503,6 +521,10 @@ function NPC:DoPlayAnim()
 
     -- Stop movement
     self:SetSaveValue("m_flTimeLastMovement", 2)
+
+
+    -- Walkframes
+    self:AutoMovement( self:GetAnimTimeInterval() )
 end
 
 
@@ -538,6 +560,7 @@ function NPC:InternalStopAnimation(dontTransitionOut)
 
 
     timer.Remove("ZBasePlayAnim"..self:EntIndex())
+    timer.Remove("ZBaseFace"..self:EntIndex())
 end
 
 
@@ -1738,6 +1761,7 @@ function NPC:OnEntityTakeDamage( dmg )
 
     -- Remember last dmginfo
     self.LastDMGINFO = dmg
+    self.LastDamageWasBullet = dmg:IsBulletDamage()
 
 
     self:ApplyZBaseDamageScale(dmg)
@@ -1754,7 +1778,7 @@ function NPC:OnEntityTakeDamage( dmg )
 
 
     if boutaDie && ShouldPreventGib[self:GetClass()] then
-        if dmg:IsDamageType(DMG_DISSOLVE) then
+        if dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball") then
             dmg:SetDamageType(bit.bor(DMG_DISSOLVE, DMG_NEVERGIB))
         else
             dmg:SetDamageType(DMG_NEVERGIB)
@@ -1956,7 +1980,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
 	-- Ragdoll force
 	local force = dmg:GetDamageForce()/(totMass/120)
-	if dmg:IsBulletDamage() then
+	if self.LastDamageWasBullet then
 		ragPhys:SetVelocity(force*0.1)
 	else
 		ragPhys:SetVelocity(force)
