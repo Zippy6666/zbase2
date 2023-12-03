@@ -1,10 +1,12 @@
     -- TODO --
--- General
+
     -- Make sure EVERYTHING works as intended
+    
+    -- Performance test
 
     -- Add things that people probably want
         -- Image path
-        
+
         -- More menu options
             -- Health and damage sliders
             -- Misc useful stuff
@@ -20,8 +22,8 @@
     -- Multiplayer
         -- Glowing eyes
 
---Final stuff
     -- Make sure everything is finished
+
     -- Copyright stuff
 
     -- Make a cool workshop page

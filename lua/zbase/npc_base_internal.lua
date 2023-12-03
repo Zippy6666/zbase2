@@ -1906,6 +1906,11 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	rag:Spawn()
 
 
+    for k, v in pairs(self:GetBodyGroups()) do
+        rag:SetBodygroup(v.id, self:GetBodygroup(v.id))
+    end
+    
+
     for k, v in pairs(self.SubMaterials) do
         rag:SetSubMaterial(k-1, v)
     end
