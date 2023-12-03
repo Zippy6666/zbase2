@@ -268,7 +268,11 @@ function ENT:RunAI( strExp )
 		-- Tell aerial base to follow the player directly instead of navigating if the enemy is visible
 		if self.SNPCType==ZBASE_SNPCTYPE_FLY
 		&& self.AerialShouldFollowPlayerDirectly then
-			self.AerialGoal = self:GetEnemy():GetPos()
+			local ene = self:GetEnemy()
+
+			if IsValid(ene) then
+				self.AerialGoal = ene:GetPos()
+			end
 		end
 	end
 
