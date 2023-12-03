@@ -98,12 +98,8 @@ function NPC:Face( face, duration, speed )
         if ForbiddenScheds[sched] then return end
         
 
-        local turnSpeed = speed
-        or (self.IsZBase_SNPC && self.m_fMaxYawSpeed)
-        or 10
-        
-
-		self:SetIdealYawAndUpdate(yaw, turnSpeed)
+        local turnSpeed = speed or self:GetInternalVariable("m_fMaxYawSpeed") or -1
+        self:SetIdealYawAndUpdate(yaw, turnSpeed)
 	end
 
 
