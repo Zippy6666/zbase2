@@ -2,7 +2,6 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 NPC.Models = {"models/zippy/Synth.mdl"}
 NPC.StartHealth = 320
-NPC.RenderMode = RENDERMODE_TRANSALPHA -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
 
 
 NPC.BloodColor = DONT_BLEED
