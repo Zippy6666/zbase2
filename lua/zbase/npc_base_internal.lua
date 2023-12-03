@@ -13,7 +13,6 @@ local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 
 function NPC:ZBaseInit()
-
     if !self.BeforeSpawnDone then
         self:BeforeSpawn()
     end
@@ -116,6 +115,9 @@ end
 
 
 function NPC:GlowEyeInit()
+    if !ZBCVAR.SvGlowingEyes:GetBool() then return end
+
+
     local Eyes = ZBaseGlowingEyes[self:GetModel()]
     if !Eyes then return end
 
@@ -136,7 +138,6 @@ end
 
 
 function NPC:BeforeSpawn()
-
     
     self:CapabilitiesAdd(bit.bor(
         CAP_SQUAD,
@@ -230,12 +231,6 @@ function NPC:ZBaseThink()
                 self.Debug_ProhibitedCusESched = false
             end
         end
-    end
-
-
-    -- Disable default regen
-    if self:GetInternalVariable("m_flTimeLastRegen") then
-        self:SetSaveValue("m_flTimeLastRegen", 0.1)
     end
 
     -- Base regen
@@ -364,6 +359,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
         self:GetSequenceActivity(self:LookupSequence(anim)) or
         isnumber(anim) && anim
 
+
         local id = self:AddGesture(gest)
         if self.IsZBase_SNPC then
             self:SetLayerBlendIn(id, 0.2)
@@ -372,6 +368,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
         else
             self:SetLayerPlaybackRate(id, (playbackRate or 1) )
         end
+
 
         return -- Stop here
     end
@@ -1600,23 +1597,38 @@ end
 --]]
 
 
-function NPC:CustomBleed( pos, dir, IsBulletDamage )
+function NPC:CustomBleed( pos, dir )
     if !self.CustomBloodParticles && !self.CustomBloodDecals then return end
 
 
-    local dmgPos = pos
-    if !IsBulletDamage && !self:ZBaseDist( dmgPos, { within=math.max(self:OBBMaxs().x, self:OBBMaxs().z)*1.5 } ) then
-        dmgPos = self:WorldSpaceCenter()+VectorRand()*15
+    local function Bleed(posfinal, dirfinal, IsBulletDamage)
+        local dmgPos = posfinal
+        if !IsBulletDamage && !self:ZBaseDist( dmgPos, { within=math.max(self:OBBMaxs().x, self:OBBMaxs().z)*1.5 } ) then
+            dmgPos = self:WorldSpaceCenter()+VectorRand()*15
+        end
+
+
+        if self.CustomBloodParticles then
+            ParticleEffect(table.Random(self.CustomBloodParticles), dmgPos, -dirfinal:Angle())
+        end
+
+
+        if self.CustomBloodDecals then
+            util.Decal(self.CustomBloodDecals, dmgPos, dmgPos+dirfinal*250+VectorRand()*50, self)
+        end
     end
 
 
-    if self.CustomBloodParticles then
-        ParticleEffect(table.Random(self.CustomBloodParticles), dmgPos, -dir:Angle())
-    end
+    if self.ZBase_BulletHits then
 
+        for _, v in ipairs(self.ZBase_BulletHits) do
+            Bleed(v.pos, v.dir, true)
+        end
 
-    if self.CustomBloodDecals then
-        util.Decal(self.CustomBloodDecals, dmgPos, dmgPos+dir*250+VectorRand()*50, self)
+    else
+
+        Bleed(pos, dir)
+
     end
 end
 
@@ -1749,6 +1761,11 @@ end
 
     -- Called last
 function NPC:OnPostEntityTakeDamage( dmg )
+    -- Custom blood
+    self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
+
+
+
     if self.Dead then return end
 
 
@@ -1789,18 +1806,6 @@ function NPC:OnPostEntityTakeDamage( dmg )
 
             self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
 
-        end
-    end
-
-
-    -- Custom blood
-    if dmg:GetDamage() > 0 then
-        if self.ZBase_BulletHits then
-            for _, v in ipairs(self.ZBase_BulletHits) do
-                self:CustomBleed(v.pos, v.dir, true)
-            end
-        else
-            self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
         end
     end
 

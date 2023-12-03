@@ -120,6 +120,9 @@ local NextBehaviourThink = CurTime()
 
 
 hook.Add("Tick", "ZBASE", function()
+    if ZBCVAR.NoThink:GetBool() then return end
+
+    
     -- Think for NPCs that aren't scripted
     if NextThink < CurTime() then
         for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
@@ -420,6 +423,7 @@ end
 
 local mat = Material( "effects/blueflare1" )
 hook.Add( "RenderScreenspaceEffects", "ZBaseGlowingEyes", function()
+    if !ZBCVAR.GlowingEyes:GetBool() then return end
 
     for _, ent in ipairs(ZBaseEntsWithGlowingEyes) do
         if !ent.GlowEyes then continue end

@@ -1,33 +1,34 @@
-    -- TODO --
+>>> TODO <<<
 
-    -- Make sure EVERYTHING works as intended
-    
-    -- Performance test
+- Make sure EVERYTHING works as intended
 
-    -- Add things that people probably want
-        -- Image path
+- Performance test
+    - Think cvar
 
-        -- More menu options
-            -- Health and damage sliders
-            -- Misc useful stuff
-            -- Option to not think outside of pvs
+- Add things that people probably want
+    - Image path
 
-    -- Make more user friendly
-        -- Lots of "CustomOn" functions (use vj for reference)
-        -- All variables can be changed during the NPC's lifetime
-        -- Dummy git
-        -- ZBase reload tries to apply in realtime
-        -- Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
+    - More menu options
+        - Health, damage sliders
+        - Misc useful stuff
+        - Sleepstate
 
-    -- Multiplayer
-        -- Glowing eyes
+- Make more user friendly
+    - Lots of "CustomOn" functions (use vj for reference)
+    - All variables can be changed during the NPC's lifetime
+    - Dummy git
+    - ZBase reload tries to apply in realtime
+    - Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
 
-    -- Make sure everything is finished
+- Multiplayer
+    - Glowing eyes
 
-    -- Copyright stuff
+- Make sure everything is finished
 
-    -- Make a cool workshop page
-        -- Psychotic description for the funnies
-        -- Show list of future ideas to hype mfs
-        -- Credit crunchy soap!!!!!!!!!!!!!
-        -- requiresd good boi branch!!!
+- Copyright stuff
+
+- Make a cool workshop page
+    - Psychotic description for the funnies
+    - Show list of future ideas to hype mfs
+    - Credit crunchy soap!!!!!!!!!!!!!
+    - requiresd good boi branch!!!

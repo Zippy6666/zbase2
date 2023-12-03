@@ -2,11 +2,13 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 NPC.Models = {"models/zippy/Synth.mdl"}
 NPC.StartHealth = 320
+NPC.RenderMode = RENDERMODE_TRANSALPHA -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
 
 
 NPC.BloodColor = DONT_BLEED
 NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
 NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
+
 
 NPC.CollisionBounds = {min=Vector(-75, -75, 0), max=Vector(75, 75, 90)}
 NPC.HullType = HULL_LARGE -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL

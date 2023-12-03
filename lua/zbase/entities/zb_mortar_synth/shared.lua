@@ -68,7 +68,7 @@ sound.Add({
 	channel = CHAN_AUTO,
 	volume = 0.7,
 	level = 80,
-	pitch = 100,
+	pitch = 110,
 	sound = {
         "npc/mortarsynth/hover.wav",
     }
