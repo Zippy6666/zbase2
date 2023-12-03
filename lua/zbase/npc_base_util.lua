@@ -47,8 +47,6 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     -- if extraData.duration && !extraData.speedMult then
     --     return extraData.duration
     -- end
-
-    return self:SequenceDuration()
 end
 
 

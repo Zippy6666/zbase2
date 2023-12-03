@@ -13,6 +13,11 @@ local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 
 function NPC:ZBaseInit()
+
+    if !self.BeforeSpawnDone then
+        self:BeforeSpawn()
+    end
+
     -- Vars
     self.NextPainSound = CurTime()
     self.NextAlertSound = CurTime()
@@ -25,7 +30,6 @@ function NPC:ZBaseInit()
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = 0
     self.SchedDebug = GetConVar("developer"):GetBool()
-    print(self:GetCollisionBounds())
 
 
     -- Network shit
@@ -133,6 +137,7 @@ end
 
 function NPC:BeforeSpawn()
 
+    
     self:CapabilitiesAdd(bit.bor(
         CAP_SQUAD,
         CAP_TURN_HEAD,
@@ -145,6 +150,8 @@ function NPC:BeforeSpawn()
 
     self.AllowedCustomEScheds = {}
     self.ProhibitCustomEScheds = false
+
+    self.BeforeSpawnDone = true
 
 end
 
@@ -226,7 +233,12 @@ function NPC:ZBaseThink()
     end
 
 
-    -- Regen
+    -- Disable default regen
+    if self:GetInternalVariable("m_flTimeLastRegen") then
+        self:SetSaveValue("m_flTimeLastRegen", 0.1)
+    end
+
+    -- Base regen
     if self.HealthRegenAmount > 0 && self:Health() < self:GetMaxHealth() && self.NextHealthRegen < CurTime() then
         self:SetHealth(math.Clamp(self:Health()+self.HealthRegenAmount, 0, self:GetMaxHealth()))
         self.NextHealthRegen = CurTime()+self.HealthCooldown
@@ -357,6 +369,8 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
             self:SetLayerBlendIn(id, 0.2)
             self:SetLayerBlendOut(id, 0.2)
             self:SetLayerPlaybackRate(id, (playbackRate or 1)*0.5 )
+        else
+            self:SetLayerPlaybackRate(id, (playbackRate or 1) )
         end
 
         return -- Stop here
@@ -428,6 +442,7 @@ function NPC:InternalPlayAnimation( anim, duration, playbackRate, sched,forceFac
 
 
         self.PlayAnim_PlayBackRate = playbackRate
+        self.PlayAnim_Seq = anim
         self.DoingPlayAnim = true
     end
     ----------------------------------------------------------------=#
@@ -455,6 +470,12 @@ end
 
 
 function NPC:DoPlayAnim()
+    -- Don't stop playing the sequence
+    -- if self:GetSequenceName(self:GetSequence())!=self.PlayAnim_Seq then
+    --     self:SetSequence(self.PlayAnim_Seq)
+    -- end
+
+
     -- Handle movement during PlayAnimation
     self:AutoMovement( self:GetAnimTimeInterval() )
 
@@ -507,6 +528,7 @@ function NPC:InternalStopAnimation(dontTransitionOut)
     self.PlayAnim_FaceSpeed = nil
     self.PlayAnim_PlayBackRate = nil
     self.PlayAnim_LockAng = nil
+    self.PlayAnim_Seq = nil
 
 
     timer.Remove("ZBasePlayAnim"..self:EntIndex())
@@ -529,7 +551,6 @@ end
 
 function NPC:DoCustomMoveAnim()
     local cusMoveAnim = self.MoveActivityOverride[self:GetNPCState()]
-    
     if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
         self:SetMovementActivity(cusMoveAnim)
     end
@@ -994,7 +1015,10 @@ end
 function NPCB.AdjustSightAngAndDist:Run( self )
     local ene = self:GetEnemy()
 
-    if self:ShootTargetTooFarAway() then
+    if self.DoingDeathAnim then
+        self:SetSaveValue("m_flFieldOfView", 1)
+        self:SetMaxLookDistance(1)
+    elseif self:ShootTargetTooFarAway() then
         self:PreventFarShoot()
     else
         local fieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
@@ -1597,6 +1621,19 @@ function NPC:CustomBleed( pos, dir, IsBulletDamage )
 end
 
 
+function NPC:ApplyZBaseDamageScale(dmg)
+    if self.HasZBScaledDamage then return end
+    self.HasZBScaledDamage = true
+
+
+    for dmgType, mult in pairs(self.DamageScaling) do
+        if dmg:IsDamageType(dmgType) then
+            dmg:ScaleDamage(mult)
+        end
+    end
+end
+
+
     -- Called first
 function NPC:OnScaleDamage( dmg, hit_gr )
     local infl = dmg:GetInflictor()
@@ -1612,23 +1649,8 @@ function NPC:OnScaleDamage( dmg, hit_gr )
         dmg:ScaleDamage(0)
     end
 
-
-    -- Combine ball stuff
-    if infl:GetClass()=="prop_combine_ball" then
-        dmg:ScaleDamage(self.EnergyBallDamageScale)
-
-        if self.ExplodeEnergyBall then
-            infl:Fire("Explode")
-        end
-    end
-
-
-    -- self.DamageScaling
-    for dmgType, mult in pairs(self.DamageScaling) do
-        if dmg:IsDamageType(dmgType) then
-            dmg:ScaleDamage(mult)
-        end
-    end
+    
+    self:ApplyZBaseDamageScale(dmg)
 
 
     -- Armor
@@ -1639,6 +1661,7 @@ function NPC:OnScaleDamage( dmg, hit_gr )
 
     -- Custom damage
     self:CustomTakeDamage( dmg, hit_gr )
+    self.CustomTakeDamageDone = true
 
 
     -- Bullet blood shit idk
@@ -1675,6 +1698,7 @@ local ShouldPreventGib = {
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
     local attacker = dmg:GetAttacker()
+    local infl = dmg:GetInflictor()
 
 
     if self.DoingDeathAnim && !self.DeathAnim_Finished then
@@ -1693,6 +1717,16 @@ function NPC:OnEntityTakeDamage( dmg )
     self.LastDMGINFO = dmg
 
 
+    self:ApplyZBaseDamageScale(dmg)
+
+
+    -- Custom damage
+    if !self.CustomTakeDamageDone then
+        self:CustomTakeDamage( dmg, HITGROUP_GENERIC )
+        self.CustomTakeDamageDone = true
+    end
+
+
     local boutaDie = self:Health()-dmg:GetDamage() <= 0 -- mf bouta die lmfao
 
 
@@ -1706,7 +1740,7 @@ function NPC:OnEntityTakeDamage( dmg )
 
 
     -- Death animation
-    if !table.IsEmpty(self.DeathAnimations) && boutaDie then
+    if !table.IsEmpty(self.DeathAnimations) && boutaDie && math.random(1, self.DeathAnimationChance)==1 then
         self:DeathAnimation(dmg)
         return
     end
@@ -1769,6 +1803,10 @@ function NPC:OnPostEntityTakeDamage( dmg )
             self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
         end
     end
+
+
+    self.HasZBScaledDamage = false
+    self.CustomTakeDamageDone = false
 end
 
 
@@ -1794,8 +1832,9 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 
     -- Death sound
-    self:EmitSound(self.DeathSounds)
-
+    if !self.DoingDeathAnim then
+        self:EmitSound(self.DeathSounds)
+    end
 
     -- Ally death reaction
     local ally = self:GetNearestAlly(600)
@@ -1852,6 +1891,7 @@ local RagdollBlacklist = {
 
 
 function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
+    if !self.HasDeathRagdoll then return end
     if RagdollBlacklist[self:GetClass()] then return end
 
 
@@ -2078,31 +2118,31 @@ function NPC:DeathAnimation( dmg )
 
 
     self.DoingDeathAnim = true
+    self:EmitSound(self.DeathSounds)
     dmg:ScaleDamage(0)
 
 
-    local duration = self:PlayAnimation(table.Random(self.DeathAnimations))
-
+    self:PlayAnimation(table.Random(self.DeathAnimations), false, {speedMult=self.DeathAnimationSpeed, face=false, duration=self.DeathAnimationDuration})
 
     self:SetHealth(1)
     self:AddFlags(FL_NOTARGET)
     self:CapabilitiesClear()
 
 
-    timer.Simple(duration, function()
+    timer.Simple(self.DeathAnimationDuration/self.DeathAnimationSpeed, function()
         if !IsValid(self) then return end
 
         self.DeathAnim_Finished = true
 
-        local newDMGinfo = DamageInfo()
-        newDMGinfo:SetAttacker( IsValid(lastDMGinfo.att) && lastDMGinfo.att or self )
-        newDMGinfo:SetInflictor( IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or self )
-        newDMGinfo:SetDamage( 1 )
+        -- local newDMGinfo = DamageInfo()
+        -- newDMGinfo:SetAttacker( IsValid(lastDMGinfo.att) && lastDMGinfo.att or self )
+        -- newDMGinfo:SetInflictor( IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or self )
+        -- newDMGinfo:SetDamage( 1 )
 
         if self.IsZBase_SNPC then
             self:Die(newDMGinfo)
         else
-            self:TakeDamageInfo( newDMGinfo )
+            GAMEMODE:OnNPCKilled(self, IsValid(lastDMGinfo.att) && lastDMGinfo.att or self, IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or self)
         end
     end)
 end

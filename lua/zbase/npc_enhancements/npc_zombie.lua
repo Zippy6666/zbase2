@@ -6,8 +6,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         self.m_fIsHeadless = true
         self:SetBodygroup(1, 0)
 
-        print(self:GetInternalVariable("m_nCrabCount"))
-
         if self:GetClass()=="npc_poisonzombie" then
             self.m_nCrabCount = 0
             self:SetBodygroup(2, 0)
