@@ -440,10 +440,13 @@ if SERVER then
 
         if IsValid(Ent) then
             ply.NPCsWithGlowEyes[Ent:EntIndex()] = true
+            
             print("ZBaseAddGlowEyes_Success", ply, Ent, "SUCCESS")
 
             Ent:CallOnRemove("NPCsWithGlowEyesRemove"..ply:EntIndex(), function()
-                ply.NPCsWithGlowEyes[Ent:EntIndex()] = nil
+                if ply.NPCsWithGlowEyes then
+                    ply.NPCsWithGlowEyes[Ent:EntIndex()] = nil
+                end
             end)
         end
     end)

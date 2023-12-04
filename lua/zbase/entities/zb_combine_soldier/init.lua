@@ -6,6 +6,9 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 
 
 NPC.StartHealth = 50 -- Max health
+
+
+
 NPC.CanPatrol = true -- Use base patrol behaviour
 
 
@@ -53,11 +56,13 @@ NPC.HearDangerSounds = "ZBaseCombine.HearSound"
 
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
+    local ACT_WALK_EASY = self:GetSequenceActivity(self:LookupSequence("walkeasy_all"))
+    self.MoveActivityOverride = {[NPC_STATE_IDLE] = ACT_WALK_EASY}
 end
 --]]==============================================================================================]]
-
-    -- Return a new sound name to play that sound instead.
-    -- Return false to prevent the sound from playing.
+function NPC:CustomThink()
+end
+--]]==============================================================================================]]
 function NPC:CustomOnEmitSound( sndData, sndVarName )
 end
 --]]==============================================================================================]]

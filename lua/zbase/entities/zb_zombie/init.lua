@@ -3,6 +3,9 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 NPC.StartHealth = 60 -- Max health
 
 
+NPC.MoveSpeedMultiplier = 1.33 -- Multiply the NPC's movement speed by this amount (ground NPCs)
+
+
 -- ZBase faction
 -- Can be any string, all ZBase NPCs with the same faction will be allied
 -- Default factions:

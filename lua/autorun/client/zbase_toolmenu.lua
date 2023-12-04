@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------------------=#
-local function ZBaseAddMenuCategory( name, func, cat )
-    spawnmenu.AddToolMenuOption("Options", cat or "ZBase", name, name, "", "", function(panel)
+local function ZBaseAddMenuCategory( name, func )
+    spawnmenu.AddToolMenuOption("Options", "ZBase", name, name, "", "", function(panel)
         panel:ControlHelp("")
         panel:ControlHelp("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
         panel:ControlHelp("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
@@ -13,6 +13,7 @@ local function ZBaseAddMenuCategory( name, func, cat )
         panel:ControlHelp("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
         panel:ControlHelp("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
         panel:ControlHelp("")
+        panel:ControlHelp("-- "..string.upper(name).." --")
         func(panel)
     end)
 end

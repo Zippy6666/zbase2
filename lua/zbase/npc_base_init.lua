@@ -89,7 +89,9 @@ NPC.CanPatrol = true -- Use base patrol behaviour
 NPC.CanJump = true -- Can the NPC jump?
 
 
-NPC.MoveSpeedMultiplier = 1 -- Multiply the NPC's movement speed by this amount (ground NPCs)
+-- Multiply the NPC's movement speed by this amount (ground NPCs)
+-- May not work properly for all NPCs
+NPC.MoveSpeedMultiplier = 1
 
 
 --[[
@@ -248,6 +250,22 @@ NPC.RangeProjectile_Offset = false -- Projectile spawn offset, example: {forward
 NPC.RangeProjectile_Speed = 1000 -- The speed of the projectile
 NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
 
+
+--[[
+==================================================================================================
+                                           THROW GRENADE
+==================================================================================================
+--]]
+
+
+NPC.BaseGrenadeAttack = false --false
+NPC.ThrowGrenadeChance_Visible = 1--4
+NPC.ThrowGrenadeChance_Occluded = 1--2
+NPC.GrenadeCoolDown = {3, 3}--{4, 8}
+NPC.GrenadeAttackAnimations = {"grenadethrow"}--{}
+NPC.GrenadeEntityClass = "npc_grenade_frag"
+NPC.GrenadeReleaseTime = 1
+NPC.GrenadeAttachment = "anim_attachment_LH"
 
 --[[
 ==================================================================================================
@@ -555,6 +573,25 @@ end
     -- Return true to prevent it
 function NPC:PreventRangeAttack()
     return false 
+end
+
+
+--[[
+==================================================================================================
+                                           GRENADE ATTACK
+==================================================================================================
+--]]
+
+
+    -- The position to spawn the grenade at
+function NPC:GrenadeSpawnPos()
+    return self:GetAttachment(self:LookupAttachment(self.GrenadeAttachment)).Pos
+end
+
+
+    -- The velocity to apply to the grenade
+function NPC:GrenadeVelocity()
+    return Vector()
 end
 
 
