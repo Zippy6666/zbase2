@@ -171,7 +171,11 @@ function NPC:CanHaveWeapons()
 end
 
 
-function NPC:BeforeSpawn()
+function NPC:BeforeSpawn( NPCData )
+
+    NPC:SetMaxHealth(NPCTable.StartHealth*ZBCVAR.HPMult:GetFloat() )
+    NPC:SetHealth( NPCData.StartHealth*ZBCVAR.HPMult:GetFloat() )
+
     
     self:CapabilitiesAdd(bit.bor(
         CAP_SQUAD,
@@ -1559,6 +1563,9 @@ function NPC:DealDamage( dmg, ent )
     if value != nil then
         return value
     end
+
+
+    dmg:ScaleDamage(ZBCVAR.DMGMult:GetFloat())
 
 
     -- Proper damage values for hl2 weapons --

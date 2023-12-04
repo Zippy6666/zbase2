@@ -142,7 +142,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 
     -- Spawn
 	if isNotFirstSpawn then
-		NPC:BeforeSpawn()
+		NPC:BeforeSpawn( NPCData )
 		NPC:Spawn()
 		NPC:Activate()
 	end
@@ -168,11 +168,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	end
 
 
-    NPC:SetMaxHealth(NPCData.StartHealth )
-    NPC:SetHealth( NPCData.StartHealth )
-
-
-	-- -- Body groups
+	-- Body groups
 	if ( NPCData.BodyGroups ) then
 		for k, v in pairs( NPCData.BodyGroups ) do
 			NPC:SetBodygroup( k, v )

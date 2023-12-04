@@ -2,7 +2,7 @@
 
 
 local PANEL = {}
-local icon = "entities/zbase.png"
+local GenericIcon = "entities/zbase.png"
 
 
 Derma_Hook( PANEL, "Paint", "Paint", "Tree" )
@@ -83,6 +83,7 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	return icon
 end)
 -----------------------------------------------------------------------------------------=#
+ZBaseCategoryImages = {}
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
 	local Categories = {}
 
@@ -97,7 +98,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 
 	-- Create an icon for each one and put them on the panel
 	for CategoryName, v in SortedPairs( Categories ) do
-		local node = tree:AddNode( CategoryName, icon ) -- Add a node to the tree
+		local node = tree:AddNode( CategoryName, ZBaseCategoryImages[CategoryName] or GenericIcon ) -- Add a node to the tree
 
 		node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
 			-- If we've already populated it - forget it.
