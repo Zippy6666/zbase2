@@ -5,8 +5,6 @@
 --]]
 hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
 
-    AddCSLuaFile("zbase/override_functions.lua")
-
     -- Override functions
     timer.Simple(0.5, function()
         include("zbase/override_functions.lua")
@@ -414,7 +412,7 @@ if CLIENT then
         local Eyes = net.ReadTable()
         
         
-        print(LocalPlayer())
+        print("ZBaseAddGlowEyes", LocalPlayer())
         
 
         if IsValid(Ent) then
@@ -436,15 +434,13 @@ if SERVER then
     net.Receive("ZBaseAddGlowEyes_Success", function( _, ply )
         if !ply.NPCsWithGlowEyes then ply.NPCsWithGlowEyes = {} end
 
-        print(ply)
-
 
         local Ent = net.ReadEntity()
 
 
         if IsValid(Ent) then
             ply.NPCsWithGlowEyes[Ent:EntIndex()] = true
-            print(ply, Ent, "SUCCESS")
+            print("ZBaseAddGlowEyes_Success", ply, Ent, "SUCCESS")
 
             Ent:CallOnRemove("NPCsWithGlowEyesRemove"..ply:EntIndex(), function()
                 ply.NPCsWithGlowEyes[Ent:EntIndex()] = nil

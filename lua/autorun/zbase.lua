@@ -277,17 +277,8 @@ end
 
 
 local function IncludeFiles()
-    -- Globals
-    AddCSLuaFile("zbase/globals.lua")
     include("zbase/globals.lua")
-
-    -- Hooks
-    AddCSLuaFile("zbase/hooks.lua")
     include("zbase/hooks.lua")
-
-
-    -- CVars
-    AddCSLuaFile("zbase/cvars.lua")
     include("zbase/cvars.lua")
 
 
@@ -312,12 +303,39 @@ local function IncludeFiles()
 end
 
 
+local function AddCSLuaFiles()
+    AddCSLuaFile("zbase/cvars.lua")
+    AddCSLuaFile("zbase/globals.lua")
+    AddCSLuaFile("zbase/override_functions.lua")
+    AddCSLuaFile("zbase/hooks.lua")
+    AddCSLuaFile("zbase/npc_base_shared.lua")
+
+    -- Add zbase entity files
+    local _, dirs = file.Find("zbase/entities/*","LUA")
+    for _, v in ipairs(dirs) do
+        AddCSLuaFile("zbase/entities/"..v.."/shared.lua")
+    end
+end
+
+
 --[[
 ======================================================================================================================================================
                                            REGISTER THE BLOODY NPC BASE
                                            ADD NPCS TO SPAWNMENU
 ======================================================================================================================================================
 --]]
+
+
+local function UpdateLiveNPCs()
+    for _, npc in ipairs(ZBaseNPCInstances) do
+        local MyUpdatedTable = ZBaseNPCs[npc.NPCName]
+        local MyOldTable = npc:GetTable()
+
+        for attr, val in pairs(MyUpdatedTable) do
+            MyOldTable[attr] = val
+        end
+    end
+end
 
 
 local function NPCsInherit()
@@ -361,7 +379,7 @@ local function RegBase()
     local NPCBasePrefix = "zbase/npc_base_"
 
 
-    AddCSLuaFile(NPCBasePrefix.."shared.lua")
+    --AddCSLuaFile(NPCBasePrefix.."shared.lua")
     include(NPCBasePrefix.."shared.lua")
 
 
@@ -393,16 +411,7 @@ local function NPCReg( name )
         && (CLIENT or file.Exists(sv, "LUA")) then
             ZBaseNPCs[name] = {}
 
-            -- local NPCPrev = NPC
-            -- NPC = ZBaseNPCs[name]
-
-            AddCSLuaFile(sh)
             include(sh)
-
-
-            if file.Exists(cl, "LUA") then
-                AddCSLuaFile(cl)
-            end
 
             if SERVER then
                 include(sv)
@@ -411,8 +420,6 @@ local function NPCReg( name )
             if file.Exists(cl, "LUA") && CLIENT then
                 include(cl)
             end
-
-            NPC = NPCPrev
         end
     end
 end
@@ -468,15 +475,19 @@ end)
 
 
 if ZBaseInitialized then
-    IncludeFiles()
-    registerNPCs()
 
+    IncludeFiles()
+
+    registerNPCs()
     NPCsInherit()
     AddNPCsToSpawnMenu()
+    UpdateLiveNPCs()
 
     MsgN("ZBase Reloaded!")
+
 else
 
+    AddCSLuaFiles()
     IncludeFiles()
     registerNPCs()
 
