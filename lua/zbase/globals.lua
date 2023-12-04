@@ -45,7 +45,116 @@ end
 
 --[[
 ======================================================================================================================================================
-                                           SCHEDULE STUFF
+                                           UTIL
+======================================================================================================================================================
+--]]
+
+
+function ZBaseSetFaction( ent, newFaction )
+    ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
+
+    for _, v in ipairs(ZBaseRelationshipEnts) do
+        v:Relationships()
+    end
+end
+
+
+function ZBaseAddGlowingEye(model, skin, bone, offset, scale, color)
+    if !ZBaseGlowingEyes[model] then ZBaseGlowingEyes[model] = {} end
+
+    local Eye = {}
+    Eye.skin = skin
+    Eye.bone = bone
+    Eye.offset = offset
+    Eye.scale = scale
+    Eye.color = color
+
+    table.insert(ZBaseGlowingEyes[model], Eye)
+end
+
+
+function ZBaseSetCategoryIcon( category, path )
+    if SERVER then return end
+    ZBaseCategoryImages[category] = path
+end
+
+
+--[[
+======================================================================================================================================================
+                                           CONVINIENT FUNCTIONS
+======================================================================================================================================================
+--]]
+
+
+function ZBaseBleed( ent, pos, ang )
+    if !SERVER then return end
+    if !ent:IsNPC() && !ent.IsZBaseGib then return end
+
+
+    local bloodcol = (ent.IsZBaseGib && ent.BloodColor) or ent:GetBloodColor()
+
+
+    local distFromSelf = ent:GetPos():DistToSqr(pos)
+    if distFromSelf > (math.max(ent:OBBMaxs().x, ent:OBBMaxs().z)*1.5)^2 then
+        pos = ent:WorldSpaceCenter()+VectorRand()*15
+    end
+
+
+    if bloodcol==BLOOD_COLOR_MECH then
+        local spark = ents.Create("env_spark")
+        spark:SetKeyValue("spawnflags", 256)
+        spark:SetKeyValue("TrailLength", 1)
+        spark:SetKeyValue("Magnitude", 1)
+        spark:SetPos(pos)
+        spark:SetAngles(ang && -ang or AngleRand())
+        spark:Spawn()
+        spark:Activate()
+        spark:Fire("SparkOnce")
+        SafeRemoveEntityDelayed(spark, 0.1)
+    else
+        local BloodEffects = {
+            [BLOOD_COLOR_RED] = "blood_impact_red_01",
+            [BLOOD_COLOR_ANTLION] = "blood_impact_antlion_01",
+            [BLOOD_COLOR_ANTLION_WORKER] = "blood_impact_antlion_worker_01",
+            [BLOOD_COLOR_GREEN] = "blood_impact_green_01",
+            [BLOOD_COLOR_ZOMBIE] = "blood_impact_zombie_01",
+            [BLOOD_COLOR_YELLOW] = "blood_impact_yellow_01",
+        }
+        local effect = BloodEffects[bloodcol]
+
+
+        if effect then
+            ParticleEffect(effect, pos, ang or AngleRand())
+        end
+    end
+
+
+    if ent.IsZBaseGib or ent.IsZBaseNPC then
+        ent:CustomBleed( pos, (ang && ang:Forward()) or VectorRand(), false )
+    end
+end
+
+
+function ZBaseCreateVoiceSounds( name, tbl )
+    sound.Add( {
+        name = name,
+        channel = CHAN_VOICE,
+        volume = 0.5,
+        level = 90,
+        pitch = {95, 105},
+        sound = tbl,
+    } )
+end
+
+
+function ZBaseRndTblRange( tbl )
+    return math.Rand(tbl[1], tbl[2])
+end
+
+
+--[[
+======================================================================================================================================================
+                                           USELESS TO YOU PROBABLY
 ======================================================================================================================================================
 --]]
 
@@ -144,102 +253,7 @@ function ZBaseEngineSchedName( sched )
     return schednames[sched]
 end
 
+
 function ZBaseESchedID( name )
     return ai.GetScheduleID(name)-1000000000
-end
-
-
---[[
-======================================================================================================================================================
-                                           CONVINIENT FUNCTIONS
-======================================================================================================================================================
---]]
-
-
-function ZBaseSetFaction( ent, newFaction )
-    ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
-
-    for _, v in ipairs(ZBaseRelationshipEnts) do
-        v:Relationships()
-    end
-end
-
-
-function ZBaseAddGlowingEye(model, skin, bone, offset, scale, color)
-    if !ZBaseGlowingEyes[model] then ZBaseGlowingEyes[model] = {} end
-
-    local Eye = {}
-    Eye.skin = skin
-    Eye.bone = bone
-    Eye.offset = offset
-    Eye.scale = scale
-    Eye.color = color
-
-    table.insert(ZBaseGlowingEyes[model], Eye)
-end
-
-
-function ZBaseBleed( ent, pos, ang )
-    if !SERVER then return end
-    if !ent:IsNPC() && !ent.IsZBaseGib then return end
-
-
-    local bloodcol = (ent.IsZBaseGib && ent.BloodColor) or ent:GetBloodColor()
-
-
-    local distFromSelf = ent:GetPos():DistToSqr(pos)
-    if distFromSelf > (math.max(ent:OBBMaxs().x, ent:OBBMaxs().z)*1.5)^2 then
-        pos = ent:WorldSpaceCenter()+VectorRand()*15
-    end
-
-
-    if bloodcol==BLOOD_COLOR_MECH then
-        local spark = ents.Create("env_spark")
-        spark:SetKeyValue("spawnflags", 256)
-        spark:SetKeyValue("TrailLength", 1)
-        spark:SetKeyValue("Magnitude", 1)
-        spark:SetPos(pos)
-        spark:SetAngles(ang && -ang or AngleRand())
-        spark:Spawn()
-        spark:Activate()
-        spark:Fire("SparkOnce")
-        SafeRemoveEntityDelayed(spark, 0.1)
-    else
-        local BloodEffects = {
-            [BLOOD_COLOR_RED] = "blood_impact_red_01",
-            [BLOOD_COLOR_ANTLION] = "blood_impact_antlion_01",
-            [BLOOD_COLOR_ANTLION_WORKER] = "blood_impact_antlion_worker_01",
-            [BLOOD_COLOR_GREEN] = "blood_impact_green_01",
-            [BLOOD_COLOR_ZOMBIE] = "blood_impact_zombie_01",
-            [BLOOD_COLOR_YELLOW] = "blood_impact_yellow_01",
-        }
-        local effect = BloodEffects[bloodcol]
-
-
-        if effect then
-            ParticleEffect(effect, pos, ang or AngleRand())
-        end
-    end
-
-
-    if ent.IsZBaseGib or ent.IsZBaseNPC then
-        ent:CustomBleed( pos, (ang && ang:Forward()) or VectorRand(), false )
-    end
-end
-
-
-function ZBaseCreateVoiceSounds( name, tbl )
-    sound.Add( {
-        name = name,
-        channel = CHAN_VOICE,
-        volume = 0.5,
-        level = 90,
-        pitch = {95, 105},
-        sound = tbl,
-    } )
-end
-
-
-function ZBaseRndTblRange( tbl )
-    return math.Rand(tbl[1], tbl[2])
 end

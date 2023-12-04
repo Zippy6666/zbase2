@@ -1,15 +1,6 @@
 >>> TODO <<<
-
-[zbase2] addons/zbase2/lua/autorun/client/zbase_spawnmenu.lua:89: bad argument #1 to 'pairs' (table expected, got nil)
-
-
-- Add things that people probably want
-    - Image path
-
-    - More menu options
-        - Health, damage sliders
-        - Misc useful stuff
-        - Sleepstate (spawnmenu)
+- More menu options
+    - Misc useful stuff, sleepstate maybe
 
 - Make more user friendly
     - Lots of "CustomOn" functions (use vj for reference)
