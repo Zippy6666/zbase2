@@ -12,10 +12,40 @@ local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 --]]
 
 
+function NPC:BeforeSpawn( NPCData )
+
+    self:CapabilitiesAdd(bit.bor(
+        CAP_SQUAD,
+        CAP_TURN_HEAD,
+        CAP_ANIMATEDFACE,
+        CAP_SKIP_NAV_GROUND_CHECK
+    ))
+
+
+    if self:CanHaveWeapons() then
+        self:CapabilitiesAdd(CAP_USE_WEAPONS)
+        self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
+    end
+
+
+    self.AllowedCustomEScheds = {}
+    self.ProhibitCustomEScheds = false
+
+    self.BeforeSpawnDone = true
+
+end
+
+
 function NPC:ZBaseInit()
     if !self.BeforeSpawnDone then
         self:BeforeSpawn()
     end
+
+
+    -- Set health
+    self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
+    self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
+
 
     -- Vars
     self.NextPainSound = CurTime()
@@ -27,7 +57,7 @@ function NPC:ZBaseInit()
     self.NextHealthRegen = CurTime()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
-    self.LastHitGroup = 0
+    self.LastHitGroup = HITGROUP_GENERIC
     self.SchedDebug = GetConVar("developer"):GetBool()
 
 
@@ -131,7 +161,7 @@ function NPC:GlowEyeInit()
 
 
     -- Try applying eyes right away to players that can see it
-    timer.Simple(0.1, function()
+    timer.Simple(0.5, function()
         if IsValid(self) then
             net.Start("ZBaseAddGlowEyes")
             net.WriteEntity(self)
@@ -142,7 +172,7 @@ function NPC:GlowEyeInit()
 
 
     -- Make sure all clients see the NPCs glowing eyes
-    timer.Create("ApplyGlowEyes"..self:EntIndex(), 2, 0, function()
+    timer.Create("ApplyGlowEyes"..self:EntIndex(), 3, 0, function()
 
         if !IsValid(self) then
             timer.Remove("ApplyGlowEyes"..self:EntIndex())
@@ -168,34 +198,6 @@ end
 
 function NPC:CanHaveWeapons()
     return self:GetClass()!="npc_zbase_snpc"
-end
-
-
-function NPC:BeforeSpawn( NPCData )
-
-    NPC:SetMaxHealth(NPCTable.StartHealth*ZBCVAR.HPMult:GetFloat() )
-    NPC:SetHealth( NPCData.StartHealth*ZBCVAR.HPMult:GetFloat() )
-
-    
-    self:CapabilitiesAdd(bit.bor(
-        CAP_SQUAD,
-        CAP_TURN_HEAD,
-        CAP_ANIMATEDFACE,
-        CAP_SKIP_NAV_GROUND_CHECK
-    ))
-
-
-    if self:CanHaveWeapons() then
-        self:CapabilitiesAdd(CAP_USE_WEAPONS)
-        self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
-    end
-
-
-    self.AllowedCustomEScheds = {}
-    self.ProhibitCustomEScheds = false
-
-    self.BeforeSpawnDone = true
-
 end
 
 
@@ -520,7 +522,7 @@ function NPC:DoPlayAnim()
 
 
     -- Playback rate for the animation
-    self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1.05)
+    self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
 
 
     -- Stop movement
@@ -528,7 +530,9 @@ function NPC:DoPlayAnim()
 
 
     -- Walkframes
-    self:AutoMovement( self:GetAnimTimeInterval() )
+    if self.IsZBase_SNPC then
+        self:AutoMovement( self:GetAnimTimeInterval() )
+    end
 end
 
 
@@ -1381,11 +1385,6 @@ NPCB.RangeAttack = {
 }
 
 
-NPCB.PreRangeAttack = {
-    MustHaveEnemy = true,
-}
-
-
 function NPCB.RangeAttack:ShouldDoBehaviour( self )
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
     if self.DoingPlayAnim then return false end
@@ -1435,6 +1434,80 @@ end
 function NPCB.RangeAttack:Run( self )
     self:RangeAttack()
     ZBaseDelayBehaviour(self:SequenceDuration() + 0.25 + ZBaseRndTblRange(self.RangeAttackCooldown))
+end
+
+
+--[[
+==================================================================================================
+                                           GRENADE
+==================================================================================================
+--]]
+
+
+NPCB.Grenade = {
+    MustHaveEnemy = true,
+}
+
+
+function NPCB.Grenade:ShouldDoBehaviour( self )
+    return self.BaseGrenadeAttack && !table.IsEmpty(self.GrenadeAttackAnimations)
+end
+
+
+function NPCB.Grenade:Delay( self )
+    local should_throw_visible = self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Visible)==1
+    local should_throw_occluded = !self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Occluded)==1
+
+    if !should_throw_visible && !should_throw_occluded then
+        return ZBaseRndTblRange(self.GrenadeCoolDown)
+    end
+end
+
+
+function NPCB.Grenade:Run( self )
+    local ene = self:GetEnemy()
+
+
+    -- if self:GetClass()=="npc_combine_s" then
+
+    --     ene:SetKeyValue("targetname", "zbasecombinegrentarget")
+    --     self:Fire("ThrowGrenadeAtTarget", "zbasecombinegrentarget")
+
+
+    if self.EnemyVisible then
+        -- Throw grenade at enemy now
+        self:ThrowGrenade()
+    else
+        -- Enemy not seen yet, try approaching and doing grenade attack later
+
+
+        self:SetLastPosition(self:GetEnemyLastSeenPos())
+        self:SetSchedule(SCHED_FORCED_GO_RUN)
+
+
+        local TimerName = "GrenadeThrowTimer"..self:EntIndex()
+        timer.Create(TimerName, 1, 8, function()
+            if !IsValid(self) or !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
+            or self:ZBaseDist(self:GetEnemyLastSeenPos(), {within=400})
+            or self:GetEnemyLastSeenPos()==self.LastGrenadeTargetPos -- Don't target the same position again
+            then
+                -- print(self:GetEnemyLastSeenPos()==self.LastGrenadeTargetPos && "tried targeting the same pos...")
+                timer.Remove(TimerName)
+                return
+            end
+
+            local TargetPos = self:GetEnemyLastSeenPos()
+            if self:VisibleVec(TargetPos) then
+                self:ThrowGrenade()
+                self.LastGrenadeTargetPos = TargetPos
+                timer.Remove(TimerName)
+            end
+
+        end)
+    end
+
+
+    ZBaseDelayBehaviour(ZBaseRndTblRange(self.GrenadeCoolDown))
 end
 
 

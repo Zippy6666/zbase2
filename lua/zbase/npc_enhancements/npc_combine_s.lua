@@ -22,7 +22,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             "SCHED_COMBINE_FORCED_GRENADE_THROW",
             "SCHED_COMBINE_MOVE_TO_FORCED_GREN_LOS",
         })
-        self.NextCombineGrenade = CurTime()
         
     end
     --]]============================================================================================================]]
@@ -35,20 +34,20 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         end
 
         -- Grenade
-        local ene = self:GetEnemy()
-        if IsValid(ene) && self.NextCombineGrenade < CurTime() then
-            local should_throw_visible = self.EnemyVisible && math.random(1, 4)==1
-            local should_throw_occluded = !self.EnemyVisible && math.random(1, 2)==1
+        -- local ene = self:GetEnemy()
+        -- if IsValid(ene) && self.NextGrenade < CurTime() then
+        --     local should_throw_visible = self.EnemyVisible && math.random(1, 4)==1
+        --     local should_throw_occluded = !self.EnemyVisible && math.random(1, 2)==1
 
 
-            if should_throw_visible or should_throw_occluded then
-                ene:SetKeyValue("targetname", "zbasecombinegrentarget")
-                self:Fire("ThrowGrenadeAtTarget", "zbasecombinegrentarget")
-            end
+        --     if should_throw_visible or should_throw_occluded then
+        --         ene:SetKeyValue("targetname", "zbasecombinegrentarget")
+        --         self:Fire("ThrowGrenadeAtTarget", "zbasecombinegrentarget")
+        --     end
 
 
-            self.NextCombineGrenade = CurTime()+math.Rand(4, 8)
-        end
+        --     self.NextGrenade = CurTime()+math.Rand(4, 8)
+        -- end
 
     end
     --]]============================================================================================================]]

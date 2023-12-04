@@ -98,7 +98,7 @@ function NPC:Face( face, duration, speed )
         if ForbiddenScheds[sched] then return end
         
 
-        local turnSpeed = speed or self:GetInternalVariable("m_fMaxYawSpeed") or -1
+        local turnSpeed = speed or self:GetInternalVariable("m_fMaxYawSpeed") or 15
         self:SetIdealYawAndUpdate(yaw, turnSpeed)
 	end
 
@@ -338,6 +338,33 @@ function NPC:Projectile_TargetPos()
     end
 
     return self.RangeAttack_LastEnemyPos or self:Projectile_SpawnPos()+self:GetForward()*400
+end
+
+--[[
+==================================================================================================
+                                           GRENADE
+==================================================================================================
+--]]
+
+
+function NPC:ThrowGrenade()
+    self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true)
+
+    timer.Simple(self.GrenadeReleaseTime, function()
+        if !IsValid(self) then return end
+
+        local grenade = ents.Create(self.GrenadeEntityClass)
+        grenade:SetPos(self:GrenadeSpawnPos())
+        grenade:SetOwner(self)
+        grenade:Spawn()
+        grenade:Activate()
+        grenade:Fire("SetTimer", "4")
+
+        local phys = grenade:GetPhysicsObject()
+        if IsValid(phys) then
+            phys:SetVelocity(self:GrenadeVelocity()+Vector(0, 0, 100))
+        end
+    end)
 end
 
 

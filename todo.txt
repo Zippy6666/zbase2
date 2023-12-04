@@ -1,22 +1,24 @@
 >>> TODO <<<
-- More menu options
-    - Misc useful stuff, sleepstate maybe
+- Grenade system
+
+- Toolmenu global
 
 - Make more user friendly
     - Lots of "CustomOn" functions (use vj for reference)
         - CustomOn for all animations such as range and melee
-    - Dummy git
     - Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
     - Make sure shit makes sense
 
+    - Dummy git
+
 - Make sure everything is finished
 
-- Make it fancy, add more npcs/more features to npcs
+- Make it fancy, cool gizmos
 
 - Copyright stuff
 
 - Make a cool workshop page
-    - Psychotic description for the funnies
+    - Psychotic description for the funnies (use chatgpt)
     - Show list of future ideas to hype mfs
     - Credit crunchy soap!!!!!!!!!!!!!
     - requiresd good boi branch!!!
