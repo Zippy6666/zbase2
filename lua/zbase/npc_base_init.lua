@@ -74,14 +74,22 @@ NPC.ForceAvoidDanger = false -- Force this NPC to avoid dangers such as grenades
 --]]
 
 
--- Movement activity override https://wiki.facepunch.com/gmod/Enums/ACT
+-- Movement activity override
+-- Will override the movement animations when the NPC is in the given state
+-- https://wiki.facepunch.com/gmod/Enums/ACT
+-- https://wiki.facepunch.com/gmod/Enums/NPC_STATE
 NPC.MoveActivityOverride = {
     -- [NPC_STATE_IDLE] = ACT_WALK, -- In idle
     -- [NPC_STATE_ALERT] = ACT_RUN, -- When alert, for example, after combat
     -- [NPC_STATE_COMBAT] = ACT_RUN, -- In combat
 }
+
+
 NPC.CanPatrol = true -- Use base patrol behaviour
 NPC.CanJump = true -- Can the NPC jump?
+
+
+NPC.MoveSpeedMultiplier = 1 -- Multiply the NPC's movement speed by this amount (ground NPCs)
 
 
 --[[

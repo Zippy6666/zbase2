@@ -158,9 +158,7 @@ function NPC:GlowEyeInit()
                 net.Start("ZBaseAddGlowEyes")
                 net.WriteEntity(self)
                 net.WriteTable(Eyes)
-                net.SendPVS(self:GetPos())
-
-                print(ply)
+                net.Send(ply)
             end
         end
 
@@ -248,6 +246,7 @@ function NPC:ZBaseThink()
     -- Movement animation override
     if self:IsMoving() then
         self:DoCustomMoveAnim()
+        self:DoMoveSpeed()
     end
 
 
@@ -272,6 +271,7 @@ function NPC:ZBaseThink()
             end
         end
     end
+
 
     -- Base regen
     if self.HealthRegenAmount > 0 && self:Health() < self:GetMaxHealth() && self.NextHealthRegen < CurTime() then
@@ -508,7 +508,7 @@ end
 
 
 function NPC:DoPlayAnim()
-    -- Face during PlayAnimation
+    -- Yaw lock when playing animation
     if self.PlayAnim_Face == false then
         timer.Remove("ZBaseFace"..self:EntIndex())
         self:SetAngles(self.PlayAnim_LockAng)
@@ -2339,4 +2339,14 @@ function NPC:SetModel_MaintainBounds(model)
     self:SetModel(model)
     self:SetCollisionBounds(mins, maxs)
     self:ResetIdealActivity(ACT_IDLE)
+end
+
+
+function NPC:DoMoveSpeed()
+    if self.MoveSpeedMultiplier==0 then return end
+
+    local TimeLastMovement = self:GetInternalVariable("m_flTimeLastMovement")
+
+    self:SetPlaybackRate(self.MoveSpeedMultiplier)
+    self:SetSaveValue("m_flTimeLastMovement", TimeLastMovement*self.MoveSpeedMultiplier)
 end

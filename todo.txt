@@ -13,10 +13,10 @@
 
 - Make more user friendly
     - Lots of "CustomOn" functions (use vj for reference)
-    - All variables can be changed during the NPC's lifetime
+        - CustomOn for all animations such as range and melee
     - Dummy git
-    - ZBase reload tries to apply in realtime
     - Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
+    - Make sure shit makes sense
 
 - Make sure everything is finished
 
