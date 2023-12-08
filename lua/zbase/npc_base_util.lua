@@ -334,6 +334,7 @@ end
 --]]
 
 
+    -- Throw a grenade
 function NPC:ThrowGrenade()
     self:GrenadeAnimation()
 
