@@ -258,16 +258,17 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 --]]
 
 
-NPC.BaseGrenadeAttack = false --false
-NPC.ThrowGrenadeChance_Visible = 1--4
-NPC.ThrowGrenadeChance_Occluded = 1--2
-NPC.GrenadeCoolDown = {3, 3}--{4, 8}
-NPC.GrenadeAttackAnimations = {"grenadethrow"}--{}
-NPC.GrenadeEntityClass = "npc_grenade_frag"
-NPC.GrenadeReleaseTime = 1
-NPC.GrenadeAttachment = "anim_attachment_LH"
+NPC.BaseGrenadeAttack = false -- Use ZBase grenade attack system
+NPC.ThrowGrenadeChance_Visible = 4 -- 1/x chance that it throws a grenade when the enemy is visible
+NPC.ThrowGrenadeChance_Occluded = 2 -- 1/x chance that it throws a grenade when the enemy is not visible
+NPC.GrenadeCoolDown = {4, 8} -- {min, max}
+NPC.GrenadeAttackAnimations = {"grenadethrow"} -- Grenade throw animation
+NPC.GrenadeEntityClass = "npc_grenade_frag" -- The grenade to throw, can be anything, like a fucking cat or somthing
+NPC.GrenadeReleaseTime = 0.85 -- Time until grenade leaves the hand
+NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the grenade on
+NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin units or something idfk
 
---[[
+--[[1
 ==================================================================================================
                                            SNPC ONLY
 ==================================================================================================
@@ -591,7 +592,11 @@ end
 
     -- The velocity to apply to the grenade
 function NPC:GrenadeVelocity()
-    return Vector()
+    local StartPos = self:GrenadeSpawnPos()
+    local EndPos = self:GetEnemyLastSeenPos()
+    local UpAmount = math.Clamp(EndPos.z - StartPos.z, 150, 10000)
+
+    return (EndPos - StartPos)+Vector(0, 0, UpAmount)
 end
 
 
