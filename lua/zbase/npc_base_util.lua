@@ -363,6 +363,7 @@ function NPC:ThrowGrenade()
         local phys = grenade:GetPhysicsObject()
         if IsValid(phys) then
             phys:SetVelocity(self:GrenadeVelocity()+Vector(0, 0, 100))
+            phys:SetAngleVelocity(VectorRand()*self.GrenadeMaxSpin)
         end
     end)
 end

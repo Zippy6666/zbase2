@@ -1468,12 +1468,6 @@ function NPCB.Grenade:Run( self )
     local ene = self:GetEnemy()
 
 
-    -- if self:GetClass()=="npc_combine_s" then
-
-    --     ene:SetKeyValue("targetname", "zbasecombinegrentarget")
-    --     self:Fire("ThrowGrenadeAtTarget", "zbasecombinegrentarget")
-
-
     if self.EnemyVisible then
         -- Throw grenade at enemy now
         self:ThrowGrenade()
