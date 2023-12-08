@@ -24,6 +24,8 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
     end
     --]]============================================================================================================]]
 end
+
+
 ZBaseEnhancementTable["npc_fastzombie"] = ZBaseEnhancementTable[my_cls]
 ZBaseEnhancementTable["npc_poisonzombie"] = ZBaseEnhancementTable[my_cls]
 ZBaseEnhancementTable["npc_zombine"] = ZBaseEnhancementTable[my_cls]

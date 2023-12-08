@@ -60,18 +60,6 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	end
 
 
-	-- icon.OpenMenuExtra = function( self, menu )
-
-	-- 	menu:AddOption( "#spawnmenu.menu.spawn_with_toolgun", function()
-	-- 		RunConsoleCommand( "gmod_tool", "creator" )
-	-- 		RunConsoleCommand( "creator_type", "0" )
-	-- 		RunConsoleCommand( "creator_name", obj.spawnname, table.Random(obj.weapon) )
-	-- 		end 
-	-- 	):SetIcon( "icon16/brick_add.png" )
-
-	-- end
-
-
 	icon.OpenMenu = DoGenericSpawnmenuRightclickMenu
 
 
@@ -118,7 +106,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 					material	=
 								ent.IconOverride
 								or file.Exists( "materials/entities/" .. name .. ".png", "GAME" )&&"entities/" .. name .. ".png"
-								or icon,
+								or GenericIcon,
 
 					weapon		= ent.Weapons,
 					admin		= ent.AdminOnly
@@ -242,5 +230,5 @@ spawnmenu.AddCreationTab( "ZBase", function(...)
 
     return pnlContent
 
-end, icon, 25)
+end, GenericIcon, 25)
 -----------------------------------------------------------------------------------------=#

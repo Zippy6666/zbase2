@@ -7,6 +7,20 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.StartHealth = 50 -- Max health
 
 
+NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
+
+
+NPC.BaseGrenadeAttack = true -- Use ZBase grenade attack system
+NPC.ThrowGrenadeChance_Visible = 4 -- 1/x chance that it throws a grenade when the enemy is visible
+NPC.ThrowGrenadeChance_Occluded = 2 -- 1/x chance that it throws a grenade when the enemy is not visible
+NPC.GrenadeCoolDown = {4, 8} -- {min, max}
+NPC.GrenadeAttackAnimations = {"throw1"} -- Grenade throw animation
+NPC.GrenadeEntityClass = "npc_grenade_frag" -- The grenade to throw, can be anything, like a fucking cat or somthing
+NPC.GrenadeReleaseTime = 1 -- Time until grenade leaves the hand
+NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the grenade on
+NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin units or something idfk
+
+
 NPC.ZBaseStartFaction = "ally" -- Any string, all ZBase NPCs with this faction will be allied, it set to "none", they won't be allied to anybody
 -- Default factions:
 -- "combine" || "ally" || "zombie" || "antlion" || "none"
