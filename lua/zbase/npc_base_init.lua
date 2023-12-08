@@ -20,6 +20,7 @@ NPC.Models = {}
 NPC.RenderMode = RENDERMODE_NORMAL -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
 NPC.SubMaterials = {} -- Submaterials {*number index* = *string name*}
 
+
 NPC.StartHealth = 50 -- Max health
 
 
@@ -469,8 +470,19 @@ end
     -- Only called on ZBase flinches, not from engine ones
     -- Return a animation to be used instead of the ones from the FlinchAnimations table (string sequence, or number activity)
 function NPC:GetFlinchAnimation(dmginfo, HitGroup)
+    return table.Random(self.FlinchAnimations)
 end
 
+
+    -- Animation code
+function NPC:FlinchAnimation( anim )
+    self:PlayAnimation(anim, false, {
+        speedMult=self.FlinchAnimationSpeed,
+        isGesture=self.FlinchIsGesture,
+        face = false,
+        noTransitions = true,
+    })
+end
 
 --[[
 ==================================================================================================
@@ -501,6 +513,15 @@ end
 
     -- Called when a melee attack is started
 function NPC:OnMelee()
+end
+
+
+    -- Animation code
+function NPC:MeleeAnimation()
+    self:PlayAnimation(table.Random(self.MeleeAttackAnimations), self.MeleeAttackFaceEnemy, {
+        speedMult=self.MeleeAttackAnimationSpeed,
+        turnSpeed=self.MeleeAttackTurnSpeed,
+    })
 end
 
 
@@ -577,6 +598,14 @@ function NPC:PreventRangeAttack()
 end
 
 
+    -- Animation code
+function NPC:RangeAttackAnimation()
+    self:PlayAnimation(table.Random(self.RangeAttackAnimations), false, {
+        speedMult=self.RangeAttackAnimationSpeed,
+    })
+end
+
+
 --[[
 ==================================================================================================
                                            GRENADE ATTACK
@@ -597,6 +626,12 @@ function NPC:GrenadeVelocity()
     local UpAmount = math.Clamp(EndPos.z - StartPos.z, 150, 10000)
 
     return (EndPos - StartPos)+Vector(0, 0, UpAmount)
+end
+
+
+    -- Animation code
+function NPC:GrenadeAnimation()
+    self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true)
 end
 
 
@@ -674,6 +709,34 @@ end
 
 --[[
 ==================================================================================================
+                                           DEATH/REMOVAL
+==================================================================================================
+--]]
+
+    -- Death animation code
+function NPC:DeathAnimation_Animation()
+    self:PlayAnimation(table.Random(self.DeathAnimations), false, {
+        speedMult=self.DeathAnimationSpeed,
+        face=false,
+        duration=self.DeathAnimationDuration,
+    })
+end
+
+
+    -- Called before death
+    -- Return true to not spawn ragdoll
+    -- Create gibs here
+function NPC:ShouldGib( dmginfo, hit_gr )
+end
+
+
+    -- Called when the NPC is removed
+function NPC:OnRemove()
+end
+
+
+--[[
+==================================================================================================
                                            OTHER FUNCTIONS
 ==================================================================================================
 --]]
@@ -696,15 +759,4 @@ end
 
     -- Called when the base detects that the NPC is playing a new activity
 function NPC:CustomNewActivityDetected( act )
-end
-
-
-    -- Called before death
-    -- Return true to not spawn ragdoll
-function NPC:ShouldGib( dmginfo, hit_gr )
-end
-
-
-    -- Called when the NPC is removed
-function NPC:OnRemove()
 end
