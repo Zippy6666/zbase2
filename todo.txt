@@ -1,13 +1,8 @@
 >>> TODO <<<
-- Make more user friendly
-    - Lots of "CustomOn" functions (use vj for reference)
-        - CustomOn for all animations such as range and melee
-    - Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
-    - Make sure shit makes sense
-    - Dummy git
-
+- Try to see zbase from the eyes of someone new to it (but with some lua and npc experience ofc)
+- Make sure shit makes sense
+- Dummy git
 - Make sure everything is finished
-
 - Make a cool workshop page
     - Psychotic description for the funnies (use chatgpt)
     - Credit crunchy soap!!!!!!!!!!!!!

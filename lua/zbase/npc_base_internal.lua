@@ -1901,21 +1901,12 @@ function NPC:OnPostEntityTakeDamage( dmg )
 
     -- Flinch
     if !table.IsEmpty(self.FlinchAnimations) && math.random(1, self.FlinchChance) == 1 && self.NextFlinch < CurTime() then
-        local cusAnim = self:GetFlinchAnimation(dmg, self.LastHitGroup)
-        local anim = (isstring(cusAnim) or isnumber(cusAnim)) && cusAnim or table.Random(self.FlinchAnimations)
+        local anim = self:GetFlinchAnimation(dmg, self.LastHitGroup)
 
 
         if self:OnFlinch(dmg, self.LastHitGroup, anim) != false then
-
-            self:PlayAnimation(anim, false, {
-                speedMult=self.FlinchAnimationSpeed,
-                isGesture=self.FlinchIsGesture,
-                face = false,
-                noTransitions = true,
-            })
-
+            self:FlinchAnimation(anim)
             self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
-
         end
     end
 
@@ -2242,7 +2233,7 @@ function NPC:DeathAnimation( dmg )
     dmg:ScaleDamage(0)
 
 
-    self:PlayAnimation(table.Random(self.DeathAnimations), false, {speedMult=self.DeathAnimationSpeed, face=false, duration=self.DeathAnimationDuration})
+    self:DeathAnimation_Animation()
 
     self:SetHealth(1)
     self:AddFlags(FL_NOTARGET)

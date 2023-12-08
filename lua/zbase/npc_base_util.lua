@@ -165,14 +165,7 @@ end
 function NPC:MeleeAttack()
         -- Animation --
     if !table.IsEmpty(self.MeleeAttackAnimations) then
-        self:InternalPlayAnimation(
-            table.Random(self.MeleeAttackAnimations),
-            nil,
-            self.MeleeAttackAnimationSpeed,
-            SCHED_NPC_FREEZE,
-            self.MeleeAttackFaceEnemy && self:GetEnemy(),
-            self.MeleeAttackTurnSpeed
-        )
+        self:MeleeAnimation()
     end
     -----------------------------------------------------------------=#
 
@@ -247,13 +240,7 @@ end
 function NPC:RangeAttack()
         -- Animation --
     if !table.IsEmpty(self.RangeAttackAnimations) then
-        self:InternalPlayAnimation(
-            table.Random(self.RangeAttackAnimations),
-            nil,
-            self.RangeAttackAnimationSpeed,
-            SCHED_NPC_FREEZE,
-            nil
-        )
+        self:RangeAttackAnimation()
     end
     -----------------------------------------------------------------=#
 
@@ -348,7 +335,7 @@ end
 
 
 function NPC:ThrowGrenade()
-    self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true)
+    self:GrenadeAnimation()
 
     timer.Simple(self.GrenadeReleaseTime, function()
         if !IsValid(self) then return end
