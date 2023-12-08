@@ -14,6 +14,9 @@ NPC.ZBaseStartFaction = "ally" -- Any string, all ZBase NPCs with this faction w
 -- "combine" || "ally" || "zombie" || "antlion" || "none"
 
 
+NPC.CanSecondaryAttack = false -- Can use weapon secondary attacks
+
+
 NPC.BaseMeleeAttack = true
 NPC.MeleeAttackAnimations = {"swing"}
 NPC.MeleeAttackAnimationSpeed = 1

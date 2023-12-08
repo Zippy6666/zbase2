@@ -354,6 +354,7 @@ function NPC:ThrowGrenade()
         if !IsValid(self) then return end
 
         local grenade = ents.Create(self.GrenadeEntityClass)
+        grenade.IsZBaseGrenade = true
         grenade:SetPos(self:GrenadeSpawnPos())
         grenade:SetOwner(self)
         grenade:Spawn()

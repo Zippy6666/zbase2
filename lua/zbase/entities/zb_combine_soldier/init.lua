@@ -25,6 +25,17 @@ NPC.HasArmor = {
 NPC.m_nKickDamage = 15
 
 
+NPC.BaseGrenadeAttack = true -- Use ZBase grenade attack system
+NPC.ThrowGrenadeChance_Visible = 4 -- 1/x chance that it throws a grenade when the enemy is visible
+NPC.ThrowGrenadeChance_Occluded = 2 -- 1/x chance that it throws a grenade when the enemy is not visible
+NPC.GrenadeCoolDown = {4, 8} -- {min, max}
+NPC.GrenadeAttackAnimations = {"grenthrow"} -- Grenade throw animation
+NPC.GrenadeEntityClass = "npc_grenade_frag" -- The grenade to throw, can be anything, like a fucking cat or somthing
+NPC.GrenadeReleaseTime = 0.85 -- Time until grenade leaves the hand
+NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the grenade on
+NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin units or something idfk
+
+
 -- Sounds (Use sound scripts to alter pitch and level and such!)
 NPC.AlertSounds = "ZBaseCombine.Alert" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "ZBaseCombine.Idle" -- Sounds emitted while there is no enemy

@@ -7,6 +7,7 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         -- All bines should be able to throw grenades and ar2 altfire!!!!
         self.m_fIsElite = false
         self.m_iTacticalVariant = 1
+        self.m_iNumGrenades = 0
         self:SetAllowedEScheds({
             "SCHED_COMBINE_COMBAT_FAIL",
             "SCHED_COMBINE_HIDE_AND_RELOAD",
@@ -19,8 +20,8 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             "SCHED_COMBINE_CHARGE_PLAYER",
             "SCHED_COMBINE_BURNING_STAND",
             "SCHED_COMBINE_AR2_ALTFIRE",
-            "SCHED_COMBINE_FORCED_GRENADE_THROW",
-            "SCHED_COMBINE_MOVE_TO_FORCED_GREN_LOS",
+            -- "SCHED_COMBINE_FORCED_GRENADE_THROW",
+            -- "SCHED_COMBINE_MOVE_TO_FORCED_GREN_LOS",
         })
         
     end
@@ -33,22 +34,12 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             self:SetSaveValue("m_iMySquadSlot", 1)
         end
 
-        -- Grenade
-        -- local ene = self:GetEnemy()
-        -- if IsValid(ene) && self.NextGrenade < CurTime() then
-        --     local should_throw_visible = self.EnemyVisible && math.random(1, 4)==1
-        --     local should_throw_occluded = !self.EnemyVisible && math.random(1, 2)==1
-
-
-        --     if should_throw_visible or should_throw_occluded then
-        --         ene:SetKeyValue("targetname", "zbasecombinegrentarget")
-        --         self:Fire("ThrowGrenadeAtTarget", "zbasecombinegrentarget")
-        --     end
-
-
-        --     self.NextGrenade = CurTime()+math.Rand(4, 8)
-        -- end
-
+    end
+    --]]============================================================================================================]]
+    function NPC:ZBaseEnhancedCreateEnt( ent )
+        if ent:GetClass() == "npc_grenade_frag" && !ent.IsZBaseGrenade then
+            ent:Remove()
+        end
     end
     --]]============================================================================================================]]
 end

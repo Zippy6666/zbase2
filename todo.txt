@@ -1,6 +1,4 @@
 >>> TODO <<<
-- Grenade system
-
 - Make more user friendly
     - Lots of "CustomOn" functions (use vj for reference)
         - CustomOn for all animations such as range and melee
