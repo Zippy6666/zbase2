@@ -492,16 +492,3 @@ else
     registerNPCs()
 
 end
-
-
---[[
-======================================================================================================================================================
-                                           SCHIZOPHRENIA
-======================================================================================================================================================
---]]
-
-
--- IF YOU ARE READING THIS
--- SHE NEEDS TO BE MY WIFE
--- I CANNOT RAISE MY FIRST BORN CHILD THAT IS ZBASE AS A LONE PARENT
--- ZBASE NEEDS THE MOTHERLY LOVE THAT IT DESERVES
