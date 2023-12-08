@@ -23,11 +23,13 @@ ZBASE_TOOCLOSEBEHAVIOUR_BACK = 2
 
 --[[
 ======================================================================================================================================================
-                                           ESSENTIAL FUNCTIONS
+                                           "ESSENTIAL" FUNCTIONS
 ======================================================================================================================================================
 --]]
 
 
+    -- Should be at the top of your NPC file, like this:
+    -- local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 function FindZBaseTable(debuginfo)
     local shortsrc = debuginfo.short_src
     local split = string.Split(shortsrc, "/")
@@ -36,6 +38,8 @@ function FindZBaseTable(debuginfo)
 end
 
 
+    -- Should be at the top of your NPC's behaviour file if you have any, like this:
+    -- local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
 function FindZBaseBehaviourTable(debuginfo)
     if SERVER then
         return FindZBaseTable(debuginfo).Behaviours
@@ -50,6 +54,8 @@ end
 --]]
 
 
+    -- Change the zbase faction for an entity
+    -- Always use this function if you want to do so
 function ZBaseSetFaction( ent, newFaction )
     ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
 
@@ -59,6 +65,12 @@ function ZBaseSetFaction( ent, newFaction )
 end
 
 
+    -- Used to add glowing eyes to models
+    -- 'model' - The model that should have the eye
+    -- 'skin' - Which skin should have the eye
+    -- Example:
+    -- ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(0, 50, 255))
+    -- ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(0, 50, 255))
 function ZBaseAddGlowingEye(model, skin, bone, offset, scale, color)
     if !ZBaseGlowingEyes[model] then ZBaseGlowingEyes[model] = {} end
 
@@ -73,6 +85,10 @@ function ZBaseAddGlowingEye(model, skin, bone, offset, scale, color)
 end
 
 
+    -- Changes a category's icon from that stupid blue monkey to whatever you like
+    -- Example:
+    -- ZBaseSetCategoryIcon( "Combine", "icon16/female.png" )
+    -- Feminist combine xddddd
 function ZBaseSetCategoryIcon( category, path )
     if SERVER then return end
     ZBaseCategoryImages[category] = path
@@ -86,6 +102,7 @@ end
 --]]
 
 
+    -- Creates a blood effect for any entity that can bleed
 function ZBaseBleed( ent, pos, ang )
     if !SERVER then return end
     if !ent:IsNPC() && !ent.IsZBaseGib then return end
@@ -135,6 +152,7 @@ function ZBaseBleed( ent, pos, ang )
 end
 
 
+    -- A quick way to add sounds that have attributes appropriate for a human voice
 function ZBaseCreateVoiceSounds( name, tbl )
     sound.Add( {
         name = name,
@@ -147,16 +165,16 @@ function ZBaseCreateVoiceSounds( name, tbl )
 end
 
 
-function ZBaseRndTblRange( tbl )
-    return math.Rand(tbl[1], tbl[2])
-end
-
-
 --[[
 ======================================================================================================================================================
                                            USELESS TO YOU PROBABLY
 ======================================================================================================================================================
 --]]
+
+
+function ZBaseRndTblRange( tbl )
+    return math.Rand(tbl[1], tbl[2])
+end
 
 
 function ZBaseEngineSchedName( sched )
