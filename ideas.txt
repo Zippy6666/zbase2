@@ -12,3 +12,5 @@
 -- Flying snpcs use air nodes too (not just ground)
 -- Movement noise to aerial snpc base
 -- "Entity timers"
+-- Weapon switch
+-- Weapon pickup

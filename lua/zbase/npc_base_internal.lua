@@ -1957,7 +1957,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- Stop sounds
     for _, v in ipairs(self.SoundVarNames) do
-        if !isstring(v) then return end
+        if !isstring(v) then continue end
         self:StopSound(self:GetTable()[v])
     end
 
@@ -1991,9 +1991,9 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     local Gibbed = self:ShouldGib(dmg, hit_gr)
 
-
+    local rag
     if !Gibbed then
-        local rag = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
+        rag = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
     end
 
     

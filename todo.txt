@@ -2,6 +2,7 @@
 - Item drop
 - Dummy git
 - npc pak
+- scered ;-;
 - Psychotic description for the funnies (use chatgpt)
 - Credit crunchy soap!!!!!!!!!!!!!
 - requiresd good boi branch!!!

@@ -8,7 +8,7 @@ local NPC = ZBaseNPCs["npc_zbase"]
 --]]
 
 
--- NOTE FOR ADVANCED USERS: You can change any internal variable by doing NPC.m_iNameOfInternalVar here
+-- NOTE FOR ADVANCED USERS: You can change any internal variable by doing NPC.m_typeNameOfInternalVar here
 -- Combine soldier example:
 -- NPC.m_nKickDamage = 15
 
@@ -68,8 +68,9 @@ NPC.ForceAvoidDanger = false -- Force this NPC to avoid dangers such as grenades
 
 
 -- The gender, mainly used by npc_citizen. But you can use it to gender whatever the heck you want m8
--- Common: "Male" || "Female"
-NPC.Gender = "Male"
+-- Common: ZBASE_MALE || ZBASE_FEMALE
+-- XDDD
+NPC.Gender = ZBASE_MALE
 
 
 --[[
@@ -779,7 +780,6 @@ end
     -- Called after death
     -- You can do stuff with its ragdoll here if it has any
 function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
-    print( dmginfo, hit_gr, rag )
 end
 
 
