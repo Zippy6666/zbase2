@@ -66,6 +66,30 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     end)
 
 
+    ZBaseAddMenuCategory("Developer", function( panel )
+
+
+        panel:CheckBox( "Developer", "developer")
+        panel:Help("Sets 'developer' to '1'.")
+        panel:CheckBox( "ZBase Reload Spawnmenu", "zbase_reload_spawnmenu")
+        panel:Help("Should 'zbase_reload' also reload the spawn menu?")
+        
+
+        local ReloadButton = vgui.Create("DButton", panel)
+        ReloadButton:Dock(TOP)
+        ReloadButton:DockMargin(5, 25, 5, 0)
+        ReloadButton:SetText("Reload ZBase")
+
+        function ReloadButton:DoClick()
+            net.Start("ZBaseReloadServer")
+            net.SendToServer()
+        end
+
+        panel:Help("Runs 'zbase_reload'")
+
+
+    end)
+
 end)
 ------------------------------------------------------------------------------------------=#
 
