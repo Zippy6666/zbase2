@@ -67,6 +67,11 @@ NPC.HealthCooldown = 0.2
 NPC.ForceAvoidDanger = false -- Force this NPC to avoid dangers such as grenades
 
 
+-- The gender, mainly used by npc_citizen. But you can use it to gender whatever the heck you want m8
+-- Common: "Male" || "Female"
+NPC.Gender = "Male"
+
+
 --[[
 ==================================================================================================
                                            MOVEMENT

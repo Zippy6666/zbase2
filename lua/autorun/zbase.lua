@@ -9,7 +9,8 @@ if SERVER then
     util.AddNetworkString("ZBaseListFactions")
     util.AddNetworkString("ZBase_GetFactionsFromServer")
     util.AddNetworkString("ZBaseError")
-    util.AddNetworkString("ZBaseReload")
+    util.AddNetworkString("ZBaseReloadServer")
+    util.AddNetworkString("ZBaseReloadClient")
 end
 
 
@@ -75,11 +76,17 @@ end
 
 
 if CLIENT then
-
-    net.Receive("ZBaseReload", function()
+    net.Receive("ZBaseReloadClient", function()
         include("autorun/zbase.lua")
     end)
+end
 
+
+if SERVER then
+    net.Receive("ZBaseReloadServer", function( _, ply)
+        if !ply:IsSuperAdmin() then return end
+        concommand.Run(ply, "zbase_reload")
+    end)
 end
 
 
@@ -479,6 +486,12 @@ local function AddNPCsToSpawnMenu()
         }
 
 
+        -- Gender studies xd idk
+        if Class=="npc_citizen" && (t.Gender == ZBASE_MALE or t.Gender == ZBASE_FEMALE) then
+            table.insert(ZBaseSpawnMenuTbl.SpawnFlagTbl, t.Gender)
+        end
+
+
         ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
     end
 end
@@ -499,6 +512,12 @@ if ZBaseInitialized then
     NPCsInherit()
     AddNPCsToSpawnMenu()
     UpdateLiveNPCs()
+
+
+    if CLIENT && ZBCVAR.ReloadSpawnMenu:GetBool() then
+        concommand.Run(LocalPlayer(), "spawnmenu_reload")
+    end
+
 
     MsgN("ZBase Reloaded!")
 

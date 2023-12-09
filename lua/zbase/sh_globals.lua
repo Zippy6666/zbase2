@@ -21,6 +21,10 @@ ZBASE_TOOCLOSEBEHAVIOUR_FACE = 1
 ZBASE_TOOCLOSEBEHAVIOUR_BACK = 2
 
 
+ZBASE_MALE = 4194304
+ZBASE_FEMALE = 8388608
+
+
 --[[
 ======================================================================================================================================================
                                            "ESSENTIAL" FUNCTIONS

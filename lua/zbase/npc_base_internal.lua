@@ -43,9 +43,7 @@ function NPC:ZBaseInit()
 
 
     -- Set model
-    print(self.SpawnModel)
     if self.SpawnModel && self.SpawnModel != self:GetModel() then
-        
         self:SetModel_MaintainBounds(self.SpawnModel)
     end
 
