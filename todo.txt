@@ -1,8 +1,5 @@
 >>> TODO <<<
--- spawnmenu reload for zvbase rolodis
 - Item drop
-- Foot steps
-- Genders (XDDD)
 - Dummy git
 - npc pak
 - Psychotic description for the funnies (use chatgpt)

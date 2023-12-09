@@ -69,8 +69,6 @@ local ShouldHaveRadioSound = {
 
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
-    local ACT_WALK_EASY = self:GetSequenceActivity(self:LookupSequence("walkeasy_all"))
-    self.MoveActivityOverride = {[NPC_STATE_IDLE] = ACT_WALK_EASY}
 end
 --]]==============================================================================================]]
 function NPC:CustomThink()
