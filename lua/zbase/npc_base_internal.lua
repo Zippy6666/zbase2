@@ -667,7 +667,7 @@ function NPC:OnEmitSound( data )
 
 
     -- Custom on emit sound, allow the user to replace what sound to play
-    local value = self:CustomOnEmitSound( data, sndVarName )
+    local value = self:BeforeEmitSound( data, sndVarName )
     if isstring(value) then
 
         self.TempSoundCvar = sndVarName
@@ -700,6 +700,7 @@ function NPC:OnEmitSound( data )
 
 
     self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
+    self:CustomOnSoundEmitted( data, self.InternalCurrentSoundDuration, sndVarName )
 
 
     if altered then
@@ -1406,7 +1407,7 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
 
 
     -- Suppress disabled, and enemy not visible
-    if !self.RangeAttackSuppressEnemy && seeEnemy then return false end
+    if !self.RangeAttackSuppressEnemy && !seeEnemy then return false end
 
 
     -- Don't suppress enemy with these conditions
@@ -1481,7 +1482,6 @@ function NPCB.Grenade:Run( self )
             or self:ZBaseDist(self:GetEnemyLastSeenPos(), {within=400})
             or self:GetEnemyLastSeenPos()==self.LastGrenadeTargetPos -- Don't target the same position again
             then
-                -- print(self:GetEnemyLastSeenPos()==self.LastGrenadeTargetPos && "tried targeting the same pos...")
                 timer.Remove(TimerName)
                 return
             end

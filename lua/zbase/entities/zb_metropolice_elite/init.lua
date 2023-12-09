@@ -47,10 +47,7 @@ NPC.Dialogue_Answer_Sounds = "ZBaseElitePolice.Answer"
 function NPC:CustomInitialize()
 end
 --]]==============================================================================================]]
-
-    -- Return a new sound name to play that sound instead.
-    -- Return false to prevent the sound from playing.
-function NPC:CustomOnEmitSound( sndData, sndVarName )
+function NPC:BeforeEmitSound( sndData, sndVarName )
     if sndVarName == "DeathSounds" && self:IsOnFire() then
         return "ZBaseElitePolice.FireDeath"
     end
@@ -74,8 +71,6 @@ function NPC:CustomOnEmitSound( sndData, sndVarName )
     end
 end
 --]]==============================================================================================]]
-
-    -- Called when the base detects that the NPC is playing a new activity
 function NPC:CustomNewActivityDetected( act )
     -- 2152 = Deploy manhack
     if act==2152 then

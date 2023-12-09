@@ -219,15 +219,17 @@ end
 
 
 ZBaseNPCs = {}
-ZBaseBehaviourTimerFuncs = {}
 ZBaseSpawnMenuNPCList = {}
-ZBaseSpeakingSquads = {}
 ZBaseEnhancementTable = {}
 
 
-if !ZBaseNPCInstances then
+-- Should not be reset on reload
+if !ZBaseUnresetablesDefined then
     ZBaseNPCInstances = {}
     ZBaseNPCInstances_NonScripted = {}
+    ZBaseBehaviourTimerFuncs = {}
+    ZBaseSpeakingSquads = {}
+    ZBaseUnresetablesDefined = true
 end
 
 
