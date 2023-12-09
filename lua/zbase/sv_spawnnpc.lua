@@ -40,19 +40,30 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	if NPC.ZBaseInitialized then return end
 
 
+	local RecursiveInherits = {}
+	local function RecursiveFindInherits( inherit_class )
+		if !ZBaseNPCs[inherit_class] then return end -- Tried inheriting from nonexistant npc
+
+
+		table.insert(RecursiveInherits, inherit_class)
+
+
+		local new_inherit_class = ZBaseNPCs[inherit_class].Inherit
+		if !(new_inherit_class == "npc_zbase" && inherit_class == "npc_zbase") then
+			RecursiveFindInherits( new_inherit_class )
+		end
+	end
+	RecursiveFindInherits(ZBaseNPCs[Class].Inherit)
+	table.Reverse(RecursiveInherits)
+
+
         -- Table "transfer" --
-    NPC.ZBase_Inherit = ZBaseNPCs[Class].Inherit
-
-        -- Inherit from base
-    for k, v in pairs( ZBaseNPCs["npc_zbase"] ) do
-        NPC[k] = v
-    end
-
-        -- Inherit from self.ZBase_Inherit NPC
-    for k, v in pairs( ZBaseNPCs[NPC.ZBase_Inherit] ) do
-        NPC[k] = v
-    end
-
+		-- Inherit
+	for _, inherit_class in ipairs(RecursiveInherits) do
+		for k, v in pairs( ZBaseNPCs[inherit_class] ) do
+		    NPC[k] = v
+		end
+	end
         -- This npc's table
     for k, v in pairs(ZBaseNPCs[Class]) do
         NPC[k] = v

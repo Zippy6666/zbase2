@@ -8,7 +8,7 @@ local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 NPC.Class = "npc_citizen"
 
 
-NPC.Name = "Citizen" -- Name of your NPC
+NPC.Name = "Male Medic" -- Name of your NPC
 NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
-NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
-NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
+NPC.Weapons = {"weapon_ar2", "weapon_smg1", "weapon_shotgun"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+NPC.Inherit = "zb_human_rebel" -- Inherit features from any existing zbase npc

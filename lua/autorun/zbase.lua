@@ -363,21 +363,21 @@ end
 
 local function NPCsInherit()
     for cls, t in pairs(ZBaseNPCs) do
-        local ZBase_Inherit = t.Inherit
+        local function RecursiveInherit( inherit_class )
+            if !ZBaseNPCs[inherit_class] then return end -- Tried inheriting from nonexistant npc
 
-        if ZBase_Inherit
-        && ZBaseNPCs[ZBase_Inherit] then
-            for k, v in pairs(ZBaseNPCs[ZBase_Inherit]) do
+
+            for k, v in pairs(ZBaseNPCs[inherit_class]) do
                 if t[k] == nil then 
 
                     t[k] = istable(v) && table.Copy(v) or v
                 end
             end
-        end
-    
-        for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
-            if t[k] == nil then
-                t[k] = istable(v) && table.Copy(v) or v
+
+
+            local new_inherit_class = ZBaseNPCs[inherit_class].Inherit
+            if !(new_inherit_class == "npc_zbase" && inherit_class == "npc_zbase") then
+                RecursiveInherit( new_inherit_class )
             end
         end
 
@@ -485,7 +485,7 @@ local function AddNPCsToSpawnMenu()
 
 
         -- Gender studies xd idk
-        if Class=="npc_citizen" && (t.Gender == ZBASE_MALE or t.Gender == ZBASE_FEMALE) then
+        if t.Class=="npc_citizen" && (t.Gender == ZBASE_MALE or t.Gender == ZBASE_FEMALE) then
             table.insert(ZBaseSpawnMenuTbl.SpawnFlagTbl, t.Gender)
         end
 
