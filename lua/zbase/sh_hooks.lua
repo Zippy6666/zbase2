@@ -372,12 +372,45 @@ end)
 --]]
 
 
+local NPCFootstepSubStr = {
+    ["npc_combine_s"] = "npc/combine_soldier/gear",
+    ["npc_metropolice"] = "npc/metropolice/gear",
+    ["npc_vortigaunt"] = "npc/vort/vort_foot",
+    ["npc_zombie"] = "npc/zombie/foot",
+    ["npc_poisonzombie"] = "_foot1.wav",
+    ["npc_fastzombie"] = "npc/fast_zombie/foot",
+    ["npc_headcrab_black"] = "npc/headcrab_poison/ph_step",
+    ["npc_headcrab_poison"] = "npc/headcrab_poison/ph_step",
+    ["npc_antlion"] = "npc/antlion/foot",
+    ["npc_antlionguard"] = "npc/antlion_guard/foot",
+}
+
+
 hook.Add("EntityEmitSound", "ZBASE", function( data )
     if !IsValid(data.Entity) then return end
-    if !data.Entity.IsZBaseNPC then return end
+    if !data.Entity:GetNWBool("IsZBaseNPC") then return end
 
 
-    local value = data.Entity:OnEmitSound( data )
+    local StepSubStr = NPCFootstepSubStr[data.Entity:GetClass()]
+    local IsFootStep = ((StepSubStr && string.find(data.SoundName, StepSubStr))
+    or string.find(data.SoundName, "footstep"))
+
+
+    if IsFootStep then
+        if SERVER then
+            data.Entity:FootStep()
+        end
+
+        return false
+    end
+
+
+    if SERVER then
+        local value = data.Entity:OnEmitSound( data )
+        if value != nil then
+            return value
+        end
+    end
 
 
     if value != nil then

@@ -14,6 +14,14 @@ if SERVER then
 end
 
 
+if CLIENT then
+    net.Receive("ZBaseError", function()
+        chat.AddText(Color(255, 0, 0), "[ZBase] Fatal error!")
+        chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
+    end)
+end
+
+
 --[[
 ======================================================================================================================================================
                                            WELCOME MESSAGE OR SOMETHING IDK
@@ -41,7 +49,7 @@ end
 --]]
 
 
-if BRANCH != "x86-64" && BRANCH != "dev" then
+if SERVER && BRANCH != "x86-64" && BRANCH != "dev" then
     
     
     if SERVER then
@@ -52,14 +60,6 @@ if BRANCH != "x86-64" && BRANCH != "dev" then
                 net.Start("ZBaseError")
                 net.Send(ply)
             end)
-        end)
-    end
-    
-    
-    if CLIENT then
-        net.Receive("ZBaseError", function()
-            chat.AddText(Color(255, 0, 0), "[ZBase] Fatal error!")
-            chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
         end)
     end
     
@@ -93,7 +93,7 @@ end
 concommand.Add("zbase_reload", function( ply )
     if ply:IsSuperAdmin() then
         include("autorun/zbase.lua")
-        net.Start("ZBaseReload")
+        net.Start("ZBaseReloadClient")
         net.Broadcast()
     end
 end)
@@ -106,7 +106,6 @@ end)
 --]]
 
 
--- New blood impacts
 game.AddParticles("particles/zbase_blood_impact.pcf")
 PrecacheParticleSystem("blood_impact_zbase_green")
 PrecacheParticleSystem("blood_impact_zbase_black")
@@ -403,7 +402,6 @@ local function RegBase()
     local NPCBasePrefix = "zbase/npc_base_"
 
 
-    --AddCSLuaFile(NPCBasePrefix.."shared.lua")
     include(NPCBasePrefix.."shared.lua")
 
 
