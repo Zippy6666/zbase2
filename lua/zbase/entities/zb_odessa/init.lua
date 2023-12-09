@@ -23,6 +23,11 @@ NPC.Dialogue_Question_Sounds = "ZBaseOdessa.Question" -- Dialogue questions, emi
 NPC.Dialogue_Answer_Sounds = "ZBaseOdessa.Answer" -- Dialogue answers, emitted when the NPC is spoken to
 
 
+NPC.HasArmor = {
+    [HITGROUP_CHEST] = false,
+}
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 
