@@ -48,6 +48,9 @@ NPC.Dialogue_Answer_Sounds = "ZBaseMetrocop.Answer" -- Dialogue answers, emitted
 NPC.HearDangerSounds = "ZBaseMetrocop.HearSound"
 
 
+NPC.FootStepSounds = "ZBaseMetrocop.Step" -- Footstep sound
+
+
 local ShouldHaveRadioSound = {
     ["LostEnemySounds"] = true,
     ["OnReloadSounds"] = true,

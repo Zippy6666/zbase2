@@ -392,13 +392,13 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
 
 
     local StepSubStr = NPCFootstepSubStr[data.Entity:GetClass()]
-    local IsFootStep = ((StepSubStr && string.find(data.SoundName, StepSubStr))
+    local IsEngineFootStep = !ZBase_EmitSoundCall && ((StepSubStr && string.find(data.SoundName, StepSubStr))
     or string.find(data.SoundName, "footstep"))
 
 
-    if IsFootStep then
+    if IsEngineFootStep then
         if SERVER then
-            data.Entity:FootStep()
+            data.Entity:EngineFootStep()
         end
 
         return false

@@ -363,6 +363,9 @@ NPC.Dialogue_Answer_Sounds = "" -- Dialogue answers, emitted when the NPC is spo
 NPC.HearDangerSounds = ""
 
 
+NPC.FootStepSounds = "" -- Footstep sound
+
+
 -- Sound cooldowns {min, max}
 NPC.IdleSoundCooldown = {8, 16}
 NPC.IdleSounds_HasEnemyCooldown = {5, 10}
@@ -376,16 +379,6 @@ NPC.AllyDeathSound_Chance = 2
 NPC.OnMeleeSound_Chance = 2
 NPC.OnRangeSound_Chance = 2
 NPC.OnReloadSound_Chance = 2
-
-
---[[
-==================================================================================================
-                                           FOOTSTEPS
-==================================================================================================
---]]
-
-
-NPC.FootStepSounds = ""
 
 
 --[[
@@ -411,9 +404,31 @@ end
 ==================================================================================================
 --]]
 
-    -- Called when the footstep sound should play
-function NPC:OnFootStep()
-    print("chesse virger")
+
+    -- Timer based foot steps
+function NPC:FootStepTimer()
+    self:EmitSound(self.FootStepSounds)
+
+
+    -- Set footstep cooldown
+    local act = self:GetMovementActivity()
+    if act == ACT_RUN then
+
+        -- Run animation, do faster steps
+        self.NextFootStepTimer = CurTime()+0.3
+
+    else
+
+        -- Walk animation probably, do slower steps
+        self.NextFootStepTimer = CurTime()+0.5
+
+    end
+end
+
+
+    -- Called when the NPC is trying to do a footstep sound
+    -- Not all NPCs do this
+function NPC:OnEngineFootStep()
     self:EmitSound(self.FootStepSounds)
 end
 
@@ -742,6 +757,7 @@ end
 ==================================================================================================
 --]]
 
+
     -- Death animation code
     -- DeathAnimation_Animation_Animation_Animation
 function NPC:DeathAnimation_Animation()
@@ -757,6 +773,13 @@ end
     -- Return true to not spawn ragdoll
     -- Create gibs here
 function NPC:ShouldGib( dmginfo, hit_gr )
+end
+
+
+    -- Called after death
+    -- You can do stuff with its ragdoll here if it has any
+function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
+    print( dmginfo, hit_gr, rag )
 end
 
 

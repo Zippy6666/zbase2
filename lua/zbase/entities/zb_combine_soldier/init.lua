@@ -57,6 +57,9 @@ NPC.Dialogue_Answer_Sounds = "ZBaseCombine.Answer" -- Dialogue answers, emitted 
 NPC.HearDangerSounds = "ZBaseCombine.HearSound"
 
 
+NPC.FootStepSounds = "ZBaseCombine.Step" -- Footstep sound
+
+
 local ShouldHaveRadioSound = {
     ["LostEnemySounds"] = true,
     ["OnReloadSounds"] = true,

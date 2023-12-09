@@ -15,6 +15,22 @@ NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 
 --]]==============================================================================================]]
+sound.Add({
+    name = "ZBaseMetrocop.Step",
+	channel = CHAN_AUTO,
+	volume = 0.7,
+	level = 80,
+	pitch = {90, 110},
+	sound = {
+        "npc/metropolice/gear1.wav",
+		"npc/metropolice/gear2.wav",
+		"npc/metropolice/gear3.wav",
+		"npc/metropolice/gear4.wav",
+		"npc/metropolice/gear5.wav",
+        "npc/metropolice/gear6.wav",
+    },
+})
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseMetrocop.Question", {
     "npc/metropolice/vo/dispupdatingapb.wav",
     "npc/metropolice/vo/pickingupnoncorplexindy.wav",
