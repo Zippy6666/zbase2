@@ -116,12 +116,6 @@ function NPC:ZBaseInit()
     self:Fire("physdamagescale", self.PhysDamageScale)
 
 
-    -- Can dissolve
-    if !self.CanDissolve then
-        self:AddEFlags(EFL_NO_DISSOLVE)
-    end
-
-
     self:CallOnRemove("ZBaseOnRemove", function() self:OnRemove() end)
 
 
@@ -1450,7 +1444,9 @@ NPCB.Grenade = {
 
 
 function NPCB.Grenade:ShouldDoBehaviour( self )
-    return self.BaseGrenadeAttack && !table.IsEmpty(self.GrenadeAttackAnimations)
+    return self.BaseGrenadeAttack
+    && !table.IsEmpty(self.GrenadeAttackAnimations)
+    && self:ZBaseDist(self:GetEnemyLastSeenPos(), {away=400, within=1500})
 end
 
 
@@ -1760,8 +1756,9 @@ function NPC:OnScaleDamage( dmg, hit_gr )
     local attacker = dmg:GetAttacker()
 
 
-    -- Remember last hitgroup
+    -- Remember stuff
     self.LastHitGroup = dmg, hit_gr
+    self.LastDMGINFO = dmg
 
 
     -- Don't get hurt by NPCs in the same faction
@@ -2199,7 +2196,7 @@ function NPC:InternalCreateGib( model, data )
         phys:Wake()
 
         if self.LastDMGINFO then
-            local ForceDir = self.LastDMGINFO:GetDamageForce()/(phys:GetMass()*2)
+            local ForceDir = self.LastDMGINFO:GetDamageForce()/(math.Clamp(phys:GetMass(), 40, 10000))
             phys:SetVelocity( (ForceDir) + VectorRand()*(ForceDir:Length()*0.33) ) 
         end
     end
