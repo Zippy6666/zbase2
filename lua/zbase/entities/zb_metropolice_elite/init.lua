@@ -33,14 +33,13 @@ NPC.AlertSounds = "ZBaseElitePolice.Alert" -- Sounds emitted when an enemy is se
 NPC.Idle_HasEnemy_Sounds = "ZBaseElitePolice.IdleEnemy" -- Sounds emitted while there is an enemy
 NPC.PainSounds = "ZBaseElitePolice.Pain" -- Sounds emitted on hurt
 NPC.DeathSounds = "ZBaseElitePolice.Death" -- Sounds emitted on death
-NPC.KilledEnemySound = "ZBaseElitePolice.KilledEnemy" -- Sounds emitted when the NPC kills an enemy
+NPC.KilledEnemySounds = "ZBaseElitePolice.KilledEnemy" -- Sounds emitted when the NPC kills an enemy
 NPC.LostEnemySounds = "ZBaseElitePolice.LostEnemy"
 NPC.SeeDangerSounds = "ZBaseElitePolice.SeeDanger"
 NPC.AllyDeathSounds = "ZBaseElitePolice.AllyDeath"
 NPC.HearDangerSounds = "ZBaseElitePolice.HearDanger"
 NPC.Dialogue_Question_Sounds = "ZBaseElitePolice.Question"
 NPC.Dialogue_Answer_Sounds = "ZBaseElitePolice.Answer"
-
 
 
 --]]==============================================================================================]]

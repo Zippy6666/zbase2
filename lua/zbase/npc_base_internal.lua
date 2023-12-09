@@ -42,6 +42,12 @@ function NPC:ZBaseInit()
     end
 
 
+    -- Set model
+    if self.SpawnModel && self.SpawnModel != self:GetModel() then
+        self:SetModel_MaintainBounds(self.SpawnModel)
+    end
+
+
     -- Set health
     self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
     self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
@@ -699,8 +705,12 @@ function NPC:OnEmitSound( data )
     end
 
 
-    self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
-    self:CustomOnSoundEmitted( data, self.InternalCurrentSoundDuration, sndVarName )
+    if sndVarName then
+        self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
+    end
+
+
+    self:CustomOnSoundEmitted( data, SoundDuration(data.SoundName), sndVarName )
 
 
     if altered then
