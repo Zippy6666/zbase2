@@ -9,12 +9,8 @@ local ENT = FindMetaTable("Entity")
 
 
 if SERVER then
-	local emitSound = ENT.EmitSound
 	local OnNPCKilled = GAMEMODE.OnNPCKilled
 	local SpawnNPC = Spawn_NPC
-
-
-	ZBase_EmitSoundCall = false
 
 
 	--]]==========================================================================================]]
@@ -48,18 +44,6 @@ if SERVER then
         end
 	end
 	--]]==========================================================================================]]
-	function ENT:EmitSound( snd, ... )
-
-		if self.IsZBaseNPC && snd == "" then return end
-
-		ZBase_EmitSoundCall = true
-		local v = emitSound(self, snd, ...)
-		ZBase_EmitSoundCall = false
-
-		return v
-
-	end
-	--]]==========================================================================================]]
 end
 
 
@@ -71,6 +55,8 @@ end
 
 
 local listGet = list.Get
+local emitSound = ENT.EmitSound
+ZBase_EmitSoundCall = false
 
 
 function list:Get()
@@ -92,6 +78,19 @@ function list:Get()
     end
 
     return listGet(self)
+end
+
+
+function ENT:EmitSound( snd, ... )
+	if self:GetNWBool("IsZBaseNPC") && snd == "" then return end
+
+
+	ZBase_EmitSoundCall = true
+	local v = emitSound(self, snd, ...)
+	ZBase_EmitSoundCall = false
+
+
+	return v
 end
 
 

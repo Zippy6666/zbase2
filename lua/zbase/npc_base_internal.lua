@@ -61,6 +61,7 @@ function NPC:ZBaseInit()
     self.NextEmitHearDangerSound = CurTime()
     self.NextFlinch = CurTime()
     self.NextHealthRegen = CurTime()
+    self.NextFootStepTimer = CurTime()
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = HITGROUP_GENERIC
@@ -283,6 +284,11 @@ function NPC:ZBaseThink()
     if self.HealthRegenAmount > 0 && self:Health() < self:GetMaxHealth() && self.NextHealthRegen < CurTime() then
         self:SetHealth(math.Clamp(self:Health()+self.HealthRegenAmount, 0, self:GetMaxHealth()))
         self.NextHealthRegen = CurTime()+self.HealthCooldown
+    end
+
+
+    if self:IsMoving() && self.NextFootStepTimer < CurTime() then
+        self:FootStepTimer()
     end
 
 
@@ -749,8 +755,8 @@ end
 --]]
 
 
-function NPC:FootStep()
-    self:OnFootStep()
+function NPC:EngineFootStep()
+    self:OnEngineFootStep()
 end
 
 
@@ -1987,8 +1993,11 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 
     if !Gibbed then
-        self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
+        local rag = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
     end
+
+    
+    self:CustomOnDeath( dmg, hit_gr, rag )
 
 
     self:SetShouldServerRagdoll(false)
@@ -2128,6 +2137,8 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		undo.ReplaceEntity( rag, NULL )
 		cleanup.ReplaceEntity( rag, NULL )
     end
+
+    return rag
 end
 
 --[[

@@ -26,6 +26,22 @@ ZBaseAddGlowingEye("models/combine_soldier.mdl", 1, "ValveBiped.Bip01_Head1", Ve
 
 
 --]]==============================================================================================]]
+sound.Add({
+    name = "ZBaseCombine.Step",
+	channel = CHAN_AUTO,
+	volume = 0.7,
+	level = 80,
+	pitch = {90, 110},
+	sound = {
+        "npc/combine_soldier/gear1.wav",
+		"npc/combine_soldier/gear2.wav",
+		"npc/combine_soldier/gear3.wav",
+		"npc/combine_soldier/gear4.wav",
+		"npc/combine_soldier/gear5.wav",
+        "npc/combine_soldier/gear6.wav",
+    },
+})
+--]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseCombine.Idle", {
     "npc/combine_soldier/vo/prison_soldier_activatecentral.wav",
     "npc/combine_soldier/vo/prison_soldier_boomersinbound.wav",
