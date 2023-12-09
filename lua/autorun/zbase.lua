@@ -1,5 +1,20 @@
 --[[
 ======================================================================================================================================================
+                                           NETWORK
+======================================================================================================================================================
+--]]
+
+
+if SERVER then
+    util.AddNetworkString("ZBaseListFactions")
+    util.AddNetworkString("ZBase_GetFactionsFromServer")
+    util.AddNetworkString("ZBaseError")
+    util.AddNetworkString("ZBaseReload")
+end
+
+
+--[[
+======================================================================================================================================================
                                            WELCOME MESSAGE OR SOMETHING IDK
 ======================================================================================================================================================
 --]]
@@ -29,7 +44,7 @@ if BRANCH != "x86-64" && BRANCH != "dev" then
     
     
     if SERVER then
-        util.AddNetworkString("ZBaseError")
+        
 
         hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
             timer.Simple(3, function()
@@ -60,11 +75,11 @@ end
 
 
 if CLIENT then
+
     net.Receive("ZBaseReload", function()
         include("autorun/zbase.lua")
     end)
-else
-    util.AddNetworkString("ZBaseReload")
+
 end
 
 
@@ -76,16 +91,6 @@ concommand.Add("zbase_reload", function( ply )
     end
 end)
 
---[[
-======================================================================================================================================================
-                                           SPAWN MENU TAB ICONS
-======================================================================================================================================================
---]]
-
-
-ZBaseSetCategoryIcon( "HL2: Combine", "games/16/hl2.png" )
-ZBaseSetCategoryIcon( "HL2: Zombies + Enemy Aliens", "games/16/hl2.png" )
-ZBaseSetCategoryIcon( "HL2: Humans + Resistance", "games/16/hl2.png" )
 
 --[[
 ======================================================================================================================================================
@@ -222,12 +227,6 @@ sound.Add( {
 --]]
 
 
-if SERVER then
-    util.AddNetworkString("ZBaseListFactions")
-    util.AddNetworkString("ZBase_GetFactionsFromServer")
-end
-
-
 ZBaseNPCs = {}
 ZBaseSpawnMenuNPCList = {}
 ZBaseEnhancementTable = {}
@@ -289,20 +288,16 @@ end
 
 
 local function IncludeFiles()
-    include("zbase/globals.lua")
-    include("zbase/hooks.lua")
-    include("zbase/cvars.lua")
+    include("zbase/sh_globals.lua")
+    include("zbase/sh_hooks.lua")
+    include("zbase/sh_cvars.lua")
 
 
     if SERVER then
-
-        -- Schedules
-        include("zbase/schedules.lua")
-
-
-        -- NPC meta
-        include("zbase/meta_npc_extended.lua")
-
+        include("zbase/sv_schedules.lua")
+        include("zbase/sv_meta_npc_extended.lua")
+        include("zbase/sv_behaviour_system.lua")
+        include("zbase/sv_spawnnpc.lua")
 
         -- Include NPC enhancement files
         local files = file.Find("zbase/npc_enhancements/*","LUA")
@@ -310,17 +305,27 @@ local function IncludeFiles()
         for _, v in ipairs(files) do
             include(enhPath..v)
         end
+    end
 
+
+    if CLIENT then
+        include("zbase/cl_spawnmenu.lua")
+        include("zbase/cl_toolmenu.lua")
     end
 end
 
 
 local function AddCSLuaFiles()
-    AddCSLuaFile("zbase/cvars.lua")
-    AddCSLuaFile("zbase/globals.lua")
-    AddCSLuaFile("zbase/override_functions.lua")
-    AddCSLuaFile("zbase/hooks.lua")
+    AddCSLuaFile("zbase/sh_cvars.lua")
+    AddCSLuaFile("zbase/sh_globals.lua")
+    AddCSLuaFile("zbase/sh_override_functions.lua")
+    AddCSLuaFile("zbase/sh_hooks.lua")
+
+    AddCSLuaFile("zbase/cl_spawnmenu.lua")
+    AddCSLuaFile("zbase/cl_toolmenu.lua")
+
     AddCSLuaFile("zbase/npc_base_shared.lua")
+
 
     -- Add zbase entity files
     local _, dirs = file.Find("zbase/entities/*","LUA")

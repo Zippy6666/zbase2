@@ -1,6 +1,12 @@
     -- Note: Contains a lot of borrowed gmod source code! --
 
 
+ZBaseCategoryImages = {}
+ZBaseSetCategoryIcon( "HL2: Combine", "games/16/hl2.png" )
+ZBaseSetCategoryIcon( "HL2: Zombies + Enemy Aliens", "games/16/hl2.png" )
+ZBaseSetCategoryIcon( "HL2: Humans + Resistance", "games/16/hl2.png" )
+
+
 local PANEL = {}
 local GenericIcon = "entities/zbase.png"
 
@@ -71,7 +77,6 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	return icon
 end)
 -----------------------------------------------------------------------------------------=#
-ZBaseCategoryImages = {}
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
 	local Categories = {}
 

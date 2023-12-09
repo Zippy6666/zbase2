@@ -7,7 +7,7 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
 
     -- Override functions
     timer.Simple(0.5, function()
-        include("zbase/override_functions.lua")
+        include("zbase/sh_override_functions.lua")
     end)
 
 end)
