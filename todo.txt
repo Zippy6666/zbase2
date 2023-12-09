@@ -1,4 +1,7 @@
 >>> TODO <<<
+- Item drop
+- Foot steps
+- Genders (XDDD)
 - Dummy git
 - Psychotic description for the funnies (use chatgpt)
 - Credit crunchy soap!!!!!!!!!!!!!

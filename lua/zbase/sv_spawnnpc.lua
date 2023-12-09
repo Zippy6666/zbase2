@@ -62,7 +62,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 
     -- Set model
     local model = table.Random(NPCData.Models)
-    if myModel then
+    if model then
 		NPC.SpawnModel = model
         NPC:SetModel(model)
     end
