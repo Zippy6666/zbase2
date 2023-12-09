@@ -9,7 +9,7 @@ NPC.Class = "npc_hunter"
 
 
 NPC.Name = "Resistance Hunter" -- Name of your NPC
-NPC.Category = "Humans + Resistance" -- Category in the ZBase tab
+NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_hunter" -- Inherit features from any existing zbase npc
 
