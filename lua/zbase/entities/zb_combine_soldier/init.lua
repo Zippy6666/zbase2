@@ -36,22 +36,14 @@ NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the gren
 NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin units or something idfk
 
 
--- Sounds (Use sound scripts to alter pitch and level and such!)
 NPC.AlertSounds = "ZBaseCombine.Alert" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "ZBaseCombine.Idle" -- Sounds emitted while there is no enemy
-NPC.Idle_HasEnemy_Sounds = "" -- Sounds emitted while there is an enemy
-NPC.PainSounds = "" -- Sounds emitted on hurt
-NPC.DeathSounds = "" -- Sounds emitted on death
 NPC.KilledEnemySounds = "ZBaseCombine.KillEnemy" -- Sounds emitted when the NPC kills an enemy
 
 
 NPC.LostEnemySounds = "ZBaseCombine.LostEnemy" -- Sounds emitted when the enemy is lost
-NPC.SeeDangerSounds = "" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
-NPC.SeeGrenadeSounds = "" -- Sounds emitted when the NPC spots a grenade
-NPC.AllyDeathSounds = "" -- Sounds emitted when an ally dies
-NPC.OnMeleeSounds = "" -- Sounds emitted when the NPC does its melee attack
-NPC.OnRangeSounds = "" -- Sounds emitted when the NPC does its range attack
 NPC.OnReloadSounds = "ZBaseCombine.Reload" -- Sounds emitted when the NPC reloads
+NPC.OnGrenadeSounds = "ZBaseCombine.Grenade" -- Sounds emitted when the NPC throws a grenade
 
 
 -- Dialogue sounds
@@ -65,6 +57,16 @@ NPC.Dialogue_Answer_Sounds = "ZBaseCombine.Answer" -- Dialogue answers, emitted 
 NPC.HearDangerSounds = "ZBaseCombine.HearSound"
 
 
+local ShouldHaveRadioSound = {
+    ["LostEnemySounds"] = true,
+    ["OnReloadSounds"] = true,
+    ["Dialogue_Question_Sounds"] = true,
+    ["Dialogue_Answer_Sounds"] = true,
+    ["AlertSounds"] = true,
+    ["KilledEnemySounds"] = true,
+    ["OnGrenadeSounds"] = true,
+}
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
     local ACT_WALK_EASY = self:GetSequenceActivity(self:LookupSequence("walkeasy_all"))
@@ -74,6 +76,15 @@ end
 function NPC:CustomThink()
 end
 --]]==============================================================================================]]
-function NPC:CustomOnEmitSound( sndData, sndVarName )
+function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
+    if ShouldHaveRadioSound[sndVarName] then
+        self:EmitSound("npc/combine_soldier/vo/on"..math.random(1, 2)..".wav")
+
+
+        timer.Simple(duration, function()
+            if !IsValid(self) then return end
+            self:EmitSound("npc/combine_soldier/vo/off"..math.random(1, 3)..".wav")
+        end)
+    end
 end
 --]]==============================================================================================]]

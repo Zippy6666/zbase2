@@ -10,7 +10,6 @@ local NPC = ZBaseNPCs["npc_zbase"]
 
 -- NOTE FOR ADVANCED USERS: You can change any internal variable by doing NPC.m_iNameOfInternalVar here
 -- Combine soldier example:
--- NPC.m_iNumGrenades = 1
 -- NPC.m_nKickDamage = 15
 
 
@@ -345,6 +344,7 @@ NPC.AllyDeathSounds = "" -- Sounds emitted when an ally dies
 NPC.OnMeleeSounds = "" -- Sounds emitted when the NPC does its melee attack
 NPC.OnRangeSounds = "" -- Sounds emitted when the NPC does its range attack
 NPC.OnReloadSounds = "" -- Sounds emitted when the NPC reloads
+NPC.OnGrenadeSounds = "" -- Sounds emitted when the NPC throws a grenade
 
 
 -- Dialogue sounds
@@ -375,7 +375,7 @@ NPC.OnReloadSound_Chance = 2
 
 --[[
 ==================================================================================================
-                                           MISC USEFUL FUNCTIONS
+                                           ESSENTIAL FUNCTIONS
 ==================================================================================================
 --]]
 
@@ -390,16 +390,24 @@ function NPC:CustomThink()
 end
 
 
-    -- Called a tick after an entity owned by this NPC is created
-    -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
-function NPC:CustomOnOwnedEntCreated( ent )
-end
+--[[
+==================================================================================================
+                                           SOUND FUNCTIONS
+==================================================================================================
+--]]
 
 
+    -- Called before emitting a sound
     -- Return a new sound name to play that sound instead.
     -- Return false to prevent the sound from playing.
-function NPC:CustomOnEmitSound( sndData, sndVarName )
+function NPC:BeforeEmitSound( sndData, sndVarName )
 end
+
+
+    -- Called after a sound is going to be emitted
+function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
+end
+
 
 --[[
 ==================================================================================================
@@ -714,6 +722,7 @@ end
 --]]
 
     -- Death animation code
+    -- DeathAnimation_Animation_Animation_Animation
 function NPC:DeathAnimation_Animation()
     self:PlayAnimation(table.Random(self.DeathAnimations), false, {
         speedMult=self.DeathAnimationSpeed,
@@ -737,9 +746,15 @@ end
 
 --[[
 ==================================================================================================
-                                           OTHER FUNCTIONS
+                                           MISC FUNCTIONS
 ==================================================================================================
 --]]
+
+
+    -- Called a tick after an entity owned by this NPC is created
+    -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
+function NPC:CustomOnOwnedEntCreated( ent )
+end
 
 
     -- Accept input, return true to prevent --

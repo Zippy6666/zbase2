@@ -337,6 +337,7 @@ end
     -- Throw a grenade
 function NPC:ThrowGrenade()
     self:GrenadeAnimation()
+    self:EmitSound_Uninterupted(self.OnGrenadeSounds)
 
     timer.Simple(self.GrenadeReleaseTime, function()
         if !IsValid(self) then return end

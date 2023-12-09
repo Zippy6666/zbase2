@@ -110,3 +110,8 @@ ZBaseCreateVoiceSounds("ZBaseCombine.LostEnemy", {
     "npc/combine_soldier/vo/lostcontact.wav",
 })
 --]]==============================================================================================]]
+ZBaseCreateVoiceSounds("ZBaseCombine.Grenade", {
+    "npc/combine_soldier/vo/extractoraway.wav",
+    "npc/combine_soldier/vo/extractorislive.wav",
+})
+--]]==============================================================================================]]
