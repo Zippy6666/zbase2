@@ -219,10 +219,27 @@ function ENT:DoSchedule( schedule )
 	end
 end
 --]]======================================================================================================]]
+function ENT:DoNPCState()
+	local state = self:GetNPCState()
+	local ene = self:GetEnemy()
+
+
+	if !IsValid(ene) && self.LastNPCState==NPC_STATE_COMBAT then
+		self:SetNPCState(NPC_STATE_ALERT)
+		print("SNPC slamming to alert")
+	end
+
+
+	self.LastNPCState = state
+end
+--]]======================================================================================================]]
 function ENT:RunAI( strExp )
 	if self.DoingPlayAnim or self.DoingAerialMoveAnim then
 		return
 	end
+
+
+	self:DoNPCState()
 
 
 	-- Check if waypoint has been 0,0,0 for some time

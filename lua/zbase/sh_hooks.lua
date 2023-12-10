@@ -383,6 +383,7 @@ local NPCFootstepSubStr = {
     ["npc_headcrab_poison"] = "npc/headcrab_poison/ph_step",
     ["npc_antlion"] = "npc/antlion/foot",
     ["npc_antlionguard"] = "npc/antlion_guard/foot",
+    ["npc_zombine"] = "npc/combine_soldier/gear",
 }
 
 

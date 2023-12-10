@@ -73,6 +73,13 @@ NPC.ForceAvoidDanger = false -- Force this NPC to avoid dangers such as grenades
 NPC.Gender = ZBASE_MALE
 
 
+-- Items to drop on death
+-- ["item_class_name"] = {chance=1/x, max=x}
+NPC.ItemDrops = {
+    -- ["item_healthvial"] = {chance=2, max=1} -- Example, a healthvial that has a 1/2 chance of spawning
+}
+NPC.ItemDrops_TotalMax = 5 -- The NPC can never drop more than this many items
+
 --[[
 ==================================================================================================
                                            MOVEMENT
@@ -558,6 +565,7 @@ function NPC:MeleeAnimation()
     self:PlayAnimation(table.Random(self.MeleeAttackAnimations), self.MeleeAttackFaceEnemy, {
         speedMult=self.MeleeAttackAnimationSpeed,
         turnSpeed=self.MeleeAttackTurnSpeed,
+        noTransitions = true,
     })
 end
 
@@ -639,6 +647,7 @@ end
 function NPC:RangeAttackAnimation()
     self:PlayAnimation(table.Random(self.RangeAttackAnimations), false, {
         speedMult=self.RangeAttackAnimationSpeed,
+        noTransitions = true,
     })
 end
 
@@ -668,7 +677,7 @@ end
 
     -- Animation code
 function NPC:GrenadeAnimation()
-    self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true)
+    self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true, {noTransitions = true})
 end
 
 
@@ -758,6 +767,7 @@ function NPC:DeathAnimation_Animation()
         speedMult=self.DeathAnimationSpeed,
         face=false,
         duration=self.DeathAnimationDuration,
+        noTransitions = true,
     })
 end
 

@@ -255,7 +255,7 @@ function NPC:ShouldGib( dmginfo, hit_gr )
     self:CreateGib("models/gibs/mortarsynth_gib_05.mdl", {offset=Vector(15, 28, -30)})
 
 
-    ParticleEffect("striderbuster_break_shell", self:GetPos(), self:GetAngles())
+    -- ParticleEffect("striderbuster_break_shell", self:GetPos(), self:GetAngles())
     local explosion = ents.Create("env_explosion")
     explosion:SetPos(self:WorldSpaceCenter())
     explosion:SetKeyValue("spawnflags", bit.bor(1, 64, 256))

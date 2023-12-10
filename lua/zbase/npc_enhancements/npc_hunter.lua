@@ -10,7 +10,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             "SCHED_HUNTER_STAGGER",
             "SCHED_HUNTER_COMBAT_FACE",
             "SCHED_HUNTER_FLANK_ENEMY",
-            "SCHED_HUNTER_PATROL",
             "SCHED_HUNTER_PATROL_RUN",
         })
     end

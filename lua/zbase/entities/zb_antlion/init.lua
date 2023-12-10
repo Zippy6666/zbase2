@@ -23,6 +23,10 @@ NPC.GibParticle = "AntlionGib"
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
+
+NPC.FootStepSounds = "NPC_Antlion.Footstep"
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 
