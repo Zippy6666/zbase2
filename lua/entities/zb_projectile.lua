@@ -217,7 +217,9 @@ function ENT:ProjectileDamage( ent, dmg, dmgtype )
 
     ent:TakeDamageInfo(dmginfo)
 
-    ZBaseBleed(ent, self:WorldSpaceCenter()+VectorRand()*10)
+    if IsValid(own) && own:Disposition(ent) != D_LI then
+        ZBaseBleed(ent, self:WorldSpaceCenter()+VectorRand()*10)
+    end
 end
 --]]==============================================================================================]]
 function ENT:ProjectileBlastDamage( dmg, dmgtype, radius, force )

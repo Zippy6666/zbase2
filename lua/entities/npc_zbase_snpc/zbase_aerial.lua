@@ -110,30 +110,38 @@ function ENT:Aerial_CalcVel()
 end
 --]]======================================================================================================]]
 function ENT:AerialMoveAnim()
-    if self.Aerial_CurSpeed > 0 then
-        local cusMoveAnim = self.Fly_MovementAnims[self:GetNPCState()]
-        if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
-            self:SetActivity(cusMoveAnim)
+    -- -- Movement activity override for flying snpcs https://wiki.facepunch.com/gmod/Enums/ACT
+    -- NPC.Fly_MovementAnims = {
+    --     [NPC_STATE_IDLE] = ACT_IDLE,
+    --     [NPC_STATE_ALERT] = ACT_IDLE,
+    --     [NPC_STATE_COMBAT] = ACT_IDLE,
+    -- }
 
 
-            if !self.DoingAerialMoveAnim then
-                self:SetCycle(0)
-            end
-
-            if self:IsSequenceFinished() then
-                self:ResetSequence(self:SelectWeightedSequence(cusMoveAnim))
-            end
+    -- if self.Aerial_CurSpeed > 0 then
+    --     local cusMoveAnim = self.Fly_MovementAnims[self:GetNPCState()]
+    --     if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
+    --         self:SetActivity(cusMoveAnim)
 
 
-            self.DoingAerialMoveAnim = true
-        end
-    else
-        if self.DoingAerialMoveAnim then
-            self:SetActivity(ACT_IDLE)
-        end
+    --         if !self.DoingAerialMoveAnim then
+    --             self:SetCycle(0)
+    --         end
+
+    --         if self:IsSequenceFinished() then
+    --             self:ResetSequence(self:SelectWeightedSequence(cusMoveAnim))
+    --         end
 
 
-        self.DoingAerialMoveAnim = false
-    end
+    --         self.DoingAerialMoveAnim = true
+    --     end
+    -- else
+    --     if self.DoingAerialMoveAnim then
+    --         self:SetActivity(ACT_IDLE)
+    --     end
+
+
+    --     self.DoingAerialMoveAnim = false
+    -- end
 end
 --]]======================================================================================================]]

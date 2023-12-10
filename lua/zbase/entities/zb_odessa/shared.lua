@@ -21,10 +21,6 @@ ZBaseCreateVoiceSounds("ZBaseOdessa.Question", {
     "vo/coast/odessa/nlo_cub_volunteer.wav",
     "vo/coast/odessa/nlo_cub_wherewasi.wav",
     "vo/coast/odessa/nlo_cub_youllmakeit.wav",
-})
-
-
-ZBaseCreateVoiceSounds("ZBaseOdessa.Answer", {
     "vo/coast/odessa/nlo_cub_class01.wav",
     "vo/coast/odessa/nlo_cub_class02.wav",
     "vo/coast/odessa/nlo_cub_corkscrew.wav",
@@ -33,5 +29,4 @@ ZBaseCreateVoiceSounds("ZBaseOdessa.Answer", {
     "vo/coast/odessa/nlo_cub_opengate.wav",
     "vo/coast/odessa/nlo_cub_radio.wav",
 })
-
 

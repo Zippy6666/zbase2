@@ -109,7 +109,7 @@ end
     -- Creates a blood effect for any entity that can bleed
 function ZBaseBleed( ent, pos, ang )
     if !SERVER then return end
-    if !ent:IsNPC() && !ent.IsZBaseGib then return end
+    if !ent:IsNPC() && !ent.IsZBaseGib && !ent:IsPlayer() && !ent:IsNextBot() then return end
 
 
     local bloodcol = (ent.IsZBaseGib && ent.BloodColor) or ent:GetBloodColor()
@@ -161,7 +161,7 @@ function ZBaseCreateVoiceSounds( name, tbl )
     sound.Add( {
         name = name,
         channel = CHAN_VOICE,
-        volume = 0.4,
+        volume = 0.5,
         level = 90,
         pitch = {95, 105},
         sound = tbl,
