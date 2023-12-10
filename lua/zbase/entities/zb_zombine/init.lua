@@ -12,3 +12,5 @@ NPC.HasArmor = {
     [HITGROUP_CHEST] = true,
     [HITGROUP_STOMACH] = true,
 }
+
+NPC.FootStepSounds = "ZBaseCombine.Step"

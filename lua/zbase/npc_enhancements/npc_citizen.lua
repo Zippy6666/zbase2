@@ -2,11 +2,11 @@ local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
 ZBaseEnhancementTable[my_cls] = function( NPC )
     --]]============================================================================================================]]
     function NPC:ZBaseEnhancedInit()
+
     end
     --]]============================================================================================================]]
     function NPC:ZBaseEnhancedThink()
-        -- Fix rockets not being fired at players
-
+        -- Fix rockets not being fired at players --
         local wep = self:GetActiveWeapon()
         local ene = self:GetEnemy()
 
@@ -32,6 +32,13 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             effectdata:SetFlags(7)
             effectdata:SetEntity(wep)
             util.Effect( "MuzzleFlash", effectdata )
+        end
+        ------------------------------------------=#
+
+
+        -- Fix medics trying to heal players when they are enemies --
+        if IsValid(ene) && ene:IsPlayer() then
+            self:SetSaveValue("m_flPlayerHealTime", 5)
         end
     end
     --]]============================================================================================================]]

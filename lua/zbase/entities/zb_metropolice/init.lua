@@ -28,7 +28,16 @@ NPC.MeleeAttackAnimations = {
 
 
 local SF_ARREST = 2097152
-NPC.SpawnFlagTbl = {SF_ARREST, SF_NPC_DROP_HEALTHKIT}
+NPC.SpawnFlagTbl = {SF_ARREST}
+
+
+-- Items to drop on death
+-- ["item_class_name"] = {chance=1/x, max=x}
+NPC.ItemDrops = {
+    ["item_healthvial"] = {chance=3, max=2} -- Example, a healthvial that has a 1/2 chance of spawning
+}
+
+
 NPC.KeyValues = {weapondrawn="1"}
 
 

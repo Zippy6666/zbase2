@@ -63,6 +63,20 @@ NPC.FootStepSounds = "ZBaseCombine.Step" -- Footstep sound
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
 
+
+-- Items to drop on death
+-- ["item_class_name"] = {chance=1/x, max=x}
+NPC.ItemDrops = {
+    ["item_healthvial"] = {chance=3, max=2}, -- Example, a healthvial that has a 1/2 chance of spawning
+    ["item_battery"] = {chance=4, max=1}, -- Example, a healthvial that has a 1/2 chance of spawning
+    ["item_ammo_smg1_grenade"] = {chance=4, max=1}, -- Example, a healthvial that has a 1/2 chance of spawning
+    ["item_ammo_ar2_altfire"] = {chance=5, max=1}, -- Example, a healthvial that has a 1/2 chance of spawning
+    ["weapon_frag"] = {chance=4, max=1},
+}
+NPC.ItemDrops_TotalMax = 2 -- The NPC can never drop more than this many items
+
+
+
 local ShouldHaveRadioSound = {
     ["LostEnemySounds"] = true,
     ["OnReloadSounds"] = true,

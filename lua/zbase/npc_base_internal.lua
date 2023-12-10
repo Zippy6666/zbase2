@@ -209,6 +209,19 @@ end
 --]]
 
 
+local StrNPCStates = {
+    [NPC_STATE_NONE] = "NPC_STATE_NONE",
+    [NPC_STATE_IDLE] = "NPC_STATE_IDLE",
+    [NPC_STATE_SCRIPT] = "NPC_STATE_SCRIPT",
+    [NPC_STATE_ALERT] = "NPC_STATE_ALERT",
+    [NPC_STATE_COMBAT] = "NPC_STATE_COMBAT",
+    [NPC_STATE_INVALID] = "NPC_STATE_INVALID",
+    [NPC_STATE_DEAD] = "NPC_STATE_DEAD",
+    [NPC_STATE_PLAYDEAD] = "NPC_STATE_PLAYDEAD",
+    [NPC_STATE_PRONE] = "NPC_STATE_PRONE",
+}
+
+
 function NPC:ZBaseThink()
     local ene = self:GetEnemy()
 
@@ -278,10 +291,10 @@ function NPC:ZBaseThink()
         or self.AllowedCustomEScheds[ent:GetCurrentSchedule()] or "schedule "..tostring(ent:GetCurrentSchedule())
 
         if sched then
-            debugoverlay.Text(self:WorldSpaceCenter(), sched, 0.13)
+            debugoverlay.Text(self:WorldSpaceCenter(), "sched: "..sched..", state: "..StrNPCStates[self:GetNPCState()], 0.13)
 
             if self.Debug_ProhibitedCusESched then
-                MsgN("NPC ["..self:EntIndex().."] prohibited sched "..self.Debug_ProhibitedCusESched)
+                -- MsgN("NPC ["..self:EntIndex().."] prohibited sched "..self.Debug_ProhibitedCusESched)
                 self.Debug_ProhibitedCusESched = false
             end
         end
@@ -353,7 +366,10 @@ end
 
 function NPC:DoSlowThink()
     local ene = self:GetEnemy()
-    
+    local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
+    local IsCombat = self:GetNPCState() == NPC_STATE_COMBAT
+
+
     -- Flying SNPCs should get closer to the ground during melee --
     if self.IsZBase_SNPC
     && self.BaseMeleeAttack
@@ -371,32 +387,50 @@ function NPC:DoSlowThink()
     self:InternalDetectDanger()
 
 
-    -- Loose enemy
-    if IsValid(ene) && !self.EnemyVisible && self:GetEnemyLastKnownPos():DistToSqr(ene:GetPos()) > 10000 then
-        self:MarkEnemyAsEluded()
-        self:LostEnemySound()
-
-        -- debugoverlay.Text(self:GetPos(), "lost enemy", 2)
-        -- debugoverlay.Text(self:GetEnemyLastKnownPos()+Vector(0, 0, 100), "last seen enemy pos", 2)
-        -- debugoverlay.Cross(self:GetEnemyLastKnownPos(), 40, 2, Color( 255, 0, 0 ))
-    end
-    -----------------------=#
-
-
-    -- Stop being alert after some time
-    if self:GetNPCState() == NPC_STATE_ALERT && !self.NextStopAlert then
-        self.NextStopAlert = CurTime()+math.Rand(15, 20)
-    end
-
-    if self.NextStopAlert && self.NextStopAlert < CurTime() then
-        self:SetNPCState(NPC_STATE_IDLE)
-        self.NextStopAlert = nil
-    end
-    --------------------------=#
-
     if self.ZBaseFaction == "none" && self:SquadName()!="" then
         self:SetSquad("")
     end
+
+
+    -- Loose enemy
+    local EneLastKnownPos = self:GetEnemyLastKnownPos()
+    if IsValid(ene) && !self.EnemyVisible then
+        self:MarkEnemyAsEluded()
+
+        if self.GotoEneLastKnownPosWhenEluded then
+            self:ForceGotoLastKnownPos()
+        end
+    end
+
+
+    -- Last known pos debug
+    debugoverlay.Text(EneLastKnownPos+Vector(0, 0, 100), self.Name.."["..self:EntIndex().."] last known enemy pos", 0.3)
+    debugoverlay.Cross(EneLastKnownPos, 40, 0.3, Color( 255, 0, 0 ))
+
+
+
+    -- Mess with npc states
+
+    if IsCombat then
+        -- Reset stop alert if in combat
+        self.NextStopAlert = nil
+
+
+        if IsValid(ene) then
+            self.DoEnemyLostSoundWhenLost = true
+            self.GotoEneLastKnownPosWhenEluded = true
+        end
+    end
+
+    if IsAlert && !self.NextStopAlert then
+        self.NextStopAlert = CurTime()+math.Rand(15, 25)
+    end
+
+    if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
+        self:SetNPCState(NPC_STATE_IDLE)
+        self.NextStopAlert = nil
+    end
+
 
 end
 
@@ -995,12 +1029,28 @@ end
 
 function NPCB.Patrol:Run( self )
     if self:GetNPCState() == NPC_STATE_ALERT then
-        self:SetSchedule(SCHED_PATROL_RUN)
+        -- Move to last known position, then patrol
+        if self:ZBaseDist(self:GetEnemyLastKnownPos(), {away=200}) && self.GotoEneLastKnownPosWhenEluded then
+            self:ForceGotoLastKnownPos()
+        else
+
+            self:SetSchedule(SCHED_PATROL_RUN)
+
+
+            -- Enemy was lost at this point
+            if self.DoEnemyLostSoundWhenLost && !self.EnemyDied then
+                self:LostEnemySound()
+                self:EmitSound_Uninterupted(self.LostEnemySounds)
+                self.DoEnemyLostSoundWhenLost = false
+                debugoverlay.Text(self:GetPos(), "enemy lost", 2)
+            end
+
+        end
     else
         self:SetSchedule(SCHED_PATROL_WALK)
     end
     
-    ZBaseDelayBehaviour(math.random(8, 15))
+    ZBaseDelayBehaviour(self:GetNPCState() == NPC_STATE_ALERT && math.random(3, 6) or math.random(8, 15))
 end
 
 
@@ -1024,14 +1074,15 @@ end
 function NPCB.FactionCallForHelp:Run( self )
     for _, v in ipairs(ents.FindInSphere(self:GetPos(), self.CallForHelpDistance)) do
 
-        if !v:IsNPC() then continue end
-        if v == self then continue end
-        if v.ZBaseFaction == "none" then continue end
+        if !v:IsNPC() then return end
+        if !self:IsAlly(v) then continue end
         if IsValid(v:GetEnemy()) then continue end -- Ally already busy with an enemy
 
-        if v.ZBaseFaction == self.ZBaseFaction then
-            local ene = self:GetEnemy()
-            v:UpdateEnemyMemory(ene, ene:GetPos())
+
+        local ene = self:GetEnemy()
+
+        if !v:HasEnemyEluded(ene) then
+            v:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
             v:AlertSound()
         end
 
@@ -2007,9 +2058,39 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     end
 
 
+    -- Item drops
+    local ItemArray = {}
+    local DropsDone = 0
 
+    for cls, opt in pairs(self.ItemDrops) do
+        table.insert(ItemArray, {cls=cls, max=opt.max, chance=opt.chance})
+    end
+
+    table.Shuffle(ItemArray)
+    for _, dropData in ipairs(ItemArray) do
+        if DropsDone >= self.ItemDrops_TotalMax then break end
+
+
+        for i = 1, dropData.max do
+            if DropsDone >= self.ItemDrops_TotalMax then break end
+
+            
+            if math.random(1, dropData.chance)==1 then
+                local drop = ents.Create(dropData.cls)
+                drop:SetPos(self:WorldSpaceCenter())
+                drop:SetAngles(AngleRand())
+                drop:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+                drop:Spawn()
+                SafeRemoveEntityDelayed(drop, 120)
+
+                DropsDone = DropsDone+1
+            end
+        end
+    end
+
+
+    -- Gib or ragdoll
     local Gibbed = self:ShouldGib(dmg, hit_gr)
-
     local rag
     if !Gibbed then
         rag = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
@@ -2382,20 +2463,21 @@ function NPC:DoNewEnemy()
                 ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
             end
         end
-    elseif !self.EnemyDied then
-        -- Check if enemy was lost
-        -- Wait some time until confirming the enemy is lost
+    -- elseif !self.EnemyDied then
+    --     -- Check if enemy was lost
+    --     -- Wait some time until confirming the enemy is lost
 
-        timer.Simple(math.Rand(1, 2), function()
-            if !IsValid(self) then return end
+    --     timer.Simple(math.Rand(1, 2), function()
+    --         if !IsValid(self) then return end
 
 
-            -- Enemy lost
-            if !IsValid(self:GetEnemy())
-            && !self:NearbyAllySpeaking( {"LostEnemySounds"} ) then
-                self:EmitSound_Uninterupted(self.LostEnemySounds)
-            end
-        end)
+    --         -- Enemy lost
+    --         if !IsValid(self:GetEnemy())
+    --         && !self:NearbyAllySpeaking( {"LostEnemySounds"} ) then
+    --             self:LostEnemySound()
+    --             self:EmitSound_Uninterupted(self.LostEnemySounds)
+    --         end
+    --     end)
     end
 end
 
@@ -2464,4 +2546,12 @@ function NPC:DoMoveSpeed()
 
     self:SetPlaybackRate(self.MoveSpeedMultiplier)
     self:SetSaveValue("m_flTimeLastMovement", TimeLastMovement*self.MoveSpeedMultiplier)
+end
+
+
+function NPC:ForceGotoLastKnownPos()
+    self:SetLastPosition(self:GetEnemyLastKnownPos())
+    self:SetSchedule(SCHED_FORCED_GO_RUN)
+    self.GotoEneLastKnownPosWhenEluded = false
+    debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
 end
