@@ -47,6 +47,39 @@ NPC.RangeProjectile_Speed = 1200 -- The speed of the projectile
 NPC.RangeProjectile_Inaccuracy = 20 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
 
 
+-- Sounds (Use sound scripts to alter pitch and level and such!)
+NPC.AlertSounds = "" -- Sounds emitted when an enemy is seen for the first time
+NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
+NPC.Idle_HasEnemy_Sounds = "" -- Sounds emitted while there is an enemy
+NPC.PainSounds = "" -- Sounds emitted on hurt
+NPC.DeathSounds = "" -- Sounds emitted on death
+NPC.KilledEnemySounds = "" -- Sounds emitted when the NPC kills an enemy
+
+
+NPC.LostEnemySounds = "" -- Sounds emitted when the enemy is lost
+NPC.SeeDangerSounds = "" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
+NPC.SeeGrenadeSounds = "" -- Sounds emitted when the NPC spots a grenade
+NPC.AllyDeathSounds = "" -- Sounds emitted when an ally dies
+NPC.OnMeleeSounds = "" -- Sounds emitted when the NPC does its melee attack
+NPC.OnRangeSounds = "" -- Sounds emitted when the NPC does its range attack
+NPC.OnReloadSounds = "" -- Sounds emitted when the NPC reloads
+NPC.OnGrenadeSounds = "" -- Sounds emitted when the NPC throws a grenade
+
+
+-- Dialogue sounds
+-- The NPCs will face each other as if they are talking
+NPC.Dialogue_Question_Sounds = "" -- Dialogue questions, emitted when the NPC starts talking to another NPC
+NPC.Dialogue_Answer_Sounds = "" -- Dialogue answers, emitted when the NPC is spoken to
+
+
+-- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
+-- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
+NPC.HearDangerSounds = ""
+
+
+NPC.FootStepSounds = "" -- Footstep sound
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 end
