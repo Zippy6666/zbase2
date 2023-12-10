@@ -60,6 +60,9 @@ NPC.HearDangerSounds = "ZBaseCombine.HearSound"
 NPC.FootStepSounds = "ZBaseCombine.Step" -- Footstep sound
 
 
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+
+
 local ShouldHaveRadioSound = {
     ["LostEnemySounds"] = true,
     ["OnReloadSounds"] = true,

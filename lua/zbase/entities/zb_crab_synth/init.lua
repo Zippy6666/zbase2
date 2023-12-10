@@ -107,10 +107,49 @@ NPC.OnRangeSound_Chance = 2
 NPC.OnReloadSound_Chance = 2
 
 
+NPC.FootStepSounds = "ZBaseCrabSynth.Step"
+
+-- Footstep timer (if active)
+NPC.FootStepSoundDelay_Walk = 1 -- Step cooldown when walking
+NPC.FootStepSoundDelay_Run = 0.3 -- Step cooldown when running
+NPC.FootStepSoundDelay_Charge = 0.3
+
+
+local CrabFootStepActs = {
+    [ACT_WALK] = true,
+    [ACT_RUN] = true,
+}
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
     self.MinigunShootSound = CreateSound(self, "ZBaseCrabSynth.MinigunLoop")
     self:CallOnRemove("StopShootSoundLoop", function() self.MinigunShootSound:Stop() end)
+end
+--]]==============================================================================================]]
+function NPC:FootStepTimer()
+    -- if !self:IsMoving() then return end -- Comment this out or charge anim won't have steps
+    if self.HasEngineFootSteps then return end
+
+
+    local moveact = self:GetMovementActivity()
+    local seqName = self:GetSequenceName(self:GetSequence())
+
+
+    if !CrabFootStepActs[moveact] && seqName != "charge_loop" then return end
+
+
+    self:EmitSound(self.FootStepSounds)
+    util.ScreenShake(self:GetPos(), 12, 200, 0.75, 1000)
+
+
+    if seqName == "charge_loop" then
+        self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Charge
+    elseif moveact == ACT_RUN then
+        self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Run
+    elseif moveact == ACT_WALK then
+        self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Walk
+    end
 end
 --]]==============================================================================================]]
 function NPC:MultipleMeleeAttacks()

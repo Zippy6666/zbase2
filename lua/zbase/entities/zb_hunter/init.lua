@@ -20,6 +20,20 @@ NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 NPC.ZBaseStartFaction = "combine"
 
 
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+NPC.IdleSounds = "ZBaseHunter.Idle"
+
+NPC.HearDistMult = 2 -- Hearing distance multiplier when this addon is enabled: https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
+NPC.HearDangerSounds = "ZBaseHunter.HearSound"
+
+
+NPC.ForceAvoidDanger = true -- Force this NPC to avoid dangers such as grenades
+NPC.SeeDangerSounds = "ZBaseHunter.SeeDanger" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
+
+
+NPC.FootStepSounds = "ZBaseHunter.Step"
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 end

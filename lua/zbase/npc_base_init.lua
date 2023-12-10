@@ -263,7 +263,8 @@ NPC.GrenadeReleaseTime = 0.85 -- Time until grenade leaves the hand
 NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the grenade on
 NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin units or something idfk
 
---[[1
+
+--[[
 ==================================================================================================
                                            SNPC ONLY
 ==================================================================================================
@@ -312,7 +313,7 @@ NPC.Fly_GravGunPuntForceMult = 1 -- How much should the flying SNPC be affected 
 --]]
 
 
-NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+NPC.MuteDefaultVoice = true -- Mute all default voice sounds emitted by this NPC
 
 
 -- Sounds (Use sound scripts to alter pitch and level and such!)
@@ -346,6 +347,11 @@ NPC.HearDangerSounds = ""
 
 
 NPC.FootStepSounds = "ZBase.Step" -- Footstep sound
+
+
+-- Footstep timer (if active)
+NPC.FootStepSoundDelay_Walk = 0.5 -- Step cooldown when walking
+NPC.FootStepSoundDelay_Run = 0.3 -- Step cooldown when running
 
 
 -- Sound cooldowns {min, max}
@@ -389,6 +395,7 @@ end
 
     -- Timer based foot steps
 function NPC:FootStepTimer()
+    if !self:IsMoving() then return end
     if self.HasEngineFootSteps then return end
 
     
@@ -400,12 +407,12 @@ function NPC:FootStepTimer()
     if act == ACT_RUN then
 
         -- Run animation, do faster steps
-        self.NextFootStepTimer = CurTime()+0.3
+        self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Run
 
     else
 
         -- Walk animation probably, do slower steps
-        self.NextFootStepTimer = CurTime()+0.5
+        self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Walk
 
     end
 end

@@ -68,6 +68,9 @@ NPC.OnMeleeSound_Chance = 3
 NPC.OnRangeSound_Chance = 3
 
 
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 end

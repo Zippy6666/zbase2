@@ -20,6 +20,9 @@ NPC.BloodColor = BLOOD_COLOR_ZOMBIE -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_CO
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER
 
 
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
     if ZBCVAR.ZombieHeadcrabs:GetBool() then

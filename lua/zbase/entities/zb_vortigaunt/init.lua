@@ -17,6 +17,15 @@ NPC.MeleeDamage_Delay = 0.5
 NPC.MeleeAttackAnimationSpeed = 1.25
 
 
+-- Dialogue sounds
+-- The NPCs will face each other as if they are talking
+NPC.Dialogue_Question_Sounds = "ZBaseVortigaunt.Question" -- Dialogue questions, emitted when the NPC starts talking to another NPC
+NPC.Dialogue_Answer_Sounds = "ZBaseVortigaunt.Answer" -- Dialogue answers, emitted when the NPC is spoken to
+
+
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+
+
 --]]==============================================================================================]]
     -- Called when the NPC is created --
 function NPC:CustomInitialize()

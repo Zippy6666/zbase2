@@ -57,6 +57,9 @@ NPC.Dialogue_Answer_Sounds = "ZBaseKleiner.Answer" -- Dialogue answers, emitted 
 NPC.HearDangerSounds = "ZBaseKleiner.HearDanger"
 
 
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 

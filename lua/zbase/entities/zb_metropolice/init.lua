@@ -33,7 +33,6 @@ NPC.KeyValues = {weapondrawn="1"}
 
 
 NPC.AlertSounds = "ZBaseMetrocop.Alert" -- Sounds emitted when an enemy is seen for the first time
-NPC.IdleSounds = "ZBaseMetrocop.Idle" -- Sounds emitted while there is no enemy
 NPC.KilledEnemySounds = "ZBaseMetrocop.KillEnemy" -- Sounds emitted when the NPC kills an enemy
 
 
@@ -49,6 +48,9 @@ NPC.HearDangerSounds = "ZBaseMetrocop.HearSound"
 
 
 NPC.FootStepSounds = "ZBaseMetrocop.Step" -- Footstep sound
+
+
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
 
 local ShouldHaveRadioSound = {
