@@ -80,17 +80,6 @@ NPC.Gender = ZBASE_MALE
 --]]
 
 
--- Movement activity override
--- Will override the movement animations when the NPC is in the given state
--- https://wiki.facepunch.com/gmod/Enums/ACT
--- https://wiki.facepunch.com/gmod/Enums/NPC_STATE
-NPC.MoveActivityOverride = {
-    -- [NPC_STATE_IDLE] = ACT_WALK, -- In idle
-    -- [NPC_STATE_ALERT] = ACT_RUN, -- When alert, for example, after combat
-    -- [NPC_STATE_COMBAT] = ACT_RUN, -- In combat
-}
-
-
 NPC.CanPatrol = true -- Use base patrol behaviour
 NPC.CanJump = true -- Can the NPC jump?
 
@@ -316,14 +305,6 @@ NPC.Fly_Decelerate = 15 -- Flying movement decelerate speed
 NPC.Fly_GravGunPuntForceMult = 1 -- How much should the flying SNPC be affected by the gravity gun push attack?
 
 
--- Movement activity override for flying snpcs https://wiki.facepunch.com/gmod/Enums/ACT
-NPC.Fly_MovementAnims = {
-    [NPC_STATE_IDLE] = false,
-    [NPC_STATE_ALERT] = false,
-    [NPC_STATE_COMBAT] = false,
-}
-
-
 --[[
 ==================================================================================================
                                            SOUNDS
@@ -364,7 +345,7 @@ NPC.Dialogue_Answer_Sounds = "" -- Dialogue answers, emitted when the NPC is spo
 NPC.HearDangerSounds = ""
 
 
-NPC.FootStepSounds = "" -- Footstep sound
+NPC.FootStepSounds = "ZBase.Step" -- Footstep sound
 
 
 -- Sound cooldowns {min, max}
@@ -408,6 +389,9 @@ end
 
     -- Timer based foot steps
 function NPC:FootStepTimer()
+    if self.HasEngineFootSteps then return end
+
+    
     self:EmitSound(self.FootStepSounds)
 
 
@@ -431,6 +415,7 @@ end
     -- Not all NPCs do this
 function NPC:OnEngineFootStep()
     self:EmitSound(self.FootStepSounds)
+    self.HasEngineFootSteps = true
 end
 
 

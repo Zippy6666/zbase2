@@ -20,7 +20,6 @@ NPC.MeleeAttackAnimations = {"meleeattack01"}
 -- Dialogue sounds
 -- The NPCs will face each other as if they are talking
 NPC.Dialogue_Question_Sounds = "ZBaseOdessa.Question" -- Dialogue questions, emitted when the NPC starts talking to another NPC
-NPC.Dialogue_Answer_Sounds = "ZBaseOdessa.Answer" -- Dialogue answers, emitted when the NPC is spoken to
 
 
 NPC.HasArmor = {

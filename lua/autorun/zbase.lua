@@ -225,6 +225,23 @@ sound.Add( {
 } )
 
 
+sound.Add({
+    name = "ZBase.Step",
+	channel = CHAN_AUTO,
+	volume = 0.7,
+	level = 80,
+	pitch = {90, 110},
+	sound = {
+        "npc/footsteps/hardboot_generic1.wav",
+        "npc/footsteps/hardboot_generic2.wav",
+        "npc/footsteps/hardboot_generic3.wav",
+        "npc/footsteps/hardboot_generic4.wav",
+        "npc/footsteps/hardboot_generic5.wav",
+        "npc/footsteps/hardboot_generic6.wav",
+        "npc/footsteps/hardboot_generic8.wav",
+    },
+})
+
 
 --[[
 ======================================================================================================================================================

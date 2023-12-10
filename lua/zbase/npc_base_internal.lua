@@ -250,11 +250,19 @@ function NPC:ZBaseThink()
     end
 
 
-    -- Movement animation override
-    if self:IsMoving() then
-        self:DoCustomMoveAnim()
-        self:DoMoveSpeed()
-    end
+    -- Movement activity override
+    -- Will override the movement animations when the NPC is in the given state
+    -- https://wiki.facepunch.com/gmod/Enums/ACT
+    -- https://wiki.facepunch.com/gmod/Enums/NPC_STATE
+    -- NPC.MoveActivityOverride = {
+    --     -- [NPC_STATE_IDLE] = ACT_WALK, -- In idle
+    --     -- [NPC_STATE_ALERT] = ACT_RUN, -- When alert, for example, after combat
+    --     -- [NPC_STATE_COMBAT] = ACT_RUN, -- In combat
+    -- }
+    -- if self:IsMoving() then
+    --     self:DoCustomMoveAnim()
+    --     self:DoMoveSpeed()
+    -- end
 
 
     -- Handle danger
@@ -592,12 +600,12 @@ function NPC:FullReset()
 end
 
 
-function NPC:DoCustomMoveAnim()
-    local cusMoveAnim = self.MoveActivityOverride[self:GetNPCState()]
-    if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
-        self:SetMovementActivity(cusMoveAnim)
-    end
-end
+-- function NPC:DoCustomMoveAnim()
+--     local cusMoveAnim = self.MoveActivityOverride[self:GetNPCState()]
+--     if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
+--         self:SetMovementActivity(cusMoveAnim)
+--     end
+-- end
 
 
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)       
