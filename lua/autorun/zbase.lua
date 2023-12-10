@@ -366,7 +366,6 @@ local function NPCsInherit()
         local function RecursiveInherit( inherit_class )
             if !ZBaseNPCs[inherit_class] then return end -- Tried inheriting from nonexistant npc
 
-
             for k, v in pairs(ZBaseNPCs[inherit_class]) do
                 if t[k] == nil then 
 
@@ -374,12 +373,12 @@ local function NPCsInherit()
                 end
             end
 
-
             local new_inherit_class = ZBaseNPCs[inherit_class].Inherit
             if !(new_inherit_class == "npc_zbase" && inherit_class == "npc_zbase") then
                 RecursiveInherit( new_inherit_class )
             end
         end
+        RecursiveInherit( t.Inherit )
 
 
         if SERVER then

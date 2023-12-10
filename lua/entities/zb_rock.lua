@@ -29,6 +29,7 @@ ENT.OnHitDamageType = DMG_GENERIC -- Projectile damage type on hit
 
 --]]=================================================================================================================================]]
 function ENT:PostInit()
+    self.HitCount = 0
 end
 --]]=================================================================================================================================]]
 function ENT:PhysInit( phys )
@@ -36,6 +37,12 @@ end
 --]]=================================================================================================================================]]
 function ENT:OnHit( ent, data )
     SafeRemoveEntityDelayed(self, 10)
+
+    if data.Speed >= 500 then
+        self.OnHitDamage = 10
+    else
+        self.OnHitDamage = false
+    end
 end
 --]]==============================================================================================]]
 function ENT:OnGravityGunPunt()
