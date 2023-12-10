@@ -295,7 +295,7 @@ function NPC:ZBaseThink()
     end
 
 
-    if self:IsMoving() && self.NextFootStepTimer < CurTime() then
+    if !GetConVar("ai_disabled"):GetBool() && self.NextFootStepTimer < CurTime() then
         self:FootStepTimer()
     end
 
@@ -621,6 +621,7 @@ end
 
 
 ZBase_DontSpeakOverThisSound = false
+ZBaseSpeakingSquads = {}
 
 
 local SoundIndexes = {}
@@ -654,16 +655,15 @@ function NPC:OnEmitSound( data )
     end
 
 
-    -- Mute default "engine" voice
+    -- Mute default "engine" voice when we should
     if !ZBase_EmitSoundCall
-    && SERVER
-    && self.MuteDefaultVoice
+    && (self.MuteDefaultVoice or self:NearbyAllySpeaking() or self.IsSpeaking)
     && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
         return false
     end
 
 
-        -- Avoid sound repitition --
+    -- Avoid sound repitition
     local sndTbl = sound.GetProperties(data.OriginalSoundName)
 
     if sndTbl && istable(sndTbl.sound) && table.Count(sndTbl.sound) > 1 && ZBase_EmitSoundCall then
@@ -708,23 +708,27 @@ function NPC:OnEmitSound( data )
     end
 
 
-    -- Make sure squad doesn't speak over each other
-    local squad = self:GetKeyValues().squadname
-    if squad != "" && ZBase_DontSpeakOverThisSound then
-        ZBaseSpeakingSquads[squad] = self.TempSoundCvar or sndVarName or true
-
-        timer.Create("ZBaseUnmute_"..squad, SoundDuration(data.SoundName), 1, function()
-            ZBaseSpeakingSquads[squad] = nil
-        end)
-    end
-
-
+    -- Garbage variable
     if sndVarName then
         self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
     end
 
 
+    -- CustomOnSoundEmitted
     self:CustomOnSoundEmitted( data, SoundDuration(data.SoundName), sndVarName )
+
+
+    -- Determine that if we are speaking
+    if data.Channel == CHAN_VOICE then
+        self.IsSpeaking = true
+        self.IsSpeaking_SoundVar = sndVarName
+
+        timer.Create("ZBaseStopSpeaking"..self:EntIndex(), SoundDuration(data.SoundName), 1, function()
+            if IsValid(self) then
+                self.IsSpeaking = false
+            end
+        end)
+    end
 
 
     if altered then
@@ -733,22 +737,25 @@ function NPC:OnEmitSound( data )
 end
 
 
-function NPC:SquadMemberIsSpeaking( soundList )
-    local squad = self:SquadName()
-    if squad == "" then return end
+function NPC:NearbyAllySpeaking( soundList )
+    if self.Dead then return false end -- Otherwise they might not do their death sounds
 
 
-    local squadSpeakSndVar = ZBaseSpeakingSquads[squad] or false
+    for _, ally in ipairs(self:GetNearbyAllies(850)) do
+        if !ally.IsSpeaking then continue end
 
 
-    if soundList then
-        for _, v in ipairs(soundList) do
-            if v == squadSpeakSndVar then
-                return v
+        if !istable(soundList) then
+
+            return true
+
+        elseif istable(soundList) then
+            for _, v in ipairs(soundList) do
+                if v == ally.IsSpeaking_SoundVar then
+                    return true
+                end
             end
         end
-    else
-        return squadSpeakSndVar
     end
 
 
@@ -790,7 +797,7 @@ end
 
 
 function NPCB.DoIdleSound:Delay( self )
-    if self:SquadMemberIsSpeaking({"IdleSounds"}) or math.random(1, self.IdleSound_Chance)==1 then
+    if self:NearbyAllySpeaking({"IdleSounds"}) or math.random(1, self.IdleSound_Chance)==1 then
         return ZBaseRndTblRange(self.IdleSoundCooldown)
     end
 end
@@ -823,7 +830,7 @@ end
 
 
 function NPCB.DoIdleEnemySound:Delay( self )
-    if self:SquadMemberIsSpeaking() then
+    if self:NearbyAllySpeaking() then
         return ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown)
     end
 end
@@ -862,7 +869,7 @@ end
 
 
 function NPCB.Dialogue:Delay( self )
-    if self:SquadMemberIsSpeaking() or self.HavingConversation or math.random(1, self.IdleSound_Chance)==1 then
+    if self:NearbyAllySpeaking() or self.HavingConversation or math.random(1, self.IdleSound_Chance)==1 then
         return ZBaseRndTblRange(self.IdleSoundCooldown)
     end
 end
@@ -1970,10 +1977,14 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     end
 
 
+    self.IsSpeaking = false
+
+
     -- Death sound
     if !self.DoingDeathAnim then
         self:EmitSound(self.DeathSounds)
     end
+
 
     -- Ally death reaction
     local ally = self:GetNearestAlly(600)
@@ -2004,11 +2015,12 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
         rag = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
     end
 
-    
+
     self:CustomOnDeath( dmg, hit_gr, rag )
 
 
     self:SetShouldServerRagdoll(false)
+    self:SetNPCState(NPC_STATE_DEAD)
     self:Remove()
 end
 
@@ -2364,7 +2376,7 @@ function NPC:DoNewEnemy()
             self:CancelConversation()
 
 
-            if !self:SquadMemberIsSpeaking({"AlertSounds"}) then
+            if !self:NearbyAllySpeaking({"AlertSounds"}) then
                 self:EmitSound_Uninterupted(self.AlertSounds)
                 self.NextAlertSound = CurTime() + ZBaseRndTblRange(self.AlertSoundCooldown)
                 ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
@@ -2380,7 +2392,7 @@ function NPC:DoNewEnemy()
 
             -- Enemy lost
             if !IsValid(self:GetEnemy())
-            && !self:SquadMemberIsSpeaking( {"LostEnemySounds"} ) then
+            && !self:NearbyAllySpeaking( {"LostEnemySounds"} ) then
                 self:EmitSound_Uninterupted(self.LostEnemySounds)
             end
         end)

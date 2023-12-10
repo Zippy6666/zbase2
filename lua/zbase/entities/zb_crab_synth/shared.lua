@@ -16,6 +16,19 @@ NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 --]]==============================================================================================]]
 sound.Add({
+    name = "ZBaseCrabSynth.Step",
+	channel = CHAN_AUTO,
+	volume = 0.7,
+	level = 90,
+	pitch = {120, 125},
+	sound = {
+        "npc/crabsynth/cs_step01.wav",
+        "npc/crabsynth/cs_step02.wav",
+        "npc/crabsynth/cs_step03.wav",
+    },
+})
+--]]==============================================================================================]]
+sound.Add({
     name = "ZBaseCrabSynth.Idle",
 	channel = CHAN_VOICE,
 	volume = 0.9,

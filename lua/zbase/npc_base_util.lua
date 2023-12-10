@@ -417,23 +417,36 @@ function NPC:IsAlly( ent )
 end
 
 
-    -- Get the nearest allied within a in a certain radius
-    -- Returns nil if none was found
-function NPC:GetNearestAlly( radius )
-    local mindist
-    local ally
+    -- Get nearby allies within a in a certain radius
+    -- Returns an empty table if none was found
+function NPC:GetNearbyAllies( radius )
+    local allies = {}
 
     for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius)) do
         if v == self then continue end
         if !v:IsNPC() then continue end
 
         if self:IsAlly(v) then
-            local dist = self:GetPos():DistToSqr(v:GetPos())
+            table.insert(allies, v)
+        end
+    end
 
-            if !mindist or dist < mindist then
-                mindist = dist
-                ally = v
-            end
+    return allies
+end
+
+
+    -- Get the nearest allied within a in a certain radius
+    -- Returns nil if none was found
+function NPC:GetNearestAlly( radius )
+    local mindist
+    local ally
+
+    for _, v in ipairs(self:GetNearbyAllies(radius)) do
+        local dist = self:GetPos():DistToSqr(v:GetPos())
+
+        if !mindist or dist < mindist then
+            mindist = dist
+            ally = v
         end
     end
 

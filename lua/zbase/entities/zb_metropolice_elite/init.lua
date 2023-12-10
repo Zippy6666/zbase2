@@ -23,14 +23,9 @@ NPC.HasArmor = {
     [HITGROUP_HEAD] = true,
 }
 
-        -- CUSTOM SOUNDS --
-        -- Use sound scripts to alter pitch and level etc..
 
 NPC.MuteDefaultVoice = true -- Mute all default voice sounds emitted by this NPC
-NPC.IdleSound_OnlyNearAllies = true -- Only do IdleSounds if there is another NPC in the same faction nearby
-
 NPC.AlertSounds = "ZBaseElitePolice.Alert" -- Sounds emitted when an enemy is seen for the first time
-NPC.Idle_HasEnemy_Sounds = "ZBaseElitePolice.IdleEnemy" -- Sounds emitted while there is an enemy
 NPC.PainSounds = "ZBaseElitePolice.Pain" -- Sounds emitted on hurt
 NPC.DeathSounds = "ZBaseElitePolice.Death" -- Sounds emitted on death
 NPC.KilledEnemySounds = "ZBaseElitePolice.KilledEnemy" -- Sounds emitted when the NPC kills an enemy

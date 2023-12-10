@@ -18,6 +18,15 @@ NPC.m_iPlayerAggression = 1
 NPC.m_eBeamPower = 2
 
 
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+
+NPC.FootStepSounds = "NPC_Stalker.FootstepLeft"
+
+-- Footstep timer (if active)
+NPC.FootStepSoundDelay_Walk = 0.8 -- Step cooldown when walking
+NPC.FootStepSoundDelay_Run = 0.8 -- Step cooldown when running
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 end

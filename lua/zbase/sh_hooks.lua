@@ -445,7 +445,7 @@ if CLIENT then
         local Eyes = net.ReadTable()
         
         
-        print("ZBaseAddGlowEyes", LocalPlayer())
+        -- print("ZBaseAddGlowEyes", LocalPlayer())
         
 
         if IsValid(Ent) then
@@ -474,7 +474,7 @@ if SERVER then
         if IsValid(Ent) then
             ply.NPCsWithGlowEyes[Ent:EntIndex()] = true
             
-            print("ZBaseAddGlowEyes_Success", ply, Ent, "SUCCESS")
+            -- print("ZBaseAddGlowEyes_Success", ply, Ent, "SUCCESS")
 
             Ent:CallOnRemove("NPCsWithGlowEyesRemove"..ply:EntIndex(), function()
                 if ply.NPCsWithGlowEyes then

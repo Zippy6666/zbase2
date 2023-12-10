@@ -260,7 +260,6 @@ if !ZBaseUnresetablesDefined then
     ZBaseNPCInstances = {}
     ZBaseNPCInstances_NonScripted = {}
     ZBaseBehaviourTimerFuncs = {}
-    ZBaseSpeakingSquads = {}
     ZBaseUnresetablesDefined = true
 end
 

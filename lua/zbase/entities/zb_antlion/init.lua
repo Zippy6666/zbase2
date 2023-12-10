@@ -21,6 +21,8 @@ NPC.ZBaseStartFaction = "antlion"
 NPC.GibMaterial = false
 NPC.GibParticle = "AntlionGib"
 
+NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 
