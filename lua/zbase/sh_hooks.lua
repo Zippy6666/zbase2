@@ -517,6 +517,59 @@ end)
 
 --[[
 ======================================================================================================================================================
+                                           FOLLOW HALO
+======================================================================================================================================================
+--]]
+
+if SERVER then
+    util.AddNetworkString("ZBaseSetFollowHalo")
+end
+
+
+if CLIENT then
+    LocalPlayer().ZBaseFollowHaloEnts = LocalPlayer().ZBaseFollowHaloEnts or {}
+
+
+    local mat = Material("effects/blueflare1")
+
+
+    hook.Add( "RenderScreenspaceEffects", "ZBaseEffects", function()
+        for _, v in ipairs(LocalPlayer().ZBaseFollowHaloEnts) do
+            cam.Start3D()
+                local tr = util.TraceLine({
+                    start = v:GetPos()+Vector(0, 0, 50),
+                    endpos = v:GetPos()-Vector(0, 0, 400),
+                    mask = MASK_NPCWORLDSTATIC,
+                })
+
+
+                if tr.Hit then
+                    local wepCol = LocalPlayer():GetWeaponColor()
+                    local alpha = 60*(1.5+math.sin(CurTime()*3))
+                    local col = Color(alpha*wepCol.r, alpha*wepCol.g, alpha*wepCol.b)
+                    
+                    render.SetMaterial( mat )
+                    render.DrawQuadEasy( tr.HitPos+Vector(0, 0, 1), Vector(0, 0, 1), 75, 75, col, ( CurTime() * 75 ) % 360 )
+                end
+            cam.End3D()
+        end
+    end)
+
+
+    net.Receive("ZBaseSetFollowHalo", function()
+        local ent = net.ReadEntity()
+        local wepCol = LocalPlayer():GetWeaponColor()
+
+        table.insert(LocalPlayer().ZBaseFollowHaloEnts, ent)
+        ent:CallOnRemove("RemoveFromZBaseHaloEnts", function() table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent) end)
+
+        chat.AddText(Color(wepCol.r*255, wepCol.g*255, wepCol.b*255), ent:GetNWBool("ZBaseName").." started following you.")
+    end)
+end
+
+
+--[[
+======================================================================================================================================================
                                            OTHER
 ======================================================================================================================================================
 --]]
