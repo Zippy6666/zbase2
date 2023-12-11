@@ -108,6 +108,7 @@ NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
+NPC.NoWeapon_Scared = false -- Should it run away from the enemy if it doesn't have a weapon?
 
 --[[
 ==================================================================================================
