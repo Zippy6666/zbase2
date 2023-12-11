@@ -521,26 +521,27 @@ function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
 end
 
 
+function NPC:SetActivityIfAvailable( func, acts )
+    func = func or SetActivity
+
+    for _, act in ipairs(acts) do
+        local seq = self:SelectWeightedSequence(act)
+        if seq == -1 then continue end
+    
+        debugoverlay.Text(self:GetPos()+Vector(0,0,75), self:GetSequenceActivityName(seq), 0.1)
+        func(self, act)
+
+        return
+    end
+end
+
+
 function NPC:SetConditionalActivities()
 
+    if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) then
+        self:SetActivityIfAvailable(self.SetMovementActivity, {ACT_RUN_SCARED, ACT_RUN_PROTECTED, ACT_RUN_CROUCH})
+    end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
 end
 
 
@@ -564,7 +565,7 @@ local ReloadActs = {
 
 function NPC:AITick_Slow()
     local ene = self:GetEnemy()
-    local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
+    local IsAlert = IsAlert
     local IsCombat = self:GetNPCState() == NPC_STATE_COMBAT
 
 
@@ -591,7 +592,7 @@ function NPC:AITick_Slow()
     if IsValid(ene) && !self.EnemyVisible then
         self:MarkEnemyAsEluded()
 
-        if self.GotoEneLastKnownPosWhenEluded then
+        if self.GotoEneLastKnownPosWhenEluded && self:ShouldChase() then
             self:ForceGotoLastKnownPos()
         end
     end
@@ -654,21 +655,24 @@ function NPC:AITick_NonScripted()
     end
 
 
-    -- Don't take cover from enemy if we have a melee attack
-    -- Chase instead
-    if IsValid(ene) && self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
-    && self:Disposition(ene)==D_HT && self.BaseMeleeAttack then
-        self:SetSchedule(SCHED_CHASE_ENEMY)
+    -- Sees enemy, but shouldn't chase it, take cover from it instead
+    if self.EnemyVisible && !self:ShouldChase() && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) then
+        self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
+        debugoverlay.Cross(self:GetGoalPos(), 20, 2, Color( 0, 0, 255 ))
     end
 
 
     -- Run up to enemy to use melee weapons
-    if self:HasMeleeWeapon()
-    && (self:IsCurrentSchedule(SCHED_MOVE_TO_WEAPON_RANGE)
-    or self:IsCurrentSchedule(SCHED_ESTABLISH_LINE_OF_FIRE)
-    or self:IsCurrentSchedule(SCHED_COMBAT_FACE)) then
+    if self:HasMeleeWeapon() && self:ShouldChase() then
         self:SetSchedule(SCHED_CHASE_ENEMY)
     end
+end
+
+
+function NPC:ShouldChase()
+    if self.NoWeapon_Scared && !IsValid(self:GetActiveWeapon()) then return false end
+
+    return true
 end
 
 
@@ -777,14 +781,8 @@ function NPC:ForceGotoLastKnownPos()
     self:SetLastPosition(self:GetEnemyLastKnownPos())
     self:SetSchedule(SCHED_FORCED_GO_RUN)
     self.GotoEneLastKnownPosWhenEluded = false
+
     debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
-end
-
-
-function NPC:ShouldFear()
-    if self.NoWeapon_Scared && !IsValid(self:GetActiveWeapon()) then return true end
-
-    return false
 end
 
 
@@ -838,29 +836,35 @@ end
 
 
 function NPCB.Patrol:Run( self )
-    if self:GetNPCState() == NPC_STATE_ALERT then
-        -- Move to last known position, then patrol
-        if self:ZBaseDist(self:GetEnemyLastKnownPos(), {away=200}) && self.GotoEneLastKnownPosWhenEluded then
-            self:ForceGotoLastKnownPos()
-        else
-
-            self:SetSchedule(SCHED_PATROL_RUN)
+    local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
+    local Chase = self:ShouldChase()
 
 
-            -- Enemy was lost at this point
-            if self.DoEnemyLostSoundWhenLost && !self.EnemyDied then
-                self:LostEnemySound()
-                self:EmitSound_Uninterupted(self.LostEnemySounds)
-                self.DoEnemyLostSoundWhenLost = false
-                debugoverlay.Text(self:GetPos(), "enemy lost", 2)
-            end
+    if IsAlert && self:ZBaseDist(self:GetEnemyLastKnownPos(), {away=200}) && self.GotoEneLastKnownPosWhenEluded && Chase then
 
+        self:ForceGotoLastKnownPos()
+
+    elseif IsAlert && Chase then
+
+        self:SetSchedule(SCHED_PATROL_RUN)
+
+
+        -- Enemy was lost at this point
+        if self.DoEnemyLostSoundWhenLost && !self.EnemyDied then
+            self:LostEnemySound()
+            self:EmitSound_Uninterupted(self.LostEnemySounds)
+            self.DoEnemyLostSoundWhenLost = false
+            debugoverlay.Text(self:GetPos(), "enemy lost", 2)
         end
+
     else
+
         self:SetSchedule(SCHED_PATROL_WALK)
+
     end
+
     
-    ZBaseDelayBehaviour(self:GetNPCState() == NPC_STATE_ALERT && math.random(3, 6) or math.random(8, 15))
+    ZBaseDelayBehaviour(IsAlert && math.random(3, 6) or math.random(8, 15))
 end
 
 

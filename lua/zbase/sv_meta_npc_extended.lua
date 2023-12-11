@@ -25,14 +25,11 @@ local VJ_Translation_Flipped = {
 
 
 function NPC:ZBaseSetMutualRel( ent, rel )
-    local ZBaseNPCRel = (rel==D_HT && self:ShouldFear() && D_FR) or rel
-    print("ZBaseNPCRel", ZBaseNPCRel)
-
-    self:AddEntityRelationship(ent, ZBaseNPCRel, 99)
+    self:AddEntityRelationship(ent, rel, 99)
 
 
     if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
-        self:AddEntityRelationship(ent.Bullseye, ZBaseNPCRel, 99)
+        self:AddEntityRelationship(ent.Bullseye, rel, 99)
     end
 
 

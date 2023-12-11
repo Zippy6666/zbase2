@@ -174,7 +174,7 @@ if SERVER then
         ply.ZBaseFaction = faction
 
         for _, v in ipairs(ZBaseRelationshipEnts) do
-            v:Relationships()
+            v:ZBaseUpdateRelationships()
         end
     end)
 
