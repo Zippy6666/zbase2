@@ -24,20 +24,26 @@ local VJ_Translation_Flipped = {
 }
 
 
-function NPC:SetRelationship( ent, rel )
-    self:AddEntityRelationship(ent, rel, 99)
+function NPC:ZBaseSetMutualRel( ent, rel )
+    local ZBaseNPCRel = (rel==D_HT && self:ShouldFear() && D_FR) or rel
+    print("ZBaseNPCRel", ZBaseNPCRel)
+
+    self:AddEntityRelationship(ent, ZBaseNPCRel, 99)
+
 
     if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
-        self:AddEntityRelationship(ent.Bullseye, rel, 99)
+        self:AddEntityRelationship(ent.Bullseye, ZBaseNPCRel, 99)
     end
 
+
+    -- If recipient is not a zbase npc, make it feel the same way about
     if !ent.IsZBaseNPC && ent:IsNPC() then
         ent:AddEntityRelationship(self, rel, 99)
     end
 end
 
 
-function NPC:ZBase_VJFriendly( ent )
+function NPC:ZBaseVJFriendly( ent )
     if !ent.IsVJBaseSNPC then return false end
 
     for _, v in ipairs(ent.VJ_NPC_Class) do
@@ -48,32 +54,35 @@ function NPC:ZBase_VJFriendly( ent )
 end
 
 
-function NPC:Relationship( ent )
+function NPC:ZBaseDecideRelationship( ent )
     -- Me or the ent has faction neutral, like
     local myFaction = self.ZBaseFaction
     local theirFaction = ent.ZBaseFaction
 
+
     if myFaction == "neutral" or theirFaction=="neutral" then
-        self:SetRelationship( ent, D_LI )
+        self:ZBaseSetMutualRel( ent, D_LI )
         return
     end
+
 
     -- My faction is none, hate everybody
     if myFaction == "none" then
-        self:SetRelationship( ent, D_HT )
+        self:ZBaseSetMutualRel( ent, D_HT )
         return
     end
 
+
     -- Are their factions the same?
-    if myFaction == theirFaction or self:ZBase_VJFriendly( ent ) then
-        self:SetRelationship( ent, D_LI )
+    if myFaction == theirFaction or self:ZBaseVJFriendly( ent ) then
+        self:ZBaseSetMutualRel( ent, D_LI )
     else
-        self:SetRelationship( ent, D_HT )
+        self:ZBaseSetMutualRel( ent, D_HT )
     end
 end
 
 
-function NPC:Relationships()
+function NPC:ZBaseUpdateRelationships()
     if !self.IsZBaseNPC then return end
 
     -- Set my VJ class
@@ -83,11 +92,32 @@ function NPC:Relationships()
 
     -- Update relationships between all NPCs
     for _, v in ipairs(ZBaseRelationshipEnts) do
-        if v != self then self:Relationship(v) end
+        if v != self then self:ZBaseDecideRelationship(v) end
     end
 
     -- Update relationships with players
     for _, v in ipairs(player.GetAll()) do
-        self:Relationship(v)
+        self:ZBaseDecideRelationship(v)
     end
+end
+
+
+--[[
+======================================================================================================================================================
+                                           SCHEDULE STUFF
+======================================================================================================================================================
+--]]
+
+
+ZBase_OldSetSchedule = ZBase_OldSetSchedule or NPC.SetSchedule
+
+
+function NPC:SetSchedule( sched )
+    if self.IsZBaseNPC && self:ShouldPreventSetSched( sched ) && sched != SCHED_FORCED_GO then return end
+
+    if self.SNPCType == ZBASE_SNPCTYPE_FLY then
+        self:AerialSetSchedule(sched)
+    end
+
+    return ZBase_OldSetSchedule(self, sched)
 end
