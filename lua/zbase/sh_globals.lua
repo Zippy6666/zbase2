@@ -64,7 +64,7 @@ function ZBaseSetFaction( ent, newFaction )
     ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
 
     for _, v in ipairs(ZBaseRelationshipEnts) do
-        v:Relationships()
+        v:ZBaseUpdateRelationships()
     end
 end
 

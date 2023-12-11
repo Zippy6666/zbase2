@@ -53,17 +53,11 @@ end
 function ENT:GetCurrentCustomSched(checkNavigator)
 	checkNavigator = true -- Test, always check navigator
 
-	-- if isstring(self.GetBetterSchedule_CheckSched) then
-	-- return self.GetBetterSchedule_CheckSched
-	-- end
-
-
 	if checkNavigator && IsValid(self.Navigator) then
 		return self.Navigator.CurrentSchedule && self.Navigator.CurrentSchedule.DebugName
 	else
 		return self.CurrentSchedule && self.CurrentSchedule.DebugName
 	end
-
 end
 --]]======================================================================================================]]
 function ENT:IsCurrentCustomSched( sched, checkNavigator )
