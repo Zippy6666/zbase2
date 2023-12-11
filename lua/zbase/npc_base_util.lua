@@ -424,7 +424,7 @@ function NPC:GetNearbyAllies( radius )
 
     for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius)) do
         if v == self then continue end
-        if !v:IsNPC() then continue end
+        if !v:IsNPC() && !v:IsPlayer() then continue end
 
         if self:IsAlly(v) then
             table.insert(allies, v)

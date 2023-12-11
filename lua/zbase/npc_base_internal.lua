@@ -62,6 +62,7 @@ function NPC:ZBaseInit()
     self.NextFlinch = CurTime()
     self.NextHealthRegen = CurTime()
     self.NextFootStepTimer = CurTime()
+    self.NextTryFollow = CurTime() + math.Rand(2, 4)
     self.EnemyVisible = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = HITGROUP_GENERIC
@@ -261,21 +262,6 @@ function NPC:ZBaseThink()
     if self.DoingPlayAnim then
         self:DoPlayAnim()
     end
-
-
-    -- Movement activity override
-    -- Will override the movement animations when the NPC is in the given state
-    -- https://wiki.facepunch.com/gmod/Enums/ACT
-    -- https://wiki.facepunch.com/gmod/Enums/NPC_STATE
-    -- NPC.MoveActivityOverride = {
-    --     -- [NPC_STATE_IDLE] = ACT_WALK, -- In idle
-    --     -- [NPC_STATE_ALERT] = ACT_RUN, -- When alert, for example, after combat
-    --     -- [NPC_STATE_COMBAT] = ACT_RUN, -- In combat
-    -- }
-    -- if self:IsMoving() then
-    --     self:DoCustomMoveAnim()
-    --     self:DoMoveSpeed()
-    -- end
 
 
     -- Handle danger
@@ -524,24 +510,37 @@ end
 function NPC:SetActivityIfAvailable( func, acts )
     func = func or SetActivity
 
+
+    local wep = self:GetActiveWeapon()
+    local holdtype = IsValid(wep) && wep:GetHoldType()
+
+
     for _, act in ipairs(acts) do
         local seq = self:SelectWeightedSequence(act)
+        local actName = self:GetSequenceActivityName(seq)
+
         if seq == -1 then continue end
     
-        debugoverlay.Text(self:GetPos()+Vector(0,0,75), self:GetSequenceActivityName(seq), 0.1)
+
+        debugoverlay.Text(self:GetPos()+Vector(0,0,75), actName, 0.1)
         func(self, act)
 
-        return
+
+        return true
     end
+
+
+    return false
 end
 
 
 function NPC:SetConditionalActivities()
+    local NoWep = !IsValid(self:GetActiveWeapon())
+
 
     if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) then
-        self:SetActivityIfAvailable(self.SetMovementActivity, {ACT_RUN_SCARED, ACT_RUN_PROTECTED, ACT_RUN_CROUCH})
+        self:SetActivityIfAvailable(self.SetMovementActivity, {ACT_RUN_PROTECTED, ACT_RUN_CROUCH})
     end
-
 end
 
 
@@ -564,6 +563,9 @@ local ReloadActs = {
 
 
 function NPC:AITick_Slow()
+    if GetConVar("ai_disabled"):GetBool() then return end
+
+
     local ene = self:GetEnemy()
     local IsAlert = IsAlert
     local IsCombat = self:GetNPCState() == NPC_STATE_COMBAT
@@ -623,10 +625,57 @@ function NPC:AITick_Slow()
         self:SetNPCState(NPC_STATE_IDLE)
         self.NextStopAlert = nil
     end
+
+
+    -- Start following players
+    if !IsValid(self.PlayerToFollow) && self.NextTryFollow < CurTime() then
+        self:StartFollowingNearbyPlayer()
+        self.NextTryFollow = CurTime() + math.Rand(2, 4)
+    end
+
+
+    -- Keep following players
+    if IsValid(self.PlayerToFollow) && !GetConVar("ai_ignoreplayers"):GetBool()
+    && self:ZBaseDist(self.PlayerToFollow, {away=300}) then
+        local pos = self.PlayerToFollow:GetPos()
+
+        self:SetLastPosition(pos)
+        self:NavSetGoalTarget(self.PlayerToFollow, (self:GetPos()-pos):GetNormalized()*125)
+
+        if !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
+            self:SetSchedule(SCHED_FORCED_GO_RUN)
+        end
+    end
+end
+
+
+function NPC:CurrentlyFollowingPlayer()
+    return IsValid(self.PlayerToFollow) && self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
+end
+
+
+function NPC:StartFollowingNearbyPlayer( ply )
+    if IsValid(self.PlayerToFollow) then return end
+
+    for _, ply in ipairs(player.GetAll()) do
+        if !self:IsAlly(ply) then continue end
+        if !self:ZBaseDist(ply, {within=200}) then continue end
+
+        self.PlayerToFollow = ply
+
+        net.Start("ZBaseSetFollowHalo")
+        net.WriteEntity(self)
+        net.Send(self.PlayerToFollow)
+
+        break
+    end
 end
 
 
 function NPC:AITick_NonScripted()
+    if GetConVar("ai_disabled"):GetBool() then return end
+
+
     local ene = self:GetEnemy()
 
 
@@ -656,9 +705,8 @@ function NPC:AITick_NonScripted()
 
 
     -- Sees enemy, but shouldn't chase it, take cover from it instead
-    if self.EnemyVisible && !self:ShouldChase() && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) then
+    if self.EnemyVisible && !self:ShouldChase() && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) && !self:CurrentlyFollowingPlayer() then
         self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
-        debugoverlay.Cross(self:GetGoalPos(), 20, 2, Color( 0, 0, 255 ))
     end
 
 
@@ -671,6 +719,7 @@ end
 
 function NPC:ShouldChase()
     if self.NoWeapon_Scared && !IsValid(self:GetActiveWeapon()) then return false end
+    if self:CurrentlyFollowingPlayer() then return false end
 
     return true
 end
@@ -840,7 +889,11 @@ function NPCB.Patrol:Run( self )
     local Chase = self:ShouldChase()
 
 
-    if IsAlert && self:ZBaseDist(self:GetEnemyLastKnownPos(), {away=200}) && self.GotoEneLastKnownPosWhenEluded && Chase then
+    if IsValid(self.PlayerToFollow) then
+
+        self:SetSchedule(SCHED_ALERT_SCAN)
+
+    elseif IsAlert && self:ZBaseDist(self:GetEnemyLastKnownPos(), {away=200}) && self.GotoEneLastKnownPosWhenEluded && Chase then
 
         self:ForceGotoLastKnownPos()
 
@@ -1590,6 +1643,7 @@ function NPC:NearbyAllySpeaking( soundList )
 
 
     for _, ally in ipairs(self:GetNearbyAllies(850)) do
+        if ally:IsPlayer() then continue end
         if !ally.IsSpeaking then continue end
 
 
@@ -1725,16 +1779,14 @@ end
 
 function NPCB.Dialogue:Run( self )
     local ally = self:GetNearestAlly(350)
+    if !IsValid(ally) then return end
 
 
     local extraBehaviourDelay = 0
 
 
-    if IsValid(ally)
-    && ally.IsZBaseNPC
-    && !IsValid(ally:GetEnemy())
-    && !ally.HavingConversation
-    && self:Visible(ally)
+    -- Ally is zbase NPC:
+    if ally.IsZBaseNPC && !IsValid(ally:GetEnemy()) && !ally.HavingConversation && self:Visible(ally)
     && ally.Dialogue_Answer_Sounds != "" then
         self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
 
@@ -1772,6 +1824,11 @@ function NPCB.Dialogue:Run( self )
                 end)
             end
         end)
+    
+    -- Ally is player:
+    elseif ally:IsPlayer() && !GetConVar("ai_ignoreplayers"):GetBool() then
+        self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
+        self:Face(ally, self.InternalCurrentSoundDuration+0.2)
     end
 
 

@@ -20,8 +20,7 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             "SCHED_COMBINE_CHARGE_PLAYER",
             "SCHED_COMBINE_BURNING_STAND",
             "SCHED_COMBINE_AR2_ALTFIRE",
-            -- "SCHED_COMBINE_FORCED_GRENADE_THROW",
-            -- "SCHED_COMBINE_MOVE_TO_FORCED_GREN_LOS",
+            "SCHED_COMBINE_COMBAT_FACE",
         })
         
     end
