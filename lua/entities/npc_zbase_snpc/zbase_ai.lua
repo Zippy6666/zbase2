@@ -7,6 +7,7 @@
 function ENT:StartSchedule( sched )
     if self.SNPCType == ZBASE_SNPCTYPE_FLY then
         self:AerialSetSchedule(table.Copy(sched))
+		return
     end
 
 	self.CurrentSchedule = sched
@@ -50,24 +51,18 @@ function ENT:SelectSchedule( iNPCState )
 	self:NewSched( sched )
 end
 --]]======================================================================================================]]
-function ENT:GetCurrentCustomSched(checkNavigator)
-	checkNavigator = true -- Test, always check navigator
-
-	if checkNavigator && IsValid(self.Navigator) then
-		return self.Navigator.CurrentSchedule && self.Navigator.CurrentSchedule.DebugName
-	else
-		return self.CurrentSchedule && self.CurrentSchedule.DebugName
-	end
+function ENT:GetCurrentCustomSched()
+	return self.CurrentSchedule && self.CurrentSchedule.DebugName
 end
 --]]======================================================================================================]]
-function ENT:IsCurrentCustomSched( sched, checkNavigator )
-	return "ZSched"..sched == self:GetCurrentCustomSched(checkNavigator)
+function ENT:IsCurrentCustomSched( sched )
+	return "ZSched"..sched == self:GetCurrentCustomSched()
 end
 --]]======================================================================================================]]
 function ENT:DoingChaseFallbackSched(checkNavigator)
-	return self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_DoCover", checkNavigator)
-	or self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_MoveRandom", checkNavigator)
-	or self:IsCurrentCustomSched("CombatChase_CantReach_CoverEnemy", checkNavigator)
+	return self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_DoCover")
+	or self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_MoveRandom")
+	or self:IsCurrentCustomSched("CombatChase_CantReach_CoverEnemy")
 end
 --]]======================================================================================================]]
 function ENT:TooCloseForCombatChase()
@@ -218,9 +213,13 @@ function ENT:DoNPCState()
 	local ene = self:GetEnemy()
 
 
+	if self.SNPCType==ZBASE_SNPCTYPE_FLY && state==NPC_STATE_NONE then
+		self:SetNPCState(NPC_STATE_IDLE)
+	end
+
+
 	if !IsValid(ene) && self.LastNPCState==NPC_STATE_COMBAT then
 		self:SetNPCState(NPC_STATE_ALERT)
-		print("SNPC slamming to alert")
 	end
 
 
@@ -228,53 +227,50 @@ function ENT:DoNPCState()
 end
 --]]======================================================================================================]]
 function ENT:RunAI( strExp )
-	if self.DoingPlayAnim or self.DoingAerialMoveAnim then
+	local CheckEnt = IsValid(self.Navigator) && self.Navigator or self
+
+
+	if CheckEnt.DoingPlayAnim then
 		return
 	end
 
 
-	self:DoNPCState()
+	if CheckEnt == self then
+		self:DoNPCState()
 
 
-	-- Check if waypoint has been 0,0,0 for some time
-	self:DetermineNavStuck()
+		-- Check if waypoint has been 0,0,0 for some time
+		self:DetermineNavStuck()
 
 
-	-- Stop, or replace schedules that shouldn't play right now
-	-- newsched == false -> stop schedule
-	-- newsched == nil -> do nothing
-	local newsched = self:GetBetterSchedule()
-	if newsched or newsched==false then
-		self:NewSched(newsched)
+		-- Stop, or replace schedules that shouldn't play right now
+		-- newsched == false -> stop schedule
+		-- newsched == nil -> do nothing
+		local newsched = self:GetBetterSchedule()
+		if newsched or newsched==false then
+			self:NewSched(newsched)
+		end
 	end
-
-
-	-- If we're running an Engine Side behaviour
-	-- then return true and let it get on with it.
-	-- if ( self:IsRunningBehavior() ) then
-	-- return true
-	-- end
 
 
 	-- If we're doing an engine schedule then return true
 	-- This makes it do the normal AI stuff.
-	if ( self:DoingEngineSchedule()
-	or (IsValid(self.Navigator) && self.Navigator:DoingEngineSchedule()) ) then
+	if ( CheckEnt:DoingEngineSchedule() ) then
 		return true
 	end
 
 
 	-- If we're currently running a schedule then run it.
-	if ( self.CurrentSchedule ) then
-		self:DoSchedule( self.CurrentSchedule )
+	if ( CheckEnt.CurrentSchedule ) then
+		CheckEnt:DoSchedule( CheckEnt.CurrentSchedule )
 	end
 
 
 	-- If we have no schedule (schedule is finished etc)
 	-- Then get the derived NPC to select what we should be doing
-	if !self.CurrentSchedule && !self.Navigator.CurrentSchedule then
+	if !CheckEnt.CurrentSchedule then
 
-		self:SelectSchedule()
+		CheckEnt:SelectSchedule()
 
 		-- Tell aerial base to follow the player directly instead of navigating if the enemy is visible
 		if self.SNPCType==ZBASE_SNPCTYPE_FLY

@@ -16,9 +16,6 @@ ENT.m_iClass = CLASS_NONE
 ENT.IsZBase_SNPC = true
 
 
-local modelsWithPhysics = {}
-
-
 --]]======================================================================================================]]
 function ENT:Initialize()
 	self:SetHullType(self.HullType or HULL_MEDIUM)
@@ -26,12 +23,14 @@ function ENT:Initialize()
 	self:SetSolid(SOLID_BBOX)
 	self:SetMoveType(MOVETYPE_STEP)
 
+
 	if self.SNPCType == ZBASE_SNPCTYPE_WALK then
 		self:CapabilitiesAdd(CAP_MOVE_GROUND)
 	elseif self.SNPCType == ZBASE_SNPCTYPE_FLY then
 		self:CapabilitiesAdd(CAP_MOVE_FLY)
 		self:SetNavType(NAV_FLY)
 	end
+
 
 	self.Bullseye = ents.Create("npc_bullseye")
 	self.Bullseye:SetPos(self:GetPos())
@@ -42,6 +41,11 @@ function ENT:Initialize()
 	self.Bullseye:Spawn()
 	self.Bullseye:Activate()
 
+
+	self:SNPCInitVars()
+end
+--]]======================================================================================================]]
+function ENT:SNPCInitVars()
 	self.NextDetermineNewSched = CurTime()
 	self.Move_AvoidSquadMembers = CurTime()
 	self.Aerial_NextMoveFromGroundCheck = CurTime()
@@ -53,49 +57,14 @@ function ENT:Initialize()
 	self.NextFaceHurtPos = CurTime()
 	self.NextGetBetterSchedule = CurTime()
 	self.NextSelectSchedule = CurTime()
-
-	local mdl = self:GetModel()
-	if modelsWithPhysics[self:GetModel()] == nil then
-		local phystest = ents.Create("prop_ragdoll")
-		phystest:SetModel(mdl)
-		phystest:Spawn()
-
-		modelsWithPhysics[mdl] = IsValid(phystest:GetPhysicsObject())
-
-		phystest:Remove()
-	end
-	self.ModelHasPhys = modelsWithPhysics[mdl]
 end
 --]]======================================================================================================]]
 function ENT:Think()
 	if ZBCVAR.NoThink:GetBool() then return end
 
 
-	-- Aerial movement
 	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
-	
-		self:Aerial_CalcVel()
-
-		
-        local ene = self:GetEnemy()
-        local seeEnemy = IsValid(ene) && self.EnemyVisible
-
-
-		if self.Aerial_CurrentDestination then
-        	self:Face( (self.Fly_FaceEnemy && seeEnemy && ene) or self.Aerial_CurrentDestination )
-		end
-
-
-		local vec = !GetConVar("ai_disabled"):GetBool() && self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed) or Vector()
-		if self.ShouldMoveFromGround then
-			vec = vec+Vector(0,0,35)
-		else
-			vec = vec+Vector(0,0,30)
-		end
-		self:SetLocalVelocity(vec)
-
-
-		self:AerialMoveAnim()
+		self:AerialThink()
 	end
 
 

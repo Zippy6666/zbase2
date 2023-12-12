@@ -294,17 +294,9 @@ function NPC:ZBaseThink()
 
     -- Sched debug
     if self.SchedDebug then
-        local ent = IsValid(self.Navigator) && self.Navigator or self
-        local sched = ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched()) or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
-        or self.AllowedCustomEScheds[ent:GetCurrentSchedule()] or "schedule "..tostring(ent:GetCurrentSchedule())
-
+        local sched = ZBaseSchedDebug(self)
         if sched then
             debugoverlay.Text(self:WorldSpaceCenter(), "sched: "..sched..", state: "..StrNPCStates[self:GetNPCState()], 0.13)
-
-            if self.Debug_ProhibitedCusESched then
-                -- MsgN("NPC ["..self:EntIndex().."] prohibited sched "..self.Debug_ProhibitedCusESched)
-                self.Debug_ProhibitedCusESched = false
-            end
         end
     end
 
@@ -2175,7 +2167,13 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
 
-    local boutaDie = self:Health()-dmg:GetDamage() <= 0 -- mf bouta die lmfao
+    local boutaDie = self:Health()-dmg:GetDamage() <= 0 -- mf bouta fng die lmfao
+
+
+    if boutaDie then
+        -- the brawn jameee
+        self.IsSpeaking = false
+    end
 
 
     if boutaDie && ShouldPreventGib[self:GetClass()] then
