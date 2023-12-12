@@ -20,3 +20,6 @@ NPC.Dialogue_Answer_Sounds = "ZBaseFemale.Answer" -- Dialogue answers, emitted w
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = "ZBaseFemale.HearSound"
+
+NPC.FollowPlayerSounds = "ZBaseFemale.Follow" -- Sounds emitted when the NPC starts following a player
+NPC.UnfollowPlayerSounds = "ZBaseFemale.Unfollow" -- Sounds emitted when the NPC stops following a player

@@ -82,7 +82,13 @@ end
 
 
 function ENT:EmitSound( snd, ... )
-	if self:GetNWBool("IsZBaseNPC") && snd == "" then return end
+    local IsZBaseNPC = self:GetNWBool("IsZBaseNPC")
+	if IsZBaseNPC && snd == "" then return end
+
+
+    if IsZBaseNPC then
+        self:CancelConversation()
+    end
 
 
 	ZBase_EmitSoundCall = true

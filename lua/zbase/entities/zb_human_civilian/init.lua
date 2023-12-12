@@ -64,6 +64,10 @@ NPC.Dialogue_Answer_Sounds = "ZBaseMale.Answer" -- Dialogue answers, emitted whe
 NPC.HearDangerSounds = "ZBaseMale.HearSound"
 
 
+NPC.FollowPlayerSounds = "ZBaseMale.Follow" -- Sounds emitted when the NPC starts following a player
+NPC.UnfollowPlayerSounds = "ZBaseMale.Unfollow" -- Sounds emitted when the NPC stops following a player
+
+
 NPC.OnMeleeSound_Chance = 2
 NPC.OnRangeSound_Chance = 3
 

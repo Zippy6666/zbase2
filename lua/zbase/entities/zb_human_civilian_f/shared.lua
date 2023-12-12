@@ -150,3 +150,22 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Melee", {
     "vo/npc/female01/getdown02.wav",
 })
 --]]==============================================================================================]]
+ZBaseCreateVoiceSounds("ZBaseFemale.Follow", {
+    "vo/npc/female01/leadtheway01.wav",
+    "vo/npc/female01/leadtheway02.wav",
+    "vo/npc/female01/okimready01.wav",
+    "vo/npc/female01/okimready02.wav",
+    "vo/npc/female01/okimready03.wav",
+    "vo/npc/female01/readywhenyouare01.wav",
+    "vo/npc/female01/readywhenyouare02.wav",
+    "vo/npc/female01/squad_follow03.wav",
+})
+--]]==============================================================================================]]
+ZBaseCreateVoiceSounds("ZBaseFemale.Unfollow", {
+    "vo/npc/female01/littlecorner01.wav",
+    "vo/npc/female01/squad_affirm01.wav",
+    "vo/npc/female01/squad_affirm02.wav",
+    "vo/npc/female01/squad_affirm03.wav",
+    "vo/npc/female01/squad_affirm04.wav",
+})
+--]]==============================================================================================]]

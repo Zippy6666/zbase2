@@ -26,6 +26,10 @@ NPC.Dialogue_Answer_Sounds = "ZBaseVortigaunt.Answer" -- Dialogue answers, emitt
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
 
+NPC.FollowPlayerSounds = "ZBaseVortigaunt.Follow" -- Sounds emitted when the NPC starts following a player
+NPC.UnfollowPlayerSounds = "ZBaseVortigaunt.Unfollow" -- Sounds emitted when the NPC stops following a player
+
+
 --]]==============================================================================================]]
     -- Called when the NPC is created --
 function NPC:CustomInitialize()

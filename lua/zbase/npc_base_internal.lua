@@ -643,7 +643,7 @@ function NPC:AITick_Slow()
 
 
     if IsValid(self.PlayerToFollow) && !self:IsAlly(self.PlayerToFollow) then
-        self:StopFollowingCurrentPlayer()
+        self:StopFollowingCurrentPlayer(true)
     end
 end
 
@@ -671,15 +671,21 @@ function NPC:StartFollowingPlayer( ply )
 
     self:SetTarget(ply)
     self:SetSchedule(SCHED_TARGET_FACE)
+
+    self:EmitSound_Uninterupted(self.FollowPlayerSounds)
 end
 
 
-function NPC:StopFollowingCurrentPlayer()
+function NPC:StopFollowingCurrentPlayer( noSound )
     net.Start("ZBaseRemoveFollowHalo")
     net.WriteEntity(self)
     net.Send(self.PlayerToFollow)
 
     self.PlayerToFollow = NULL
+
+    if !noSound then
+        self:EmitSound_Uninterupted(self.UnfollowPlayerSounds)
+    end
 end
 
 
@@ -1516,9 +1522,7 @@ function NPC:HandleDanger()
     end
 
 
-    if self.HavingConversation then
-        self:CancelConversation()
-    end
+    self:CancelConversation()
 end
 
 
