@@ -344,6 +344,7 @@ function NPC:ThrowGrenade()
 
         local grenade = ents.Create(self.GrenadeEntityClass)
         grenade.IsZBaseGrenade = true
+        grenade.IsZBaseDMGInfl = true
         grenade:SetPos(self:GrenadeSpawnPos())
         grenade:SetOwner(self)
         grenade:Spawn()

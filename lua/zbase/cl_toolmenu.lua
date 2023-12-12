@@ -1,4 +1,3 @@
-
 ------------------------------------------------------------------------------------------=#
 local function ZBaseAddMenuCategory( name, func )
     spawnmenu.AddToolMenuOption("ZBase", "Base", name, name, "", "", function(panel)
@@ -20,8 +19,6 @@ local function ZBaseAddMenuCategory( name, func )
 end
 ------------------------------------------------------------------------------------------=#
 hook.Add("PopulateToolMenu", "ZBASE", function()
-
-
     spawnmenu.AddToolTab( "ZBase", "ZBase", "entities/zbase.png" )
 
 
@@ -92,7 +89,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
 
     end)
-
 end)
 ------------------------------------------------------------------------------------------=#
 

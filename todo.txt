@@ -1,19 +1,17 @@
 >>> TODO <<<
 - fix forced go for flying mfs
-- fix grenade/secondary killing self (and allies??)
-- fix death sound not playing
 - Carry many weapons
 - Weapon pickup
 - ignore player/player dead fixes
 - compatability with npc imrpovement type shit
 - Controller
 - Vehicle base
+- optimiziation
 - Poort over all my bloody npc mfers
 
 
 
 >>> rilis!!!!!!! <<<
-- optimiziation
 - Dummy git
 - new public repo
 - Psychotic description for the funnies (use chatgpt)
