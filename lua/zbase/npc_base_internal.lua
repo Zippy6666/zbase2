@@ -620,7 +620,7 @@ function NPC:AITick_Slow()
             self:ForceGotoLastKnownPos()
         end
 
-        print("marked as eluded")
+        debugoverlay.Text(self:GetPos(), "marked current enemy as eluded", 2)
     end
 
 
@@ -854,6 +854,7 @@ end
 
 
 function NPC:OnOwnedEntCreated( ent )
+    ent.LastOwnerZBaseFaction = self.ZBaseFaction
     self:CustomOnOwnedEntCreated( ent )
 end
 
@@ -995,10 +996,12 @@ end
 
 function NPCB.FactionCallForHelp:Run( self )
     local ally = self:GetNearestAlly(self.CallForHelpDistance)
+
+
     local ene = self:GetEnemy()
 
 
-    if IsValid(ally) && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) then
+    if IsValid(ally) && ally:IsNPC() && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) then
         ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
         ally:AlertSound()
         self:OnCallForHelp(ally)
@@ -1131,6 +1134,7 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
 
                         ball:SetOwner(self)
                         ball.ZBaseComballOwner = self
+                        ball.IsZBaseDMGInfl = true
 
                         timer.Simple(math.Rand(4, 6), function()
                             if IsValid(ball) then
@@ -1158,6 +1162,7 @@ function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
     local grenade = ents.Create("grenade_ar2")
     grenade:SetOwner(self)
     grenade:SetPos(startPos)
+    grenade.IsZBaseDMGInfl = true
     grenade:Spawn()
     grenade:SetVelocity((enemy:GetPos() - startPos):GetNormalized()*1250 + Vector(0,0,200))
     grenade:SetLocalAngularVelocity(AngleRand())
@@ -1616,6 +1621,7 @@ function NPC:OnEmitSound( data )
     if !ZBase_EmitSoundCall
     && (self.MuteDefaultVoice or self:NearbyAllySpeaking() or self.IsSpeaking)
     && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
+        print(data.SoundName)
         return false
     end
 
@@ -1676,7 +1682,7 @@ function NPC:OnEmitSound( data )
 
 
     -- Determine that if we are speaking
-    if data.Channel == CHAN_VOICE then
+    if data.Channel == CHAN_VOICE && data.SoundName != "common/null.wav" then
         self.IsSpeaking = true
         self.IsSpeaking_SoundVar = sndVarName
 
@@ -2085,7 +2091,7 @@ function NPC:OnScaleDamage( dmg, hit_gr )
 
 
     -- Don't get hurt by NPCs in the same faction
-    if self:IsAlly(attacker) && !(ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer()) then
+    if (self:IsAlly(attacker)) && !(ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer()) then
         dmg:ScaleDamage(0)
     end
 
@@ -2147,7 +2153,8 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
 
-    if self:IsAlly(attacker) && !(ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer()) then
+    if (self:IsAlly(attacker) or attacker.LastOwnerZBaseFaction==self.ZBaseFaction or (infl.IsZBaseDMGInfl && attacker==self))
+    && !(ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer()) then
         dmg:ScaleDamage(0)
         return true
     end
@@ -2248,6 +2255,10 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 
     self.Dead = true
+    self:SetNPCState(NPC_STATE_DEAD)
+
+
+    self.IsSpeaking = false
 
 
     -- Stop sounds
@@ -2255,9 +2266,6 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
         if !isstring(v) then continue end
         self:StopSound(self:GetTable()[v])
     end
-
-
-    self.IsSpeaking = false
 
 
     -- Death sound
@@ -2330,7 +2338,6 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 
     self:SetShouldServerRagdoll(false)
-    self:SetNPCState(NPC_STATE_DEAD)
     self:Remove()
 end
 
