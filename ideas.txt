@@ -1,8 +1,10 @@
--- Expanded support for the weapon base so that player functions work on NPCs
--- Jump system
--- ZBase functionality for any NPC, except ANP NPCs and SNPCs
--- Guarding mode, or something like that
--- Grab ZBase flying NPCs with gravity gun
--- Flying snpcs use air nodes too (not just ground)
--- Movement noise to aerial snpc base
--- "Entity timers"
+>>> IDEAS <<<
+- Expanded support for the weapon base so that player functions work on NPCs
+- Jump system
+- ZBase functionality for any NPC, except ANP NPCs and SNPCs
+- Guarding mode, or something like that
+- Grab ZBase flying NPCs with gravity gun
+- Flying snpcs use air nodes too (not just ground)
+- Movement noise to aerial snpc base
+- "Entity timers"
+- coolier effects?? from anp?

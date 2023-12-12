@@ -1,6 +1,7 @@
+
 ------------------------------------------------------------------------------------------=#
 local function ZBaseAddMenuCategory( name, func )
-    spawnmenu.AddToolMenuOption("Options", "ZBase", name, name, "", "", function(panel)
+    spawnmenu.AddToolMenuOption("ZBase", "Base", name, name, "", "", function(panel)
         panel:ControlHelp("")
         panel:ControlHelp("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
         panel:ControlHelp("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
@@ -21,12 +22,28 @@ end
 hook.Add("PopulateToolMenu", "ZBASE", function()
 
 
-    ZBaseAddMenuCategory("General", function( panel )
+    spawnmenu.AddToolTab( "ZBase", "ZBase", "entities/zbase.png" )
+
+
+    ZBaseAddMenuCategory("NPC General", function( panel )
         panel:CheckBox("Glowing Eyes (Server)", "zbase_sv_glowing_eyes")
         panel:Help("Give NPCs glowing eyes on spawn if the NPC's model has any.")
 
         panel:CheckBox("Glowing Eyes (Client)", "zbase_glowing_eyes")
         panel:Help("Render glowing eyes if any are available.")
+
+        panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
+        panel:Help("Multiply ZBase NPCs' health by this number.")
+        panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
+        panel:Help("Multiply ZBase NPCs' damage by this number.")
+
+        panel:CheckBox( "Hurt Allies", "zbase_ply_hurt_ally" )
+        panel:Help("Allow players to hurt their allies.")
+
+        panel:CheckBox("Zombie Headcrabs", "zbase_zombie_headcrabs")
+        panel:Help("Should the default ZBase zombies spawn with headcrabs?")
+        panel:CheckBox("Zombie Red Blood", "zbase_zombie_red_blood")
+        panel:Help("Should the default ZBase zombies spawn with red blood?")
     end)
 
 
@@ -36,20 +53,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox("Player Full HL2 Weapon Damage", "zbase_full_hl2_wep_damage_ply")
         panel:Help("Should NPCs deal the same amount of damage with HL2 weapons towards players?")
-    end)
-
-
-    ZBaseAddMenuCategory("NPCs", function( panel )
-        panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
-        panel:Help("Multiply ZBase NPCs' health by this number.")
-        panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
-        panel:Help("Multiply ZBase NPCs' damage by this number.")
-
-
-        panel:CheckBox("Zombie Headcrabs", "zbase_zombie_headcrabs")
-        panel:Help("Should the default ZBase zombies spawn with headcrabs?")
-        panel:CheckBox("Zombie Red Blood", "zbase_zombie_red_blood")
-        panel:Help("Should the default ZBase zombies spawn with red blood?")
     end)
 
 
