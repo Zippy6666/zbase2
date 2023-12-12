@@ -9,7 +9,7 @@ NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particle
 NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 
-NPC.CollisionBounds = {min=Vector(-75, -75, 0), max=Vector(75, 75, 90)}
+NPC.CollisionBounds = {min=Vector(-65, -65, 0), max=Vector(65, 65, 80)}
 NPC.HullType = HULL_LARGE -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
 
 

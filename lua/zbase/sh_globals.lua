@@ -36,11 +36,13 @@ ZBASE_FEMALE = 8388608
     -- local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 function FindZBaseTable(debuginfo)
     local shortsrc = debuginfo.short_src
-    print(shortsrc)
-
-
     local split = string.Split(shortsrc, "/")
     local name = split[#split-1]
+
+    if name == "zbase" then
+        name = "npc_zbase"
+    end
+
     return ZBaseNPCs[name]
 end
 

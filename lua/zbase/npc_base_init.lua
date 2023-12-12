@@ -401,58 +401,6 @@ end
 
 --[[
 ==================================================================================================
-                                           SOUND FUNCTIONS
-==================================================================================================
---]]
-
-
-    -- Timer based foot steps
-function NPC:FootStepTimer()
-    if !self:IsMoving() then return end
-    if self.HasEngineFootSteps then return end
-
-    
-    self:EmitSound(self.FootStepSounds)
-
-
-    -- Set footstep cooldown
-    local act = self:GetMovementActivity()
-    if act == ACT_RUN then
-
-        -- Run animation, do faster steps
-        self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Run
-
-    else
-
-        -- Walk animation probably, do slower steps
-        self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Walk
-
-    end
-end
-
-
-    -- Called when the NPC is trying to do a footstep sound
-    -- Not all NPCs do this
-function NPC:OnEngineFootStep()
-    self:EmitSound(self.FootStepSounds)
-    self.HasEngineFootSteps = true
-end
-
-
-    -- Called before emitting a sound
-    -- Return a new sound name to play that sound instead.
-    -- Return false to prevent the sound from playing.
-function NPC:BeforeEmitSound( sndData, sndVarName )
-end
-
-
-    -- Called after a sound is going to be emitted
-function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
-end
-
-
---[[
-==================================================================================================
                                            TAKE DAMAGE FUNCTIONS
 ==================================================================================================
 --]]
@@ -501,6 +449,22 @@ function NPC:HitArmor( dmginfo, HitGroup )
     end
 
 end
+
+
+    -- Called when the NPC hurts an entity, return true to prevent damage --
+function NPC:CustomDealDamage( victimEnt, dmginfo )
+end
+
+
+    -- Called when the NPC kills another entity (player or NPC)
+function NPC:CustomOnKilledEnt( ent )
+end
+
+
+    -- Called when the NPC is hit by a bullet
+function NPC:CustomOnBulletHit(BulletEnt, tr, bulletData)
+end
+
 
 --[[
 ==================================================================================================
@@ -689,6 +653,52 @@ end
 
 --[[
 ==================================================================================================
+                                           AI GENERAL
+==================================================================================================
+--]]
+
+
+    -- Called when the NPC's enemy is updated
+    -- 'enemy' - The new enemy, or nil if the enemy was lost
+function NPC:EnemyStatus( enemy )
+end
+
+
+    -- Called when the NPC follows or unfollows a player
+    -- 'ply' - The player to follow, or NULL if the player was unfollowed
+function NPC:FollowPlayerStatus( ply )
+end
+
+
+    -- Called when the NPC calls an ally outside their squad for help
+function NPC:OnCallForHelp( ally )
+end
+
+
+    -- Called when the base is detecting a danger
+    -- https://wiki.facepunch.com/gmod/Structures/SoundHintData
+function NPC:OnDangerDetected( DangerHint )
+end
+
+
+    -- Called when the base detects that the NPC is playing a new activity
+function NPC:CustomNewActivityDetected( act )
+end
+
+
+    -- Called a tick after an entity owned by this NPC is created
+    -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
+function NPC:CustomOnOwnedEntCreated( ent )
+end
+
+
+    -- Accept input, return true to prevent --
+function NPC:CustomAcceptInput( input, activator, caller, value )
+end
+
+
+--[[
+==================================================================================================
                                            SNPC ONLY FUNCTIONS
 ==================================================================================================
 --]]
@@ -738,18 +748,6 @@ function NPC:SNPCOnHurt(dmginfo)
 end
 
 
-    -- Called continiusly for flying SNPCs
-    -- You can change anything about their flying velocity here
-function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
-    --You can mess with their angles here
-    --This example will cause them to tilt forward when they are moving
-    -- local myang = self:GetAngles()
-    -- self:SetAngles(Angle(destinationCurrentSpeed*0.1, myang.yaw, myang.roll))
-
-    return destinationDirection*destinationCurrentSpeed
-end
-
-
     -- Called when an animation event is fired
 function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option) 
     -- Example:
@@ -759,23 +757,71 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
 end
 
 
+    -- Called continiusly for flying SNPCs
+    -- You can change anything about their flying velocity here
+function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
+    return destinationDirection*destinationCurrentSpeed
+end
+
+
+--[[
+==================================================================================================
+                                           SOUND FUNCTIONS
+==================================================================================================
+--]]
+
+
+
+    -- Called before emitting a sound
+    -- Return a new sound name to play that sound instead.
+    -- Return false to prevent the sound from playing.
+function NPC:BeforeEmitSound( sndData, sndVarName )
+end
+
+
+    -- Called after a sound is going to be emitted
+function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
+end
+
+
+    -- Timer based foot steps
+function NPC:FootStepTimer()
+    if !self:IsMoving() then return end
+    if self.HasEngineFootSteps then return end
+
+    
+    self:EmitSound(self.FootStepSounds)
+
+
+    -- Set footstep cooldown
+    local act = self:GetMovementActivity()
+    if act == ACT_RUN then
+
+        -- Run animation, do faster steps
+        self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Run
+
+    else
+
+        -- Walk animation probably, do slower steps
+        self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Walk
+
+    end
+end
+
+
+    -- Called when the NPC is trying to do a footstep sound
+    -- Not all NPCs do this
+function NPC:OnEngineFootStep()
+    self:EmitSound(self.FootStepSounds)
+    self.HasEngineFootSteps = true
+end
+
+
 --[[
 ==================================================================================================
                                            DEATH/REMOVAL
 ==================================================================================================
 --]]
-
-
-    -- Death animation code
-    -- DeathAnimation_Animation_Animation_Animation
-function NPC:DeathAnimation_Animation()
-    self:PlayAnimation(table.Random(self.DeathAnimations), false, {
-        speedMult=self.DeathAnimationSpeed,
-        face=false,
-        duration=self.DeathAnimationDuration,
-        noTransitions = true,
-    })
-end
 
 
     -- Called before death
@@ -791,39 +837,17 @@ function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
 end
 
 
+    -- Death animation code
+function NPC:DeathAnimation_Animation()
+    self:PlayAnimation(table.Random(self.DeathAnimations), false, {
+        speedMult=self.DeathAnimationSpeed,
+        face=false,
+        duration=self.DeathAnimationDuration,
+        noTransitions = true,
+    })
+end
+
+
     -- Called when the NPC is removed
 function NPC:OnRemove()
-end
-
-
---[[
-==================================================================================================
-                                           MISC FUNCTIONS
-==================================================================================================
---]]
-
-
-    -- Called a tick after an entity owned by this NPC is created
-    -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
-function NPC:CustomOnOwnedEntCreated( ent )
-end
-
-
-    -- Accept input, return true to prevent --
-function NPC:CustomAcceptInput( input, activator, caller, value )
-end
-
-
-    -- Called when the NPC hurts an entity, return true to prevent damage --
-function NPC:CustomDealDamage( victimEnt, dmginfo )
-end
-
-
-    -- Called when the NPC kills another entity (player or NPC)
-function NPC:CustomOnKilledEnt( ent )
-end
-
-
-    -- Called when the base detects that the NPC is playing a new activity
-function NPC:CustomNewActivityDetected( act )
 end

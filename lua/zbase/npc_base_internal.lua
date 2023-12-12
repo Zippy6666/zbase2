@@ -18,14 +18,10 @@ function NPC:BeforeSpawn( NPCData )
         CAP_SQUAD,
         CAP_TURN_HEAD,
         CAP_ANIMATEDFACE,
-        CAP_SKIP_NAV_GROUND_CHECK
+        CAP_SKIP_NAV_GROUND_CHECK,
+        CAP_USE_WEAPONS,
+        CAP_USE_SHOT_REGULATOR
     ))
-
-
-    if self:CanHaveWeapons() then
-        self:CapabilitiesAdd(CAP_USE_WEAPONS)
-        self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
-    end
 
 
     self.AllowedCustomEScheds = {}
@@ -144,6 +140,36 @@ function NPC:ZBaseInit()
 
     -- Custom init
     self:CustomInitialize()
+
+
+    -- Debug shit
+    if GetConVar("developer"):GetBool() then
+        self.ZBaseCurFunc = {}
+        self:DebugMyFunctions()
+    end
+end
+
+
+function NPC:ZBaseFuncPrint()
+    MsgN(self, ":", self.ZBaseCurFunc.name, "(", self.ZBaseCurFunc.args, ")")
+end
+
+
+function NPC:DebugMyFunctions()
+    for VarName, VarValue in pairs(self:GetTable()) do
+        if VarName == "ZBaseFuncPrint" then continue end
+        
+
+        if isfunction(VarValue) then
+            local func = VarValue
+
+            self[VarName] = function(me, ...)
+                self.ZBaseCurFunc = {name=VarName, args=...}
+                return func(me, ...)
+            end
+        end
+
+    end
 end
 
 
@@ -196,11 +222,6 @@ function NPC:GlowEyeInit()
         end
 
     end)
-end
-
-
-function NPC:CanHaveWeapons()
-    return self:GetClass()!="npc_zbase_snpc"
 end
 
 
@@ -266,7 +287,7 @@ function NPC:ZBaseThink()
 
 
     -- Handle danger
-    if self.InternalLoudestSoundHint then
+    if self.LastLoudestSoundHint then
         self:HandleDanger()
     end
 
@@ -568,7 +589,7 @@ function NPC:AITick_Slow()
 
 
     local ene = self:GetEnemy()
-    local IsAlert = IsAlert
+    local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
     local IsCombat = self:GetNPCState() == NPC_STATE_COMBAT
 
 
@@ -592,12 +613,14 @@ function NPC:AITick_Slow()
 
     -- Loose enemy
     local EneLastKnownPos = self:GetEnemyLastKnownPos()
-    if IsValid(ene) && !self.EnemyVisible then
+    if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= 5 then
         self:MarkEnemyAsEluded()
 
         if self.GotoEneLastKnownPosWhenEluded && self:ShouldChase() then
             self:ForceGotoLastKnownPos()
         end
+
+        print("marked as eluded")
     end
 
 
@@ -621,6 +644,7 @@ function NPC:AITick_Slow()
     if IsAlert && !self.NextStopAlert then
         self.NextStopAlert = CurTime()+math.Rand(15, 25)
     end
+
 
     if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
         self:SetNPCState(NPC_STATE_IDLE)
@@ -663,7 +687,9 @@ function NPC:StartFollowingPlayer( ply )
     if !self:IsAlly(ply) then return end
     if self:ZBaseDist(ply, {away=200}) then return end
 
+
     self.PlayerToFollow = ply
+
 
     net.Start("ZBaseSetFollowHalo")
     net.WriteEntity(self)
@@ -673,6 +699,9 @@ function NPC:StartFollowingPlayer( ply )
     self:SetSchedule(SCHED_TARGET_FACE)
 
     self:EmitSound_Uninterupted(self.FollowPlayerSounds)
+
+
+    self:FollowPlayerStatus(self.PlayerToFollow)
 end
 
 
@@ -686,6 +715,9 @@ function NPC:StopFollowingCurrentPlayer( noSound )
     if !noSound then
         self:EmitSound_Uninterupted(self.UnfollowPlayerSounds)
     end
+
+
+    self:FollowPlayerStatus(NULL)
 end
 
 
@@ -810,6 +842,9 @@ function NPC:DoNewEnemy()
 
         end
     end
+
+
+    self:EnemyStatus(ene)
 end
 
 
@@ -953,26 +988,22 @@ NPCB.FactionCallForHelp = {
 
 
 function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
-    return self.CallForHelp!=false && self.ZBaseFaction != "none"
+    return self.CallForHelp && self.CallForHelpDistance > 0
+    && self.ZBaseFaction != "none" && self.ZBaseFaction != "neutral"
 end
 
 
 function NPCB.FactionCallForHelp:Run( self )
-    for _, v in ipairs(ents.FindInSphere(self:GetPos(), self.CallForHelpDistance)) do
-
-        if !v:IsNPC() then return end
-        if !self:IsAlly(v) then continue end
-        if IsValid(v:GetEnemy()) then continue end -- Ally already busy with an enemy
+    local ally = self:GetNearestAlly(self.CallForHelpDistance)
+    local ene = self:GetEnemy()
 
 
-        local ene = self:GetEnemy()
-
-        if !v:HasEnemyEluded(ene) then
-            v:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
-            v:AlertSound()
-        end
-
+    if IsValid(ally) && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) then
+        ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
+        ally:AlertSound()
+        self:OnCallForHelp(ally)
     end
+
 
     ZBaseDelayBehaviour(math.Rand(2, 3.5))
 end
@@ -1364,6 +1395,7 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
     if self.DoingPlayAnim then return false end
 
+
     -- Don't range attack in mid-air
     if self:GetNavType() == 0
     && self:GetClass() != "npc_manhack"
@@ -1435,6 +1467,7 @@ function NPCB.Grenade:Delay( self )
     local should_throw_visible = self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Visible)==1
     local should_throw_occluded = !self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Occluded)==1
 
+
     if !should_throw_visible && !should_throw_occluded then
         return ZBaseRndTblRange(self.GrenadeCoolDown)
     end
@@ -1498,16 +1531,11 @@ local Class_ShouldRunRandomOnDanger = {
 
 function NPC:HandleDanger()
     if self:BusyPlayingAnimation() then return end
-    if self.InternalLoudestSoundHint.type != SOUND_DANGER then return end
+    if self.LastLoudestSoundHint.type != SOUND_DANGER then return end
 
 
-    local dangerOwn = self.InternalLoudestSoundHint.owner
+    local dangerOwn = self.LastLoudestSoundHint.owner
     local isGrenade = IsValid(dangerOwn) && (dangerOwn.IsZBaseGrenade or dangerOwn:GetClass() == "npc_grenade_frag")
-
-
-    if self.IsZBase_SNPC then
-        self:SNPCHandleDanger()
-    end
 
 
     -- Sound
@@ -1522,12 +1550,23 @@ function NPC:HandleDanger()
     end
 
 
+    if isGrenade && self:GetNPCState()==NPC_STATE_IDLE then
+        self:SetNPCState(NPC_STATE_ALERT)
+    end
+
+
     self:CancelConversation()
 end
 
 
 function NPC:InternalDetectDanger()
-	self.InternalLoudestSoundHint = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
+	local hint = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
+    local IsDangerHint = (istable(hint) && hint.type==SOUND_DANGER)
+
+    if !hint or IsDangerHint then
+        if IsDangerHint then self:OnDangerDetected(hint) end
+        self.LastLoudestSoundHint = hint
+    end
 end
 
 
@@ -2046,7 +2085,7 @@ function NPC:OnScaleDamage( dmg, hit_gr )
 
 
     -- Don't get hurt by NPCs in the same faction
-    if self:IsAlly(attacker) then
+    if self:IsAlly(attacker) && !(ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer()) then
         dmg:ScaleDamage(0)
     end
 
@@ -2108,7 +2147,7 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
 
-    if self:IsAlly(attacker) then
+    if self:IsAlly(attacker) && !(ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer()) then
         dmg:ScaleDamage(0)
         return true
     end
@@ -2587,7 +2626,7 @@ end
 --]]
 
 
-function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
+function NPC:OnBulletHit(BulletEnt, tr, dmginfo, bulletData)
     -- Bullet reflection
     if self.ArmorReflectsBullets then
         ZBaseReflectedBullet = true
@@ -2601,8 +2640,8 @@ function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
             Dir = tr.HitNormal,
             Spread = Vector(0.33, 0.33),
             Num = bulletData.Num,
-            Attacker = dmginfo:GetAttacker(),
-            Inflictor = dmginfo:GetAttacker(),
+            Attacker = Entity(0),
+            Inflictor = Entity(0),
             Damage = math.random(1, 3),
             IgnoreEntity = self,
         })
@@ -2611,6 +2650,9 @@ function NPC:OnBulletHit(ent, tr, dmginfo, bulletData)
 
         ZBaseReflectedBullet = false
     end
+
+
+    self:CustomOnBulletHit(BulletEnt, tr, bulletData)
 end
 
 
