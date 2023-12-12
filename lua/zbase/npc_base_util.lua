@@ -261,13 +261,17 @@ function NPC:RangeAttack()
     if !table.IsEmpty(self.RangeAttackAnimations) then
         self.TimeUntilStopFace = CurTime()+self:SequenceDuration() + 0.25
 
-        timer.Create("ZBaseRangeFace"..self:EntIndex(), 0, 0, function()
+
+        local TimerName = "ZBaseFace_Range"..self:EntIndex()
+        timer.Create(TimerName, 0, 0, function()
             if !IsValid(self) or self.TimeUntilStopFace < CurTime() then
-                timer.Remove("ZBaseRangeFace"..self:EntIndex())
+                timer.Remove(TimerName)
                 return
             end
 
+
             if GetConVar("ai_disabled"):GetBool() then return end
+
 
             self:Face(self:RangeAttack_IdealFacePos(), nil, self.RangeAttackTurnSpeed)
         end)

@@ -1,15 +1,15 @@
 include("shared.lua")
 include("zbase_ai.lua")
 include("zbase_aerial.lua")
+
+
 util.AddNetworkString("base_ai_zbase_client_ragdoll")
 
 
 local NPCMETA = FindMetaTable("NPC")
 
 
-if !ZBase_OldGetNearestSquadMember then
-	ZBase_OldGetNearestSquadMember = NPCMETA.GetNearestSquadMember
-end
+ZBase_OldGetNearestSquadMember = ZBase_OldGetNearestSquadMember or NPCMETA.GetNearestSquadMember
 
 
 ENT.m_iClass = CLASS_NONE
@@ -69,14 +69,6 @@ function ENT:Think()
 
 
 	self:ZBaseThink()
-end
---]]======================================================================================================]]
-function NPCMETA:SetSchedule( sched )
-    if self.SNPCType == ZBASE_SNPCTYPE_FLY then
-        self:AerialSetSchedule(sched)
-    end
-
-    return ZBase_OldSetSchedule(self, sched)
 end
 --]]======================================================================================================]]
 function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )
