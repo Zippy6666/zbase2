@@ -506,6 +506,7 @@ hook.Add( "RenderScreenspaceEffects", "ZBaseGlowingEyes", function()
 
     for _, ent in ipairs(ZBaseEntsWithGlowingEyes) do
         if !ent.GlowEyes then continue end
+        if ent:GetNoDraw() then continue end
 
         
         for _, eye in ipairs(ent.GlowEyes) do

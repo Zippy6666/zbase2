@@ -1,9 +1,13 @@
 >>> TODO <<<
-- Fix aerial shit thing
+- Fix aerial face/anim bug
+- Fix aerial force go not workinn
 - ignore player/player dead fixes
+- fix bloody grenades
+- fix crab lamp
 - Carry many weapons
 - Weapon pickup
-- compatability with npc imrpovement type shit
+- compatability checkkk: npc imrpovement type shit, active raggies
+- make sure their ai is bloody perfect
 - Controller
 - Vehicle base
 - optimiziation
