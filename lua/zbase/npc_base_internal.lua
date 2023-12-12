@@ -67,6 +67,7 @@ function NPC:ZBaseInit()
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = HITGROUP_GENERIC
     self.SchedDebug = GetConVar("developer"):GetBool()
+    self.PlayerToFollow = NULL
 
 
     -- Network shit
@@ -234,7 +235,7 @@ function NPC:ZBaseThink()
     -- Slow think
     if self.NPCNextSlowThink < CurTime() then
         self:DoSlowThink()
-        self.NPCNextSlowThink = CurTime()+0.3
+        self.NPCNextSlowThink = CurTime()+0.4
     end
 
 
@@ -627,13 +628,6 @@ function NPC:AITick_Slow()
     end
 
 
-    -- Start following players
-    if !IsValid(self.PlayerToFollow) && self.NextTryFollow < CurTime() then
-        self:StartFollowingNearbyPlayer()
-        self.NextTryFollow = CurTime() + math.Rand(2, 4)
-    end
-
-
     -- Keep following players
     if IsValid(self.PlayerToFollow) && !GetConVar("ai_ignoreplayers"):GetBool()
     && self:ZBaseDist(self.PlayerToFollow, {away=300}) then
@@ -646,6 +640,17 @@ function NPC:AITick_Slow()
             self:SetSchedule(SCHED_FORCED_GO_RUN)
         end
     end
+
+
+    if IsValid(self.PlayerToFollow) && !self:IsAlly(self.PlayerToFollow) then
+        self:StopFollowingCurrentPlayer()
+    end
+end
+
+
+function NPC:CanStartFollowPlayers()
+    return self.CanFollowPlayers && !GetConVar("ai_ignoreplayers"):GetBool() && !IsValid(self.PlayerToFollow)
+    && self.SNPCType != ZBASE_SNPCTYPE_STATIONARY
 end
 
 
@@ -654,21 +659,27 @@ function NPC:CurrentlyFollowingPlayer()
 end
 
 
-function NPC:StartFollowingNearbyPlayer( ply )
-    if IsValid(self.PlayerToFollow) then return end
+function NPC:StartFollowingPlayer( ply )
+    if !self:IsAlly(ply) then return end
+    if self:ZBaseDist(ply, {away=200}) then return end
 
-    for _, ply in ipairs(player.GetAll()) do
-        if !self:IsAlly(ply) then continue end
-        if !self:ZBaseDist(ply, {within=200}) then continue end
+    self.PlayerToFollow = ply
 
-        self.PlayerToFollow = ply
+    net.Start("ZBaseSetFollowHalo")
+    net.WriteEntity(self)
+    net.Send(self.PlayerToFollow)
 
-        net.Start("ZBaseSetFollowHalo")
-        net.WriteEntity(self)
-        net.Send(self.PlayerToFollow)
+    self:SetTarget(ply)
+    self:SetSchedule(SCHED_TARGET_FACE)
+end
 
-        break
-    end
+
+function NPC:StopFollowingCurrentPlayer()
+    net.Start("ZBaseRemoveFollowHalo")
+    net.WriteEntity(self)
+    net.Send(self.PlayerToFollow)
+
+    self.PlayerToFollow = NULL
 end
 
 
@@ -711,7 +722,9 @@ function NPC:AITick_NonScripted()
 
 
     -- Run up to enemy to use melee weapons
-    if self:HasMeleeWeapon() && self:ShouldChase() then
+    if self:HasMeleeWeapon() && self:ShouldChase()
+    && (self:IsCurrentSchedule(SCHED_ESTABLISH_LINE_OF_FIRE)
+    or self:IsCurrentSchedule(SCHED_MOVE_TO_WEAPON_RANGE)) then
         self:SetSchedule(SCHED_CHASE_ENEMY)
     end
 end
@@ -1828,7 +1841,8 @@ function NPCB.Dialogue:Run( self )
     -- Ally is player:
     elseif ally:IsPlayer() && !GetConVar("ai_ignoreplayers"):GetBool() then
         self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
-        self:Face(ally, self.InternalCurrentSoundDuration+0.2)
+        self:SetTarget(ally)
+        self:SetSchedule(SCHED_TARGET_FACE)
     end
 
 

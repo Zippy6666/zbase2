@@ -10,6 +10,12 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
         include("zbase/sh_override_functions.lua")
     end)
 
+
+    -- Follow halo table
+    if CLIENT then
+        LocalPlayer().ZBaseFollowHaloEnts = LocalPlayer().ZBaseFollowHaloEnts or {}
+    end
+
 end)
 
 
@@ -517,19 +523,32 @@ end)
 
 --[[
 ======================================================================================================================================================
-                                           FOLLOW HALO
+                                           ZBASE NPC FOLLOW PLAYER
 ======================================================================================================================================================
 --]]
 
 if SERVER then
     util.AddNetworkString("ZBaseSetFollowHalo")
+    util.AddNetworkString("ZBaseRemoveFollowHalo")
+
+
+    hook.Add( "KeyPress", "keypress_use_hi", function( ply, key )
+        if ( key == IN_USE ) then
+            local tr = ply:GetEyeTrace()
+            local ent = tr.Entity
+
+
+            if ent.PlayerToFollow == ply then
+                ent:StopFollowingCurrentPlayer()
+            elseif IsValid(ent) && ent.IsZBaseNPC && ent:CanStartFollowPlayers() then
+                ent:StartFollowingPlayer(ply)
+            end
+        end
+    end)
 end
 
 
 if CLIENT then
-    LocalPlayer().ZBaseFollowHaloEnts = LocalPlayer().ZBaseFollowHaloEnts or {}
-
-
     local mat = Material("effects/blueflare1")
 
 
@@ -559,11 +578,26 @@ if CLIENT then
     net.Receive("ZBaseSetFollowHalo", function()
         local ent = net.ReadEntity()
         local wepCol = LocalPlayer():GetWeaponColor()
+        if !IsValid(ent) then return end
 
         table.insert(LocalPlayer().ZBaseFollowHaloEnts, ent)
         ent:CallOnRemove("RemoveFromZBaseHaloEnts", function() table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent) end)
 
         chat.AddText(Color(wepCol.r*255, wepCol.g*255, wepCol.b*255), ent:GetNWBool("ZBaseName").." started following you.")
+
+
+        surface.PlaySound( "buttons/button16.wav" )
+    end)
+
+
+    net.Receive("ZBaseRemoveFollowHalo", function()
+        local ent = net.ReadEntity()
+        if !IsValid(ent) then return end
+
+        table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent)
+
+
+        surface.PlaySound( "buttons/button16.wav" )
     end)
 end
 

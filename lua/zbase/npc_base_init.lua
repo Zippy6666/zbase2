@@ -80,6 +80,10 @@ NPC.ItemDrops = {
 }
 NPC.ItemDrops_TotalMax = 5 -- The NPC can never drop more than this many items
 
+
+NPC.CanFollowPlayers = true -- Can it follow players when the player press their use key on them (if allied with the player)?
+
+
 --[[
 ==================================================================================================
                                            MOVEMENT
