@@ -65,6 +65,7 @@ end
 
 
 ZBCVAR.NoThink = CreateConVar("zbase_no_think", "0", Flags)
+ZBCVAR.ShowNavigator = CreateConVar("zbase_show_navigator", "0", Flags)
 
 
 --[[

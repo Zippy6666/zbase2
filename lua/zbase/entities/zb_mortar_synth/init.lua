@@ -115,6 +115,13 @@ function NPC:SNPCChase_TooClose()
     return ZSched.BackAwayFromEnemy
 end
 --]]==============================================================================================]]
+function NPC:RangeAttackAnimation()
+    self:PlayAnimation(table.Random(self.RangeAttackAnimations), false, {
+        speedMult=self.RangeAttackAnimationSpeed,
+        noTransitions = false,
+    })
+end
+--]]==============================================================================================]]
 function NPC:MultipleRangeAttacks()
     if ( math.random(1, 2) == 1 && self:ZBaseDist(self:GetEnemy(), {within=1000}) ) or self:ZBaseDist(self:GetEnemy(), {within=400}) then
         -- Electric bolt

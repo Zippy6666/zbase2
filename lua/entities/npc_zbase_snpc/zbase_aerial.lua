@@ -1,5 +1,5 @@
 --]]======================================================================================================]]
-function ENT:AerialNavigatorPos(sched)
+function ENT:AerialNavigatorPos()
     local start = self:GetPos() + self:GetForward()*self:OBBMaxs().x*2.5
 
     local trFront = util.TraceLine({
@@ -21,27 +21,31 @@ function ENT:AerialNavigatorPos(sched)
 end
 --]]======================================================================================================]]
 function ENT:AerialSetSchedule(sched)
-    self:AerialResetNav()
+    local FailSched = sched == SCHED_FAIL or sched == -1
 
-    -- debugoverlay.Text(self:GetPos()+Vector(0,0,75), "aerial sched: "..tostring(sched), 3)
+
+    self:AerialResetNav(FailSched)
+ 
 
     -- Navigator --
-    local Navigator = ents.Create("zbase_navigator")
-    Navigator:SetPos(self:AerialNavigatorPos(sched))
-    Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
-    Navigator.Sched = sched
-    Navigator:SetOwner(self)
-    Navigator:Spawn()
-    Navigator.ForceEnemy = self:GetEnemy()
-
-    self:DeleteOnRemove(Navigator)
-    self.Navigator = Navigator
+    if !FailSched then
+        local Navigator = ents.Create("zbase_navigator")
+        Navigator:SetPos(self:AerialNavigatorPos())
+        Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
+        Navigator.Sched = sched
+        Navigator.ForceEnemy = self:GetEnemy()
+        Navigator.ForcedLastPos = self:GetInternalVariable("m_vecLastPosition")
+        Navigator:SetOwner(self)
+        Navigator:Spawn()
+        self:DeleteOnRemove(Navigator)
+        self.Navigator = Navigator
+    end
 end
 --]]======================================================================================================]]
-function ENT:AerialResetNav()
+function ENT:AerialResetNav( DontRemoveNavigator )
     self.AerialGoal = nil
 
-    if IsValid(self.Navigator) then
+    if !DontRemoveNavigator && IsValid(self.Navigator) then
         self.Navigator:Remove()
     end
 end
@@ -77,10 +81,6 @@ function ENT:Aerial_CalcVel()
         local distCheckGround = self:Aerial_TooCloseToGround()
         self.ShouldMoveFromGround = isnumber(distCheckGround)
         self.Aerial_NextMoveFromGroundCheck = CurTime()+2
-
-        -- if self.ShouldMoveFromGround then
-        --     debugoverlay.Line(myPos, myPos-Vector(0, 0, distCheckGround), 1.5, Color( 255, 50, 0 ))
-        -- end
     end
 
 
@@ -109,39 +109,21 @@ function ENT:Aerial_CalcVel()
     end
 end
 --]]======================================================================================================]]
-function ENT:AerialMoveAnim()
-    -- -- Movement activity override for flying snpcs https://wiki.facepunch.com/gmod/Enums/ACT
-    -- NPC.Fly_MovementAnims = {
-    --     [NPC_STATE_IDLE] = ACT_IDLE,
-    --     [NPC_STATE_ALERT] = ACT_IDLE,
-    --     [NPC_STATE_COMBAT] = ACT_IDLE,
-    -- }
+function ENT:AerialThink()
+    self:Aerial_CalcVel()
 
+    local ene = self:GetEnemy()
 
-    -- if self.Aerial_CurSpeed > 0 then
-    --     local cusMoveAnim = self.Fly_MovementAnims[self:GetNPCState()]
-    --     if cusMoveAnim && self:SelectWeightedSequence(cusMoveAnim) != -1 then
-    --         self:SetActivity(cusMoveAnim)
+    if self.Aerial_CurrentDestination && !timer.Exists("ZBaseFace"..self:EntIndex()) && !timer.Exists("ZBaseRangeFace"..self:EntIndex()) then
+        self:Face( (self.Fly_FaceEnemy && self.EnemyVisible && ene) or self.Aerial_CurrentDestination )
+    end
 
-
-    --         if !self.DoingAerialMoveAnim then
-    --             self:SetCycle(0)
-    --         end
-
-    --         if self:IsSequenceFinished() then
-    --             self:ResetSequence(self:SelectWeightedSequence(cusMoveAnim))
-    --         end
-
-
-    --         self.DoingAerialMoveAnim = true
-    --     end
-    -- else
-    --     if self.DoingAerialMoveAnim then
-    --         self:SetActivity(ACT_IDLE)
-    --     end
-
-
-    --     self.DoingAerialMoveAnim = false
-    -- end
+    local vec = !GetConVar("ai_disabled"):GetBool() && self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed) or Vector()
+    if self.ShouldMoveFromGround then
+        vec = vec+Vector(0,0,35)
+    else
+        vec = vec+Vector(0,0,30)
+    end
+    self:SetLocalVelocity(vec)
 end
 --]]======================================================================================================]]

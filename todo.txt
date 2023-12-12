@@ -1,5 +1,4 @@
 >>> TODO <<<
-- fix forced go for flying mfs
 - Carry many weapons
 - Weapon pickup
 - ignore player/player dead fixes
@@ -7,6 +6,7 @@
 - Controller
 - Vehicle base
 - optimiziation
+- fix mortar synth/ vort fx dammit
 - Poort over all my bloody npc mfers
 
 
