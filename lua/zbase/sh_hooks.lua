@@ -394,6 +394,13 @@ local NPCFootstepSubStr = {
 
 
 hook.Add("EntityEmitSound", "ZBASE", function( data )
+    -- stfu navigator slave mf, you have no right to speak
+    if data.Entity.IsZBaseNavigator then
+        return false
+    end
+
+
+
     if !IsValid(data.Entity) then return end
     if !data.Entity:GetNWBool("IsZBaseNPC") then return end
 

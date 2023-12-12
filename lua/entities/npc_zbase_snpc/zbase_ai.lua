@@ -7,7 +7,6 @@
 function ENT:StartSchedule( sched )
     if self.SNPCType == ZBASE_SNPCTYPE_FLY then
         self:AerialSetSchedule(table.Copy(sched))
-		return
     end
 
 	self.CurrentSchedule = sched

@@ -110,17 +110,13 @@ ZBase_OldSetSchedule = ZBase_OldSetSchedule or NPC.SetSchedule
 
 
 function NPC:SetSchedule( sched )
-    print("SetSchedule", NPC.SetSchedule, "ZBase_OldSetSchedule", ZBase_OldSetSchedule)
-
-
-    if self.IsZBaseNPC && self:ShouldPreventSetSched( sched ) && sched != SCHED_FORCED_GO then
+    if self.IsZBaseNPC && self:ShouldPreventSetSched( sched ) then
         return
     end
 
 
-    if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY && sched != -1 then
-        self:AerialSetSchedule()
-        return
+    if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then
+        self:AerialSetSchedule(sched)
     end
 
 

@@ -770,7 +770,11 @@ end
 
 function NPC:ShouldPreventSetSched( sched )
     -- Prevent SetSchedule from being ran if these conditions apply:
-    
+
+
+    if sched==SCHED_FORCED_GO then return false end
+
+
     return self.HavingConversation
     or self.DoingPlayAnim
 end

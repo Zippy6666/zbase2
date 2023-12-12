@@ -112,11 +112,14 @@ end
 function ENT:AerialThink()
     self:Aerial_CalcVel()
 
+
     local ene = self:GetEnemy()
 
-    if self.Aerial_CurrentDestination && !timer.Exists("ZBaseFace"..self:EntIndex()) && !timer.Exists("ZBaseRangeFace"..self:EntIndex()) then
+
+    if self.Aerial_CurSpeed > 0 && !timer.Exists("ZBaseFace"..self:EntIndex()) && !timer.Exists("ZBaseFace_Range"..self:EntIndex()) then
         self:Face( (self.Fly_FaceEnemy && self.EnemyVisible && ene) or self.Aerial_CurrentDestination )
     end
+
 
     local vec = !GetConVar("ai_disabled"):GetBool() && self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed) or Vector()
     if self.ShouldMoveFromGround then

@@ -1,7 +1,8 @@
 >>> TODO <<<
+- Fix aerial shit thing
+- ignore player/player dead fixes
 - Carry many weapons
 - Weapon pickup
-- ignore player/player dead fixes
 - compatability with npc imrpovement type shit
 - Controller
 - Vehicle base
