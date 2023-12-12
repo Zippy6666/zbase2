@@ -64,7 +64,7 @@ NPC.Dialogue_Answer_Sounds = "ZBaseMale.Answer" -- Dialogue answers, emitted whe
 NPC.HearDangerSounds = "ZBaseMale.HearSound"
 
 
-NPC.OnMeleeSound_Chance = 3
+NPC.OnMeleeSound_Chance = 2
 NPC.OnRangeSound_Chance = 3
 
 
