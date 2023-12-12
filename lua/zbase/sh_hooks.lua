@@ -596,7 +596,6 @@ if CLIENT then
 
         table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent)
 
-
         surface.PlaySound( "buttons/button16.wav" )
     end)
 end

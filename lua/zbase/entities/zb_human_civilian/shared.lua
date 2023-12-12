@@ -164,3 +164,22 @@ ZBaseCreateVoiceSounds("ZBaseMale.Melee", {
     "npc/vo/zbase/npc/male01/reb2_buddykilled13.wav",
 })
 --]]==============================================================================================]]
+ZBaseCreateVoiceSounds("ZBaseMale.Follow", {
+    "vo/npc/male01/leadtheway01.wav",
+    "vo/npc/male01/leadtheway02.wav",
+    "vo/npc/male01/okimready01.wav",
+    "vo/npc/male01/okimready02.wav",
+    "vo/npc/male01/okimready03.wav",
+    "vo/npc/male01/readywhenyouare01.wav",
+    "vo/npc/male01/readywhenyouare02.wav",
+    "vo/npc/male01/squad_follow03.wav",
+})
+--]]==============================================================================================]]
+ZBaseCreateVoiceSounds("ZBaseMale.Unfollow", {
+    "vo/npc/male01/littlecorner01.wav",
+    "vo/npc/male01/squad_affirm01.wav",
+    "vo/npc/male01/squad_affirm02.wav",
+    "vo/npc/male01/squad_affirm03.wav",
+    "vo/npc/male01/squad_affirm04.wav",
+})
+--]]==============================================================================================]]

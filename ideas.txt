@@ -1,10 +1,4 @@
--- Vehicle base
--- HL2 Resurgence-like pack with NPCs from Entropy Zero 2, Hl2 Overcharged, RTBR, etc, will replace my current vj combines
--- Insurgency NPC Pack
--- Doom 3 SNPCs, replace the current vj one (new workshop page for clout)
 -- Expanded support for the weapon base so that player functions work on NPCs
--- Controller
--- Gib system
 -- Jump system
 -- ZBase functionality for any NPC, except ANP NPCs and SNPCs
 -- Guarding mode, or something like that
@@ -12,5 +6,3 @@
 -- Flying snpcs use air nodes too (not just ground)
 -- Movement noise to aerial snpc base
 -- "Entity timers"
--- Weapon switch
--- Weapon pickup

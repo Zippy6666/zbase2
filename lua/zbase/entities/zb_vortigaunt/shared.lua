@@ -51,3 +51,21 @@ ZBaseCreateVoiceSounds("ZBaseVortigaunt.Answer", {
     "vo/npc/vortigaunt/vanswer18.wav",
 })
 --]]==============================================================================================]]
+ZBaseCreateVoiceSounds("ZBaseVortigaunt.Follow", {
+    "vo/npc/vortigaunt/weareyours.wav",
+    "vo/npc/vortigaunt/wewillhelp.wav",
+    "vo/npc/vortigaunt/wefollowfm.wav",
+    "vo/npc/vortigaunt/ourhonor.wav",
+    "vo/npc/vortigaunt/leadon.wav",
+    "vo/npc/vortigaunt/leadus.wav",
+    "vo/npc/vortigaunt/honorfollow.wav",
+    "vo/npc/vortigaunt/herewestay.wav",
+})
+--]]==============================================================================================]]
+ZBaseCreateVoiceSounds("ZBaseVortigaunt.Unfollow", {
+    "vo/npc/vortigaunt/willremain.wav",
+    "vo/npc/vortigaunt/ourplacehere.wav",
+    "vo/npc/vortigaunt/herewestay.wav",
+    "vo/npc/vortigaunt/asyouwish.wav",
+})
+--]]==============================================================================================]]

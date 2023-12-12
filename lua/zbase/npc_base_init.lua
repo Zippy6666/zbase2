@@ -1,4 +1,4 @@
-local NPC = ZBaseNPCs["npc_zbase"]
+local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
 
 --[[
@@ -344,6 +344,8 @@ NPC.OnMeleeSounds = "" -- Sounds emitted when the NPC does its melee attack
 NPC.OnRangeSounds = "" -- Sounds emitted when the NPC does its range attack
 NPC.OnReloadSounds = "" -- Sounds emitted when the NPC reloads
 NPC.OnGrenadeSounds = "" -- Sounds emitted when the NPC throws a grenade
+NPC.FollowPlayerSounds = "" -- Sounds emitted when the NPC starts following a player
+NPC.UnfollowPlayerSounds = "" -- Sounds emitted when the NPC stops following a player
 
 
 -- Dialogue sounds

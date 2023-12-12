@@ -140,7 +140,7 @@ function NPC:FootStepTimer()
 
 
     self:EmitSound(self.FootStepSounds)
-    util.ScreenShake(self:GetPos(), 12, 200, 0.75, 1000)
+    util.ScreenShake(self:GetPos(), 7, 200, 0.5, 1000)
 
 
     if seqName == "charge_loop" then
