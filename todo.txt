@@ -1,13 +1,17 @@
 >>> TODO <<<
-- ignore player/player dead fixes
-- fix bloody grenade attack
 - fix crab lamp
+- fix mortar synth/ vort fx dammit
+
 - Carry many weapons
 - Weapon pickup
+
+- ignore player/player dead fixes
+- fix bloody grenade attack
 - compatability checkkk: npc imrpovement type shit, active raggies
+
 - make sure their ai is bloody perfect
 - optimiziation
-- fix mortar synth/ vort fx dammit
+
 - Vehicle base
 - Poort over all my bloody npc mfers
 
