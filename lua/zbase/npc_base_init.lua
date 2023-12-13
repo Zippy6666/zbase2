@@ -283,22 +283,18 @@ NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin uni
 
 
 NPC.m_fMaxYawSpeed = 10 -- Max turning speed
-NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
+NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- SNPC Type: ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
 
 
--- When chasing:
-NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_HIDE -- ZBASE_CANTREACHENEMY_HIDE || ZBASE_CANTREACHENEMY_FACE
+NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_HIDE -- How should it behave when it cannot reach the enemy while chasing
+-- ZBASE_CANTREACHENEMY_HIDE - Hide from enemy
+-- ZBASE_CANTREACHENEMY_FACE - Stand still and face enemy
 
 
 -- Minimum distance it chases before doing it runs SNPCChase_TooClose
 -- SNPCChase_TooClose will by default cause the SNPC to stop and face the enemy
 -- 0 = Chase enemy regardless of how close it is
 NPC.ChaseMinDistance = 0
-
-
--- Squadmembers of this NPC should try to make this amount of room to the NPC if its moving
--- Only used when in combat
-NPC.SquadGiveSpace = 0
 
 
 --[[

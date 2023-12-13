@@ -1,17 +1,14 @@
 >>> TODO <<<
-- Fix aerial face/anim bug
-- Fix aerial force go not workinn
 - ignore player/player dead fixes
-- fix bloody grenades
+- fix bloody grenade attack
 - fix crab lamp
 - Carry many weapons
 - Weapon pickup
 - compatability checkkk: npc imrpovement type shit, active raggies
 - make sure their ai is bloody perfect
-- Controller
-- Vehicle base
 - optimiziation
 - fix mortar synth/ vort fx dammit
+- Vehicle base
 - Poort over all my bloody npc mfers
 
 

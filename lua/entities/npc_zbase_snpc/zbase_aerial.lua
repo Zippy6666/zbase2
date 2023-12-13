@@ -21,38 +21,45 @@ function ENT:AerialNavigatorPos()
 end
 --]]======================================================================================================]]
 function ENT:AerialSetSchedule(sched)
-    local FailSched = sched == SCHED_FAIL or sched == -1
-
-
-    self:AerialResetNav(FailSched)
+    self:AerialResetNav()
  
-
     -- Navigator --
-    if !FailSched then
-        local Navigator = ents.Create("zbase_navigator")
-        Navigator:SetPos(self:AerialNavigatorPos())
-        Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
-        Navigator.Sched = sched
-        Navigator.ForceEnemy = self:GetEnemy()
-        Navigator.ForcedLastPos = self:GetInternalVariable("m_vecLastPosition")
-        Navigator:SetOwner(self)
-        Navigator:Spawn()
-        self:DeleteOnRemove(Navigator)
-        self.Navigator = Navigator
-    end
+    local Navigator = ents.Create("zbase_navigator")
+    Navigator:SetPos(self:AerialNavigatorPos())
+    Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
+    Navigator.Sched = sched
+    Navigator.ForceEnemy = self:GetEnemy()
+    Navigator.ForcedLastPos = self:GetInternalVariable("m_vecLastPosition")
+    Navigator:SetOwner(self)
+    Navigator:Spawn()
+    
+    self:DeleteOnRemove(Navigator)
+    self.Navigator = Navigator
 end
 --]]======================================================================================================]]
-function ENT:AerialResetNav( DontRemoveNavigator )
+function ENT:AerialResetNav()
     self.AerialGoal = nil
 
-    if !DontRemoveNavigator && IsValid(self.Navigator) then
+    if IsValid(self.Navigator) then
         self.Navigator:Remove()
     end
 end
 --]]======================================================================================================]]
+function ENT:AerialCalcGoal( pos )
+    local tr = util.TraceLine({
+        start = pos,
+        endpos = pos - Vector(0, 0, self.InternalDistanceFromGround),
+        mask = MASK_NPCWORLDSTATIC,
+    })
+    if tr.Hit then
+        pos = Vector(tr.HitPos.x, tr.HitPos.y, tr.HitPos.z+self.InternalDistanceFromGround)
+    end
+
+    self.AerialGoal = pos
+end
+--]]======================================================================================================]]
 function ENT:Aerial_TooCloseToGround()
     local start = self:GetPos()
-
     local tr = util.TraceLine({
         start = start,
         endpos = start - Vector(0, 0, self.InternalDistanceFromGround),
@@ -64,16 +71,14 @@ end
 --]]======================================================================================================]]
 function ENT:Aerial_CalcVel()
     local myPos = self:GetPos()
+
+
     self.Aerial_CurrentDestination = nil
 
 
     if self.AerialGoal then
-        -- Move to goal aerial goal or enemy
-        local ene = self:GetEnemy()
-        local seeEnemy = IsValid(ene) && self.EnemyVisible
 
-        self.Aerial_CurrentDestination = (self:IsCurrentCustomSched("CombatChase") && seeEnemy && ene:GetPos()+Vector(0, 0, self.InternalDistanceFromGround))
-        or self.AerialGoal
+        self.Aerial_CurrentDestination = self.AerialGoal
 
     elseif self.Aerial_NextMoveFromGroundCheck < CurTime() then
         -- Are we too close to the ground?
@@ -128,5 +133,15 @@ function ENT:AerialThink()
         vec = vec+Vector(0,0,30)
     end
     self:SetLocalVelocity(vec)
+
+
+    if self.AerialGoal then
+        self.LastAerialGoalPos = self.AerialGoal
+    end
+
+
+    if self.LastAerialGoalPos then
+        debugoverlay.Sphere(self.LastAerialGoalPos, 25, 0.13, Color( 0, 0, 255 ))
+    end
 end
 --]]======================================================================================================]]

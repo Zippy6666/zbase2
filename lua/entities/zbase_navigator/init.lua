@@ -43,7 +43,7 @@ function ENT:SelectSchedule()
 	timer.Simple(0.4, function()
 		if !(IsValid(self) && IsValid(own)) then return end
 		
-		local waypoint = self:GetGoalPos()
+		local waypoint = self:GetCurWaypointPos()
 
 		if waypoint:IsZero() then
 			self:Remove()
@@ -54,24 +54,37 @@ function ENT:SelectSchedule()
 end
 --]]======================================================================================================]]
 function ENT:Think()
-	local own = self:GetOwner()
-	local waypoint = self:GetCurWaypointPos()
+	if self.MoveConfirmed then
+		local own = self:GetOwner()
+		local waypoint = self:GetCurWaypointPos()
 
-	if !waypoint:IsZero() && IsValid(own) && own.NavigatorWaypoint != waypoint then
 
-		own.NavigatorWaypoint = waypoint
-		own.AerialGoal = own.NavigatorWaypoint+Vector(0, 0, own.Fly_DistanceFromGround)
+		if IsValid(own) then
+			self:SetNPCState(own:GetNPCState())
+		end
 
-		debugoverlay.Sphere(waypoint, 35, 2, Color( 50, 155, 255, 100 ))
 
-	end
+		if !waypoint:IsZero() && IsValid(own) && own.NavigatorWaypoint != waypoint then
 
-	if ZBCVAR.ShowNavigator:GetBool() then
-		debugoverlay.Text(self:WorldSpaceCenter(), "navigator sched: "..ZBaseSchedDebug( self ), 0.13)
+			own.NavigatorWaypoint = waypoint
+			own:AerialCalcGoal(own.NavigatorWaypoint)
+
+		end
+
+
+		if ZBCVAR.ShowNavigator:GetBool() then
+			debugoverlay.Text(self:WorldSpaceCenter(), "navigator sched: "..ZBaseSchedDebug( self ), 0.13)
+		end
 	end
 end
 --]]======================================================================================================]]
 function ENT:GetCurrentCustomSched()
 	return self.CurrentSchedule && self.CurrentSchedule.DebugName
+end
+--]]======================================================================================================]]
+function ENT:IsCurrentCustomSched( sched )
+
+	return "ZSched"..sched == self:GetCurrentCustomSched()
+
 end
 --]]======================================================================================================]]
