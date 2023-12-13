@@ -1,8 +1,3 @@
--- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
--- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
--- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
--- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
--- 🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵
 --]]======================================================================================================]]
 function ENT:StartSchedule( sched )
     if self.SNPCType == ZBASE_SNPCTYPE_FLY then
@@ -226,18 +221,15 @@ function ENT:DoNPCState()
 end
 --]]======================================================================================================]]
 function ENT:RunAI( strExp )
-	local CheckEnt = IsValid(self.Navigator) && self.Navigator or self
-
-
-	if CheckEnt.DoingPlayAnim then
+	if self.DoingPlayAnim then
 		return
 	end
 
 
-	if CheckEnt == self then
-		self:DoNPCState()
+	self:DoNPCState()
 
 
+	if self.SNPCType==ZBASE_SNPCTYPE_WALK then
 		-- Check if waypoint has been 0,0,0 for some time
 		self:DetermineNavStuck()
 
@@ -250,18 +242,21 @@ function ENT:RunAI( strExp )
 			self:NewSched(newsched)
 		end
 	end
-
+	
 
 	-- If we're doing an engine schedule then return true
 	-- This makes it do the normal AI stuff.
-	if ( CheckEnt:DoingEngineSchedule() ) then
+	if ( self:DoingEngineSchedule() ) then
 		return true
 	end
 
 
 	-- If we're currently running a schedule then run it.
-	if ( CheckEnt.CurrentSchedule ) then
-		CheckEnt:DoSchedule( CheckEnt.CurrentSchedule )
+	if ( self.Navigator.CurrentSchedule ) then
+		self.Navigator:DoSchedule( CheckEnt.CurrentSchedule )
+	end
+	if self.CurrentSchedule then
+		self:DoSchedule( self.CurrentSchedule )
 	end
 
 
@@ -269,7 +264,9 @@ function ENT:RunAI( strExp )
 	-- Then get the derived NPC to select what we should be doing
 	if !CheckEnt.CurrentSchedule then
 
+
 		CheckEnt:SelectSchedule()
+
 
 		-- Tell aerial base to follow the player directly instead of navigating if the enemy is visible
 		if self.SNPCType==ZBASE_SNPCTYPE_FLY
@@ -280,11 +277,16 @@ function ENT:RunAI( strExp )
 				self.AerialGoal = ene:GetPos()
 			end
 		end
+
+
 	end
 
 
 	-- Do animation system
 	self:MaintainActivity()
+	if IsValid(self.Navigator) then
+		self.Navigator:MaintainActivity()
+	end
 end
 --]]======================================================================================================]]
 function ENT:FaceHurtPos(dmginfo)
