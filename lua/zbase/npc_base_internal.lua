@@ -333,6 +333,21 @@ end
 
 --[[
 ==================================================================================================
+                                           INTERNAL UTIL
+==================================================================================================
+--]]
+
+
+function NPC:SetModel_MaintainBounds(model)
+    local mins, maxs = self:GetCollisionBounds()
+    self:SetModel(model)
+    self:SetCollisionBounds(mins, maxs)
+    self:ResetIdealActivity(ACT_IDLE)
+end
+
+
+--[[
+==================================================================================================
                                            ANIMATION
 ==================================================================================================
 --]]
@@ -648,11 +663,14 @@ function NPC:AITick_Slow()
     if IsValid(self.PlayerToFollow) && !GetConVar("ai_ignoreplayers"):GetBool()
     && self:ZBaseDist(self.PlayerToFollow, {away=300}) then
         local pos = self.PlayerToFollow:GetPos()
+        local NavigatorEnt = (IsValid(self.Navigator) && self.Navigator) or self
 
-        self:SetLastPosition(pos)
-        self:NavSetGoalTarget(self.PlayerToFollow, (self:GetPos()-pos):GetNormalized()*125)
 
-        if !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
+        NavigatorEnt:SetLastPosition(pos)
+        NavigatorEnt:NavSetGoalTarget(self.PlayerToFollow, (self:GetPos()-pos):GetNormalized()*125)
+
+
+        if !NavigatorEnt:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
             self:SetSchedule(SCHED_FORCED_GO_RUN)
         end
     end
@@ -2245,6 +2263,37 @@ function NPC:OnPostEntityTakeDamage( dmg )
 end
 
 
+
+function NPC:OnBulletHit(BulletEnt, tr, dmginfo, bulletData)
+    -- Bullet reflection
+    if self.ArmorReflectsBullets then
+        ZBaseReflectedBullet = true
+
+        local ent = ents.Create("base_gmodentity")
+        ent:SetPos(tr.HitPos)
+        ent:Spawn()
+
+        ent:FireBullets({
+            Src = tr.HitPos,
+            Dir = tr.HitNormal,
+            Spread = Vector(0.33, 0.33),
+            Num = bulletData.Num,
+            Attacker = Entity(0),
+            Inflictor = Entity(0),
+            Damage = math.random(1, 3),
+            IgnoreEntity = self,
+        })
+
+        ent:Remove()
+
+        ZBaseReflectedBullet = false
+    end
+
+
+    self:CustomOnBulletHit(BulletEnt, tr, bulletData)
+end
+
+
 --[[
 ==================================================================================================
                                            DEATH
@@ -2614,60 +2663,10 @@ function NPC:DeathAnimation( dmg )
 
         self.DeathAnim_Finished = true
 
-        -- local newDMGinfo = DamageInfo()
-        -- newDMGinfo:SetAttacker( IsValid(lastDMGinfo.att) && lastDMGinfo.att or self )
-        -- newDMGinfo:SetInflictor( IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or self )
-        -- newDMGinfo:SetDamage( 1 )
-
         if self.IsZBase_SNPC then
             self:Die(newDMGinfo)
         else
             GAMEMODE:OnNPCKilled(self, IsValid(lastDMGinfo.att) && lastDMGinfo.att or self, IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or self)
         end
     end)
-end
-
-
---[[
-==================================================================================================
-                                           OTHER CRAP
-==================================================================================================
---]]
-
-
-function NPC:OnBulletHit(BulletEnt, tr, dmginfo, bulletData)
-    -- Bullet reflection
-    if self.ArmorReflectsBullets then
-        ZBaseReflectedBullet = true
-
-        local ent = ents.Create("base_gmodentity")
-        ent:SetPos(tr.HitPos)
-        ent:Spawn()
-
-        ent:FireBullets({
-            Src = tr.HitPos,
-            Dir = tr.HitNormal,
-            Spread = Vector(0.33, 0.33),
-            Num = bulletData.Num,
-            Attacker = Entity(0),
-            Inflictor = Entity(0),
-            Damage = math.random(1, 3),
-            IgnoreEntity = self,
-        })
-
-        ent:Remove()
-
-        ZBaseReflectedBullet = false
-    end
-
-
-    self:CustomOnBulletHit(BulletEnt, tr, bulletData)
-end
-
-
-function NPC:SetModel_MaintainBounds(model)
-    local mins, maxs = self:GetCollisionBounds()
-    self:SetModel(model)
-    self:SetCollisionBounds(mins, maxs)
-    self:ResetIdealActivity(ACT_IDLE)
 end
