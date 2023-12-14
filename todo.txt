@@ -2,8 +2,8 @@
 - fix crab lamp
 - fix mortar synth/ vort fx dammit
 
-- Carry many weapons
 - Weapon pickup
+- Carry many weapons
 
 - ignore player/player dead fixes
 - fix bloody grenade attack

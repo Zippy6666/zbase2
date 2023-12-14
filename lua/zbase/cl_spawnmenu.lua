@@ -8,7 +8,7 @@ ZBaseSetCategoryIcon( "HL2: Humans + Resistance", "games/16/hl2.png" )
 
 
 local PANEL = {}
-local GenericIcon = "entities/zbase.png"
+local GenericIcon = "entities/bluemonkey.png"
 
 
 Derma_Hook( PANEL, "Paint", "Paint", "Tree" )
@@ -235,5 +235,5 @@ spawnmenu.AddCreationTab( "ZBase", function(...)
 
     return pnlContent
 
-end, GenericIcon, 25)
+end, "entities/zippy.png", 25)
 -----------------------------------------------------------------------------------------=#
