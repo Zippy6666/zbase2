@@ -3,16 +3,6 @@ include("zbase_ai.lua")
 include("zbase_aerial.lua")
 
 
-util.AddNetworkString("base_ai_zbase_client_ragdoll")
-
-
-local NPCMETA = FindMetaTable("NPC")
-
-
-ZBase_OldGetNearestSquadMember = ZBase_OldGetNearestSquadMember or NPCMETA.GetNearestSquadMember
-
-
-ENT.m_iClass = CLASS_NONE
 ENT.IsZBase_SNPC = true
 
 
@@ -71,6 +61,9 @@ function ENT:Think()
 	self:ZBaseThink()
 end
 --]]======================================================================================================]]
+local NPCMETA = FindMetaTable("NPC")
+ZBase_OldGetNearestSquadMember = ZBase_OldGetNearestSquadMember or NPCMETA.GetNearestSquadMember
+
 function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )
 	if !self.IsZBase_SNPC then return ZBase_OldGetNearestSquadMember(self) end
 

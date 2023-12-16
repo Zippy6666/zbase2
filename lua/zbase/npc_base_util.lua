@@ -64,98 +64,6 @@ end
 
 --[[
 ==================================================================================================
-                                           FACING
-==================================================================================================
---]]
-
-
-	-- Make the NPC face certain directions
-	-- 'face' - A position or an entity to face, or a number representing the yaw.
-    -- 'duration' - Face duration, if not set, you can run the function in think for example
-    -- 'speed' - Turn speed, if not set, it will be the default turn speed
-function NPC:Face( face, duration, speed )
-
-	local function turn( yaw )
-        if GetConVar("ai_disabled"):GetBool() then return end
-        if self:IsMoving() then return end
-
-
-        local sched = self:GetCurrentSchedule()
-        if sched > 88 then return end
-    
-
-        local ForbiddenScheds = {
-            [SCHED_ALERT_FACE]	= true,
-            [SCHED_ALERT_FACE_BESTSOUND]	= true,
-            [SCHED_COMBAT_FACE] 	= true,
-            [SCHED_FEAR_FACE] 	= true,	
-            [SCHED_SCRIPTED_FACE] 	= true,	
-            [SCHED_TARGET_FACE]	= true,
-            [SCHED_RANGE_ATTACK1] = true,
-        }
-
-
-        if ForbiddenScheds[sched] then return end
-        
-
-        local turnSpeed = speed or self:GetInternalVariable("m_fMaxYawSpeed") or 15
-        self:SetIdealYawAndUpdate(yaw, turnSpeed)
-	end
-
-
-    local faceFunc
-    local faceIsEnt = false
-	if isnumber(face) then
-		faceFunc = function() turn(face) end
-	elseif IsValid(face) then
-		faceFunc = function() turn( (face:GetPos() - self:GetPos()):Angle().y ) end
-        faceIsEnt = true
-	elseif isvector(face) then
-		faceFunc = function() turn( (face - self:GetPos()):Angle().y ) end
-	end
-    if !faceFunc then return end
-
-
-    if duration then
-
-        self.TimeUntilStopFace = CurTime()+duration
-        timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
-            if !IsValid(self) or (faceIsEnt && !IsValid(face)) or self.TimeUntilStopFace < CurTime() then
-                timer.Remove("ZBaseFace"..self:EntIndex())
-                return
-            end
-            faceFunc()
-        end)
-
-    else
-
-        timer.Remove("ZBaseFace"..self:EntIndex())
-        faceFunc()
-
-    end
-end
-
-
-    -- Check if the NPC is facing a position or entity
-    -- 'maxYawDifference' - If the yaw difference is less than this, we are facing the entity/position (default 22.5 degrees)
-function NPC:IsFacing( ent_or_pos, maxYawDifference )
-    if !ent_or_pos then return end
-    if ent_or_pos == NULL then return end
-
-    local ang
-    if isvector(ent_or_pos) then
-        ang = (ent_or_pos - self:GetPos()):Angle()
-    elseif IsValid(ent_or_pos) then
-        ang = (ent_or_pos:GetPos() - self:GetPos()):Angle()
-    end
-
-    local yawDif = math.abs(self:WorldToLocalAngles(ang).Yaw)
-    return yawDif < (maxYawDifference or 22.5)
-end
-
-
---[[
-==================================================================================================
                                            MELEE ATTACK
 ==================================================================================================
 --]]
@@ -369,6 +277,25 @@ end
                                            OTHER
 ==================================================================================================
 --]]
+
+
+-- Check if the NPC is facing a position or entity
+-- 'maxYawDifference' - If the yaw difference is less than this, we are facing the entity/position (default 22.5 degrees)
+function NPC:IsFacing( ent_or_pos, maxYawDifference )
+    if !ent_or_pos then return end
+    if ent_or_pos == NULL then return end
+
+    local ang
+    if isvector(ent_or_pos) then
+        ang = (ent_or_pos - self:GetPos()):Angle()
+    elseif IsValid(ent_or_pos) then
+        ang = (ent_or_pos:GetPos() - self:GetPos()):Angle()
+    end
+
+    local yawDif = math.abs(self:WorldToLocalAngles(ang).Yaw)
+    return yawDif < (maxYawDifference or 22.5)
+end
+
 
 
     -- Check if an entity or position is within a certain distance

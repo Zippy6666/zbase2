@@ -6,19 +6,28 @@
 
 
 if SERVER then
+
     util.AddNetworkString("ZBaseListFactions")
     util.AddNetworkString("ZBase_GetFactionsFromServer")
     util.AddNetworkString("ZBaseError")
     util.AddNetworkString("ZBaseReloadServer")
     util.AddNetworkString("ZBaseReloadClient")
+
+
+    net.Receive("ZBase_GetFactionsFromServer", function(_, ply)
+        ZBaseListFactions(_, ply)
+    end)
+
 end
 
 
 if CLIENT then
+
     net.Receive("ZBaseError", function()
         chat.AddText(Color(255, 0, 0), "[ZBase] Fatal error!")
         chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
     end)
+
 end
 
 
@@ -44,27 +53,24 @@ end
 
 --[[
 ======================================================================================================================================================
-                                           DONT BE ON SOME SHIT BRANCH
+                                           BRANCH
 ======================================================================================================================================================
 --]]
 
 
-if SERVER && BRANCH != "x86-64" && BRANCH != "dev" then
-    
-    
-    if SERVER then
-        
+if SERVER && !string.StartsWith(BRANCH, "x86") && BRANCH != "dev" then
 
-        hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
-            timer.Simple(3, function()
-                net.Start("ZBaseError")
-                net.Send(ply)
-            end)
+    hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
+
+        timer.Simple(3, function()
+            net.Start("ZBaseError")
+            net.Send(ply)
         end)
-    end
-    
-    
+        
+    end)
+
     return
+
 end
 
 
@@ -107,13 +113,13 @@ end)
 
 
 game.AddParticles("particles/zbase_blood_impact.pcf")
-PrecacheParticleSystem("blood_impact_zbase_green")
-PrecacheParticleSystem("blood_impact_zbase_black")
-PrecacheParticleSystem("blood_impact_zbase_blue")
-
 
 game.AddParticles("particles/striderbuster.pcf")
 game.AddParticles("particles/mortarsynth_fx.pcf")
+
+PrecacheParticleSystem("blood_impact_zbase_green")
+PrecacheParticleSystem("blood_impact_zbase_black")
+PrecacheParticleSystem("blood_impact_zbase_blue")
 PrecacheParticleSystem("striderbuster_break")
 PrecacheParticleSystem("striderbuster_break_shell")
 
@@ -125,52 +131,51 @@ PrecacheParticleSystem("striderbuster_break_shell")
 --]]
 
 
-if SERVER then
-    game.AddDecal("ZBaseBloodBlack", {
-        "decals/zbase_blood_black/blood1",
-        "decals/zbase_blood_black/blood2",
-        "decals/zbase_blood_black/blood3",
-        "decals/zbase_blood_black/blood4",
-        "decals/zbase_blood_black/blood5",
-        "decals/zbase_blood_black/blood6",
-    })
+game.AddDecal("ZBaseBloodBlack", {
+    "decals/zbase_blood_black/blood1",
+    "decals/zbase_blood_black/blood2",
+    "decals/zbase_blood_black/blood3",
+    "decals/zbase_blood_black/blood4",
+    "decals/zbase_blood_black/blood5",
+    "decals/zbase_blood_black/blood6",
+})
 
-    game.AddDecal("ZBaseBloodSynth", {
-        "decals/zbase_blood_synth/blood1",
-        "decals/zbase_blood_synth/blood2",
-        "decals/zbase_blood_synth/blood3",
-        "decals/zbase_blood_synth/blood4",
-        "decals/zbase_blood_synth/blood5",
-        "decals/zbase_blood_synth/blood6",
-    })
+game.AddDecal("ZBaseBloodSynth", {
+    "decals/zbase_blood_synth/blood1",
+    "decals/zbase_blood_synth/blood2",
+    "decals/zbase_blood_synth/blood3",
+    "decals/zbase_blood_synth/blood4",
+    "decals/zbase_blood_synth/blood5",
+    "decals/zbase_blood_synth/blood6",
+})
 
-    game.AddDecal("ZBaseBloodRed", {
-        "decals/zbase_blood_red/blood1",
-        "decals/zbase_blood_red/blood2",
-        "decals/zbase_blood_red/blood3",
-        "decals/zbase_blood_red/blood4",
-        "decals/zbase_blood_red/blood5",
-        "decals/zbase_blood_red/blood6",
-    })
+game.AddDecal("ZBaseBloodRed", {
+    "decals/zbase_blood_red/blood1",
+    "decals/zbase_blood_red/blood2",
+    "decals/zbase_blood_red/blood3",
+    "decals/zbase_blood_red/blood4",
+    "decals/zbase_blood_red/blood5",
+    "decals/zbase_blood_red/blood6",
+})
 
-    game.AddDecal("ZBaseBloodGreen", {
-        "decals/zbase_blood_green/blood1",
-        "decals/zbase_blood_green/blood2",
-        "decals/zbase_blood_green/blood3",
-        "decals/zbase_blood_green/blood4",
-        "decals/zbase_blood_green/blood5",
-        "decals/zbase_blood_green/blood6",
-    })
+game.AddDecal("ZBaseBloodGreen", {
+    "decals/zbase_blood_green/blood1",
+    "decals/zbase_blood_green/blood2",
+    "decals/zbase_blood_green/blood3",
+    "decals/zbase_blood_green/blood4",
+    "decals/zbase_blood_green/blood5",
+    "decals/zbase_blood_green/blood6",
+})
 
-    game.AddDecal("ZBaseBloodBlue", {
-        "decals/zbase_blood_blue/blood1",
-        "decals/zbase_blood_blue/blood2",
-        "decals/zbase_blood_blue/blood3",
-        "decals/zbase_blood_blue/blood4",
-        "decals/zbase_blood_blue/blood5",
-        "decals/zbase_blood_blue/blood6",
-    })
-end
+game.AddDecal("ZBaseBloodBlue", {
+    "decals/zbase_blood_blue/blood1",
+    "decals/zbase_blood_blue/blood2",
+    "decals/zbase_blood_blue/blood3",
+    "decals/zbase_blood_blue/blood4",
+    "decals/zbase_blood_blue/blood5",
+    "decals/zbase_blood_blue/blood6",
+})
+
 
 
 --[[
@@ -250,18 +255,18 @@ sound.Add({
 --]]
 
 
+
 ZBaseNPCs = {}
 ZBaseSpawnMenuNPCList = {}
 ZBaseEnhancementTable = {}
+ZBaseDynSplatterInstalled = file.Exists("dynsplatter", "LUA")
 
 
--- Should not be reset on reload
-if !ZBaseUnresetablesDefined then
-    ZBaseNPCInstances = {}
-    ZBaseNPCInstances_NonScripted = {}
-    ZBaseBehaviourTimerFuncs = {}
-    ZBaseUnresetablesDefined = true
-end
+
+ZBaseNPCInstances = ZBaseNPCInstances or {}
+ZBaseNPCInstances_NonScripted = ZBaseNPCInstances_NonScripted or {}
+ZBaseBehaviourTimerFuncs = ZBaseBehaviourTimerFuncs or {}
+
 
 
 function ZBaseEnhancementNPCClass(debuginfo)
@@ -274,6 +279,7 @@ end
 
 
 function ZBaseListFactions( _, ply )
+
     if SERVER then
         local factions = {none=true, neutral=true, ally=true}
 
@@ -292,13 +298,7 @@ function ZBaseListFactions( _, ply )
         net.Start("ZBase_GetFactionsFromServer")
         net.SendToServer()
     end
-end
 
-
-if SERVER then
-    net.Receive("ZBase_GetFactionsFromServer", function(_, ply)
-        ZBaseListFactions(_, ply)
-    end)
 end
 
 

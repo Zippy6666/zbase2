@@ -5,8 +5,6 @@ NPC.StartHealth = 320
 
 
 NPC.BloodColor = DONT_BLEED
-NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
-NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 
 NPC.CollisionBounds = {min=Vector(-65, -65, 0), max=Vector(65, 65, 80)}
@@ -17,6 +15,9 @@ NPC.ForceAvoidDanger = true -- Force this NPC to avoid dangers such as grenades
 
 
 NPC.ZBaseStartFaction = "combine"
+
+
+NPC.RagdollApplyForce = false -- Should the ragdoll get force applied to it?
 
 
 NPC.BaseMeleeAttack = true -- Use ZBase melee attack system
@@ -36,7 +37,7 @@ NPC.HasArmor = {
 NPC.ArmorPenChance = false -- 1/x Chance that the armor is penetrated, false = never
 NPC.ArmorAlwaysPenDamage = false -- Always penetrate the armor if the damage is more than this, set to false to disable
 NPC.ArmorHitSpark = false -- Do a spark on armor hit
-NPC.ArmorReflectsBullets = true -- Should the armor reflect bullets?
+NPC.ArmorReflectsBullets = false -- Should the armor reflect bullets?
 
 -- Scale damage against certain damage types:
 -- https://wiki.facepunch.com/gmod/Enums/DMG
@@ -212,13 +213,14 @@ function NPC:CustomThink()
 
         -- Disable flashlight
         if IsValid(self.FlashLight) then
-            self:DisableFlashlight()
+            -- self:DisableFlashlight()
         end
     end
 
 
     -- Charge attack think
     if seqName == "charge_loop" or seqName == "charge_start" then 
+
         -- Trace check
         local startPos = self:GetPos()+self:GetUp()*20
         local tr = util.TraceEntity({
@@ -226,13 +228,17 @@ function NPC:CustomThink()
             endpos = startPos+self:GetForward()*200,
             filter = self,
         }, self)
+
+
         if tr.Hit then
-            print(tr.Entity)
 
             if tr.HitWorld && tr.Fraction > 0.5 then
+
                 -- Hit world
                 self:StopCurrentAnimation()
+
             elseif IsValid(tr.Entity) then
+
                 -- Hit target, stop
                 local mtype = tr.Entity:GetMoveType()
                 if mtype == MOVETYPE_STEP or mtype == MOVETYPE_WALK then
@@ -249,7 +255,9 @@ function NPC:CustomThink()
                     self.MeleeAttackAnimationSpeed = 1.75 -- Speed multiplier for the melee attack animation
                     self:MeleeAttack()
                 end
+
             end
+
         end
 
 
@@ -272,7 +280,6 @@ function NPC:CustomThink()
             if ent == self then continue end
 
             local mtype = ent:GetMoveType()
-
             
             if mtype == MOVETYPE_VPHYSICS then
                 local phys = ent:GetPhysicsObject()
@@ -284,6 +291,7 @@ function NPC:CustomThink()
                 self:SetVelocity(self:GetForward()*400 + VectorRand()*100)
             end
         end
+
     end
 end
 --]]==============================================================================================]]
@@ -317,7 +325,15 @@ function NPC:EnableFlashlight(duration)
     spotlight:Spawn()
     spotlight:Activate()
     spotlight:Fire("SetParentAttachment", "flashlight")
-    self:DeleteOnRemove(spotlight)
+    projtexture:CallOnRemove("RemoveSpotlight", function()
+
+        if IsValid(spotlight) then
+            spotlight:SetParent()
+            spotlight:Fire("lightoff")
+            spotlight:Fire("kill", spotlight, 0.5)
+        end
+
+    end)
 
 
     SafeRemoveEntityDelayed(spotlight, duration)
@@ -416,7 +432,7 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
             -- Winds up first
             self.MinigunStartDone = true
             self:EmitSound("ZBaseCrabSynth.MinigunStart")
-            self:EnableFlashlight(self.RangeAttackDuration)
+            -- self:EnableFlashlight(self.RangeAttackDuration)
         
             timer.Simple(1.7, function()
                 if !(IsValid(self) && self:GetSequenceName(self:GetSequence())=="range_loop") then return end
@@ -443,8 +459,47 @@ end
 function NPC:CustomTakeDamage( dmginfo, HitGroup )
     local damageHeight = (dmginfo:GetDamagePosition().z - self:WorldSpaceCenter().z)+10
 
+
     if !(damageHeight < 0 && dmginfo:IsExplosionDamage() && self:GetSequenceName(self:GetSequence()) != "bodythrow") then
         dmginfo:ScaleDamage(0.1)
     end
+
+
+    if self:Health()-dmginfo:GetDamage() < self.StartHealth*0.5 && !IsValid(self.DamagedSmoke) then
+
+        self.DamagedSmoke = ents.Create("env_smoketrail")
+        self.DamagedSmoke:SetPos(self:GetAttachment(self:LookupAttachment("vent")).Pos)
+        self.DamagedSmoke:SetParent(self, self:LookupAttachment("vent"))
+        self.DamagedSmoke:SetKeyValue("spawnrate",48)
+        self.DamagedSmoke:SetKeyValue("lifetime",1.5) 
+        self.DamagedSmoke:SetKeyValue("startsize",0)
+        self.DamagedSmoke:SetKeyValue("endsize",40)
+        self.DamagedSmoke:SetKeyValue("startcolor","40 40 40") 
+        self.DamagedSmoke:SetKeyValue("endcolor","40 40 40")
+        self.DamagedSmoke:SetKeyValue("minspeed",30) 
+        self.DamagedSmoke:SetKeyValue("maxspeed",50)
+        self.DamagedSmoke:Spawn()
+        self:DeleteOnRemove(self.DamagedSmoke)
+
+    end
+end
+--]]==============================================================================================]]
+function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
+
+    rag.DamagedSmoke = ents.Create("env_smoketrail")
+    rag.DamagedSmoke:SetPos(rag:GetAttachment(rag:LookupAttachment("vent")).Pos)
+    rag.DamagedSmoke:SetParent(rag, rag:LookupAttachment("vent"))
+    rag.DamagedSmoke:SetKeyValue("spawnrate",48)
+    rag.DamagedSmoke:SetKeyValue("lifetime",1.5) 
+    rag.DamagedSmoke:SetKeyValue("startsize",0)
+    rag.DamagedSmoke:SetKeyValue("endsize",40)
+    rag.DamagedSmoke:SetKeyValue("startcolor","40 40 40") 
+    rag.DamagedSmoke:SetKeyValue("endcolor","40 40 40")
+    rag.DamagedSmoke:SetKeyValue("minspeed",30) 
+    rag.DamagedSmoke:SetKeyValue("maxspeed",50)
+    rag.DamagedSmoke:Spawn()
+    rag:DeleteOnRemove(rag.DamagedSmoke)
+    SafeRemoveEntityDelayed(rag.DamgedSmoke, 8)
+
 end
 --]]==============================================================================================]]
