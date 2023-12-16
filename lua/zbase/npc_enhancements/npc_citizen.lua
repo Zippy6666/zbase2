@@ -19,6 +19,7 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             rocket:SetOwner(self)
             rocket:SetVelocity(vel+Vector(0,0,100))
             rocket:SetAngles(vel:Angle())
+            rocket.IsZBaseDMGInfl = true
             rocket:Spawn()
             rocket:SetSaveValue("m_flDamage", ZBCVAR.FullHL2WepDMG_PLY:GetBool()&&150 or 70)
 

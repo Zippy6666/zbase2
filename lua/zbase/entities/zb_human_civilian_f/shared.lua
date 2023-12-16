@@ -142,7 +142,6 @@ ZBaseCreateVoiceSounds("ZBaseFemale.HearSound", {
     "vo/npc/female01/startle01.wav",
     "vo/npc/female01/startle02.wav",
     "npc/vo/zbase/npc/female01/cit_alert_antlions09.wav",
-    "npc/vo/zbase/npc/female01/cit_alert_antlions11.wav",
 })
 --]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseFemale.Melee", {

@@ -541,10 +541,7 @@ if SERVER then
 
 
     hook.Add( "KeyPress", "keypress_use_hi", function( ply, key )
-        ply.ZBaseNextFollow = ply.ZBaseNextFollow or CurTime()
-
-
-        if ( key == IN_USE ) && ply.ZBaseNextFollow < CurTime() then
+        if ( key == IN_USE ) then
             local tr = ply:GetEyeTrace()
             local ent = tr.Entity
 
@@ -554,9 +551,6 @@ if SERVER then
             elseif IsValid(ent) && ent.IsZBaseNPC && ent:CanStartFollowPlayers() then
                 ent:StartFollowingPlayer(ply)
             end
-
-
-            ply.ZBaseNextFollow = CurTime()+1
         end
     end)
 end

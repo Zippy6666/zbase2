@@ -116,10 +116,16 @@ function NPC:SNPCChase_TooClose()
 end
 --]]==============================================================================================]]
 function NPC:RangeAttackAnimation()
+
     self:PlayAnimation(table.Random(self.RangeAttackAnimations), false, {
         speedMult=self.RangeAttackAnimationSpeed,
         noTransitions = false,
     })
+
+    if self.RangeAttackType == RANGE_ATTACK_BOLT then
+        ParticleEffectAttach("mortarsynth_hand_glow", PATTACH_POINT_FOLLOW, self, 1)
+        ParticleEffectAttach("mortarsynth_hand_glow", PATTACH_POINT_FOLLOW, self, 2)
+    end
 end
 --]]==============================================================================================]]
 function NPC:MultipleRangeAttacks()
@@ -175,7 +181,7 @@ function NPC:RangeAttackProjectile()
 
 
         -- Effect
-        for i = 1, 3 do
+        for i = 1, 2 do
             local tr = util.TraceLine({
                 start = StartPos_Dmg,
                 endpos = StartPos_Dmg+Nrm*10000,
@@ -183,7 +189,7 @@ function NPC:RangeAttackProjectile()
             })
 
             local StartPos = self:GetAttachment(i).Pos
-            util.ParticleTracerEx("vortigaunt_beam", StartPos, tr.HitPos, false, self:EntIndex(), i)
+            ParticleEffect("mortarsynth_beam", StartPos, self:GetAngles())
         end
     
         -- Damage
@@ -200,7 +206,14 @@ function NPC:RangeAttackProjectile()
         dmginfo:SetDamageType(DMG_SHOCK)
         util.BlastDamageInfo(dmginfo, tr.HitPos, 75)
 
+
+        ParticleEffect("mortarsynth_beam", tr.HitPos, self:GetAngles())
+
+        
         self:EmitSound("ZBaseMortarSynth.Shock")
+
+
+        self:StopParticles() -- Stop charge particles
     end
 end
 --]]==============================================================================================]]

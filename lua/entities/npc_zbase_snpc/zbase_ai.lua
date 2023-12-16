@@ -285,10 +285,14 @@ function ENT:RunAI( strExp )
 end
 --]]======================================================================================================]]
 function ENT:FaceHurtPos(dmginfo)
-	if !IsValid(self:GetEnemy()) && self.NextFaceHurtPos < CurTime() && !self.DoingPlayAnim then
+	if !IsValid(self:GetEnemy()) && self.NextFaceHurtPos < CurTime() && !self.DoingPlayAnim && IsValid(dmginfo:GetInflictor()) then
+
 		self:FullReset()
-		self:Face(dmginfo:GetDamagePosition(), math.Rand(2, 4), 5)
-		self.NextFaceHurtPos = CurTime() + math.Rand(0.5, 1.5)
+		self:SetTarget(dmginfo:GetInflictor())
+		self:SetSchedule(SCHED_TARGET_FACE)
+
+		self.NextFaceHurtPos = CurTime() + math.Rand(2, 3)
+
 	end
 end
 --]]======================================================================================================]]

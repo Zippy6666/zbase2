@@ -154,7 +154,6 @@ ZBaseCreateVoiceSounds("ZBaseMale.HearSound", {
     "vo/npc/male01/startle01.wav",
     "vo/npc/male01/startle02.wav",
     "npc/vo/zbase/npc/male01/cit_alert_antlions09.wav",
-    "npc/vo/zbase/npc/male01/cit_alert_antlions11.wav",
 })
 --]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseMale.Melee", {

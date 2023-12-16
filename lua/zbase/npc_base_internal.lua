@@ -338,12 +338,82 @@ end
 --]]
 
 
+
 function NPC:SetModel_MaintainBounds(model)
     local mins, maxs = self:GetCollisionBounds()
     self:SetModel(model)
     self:SetCollisionBounds(mins, maxs)
     self:ResetIdealActivity(ACT_IDLE)
 end
+
+
+
+-- Make the NPC face certain directions
+-- 'face' - A position or an entity to face, or a number representing the yaw.
+-- 'duration' - Face duration, if not set, you can run the function in think for example
+-- 'speed' - Turn speed, if not set, it will be the default turn speed
+function NPC:Face( face, duration, speed )
+
+    local function turn( yaw )
+        if GetConVar("ai_disabled"):GetBool() then return end
+        if self:IsMoving() then return end
+
+
+        local sched = self:GetCurrentSchedule()
+        if sched > 88 then return end
+    
+
+        local ForbiddenScheds = {
+            [SCHED_ALERT_FACE]	= true,
+            [SCHED_ALERT_FACE_BESTSOUND]	= true,
+            [SCHED_COMBAT_FACE] 	= true,
+            [SCHED_FEAR_FACE] 	= true,	
+            [SCHED_SCRIPTED_FACE] 	= true,	
+            [SCHED_TARGET_FACE]	= true,
+            [SCHED_RANGE_ATTACK1] = true,
+        }
+
+
+        if ForbiddenScheds[sched] then return end
+        
+
+        local turnSpeed = speed or self:GetInternalVariable("m_fMaxYawSpeed") or 15
+        self:SetIdealYawAndUpdate(yaw, turnSpeed)
+    end
+
+
+    local faceFunc
+    local faceIsEnt = false
+    if isnumber(face) then
+        faceFunc = function() turn(face) end
+    elseif IsValid(face) then
+        faceFunc = function() turn( (face:GetPos() - self:GetPos()):Angle().y ) end
+        faceIsEnt = true
+    elseif isvector(face) then
+        faceFunc = function() turn( (face - self:GetPos()):Angle().y ) end
+    end
+    if !faceFunc then return end
+
+
+    if duration then
+
+        self.TimeUntilStopFace = CurTime()+duration
+        timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
+            if !IsValid(self) or (faceIsEnt && !IsValid(face)) or self.TimeUntilStopFace < CurTime() then
+                timer.Remove("ZBaseFace"..self:EntIndex())
+                return
+            end
+            faceFunc()
+        end)
+
+    else
+
+        timer.Remove("ZBaseFace"..self:EntIndex())
+        faceFunc()
+
+    end
+end
+
 
 
 --[[
@@ -566,7 +636,7 @@ end
 function NPC:SetConditionalActivities()
     local NoWep = !IsValid(self:GetActiveWeapon())
 
-
+    
     if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) then
         self:SetActivityIfAvailable(self.SetMovementActivity, {ACT_RUN_PROTECTED, ACT_RUN_CROUCH})
     end
@@ -682,55 +752,6 @@ function NPC:AITick_Slow()
 end
 
 
-function NPC:CanStartFollowPlayers()
-    return self.CanFollowPlayers && !GetConVar("ai_ignoreplayers"):GetBool() && !IsValid(self.PlayerToFollow)
-    && self.SNPCType != ZBASE_SNPCTYPE_STATIONARY
-end
-
-
-function NPC:CurrentlyFollowingPlayer()
-    return IsValid(self.PlayerToFollow) && self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
-end
-
-
-function NPC:StartFollowingPlayer( ply )
-    if !self:IsAlly(ply) then return end
-    if self:ZBaseDist(ply, {away=200}) then return end
-
-
-    self.PlayerToFollow = ply
-
-
-    net.Start("ZBaseSetFollowHalo")
-    net.WriteEntity(self)
-    net.Send(self.PlayerToFollow)
-
-    self:SetTarget(ply)
-    self:SetSchedule(SCHED_TARGET_FACE)
-
-    self:EmitSound_Uninterupted(self.FollowPlayerSounds)
-
-
-    self:FollowPlayerStatus(self.PlayerToFollow)
-end
-
-
-function NPC:StopFollowingCurrentPlayer( noSound )
-    net.Start("ZBaseRemoveFollowHalo")
-    net.WriteEntity(self)
-    net.Send(self.PlayerToFollow)
-
-    self.PlayerToFollow = NULL
-
-    if !noSound then
-        self:EmitSound_Uninterupted(self.UnfollowPlayerSounds)
-    end
-
-
-    self:FollowPlayerStatus(NULL)
-end
-
-
 function NPC:AITick_NonScripted()
     if GetConVar("ai_disabled"):GetBool() then return end
 
@@ -776,6 +797,30 @@ function NPC:AITick_NonScripted()
         self:SetSchedule(SCHED_CHASE_ENEMY)
     end
 end
+
+
+function NPC:FullReset()
+    self:TaskComplete()
+    self:ClearGoal()
+    self:ClearSchedule()
+    self:StopMoving()
+    self:SetMoveVelocity(Vector())
+
+    if self.IsZBase_SNPC then
+        self:AerialResetNav()
+        self:ScheduleFinished()
+    end
+end
+
+
+function NPC:ForceGotoLastKnownPos()
+    self:SetLastPosition(self:GetEnemyLastKnownPos())
+    self:SetSchedule(SCHED_FORCED_GO_RUN)
+    self.GotoEneLastKnownPosWhenEluded = false
+
+    debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
+end
+
 
 
 function NPC:ShouldChase()
@@ -842,6 +887,7 @@ function NPC:DoNewEnemy()
     if IsValid(ene) then
         -- New enemy
         -- Do alert sound
+        
         if self.NextAlertSound < CurTime() then
 
             self:StopSound(self.IdleSounds)
@@ -895,26 +941,73 @@ function NPC:DoMoveSpeed()
 end
 
 
-function NPC:ForceGotoLastKnownPos()
-    self:SetLastPosition(self:GetEnemyLastKnownPos())
-    self:SetSchedule(SCHED_FORCED_GO_RUN)
-    self.GotoEneLastKnownPosWhenEluded = false
+function NPC:OnReactToSound()
+    if self:GetNPCState()==NPC_STATE_ALERT then
 
-    debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
+        self:CancelConversation()
+
+        if !self:NearbyAllySpeaking({"HearDangerSounds"}) && self.NextEmitHearDangerSound < CurTime() then
+            self:EmitSound_Uninterupted(self.HearDangerSounds)
+            self.NextEmitHearDangerSound = CurTime()+math.Rand(3, 6)
+        end
+
+    end
 end
 
 
-function NPC:FullReset()
-    self:TaskComplete()
-    self:ClearGoal()
-    self:ClearSchedule()
-    self:StopMoving()
-    self:SetMoveVelocity(Vector())
+--[[
+==================================================================================================
+                                           AI FOLLOW PLAYER
+==================================================================================================
+--]]
 
-    if self.IsZBase_SNPC then
-        self:AerialResetNav()
-        self:ScheduleFinished()
+
+function NPC:CanStartFollowPlayers()
+    return self.CanFollowPlayers && !GetConVar("ai_ignoreplayers"):GetBool() && !IsValid(self.PlayerToFollow)
+    && self.SNPCType != ZBASE_SNPCTYPE_STATIONARY
+end
+
+
+function NPC:CurrentlyFollowingPlayer()
+    return IsValid(self.PlayerToFollow) && self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
+end
+
+
+function NPC:StartFollowingPlayer( ply )
+    if !self:IsAlly(ply) then return end
+    if self:ZBaseDist(ply, {away=200}) then return end
+
+
+    self.PlayerToFollow = ply
+
+
+    net.Start("ZBaseSetFollowHalo")
+    net.WriteEntity(self)
+    net.Send(self.PlayerToFollow)
+
+    self:SetTarget(ply)
+    self:SetSchedule(SCHED_TARGET_FACE)
+
+    self:EmitSound_Uninterupted(self.FollowPlayerSounds)
+
+
+    self:FollowPlayerStatus(self.PlayerToFollow)
+end
+
+
+function NPC:StopFollowingCurrentPlayer( noSound )
+    net.Start("ZBaseRemoveFollowHalo")
+    net.WriteEntity(self)
+    net.Send(self.PlayerToFollow)
+
+    self.PlayerToFollow = NULL
+
+    if !noSound then
+        self:EmitSound_Uninterupted(self.UnfollowPlayerSounds)
     end
+
+
+    self:FollowPlayerStatus(NULL)
 end
 
 
@@ -1181,7 +1274,6 @@ function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
     grenade:SetVelocity((enemy:GetPos() - startPos):GetNormalized()*1250 + Vector(0,0,200))
     grenade:SetLocalAngularVelocity(AngleRand())
     wep:EmitSound("Weapon_AR2.Double")
-
     local effectdata = EffectData()
     effectdata:SetFlags(7)
     effectdata:SetEntity(wep)
@@ -1344,10 +1436,6 @@ function NPC:InternalMeleeAttackDamage(dmgData)
             dmg:SetDamage(ZBaseRndTblRange(dmgData.amt))
             dmg:SetDamageType(dmgData.type)
             ent:TakeDamageInfo(dmg)
-
-            if !(ent:IsPlayer() && dmg:IsDamageType(DMG_SLASH)) && dmg:GetDamage()>0 then
-                ZBaseBleed( ent, entpos+VectorRand(-15, 15) ) -- Bleed
-            end
         end
     
 
@@ -1635,7 +1723,6 @@ function NPC:OnEmitSound( data )
     if !ZBase_EmitSoundCall
     && (self.MuteDefaultVoice or self:NearbyAllySpeaking() or self.IsSpeaking)
     && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
-        print(data.SoundName)
         return false
     end
 
@@ -2460,12 +2547,17 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
 
 	-- Ragdoll force
-	local force = dmg:GetDamageForce()/(totMass/120)
-	if self.LastDamageWasBullet then
-		ragPhys:SetVelocity(force*0.1)
-	else
-		ragPhys:SetVelocity(force)
-	end
+    if self.RagdollApplyForce then
+
+        local force = dmg:GetDamageForce()/(totMass/120)
+
+        if self.LastDamageWasBullet then
+            ragPhys:SetVelocity(force*0.1)
+        else
+            ragPhys:SetVelocity(force)
+        end
+
+    end
 
 
 	-- Hook
@@ -2546,31 +2638,47 @@ function NPC:InternalCreateGib( model, data )
     -- Create
     local Gib = ents.Create("base_gmodentity")
     Gib:SetModel(model)
+    Gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
     Gib.IsZBaseGib = true
-    Gib.BloodColor = self:GetBloodColor()
-    Gib.CustomBloodDecals = self.CustomBloodDecals
-    Gib.CustomBloodParticles = self.CustomBloodParticles
-    Gib.CustomBleed = self.CustomBleed
-    Gib.ShouldBleed = !data.DontBleed
-    Gib.ZBaseDist = self.ZBaseDist
 
 
-    -- Phys collide function
-    Gib.PhysicsCollide = function(_, colData, collider)
+    -- Blood
+    if ZBaseDynSplatterInstalled && !data.DontBleed then
+        Gib:SetBloodColor(self:GetBloodColor())
+        Gib:SetNWBool("DynSplatter", true)
 
-        -- Bleed
-        if Gib.ShouldBleed && colData.Speed > 200 then
-            ZBaseBleed( Gib, colData.HitPos, colData.HitNormal:Angle() )
+
+        local CustomDecal = self.CustomBloodDecals
+        local CustomParticle = self.CustomBloodParticles && self.CustomBloodParticles[1]
+
+
+        if CustomDecal then
+            Gib:SetNWString( "DynamicBloodSplatter_CustomBlood_Decal", CustomDecal )
         end
 
+
+        if CustomParticle then
+            Gib:SetNWString( "DynamicBloodSplatter_CustomBlood_Particle", CustomParticle )
+        end
+
+
+        Gib.PhysicsCollide = function(_, colData, collider)
+
+            if colData.Speed > 200 then
+                local effectdata = EffectData()
+                effectdata:SetOrigin( colData.HitPos )
+                effectdata:SetNormal( -colData.HitNormal )
+                effectdata:SetMagnitude( 1.2 )
+                effectdata:SetRadius( colData.Speed/20 )
+                effectdata:SetEntity( Gib )
+                util.Effect("dynamic_blood_splatter_effect", effectdata, true, true )
+            end
+
+        end
     end
 
 
-    -- Don't collide with stuff too much m8
-    -- if !ZBCVAR.GibCollide:GetBool() then
-    --     Gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-    -- end
-    Gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+    
 
 
     -- Position

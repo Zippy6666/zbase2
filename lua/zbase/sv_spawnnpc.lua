@@ -357,14 +357,6 @@ end
 ---------------------------------------------------------------------------------------------------------=#
 concommand.Add( "zbase_spawnnpc", function( ply, cmd, args )
     Spawn_ZBaseNPC( ply, args[ 1 ], args[ 2 ] )
-
-
-	if GetConVar("developer"):GetBool() then
-		timer.Simple(0.5, function()
-			RunConsoleCommand("cl_ent_bbox")
-			RunConsoleCommand("cl_ent_absbox")
-		end)
-	end
 end)
 ---------------------------------------------------------------------------------------------------------=#
 concommand.Add( "zbase_debug_spawn_many", function( ply, cmd, args )

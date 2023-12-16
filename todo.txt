@@ -1,7 +1,4 @@
 >>> TODO <<<
-- fix crab lamp
-- fix mortar synth/ vort fx dammit
-
 - Weapon pickup
 - Carry many weapons
 

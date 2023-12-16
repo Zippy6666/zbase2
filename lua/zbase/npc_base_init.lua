@@ -193,7 +193,7 @@ NPC.DeathAnimationChance = 2 --  Flinch animation chance 1/x
 NPC.DeathAnimationDuration = 1 -- Duration of death animation
 
 NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
-
+NPC.RagdollApplyForce = true -- Should the ragdoll get force applied to it?
 
 --[[
 ==================================================================================================
@@ -283,6 +283,7 @@ NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin uni
 
 
 NPC.m_fMaxYawSpeed = 10 -- Max turning speed
+NPC.m_iClass = CLASS_NONE -- What is this SNPC classified as? (don't confuse with faction!) https://wiki.facepunch.com/gmod/Enums/CLASS
 NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- SNPC Type: ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
 
 
@@ -707,6 +708,7 @@ end
     -- Engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
     -- Supports any custom schedule!
 function NPC:SNPCSelectSchedule(iNPCState)
+
     -- Example:
     local ene = self:GetEnemy()
 
@@ -722,6 +724,7 @@ function NPC:SNPCSelectSchedule(iNPCState)
         return SCHED_IDLE_STAND
 
     end
+
 end
 
 
@@ -729,34 +732,45 @@ end
     -- Return a engine or custom schedule to set schedule
     -- Engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
 function NPC:SNPCChase_TooClose()
+
     -- Stand still and face enemy if we are too close
     return ZSched.CombatFace
+
 end
 
 
     -- Called when the SNPC takes damage
 function NPC:SNPCOnHurt(dmginfo)
+
     -- Example:
 	if !IsValid(self:GetEnemy()) then
+
         -- Face the direction of the damage
 		self:FaceHurtPos(dmginfo)
+
 	end
+
 end
 
 
     -- Called when an animation event is fired
-function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option) 
+function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
+
     -- Example:
+
     -- if event == 5 then
     --     self:MeleeAttackDamage()
     -- end
+
 end
 
 
     -- Called continiusly for flying SNPCs
     -- You can change anything about their flying velocity here
 function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
+
     return destinationDirection*destinationCurrentSpeed
+
 end
 
 

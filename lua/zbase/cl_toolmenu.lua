@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------------------=#
 local function ZBaseAddMenuCategory( name, func )
 
-    spawnmenu.AddToolMenuOption("Zippy", "ZBase: NPC Base", name, name, "", "", function(panel)
+    spawnmenu.AddToolMenuOption("Configure ZBase", "Base", name, name, "", "", function(panel)
         panel:ControlHelp("")
         panel:ControlHelp("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
         panel:ControlHelp("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
@@ -21,7 +21,7 @@ local function ZBaseAddMenuCategory( name, func )
 end
 ------------------------------------------------------------------------------------------=#
 hook.Add("PopulateToolMenu", "ZBASE", function()
-    spawnmenu.AddToolTab( "Zippy", "Zippy", "entities/zippy.png" )
+    spawnmenu.AddToolTab( "Configure ZBase", "ZBase", "entities/zippy.png" )
 
 
     ZBaseAddMenuCategory("NPC General", function( panel )
