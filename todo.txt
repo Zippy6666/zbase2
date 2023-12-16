@@ -1,15 +1,4 @@
 >>> TODO <<<
-- Weapon pickup
-- Carry many weapons
-
-- ignore player/player dead fixes
-- fix bloody grenade attack
-- compatability checkkk: npc imrpovement type shit, active raggies
-
-- make sure their ai is bloody perfect
-- optimiziation
-
-- Vehicle base
 - Poort over all my bloody npc mfers
 
 
