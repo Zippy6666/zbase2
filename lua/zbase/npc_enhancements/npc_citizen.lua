@@ -42,7 +42,18 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             self:SetSaveValue("m_flPlayerHealTime", 5)
         end
 
+
         self:Fire("RemoveFromPlayerSquad")
+
+
+        if self:IsCurrentSchedule(SCHED_STANDOFF) then
+            self:SetSchedule(SCHED_ALERT_FACE)
+        end
+
+
+        if self:IsCurrentSchedule(SCHED_ESTABLISH_LINE_OF_FIRE) then
+            self:SetSchedule(SCHED_CHASE_ENEMY)
+        end
     end
     --]]============================================================================================================]]
 end

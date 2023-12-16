@@ -363,13 +363,13 @@ concommand.Add( "zbase_debug_spawn_many", function( ply, cmd, args )
 	for x = 1, args[ 2 ] or 25 do
 		for y = 1, args[ 2 ] or 25 do
 			if ZBaseNPCs[args[ 1 ]] then
-				Spawn_ZBaseNPC( ply, args[ 1 ], nil, util.TraceLine({
+				Spawn_ZBaseNPC( ply, args[ 1 ], args[3], util.TraceLine({
 					start = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, 1000),
 					endpos = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, -1000),
 					mask = MASK_NPCWORLDSTATIC,
 				}) )
 			else
-				Spawn_NPC( ply, args[ 1 ], nil, util.TraceLine({
+				Spawn_NPC( ply, args[ 1 ], args[3], util.TraceLine({
 					start = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, 1000),
 					endpos = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, -1000),
 					mask = MASK_NPCWORLDSTATIC,

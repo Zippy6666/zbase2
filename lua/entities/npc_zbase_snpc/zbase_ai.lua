@@ -149,7 +149,7 @@ function ENT:GetBetterSchedule()
 end
 --]]======================================================================================================]]
 function ENT:GetAerialTranslatedSched()
-	if IsValid(self.Navigator) then
+	if IsValid(self.Navigator) && IsValid(self:GetEnemy()) then
 		if self.Navigator:IsCurrentCustomSched("CombatChase") && self.EnemyVisible then
 			return "AerialChase_NoNav", self:GetEnemy():GetPos()
 		end

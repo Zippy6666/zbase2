@@ -9,3 +9,5 @@
 - "Entity timers"
 - coolier effects?? from anp?
 - Controller
+- Weapon pickup
+- Carry many weapons
