@@ -64,6 +64,7 @@ function NPC:ZBaseInit()
     self.LastHitGroup = HITGROUP_GENERIC
     self.SchedDebug = GetConVar("developer"):GetBool()
     self.PlayerToFollow = NULL
+    self.NextRangeThreatened = CurTime()
 
 
     -- Network shit
@@ -668,6 +669,14 @@ local ReloadActs = {
 }
 
 
+local RangeAttackActs = {
+    [ACT_RANGE_ATTACK1] = true,
+    [ACT_RANGE_ATTACK2] = true,
+    [ACT_SPECIAL_ATTACK1] = true,
+    [ACT_SPECIAL_ATTACK2] = true,
+}
+
+
 function NPC:AITick_Slow()
     if GetConVar("ai_disabled"):GetBool() then return end
 
@@ -867,9 +876,27 @@ function NPC:OnKilledEnt( ent )
 end
 
 
+function NPC:RangeThreatened( threat )
+    if !self:HasEnemyMemory(threat) then return end
+    if self.NextRangeThreatened > CurTime() then return end
+
+
+    debugoverlay.Text(self:GetPos(), "threatened")
+    self:OnRangeThreatened(threat)
+
+
+    self.NextRangeThreatened = CurTime()+3
+end
+
+
 function NPC:NewActivityDetected( act )
+
+    local ene = self:GetEnemy()
+
+
     -- Reload weapon sounds:
     local wep = self:GetActiveWeapon()
+
     if ReloadActs[act] && IsValid(wep) then
 
         if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
@@ -883,7 +910,15 @@ function NPC:NewActivityDetected( act )
     end
 
 
+
+    if IsValid(ene) && RangeAttackActs[act] && ene.IsZBaseNPC then
+        ene:RangeThreatened(self)
+    end
+
+
+
     self:CustomNewActivityDetected( act )
+
 end
 
 
@@ -1561,7 +1596,17 @@ end
 
 
 function NPCB.RangeAttack:Run( self )
+    local ene = self:GetEnemy()
+
+
+    if IsValid(ene) && ene.IsZBaseNPC then
+        ene:RangeThreatened( self )
+    end
+
+
     self:RangeAttack()
+
+
     ZBaseDelayBehaviour(self:SequenceDuration() + 0.25 + ZBaseRndTblRange(self.RangeAttackCooldown))
 end
 

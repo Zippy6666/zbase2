@@ -540,7 +540,7 @@ if SERVER then
     util.AddNetworkString("ZBaseRemoveFollowHalo")
 
 
-    hook.Add( "KeyPress", "keypress_use_hi", function( ply, key )
+    hook.Add( "KeyPress", "ZBaseFollow", function( ply, key )
         if ( key == IN_USE ) then
             local tr = ply:GetEyeTrace()
             local ent = tr.Entity
@@ -692,5 +692,31 @@ end)
 hook.Add("CreateEntityRagdoll", "ZBaseNoRag", function(ent, rag)
     if ent.IsZBaseNPC && !rag.IsZBaseRag then
         rag:Remove()
+    end
+end)
+
+
+-- Player trying to shoot NPC
+hook.Add( "KeyPress", "ZBASE", function( ply, key )
+    if !SERVER then return end
+
+
+
+    local wep = ply:GetActiveWeapon()
+
+
+    if IsValid(wep) &&
+    ( (wep:Clip1() > 0 && key == IN_ATTACK) or (wep:Clip2() > 0 && key == IN_ATTACK2)
+    or (wep:GetClass()=="weapon_smg1" && ply:GetAmmoCount("SMG1_Grenade")>0 && key == IN_ATTACK2)
+    or (wep:GetClass()=="weapon_ar2" && ply:GetAmmoCount("AR2AltFire")>0 && key == IN_ATTACK2) ) then
+
+        local tr = ply:GetEyeTrace()
+        local ent = (tr.Entity.IsZBaseNPC && tr.Entity)
+
+
+        if IsValid(ent) then
+            ent:RangeThreatened(ply)
+        end
+
     end
 end)
