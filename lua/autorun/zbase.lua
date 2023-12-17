@@ -476,6 +476,9 @@ end
 
 local function AddNPCsToSpawnMenu()
     for cls, t in pairs( ZBaseNPCs ) do
+        if t.Category == false then continue end -- Don't add to menu
+
+
         local ZBaseSpawnMenuTbl = {
             Name=t.Name,
             Category=t.Category,

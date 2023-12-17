@@ -321,7 +321,10 @@ NPC.Fly_GravGunPuntForceMult = 1 -- How much should the flying SNPC be affected 
 --]]
 
 
+
 NPC.MuteDefaultVoice = true -- Mute all default voice sounds emitted by this NPC
+NPC.MuteAllDefaultSoundEmittions = false -- Mute all default sounds emitted by this NPC
+
 
 
 -- Sounds (Use sound scripts to alter pitch and level and such!)
@@ -680,6 +683,11 @@ end
 
     -- Called when the base detects that the NPC is playing a new activity
 function NPC:CustomNewActivityDetected( act )
+end
+
+
+-- Called when the base detects that the NPC is playing a new sequence
+function NPC:CustomNewSequenceDetected( sequence, SequenceName )
 end
 
 
