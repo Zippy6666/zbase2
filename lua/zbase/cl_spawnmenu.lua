@@ -1,7 +1,7 @@
     -- Note: Contains a lot of borrowed gmod source code! --
 
 
-ZBaseCategoryImages = {}
+ZBaseCategoryImages = ZBaseCategoryImages or {}
 ZBaseSetCategoryIcon( "HL2: Combine", "games/16/hl2.png" )
 ZBaseSetCategoryIcon( "HL2: Zombies + Enemy Aliens", "games/16/hl2.png" )
 ZBaseSetCategoryIcon( "HL2: Humans + Resistance", "games/16/hl2.png" )

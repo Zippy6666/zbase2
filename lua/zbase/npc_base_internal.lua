@@ -280,6 +280,13 @@ function NPC:ZBaseThink()
     end
 
 
+    -- Sequence change detection
+    if self:GetSequence() != self.ZBaseLastSequence then
+        self.ZBaseLastSequence = self:GetSequence()
+        self:NewSequenceDetected( self.ZBaseLastSequence, self:GetSequenceName(self.ZBaseLastSequence) )
+    end
+
+
     -- Stuff to make play anim work as intended
     if self.DoingPlayAnim then
         self:DoPlayAnim()
@@ -877,6 +884,11 @@ function NPC:NewActivityDetected( act )
 
 
     self:CustomNewActivityDetected( act )
+end
+
+
+function NPC:NewSequenceDetected( seq, seqName )
+    self:CustomNewSequenceDetected( seq, seqName )
 end
 
 
@@ -1723,6 +1735,12 @@ function NPC:OnEmitSound( data )
     if !ZBase_EmitSoundCall
     && (self.MuteDefaultVoice or self:NearbyAllySpeaking() or self.IsSpeaking)
     && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
+        return false
+    end
+
+
+    -- Mute default sounds
+    if !ZBase_EmitSoundCall && self.MuteAllDefaultSoundEmittions then
         return false
     end
 
