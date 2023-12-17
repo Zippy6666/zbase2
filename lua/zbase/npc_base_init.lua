@@ -664,6 +664,18 @@ function NPC:EnemyStatus( enemy )
 end
 
 
+    -- Called when the NPC reacts to a sound
+    -- Only with this addon enabled:
+    -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
+    -- 'loudness' How loud the NPC percieved the sound to be
+    -- NPC_HEAR_BANG = 1 - Like a gunshot
+    -- NPC_HEAR_VOICE = 2 - Like a human voice
+    -- NPC_HEAR_STEP = 3 - Like footsteps
+    -- NPC_HEAR_QUIET = 4 - Not loud
+function NPC:OnReactToSound(Emitter, pos, loudness)
+end
+
+
     -- Called when the NPC follows or unfollows a player
     -- 'ply' - The player to follow, or NULL if the player was unfollowed
 function NPC:FollowPlayerStatus( ply )

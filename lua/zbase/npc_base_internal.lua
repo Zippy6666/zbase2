@@ -953,7 +953,7 @@ function NPC:DoMoveSpeed()
 end
 
 
-function NPC:OnReactToSound()
+function NPC:OnReactToSound(ent, pos, loudness)
     if self:GetNPCState()==NPC_STATE_ALERT then
 
         self:CancelConversation()
@@ -964,6 +964,9 @@ function NPC:OnReactToSound()
         end
 
     end
+
+
+    self:OnReactToSound(ent, pos, loudness)
 end
 
 
