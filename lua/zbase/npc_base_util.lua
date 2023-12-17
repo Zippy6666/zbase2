@@ -62,6 +62,12 @@ function NPC:BusyPlayingAnimation()
 end
 
 
+    -- Return the name of the sequence the NPC currently is playing
+function NPC:GetCurrentSequenceName()
+    return self:GetSequenceName(self:GetSequence())
+end
+
+
 --[[
 ==================================================================================================
                                            MELEE ATTACK

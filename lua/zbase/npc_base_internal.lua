@@ -1310,6 +1310,13 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
 
         wep:EmitSound("Weapon_IRifle.Single")
     end)
+
+
+    if IsValid(enemy) && enemy.IsZBaseNPC then
+        enemy:RangeThreatened( self )
+    end
+
+
 end
 
 
@@ -1323,11 +1330,17 @@ function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
     grenade:Spawn()
     grenade:SetVelocity((enemy:GetPos() - startPos):GetNormalized()*1250 + Vector(0,0,200))
     grenade:SetLocalAngularVelocity(AngleRand())
+
     wep:EmitSound("Weapon_AR2.Double")
+
     local effectdata = EffectData()
     effectdata:SetFlags(7)
     effectdata:SetEntity(wep)
     util.Effect( "MuzzleFlash", effectdata, true, true )
+
+    if IsValid(enemy) && enemy.IsZBaseNPC then
+        enemy:RangeThreatened( self )
+    end
 
 end
 

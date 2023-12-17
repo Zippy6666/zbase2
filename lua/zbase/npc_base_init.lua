@@ -1,6 +1,9 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
 
+util.AddNetworkString("D3_FadeRagdoll")
+
+
 --[[
 ==================================================================================================
                                            GENERAL
