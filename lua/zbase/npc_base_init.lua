@@ -714,6 +714,11 @@ function NPC:CustomAcceptInput( input, activator, caller, value )
 end
 
 
+    -- Called when the NPC notices that an entity is trying to do some kind of range attack on it
+    -- Like shooting it with a gun or something
+function NPC:OnRangeThreatened( ent )
+end
+
 --[[
 ==================================================================================================
                                            SNPC ONLY FUNCTIONS
