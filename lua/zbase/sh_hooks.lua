@@ -510,7 +510,7 @@ hook.Add( "RenderScreenspaceEffects", "ZBaseGlowingEyes", function()
 
         
         for _, eye in ipairs(ent.GlowEyes) do
-            if ent:GetSkin() != eye.skin then continue end
+            if eye.skin != false && ent:GetSkin() != eye.skin then continue end
 
             local matrix = ent:GetBoneMatrix(eye.bone or 0)
             if matrix then

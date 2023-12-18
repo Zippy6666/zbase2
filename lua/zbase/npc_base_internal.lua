@@ -60,6 +60,7 @@ function NPC:ZBaseInit()
     self.NextFootStepTimer = CurTime()
     self.NextTryFollow = CurTime() + math.Rand(2, 4)
     self.EnemyVisible = false
+    self.HadPreviousEnemy = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = HITGROUP_GENERIC
     self.SchedDebug = GetConVar("developer"):GetBool()
@@ -951,7 +952,8 @@ function NPC:DoNewEnemy()
     end
 
 
-    self:EnemyStatus(ene)
+    self:EnemyStatus(ene, self.HadPreviousEnemy)
+    self.HadPreviousEnemy = ene && true or false
 end
 
 
