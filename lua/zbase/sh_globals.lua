@@ -76,7 +76,7 @@ end
 
     -- Used to add glowing eyes to models
     -- 'model' - The model that should have the eye
-    -- 'skin' - Which skin should have the eye
+    -- 'skin' - Which skin should have the eye, set to false to use all skins
     -- Example:
     -- ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(0, 50, 255))
     -- ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(0, 50, 255))
