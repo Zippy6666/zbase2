@@ -692,7 +692,7 @@ function NPC:AITick_Slow()
     && self.SNPCType == ZBASE_SNPCTYPE_FLY
     && self.Fly_DistanceFromGround_IgnoreWhenMelee
     && IsValid(ene)
-    && self:WithinDistance(ene, self.MeleeAttackDistance*1.75) then
+    && self:ZBaseDist(ene, {within=self.MeleeAttackDistance*1.75}) then
         self.InternalDistanceFromGround = ene:WorldSpaceCenter():Distance(ene:GetPos())
     else
         self.InternalDistanceFromGround = self.Fly_DistanceFromGround

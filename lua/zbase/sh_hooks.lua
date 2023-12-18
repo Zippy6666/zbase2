@@ -708,7 +708,8 @@ hook.Add( "KeyPress", "ZBASE", function( ply, key )
     if IsValid(wep) &&
     ( (wep:Clip1() > 0 && key == IN_ATTACK) or (wep:Clip2() > 0 && key == IN_ATTACK2)
     or (wep:GetClass()=="weapon_smg1" && ply:GetAmmoCount("SMG1_Grenade")>0 && key == IN_ATTACK2)
-    or (wep:GetClass()=="weapon_ar2" && ply:GetAmmoCount("AR2AltFire")>0 && key == IN_ATTACK2) ) then
+    or (wep:GetClass()=="weapon_ar2" && ply:GetAmmoCount("AR2AltFire")>0 && key == IN_ATTACK2)
+    or (wep:GetClass()=="weapon_rpg" && ply:GetAmmoCount("RPG_Round")>0 && key == IN_ATTACK) ) then
 
         local tr = ply:GetEyeTrace()
         local ent = (tr.Entity.IsZBaseNPC && tr.Entity)

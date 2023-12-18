@@ -17,7 +17,7 @@ function ENT:Initialize()
 	if self.SNPCType == ZBASE_SNPCTYPE_WALK then
 		self:CapabilitiesAdd(CAP_MOVE_GROUND)
 	elseif self.SNPCType == ZBASE_SNPCTYPE_FLY then
-		self:CapabilitiesAdd(CAP_MOVE_FLY)
+		-- self:CapabilitiesAdd(CAP_MOVE_FLY)
 		self:SetNavType(NAV_FLY)
 	end
 
