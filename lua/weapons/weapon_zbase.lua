@@ -72,6 +72,9 @@ end
 
 function SWEP:PrimaryAttack()
 	if !self:CanPrimaryAttack() then return end
+	if IsValid(self:GetOwner()) && self:GetOwner():IsNPC() && self:GetOwner():GetActivity()!=ACT_RANGE_ATTACK1 then return end
+
+
 
 	local bullet = {
 		Attacker = self:GetOwner(),
