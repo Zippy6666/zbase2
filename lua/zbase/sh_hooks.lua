@@ -673,8 +673,14 @@ end)
 -- Don't pickup some zbase weapons
 hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
 	if wep.IsZBaseWeapon && wep.NPCOnly then
-		ply:GiveAmmo(wep:GetMaxClip1(), wep:GetPrimaryAmmoType())
+        
+        if !wep.Pickup_GaveAmmo then
+		    ply:GiveAmmo(wep:GetMaxClip1(), wep:GetPrimaryAmmoType())
+            wep.Pickup_GaveAmmo = true
+        end
+
 		wep:Remove()
+        
 		return false
 	end
 end)
