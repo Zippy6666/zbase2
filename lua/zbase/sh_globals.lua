@@ -104,6 +104,16 @@ function ZBaseSetCategoryIcon( category, path )
 end
 
 
+    -- Spawn a ZBase NPC
+    -- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
+    -- 'pos' - The position to spawn it on
+    -- 'normal' - The normal to spawn it on (optional)
+    -- 'weapon_class' The weapon class to equip the npc with (optional)
+function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
+    return ZBaseInternalSpawnNPC( NULL, pos, normal or Vector(0, 0, 1), class, weapon_class, nil, true )
+end
+
+
 --[[
 ======================================================================================================================================================
                                            CONVINIENT FUNCTIONS

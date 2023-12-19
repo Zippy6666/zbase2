@@ -533,6 +533,13 @@ function NPC:OnMelee()
 end
 
 
+    -- Called before a melee attack is started
+    -- Return true to prevent it
+function NPC:PreventMeleeAttack()
+    return false 
+end
+
+
     -- Animation code
 function NPC:MeleeAnimation()
     self:PlayAnimation(table.Random(self.MeleeAttackAnimations), self.MeleeAttackFaceEnemy, {
