@@ -220,7 +220,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	return NPC
 end
 ---------------------------------------------------------------------------------=#
-local function InternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor )
+function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor )
 	local NPCList = ZBaseSpawnMenuNPCList
 	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
 
@@ -322,7 +322,7 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 	end
 
 	-- Create the NPC if you can.
-	local SpawnedNPC = InternalSpawnNPC( ply, tr.HitPos, tr.HitNormal, NPCClassName, WeaponName )
+	local SpawnedNPC = ZBaseInternalSpawnNPC( ply, tr.HitPos, tr.HitNormal, NPCClassName, WeaponName )
 	if ( !IsValid( SpawnedNPC ) ) then return end
 
 	TryFixPropPosition( ply, SpawnedNPC, tr.HitPos )

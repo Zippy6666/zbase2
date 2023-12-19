@@ -1,4 +1,6 @@
 >>> TODO <<<
+- Range fix
+- Enemy memory fix
 - Poort over all my bloody npc mfers
 
 

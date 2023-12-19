@@ -1527,6 +1527,10 @@ function NPCB.MeleeAttack:ShouldDoBehaviour( self )
     local ene = self:GetEnemy()
     if !self.MeleeAttackFaceEnemy && !self:IsFacing(ene) then return false end
 
+
+    if self:PreventMeleeAttack() then return false end
+
+
     return !self:TooBusyForMelee()
     && self:ZBaseDist(ene, {within=self.MeleeAttackDistance})
 end
