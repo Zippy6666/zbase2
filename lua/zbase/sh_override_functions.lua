@@ -67,7 +67,8 @@ function list:Get()
         for k, v in pairs(ZBaseSpawnMenuNPCList) do
             local ZBaseNPC = table.Copy(v)
 
-            ZBaseNPC.Category = "ZBase"
+            ZBaseNPC.Name = ZBaseNPC.Name
+            ZBaseNPC.Category = "[ZBase] "..ZBaseNPC.Category
             ZBaseNPC.KeyValues = {parentname=k}
             ZBaseTableAdd[k] = ZBaseNPC
         end
