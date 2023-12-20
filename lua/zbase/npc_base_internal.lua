@@ -432,7 +432,7 @@ end
 --]]
 
 
-function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,faceSpeed,loop,onFinishFunc,isGest,isTransition,noTransitions,forceWalkFrames)
+function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,faceSpeed,loop,onFinishFunc,isGest,isTransition,noTransitions)
     if GetConVar("ai_disabled"):GetBool() then return end
 
 
@@ -529,16 +529,12 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
 
         self.PlayAnim_PlayBackRate = playbackRate
         self.PlayAnim_Seq = anim
-        self.ForceWalkFrames = forceWalkFrames
         self.DoingPlayAnim = true
 
 
-        if self.ForceWalkFrames then
+        if !self.IsZBase_SNPC then
 
             local TimerName = "ZBaseForceWalkFrames"..self:EntIndex()
-
-
-            print("doooodg")
 
 
             timer.Create(TimerName, 0, 0, function()
@@ -548,7 +544,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
                     return
                 end
     
-                self:AutoMovement(self:GetAnimTimeInterval()*0.2)
+                self:AutoMovement(self:GetAnimTimeInterval()*0.3)
 
             end)
 
@@ -586,9 +582,7 @@ function NPC:DoPlayAnim()
 
 
     -- Stop movement
-    if !self.ForceWalkFrames then
-        self:SetSaveValue("m_flTimeLastMovement", 2)
-    end
+    self:SetSaveValue("m_flTimeLastMovement", 2)
 
 
     -- Walkframes
@@ -631,11 +625,11 @@ function NPC:InternalStopAnimation(dontTransitionOut)
     self.PlayAnim_FaceSpeed = nil
     self.PlayAnim_PlayBackRate = nil
     self.PlayAnim_Seq = nil
-    self.ForceWalkFrames = nil
 
 
     timer.Remove("ZBasePlayAnim"..self:EntIndex())
     timer.Remove("ZBaseFace"..self:EntIndex())
+    timer.Remove("ZBaseForceWalkFrames"..self:EntIndex())
 end
 
 
