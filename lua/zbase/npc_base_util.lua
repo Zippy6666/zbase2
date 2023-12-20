@@ -18,6 +18,7 @@ local NPC = ZBaseNPCs["npc_zbase"]
         -- extraData.duration - The animation duration
         -- extraData.faceSpeed - Face turn speed
         -- extraData.noTransitions - If true, it won't do any transition animations
+        -- extraData.forceWalkframes - Forces the NPC to move when doing the animation, you can try this if it doesn't move when you want it to
 function NPC:PlayAnimation( anim, faceEnemy, extraData )
     extraData = extraData or {}
 
@@ -33,7 +34,7 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
 
 
     self:InternalPlayAnimation(anim, extraData.duration, extraData.speedMult,
-    SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop, nil, extraData.isGesture, nil, extraData.noTransitions)
+    SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop, nil, extraData.isGesture, nil, extraData.noTransitions, extraData.forceWalkframes)
 
 
     -- if extraData.duration && extraData.speedMult then
