@@ -23,7 +23,6 @@ function NPC:BeforeSpawn( NPCData )
         CAP_USE_SHOT_REGULATOR
     ))
 
-
     self.AllowedCustomEScheds = {}
     self.ProhibitCustomEScheds = false
 
@@ -140,6 +139,10 @@ function NPC:ZBaseInit()
     ZBaseBehaviourInit( self )
 
 
+    -- Blud can't fire his weapon lmao
+    self:WeaponInit()
+
+
     -- Custom init
     self:CustomInitialize()
 
@@ -149,6 +152,21 @@ function NPC:ZBaseInit()
         self.ZBaseCurFunc = {}
         self:DebugMyFunctions()
     end
+end
+
+
+function NPC:WeaponInit()
+
+    -- local wep = ents.Create("weapon_base")
+    -- wep:SetPos(self:GetPos())
+    -- wep:SetParent(self)
+    -- wep:SetOwner(self)
+    -- wep:SetNoDraw(true)
+    -- wep:Spawn()
+    -- self:SetSaveValue("m_hActiveWeapon", NULL)
+
+    self:Give("weapon_zbase_handler")
+
 end
 
 
