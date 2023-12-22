@@ -391,7 +391,7 @@ end
 
 
 function NPC:ZBWepSys_FireWeaponThink()
-    fakewep:PrimaryAttack()
+    self.ZBWepSys_Decoy:PrimaryAttack()
 end
 
 
@@ -404,7 +404,7 @@ function NPC:ZBWepSys_Think()
     end
 
 
-    if IsValid(fakewep) then
+    if IsValid(self.ZBWepSys_Decoy) then
         self:ZBWepSys_FireWeaponThink()
     end
 end
@@ -463,7 +463,7 @@ function NPC:Face( face, duration, speed )
 
     local faceFunc
     local faceIsEnt = false
-    if is(face) then
+    if isnumber(face) then
         faceFunc = function() turn(face) end
     elseif IsValid(face) then
         faceFunc = function() turn( (face:GetPos() - self:GetPos()):Angle().y ) end
@@ -511,7 +511,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
     if isGest then
         local gest = isstring(anim) &&
         self:GetSequenceActivity(self:LookupSequence(anim)) or
-        is(anim) && anim
+        isnumber(anim) && anim
 
 
         local id = self:AddGesture(gest)
@@ -544,7 +544,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
         self:SetNPCState(NPC_STATE_SCRIPT)
 
         
-        if is(anim) then
+        if isnumber(anim) then
             -- Anim is activity
             -- Play as activity first, fixes shit
             self:ResetIdealActivity(anim)

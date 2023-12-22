@@ -53,6 +53,7 @@ SWEP.PrimaryDamage = 3
 SWEP.PrimaryShootSound = "Weapon_MP5K_Z.NPC_Fire"
 SWEP.PrimarySpread = 0.02
 SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+SWEP.Primary.ShellEject = "1" -- Set to the name of an attachment to enable shell ejection
 
 
 --------------------------------------------------------=#
