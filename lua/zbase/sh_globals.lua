@@ -261,16 +261,13 @@ end
 
 function ZBaseFakeWeapon( npc, wep )
     local fakewep = ents.Create("base_gmodentity")
-
-    
-    local fakewep = npc.WeaponDecoy
     fakewep:SetModel(wep:GetModel())
     fakewep:SetPos(npc:GetPos())
     fakewep:SetParent(npc)
     fakewep:AddEffects(EF_BONEMERGE)
     fakewep:SetOwner(npc)
     fakewep.MaxAmmo = wep:GetMaxClip1()
-    fakewep.Ammo = fakewep.MaxAmmo
+    fakewep.CurAmmo = fakewep.MaxAmmo
     fakewep.NextPrimary = CurTime()
     fakewep.AmmoType = wep:GetPrimaryAmmoType()
     fakewep.WepName = wep.PrintName
@@ -281,14 +278,14 @@ function ZBaseFakeWeapon( npc, wep )
     
     fakewep.AllowsAutoSwitchFrom = function() return false end
     fakewep.AllowsAutoSwitchTo = function() return false end
-    fakewep.Clip1 = function() return fakewep.Ammo end
+    fakewep.Clip1 = function() return fakewep.CurAmmo end
     fakewep.Clip2 = function() return 0 end
     fakewep.DefaultReload = function( act ) end
     fakewep.GetActivity = function() return npc:GetActivity() end
     fakewep.GetDeploySpeed = function() return 1 end
     fakewep.GetHoldType = function() return npc:ZBNWepSys_GetAnimsWep():GetHoldType() end
     fakewep.GetMaxClip1 = function() return fakewep.MaxAmmo end
-    fakewep.GetMaxClip2 = function() 0 end
+    fakewep.GetMaxClip2 = function() return 0 end
     fakewep.GetNextPrimaryFire = function() return fakewep.NextPrimary end
     fakewep.GetNextSecondaryFire = function() return CurTime()+1 end
     fakewep.GetPrimaryAmmoType = function() return fakewep.AmmoType end
@@ -328,4 +325,7 @@ function ZBaseFakeWeapon( npc, wep )
 
 
     wep:Remove()
+
+
+    return fakewep
 end

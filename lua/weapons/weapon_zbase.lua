@@ -54,6 +54,8 @@ SWEP.Primary.DefaultClip = 30 -- Clipsize for NPCs
 SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 SWEP.Primary.TakeAmmoPerShot = 1 -- Ammo to take for each shot
 SWEP.Primary.NumShots = 1 -- Number of bullets per shot
+SWEP.Primary.ShellEject = false -- Set to the name of an attachment to enable shell ejection
+SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Effects
 
 
 --[[
@@ -69,6 +71,27 @@ end
 
 
 function SWEP:OnPrimaryAttack()
+
+    local effectdata = EffectData()
+    effectdata:SetFlags(1)
+    effectdata:SetEntity(self)
+    util.Effect( "MuzzleFlash", effectdata )
+
+
+	if self.Primary.ShellEject then
+
+		local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
+
+		if att then
+			local effectdata = EffectData()
+			effectdata:SetEntity(self)
+			effectdata:SetOrigin(att.Pos)
+			effectdata:SetAngles(att.Ang)
+			util.Effect( "ShellEject", effectdata )
+		end
+	
+	end
+
 end
 
 

@@ -26,6 +26,50 @@ end)
 --]]
 
 
+local function BasicPrimaryAttack( wep )
+
+    local effectdata = EffectData()
+    effectdata:SetFlags(wep.ZB_MuzzleFlashFlags or 1)
+    effectdata:SetEntity(wep)
+    util.Effect( "MuzzleFlash", effectdata )
+
+
+    local att = wep:GetAttachment(wep:LookupAttachment("1"))
+    if att && wep.ZB_ShellEject then
+        local effectdata = EffectData()
+        effectdata:SetEntity(wep)
+        effectdata:SetOrigin(att.Pos)
+        effectdata:SetAngles(att.Ang)
+        util.Effect( wep.ZB_ShellEject, effectdata )
+    end
+
+
+    wep:FireBullets({
+        Attacker = wep:GetOwner(),
+        Inflictor = wep,
+        Damage = wep.ZB_Primary or 2,
+        AmmoType = wep.ZB_Ammo,
+        Src = wep:GetOwner():GetShootPos(),
+        Dir = wep:GetOwner():GetAimVector(),
+        Spread = Vector(wep.ZB_Spread or 0.1, wep.ZB_Spread or 0.1),
+        Tracer = 2,
+        Num = wep.ZB_NumShots or 1,
+    })
+
+end
+
+
+local HL2Weapon_SWEPTable = {
+    ["weapon_smg1"] = {
+        PrimaryAttack = BasicPrimaryAttack,
+        ZB_Damage = 3,
+        ZB_Ammo = "smg1",
+        ZB_Spread = 0.1,
+        ZB_ShellEject = "ShellEject",
+    }
+}
+
+
 hook.Add("OnEntityCreated", "ZBASE", function( ent )
     -- ZBase init stuff when not spawned from menu
     if SERVER then
@@ -106,6 +150,17 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
 
             ZBaseSetFaction(ent, !ent.IsZBaseNPC && faction)
         end)
+    end
+
+
+
+    -- Make hl2 weapons into sweps or something idk what to call this
+    local cls = ent:GetClass()
+
+    if HL2Weapon_SWEPTable[cls] then
+        for varname, var in pairs(HL2Weapon_SWEPTable[cls]) do
+            ent[varname] = var
+        end
     end
 end)
 
@@ -353,17 +408,17 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
 
 
     
-    if ent.IsZBaseNPC then
-        -- Boost accuracy for some weapons --
-        local wep = ent:GetActiveWeapon()
-        local ene = ent:GetEnemy()
+    -- if ent.IsZBaseNPC then
+    --     -- Boost accuracy for some weapons --
+    --     local wep = ent:GetActiveWeapon()
+    --     local ene = ent:GetEnemy()
 
-        if IsValid(wep) && IsValid(ene) && ZBaseWeaponAccuracyBoost[wep:GetClass()] then
-            local sprd = (5 - ent:GetCurrentWeaponProficiency())/ZBaseWeaponAccuracyBoost[wep:GetClass()]
-            data.Spread = Vector(sprd, sprd)
-            data.Dir = (ene:WorldSpaceCenter() - ent:GetShootPos()):GetNormalized()
-        end
-    end
+    --     if IsValid(wep) && IsValid(ene) && ZBaseWeaponAccuracyBoost[wep:GetClass()] then
+    --         local sprd = (5 - ent:GetCurrentWeaponProficiency())/ZBaseWeaponAccuracyBoost[wep:GetClass()]
+    --         data.Spread = Vector(sprd, sprd)
+    --         data.Dir = (ene:WorldSpaceCenter() - ent:GetShootPos()):GetNormalized()
+    --     end
+    -- end
     
 
     return true
