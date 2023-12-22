@@ -33,6 +33,10 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             self:SetSaveValue("m_iMySquadSlot", 1)
         end
 
+
+        -- Keep shootin boye
+        self:SetSaveValue("m_nShots", 2)
+
     end
     --]]============================================================================================================]]
     function NPC:ZBaseEnhancedCreateEnt( ent )
