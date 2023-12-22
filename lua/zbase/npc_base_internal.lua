@@ -165,7 +165,7 @@ function NPC:WeaponInit()
     -- wep:Spawn()
     -- self:SetSaveValue("m_hActiveWeapon", NULL)
 
-    self:Give("weapon_zbase_handler")
+    self:Give("zbaseanims")
 
 end
 
