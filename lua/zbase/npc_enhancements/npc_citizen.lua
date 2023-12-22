@@ -2,7 +2,6 @@ local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
 ZBaseEnhancementTable[my_cls] = function( NPC )
     --]]============================================================================================================]]
     function NPC:ZBaseEnhancedInit()
-        
     end
     --]]============================================================================================================]]
     function NPC:ZBaseEnhancedThink()

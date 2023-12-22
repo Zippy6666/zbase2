@@ -286,8 +286,16 @@ end
 --]]
 
 
--- Check if the NPC is facing a position or entity
--- 'maxYawDifference' - If the yaw difference is less than this, we are facing the entity/position (default 22.5 degrees)
+    -- Essentially just a classic ent:Visible() check
+    -- But maybe better performance idk
+function NPC:SeeEne()
+    return self.EnemyVisible
+end
+
+
+
+    -- Check if the NPC is facing a position or entity
+    -- 'maxYawDifference' - If the yaw difference is less than this, we are facing the entity/position (default 22.5 degrees)
 function NPC:IsFacing( ent_or_pos, maxYawDifference )
     if !ent_or_pos then return end
     if ent_or_pos == NULL then return end
