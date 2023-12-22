@@ -57,15 +57,16 @@ function NPC:ZBaseInit()
     self.NextFlinch = CurTime()
     self.NextHealthRegen = CurTime()
     self.NextFootStepTimer = CurTime()
-    self.NextTryFollow = CurTime() + math.Rand(2, 4)
+    self.NextRangeThreatened = CurTime()
+    self.NextFireWeapon = CurTime()
     self.EnemyVisible = false
     self.HadPreviousEnemy = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = HITGROUP_GENERIC
     self.SchedDebug = GetConVar("developer"):GetBool()
     self.PlayerToFollow = NULL
-    self.NextRangeThreatened = CurTime()
     self.ZBWepSys_Inventory = {}
+    
 
 
     -- Network shit
@@ -101,6 +102,21 @@ function NPC:ZBaseInit()
     -- Capabilities
     if self.CanJump && self:SelectWeightedSequence(ACT_JUMP) != -1 then
         self:CapabilitiesAdd(CAP_MOVE_JUMP)
+    end
+
+
+
+    -- Remove some capabilities
+    if self:SelectWeightedSequence(ACT_MELEE_ATTACK1) == -1 then
+
+        self:CapabilitiesRemove(CAP_INNATE_MELEE_ATTACK1)
+        self:SetIgnoreConditions( {COND.CAN_MELEE_ATTACK1} )
+
+    end
+    if !self:CheckHasAimPoseParam() then
+        
+        self:CapabilitiesRemove(CAP_AIM_GUN)
+
     end
 
 
@@ -149,6 +165,24 @@ function NPC:ZBaseInit()
         self.ZBaseCurFunc = {}
         self:DebugMyFunctions()
     end
+end
+
+
+function NPC:CheckHasAimPoseParam()
+
+    for i=0, self:GetNumPoseParameters() - 1 do
+
+        local name, min, max = self:GetPoseParameterName(i), self:GetPoseParameterRange( i )
+
+        if (name == "aim_yaw" or name == "aim_pitch") && (math.abs(min)>0 or math.abs(max)>0) then
+            return true
+        end
+
+    end
+
+
+    return false
+
 end
 
 
@@ -357,12 +391,13 @@ local IsShootAct = {
 
 
 function NPC:ZBNWepSys_GetAnimsWep()
-    if self:GetActiveWeapon():GetClass() != "zbaseanims" then
+    if self:GetActiveWeapon():GetClass() != "zbaseanims" or !IsValid(self.ZBWepSys_AnimHandler) then
         self:Give("zbaseanims")
-        self:GetActiveWeapon():SetNoDraw(true)
+        self.ZBWepSys_AnimHandler = self:GetActiveWeapon()
+        self.ZBWepSys_AnimHandler:SetNoDraw(true)
     end
 
-    return self:GetActiveWeapon()
+    return self.ZBWepSys_AnimHandler
 end
 
 
@@ -370,21 +405,22 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
     if !self.ZBWepSys_Inventory[class] then return end
 
-    
-    local EngineWeapon = self:GetActiveWeapon()
-    local ZBaseAnims = self:ZBNWepSys_GetAnimsWep()
 
+    local EngineWeapon = self:GetActiveWeapon()
+    
 
     if IsValid(self.ZBWepSys_Decoy) then
         self.ZBWepSys_Decoy:Remove()
     end
 
 
+    self:ZBNWepSys_GetAnimsWep()
     self.ZBWepSys_Decoy = ZBaseFakeWeapon( self, EngineWeapon )
     self.ZBWepSys_ActiveWeaponClass = class
 
 
     self:EmitSound("items/ammo_pickup.wav")
+    
 end
 
 
@@ -401,8 +437,17 @@ end
 
 function NPC:ZBWepSys_FireWeaponThink()
 
-    if IsShootAct[self:GetActivity()] then   
+    if IsShootAct[self:GetActivity()] && self.NextFireWeapon < CurTime() then
+
+        local RestTimeMin, RestTimeMax = self.ZBWepSys_Decoy:GetNPCRestTimes()
+        local RndRest = math.Rand(RestTimeMin, RestTimeMax)
+
+        self.ZBWepSys_AnimHandler.Duration = math.Clamp(RndRest, self:SelectWeightedSequence(ACT_RANGE_ATTACK1), 10)
         self.ZBWepSys_Decoy:PrimaryAttack()
+
+        
+        self.NextFireWeapon = CurTime()+RndRest
+
     end
 
 end
@@ -417,9 +462,10 @@ function NPC:ZBWepSys_Think()
     end
 
 
-    if IsValid(self.ZBWepSys_Decoy) then
+    if IsValid(self.ZBWepSys_Decoy) && IsValid(self.ZBWepSys_AnimHandler) then
         self:ZBWepSys_FireWeaponThink()
     end
+
 end
 
 
@@ -914,11 +960,11 @@ function NPC:AITick_NonScripted()
 
 
     -- Run up to enemy to use melee weapons
-    if self:HasMeleeWeapon() && self:ShouldChase()
-    && (self:IsCurrentSchedule(SCHED_ESTABLISH_LINE_OF_FIRE)
-    or self:IsCurrentSchedule(SCHED_MOVE_TO_WEAPON_RANGE)) then
-        self:SetSchedule(SCHED_CHASE_ENEMY)
-    end
+    -- if self:HasMeleeWeapon() && self:ShouldChase()
+    -- && (self:IsCurrentSchedule(SCHED_ESTABLISH_LINE_OF_FIRE)
+    -- or self:IsCurrentSchedule(SCHED_MOVE_TO_WEAPON_RANGE)) then
+    --     self:SetSchedule(SCHED_CHASE_ENEMY)
+    -- end
 end
 
 
@@ -1309,12 +1355,6 @@ function NPC:ShootTargetTooFarAway()
 end
 
 
-function NPC:PreventFarShoot()
-    self:SetSaveValue("m_flFieldOfView", 1)
-    self:SetMaxLookDistance(self:GetCurrentWeaponShootDist())
-end
-
-
 NPCB.AdjustSightAngAndDist = {}
 
 
@@ -1327,14 +1367,21 @@ function NPCB.AdjustSightAngAndDist:Run( self )
     local ene = self:GetEnemy()
 
     if self.DoingDeathAnim then
+
         self:SetSaveValue("m_flFieldOfView", 1)
         self:SetMaxLookDistance(1)
+
     elseif self:ShootTargetTooFarAway() then
-        self:PreventFarShoot()
+
+        self:SetSaveValue("m_flFieldOfView", 1)
+        self:SetMaxLookDistance(self:GetCurrentWeaponShootDist())
+
     else
+
         local fieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
         self:SetSaveValue("m_flFieldOfView", fieldOfView)
         self:SetMaxLookDistance(self.SightDistance)
+
     end
 end
 

@@ -17,6 +17,7 @@ SWEP.WorldModel = Model( "models/error.mdl" )
 
 function SWEP:Initialize()
 	self:SetHoldType( "smg" )
+    self.Duration = 1
 end
 
 
@@ -25,8 +26,7 @@ end
 
 
 function SWEP:GetNPCRestTimes()
-    local RangeSeqDuration = self:SequenceDuration(self:SelectWeightedSequence(ACT_RANGE_ATTACK1))
-    return RangeSeqDuration, RangeSeqDuration
+    return self.Duration, self.Duration
 end
 
 
