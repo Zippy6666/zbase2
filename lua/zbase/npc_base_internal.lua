@@ -65,6 +65,7 @@ function NPC:ZBaseInit()
     self.SchedDebug = GetConVar("developer"):GetBool()
     self.PlayerToFollow = NULL
     self.NextRangeThreatened = CurTime()
+    self.ZBWepSys_Inventory = {}
 
 
     -- Network shit
@@ -139,10 +140,6 @@ function NPC:ZBaseInit()
     ZBaseBehaviourInit( self )
 
 
-    -- Blud can't fire his weapon lmao
-    self:WeaponInit()
-
-
     -- Custom init
     self:CustomInitialize()
 
@@ -152,21 +149,6 @@ function NPC:ZBaseInit()
         self.ZBaseCurFunc = {}
         self:DebugMyFunctions()
     end
-end
-
-
-function NPC:WeaponInit()
-
-    -- local wep = ents.Create("weapon_base")
-    -- wep:SetPos(self:GetPos())
-    -- wep:SetParent(self)
-    -- wep:SetOwner(self)
-    -- wep:SetNoDraw(true)
-    -- wep:Spawn()
-    -- self:SetSaveValue("m_hActiveWeapon", NULL)
-
-    self:Give("zbaseanims")
-
 end
 
 
@@ -343,6 +325,9 @@ function NPC:ZBaseThink()
     self:SetConditionalActivities()
 
 
+    self:ZBWepSys_Think()
+
+
     self:CustomThink()
 end
 
@@ -355,6 +340,73 @@ function NPC:DoSlowThink()
 
 
     self:AITick_Slow()
+end
+
+
+--[[
+==================================================================================================
+                                           WEAPON SYSTEM
+==================================================================================================
+--]]
+
+
+function NPC:ZBNWepSys_GetAnimsWep()
+    if self:GetActiveWeapon():GetClass() != "zbaseanims" then
+        self:Give("zbaseanims")
+        self:GetActiveWeapon():SetNoDraw(true)
+    end
+
+    return self:GetActiveWeapon()
+end
+
+
+function NPC:ZBWepSys_SetActiveWeapon( class )
+
+    if !self.ZBWepSys_Inventory[class] then return end
+
+    
+    local EngineWeapon = self:GetActiveWeapon()
+    local ZBaseAnims = self:ZBNWepSys_GetAnimsWep()
+
+
+    if IsValid(self.ZBWepSys_Decoy) then
+        self.ZBWepSys_Decoy:Remove()
+    end
+
+
+    self.ZBWepSys_Decoy = ZBaseFakeWeapon( self, EngineWeapon )
+    self.ZBWepSys_ActiveWeaponClass = class
+
+
+    self:EmitSound("items/ammo_pickup.wav")
+end
+
+
+function NPC:ZBWepSys_GiveWeapon(class)
+
+    self.ZBWepSys_Inventory[class] = true
+    self:ZBWepSys_SetActiveWeapon(class)
+    
+end
+
+
+function NPC:ZBWepSys_FireWeaponThink()
+    fakewep:PrimaryAttack()
+end
+
+
+function NPC:ZBWepSys_Think()
+
+    -- ZBasify weapon
+    local EngineWeapon = self:GetActiveWeapon()
+    if IsValid(EngineWeapon) && EngineWeapon:GetClass() != "zbaseanims" then
+        self:ZBWepSys_GiveWeapon(EngineWeapon:GetClass())
+    end
+
+
+    if IsValid(fakewep) then
+        self:ZBWepSys_FireWeaponThink()
+    end
 end
 
 
@@ -376,7 +428,7 @@ end
 
 
 -- Make the NPC face certain directions
--- 'face' - A position or an entity to face, or a number representing the yaw.
+-- 'face' - A position or an entity to face, or a  representing the yaw.
 -- 'duration' - Face duration, if not set, you can run the function in think for example
 -- 'speed' - Turn speed, if not set, it will be the default turn speed
 function NPC:Face( face, duration, speed )
@@ -411,7 +463,7 @@ function NPC:Face( face, duration, speed )
 
     local faceFunc
     local faceIsEnt = false
-    if isnumber(face) then
+    if is(face) then
         faceFunc = function() turn(face) end
     elseif IsValid(face) then
         faceFunc = function() turn( (face:GetPos() - self:GetPos()):Angle().y ) end
@@ -459,7 +511,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
     if isGest then
         local gest = isstring(anim) &&
         self:GetSequenceActivity(self:LookupSequence(anim)) or
-        isnumber(anim) && anim
+        is(anim) && anim
 
 
         local id = self:AddGesture(gest)
@@ -492,7 +544,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
         self:SetNPCState(NPC_STATE_SCRIPT)
 
         
-        if isnumber(anim) then
+        if is(anim) then
             -- Anim is activity
             -- Play as activity first, fixes shit
             self:ResetIdealActivity(anim)
@@ -2520,6 +2572,9 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     self.Dead = true
     self:SetNPCState(NPC_STATE_DEAD)
+    self:SetNoDraw(true)
+    self:CapabilitiesClear()
+    self:SetCollisionBounds(Vector(), Vector())
 
 
     self.IsSpeaking = false
@@ -2601,8 +2656,19 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     self:CustomOnDeath( dmg, hit_gr, rag )
 
 
+    -- Weapon stuff
+    if IsValid(self.ZBWepSys_Decoy) then
+        self.ZBWepSys_Decoy:Remove()
+    end
+
+    if self.ZBWepSys_ActiveWeaponClass then
+        -- Drop weapon
+        self:Give(self.ZBWepSys_ActiveWeaponClass)
+    end
+
+
     self:SetShouldServerRagdoll(false)
-    self:Remove()
+    SafeRemoveEntityDelayed(self, 0.1)
 end
 
 
