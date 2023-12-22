@@ -22,7 +22,7 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             "SCHED_COMBINE_AR2_ALTFIRE",
             "SCHED_COMBINE_COMBAT_FACE",
         })
-        
+
     end
     --]]============================================================================================================]]
     function NPC:ZBaseEnhancedThink()

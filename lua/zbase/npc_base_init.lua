@@ -749,6 +749,9 @@ function NPC:SNPCSelectSchedule(iNPCState)
 
     if IsValid(ene) then
 
+        -- if self:SeeEne() then
+            -- return SCHED_RANGE_ATTACK1
+
         -- ZBase advanced chase schedule
         -- Strongly recommended if you want the SNPC to chase the enemy
         return ZSched.CombatChase
