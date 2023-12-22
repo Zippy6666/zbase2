@@ -51,10 +51,12 @@ local function BasicPrimaryAttack( wep )
         AmmoType = wep.ZB_Ammo,
         Src = wep:GetOwner():GetShootPos(),
         Dir = wep:GetOwner():GetAimVector(),
-        Spread = Vector(wep.ZB_Spread or 0.1, wep.ZB_Spread or 0.1),
+        Spread = Vector(wep.ZB_Spread or 0.025, wep.ZB_Spread or 0.025),
         Tracer = 2,
         Num = wep.ZB_NumShots or 1,
     })
+
+    wep:EmitSound(wep.ZB_FireSnd)
 
 end
 
@@ -62,10 +64,10 @@ end
 local HL2Weapon_SWEPTable = {
     ["weapon_smg1"] = {
         PrimaryAttack = BasicPrimaryAttack,
-        ZB_Damage = 3,
+        ZB_Damage = 2,
         ZB_Ammo = "smg1",
-        ZB_Spread = 0.1,
         ZB_ShellEject = "ShellEject",
+        ZB_FireSnd = "Weapon_SMG1.NPC_Single",
     }
 }
 

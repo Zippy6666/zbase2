@@ -350,6 +350,12 @@ end
 --]]
 
 
+local IsShootAct = {
+    [ACT_RANGE_ATTACK1] = true,
+    [ACT_RANGE_ATTACK2] = true,
+}
+
+
 function NPC:ZBNWepSys_GetAnimsWep()
     if self:GetActiveWeapon():GetClass() != "zbaseanims" then
         self:Give("zbaseanims")
@@ -382,16 +388,23 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 end
 
 
-function NPC:ZBWepSys_GiveWeapon(class)
+function NPC:ZBWepSys_GiveWeapon(class, active)
 
     self.ZBWepSys_Inventory[class] = true
-    self:ZBWepSys_SetActiveWeapon(class)
-    
+
+    if active then
+        self:ZBWepSys_SetActiveWeapon(class)
+    end
+
 end
 
 
 function NPC:ZBWepSys_FireWeaponThink()
-    self.ZBWepSys_Decoy:PrimaryAttack()
+
+    if IsShootAct[self:GetActivity()] then   
+        self.ZBWepSys_Decoy:PrimaryAttack()
+    end
+
 end
 
 
@@ -400,7 +413,7 @@ function NPC:ZBWepSys_Think()
     -- ZBasify weapon
     local EngineWeapon = self:GetActiveWeapon()
     if IsValid(EngineWeapon) && EngineWeapon:GetClass() != "zbaseanims" then
-        self:ZBWepSys_GiveWeapon(EngineWeapon:GetClass())
+        self:ZBWepSys_GiveWeapon(EngineWeapon:GetClass(), true)
     end
 
 
@@ -2668,7 +2681,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 
     self:SetShouldServerRagdoll(false)
-    SafeRemoveEntityDelayed(self, 0.1)
+    self:Remove()
 end
 
 
