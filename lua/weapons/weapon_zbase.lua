@@ -52,6 +52,8 @@ SWEP.PrimarySpread = 0.02 -- Spread
 SWEP.PrimaryDamage = 3 -- Damage
 SWEP.Primary.DefaultClip = 30 -- Clipsize for NPCs
 SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+SWEP.Primary.TakeAmmoPerShot = 1 -- Ammo to take for each shot
+SWEP.Primary.NumShots = 1 -- Number of bullets per shot
 
 
 --[[
@@ -66,10 +68,12 @@ function SWEP:Initialize()
 end
 
 
-function SWEP:PrimaryAttack()
-	if !self:CanPrimaryAttack() then return end
-	if IsValid(self:GetOwner()) && self:GetOwner():IsNPC() && self:GetOwner():GetActivity()!=ACT_RANGE_ATTACK1 then return end
+function SWEP:OnPrimaryAttack()
+end
 
+
+function SWEP:PrimaryAttack()
+	self:OnPrimaryAttack()
 
 
 	local bullet = {
@@ -80,12 +84,17 @@ function SWEP:PrimaryAttack()
 		Src = self:GetOwner():GetShootPos(),
 		Dir = self:GetOwner():GetAimVector(),
 		Spread = Vector(self.PrimarySpread, self.PrimarySpread),
-		Tracer = 2
+		Tracer = 2,
+		Num = self.Primary.NumShots,
 	}
 	self:FireBullets(bullet)
-	self:TakePrimaryAmmo(1)
-	self:ShootEffects()
-	self:SetNextPrimaryFire(CurTime() + 0.1)
+
+
+	if self.Primary.TakeAmmoPerShot > 0 then
+		self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+	end
+
+
 	self:EmitSound(self.PrimaryShootSound)
 end
 

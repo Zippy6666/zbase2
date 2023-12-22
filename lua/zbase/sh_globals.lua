@@ -257,3 +257,75 @@ end
 function ZBaseRoughRadius( ent )
     return math.abs(ent:GetRotatedAABB(ent:OBBMins(),ent:OBBMaxs()).x)*2
 end
+
+
+function ZBaseFakeWeapon( npc, wep )
+    local fakewep = ents.Create("base_gmodentity")
+
+    
+    local fakewep = npc.WeaponDecoy
+    fakewep:SetModel(wep:GetModel())
+    fakewep:SetPos(npc:GetPos())
+    fakewep:SetParent(npc)
+    fakewep:AddEffects(EF_BONEMERGE)
+    fakewep:SetOwner(npc)
+    fakewep.MaxAmmo = wep:GetMaxClip1()
+    fakewep.Ammo = fakewep.MaxAmmo
+    fakewep.NextPrimary = CurTime()
+    fakewep.AmmoType = wep:GetPrimaryAmmoType()
+    fakewep.WepName = wep.PrintName
+    fakewep.Weight = wep:GetWeight()
+    fakewep.LastShootT = CurTime()
+
+
+    
+    fakewep.AllowsAutoSwitchFrom = function() return false end
+    fakewep.AllowsAutoSwitchTo = function() return false end
+    fakewep.Clip1 = function() return fakewep.Ammo end
+    fakewep.Clip2 = function() return 0 end
+    fakewep.DefaultReload = function( act ) end
+    fakewep.GetActivity = function() return npc:GetActivity() end
+    fakewep.GetDeploySpeed = function() return 1 end
+    fakewep.GetHoldType = function() return npc:ZBNWepSys_GetAnimsWep():GetHoldType() end
+    fakewep.GetMaxClip1 = function() return fakewep.MaxAmmo end
+    fakewep.GetMaxClip2 = function() 0 end
+    fakewep.GetNextPrimaryFire = function() return fakewep.NextPrimary end
+    fakewep.GetNextSecondaryFire = function() return CurTime()+1 end
+    fakewep.GetPrimaryAmmoType = function() return fakewep.AmmoType end
+    fakewep.GetPrintName = function() return fakewep.WepName or "Weapon" end
+    fakewep.GetSecondaryAmmoType = function() return -1 end
+    fakewep.GetSlot = function() return 1 end
+    fakewep.GetSlotPos = function() return 1 end
+    fakewep.GetWeaponViewModel = function() return fakewep:GetModel() end
+    fakewep.GetWeaponWorldModel = function() return fakewep:GetModel() end
+    fakewep.GetWeight = function() return fakewep.Weight end
+    fakewep.HasAmmo = function() return fakewep.Ammo > 0 end
+    fakewep.IsCarriedByLocalPlayer = function() return false end
+    fakewep.IsScripted = function() return true end
+    fakewep.IsWeaponVisible = function() return false end
+    fakewep.LastShootTime = function() return fakewep.LastShootT end
+    fakewep.SetClip1 = function( ammo ) fakewep.Ammo=ammo end
+    fakewep.SetHoldType = function( name ) npc:ZBNWepSys_GetAnimsWep():SetHoldType(name) end
+    fakewep.SetLastShootTime = function( time ) fakewep.LastShootT = time end
+
+
+
+    fakewep.SendWeaponAnim = function( act ) end
+    fakewep.SetActivity = function( act ) end
+    fakewep.SetDeploySpeed = function( speed ) end
+    fakewep.SetNextPrimaryFire = function( time ) end
+    fakewep.SetNextSecondaryFire = function( time ) end
+    fakewep.SetClip2 = function( ammo ) end
+    fakewep.CallOnClient = function( functionName, arguments ) end
+
+
+    fakewep:Spawn()
+
+
+    for varname, var in pairs(wep:GetTable()) do
+        fakewep[varname] = var
+    end
+
+
+    wep:Remove()
+end
