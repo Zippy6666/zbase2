@@ -264,7 +264,9 @@ function ENT:RunAI( strExp )
 
 	-- Do engine schedule
 	if self:DoingEngineSchedule() or (IsValid(self.Navigator) && self.Navigator:DoingEngineSchedule()) then
+
 		return true
+
 	end
 
 

@@ -98,6 +98,30 @@ function NPC:ZBaseUpdateRelationships()
     end
 end
 
+--[[
+======================================================================================================================================================
+                                           WEAPON STUFF
+======================================================================================================================================================
+--]]
+
+
+-- ZBase_OldGetActiveWep = ZBase_OldGetActiveWep or NPC.GetActiveWeapon
+
+
+-- function NPC:EngineGetActiveWeapon()
+--     return ZBase_OldGetActiveWep(self, ...)
+-- end
+
+
+-- function NPC:GetActiveWeapon( ... )
+--     if self.IsZBaseNPC then
+        
+--     end
+
+
+--     return ZBase_OldGetActiveWep(self, ...)
+-- end
+
 
 --[[
 ======================================================================================================================================================
