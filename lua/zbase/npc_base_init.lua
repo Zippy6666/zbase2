@@ -749,12 +749,18 @@ function NPC:SNPCSelectSchedule(iNPCState)
 
     if IsValid(ene) then
 
-        -- if self:SeeEne() then
-            -- return SCHED_RANGE_ATTACK1
+        if self:SeeEne() && IsValid(self:GetActiveWeapon()) then
 
-        -- ZBase advanced chase schedule
-        -- Strongly recommended if you want the SNPC to chase the enemy
-        return ZSched.CombatChase
+            -- Has weapon and sees enemy, shoot that mf
+            return SCHED_RANGE_ATTACK1
+
+        else
+
+            -- ZBase advanced chase schedule
+            -- Strongly recommended if you want the SNPC to chase the enemy
+            return ZSched.CombatChase
+
+        end
 
     else
 
