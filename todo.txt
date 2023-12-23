@@ -2,10 +2,10 @@
 - Finish wep system
     - Check COND_
     - Reload system
-    - Pickup (even though they have a weapon)
     - Parent engine wep to real wep (to fix muzzle flash and keep entity reference for GetActiveWeapon)
-    - Melee
+    - Melee weapons
     - AI stuff to aid the shooting system
+
 - Finish d3 shit
 - ZBase replace default npcs (hijack spawn command?)
 - Clean up code, make sure everything is right
