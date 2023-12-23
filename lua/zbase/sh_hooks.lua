@@ -740,6 +740,7 @@ end)
 
 -- Don't pickup some zbase weapons
 hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
+    
 	if wep.IsZBaseWeapon && wep.NPCOnly then
         
         if !wep.Pickup_GaveAmmo then
@@ -753,9 +754,10 @@ hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
 	end
 
 
-    if wep.IsZBaseDecoyWep then
+    if wep.IsZBaseEngineWeapon then
         return false
     end
+
 end)
 
 

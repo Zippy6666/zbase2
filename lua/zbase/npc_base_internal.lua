@@ -352,7 +352,7 @@ function NPC:ZBaseThink()
     end
 
 
-    if !GetConVar("ai_disabled"):GetBool() && self.NextFootStepTimer < CurTime() then
+    if !GetConVar("ai_disabled"):GetBool() && self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND then
         self:FootStepTimer()
     end
 
@@ -385,19 +385,8 @@ end
 --]]
 
 
--- function NPC:ZBNWepSys_TranslateAct()
--- end
-
-
-function NPC:ZBNWepSys_GetAnimsWep()
-    if self:GetActiveWeapon():GetClass() != "zbaseanims" or !IsValid(self.ZBWepSys_AnimHandler) then
-        self:Give("zbaseanims")
-        self.ZBWepSys_AnimHandler = self:GetActiveWeapon()
-        self.ZBWepSys_AnimHandler:SetNoDraw(true)
-    end
-
-    return self.ZBWepSys_AnimHandler
-end
+local ZB_WEPSYS_SCRIPTED = 0
+local ZB_WEPSYS_ENGINE = 1
 
 
 function NPC:ZBWepSys_SetActiveWeapon( class )
@@ -405,59 +394,64 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
     if !self.ZBWepSys_Inventory[class] then return end
 
 
-    local EngineWeapon = self:GetActiveWeapon()
-    
-
-    if IsValid(self.ZBWepSys_Decoy) then
-        self.ZBWepSys_Decoy:Remove()
-    end
+    local Type = self.ZBWepSys_Inventory[class]
 
 
-    self:ZBNWepSys_GetAnimsWep()
-    self.ZBWepSys_Decoy = ZBaseFakeWeapon( self, EngineWeapon )
-    self.ZBWepSys_ActiveWeaponClass = class
+    if Type==ZB_WEPSYS_SCRIPTED then
 
+        timer.Simple(0.1, function()
 
-    self:EmitSound("items/ammo_pickup.wav")
-    
-end
+            self:Give(class)
 
+            local Weapon = self:GetActiveWeapon()
+            Weapon.FromZBaseInventory = true
+            Weapon.GetNPCRestTimes = function() return math.huge, math.huge end
 
-function NPC:ZBWepSys_GiveWeapon(class, active)
+        end)
 
-    self.ZBWepSys_Inventory[class] = true
-
-    if active then
-        self:ZBWepSys_SetActiveWeapon(class)
-    end
-
-end
-
-
-function NPC:ZBNWepSys_NewNumShots()
-    local ShotsMin, ShotsMax = self.ZBWepSys_Decoy:GetNPCBurstSettings()
-    local RndShots = math.random(ShotsMin, ShotsMax)
-
-    return RndShots
-end
-
-
-function NPC:ZBWepSys_Shoot()
-    self.ZBWepSys_Decoy:PrimaryAttack()
-    self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
+    elseif Type==ZB_WEPSYS_ENGINE then
 
 
 
-    if self.ZBWepSys_ShotsLeft <= 0 then
 
-        local RestTimeMin, RestTimeMax = self.ZBWepSys_Decoy:GetNPCRestTimes()
-        local RndRest = math.Rand(RestTimeMin, RestTimeMax)
-
-        self.NextWeaponFireVolley = CurTime()+RndRest
-        self.ZBWepSys_ShotsLeft = nil
 
     end
 end
+
+
+function NPC:ZBWepSys_StoreInInventory( wep )
+
+    self.ZBWepSys_Inventory[wep:GetClass()] = wep:IsScripted() && ZB_WEPSYS_SCRIPTED or ZB_WEPSYS_ENGINE
+
+    wep:Remove()
+
+end
+
+
+-- function NPC:ZBNWepSys_NewNumShots()
+--     local ShotsMin, ShotsMax = self.ZBWepSys_Decoy:GetNPCBurstSettings()
+--     local RndShots = math.random(ShotsMin, ShotsMax)
+
+--     return RndShots
+-- end
+
+
+-- function NPC:ZBWepSys_Shoot()
+
+--     self.ZBWepSys_Decoy:PrimaryAttack()
+--     self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
+
+--     if self.ZBWepSys_ShotsLeft <= 0 then
+
+--         local RestTimeMin, RestTimeMax = self.ZBWepSys_Decoy:GetNPCRestTimes()
+--         local RndRest = math.Rand(RestTimeMin, RestTimeMax)
+
+--         self.NextWeaponFireVolley = CurTime()+RndRest
+--         self.ZBWepSys_ShotsLeft = nil
+
+--     end
+
+-- end
 
 
 
@@ -488,15 +482,16 @@ end
 
 function NPC:ZBWepSys_Think()
 
-    -- ZBasify weapon
-    local EngineWeapon = self:GetActiveWeapon()
-    if IsValid(EngineWeapon) && EngineWeapon:GetClass() != "zbaseanims" then
-        self:ZBWepSys_GiveWeapon(EngineWeapon:GetClass(), true)
-    end
+    local Weapon = self:GetActiveWeapon()
+   
 
+    if IsValid(Weapon) && !Weapon.FromZBaseInventory then
 
-    if IsValid(self.ZBWepSys_Decoy) && IsValid(self.ZBWepSys_AnimHandler) then
-        self:ZBWepSys_FireWeaponThink()
+        local WeaponCls = Weapon:GetClass()
+
+        self:ZBWepSys_StoreInInventory( Weapon )
+        self:ZBWepSys_SetActiveWeapon( WeaponCls )
+
     end
 
 end
@@ -2689,15 +2684,15 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     self:CustomOnDeath( dmg, hit_gr, rag )
 
 
-    -- Weapon stuff
-    if IsValid(self.ZBWepSys_Decoy) then
-        self.ZBWepSys_Decoy:Remove()
-    end
+    -- -- Weapon stuff
+    -- if IsValid(self.ZBWepSys_Decoy) then
+    --     self.ZBWepSys_Decoy:Remove()
+    -- end
 
-    if self.ZBWepSys_ActiveWeaponClass then
-        -- Drop weapon
-        self:Give(self.ZBWepSys_ActiveWeaponClass)
-    end
+    -- if self.ZBWepSys_ActiveWeaponClass then
+    --     -- Drop weapon
+    --     self:Give(self.ZBWepSys_ActiveWeaponClass)
+    -- end
 
 
     self:SetShouldServerRagdoll(false)

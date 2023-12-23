@@ -9,5 +9,6 @@
 - "Entity timers"
 - coolier effects?? from anp?
 - Controller
-- Weapon pickup
+- Pickup system (even though they have a weapon active)
+- New secondary fire system
 - Carry many weapons
