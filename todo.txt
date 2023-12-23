@@ -1,5 +1,9 @@
 >>> TODO <<<
-- Poort over all my bloody npc mfers
+- Finish wep system
+    - Check COND_
+    - Reload system
+    - Pickup
+- Finish d3 shit
 - ZBase replace default npcs (hijack spawn command?)
 - Make sure ai works as intended, clean up code
 
