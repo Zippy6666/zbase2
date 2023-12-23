@@ -812,7 +812,7 @@ end
 
 
 function NPC:SetActivityIfAvailable( acts, func )
-    func = func or SetActivity
+    func = func or self.SetActivity
 
 
     local wep = self:GetActiveWeapon()
