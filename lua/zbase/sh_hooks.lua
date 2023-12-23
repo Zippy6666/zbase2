@@ -751,6 +751,11 @@ hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
         
 		return false
 	end
+
+
+    if wep.IsZBaseDecoyWep then
+        return false
+    end
 end)
 
 

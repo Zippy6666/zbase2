@@ -468,9 +468,9 @@ function NPC:ZBWepSys_FireWeaponThink()
 
 
         if self:IsMoving() then
-            self:SetActivityIfAvailable(ACT_WALK_AIM)
+            self:SetActivityIfAvailable({ACT_WALK_AIM}, self.SetMovementActivity)
         else
-            self:SetActivityIfAvailable(ACT_RANGE_ATTACK1)
+            self:SetActivityIfAvailable({ACT_RANGE_ATTACK1})
         end
 
 

@@ -1,8 +1,7 @@
 >>> TODO <<<
-- Range fix
-- Enemy memory fix
 - Poort over all my bloody npc mfers
-
+- ZBase replace default npcs (hijack spawn command?)
+- Make sure ai works as intended, clean up code
 
 
 >>> rilis!!!!!!! <<<
