@@ -1,10 +1,8 @@
 >>> TODO <<<
 - Finish wep system
-    - Check COND_
-    - Reload system
-    - Parent engine wep to real wep (to fix muzzle flash and keep entity reference for GetActiveWeapon)
     - Melee weapons
-    - AI stuff to aid the shooting system
+    - AI stuff to aid the shooting system (make sure nothing old interferes with it)
+    - SNPC support
 
 - Finish d3 shit
 - ZBase replace default npcs (hijack spawn command?)

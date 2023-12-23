@@ -16,6 +16,7 @@ SWEP.PrintName = "ZBase Weapon"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
 SWEP.WorldModel = Model( "models/weapons/w_smg1.mdl" )
+
 -- IMPORTANT: Set this to true in your base
 -- Note that your SWEP will be added to the NPC weapon menu automatically if you do
 SWEP.IsZBaseWeapon = true
@@ -65,60 +66,20 @@ SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Effects
 --]]
 
 
-function SWEP:Initialize()
-	self:SetHoldType( "smg" )
+	-- On weapon created
+function SWEP:Init()
 end
 
 
+	-- Called when an NPC primary attacks
+	-- Return true to disable default
+function SWEP:NPCPrimaryAttack()
+end
+
+
+	-- Called when a player primary attacks
+	-- Return true to disable default
 function SWEP:OnPrimaryAttack()
-
-    local effectdata = EffectData()
-    effectdata:SetFlags(1)
-    effectdata:SetEntity(self)
-    util.Effect( "MuzzleFlash", effectdata )
-
-
-	if self.Primary.ShellEject then
-
-		local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
-
-		if att then
-			local effectdata = EffectData()
-			effectdata:SetEntity(self)
-			effectdata:SetOrigin(att.Pos)
-			effectdata:SetAngles(att.Ang)
-			util.Effect( "ShellEject", effectdata )
-		end
-	
-	end
-
-end
-
-
-function SWEP:PrimaryAttack()
-	self:OnPrimaryAttack()
-
-
-	local bullet = {
-		Attacker = self:GetOwner(),
-		Inflictor = self,
-		Damage = self.PrimaryDamage,
-		AmmoType = self.Primary.Ammo,
-		Src = self:GetOwner():GetShootPos(),
-		Dir = self:GetOwner():GetAimVector(),
-		Spread = Vector(self.PrimarySpread, self.PrimarySpread),
-		Tracer = 2,
-		Num = self.Primary.NumShots,
-	}
-	self:FireBullets(bullet)
-
-
-	if self.Primary.TakeAmmoPerShot > 0 then
-		self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
-	end
-
-
-	self:EmitSound(self.PrimaryShootSound)
 end
 
 
@@ -129,8 +90,110 @@ end
 --]]
 
 
+function SWEP:Initialize()
+	self:SetHoldType( "smg" )
+	self:Init()
+end
+
+
+
+function SWEP:PrimaryAttack()
+
+	local own = self:GetOwner()
+	local CanAttack = self:CanPrimaryAttack()
+
+
+	if own.IsZBaseNPC && !own.ZBWepSys_AllowShoot then return end
+
+
+	if own:IsPlayer() && self:OnPrimaryAttack()!=true && CanAttack then
+
+		-- idk xd
+
+	elseif own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack then
+	
+		local effectdata = EffectData()
+		effectdata:SetFlags(1)
+		effectdata:SetEntity(self)
+		util.Effect( "MuzzleFlash", effectdata )
+	
+	
+		if self.Primary.ShellEject then
+	
+			local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
+	
+			if att then
+				local effectdata = EffectData()
+				effectdata:SetEntity(self)
+				effectdata:SetOrigin(att.Pos)
+				effectdata:SetAngles(att.Ang)
+				util.Effect( "ShellEject", effectdata )
+			end
+		
+		end
+
+
+		local bullet = {
+			Attacker = self:GetOwner(),
+			Inflictor = self,
+			Damage = self.PrimaryDamage,
+			AmmoType = self.Primary.Ammo,
+			Src = self:GetOwner():GetShootPos(),
+			Dir = self:GetOwner():GetAimVector(),
+			Spread = Vector(self.PrimarySpread, self.PrimarySpread),
+			Tracer = 2,
+			Num = self.Primary.NumShots,
+		}
+		self:FireBullets(bullet)
+
+
+		if self.Primary.TakeAmmoPerShot > 0 then
+			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+		end
+
+
+		self:EmitSound(self.PrimaryShootSound)
+
+	end
+
+end
+
+
 function SWEP:CanBePickedUpByNPCs()
 	return true
+end
+
+
+function SWEP:TranslateActivity( act )
+
+	local own = self:GetOwner()
+
+
+	if own.ZBWepSys_ActivityTranslate && own.ZBWepSys_ActivityTranslate[act] then
+		return own.ZBWepSys_ActivityTranslate[act]
+	end
+
+
+	if own:IsNPC() then
+
+		if self.ActivityTranslateAI[ act ] then
+			return self.ActivityTranslateAI[ act ]
+		end
+
+		return -1
+
+	end
+
+
+	if self.ActivityTranslate[ act ] != nil then
+
+		return self.ActivityTranslate[ act ]
+
+	end
+
+
+	return -1
+
 end
 
 
@@ -139,8 +202,21 @@ function SWEP:GetNPCRestTimes()
 end
 
 
-function SWEP:GetNPCBurstSettings()
+function SWEP:ZBaseGetNPCBurstSettings()
 	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
+end
+
+
+function SWEP:GetNPCBurstSettings()
+	
+	local own = self:GetOwner()
+
+	if IsValid(own) && own.IsZBaseNPC then
+		return 0, 0, math.huge
+	else
+		return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
+	end
+
 end
 
 
