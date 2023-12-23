@@ -58,7 +58,7 @@ function NPC:ZBaseInit()
     self.NextHealthRegen = CurTime()
     self.NextFootStepTimer = CurTime()
     self.NextRangeThreatened = CurTime()
-    self.NextFireWeapon = CurTime()
+    self.NextWeaponFireVolley = CurTime()
     self.EnemyVisible = false
     self.HadPreviousEnemy = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
@@ -74,8 +74,9 @@ function NPC:ZBaseInit()
     self:SetNWString("ZBaseName", self.Name)
 
 
-     -- Starts with no field of view
-    self:SetSaveValue("m_flFieldOfView", 1)
+    -- FOV and sight dist
+    self:SetSaveValue("m_flFieldOfView", math.cos( (self.SightAngle*(math.pi/180))*0.5 ) )
+    self:SetMaxLookDistance(self.SightDistance)
 
 
     -- Some calls based on attributes
@@ -384,10 +385,8 @@ end
 --]]
 
 
-local IsShootAct = {
-    [ACT_RANGE_ATTACK1] = true,
-    [ACT_RANGE_ATTACK2] = true,
-}
+-- function NPC:ZBNWepSys_TranslateAct()
+-- end
 
 
 function NPC:ZBNWepSys_GetAnimsWep()
@@ -435,18 +434,52 @@ function NPC:ZBWepSys_GiveWeapon(class, active)
 end
 
 
-function NPC:ZBWepSys_FireWeaponThink()
+function NPC:ZBNWepSys_NewNumShots()
+    local ShotsMin, ShotsMax = self.ZBWepSys_Decoy:GetNPCBurstSettings()
+    local RndShots = math.random(ShotsMin, ShotsMax)
 
-    if IsShootAct[self:GetActivity()] && self.NextFireWeapon < CurTime() then
+    return RndShots
+end
+
+
+function NPC:ZBWepSys_Shoot()
+    self.ZBWepSys_Decoy:PrimaryAttack()
+    self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
+
+
+
+    if self.ZBWepSys_ShotsLeft <= 0 then
 
         local RestTimeMin, RestTimeMax = self.ZBWepSys_Decoy:GetNPCRestTimes()
         local RndRest = math.Rand(RestTimeMin, RestTimeMax)
 
-        self.ZBWepSys_AnimHandler.Duration = math.Clamp(RndRest, self:SelectWeightedSequence(ACT_RANGE_ATTACK1), 10)
-        self.ZBWepSys_Decoy:PrimaryAttack()
+        self.NextWeaponFireVolley = CurTime()+RndRest
+        self.ZBWepSys_ShotsLeft = nil
 
-        
-        self.NextFireWeapon = CurTime()+RndRest
+    end
+end
+
+
+
+function NPC:ZBWepSys_FireWeaponThink()
+
+    if self.EnemyVisible && !self.DoingPlayAnim && self.NextWeaponFireVolley < CurTime() &&
+    self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance}) then
+
+
+        if self:IsMoving() then
+            self:SetActivityIfAvailable(ACT_WALK_AIM)
+        else
+            self:SetActivityIfAvailable(ACT_RANGE_ATTACK1)
+        end
+
+
+        self:ZBWepSys_Shoot()
+
+
+    elseif self:GetActivity()==ACT_RANGE_ATTACK1 then
+
+        self:SetIdealActivity(ACT_IDLE)
 
     end
 
@@ -767,7 +800,7 @@ function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
 end
 
 
-function NPC:SetActivityIfAvailable( func, acts )
+function NPC:SetActivityIfAvailable( acts, func )
     func = func or SetActivity
 
 
@@ -799,7 +832,7 @@ function NPC:SetConditionalActivities()
 
     
     if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) then
-        self:SetActivityIfAvailable(self.SetMovementActivity, {ACT_RUN_PROTECTED, ACT_RUN_CROUCH})
+        self:SetActivityIfAvailable({ACT_RUN_PROTECTED, ACT_RUN_CROUCH}, self.SetMovementActivity)
     end
 end
 
@@ -928,22 +961,25 @@ function NPC:AITick_NonScripted()
     local ene = self:GetEnemy()
 
 
+
     if self.ProhibitCustomEScheds then
+
         local state = self:GetNPCState()
         local sched = self:GetCurrentSchedule()
 
 
         if sched > 88 && !self.AllowedCustomEScheds[sched] then
+
             self.Debug_ProhibitedCusESched = sched
 
-            self:SetSchedule(
-                (state==NPC_STATE_IDLE && SCHED_IDLE_STAND)
-                or (state==NPC_STATE_ALERT && SCHED_ALERT_STAND)
-                or (state==NPC_STATE_COMBAT && SCHED_COMBAT_FACE)
-            )
+            self:SetSchedule( (state==NPC_STATE_ALERT && SCHED_ALERT_STAND) or (state==NPC_STATE_COMBAT && SCHED_COMBAT_FACE)
+            or SCHED_IDLE_STAND )
+
         end
+
     end
 
+    
 
     -- Reload now if hiding spot is too far away
     if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD)
@@ -1325,213 +1361,150 @@ end
 
 --[[
 ==================================================================================================
-                                           AI WEAPON HANDLING
-==================================================================================================
---]]
-
-
-local hl2wepShootDistMult = {
-    ["weapon_shotgun"] = 0.5,
-    ["weapon_crossbow"] = 2,
-}
-
-
-function NPC:GetCurrentWeaponShootDist()
-    local wep = self:GetActiveWeapon()
-    if !IsValid(wep) then return end
-
-    local mult = hl2wepShootDistMult[wep:GetClass()] or wep.NPCShootDistanceMult or 1
-
-    return self.MaxShootDistance*mult
-end
-
-
-function NPC:ShootTargetTooFarAway()
-    local ene = self:GetEnemy()
-
-    return IsValid(ene)
-    && IsValid(self:GetActiveWeapon())
-    && self:ZBaseDist(ene, {away=self:GetCurrentWeaponShootDist()})
-end
-
-
-NPCB.AdjustSightAngAndDist = {}
-
-
-function NPCB.AdjustSightAngAndDist:ShouldDoBehaviour( self )
-    return true
-end
-
-
-function NPCB.AdjustSightAngAndDist:Run( self )
-    local ene = self:GetEnemy()
-
-    if self.DoingDeathAnim then
-
-        self:SetSaveValue("m_flFieldOfView", 1)
-        self:SetMaxLookDistance(1)
-
-    elseif self:ShootTargetTooFarAway() then
-
-        self:SetSaveValue("m_flFieldOfView", 1)
-        self:SetMaxLookDistance(self:GetCurrentWeaponShootDist())
-
-    else
-
-        local fieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
-        self:SetSaveValue("m_flFieldOfView", fieldOfView)
-        self:SetMaxLookDistance(self.SightDistance)
-
-    end
-end
-
-
---[[
-==================================================================================================
                                            AI SECONDARY FIRE
 ==================================================================================================
 --]]
 
 
-ZBaseComballOwner = NULL
+-- ZBaseComballOwner = NULL
 
 
-NPCB.SecondaryFire = {
-    MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
-    MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
-}
+-- NPCB.SecondaryFire = {
+--     MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
+--     MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
+-- }
 
 
-local SecondaryFireWeapons = {
-    ["weapon_ar2"] = {dist=4000, mindist=100},
-    ["weapon_smg1"] = {dist=1500, mindist=250},
-}
+-- local SecondaryFireWeapons = {
+--     ["weapon_ar2"] = {dist=4000, mindist=100},
+--     ["weapon_smg1"] = {dist=1500, mindist=250},
+-- }
 
 
-function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
-    local seq = self:LookupSequence("shootar2alt")
-    if seq != -1 then
-        -- Has comball animation, play it
-        self:PlayAnimation("shootar2alt", true)
-    else
-        -- Charge sound (would normally play in the comball anim)
-        wep:EmitSound("Weapon_CombineGuard.Special1")
-    end
+-- function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
+--     local seq = self:LookupSequence("shootar2alt")
+--     if seq != -1 then
+--         -- Has comball animation, play it
+--         self:PlayAnimation("shootar2alt", true)
+--     else
+--         -- Charge sound (would normally play in the comball anim)
+--         wep:EmitSound("Weapon_CombineGuard.Special1")
+--     end
 
 
-    timer.Simple(0.75, function()
-        if !(IsValid(self) && IsValid(wep) && IsValid(enemy)) then return end
-        if self:GetNPCState() == NPC_STATE_DEAD then return end
+--     timer.Simple(0.75, function()
+--         if !(IsValid(self) && IsValid(wep) && IsValid(enemy)) then return end
+--         if self:GetNPCState() == NPC_STATE_DEAD then return end
 
 
-        local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
+--         local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
 
-        local ball_launcher = ents.Create( "point_combine_ball_launcher" )
-        ball_launcher:SetAngles( (enemy:WorldSpaceCenter() - startPos):Angle() )
-        ball_launcher:SetPos( startPos )
-        ball_launcher:SetKeyValue( "minspeed",1200 )
-        ball_launcher:SetKeyValue( "maxspeed", 1200 )
-        ball_launcher:SetKeyValue( "ballradius", "10" )
-        ball_launcher:SetKeyValue( "ballcount", "1" )
-        ball_launcher:SetKeyValue( "maxballbounces", "100" )
-        ball_launcher:Spawn()
-        ball_launcher:Activate()
-        ball_launcher:Fire( "LaunchBall" )
-        ball_launcher:Fire("kill","",0)
-        timer.Simple(0.01, function()
-            if IsValid(self)
-            && self:GetNPCState() != NPC_STATE_DEAD then
-                for _, ball in ipairs(ents.FindInSphere(self:GetPos(), 100)) do
-                    if ball:GetClass() == "prop_combine_ball" then
+--         local ball_launcher = ents.Create( "point_combine_ball_launcher" )
+--         ball_launcher:SetAngles( (enemy:WorldSpaceCenter() - startPos):Angle() )
+--         ball_launcher:SetPos( startPos )
+--         ball_launcher:SetKeyValue( "minspeed",1200 )
+--         ball_launcher:SetKeyValue( "maxspeed", 1200 )
+--         ball_launcher:SetKeyValue( "ballradius", "10" )
+--         ball_launcher:SetKeyValue( "ballcount", "1" )
+--         ball_launcher:SetKeyValue( "maxballbounces", "100" )
+--         ball_launcher:Spawn()
+--         ball_launcher:Activate()
+--         ball_launcher:Fire( "LaunchBall" )
+--         ball_launcher:Fire("kill","",0)
+--         timer.Simple(0.01, function()
+--             if IsValid(self)
+--             && self:GetNPCState() != NPC_STATE_DEAD then
+--                 for _, ball in ipairs(ents.FindInSphere(self:GetPos(), 100)) do
+--                     if ball:GetClass() == "prop_combine_ball" then
 
-                        ball:SetOwner(self)
-                        ball.ZBaseComballOwner = self
-                        ball.IsZBaseDMGInfl = true
+--                         ball:SetOwner(self)
+--                         ball.ZBaseComballOwner = self
+--                         ball.IsZBaseDMGInfl = true
 
-                        timer.Simple(math.Rand(4, 6), function()
-                            if IsValid(ball) then
-                                ball:Fire("Explode")
-                            end
-                        end)
-                    end
-                end
-            end
-        end)
+--                         timer.Simple(math.Rand(4, 6), function()
+--                             if IsValid(ball) then
+--                                 ball:Fire("Explode")
+--                             end
+--                         end)
+--                     end
+--                 end
+--             end
+--         end)
     
-        local effectdata = EffectData()
-        effectdata:SetFlags(5)
-        effectdata:SetEntity(wep)
-        util.Effect( "MuzzleFlash", effectdata, true, true )
+--         local effectdata = EffectData()
+--         effectdata:SetFlags(5)
+--         effectdata:SetEntity(wep)
+--         util.Effect( "MuzzleFlash", effectdata, true, true )
 
-        wep:EmitSound("Weapon_IRifle.Single")
-    end)
-
-
-    if IsValid(enemy) && enemy.IsZBaseNPC then
-        enemy:RangeThreatened( self )
-    end
+--         wep:EmitSound("Weapon_IRifle.Single")
+--     end)
 
 
-end
+--     if IsValid(enemy) && enemy.IsZBaseNPC then
+--         enemy:RangeThreatened( self )
+--     end
 
 
-function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
-
-    local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
-    local grenade = ents.Create("grenade_ar2")
-    grenade:SetOwner(self)
-    grenade:SetPos(startPos)
-    grenade.IsZBaseDMGInfl = true
-    grenade:Spawn()
-    grenade:SetVelocity((enemy:GetPos() - startPos):GetNormalized()*1250 + Vector(0,0,200))
-    grenade:SetLocalAngularVelocity(AngleRand())
-
-    wep:EmitSound("Weapon_AR2.Double")
-
-    local effectdata = EffectData()
-    effectdata:SetFlags(7)
-    effectdata:SetEntity(wep)
-    util.Effect( "MuzzleFlash", effectdata, true, true )
-
-    if IsValid(enemy) && enemy.IsZBaseNPC then
-        enemy:RangeThreatened( self )
-    end
-
-end
+-- end
 
 
-function NPCB.SecondaryFire:ShouldDoBehaviour( self )
-    if !self.CanSecondaryAttack then return false end
-    if self.DoingPlayAnim then return false end
+-- function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
 
-    local wep = self:GetActiveWeapon()
+--     local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
+--     local grenade = ents.Create("grenade_ar2")
+--     grenade:SetOwner(self)
+--     grenade:SetPos(startPos)
+--     grenade.IsZBaseDMGInfl = true
+--     grenade:Spawn()
+--     grenade:SetVelocity((enemy:GetPos() - startPos):GetNormalized()*1250 + Vector(0,0,200))
+--     grenade:SetLocalAngularVelocity(AngleRand())
 
-    if !IsValid(wep) then return false end
+--     wep:EmitSound("Weapon_AR2.Double")
 
-    local wepTbl = SecondaryFireWeapons[wep:GetClass()]
-    if !wepTbl then return false end
+--     local effectdata = EffectData()
+--     effectdata:SetFlags(7)
+--     effectdata:SetEntity(wep)
+--     util.Effect( "MuzzleFlash", effectdata, true, true )
 
-    if self:GetActivity()!=ACT_RANGE_ATTACK1 then return false end
+--     if IsValid(enemy) && enemy.IsZBaseNPC then
+--         enemy:RangeThreatened( self )
+--     end
 
-    return self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
-end
-
-
-function NPCB.SecondaryFire:Delay( self )
-
-    if math.random(1, 2) == 1 then
-        return math.Rand(4, 8)
-    end
-
-end
+-- end
 
 
-function NPCB.SecondaryFire:Run( self )
-    local enemy = self:GetEnemy()
-    local wep = self:GetActiveWeapon()
-    SecondaryFireWeapons[wep:GetClass()]:Func( self, wep, enemy )
-    ZBaseDelayBehaviour(math.Rand(4, 8))
-end
+-- function NPCB.SecondaryFire:ShouldDoBehaviour( self )
+--     if !self.CanSecondaryAttack then return false end
+--     if self.DoingPlayAnim then return false end
+
+--     local wep = self:GetActiveWeapon()
+
+--     if !IsValid(wep) then return false end
+
+--     local wepTbl = SecondaryFireWeapons[wep:GetClass()]
+--     if !wepTbl then return false end
+
+--     if self:GetActivity()!=ACT_RANGE_ATTACK1 then return false end
+
+--     return self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
+-- end
+
+
+-- function NPCB.SecondaryFire:Delay( self )
+
+--     if math.random(1, 2) == 1 then
+--         return math.Rand(4, 8)
+--     end
+
+-- end
+
+
+-- function NPCB.SecondaryFire:Run( self )
+--     local enemy = self:GetEnemy()
+--     local wep = self:GetActiveWeapon()
+--     SecondaryFireWeapons[wep:GetClass()]:Func( self, wep, enemy )
+--     ZBaseDelayBehaviour(math.Rand(4, 8))
+-- end
 
 
 --[[
