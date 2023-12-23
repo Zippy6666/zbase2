@@ -65,9 +65,6 @@ function NPC:ZBaseInit()
     self.LastHitGroup = HITGROUP_GENERIC
     self.SchedDebug = GetConVar("developer"):GetBool()
     self.PlayerToFollow = NULL
-    self.ZBWepSys_Inventory = {}
-    
-
 
     -- Network shit
     self:SetNWBool("IsZBaseNPC", true)
@@ -147,6 +144,10 @@ function NPC:ZBaseInit()
     if self.ZBaseFaction == "none" && self:SquadName()!="" then
         self:SetSquad("")
     end
+
+
+    -- Weapon system
+    self:ZBWepSys_Init()
 
 
     -- Glowing eyes
@@ -385,8 +386,14 @@ end
 --]]
 
 
-local ZB_WEPSYS_SCRIPTED = 0
-local ZB_WEPSYS_ENGINE = 1
+function NPC:ZBWepSys_Init()
+
+    self.ZBWepSys_ActivityTranslate = {}
+    self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
+
+    self.ZBWepSys_Inventory = {}
+
+end
 
 
 function NPC:ZBWepSys_SetActiveWeapon( class )
@@ -394,71 +401,72 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
     if !self.ZBWepSys_Inventory[class] then return end
 
 
-    local Type = self.ZBWepSys_Inventory[class]
+    local WepData = self.ZBWepSys_Inventory[class]
 
 
-    if Type==ZB_WEPSYS_SCRIPTED then
+    timer.Simple(0.1, function()
 
-        timer.Simple(0.1, function()
+        self:Give( WepData.isScripted && class or "weapon_zbase" )
 
-            self:Give(class)
+        local Weapon = self:GetActiveWeapon()
+        Weapon.FromZBaseInventory = true
 
-            local Weapon = self:GetActiveWeapon()
-            Weapon.FromZBaseInventory = true
-            Weapon.GetNPCRestTimes = function() return math.huge, math.huge end
+    end)
 
-        end)
-
-    elseif Type==ZB_WEPSYS_ENGINE then
-
-
-
-
-
-    end
 end
 
 
 function NPC:ZBWepSys_StoreInInventory( wep )
 
-    self.ZBWepSys_Inventory[wep:GetClass()] = wep:IsScripted() && ZB_WEPSYS_SCRIPTED or ZB_WEPSYS_ENGINE
+    self.ZBWepSys_Inventory[wep:GetClass()] = {model=wep:GetModel(), isScripted=wep:IsScripted()}
 
     wep:Remove()
 
 end
 
 
--- function NPC:ZBNWepSys_NewNumShots()
---     local ShotsMin, ShotsMax = self.ZBWepSys_Decoy:GetNPCBurstSettings()
---     local RndShots = math.random(ShotsMin, ShotsMax)
+function NPC:ZBNWepSys_NewNumShots()
+    local ShotsMin, ShotsMax = self:GetActiveWeapon():ZBaseGetNPCBurstSettings()
+    local RndShots = math.random(ShotsMin, ShotsMax)
 
---     return RndShots
--- end
+    return RndShots
+end
 
 
--- function NPC:ZBWepSys_Shoot()
+function NPC:ZBWepSys_Shoot()
 
---     self.ZBWepSys_Decoy:PrimaryAttack()
---     self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
+    self.ZBWepSys_AllowShoot = true
+    self:GetActiveWeapon():PrimaryAttack()
+    self.ZBWepSys_AllowShoot = false
 
---     if self.ZBWepSys_ShotsLeft <= 0 then
 
---         local RestTimeMin, RestTimeMax = self.ZBWepSys_Decoy:GetNPCRestTimes()
---         local RndRest = math.Rand(RestTimeMin, RestTimeMax)
+    self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
 
---         self.NextWeaponFireVolley = CurTime()+RndRest
---         self.ZBWepSys_ShotsLeft = nil
+    if self.ZBWepSys_ShotsLeft <= 0 then
 
---     end
+        local RestTimeMin, RestTimeMax = self:GetActiveWeapon():GetNPCRestTimes()
+        local RndRest = math.Rand(RestTimeMin, RestTimeMax)
 
--- end
+        self.NextWeaponFireVolley = CurTime()+RndRest
+        self.ZBWepSys_ShotsLeft = nil
 
+    end
+
+end
+
+
+function NPC:ZBWepSys_HasShootSched()
+    return self:IsCurrentSchedule(SCHED_RANGE_ATTACK1) or self:IsCurrentSchedule(SCHED_RANGE_ATTACK2)
+    or (self:GetClass()=="npc_combine_s" && self:IsCurrentSchedule(ZBaseESchedID("SCHED_COMBINE_RANGE_ATTACK1")))
+end
 
 
 function NPC:ZBWepSys_FireWeaponThink()
 
-    if self.EnemyVisible && !self.DoingPlayAnim && self.NextWeaponFireVolley < CurTime() &&
-    self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance}) then
+    if self.EnemyVisible && !self.DoingPlayAnim && self.NextWeaponFireVolley < CurTime()
+    && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance})
+    && self:HasCondition(COND.CAN_RANGE_ATTACK1) && self:HasCondition(COND.WEAPON_HAS_LOS)
+    && self:ZBWepSys_HasShootSched() then
 
 
         if self:IsMoving() then
@@ -466,6 +474,8 @@ function NPC:ZBWepSys_FireWeaponThink()
         else
             self:SetActivityIfAvailable({ACT_RANGE_ATTACK1})
         end
+
+        -- print(ListConditions(self))
 
 
         self:ZBWepSys_Shoot()
@@ -483,16 +493,22 @@ end
 function NPC:ZBWepSys_Think()
 
     local Weapon = self:GetActiveWeapon()
-   
+    if !IsValid(Weapon) then return end
 
-    if IsValid(Weapon) && !Weapon.FromZBaseInventory then
 
-        local WeaponCls = Weapon:GetClass()
+    local WeaponCls = Weapon:GetClass()
+    
+
+    if !Weapon.FromZBaseInventory then
 
         self:ZBWepSys_StoreInInventory( Weapon )
         self:ZBWepSys_SetActiveWeapon( WeaponCls )
+        return
 
     end
+
+
+    self:ZBWepSys_FireWeaponThink()
 
 end
 
