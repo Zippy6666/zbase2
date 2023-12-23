@@ -17,7 +17,6 @@ SWEP.WorldModel = Model( "models/error.mdl" )
 
 function SWEP:Initialize()
 	self:SetHoldType( "smg" )
-    self.Duration = 1
 end
 
 
@@ -26,7 +25,7 @@ end
 
 
 function SWEP:GetNPCRestTimes()
-    return self.Duration, self.Duration
+    return math.huge, math.huge
 end
 
 

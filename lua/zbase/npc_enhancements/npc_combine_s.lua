@@ -34,11 +34,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         end
 
 
-        if !self:HasCapability(CAP_INNATE_MELEE_ATTACK1) then
-            self:ClearCondition(COND.CAN_MELEE_ATTACK1)
-        end
-
-
         -- Keep shootin boye
         self:SetSaveValue("m_nShots", 2)
 

@@ -110,12 +110,14 @@ NPC.MoveSpeedMultiplier = 1
 --]]
 
 
+NPC.MinShootDistance = 0 -- Maximum distance the NPC can fire its weapon from
 NPC.MaxShootDistance = 3000 -- Maximum distance the NPC can fire its weapon from
 NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
 NPC.NoWeapon_Scared = false -- Should it run away from the enemy if it doesn't have a weapon?
+
 
 --[[
 ==================================================================================================
@@ -749,18 +751,9 @@ function NPC:SNPCSelectSchedule(iNPCState)
 
     if IsValid(ene) then
 
-        if self:SeeEne() && IsValid(self:GetActiveWeapon()) then
-
-            -- Has weapon and sees enemy, shoot that mf
-            return SCHED_RANGE_ATTACK1
-
-        else
-
-            -- ZBase advanced chase schedule
-            -- Strongly recommended if you want the SNPC to chase the enemy
-            return ZSched.CombatChase
-
-        end
+        -- ZBase advanced chase schedule
+        -- Strongly recommended if you want the SNPC to chase the enemy
+        return ZSched.CombatChase
 
     else
 
