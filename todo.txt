@@ -1,17 +1,20 @@
 >>> TODO <<<
 - Finish wep system
     - Melee weapons
-    - AI stuff to aid the shooting system (make sure nothing old interferes with it)
+    - AI stuff to aid the shooting system
     - SNPC support
-    - Translate activity when unarmed for combines
+    - Test NPC weapons to see if they work with it
+- Translation stuff (no more tpose shit)
+- Controller
 - Finish d3 shit
-- ZBase replace default npcs (hijack spawn command?)
-- Clean up code, make sure everything is right
 - Fix SNPC collision
+- ZBase replace default npcs (hijack spawn command?)
+- Clean up code, make sure everything works right
+    - Improve lost enemy etc
+
 
 
 >>> rilis!!!!!!! <<<
-- Dummy git
 - new public repo
 - Psychotic description for the funnies (use chatgpt)
 - Credit crunchy soap!!!!!!!!!!!!!
@@ -22,15 +25,11 @@
 >>> IDEAS <<<
 - Expanded support for the weapon base so that player functions work on NPCs
 - Jump system
-- ZBase functionality for any NPC, except ANP NPCs and SNPCs
-- Guarding mode, or something like that
 - Grab ZBase flying NPCs with gravity gun
-- Flying snpcs use air nodes too (not just ground)
-- Movement noise to aerial snpc base
+- Flying snpcs use air nodes too (not just ground) + other improvements
 - "Entity timers"
 - coolier effects?? from anp?
-- Controller
 - Pickup system (even though they have a weapon active)
 - New secondary fire system
-- Carry many weapons
 - Port all my NPCs
+- Able to change model and snpc type live
