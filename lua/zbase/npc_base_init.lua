@@ -50,11 +50,9 @@ NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
 NPC.SpawnFlagTbl = {} -- Ex. NPC.SpawnFlagTbl = {SF_NPC_NO_WEAPON_DROP}, https://wiki.facepunch.com/gmod/Enums/SF
 
 
--- Extra capabilities
--- List of engine capabilities: https://wiki.facepunch.com/gmod/Enums/CAP
-NPC.ExtraCapabilities = {
-    CAP_OPEN_DOORS, -- Can open regular doors
-}
+NPC.CanOpenDoors = true -- Can open regular doors
+NPC.CanOpenAutoDoors = false -- Can open auto doors
+NPC.CanUse = false -- Can push buttons, pull levers, etc
 
 
 -- Do "zbase_reload" followed by "spawnmenu_reload" to apply the changes, or restart map
