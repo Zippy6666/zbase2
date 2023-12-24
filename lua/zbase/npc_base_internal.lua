@@ -195,7 +195,6 @@ function NPC:InitCap()
     -- Movement
 	if self.SNPCType == ZBASE_SNPCTYPE_WALK then
 		self:CapabilitiesAdd(CAP_MOVE_GROUND)
-        -- self:CapabilitiesAdd(CAP_MOVE_FLY)
 	elseif self.SNPCType == ZBASE_SNPCTYPE_FLY then
 		self:SetNavType(NAV_FLY)
 	end
@@ -401,8 +400,14 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
         self:Give( WepData.isScripted && class or "weapon_zbase" )
 
+
         local Weapon = self:GetActiveWeapon()
         Weapon.FromZBaseInventory = true
+
+
+        if !WepData.isScripted then
+            Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
+        end
 
     end)
 

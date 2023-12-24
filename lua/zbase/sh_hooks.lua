@@ -28,52 +28,52 @@ end)
 --]]
 
 
-local function BasicPrimaryAttack( wep )
+-- local function BasicPrimaryAttack( wep )
 
-    local effectdata = EffectData()
-    effectdata:SetFlags(wep.ZB_MuzzleFlashFlags or 1)
-    effectdata:SetEntity(wep)
-    util.Effect( "MuzzleFlash", effectdata )
-
-
-    local att = wep:GetAttachment(wep:LookupAttachment("1"))
-    if att && wep.ZB_ShellEject then
-        local effectdata = EffectData()
-        effectdata:SetEntity(wep)
-        effectdata:SetOrigin(att.Pos)
-        effectdata:SetAngles(att.Ang)
-        util.Effect( wep.ZB_ShellEject, effectdata )
-    end
+--     local effectdata = EffectData()
+--     effectdata:SetFlags(wep.ZB_MuzzleFlashFlags or 1)
+--     effectdata:SetEntity(wep)
+--     util.Effect( "MuzzleFlash", effectdata )
 
 
-    wep:FireBullets({
-        Attacker = wep:GetOwner(),
-        Inflictor = wep,
-        Damage = wep.ZB_Primary or 2,
-        AmmoType = wep.ZB_Ammo,
-        Src = wep:GetOwner():GetShootPos(),
-        Dir = wep:GetOwner():GetAimVector(),
-        Spread = Vector(wep.ZB_Spread or 0.025, wep.ZB_Spread or 0.025),
-        Tracer = 2,
-        Num = wep.ZB_NumShots or 1,
-    })
-
-    wep:EmitSound(wep.ZB_FireSnd)
-
-end
+--     local att = wep:GetAttachment(wep:LookupAttachment("1"))
+--     if att && wep.ZB_ShellEject then
+--         local effectdata = EffectData()
+--         effectdata:SetEntity(wep)
+--         effectdata:SetOrigin(att.Pos)
+--         effectdata:SetAngles(att.Ang)
+--         util.Effect( wep.ZB_ShellEject, effectdata )
+--     end
 
 
-local HL2Weapon_SWEPTable = {
-    ["weapon_smg1"] = {
-        PrimaryAttack = BasicPrimaryAttack,
-        GetNPCBurstSettings = function() return 6, 8 end,
-        GetNPCRestTimes = function() return 1, 1.5 end,
-        ZB_Damage = 2,
-        ZB_Ammo = "smg1",
-        ZB_ShellEject = "ShellEject",
-        ZB_FireSnd = "Weapon_SMG1.NPC_Single",
-    }
-}
+--     wep:FireBullets({
+--         Attacker = wep:GetOwner(),
+--         Inflictor = wep,
+--         Damage = wep.ZB_Primary or 2,
+--         AmmoType = wep.ZB_Ammo,
+--         Src = wep:GetOwner():GetShootPos(),
+--         Dir = wep:GetOwner():GetAimVector(),
+--         Spread = Vector(wep.ZB_Spread or 0.025, wep.ZB_Spread or 0.025),
+--         Tracer = 2,
+--         Num = wep.ZB_NumShots or 1,
+--     })
+
+--     wep:EmitSound(wep.ZB_FireSnd)
+
+-- end
+
+
+-- local HL2Weapon_SWEPTable = {
+--     ["weapon_smg1"] = {
+--         PrimaryAttack = BasicPrimaryAttack,
+--         GetNPCBurstSettings = function() return 6, 8 end,
+--         GetNPCRestTimes = function() return 1, 1.5 end,
+--         ZB_Damage = 2,
+--         ZB_Ammo = "smg1",
+--         ZB_ShellEject = "ShellEject",
+--         ZB_FireSnd = "Weapon_SMG1.NPC_Single",
+--     }
+-- }
 
 
 --[[
@@ -168,13 +168,13 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
 
 
     -- Make hl2 weapons into sweps or something idk what to call this
-    local cls = ent:GetClass()
+    -- local cls = ent:GetClass()
 
-    if HL2Weapon_SWEPTable[cls] then
-        for varname, var in pairs(HL2Weapon_SWEPTable[cls]) do
-            ent[varname] = var
-        end
-    end
+    -- if HL2Weapon_SWEPTable[cls] then
+    --     for varname, var in pairs(HL2Weapon_SWEPTable[cls]) do
+    --         ent[varname] = var
+    --     end
+    -- end
 end)
 
 

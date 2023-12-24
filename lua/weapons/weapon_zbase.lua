@@ -39,6 +39,7 @@ SWEP.NPCFireRestTimeMax = 1 -- Maximum amount of time the NPC rests between burs
 SWEP.NPCBulletSpreadMult = 1 -- Higher number = worse accuracy
 SWEP.NPCReloadSound = "" -- Sound when the NPC reloads the gun
 SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number with this weapon
+SWEP.NPCCanBePickedUp = true -- Can NPCs pick up this weapon?
 
 
 --[[
@@ -61,13 +62,14 @@ SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Effects
 
 --[[
 ==================================================================================================
-                                    CUSTOMIZABLE FUNCTIONS
+                                    FUNCTIONS YOU CAN CHANGE
 ==================================================================================================
 --]]
 
 
 	-- On weapon created
 function SWEP:Init()
+	self:SetHoldType( "smg" ) -- https://wiki.facepunch.com/gmod/Hold_Types
 end
 
 
@@ -78,9 +80,19 @@ end
 
 
 	-- Called when a player primary attacks
-	-- Return true to disable default
 function SWEP:OnPrimaryAttack()
 end
+
+
+	-- Just like regular translate activity
+function SWEP:CustomTranslateActivity()
+end
+
+
+	-- Called when the weapon is removed
+function SWEP:CustomOnRemove()
+end
+
 
 
 --[[
@@ -91,9 +103,98 @@ end
 
 
 function SWEP:Initialize()
-	self:SetHoldType( "smg" )
+
+
+	-- local HookId = "ZBHookThink"..self:EntIndex()
+	-- hook.Add("Think", HookId, function()
+
+	-- 	if !IsValid(self) then
+	-- 		hook.Remove("Think", HookId)
+	-- 		return
+	-- 	end
+
+
+
+	-- 	self:HookThink()
+	
+	-- end)
+
+	
 	self:Init()
+	
 end
+
+
+
+
+
+
+function SWEP:DrawWorldModel()
+
+	local own = self:GetOwner()
+
+
+	if IsValid(own) && own:GetNWBool("IsZBaseNPC") then
+
+		if IsValid(self.NPCWorldModelOverride) then
+
+			if !self.NPCWorldModelOverride.SetupDone then
+
+				self.NPCWorldModelOverride:SetNoDraw(true)
+				self.NPCWorldModelOverride:AddEffects(EF_BONEMERGE)
+				self.NPCWorldModelOverride.SetupDone = true
+
+			end
+
+			
+			self.NPCWorldModelOverride:SetParent(own)
+			self.NPCWorldModelOverride:DrawModel()
+
+		else
+
+			local modelname = self:GetNWString("ZBaseNPCWorldModel", nil)
+
+
+			if modelname then
+
+				self.NPCWorldModelOverride = ClientsideModel( modelname )
+				
+			end
+		
+		end
+
+	end
+
+
+
+	-- local own = self:GetOwner()
+
+
+	-- if IsValid(own) then
+	-- 	WorldModel:SetParent(own)
+	-- 	WorldModel:AddEffects(EF_BONEMERGE)
+	-- 	WorldModel:SetModel("models/props_c17/FurnitureDresser001a.mdl")
+	-- end
+
+
+
+
+	-- WorldModel:SetPos(self:GetPos())
+	-- WorldModel:SetAngles(self:GetAngles())
+	-- WorldModel:DrawModel()
+
+end
+
+
+
+
+
+
+--[[
+==================================================================================================
+                            Primary Attack	!!! DON'T USE !!!
+==================================================================================================
+--]]
 
 
 
@@ -159,12 +260,20 @@ function SWEP:PrimaryAttack()
 end
 
 
-function SWEP:CanBePickedUpByNPCs()
-	return true
-end
+--[[
+==================================================================================================
+                            Activity Translate	!!! DON'T USE !!!
+==================================================================================================
+--]]
 
 
 function SWEP:TranslateActivity( act )
+
+	local act = self:CustomTranslateActivity( act )
+	if act != nil then
+		return act
+	end
+
 
 	local own = self:GetOwner()
 
@@ -197,6 +306,18 @@ function SWEP:TranslateActivity( act )
 end
 
 
+--[[
+==================================================================================================
+                            NPC Stuff	!!! DON'T USE !!!
+==================================================================================================
+--]]
+
+
+function SWEP:CanBePickedUpByNPCs()
+	return self.NPCCanBePickedUp
+end
+
+
 function SWEP:GetNPCRestTimes()
 	return self.NPCFireRestTimeMin, self.NPCFireRestTimeMax
 end
@@ -222,4 +343,24 @@ end
 
 function SWEP:GetNPCBulletSpread( proficiency )
 	return (7 - proficiency)*self.NPCBulletSpreadMult
+end
+
+
+
+--[[
+==================================================================================================
+                            Removal	!!! DON'T USE !!!
+==================================================================================================
+--]]
+
+
+function SWEP:OnRemove()
+
+	if IsValid(self.NPCWorldModelOverride) then
+		self.NPCWorldModelOverride:Remove()
+	end
+
+
+	self:CustomOnRemove()
+
 end

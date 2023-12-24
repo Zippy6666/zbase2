@@ -425,6 +425,7 @@ local function RegBase()
         include(NPCBasePrefix.."util.lua")
         include(NPCBasePrefix.."init.lua")
 
+
         -- Get names of sound variables
         ZBaseNPCs["npc_zbase"].SoundVarNames = {}
         for k, v in pairs(ZBaseNPCs["npc_zbase"]) do
