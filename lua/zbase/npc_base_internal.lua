@@ -14,14 +14,14 @@ local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 function NPC:BeforeSpawn( NPCData )
 
-    self:CapabilitiesAdd(bit.bor(
-        CAP_SQUAD,
-        CAP_TURN_HEAD,
-        CAP_ANIMATEDFACE,
-        CAP_SKIP_NAV_GROUND_CHECK,
-        CAP_USE_WEAPONS,
-        CAP_USE_SHOT_REGULATOR
-    ))
+    -- self:CapabilitiesAdd(bit.bor(
+    --     CAP_SQUAD,
+    --     CAP_TURN_HEAD,
+    --     CAP_ANIMATEDFACE,
+    --     CAP_SKIP_NAV_GROUND_CHECK,
+    --     CAP_USE_WEAPONS,
+    --     CAP_USE_SHOT_REGULATOR
+    -- ))
 
     self.AllowedCustomEScheds = {}
     self.ProhibitCustomEScheds = false
@@ -80,9 +80,6 @@ function NPC:ZBaseInit()
     self:SetCurrentWeaponProficiency(self.WeaponProficiency)
     self:SetBloodColor(self.BloodColor)
     self:SetRenderMode(self.RenderMode)
-    if self.HullType && !self.IsZBase_SNPC then
-        self:SetHullType(self.HullType)
-    end
 
 
     -- Submaterials
@@ -91,31 +88,7 @@ function NPC:ZBaseInit()
     end
 
 
-    -- Extra capabilities given
-    for _, v in ipairs(self.ExtraCapabilities) do
-        self:CapabilitiesAdd(v)
-    end
-
-
-    -- Capabilities
-    if self.CanJump && self:SelectWeightedSequence(ACT_JUMP) != -1 then
-        self:CapabilitiesAdd(CAP_MOVE_JUMP)
-    end
-
-
-
-    -- Remove some capabilities
-    if self:SelectWeightedSequence(ACT_MELEE_ATTACK1) == -1 then
-
-        self:CapabilitiesRemove(CAP_INNATE_MELEE_ATTACK1)
-        self:SetIgnoreConditions( {COND.CAN_MELEE_ATTACK1} )
-
-    end
-    if !self:CheckHasAimPoseParam() then
-        
-        self:CapabilitiesRemove(CAP_AIM_GUN)
-
-    end
+    self:InitCap()
 
 
     -- Set specified internal variables
@@ -126,7 +99,10 @@ function NPC:ZBaseInit()
     end
 
 
-    -- Bounds
+    -- Collisions/Bounds
+    if self.HullType && !self.IsZBase_SNPC then
+        self:SetHullType(self.HullType)
+    end
     if self.CollisionBounds then
         self:SetCollisionBounds(self.CollisionBounds.min, self.CollisionBounds.max)
         self:SetSurroundingBounds(self.CollisionBounds.min*1.25, self.CollisionBounds.max*1.25)
@@ -137,13 +113,12 @@ function NPC:ZBaseInit()
     self:Fire("physdamagescale", self.PhysDamageScale)
 
 
+    -- On remove
     self:CallOnRemove("ZBaseOnRemove", function() self:OnRemove() end)
 
 
-    -- No squad if faction is none
-    if self.ZBaseFaction == "none" && self:SquadName()!="" then
-        self:SetSquad("")
-    end
+    -- Squad name
+    -- self:SetKeyValue( "squadname", "zbase_"..Class )
 
 
     -- Weapon system
@@ -170,43 +145,39 @@ function NPC:ZBaseInit()
 end
 
 
-function NPC:CheckHasAimPoseParam()
+function ENT:InitCap()
+    -- https://wiki.facepunch.com/gmod/Enums/CAP
 
-    for i=0, self:GetNumPoseParameters() - 1 do
 
-        local name, min, max = self:GetPoseParameterName(i), self:GetPoseParameterRange( i )
+    -- Remove all
+    self:CapabilitiesClear()
 
-        if (name == "aim_yaw" or name == "aim_pitch") && (math.abs(min)>0 or math.abs(max)>0) then
-            return true
-        end
+    
+    -- Squad
+    self:CapabilitiesAdd(CAP_SQUAD)
 
+
+    -- Jump
+    if self.CanJump && self:SelectWeightedSequence(ACT_JUMP) != -1 then
+        self:CapabilitiesAdd(CAP_MOVE_JUMP)
     end
 
 
-    return false
-
-end
-
-
-function NPC:ZBaseFuncPrint()
-    MsgN(self, ":", self.ZBaseCurFunc.name, "(", self.ZBaseCurFunc.args, ")")
-end
+    -- Melee attack 1
+    if self:SelectWeightedSequence(ACT_MELEE_ATTACK1) != -1 then
+        self:CapabilitiesAdd(CAP_INNATE_MELEE_ATTACK1)
+    end
 
 
-function NPC:DebugMyFunctions()
-    for VarName, VarValue in pairs(self:GetTable()) do
-        if VarName == "ZBaseFuncPrint" then continue end
-        
+    -- Aim pose parameters
+    if self:CheckHasAimPoseParam() then
+        self:CapabilitiesAdd(CAP_AIM_GUN)
+    end
 
-        if isfunction(VarValue) then
-            local func = VarValue
 
-            self[VarName] = function(me, ...)
-                self.ZBaseCurFunc = {name=VarName, args=...}
-                return func(me, ...)
-            end
-        end
-
+    -- Extra capabilities given
+    for _, v in ipairs(self.ExtraCapabilities) do
+        self:CapabilitiesAdd(v)
     end
 end
 
@@ -596,6 +567,46 @@ function NPC:Face( face, duration, speed )
     end
 end
 
+
+function NPC:CheckHasAimPoseParam()
+
+    for i=0, self:GetNumPoseParameters() - 1 do
+
+        local name, min, max = self:GetPoseParameterName(i), self:GetPoseParameterRange( i )
+
+        if (name == "aim_yaw" or name == "aim_pitch") && (math.abs(min)>0 or math.abs(max)>0) then
+            return true
+        end
+
+    end
+
+
+    return false
+
+end
+
+
+function NPC:ZBaseFuncPrint()
+    MsgN(self, ":", self.ZBaseCurFunc.name, "(", self.ZBaseCurFunc.args, ")")
+end
+
+
+function NPC:DebugMyFunctions()
+    for VarName, VarValue in pairs(self:GetTable()) do
+        if VarName == "ZBaseFuncPrint" then continue end
+        
+
+        if isfunction(VarValue) then
+            local func = VarValue
+
+            self[VarName] = function(me, ...)
+                self.ZBaseCurFunc = {name=VarName, args=...}
+                return func(me, ...)
+            end
+        end
+
+    end
+end
 
 
 --[[

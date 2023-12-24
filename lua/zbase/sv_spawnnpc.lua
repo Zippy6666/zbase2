@@ -93,10 +93,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	end
 
 
-	-- Set squad
-	NPC:SetKeyValue( "squadname", "zbase_"..Class )
-
-
 	--
 	-- Spawn Flags
 	--
