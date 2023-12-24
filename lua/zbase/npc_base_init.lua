@@ -68,9 +68,8 @@ NPC.HealthCooldown = 0.2
 NPC.ForceAvoidDanger = false -- Force this NPC to avoid dangers such as grenades
 
 
--- The gender, mainly used by npc_citizen. But you can use it to gender whatever the heck you want m8
+-- The gender, mainly used by npc_citizen. But you can also use it to set the NPC's gender identity XDDD
 -- Common: ZBASE_MALE || ZBASE_FEMALE
--- XDDD
 NPC.Gender = ZBASE_MALE
 
 
@@ -142,15 +141,15 @@ NPC.CustomBloodDecals = false -- String name of custom decal
 -- These hitgroups will be armored
 -- https://wiki.facepunch.com/gmod/Enums/HITGROUP
 NPC.HasArmor = {
-    -- [HITGROUP_GENERIC] = false,
-    -- [HITGROUP_HEAD] = false,
-    -- [HITGROUP_CHEST] = false,
-    -- [HITGROUP_STOMACH] = false,
-    -- [HITGROUP_LEFTARM] = false,
-    -- [HITGROUP_RIGHTARM] = false,
-    -- [HITGROUP_LEFTLEG] = false,
-    -- [HITGROUP_RIGHTLEG] = false,
-    -- [HITGROUP_GEAR] = false,
+    [HITGROUP_GENERIC] = false,
+    [HITGROUP_HEAD] = false,
+    [HITGROUP_CHEST] = false,
+    [HITGROUP_STOMACH] = false,
+    [HITGROUP_LEFTARM] = false,
+    [HITGROUP_RIGHTARM] = false,
+    [HITGROUP_LEFTLEG] = false,
+    [HITGROUP_RIGHTLEG] = false,
+    [HITGROUP_GEAR] = false,
 }
 NPC.ArmorPenChance = 2 -- 1/x Chance that the armor is penetrated, false = never
 NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this, set to false to disable
@@ -163,8 +162,8 @@ NPC.ArmorReflectsBullets = false -- Should the armor visually reflect bullets?
 -- https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.DamageScaling = {
     -- Example:
-    -- [DMG_BLAST] = 0.5,
-    -- [DMG_BULLET] = 2,
+    -- [DMG_BLAST] = 2,
+    -- [DMG_BULLET] = 0.5,
 }
 NPC.PhysDamageScale = 1 -- Damage scale from props
 
