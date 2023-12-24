@@ -14,13 +14,6 @@ function ENT:Initialize()
 	self:SetMoveType(MOVETYPE_STEP)
 
 
-	if self.SNPCType == ZBASE_SNPCTYPE_WALK then
-		self:CapabilitiesAdd(CAP_MOVE_GROUND)
-	elseif self.SNPCType == ZBASE_SNPCTYPE_FLY then
-		self:SetNavType(NAV_FLY)
-	end
-
-
 	self.Bullseye = ents.Create("npc_bullseye")
 	self.Bullseye:SetPos(self:GetPos())
 	self.Bullseye:SetAngles(self:GetAngles())

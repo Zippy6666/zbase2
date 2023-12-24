@@ -145,7 +145,8 @@ function NPC:ZBaseInit()
 end
 
 
-function ENT:InitCap()
+function NPC:InitCap()
+    
     -- https://wiki.facepunch.com/gmod/Enums/CAP
 
 
@@ -153,8 +154,28 @@ function ENT:InitCap()
     self:CapabilitiesClear()
 
     
-    -- Squad
+    -- Basics
+    self:CapabilitiesAdd(CAP_SKIP_NAV_GROUND_CHECK)
+    self:CapabilitiesAdd(CAP_TURN_HEAD)
+    self:CapabilitiesAdd(CAP_ANIMATEDFACE)
+    self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
+    self:CapabilitiesAdd(CAP_DUCK)
+    self:CapabilitiesAdd(CAP_MOVE_SHOOT)
     self:CapabilitiesAdd(CAP_SQUAD)
+    self:CapabilitiesAdd(CAP_USE_WEAPONS)
+
+    
+    -- Door/button stuff
+    if self.CanOpenDoors then
+        self:CapabilitiesAdd(CAP_OPEN_DOORS)
+    end
+    if self.CanOpenAutoDoors then
+        self:CapabilitiesAdd(CAP_AUTO_DOORS)
+    end
+    if self.CanPushButtons then
+        self:CapabilitiesAdd(CAP_USE)
+    end
+
 
 
     -- Jump
@@ -175,10 +196,13 @@ function ENT:InitCap()
     end
 
 
-    -- Extra capabilities given
-    for _, v in ipairs(self.ExtraCapabilities) do
-        self:CapabilitiesAdd(v)
-    end
+    -- Movement
+	if self.SNPCType == ZBASE_SNPCTYPE_WALK then
+		self:CapabilitiesAdd(CAP_MOVE_GROUND)
+	elseif self.SNPCType == ZBASE_SNPCTYPE_FLY then
+		self:SetNavType(NAV_FLY)
+	end
+
 end
 
 
