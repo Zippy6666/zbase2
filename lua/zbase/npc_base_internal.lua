@@ -14,15 +14,6 @@ local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 function NPC:BeforeSpawn( NPCData )
 
-    -- self:CapabilitiesAdd(bit.bor(
-    --     CAP_SQUAD,
-    --     CAP_TURN_HEAD,
-    --     CAP_ANIMATEDFACE,
-    --     CAP_SKIP_NAV_GROUND_CHECK,
-    --     CAP_USE_WEAPONS,
-    --     CAP_USE_SHOT_REGULATOR
-    -- ))
-
     self.AllowedCustomEScheds = {}
     self.ProhibitCustomEScheds = false
 
@@ -156,8 +147,6 @@ function NPC:InitCap()
     
     -- Basics
     self:CapabilitiesAdd(CAP_SKIP_NAV_GROUND_CHECK)
-    self:CapabilitiesAdd(CAP_TURN_HEAD)
-    self:CapabilitiesAdd(CAP_ANIMATEDFACE)
     self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
     self:CapabilitiesAdd(CAP_DUCK)
     self:CapabilitiesAdd(CAP_MOVE_SHOOT)
@@ -185,9 +174,9 @@ function NPC:InitCap()
 
 
     -- Melee attack 1
-    if self:SelectWeightedSequence(ACT_MELEE_ATTACK1) != -1 then
-        self:CapabilitiesAdd(CAP_INNATE_MELEE_ATTACK1)
-    end
+    -- if self:SelectWeightedSequence(ACT_MELEE_ATTACK1) != -1 then
+    --     self:CapabilitiesAdd(CAP_INNATE_MELEE_ATTACK1)
+    -- end
 
 
     -- Aim pose parameters
@@ -196,12 +185,21 @@ function NPC:InitCap()
     end
 
 
+    -- Has face
+    if self:GetFlexNum() > 0 then
+        self:CapabilitiesAdd(CAP_TURN_HEAD)
+        self:CapabilitiesAdd(CAP_ANIMATEDFACE)
+    end
+
+
     -- Movement
 	if self.SNPCType == ZBASE_SNPCTYPE_WALK then
 		self:CapabilitiesAdd(CAP_MOVE_GROUND)
+        -- self:CapabilitiesAdd(CAP_MOVE_FLY)
 	elseif self.SNPCType == ZBASE_SNPCTYPE_FLY then
 		self:SetNavType(NAV_FLY)
 	end
+
 
 end
 
