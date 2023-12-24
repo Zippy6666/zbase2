@@ -4,12 +4,16 @@ function ENT:StartSchedule( sched )
         self:AerialSetSchedule(table.Copy(sched))
     end
 
+	-- Regular start sched
 	self.CurrentSchedule = sched
 	self.CurrentTaskID = 1
 	self:SetTask( sched:GetTask( 1 ) )
 end
 --]]======================================================================================================]]
 function ENT:NewSched( newsched )
+
+	-- Conviniently set any kind of schedule
+
 	self:FullReset()
 
 	if isnumber(newsched) then
@@ -19,6 +23,7 @@ function ENT:NewSched( newsched )
 	elseif istable(newsched) then
 		self:StartSchedule(newsched)
 	end
+
 end
 --]]======================================================================================================]]
 function ENT:SelectSchedule( iNPCState )
@@ -42,6 +47,7 @@ function ENT:SelectSchedule( iNPCState )
 	end
 
 
+	-- Start/set the schedule
 	self:NewSched( sched )
 
 
@@ -61,7 +67,7 @@ function ENT:GetCurrentCustomSched()
 
 end
 --]]======================================================================================================]]
-function ENT:IsCurrentCustomSched( sched )
+function ENT:IsCurrentZSched( sched )
 
 	return "ZSched"..sched == self:GetCurrentCustomSched()
 
@@ -69,14 +75,14 @@ end
 --]]======================================================================================================]]
 function ENT:DoingChaseFallbackSched()
 
-	return self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_DoCover")
-	or self:IsCurrentCustomSched("CombatChase_CannotReachEnemy_MoveRandom")
-	or self:IsCurrentCustomSched("CombatChase_CantReach_CoverEnemy")
+	return self:IsCurrentZSched("CombatChase_CannotReachEnemy_DoCover")
+	or self:IsCurrentZSched("CombatChase_CannotReachEnemy_MoveRandom")
+	or self:IsCurrentZSched("CombatChase_CantReach_CoverEnemy")
 
 end
 --]]======================================================================================================]]
 function ENT:DoingChaseSched()
-	return self:IsCurrentCustomSched("CombatChase") or self:IsCurrentCustomSched("AerialChase_NoNav")
+	return self:IsCurrentZSched("CombatChase") or self:IsCurrentZSched("AerialChase_NoNav")
 end
 --]]======================================================================================================]]
 function ENT:TooCloseForCombatChase()
@@ -95,23 +101,33 @@ function ENT:GetBetterSchedule()
 	local hasReachedEnemy = self:ZBaseDist(enemy, { within=ZBaseRoughRadius( self ) })
 
 
-	-- Can't reach the enemy when chasing fallback
+	-- Can't reach the enemy when chasing
+	-- Start fallback
 	if self:DoingChaseSched() && enemyValid && !hasReachedEnemy && self:IsNavStuck() then
+
 		self:RememberUnreachable( enemy, 4 )
 	
+
 		if self.EnemyVisible then
+
 			if self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_HIDE then
+
 				return (math.random(1, 2) == 1 && "CombatChase_CantReach_CoverOrigin")
 				or "CombatChase_CantReach_CoverEnemy"
 
 			elseif self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_FACE then
+
 				return "CombatFace"
 
 			end
+
 		else
+
 			-- Patrol if enemy is not visible
 			return SCHED_COMBAT_PATROL
+
 		end
+
 	end
 
 
@@ -149,15 +165,21 @@ function ENT:GetBetterSchedule()
 end
 --]]======================================================================================================]]
 function ENT:GetAerialTranslatedSched()
+
+	-- Return better schedule and goal for aerial NPCs
+
 	if IsValid(self.Navigator) && IsValid(self:GetEnemy()) then
-		if self.Navigator:IsCurrentCustomSched("CombatChase") && self.EnemyVisible then
+
+		if self.Navigator:IsCurrentZSched("CombatChase") && self.EnemyVisible then
 			return "AerialChase_NoNav", self:GetEnemy():GetPos()
 		end
 
-		if self.Navigator:IsCurrentCustomSched("BackAwayFromEnemy") && self.EnemyVisible then
+		if self.Navigator:IsCurrentZSched("BackAwayFromEnemy") && self.EnemyVisible then
 			return "AerialBackAway_NoNav", self:GetPos()+( self:GetPos() - self:GetEnemy():GetPos() ):GetNormalized()*300
 		end
+
 	end
+
 end
 --]]======================================================================================================]]
 function ENT:IsNavStuck()
@@ -175,12 +197,15 @@ function ENT:SetNotNavStuck()
 end
 --]]======================================================================================================]]
 function ENT:DetermineNavStuck()
+
 	if self:IsGoalActive() && self:GetCurWaypointPos()!=Vector() then
 		self:SetNotNavStuck()
 	end
+
 end
 --]]======================================================================================================]]
 function ENT:DoSchedule( schedule )
+
 	-- Stop schedule if current task makes it move and SNPC does not have movement
 	if self.SNPCType != ZBASE_SNPCTYPE_WALK && self.CurrentTask && self.CurrentTask.TaskName=="TASK_WAIT_FOR_MOVEMENT" then
 		self:ScheduleFinished()
@@ -200,6 +225,7 @@ function ENT:DoSchedule( schedule )
 	if self:TaskFinished() then
 		self:NextTask( schedule )
 	end
+
 end
 --]]======================================================================================================]]
 function ENT:DoNPCState()
@@ -207,11 +233,13 @@ function ENT:DoNPCState()
 	local ene = self:GetEnemy()
 
 
+	-- Aerial SNPCs are weird and need this, idfk what i did to cause this
 	if self.SNPCType==ZBASE_SNPCTYPE_FLY && state==NPC_STATE_NONE then
 		self:SetNPCState(NPC_STATE_IDLE)
 	end
 
 
+	-- When exiting combat, enter alert like all the other boies
 	if !IsValid(ene) && self.LastNPCState==NPC_STATE_COMBAT then
 		self:SetNPCState(NPC_STATE_ALERT)
 	end
@@ -221,6 +249,7 @@ function ENT:DoNPCState()
 end
 --]]======================================================================================================]]
 function ENT:RunAI( strExp )
+	
 	-- Don't do any run AI stuff if we should play an animation from PlayAnimation()
 	if self.DoingPlayAnim then
 		return
