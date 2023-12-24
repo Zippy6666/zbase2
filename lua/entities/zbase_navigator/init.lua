@@ -82,7 +82,7 @@ function ENT:GetCurrentCustomSched()
 	return self.CurrentSchedule && self.CurrentSchedule.DebugName
 end
 --]]======================================================================================================]]
-function ENT:IsCurrentCustomSched( sched )
+function ENT:IsCurrentZSched( sched )
 
 	return "ZSched"..sched == self:GetCurrentCustomSched()
 
