@@ -60,26 +60,6 @@ function SWEP:PrimaryAttack()
 		-- idk xd
 
 	elseif own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack then
-	
-		local effectdata = EffectData()
-		effectdata:SetFlags(1)
-		effectdata:SetEntity(self)
-		util.Effect( "MuzzleFlash", effectdata )
-	
-	
-		if self.Primary.ShellEject then
-	
-			local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
-	
-			if att then
-				local effectdata = EffectData()
-				effectdata:SetEntity(self)
-				effectdata:SetOrigin(att.Pos)
-				effectdata:SetAngles(att.Ang)
-				util.Effect( "ShellEject", effectdata )
-			end
-		
-		end
 
 
 		local bullet = {
@@ -101,7 +81,7 @@ function SWEP:PrimaryAttack()
 		end
 
 
-		self:EmitSound(self.PrimaryShootSound)
+		self:ShootEffects()
 
 	end
 
@@ -128,6 +108,26 @@ end
 
 -- A convenience function to create shoot effects.
 function SWEP:ShootEffects()
+	local effectdata = EffectData()
+	effectdata:SetFlags(1)
+	effectdata:SetEntity(self)
+	util.Effect( "MuzzleFlash", effectdata )
+
+
+	if self.Primary.ShellEject then
+
+		local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
+
+		if att then
+			local effectdata = EffectData()
+			effectdata:SetEntity(self)
+			effectdata:SetOrigin(att.Pos)
+			effectdata:SetAngles(att.Ang)
+			util.Effect( "ShellEject", effectdata )
+		end
+	
+	end
+	self:EmitSound(self.PrimaryShootSound)
 end
 
 
