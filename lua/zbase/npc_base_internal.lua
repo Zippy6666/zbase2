@@ -1,6 +1,14 @@
 util.AddNetworkString("ZBaseGlowEyes")
 
 
+--[[
+==================================================================================================
+                    !! YOU GOT NOTHING TO DO HERE BOYE, GO BACK TO npc_base_init !!
+==================================================================================================
+--]]
+
+
+
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
@@ -194,10 +202,10 @@ function NPC:InitCap()
 
 
     -- Movement
-	if self.SNPCType == ZBASE_SNPCTYPE_WALK then
-		self:CapabilitiesAdd(CAP_MOVE_GROUND)
-	elseif self.SNPCType == ZBASE_SNPCTYPE_FLY then
+	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
 		self:SetNavType(NAV_FLY)
+    else
+        self:CapabilitiesAdd(CAP_MOVE_GROUND)
 	end
 
 
@@ -381,8 +389,8 @@ end
 
 function NPC:ZBWepSys_Init()
 
-    self.ZBWepSys_ActivityTranslate = {}
-    self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
+    -- self.ZBWepSys_ActivityTranslate = {}
+    -- self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
 
     self.ZBWepSys_Inventory = {}
 
@@ -474,9 +482,6 @@ function NPC:ZBWepSys_FireWeaponThink()
             self:SetActivityIfAvailable({ACT_RANGE_ATTACK1})
         end
 
-        -- print(ListConditions(self))
-
-
         self:ZBWepSys_Shoot()
 
 
@@ -507,7 +512,9 @@ function NPC:ZBWepSys_Think()
     end
 
 
-    self:ZBWepSys_FireWeaponThink()
+    if Weapon.IsZBaseWeapon then
+        self:ZBWepSys_FireWeaponThink()
+    end
 
 end
 

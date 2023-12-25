@@ -1,13 +1,15 @@
 AddCSLuaFile()
 
 
-SWEP.Base = "weapon_base"
+--[[
+==================================================================================================
+                    !! YOU GOT NOTHING TO DO HERE BOYE, GO BACK TO SHARED !!
+==================================================================================================
+--]]
+
+
+
 SWEP.IsZBaseWeapon = true
-SWEP.PrintName = "weapon_zbase_internal"
-SWEP.Author = "Zippy"
-SWEP.Spawnable = false
-SWEP.AdminOnly = false
-SWEP.NPCSpawnable = false -- Add to NPC weapon list
 
 
 --[[
@@ -58,7 +60,7 @@ function SWEP:PrimaryAttack()
 	local CanAttack = self:CanPrimaryAttack()
 
 
-	if own.IsZBaseNPC && !own.ZBWepSys_AllowShoot then return end
+	if own.IsZBaseNPC && !own.ZBWepSys_AllowShoot then return end -- muy imporante
 
 
 	if own:IsPlayer() && self:OnPrimaryAttack()!=true && CanAttack then
@@ -88,6 +90,10 @@ function SWEP:PrimaryAttack()
 
 
 		self:ShootEffects()
+	
+
+		-- Sound
+		self:EmitSound(self.PrimaryShootSound)
 
 	end
 
@@ -116,33 +122,54 @@ end
 -- A convenience function to create shoot effects.
 function SWEP:ShootEffects()
 
+	-- Custom
 	local r = self:CustomShootEffects()
 	if r == true then
 		return
 	end
 
 
+	local modelname = self:GetNWString("ZBaseNPCWorldModel", nil)
+	local CustomModel = modelname!=nil
+	local EffectEnt = modelname && ents.Create("base_gmodentity") or self
+	local own = self:GetOwner()
+
+
+	-- Model override effect fix, create temporary a new ent with the same model
+	if CustomModel && IsValid(EffectEnt) && IsValid(own) then
+		EffectEnt:SetPos(own:GetPos())
+		EffectEnt:SetParent(own)
+		EffectEnt:AddEffects(EF_BONEMERGE)
+		EffectEnt:Spawn()
+	end
+
+
+	-- Muzzle flash
 	local effectdata = EffectData()
 	effectdata:SetFlags(1)
-	effectdata:SetEntity(self)
+	effectdata:SetEntity(EffectEnt)
 	util.Effect( "MuzzleFlash", effectdata )
 
 
+	-- Shell eject
 	if self.Primary.ShellEject then
 
-		local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
+		local att = EffectEnt:GetAttachment(EffectEnt:LookupAttachment(self.Primary.ShellEject))
 
 		if att then
 			local effectdata = EffectData()
-			effectdata:SetEntity(self)
+			effectdata:SetEntity(EffectEnt)
 			effectdata:SetOrigin(att.Pos)
 			effectdata:SetAngles(att.Ang)
 			util.Effect( "ShellEject", effectdata )
 		end
 	
 	end
-	self:EmitSound(self.PrimaryShootSound)
 
+
+	if CustomModel then
+		EffectEnt:Remove()
+	end
 
 end
 
@@ -163,12 +190,6 @@ end
                             OPTIONS I GUESS IDK
 ==================================================================================================
 --]]
-
-
--- Sets the hold type of the weapon. This must be called on both the server and the client to work properly.
--- NOTE: You should avoid calling this function and call Weapon:SetHoldType now.
-function SWEP:SetWeaponHoldType( name )
-end
 
 
 -- Should this weapon be dropped when its owner dies? This only works if the player has Player:ShouldDropWeapon set to true.
@@ -230,18 +251,6 @@ function SWEP:OnRestore()
 end
 
 
-	-- Called when weapon is dropped or picked up by a new player.
-	-- This can be called clientside for all players on the server if the weapon has no owner and is picked up. See also WEAPON:OnDrop.
-function SWEP:OwnerChanged()
-
-	local r = self:CustomOwnerChanged()
-	if r != nil then
-		return r
-	end
-
-end
-
-
 	-- Called whenever the weapons Lua script is reloaded.
 function SWEP:OnReloaded()
 end
@@ -289,6 +298,7 @@ end
 
 	-- This hook is for NPCs, you return what they should try to do with it.
 function SWEP:GetCapabilities()
+	return bit.bor( CAP_WEAPON_RANGE_ATTACK1, CAP_INNATE_RANGE_ATTACK1 )
 end
 
 
@@ -300,21 +310,25 @@ end
 
 
 function SWEP:TranslateActivity( act )
-
-	local CustomAct = self:CustomTranslateActivity( act )
-	if CustomAct != nil then
-		return CustomAct
-	end
-
-
 	local own = self:GetOwner()
 
 
+	-- ZBase
 	if own.ZBWepSys_ActivityTranslate && own.ZBWepSys_ActivityTranslate[act] then
 		return own.ZBWepSys_ActivityTranslate[act]
 	end
 
 
+
+	-- Custom
+	local r = self:CustomTranslateActivity( act )
+	if r != nil then
+		return r
+	end
+
+
+
+	-- NPC
 	if own:IsNPC() then
 
 		if self.ActivityTranslateAI[ act ] then
@@ -326,6 +340,7 @@ function SWEP:TranslateActivity( act )
 	end
 
 
+	-- Player
 	if self.ActivityTranslate[ act ] != nil then
 
 		return self.ActivityTranslate[ act ]

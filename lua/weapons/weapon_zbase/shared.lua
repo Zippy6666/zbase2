@@ -1,4 +1,5 @@
 AddCSLuaFile()
+include("sh_internal.lua")
 
 
 
@@ -17,7 +18,7 @@ AddCSLuaFile()
 
 -- IMPORTANT: SHOULD be weapon_zbase for your swep!! (unless you know what you are doing)
 -- The weapon's base script, relative to lua/weapons.
-SWEP.Base = "weapon_zbase_internal" -- Set to "weapon_base" or a different zbase weapon
+SWEP.Base = "weapon_base" -- Set to "weapon_base" or a different zbase weapon
 
 
 SWEP.PrintName = "ZBase Weapon" -- The name of the SWEP displayed in the spawn menu.
@@ -158,6 +159,7 @@ end
 
 
 	-- Called when a player primary attacks
+	-- Return true to disable default
 function SWEP:OnPrimaryAttack()
 end
 
@@ -201,27 +203,22 @@ end
 
 
 	-- Called when another entity fires an event to this entity.
+	-- Return true to suppress
 function SWEP:CustomAcceptInput( inputName, activator, called, data )
 end
 
 
 	-- Called before firing animation events, such as muzzle flashes or shell ejections.
 	-- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
+	-- Return true to suppress
 function SWEP:CustomFireAnimationEvent( pos, ang, event, options, source )
 end
 
 
 	-- Called when the engine sets a value for this scripted weapon.
-	-- See GM:EntityKeyValue for a hook that works for all entities. See ENTITY:KeyValue for an hook that works for scripted entities.
+	-- Return true to suppress
 function SWEP:CustomKeyValue( key, value )
 end
-
-
-	-- Called when weapon is dropped or picked up by a new player.
-	-- This can be called clientside for all players on the server if the weapon has no owner and is picked up. See also WEAPON:OnDrop.
-function SWEP:CustomOwnerChanged()
-end
-
 
 
 --[[
@@ -257,13 +254,14 @@ end
 --]]
 
 
-	-- Just like regular translate activity
-function SWEP:CustomTranslateActivity()
+	-- Activity translation
+	-- Only called for players and non-zbase npcs
+function SWEP:CustomTranslateActivity( act )
 end
 
 
 	-- Should this weapon be dropped when its owner dies?
-	-- This only works if the player has Player:ShouldDropWeapon set to true.
+	-- The base will decide if you don't return anything
 function SWEP:CustomShouldDropOnDie()
 end
 

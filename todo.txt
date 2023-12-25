@@ -4,9 +4,7 @@
     - AI stuff to aid the shooting system
     - SNPC support
 - Translation stuff (no more tpose shit)
-- Controller
 - Finish d3 shit
-- Fix SNPC collision
 - ZBase replace default npcs (hijack spawn command?)
 - Clean up code, make sure everything works right
     - Improve lost enemy etc
@@ -34,3 +32,5 @@
 - Port all my NPCs
 - Able to change model and snpc type live
 - Base weapons
+- Controller
+- Fix SNPC collision
