@@ -148,12 +148,134 @@ end
 
 
 
-if CLIENT then
 
 
-		-- Draw world model
-	function SWEP:OnDrawWorldModel()
-	end
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Called when another entity fires an event to this entity.
+function SWEP:CustomAcceptInput( inputName, activator, called, data )
+end
+
+
+-- Called so the weapon can override the impact effects it makes.
+function SWEP:CustomDoImpactEffect( tr, damageType )
+end
+
+
+-- Called when we are about to draw the translucent world model.
+function SWEP:CustomDrawWorldModelTranslucent( flags )
+end
+
+
+-- Called before firing animation events, such as muzzle flashes or shell ejections.
+-- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
+function SWEP:CustomFireAnimationEvent( pos, ang, event, options, source )
+end
+
+
+-- This hook is for NPCs, you return what they should try to do with it.
+function SWEP:CustomGetCapabilities()
+end
+
+
+
+-- Called when the engine sets a value for this scripted weapon.
+-- See GM:EntityKeyValue for a hook that works for all entities. See ENTITY:KeyValue for an hook that works for scripted entities.
+function SWEP:CustomKeyValue( key, value )
+end
+
+
+-- Called whenever the weapons Lua script is reloaded.
+function SWEP:CustomOnReloaded()
+end
+
+
+
+-- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves or dupes)
+-- or on a changelevel (for example Half-Life 2 campaign level transitions)
+function SWEP:CustomOnRestore()
+end
+
+
+
+-- Called when weapon is dropped or picked up by a new player.
+-- This can be called clientside for all players on the server if the weapon has no owner and is picked up. See also WEAPON:OnDrop.
+function SWEP:CustomOwnerChanged()
+end
+
+
+
+function SWEP:CustomSecondaryAttack()
+end
+
+
+
+-- Called when the SWEP should set up its Data Tables.
+function SWEP:CustomSetupDataTables()
+end
+
+
+
+-- Sets the hold type of the weapon. This must be called on both the server and the client to work properly.
+-- NOTE: You should avoid calling this function and call Weapon:SetHoldType now.
+function SWEP:CustomSetWeaponHoldType( name )
+end
+
+
+-- A convenience function to create shoot effects.
+function SWEP:CustomShootEffects()
+end
+
+
+
+-- Should this weapon be dropped when its owner dies? This only works if the player has Player:ShouldDropWeapon set to true.
+function SWEP:CustomShouldDropOnDie()
+end
+
+
+
+-- Called when the swep thinks. This hook won't be called during the deploy animation and when using Weapon:DefaultReload.
+-- Works only in players hands. Doesn't work in NPCs hands. Despite being a predicted hook, this hook is called clientside in single player,
+-- however it will not be recognized as a predicted hook to Player:GetCurrentCommand.
+-- This hook will be called before Player movement is processed on the client, and after on the server.
+-- This will not be run during deploy animations after a serverside-only deploy. This usually happens after picking up and dropping an object with +use.
+function SWEP:CustomThink()
 end

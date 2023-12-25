@@ -33,3 +33,4 @@
 - New secondary fire system
 - Port all my NPCs
 - Able to change model and snpc type live
+- Base weapons
