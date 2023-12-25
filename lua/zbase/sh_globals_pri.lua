@@ -1,149 +1,102 @@
 --[[
 ======================================================================================================================================================
-                                           ENUMS
+                                           WEAPON
 ======================================================================================================================================================
 --]]
 
 
-ZBASE_SNPCTYPE_WALK = 1
-ZBASE_SNPCTYPE_FLY = 2
-ZBASE_SNPCTYPE_STATIONARY = 3
-ZBASE_SNPCTYPE_VEHICLE = 4
-ZBASE_SNPCTYPE_PHYSICS = 5
+
+function ZBase_InitWeaponSystem( npc, wep )
+
+    local EngineWep = wep
+    local Decoy = ents.Create("base_gmodentity")
 
 
-ZBASE_CANTREACHENEMY_HIDE = 1
-ZBASE_CANTREACHENEMY_FACE = 2
+    Decoy:SetModel(wep:GetModel())
+    Decoy:SetPos(npc:GetPos())
+    Decoy:SetParent(npc)
+    Decoy:AddEffects(EF_BONEMERGE)
+    Decoy:SetOwner(npc)
+    -- Decoy:SetNoDraw(true)
+    Decoy.MaxAmmo = wep:GetMaxClip1()
+    Decoy.CurAmmo = Decoy.MaxAmmo
+    Decoy.NextPrimary = CurTime()
+    Decoy.AmmoType = wep:GetPrimaryAmmoType()
+    Decoy.WepName = wep.PrintName
+    Decoy.Weight = wep:GetWeight()
+    Decoy.LastShootT = CurTime()
 
 
-ZBASE_TOOCLOSEBEHAVIOUR_NONE = 0
-ZBASE_TOOCLOSEBEHAVIOUR_FACE = 1
-ZBASE_TOOCLOSEBEHAVIOUR_BACK = 2
+    Decoy.AllowsAutoSwitchFrom = function() return false end
+    Decoy.AllowsAutoSwitchTo = function() return false end
+    Decoy.Clip1 = function() return Decoy.CurAmmo end
+    Decoy.Clip2 = function() return 0 end
+    Decoy.DefaultReload = function( act ) end
+    Decoy.GetActivity = function() return npc:GetActivity() end
+    Decoy.GetDeploySpeed = function() return 1 end
+    Decoy.GetHoldType = function() return npc:ZBNWepSys_GetAnimsWep():GetHoldType() end
+    Decoy.GetMaxClip1 = function() return Decoy.MaxAmmo end
+    Decoy.GetMaxClip2 = function() return 0 end
+    Decoy.GetNextPrimaryFire = function() return Decoy.NextPrimary end
+    Decoy.GetNextSecondaryFire = function() return CurTime()+1 end
+    Decoy.GetPrimaryAmmoType = function() return Decoy.AmmoType end
+    Decoy.GetPrintName = function() return Decoy.WepName or "Weapon" end
+    Decoy.GetSecondaryAmmoType = function() return -1 end
+    Decoy.GetSlot = function() return 1 end
+    Decoy.GetSlotPos = function() return 1 end
+    Decoy.GetWeaponViewModel = function() return Decoy:GetModel() end
+    Decoy.GetWeaponWorldModel = function() return Decoy:GetModel() end
+    Decoy.GetWeight = function() return Decoy.Weight end
+    Decoy.HasAmmo = function() return Decoy.Ammo > 0 end
+    Decoy.IsCarriedByLocalPlayer = function() return false end
+    Decoy.IsScripted = function() return true end
+    Decoy.IsWeaponVisible = function() return false end
+    Decoy.LastShootTime = function() return Decoy.LastShootT end
+    Decoy.SetClip1 = function( ammo ) Decoy.Ammo=ammo end
+    Decoy.SetHoldType = function( name ) npc:ZBNWepSys_GetAnimsWep():SetHoldType(name) end
+    Decoy.SetLastShootTime = function( time ) Decoy.LastShootT = time end
 
 
-ZBASE_MALE = 4194304
-ZBASE_FEMALE = 8388608
+    Decoy.SendWeaponAnim = function( act ) end
+    Decoy.SetActivity = function( act ) end
+    Decoy.SetDeploySpeed = function( speed ) end
+    Decoy.SetNextPrimaryFire = function( time ) end
+    Decoy.SetNextSecondaryFire = function( time ) end
+    Decoy.SetClip2 = function( ammo ) end
+    Decoy.CallOnClient = function( functionName, arguments ) end
 
 
---[[
-======================================================================================================================================================
-                                           "ESSENTIAL" FUNCTIONS
-======================================================================================================================================================
---]]
+    Decoy:Spawn()
 
 
-    -- Should be at the top of your NPC file, like this:
-    -- local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
-function FindZBaseTable(debuginfo)
-    local shortsrc = debuginfo.short_src
-    local split = string.Split(shortsrc, "/")
-    local name = split[#split-1]
-
-    if name == "zbase" then
-        name = "npc_zbase"
+    for varname, var in pairs(wep:GetTable()) do
+        Decoy[varname] = var
     end
 
-    return ZBaseNPCs[name]
-end
+
+    npc:DropWeapon()
 
 
-    -- Should be at the top of your NPC's behaviour file if you have any, like this:
-    -- local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
-function FindZBaseBehaviourTable(debuginfo)
-    if SERVER then
-        return FindZBaseTable(debuginfo).Behaviours
-    end
+
+    EngineWep.IsZBaseEngineWeapon = true
+    EngineWep:SetPos(Decoy:GetPos())
+    EngineWep:SetParent(Decoy)
+    EngineWep:AddEffects(EF_BONEMERGE)
+    -- EngineWep:SetParent(Decoy)
+
+
+    return Decoy, EngineWep
+
 end
+
 
 
 --[[
 ======================================================================================================================================================
-                                           UTIL
+                                           SCHEDULE
 ======================================================================================================================================================
 --]]
 
-
-    -- Change the zbase faction for an entity
-    -- Always use this function if you want to do so
-function ZBaseSetFaction( ent, newFaction )
-    ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
-
-    for _, v in ipairs(ZBaseRelationshipEnts) do
-        v:ZBaseUpdateRelationships()
-    end
-end
-
-
-    -- Used to add glowing eyes to models
-    -- 'model' - The model that should have the eye
-    -- 'skin' - Which skin should have the eye, set to false to use all skins
-    -- Example:
-    -- ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(0, 50, 255))
-    -- ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(0, 50, 255))
-function ZBaseAddGlowingEye(model, skin, bone, offset, scale, color)
-    if !ZBaseGlowingEyes[model] then ZBaseGlowingEyes[model] = {} end
-
-    local Eye = {}
-    Eye.skin = skin
-    Eye.bone = bone
-    Eye.offset = offset
-    Eye.scale = scale
-    Eye.color = color
-
-    table.insert(ZBaseGlowingEyes[model], Eye)
-end
-
-
-    -- Changes a category's icon from that stupid blue monkey to whatever you like
-    -- Example:
-    -- ZBaseSetCategoryIcon( "Combine", "icon16/female.png" )
-    -- Feminist combine xddddd
-function ZBaseSetCategoryIcon( category, path )
-    if SERVER then return end
-    ZBaseCategoryImages[category] = path
-end
-
-
-    -- Spawn a ZBase NPC
-    -- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
-    -- 'pos' - The position to spawn it on
-    -- 'normal' - The normal to spawn it on (optional)
-    -- 'weapon_class' The weapon class to equip the npc with (optional)
-function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
-    return ZBaseInternalSpawnNPC( NULL, pos, normal or Vector(0, 0, 1), class, weapon_class, nil, true )
-end
-
-
---[[
-======================================================================================================================================================
-                                           CONVINIENT FUNCTIONS
-======================================================================================================================================================
---]]
-
-
-    -- A quick way to add sounds that have attributes appropriate for a human voice
-function ZBaseCreateVoiceSounds( name, tbl )
-    sound.Add( {
-        name = name,
-        channel = CHAN_VOICE,
-        volume = 0.5,
-        level = 90,
-        pitch = {95, 105},
-        sound = tbl,
-    } )
-end
-
-
---[[
-======================================================================================================================================================
-                                           USELESS TO YOU PROBABLY
-======================================================================================================================================================
---]]
-
-
-function ZBaseRndTblRange( tbl )
-    return math.Rand(tbl[1], tbl[2])
-end
 
 
 function ZBaseEngineSchedName( sched )
@@ -254,90 +207,20 @@ function ZBaseSchedDebug( ent )
 end
 
 
+
+
+--[[
+======================================================================================================================================================
+                                           OTHER
+======================================================================================================================================================
+--]]
+
+
 function ZBaseRoughRadius( ent )
     return math.abs(ent:GetRotatedAABB(ent:OBBMins(),ent:OBBMaxs()).x)*2
 end
 
 
-function ZBase_InitWeaponSystem( npc, wep )
-
-    local EngineWep = wep
-    local Decoy = ents.Create("base_gmodentity")
-
-
-    Decoy:SetModel(wep:GetModel())
-    Decoy:SetPos(npc:GetPos())
-    Decoy:SetParent(npc)
-    Decoy:AddEffects(EF_BONEMERGE)
-    Decoy:SetOwner(npc)
-    -- Decoy:SetNoDraw(true)
-    Decoy.MaxAmmo = wep:GetMaxClip1()
-    Decoy.CurAmmo = Decoy.MaxAmmo
-    Decoy.NextPrimary = CurTime()
-    Decoy.AmmoType = wep:GetPrimaryAmmoType()
-    Decoy.WepName = wep.PrintName
-    Decoy.Weight = wep:GetWeight()
-    Decoy.LastShootT = CurTime()
-
-
-    Decoy.AllowsAutoSwitchFrom = function() return false end
-    Decoy.AllowsAutoSwitchTo = function() return false end
-    Decoy.Clip1 = function() return Decoy.CurAmmo end
-    Decoy.Clip2 = function() return 0 end
-    Decoy.DefaultReload = function( act ) end
-    Decoy.GetActivity = function() return npc:GetActivity() end
-    Decoy.GetDeploySpeed = function() return 1 end
-    Decoy.GetHoldType = function() return npc:ZBNWepSys_GetAnimsWep():GetHoldType() end
-    Decoy.GetMaxClip1 = function() return Decoy.MaxAmmo end
-    Decoy.GetMaxClip2 = function() return 0 end
-    Decoy.GetNextPrimaryFire = function() return Decoy.NextPrimary end
-    Decoy.GetNextSecondaryFire = function() return CurTime()+1 end
-    Decoy.GetPrimaryAmmoType = function() return Decoy.AmmoType end
-    Decoy.GetPrintName = function() return Decoy.WepName or "Weapon" end
-    Decoy.GetSecondaryAmmoType = function() return -1 end
-    Decoy.GetSlot = function() return 1 end
-    Decoy.GetSlotPos = function() return 1 end
-    Decoy.GetWeaponViewModel = function() return Decoy:GetModel() end
-    Decoy.GetWeaponWorldModel = function() return Decoy:GetModel() end
-    Decoy.GetWeight = function() return Decoy.Weight end
-    Decoy.HasAmmo = function() return Decoy.Ammo > 0 end
-    Decoy.IsCarriedByLocalPlayer = function() return false end
-    Decoy.IsScripted = function() return true end
-    Decoy.IsWeaponVisible = function() return false end
-    Decoy.LastShootTime = function() return Decoy.LastShootT end
-    Decoy.SetClip1 = function( ammo ) Decoy.Ammo=ammo end
-    Decoy.SetHoldType = function( name ) npc:ZBNWepSys_GetAnimsWep():SetHoldType(name) end
-    Decoy.SetLastShootTime = function( time ) Decoy.LastShootT = time end
-
-
-    Decoy.SendWeaponAnim = function( act ) end
-    Decoy.SetActivity = function( act ) end
-    Decoy.SetDeploySpeed = function( speed ) end
-    Decoy.SetNextPrimaryFire = function( time ) end
-    Decoy.SetNextSecondaryFire = function( time ) end
-    Decoy.SetClip2 = function( ammo ) end
-    Decoy.CallOnClient = function( functionName, arguments ) end
-
-
-    Decoy:Spawn()
-
-
-    for varname, var in pairs(wep:GetTable()) do
-        Decoy[varname] = var
-    end
-
-
-    npc:DropWeapon()
-
-
-
-    EngineWep.IsZBaseEngineWeapon = true
-    EngineWep:SetPos(Decoy:GetPos())
-    EngineWep:SetParent(Decoy)
-    EngineWep:AddEffects(EF_BONEMERGE)
-    -- EngineWep:SetParent(Decoy)
-
-
-    return Decoy, EngineWep
-
+function ZBaseRndTblRange( tbl )
+    return math.Rand(tbl[1], tbl[2])
 end

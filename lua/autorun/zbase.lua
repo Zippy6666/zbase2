@@ -310,23 +310,29 @@ end
 
 
 local function IncludeFiles()
-    include("zbase/sh_globals.lua")
+
+    include("zbase/sh_globals_pri.lua")
+    include("zbase/sh_globals_pub.lua")
     include("zbase/sh_hooks.lua")
     include("zbase/sh_cvars.lua")
 
 
     if SERVER then
+
         include("zbase/sv_schedules.lua")
         include("zbase/sv_meta_npc_extended.lua")
         include("zbase/sv_behaviour_system.lua")
         include("zbase/sv_spawnnpc.lua")
+        include("zbase/sv_enginewep_translation.lua")
 
+        
         -- Include NPC enhancement files
         local files = file.Find("zbase/npc_enhancements/*","LUA")
         local enhPath = "zbase/npc_enhancements/"
         for _, v in ipairs(files) do
             include(enhPath..v)
         end
+
     end
 
 
@@ -334,12 +340,14 @@ local function IncludeFiles()
         include("zbase/cl_spawnmenu.lua")
         include("zbase/cl_toolmenu.lua")
     end
+
 end
 
 
 local function AddCSLuaFiles()
     AddCSLuaFile("zbase/sh_cvars.lua")
-    AddCSLuaFile("zbase/sh_globals.lua")
+    AddCSLuaFile("zbase/sh_globals_pri.lua")
+    AddCSLuaFile("zbase/sh_globals_pub.lua")
     AddCSLuaFile("zbase/sh_override_functions.lua")
     AddCSLuaFile("zbase/sh_hooks.lua")
 

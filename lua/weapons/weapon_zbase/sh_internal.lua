@@ -137,6 +137,7 @@ function SWEP:ShootEffects()
 
 	-- Model override effect fix, create temporary a new ent with the same model
 	if CustomModel && IsValid(EffectEnt) && IsValid(own) then
+		EffectEnt:SetModel(modelname)
 		EffectEnt:SetPos(own:GetPos())
 		EffectEnt:SetParent(own)
 		EffectEnt:AddEffects(EF_BONEMERGE)
@@ -148,7 +149,7 @@ function SWEP:ShootEffects()
 	local effectdata = EffectData()
 	effectdata:SetFlags(1)
 	effectdata:SetEntity(EffectEnt)
-	util.Effect( "MuzzleFlash", effectdata )
+	util.Effect( "MuzzleFlash", effectdata, true, true )
 
 
 	-- Shell eject
@@ -161,14 +162,16 @@ function SWEP:ShootEffects()
 			effectdata:SetEntity(EffectEnt)
 			effectdata:SetOrigin(att.Pos)
 			effectdata:SetAngles(att.Ang)
-			util.Effect( "ShellEject", effectdata )
+			util.Effect( "ShellEject", effectdata, true, true )
 		end
 	
 	end
 
 
 	if CustomModel then
-		EffectEnt:Remove()
+		-- EffectEnt:Remove()
+		EffectEnt:SetNoDraw(true)
+		SafeRemoveEntityDelayed(EffectEnt, 0.5)
 	end
 
 end
@@ -402,8 +405,15 @@ if CLIENT then
 
 					
 				end
+
+
+				self:DrawModel()
 			
 			end
+	
+		else
+
+			self:DrawModel()
 
 		end
 
