@@ -119,6 +119,11 @@ SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number
 SWEP.NPCCanBePickedUp = true -- Can NPCs pick up this weapon?
 
 
+-- https://wiki.facepunch.com/gmod/Hold_Types
+-- Will fall back on other holdtype if the NPC doesn't have supporting animations
+SWEP.NPCHoldType =  "smg"
+
+
 
 
 --[[
@@ -130,7 +135,7 @@ SWEP.NPCCanBePickedUp = true -- Can NPCs pick up this weapon?
 
 	-- On weapon created
 function SWEP:Init()
-	self:SetHoldType( "smg" ) -- https://wiki.facepunch.com/gmod/Hold_Types
+	self:SetHoldType( "smg" )
 end
 
 
@@ -212,6 +217,7 @@ end
 	-- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
 	-- Return true to suppress
 function SWEP:CustomFireAnimationEvent( pos, ang, event, options, source )
+	return true
 end
 
 

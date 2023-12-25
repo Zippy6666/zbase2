@@ -387,12 +387,60 @@ end
 --]]
 
 
+
+
+
 function NPC:ZBWepSys_Init()
 
     -- self.ZBWepSys_ActivityTranslate = {}
     -- self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
 
     self.ZBWepSys_Inventory = {}
+
+end
+
+
+function NPC:ZBWepSys_SetWepAttributes( zbasewep, engineClass )
+
+    -- Some defaults
+    zbasewep.PrimaryShootSound = "common/null.wav"
+    zbasewep.PrimarySpread = 0.01
+    zbasewep.PrimaryDamage = 2
+    
+
+    zbasewep.NPCBurstMin = 1
+    zbasewep.NPCBurstMax = 1
+    zbasewep.NPCFireRate = 0.2
+    zbasewep.NPCFireRestTimeMin = 0.2
+    zbasewep.NPCFireRestTimeMax = 1
+    zbasewep.NPCBulletSpreadMult = 1
+    zbasewep.NPCReloadSound = "common/null.wav"
+    zbasewep.NPCShootDistanceMult = 1
+    zbasewep.NPCHoldType =  "smg" -- https://wiki.facepunch.com/gmod/Hold_Types
+
+
+    table.Merge( zbasewep.Primary, {
+        DefaultClip = 30, 
+        Ammo = "SMG1", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+        ShellEject = "1", 
+        ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Effects
+        NumShots = 1,
+    } )
+
+
+    if ZBase_EngineWeapon_Attributes[ engineClass ] then
+
+        for varname, var in pairs( ZBase_EngineWeapon_Attributes[ engineClass ] ) do
+
+            if istable(var) then
+                table.Merge( zbasewep[varname], var )
+            else
+                zbasewep[varname] = var
+            end
+
+        end
+
+    end
 
 end
 
@@ -412,10 +460,12 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
         local Weapon = self:GetActiveWeapon()
         Weapon.FromZBaseInventory = true
+        
 
 
         if !WepData.isScripted then
             Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
+            self:ZBWepSys_SetWepAttributes( Weapon, class )
         end
 
     end)

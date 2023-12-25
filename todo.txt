@@ -3,6 +3,7 @@
     - Melee weapons
     - AI stuff to aid the shooting system
     - SNPC support
+- No dmg storage
 - Translation stuff (no more tpose shit)
 - Finish d3 shit
 - ZBase replace default npcs (hijack spawn command?)
