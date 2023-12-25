@@ -1,8 +1,10 @@
 AddCSLuaFile()
 
 
+
 	-- You can use this weapon base for your swep to have better control over how NPCs handle it --
 	-- SWEP.Base = "weapon_zbase"
+
 
 
 --[[
@@ -10,6 +12,7 @@ AddCSLuaFile()
                                            GENERAL
 ==================================================================================================
 --]]
+
 
 
 -- IMPORTANT: SHOULD be weapon_zbase for your swep!! (unless you know what you are doing)
@@ -69,11 +72,13 @@ SWEP.ScriptedEntityType =  "weapon" -- Sets the spawnmenu content icon type for 
 SWEP.m_bPlayPickupSound = true -- If set to false, the weapon will not play the weapon pick up sound when picked up.
 
 
+
 --[[
 ==================================================================================================
                                            BASIC PRIMARY ATTACK
 ==================================================================================================
 --]]
+
 
 
 SWEP.ClipSize = 30 -- The maximum amount of bullets one clip can hold. Setting it to -1 means weapon uses no clips, like a grenade or a rocket launch.
@@ -99,6 +104,7 @@ SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Effects
 --]]
 
 
+
 SWEP.NPCOnly = true -- Should only NPCs be able to use this weapon?
 SWEP.NPCCanPickUp = true -- Can NPCs pick up this weapon from the ground
 SWEP.NPCBurstMin = 1 -- Minimum amount of bullets the NPC can fire when firing a burst
@@ -112,9 +118,11 @@ SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number
 SWEP.NPCCanBePickedUp = true -- Can NPCs pick up this weapon?
 
 
+
+
 --[[
 ==================================================================================================
-                                    FUNCTIONS YOU CAN CHANGE
+                            INIT/THINK
 ==================================================================================================
 --]]
 
@@ -123,6 +131,24 @@ SWEP.NPCCanBePickedUp = true -- Can NPCs pick up this weapon?
 function SWEP:Init()
 	self:SetHoldType( "smg" ) -- https://wiki.facepunch.com/gmod/Hold_Types
 end
+
+
+
+	-- Called when the swep thinks. 
+function SWEP:CustomThink()
+end
+
+
+	-- Called when the SWEP should set up its Data Tables.
+function SWEP:CustomSetupDataTables()
+end
+
+
+--[[
+==================================================================================================
+                            PRIMARY ATTACK
+==================================================================================================
+--]]
 
 
 	-- Called when an NPC primary attacks
@@ -136,146 +162,115 @@ function SWEP:OnPrimaryAttack()
 end
 
 
-	-- Just like regular translate activity
-function SWEP:CustomTranslateActivity()
+--[[
+==================================================================================================
+                            SECONDARY
+==================================================================================================
+--]]
+
+
+	-- Return true to disable default
+function SWEP:CustomSecondaryAttack()
 end
 
 
+--[[
+==================================================================================================
+                            EFFECTS
+==================================================================================================
+--]]
 
-	-- Called when the weapon is removed
-function SWEP:CustomOnRemove()
+
+	-- A convenience function to create shoot effects.
+function SWEP:CustomShootEffects()
 end
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- Called when another entity fires an event to this entity.
-function SWEP:CustomAcceptInput( inputName, activator, called, data )
-end
-
-
--- Called so the weapon can override the impact effects it makes.
+	-- Called so the weapon can override the impact effects it makes.
 function SWEP:CustomDoImpactEffect( tr, damageType )
 end
 
 
--- Called when we are about to draw the translucent world model.
-function SWEP:CustomDrawWorldModelTranslucent( flags )
+--[[
+==================================================================================================
+                            EVENT TYPE STUFF
+==================================================================================================
+--]]
+
+
+	-- Called when another entity fires an event to this entity.
+function SWEP:CustomAcceptInput( inputName, activator, called, data )
 end
 
 
--- Called before firing animation events, such as muzzle flashes or shell ejections.
--- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
+	-- Called before firing animation events, such as muzzle flashes or shell ejections.
+	-- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
 function SWEP:CustomFireAnimationEvent( pos, ang, event, options, source )
 end
 
 
--- This hook is for NPCs, you return what they should try to do with it.
-function SWEP:CustomGetCapabilities()
-end
-
-
-
--- Called when the engine sets a value for this scripted weapon.
--- See GM:EntityKeyValue for a hook that works for all entities. See ENTITY:KeyValue for an hook that works for scripted entities.
+	-- Called when the engine sets a value for this scripted weapon.
+	-- See GM:EntityKeyValue for a hook that works for all entities. See ENTITY:KeyValue for an hook that works for scripted entities.
 function SWEP:CustomKeyValue( key, value )
 end
 
 
--- Called whenever the weapons Lua script is reloaded.
-function SWEP:CustomOnReloaded()
-end
-
-
-
--- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves or dupes)
--- or on a changelevel (for example Half-Life 2 campaign level transitions)
-function SWEP:CustomOnRestore()
-end
-
-
-
--- Called when weapon is dropped or picked up by a new player.
--- This can be called clientside for all players on the server if the weapon has no owner and is picked up. See also WEAPON:OnDrop.
+	-- Called when weapon is dropped or picked up by a new player.
+	-- This can be called clientside for all players on the server if the weapon has no owner and is picked up. See also WEAPON:OnDrop.
 function SWEP:CustomOwnerChanged()
 end
 
 
 
-function SWEP:CustomSecondaryAttack()
+--[[
+==================================================================================================
+                            CLIENT
+==================================================================================================
+--]]
+
+
+if CLIENT then
+
+
+	-- Called when we are about to draw the world model.
+	function SWEP:CustomDrawWorldModel( flags )
+	end
+
+
+		-- Called when we are about to draw the translucent world model.
+	function SWEP:CustomDrawWorldModelTranslucent( flags )
+	end
+
+
 end
 
 
 
--- Called when the SWEP should set up its Data Tables.
-function SWEP:CustomSetupDataTables()
+--[[
+==================================================================================================
+                            OTHER
+==================================================================================================
+--]]
+
+
+-- Just like regular translate activity
+function SWEP:CustomTranslateActivity()
 end
 
 
-
--- Sets the hold type of the weapon. This must be called on both the server and the client to work properly.
--- NOTE: You should avoid calling this function and call Weapon:SetHoldType now.
-function SWEP:CustomSetWeaponHoldType( name )
-end
-
-
--- A convenience function to create shoot effects.
-function SWEP:CustomShootEffects()
-end
-
-
-
--- Should this weapon be dropped when its owner dies? This only works if the player has Player:ShouldDropWeapon set to true.
+-- Should this weapon be dropped when its owner dies?
+-- This only works if the player has Player:ShouldDropWeapon set to true.
 function SWEP:CustomShouldDropOnDie()
 end
 
 
+--[[
+==================================================================================================
+                            Removal
+==================================================================================================
+--]]
 
--- Called when the swep thinks. This hook won't be called during the deploy animation and when using Weapon:DefaultReload.
--- Works only in players hands. Doesn't work in NPCs hands. Despite being a predicted hook, this hook is called clientside in single player,
--- however it will not be recognized as a predicted hook to Player:GetCurrentCommand.
--- This hook will be called before Player movement is processed on the client, and after on the server.
--- This will not be run during deploy animations after a serverside-only deploy. This usually happens after picking up and dropping an object with +use.
-function SWEP:CustomThink()
+
+	-- Called when the weapon is removed
+function SWEP:CustomOnRemove()
 end
