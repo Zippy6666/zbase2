@@ -54,8 +54,9 @@ function NPC:ZBaseInit()
     self.HadPreviousEnemy = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = HITGROUP_GENERIC
-    self.SchedDebug = GetConVar("developer"):GetBool()
+    self.SchedDebug = GetConVar("developer"):GetBool() && ZBCVAR.ShowSched:GetBool()
     self.PlayerToFollow = NULL
+
 
     -- Network shit
     self:SetNWBool("IsZBaseNPC", true)
@@ -745,7 +746,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
 
         if !self.IsZBase_SNPC then
 
-            local TimerName = "ZBaseForceWalkFrames"..self:EntIndex()
+            local TimerName = "ZBaseWalkFrames"..self:EntIndex()
 
 
             timer.Create(TimerName, 0, 0, function()
