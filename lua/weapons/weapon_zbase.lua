@@ -182,11 +182,13 @@ end
 
 
 	-- A convenience function to create shoot effects.
+	-- Return true to disable default
 function SWEP:CustomShootEffects()
 end
 
 
 	-- Called so the weapon can override the impact effects it makes.
+	-- Return true to disable default
 function SWEP:CustomDoImpactEffect( tr, damageType )
 end
 
@@ -232,12 +234,14 @@ end
 if CLIENT then
 
 
-	-- Called when we are about to draw the world model.
+		-- Called when we are about to draw the world model.
+		-- Return true to disable default
 	function SWEP:CustomDrawWorldModel( flags )
 	end
 
 
 		-- Called when we are about to draw the translucent world model.
+		-- Return true to disable default
 	function SWEP:CustomDrawWorldModelTranslucent( flags )
 	end
 
@@ -253,13 +257,13 @@ end
 --]]
 
 
--- Just like regular translate activity
+	-- Just like regular translate activity
 function SWEP:CustomTranslateActivity()
 end
 
 
--- Should this weapon be dropped when its owner dies?
--- This only works if the player has Player:ShouldDropWeapon set to true.
+	-- Should this weapon be dropped when its owner dies?
+	-- This only works if the player has Player:ShouldDropWeapon set to true.
 function SWEP:CustomShouldDropOnDie()
 end
 

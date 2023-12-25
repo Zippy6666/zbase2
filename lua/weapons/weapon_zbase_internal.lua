@@ -26,6 +26,9 @@ end
 
 	-- Called when the SWEP should set up its Data Tables.
 function SWEP:SetupDataTables()
+
+	self:CustomSetupDataTables()
+
 end
 
 
@@ -35,6 +38,9 @@ end
 	-- This hook will be called before Player movement is processed on the client, and after on the server.
 	-- This will not be run during deploy animations after a serverside-only deploy. This usually happens after picking up and dropping an object with +use.
 function SWEP:Think()
+
+	self:CustomThink()
+
 end
 
 
@@ -96,6 +102,7 @@ end
 
 
 function SWEP:SecondaryAttack()
+	self:CustomSecondaryAttack()
 end
 
 
@@ -108,6 +115,13 @@ end
 
 -- A convenience function to create shoot effects.
 function SWEP:ShootEffects()
+
+	local r = self:CustomShootEffects()
+	if r == true then
+		return
+	end
+
+
 	local effectdata = EffectData()
 	effectdata:SetFlags(1)
 	effectdata:SetEntity(self)
@@ -128,11 +142,19 @@ function SWEP:ShootEffects()
 	
 	end
 	self:EmitSound(self.PrimaryShootSound)
+
+
 end
 
 
 -- Called so the weapon can override the impact effects it makes.
 function SWEP:DoImpactEffect( tr, damageType )
+
+	local r = self:CustomDoImpactEffect( tr, damageType )
+	if r == true then
+		return
+	end
+
 end
 
 
@@ -151,6 +173,12 @@ end
 
 -- Should this weapon be dropped when its owner dies? This only works if the player has Player:ShouldDropWeapon set to true.
 function SWEP:ShouldDropOnDie()
+
+	local r = self:CustomShouldDropOnDie()
+	if r != nil then
+		return r
+	end
+
 end
 
 
@@ -163,18 +191,36 @@ end
 
 	-- Called when another entity fires an event to this entity.
 function SWEP:AcceptInput( inputName, activator, called, data )
+
+	local r = self:CustomAcceptInput( inputName, activator, called, data )
+	if r != nil then
+		return r
+	end
+
 end
 
 
 	-- Called before firing animation events, such as muzzle flashes or shell ejections.
 	-- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
 function SWEP:FireAnimationEvent( pos, ang, event, options, source )
+
+	local r = self:CustomFireAnimationEvent( pos, ang, event, options, source )
+	if r != nil then
+		return r
+	end
+
 end
 
 
 	-- Called when the engine sets a value for this scripted weapon.
 	-- See GM:EntityKeyValue for a hook that works for all entities. See ENTITY:KeyValue for an hook that works for scripted entities.
 function SWEP:KeyValue( key, value )
+
+	local r = self:CustomKeyValue( key, value )
+	if r != nil then
+		return r
+	end
+
 end
 
 
@@ -187,6 +233,12 @@ end
 	-- Called when weapon is dropped or picked up by a new player.
 	-- This can be called clientside for all players on the server if the weapon has no owner and is picked up. See also WEAPON:OnDrop.
 function SWEP:OwnerChanged()
+
+	local r = self:CustomOwnerChanged()
+	if r != nil then
+		return r
+	end
+
 end
 
 
@@ -296,7 +348,14 @@ end
 if CLIENT then
 
 
-	function SWEP:DrawWorldModel()
+	function SWEP:DrawWorldModel( flags )
+
+		local r = self:CustomDrawWorldModel( flags )
+		if r != nil then
+			return
+		end
+
+
 
 		local own = self:GetOwner()
 
@@ -339,6 +398,12 @@ if CLIENT then
 
 	-- Called when we are about to draw the translucent world model.
 	function SWEP:DrawWorldModelTranslucent( flags )
+
+		local r = self:CustomDrawWorldModelTranslucent( flags )
+		if r != nil then
+			return
+		end
+
 	end
 
 
@@ -354,12 +419,12 @@ end
 
 function SWEP:OnRemove()
 
+	self:CustomOnRemove()
+
+
 	if IsValid(self.NPCWorldModelOverride) then
 		self.NPCWorldModelOverride:Remove()
 	end
-
-
-	self:CustomOnRemove()
 
 end
 
