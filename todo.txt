@@ -3,7 +3,6 @@
     - Melee weapons
     - AI stuff to aid the shooting system
     - SNPC support
-    - Test NPC weapons to see if they work with it
 - Translation stuff (no more tpose shit)
 - Controller
 - Finish d3 shit
@@ -15,6 +14,7 @@
 
 
 >>> rilis!!!!!!! <<<
+- Test NPC weapons to see if they work with it
 - new public repo
 - Psychotic description for the funnies (use chatgpt)
 - Credit crunchy soap!!!!!!!!!!!!!
