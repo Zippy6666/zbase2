@@ -89,6 +89,10 @@ function SWEP:CustomTranslateActivity()
 end
 
 
+function SWEP:DrawModel()
+end
+
+
 	-- Called when the weapon is removed
 function SWEP:CustomOnRemove()
 end
@@ -146,7 +150,7 @@ function SWEP:DrawWorldModel()
 
 			end
 
-			
+
 			self.NPCWorldModelOverride:SetParent(own)
 			self.NPCWorldModelOverride:DrawModel()
 
@@ -164,24 +168,6 @@ function SWEP:DrawWorldModel()
 		end
 
 	end
-
-
-
-	-- local own = self:GetOwner()
-
-
-	-- if IsValid(own) then
-	-- 	WorldModel:SetParent(own)
-	-- 	WorldModel:AddEffects(EF_BONEMERGE)
-	-- 	WorldModel:SetModel("models/props_c17/FurnitureDresser001a.mdl")
-	-- end
-
-
-
-
-	-- WorldModel:SetPos(self:GetPos())
-	-- WorldModel:SetAngles(self:GetAngles())
-	-- WorldModel:DrawModel()
 
 end
 
