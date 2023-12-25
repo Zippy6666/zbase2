@@ -66,6 +66,7 @@ end
 
 ZBCVAR.NoThink = CreateConVar("zbase_no_think", "0", Flags)
 ZBCVAR.ShowNavigator = CreateConVar("zbase_show_navigator", "0", Flags)
+ZBCVAR.ShowSched = CreateConVar("zbase_show_sched", "0", Flags)
 
 
 --[[
@@ -73,6 +74,7 @@ ZBCVAR.ShowNavigator = CreateConVar("zbase_show_navigator", "0", Flags)
                                            OTHER
 ==================================================================================================
 --]]
+
 
 ZBCVAR.ReloadSpawnMenu = CreateConVar("zbase_reload_spawnmenu", "1", Flags)
 ZBCVAR.HPMult = CreateConVar("zbase_hp_mult", "1", Flags)
