@@ -1,6 +1,9 @@
 local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
+
+
 ZBaseEnhancementTable[my_cls] = function( NPC )
-    --]]============================================================================================================]]
+    
+    
     function NPC:ZBaseEnhancedInit()
         self:SetAllowedEScheds({
             "SCHED_HUNTER_RANGE_ATTACK2",
@@ -13,10 +16,12 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             "SCHED_HUNTER_PATROL_RUN",
         })
     end
-    --]]============================================================================================================]]
+    
+    
     function NPC:ZBaseEnhancedThink()
     end
-    --]]============================================================================================================]]
+    
+    
     function NPC:ZBaseEnhancedDealDamage(dmg, ent)
         -- Fixes hunters being unable to hurt eachother
         if ent:GetClass() == "npc_hunter" && !self:IsAlly(ent) && !self.DoingHunterDamageFix then
@@ -29,5 +34,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
 
         self.DoingHunterDamageFix = false
     end
-    --]]============================================================================================================]]
+    
+    
 end

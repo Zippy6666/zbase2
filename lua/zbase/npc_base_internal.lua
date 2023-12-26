@@ -468,6 +468,9 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
             self:ZBWepSys_SetWepAttributes( Weapon, class )
         end
 
+
+        Weapon:SetHoldType(Weapon.NPCHoldType)
+
     end)
 
 end
