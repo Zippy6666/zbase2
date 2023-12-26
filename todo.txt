@@ -4,24 +4,19 @@
 - Translation stuff, holdtype, no tpose for combines, etc
 - Finish d3 shit
 - ZBase replace default npcs (hijack spawn command?)
-- Clean up code, make sure everything works right, no dmginfo storage
-
-
-
-
-
 
 
 
 
 >>> rilis!!!!!!! <<<
-- new public repo
+- Clean up code, make sure everything works right, no dmginfo storage, no stop movement for aerial mfs when doing anim
+- new public repo w copyright
 - Psychotic description for the funnies (use chatgpt)
 - Credit crunchy soap!!!!!!!!!!!!!
 - requiresd good boi branch!!!
 - future update list
 - bug fixes comin soooooooopneas
-- three discosasoions: bugs, dev help, suggestions
+- three discosasoions: bugs, dev help, suggestions [no stoopid in the comment section >:( ]
 
 
 
