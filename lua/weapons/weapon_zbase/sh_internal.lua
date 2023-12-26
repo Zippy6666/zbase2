@@ -99,9 +99,6 @@ function SWEP:PrimaryAttack()
 
 	end
 
-
-	print(self:Clip1())
-
 end
 
 
@@ -169,7 +166,7 @@ function SWEP:ShootEffects()
 			effectdata:SetEntity(EffectEnt)
 			effectdata:SetOrigin(att.Pos)
 			effectdata:SetAngles(att.Ang)
-			util.Effect( "ShellEject", effectdata, true, true )
+			util.Effect( self.Primary.ShellType, effectdata, true, true )
 		end
 	
 	end

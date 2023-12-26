@@ -422,8 +422,8 @@ end
 
 function NPC:ZBWepSys_Init()
 
-    self.ZBWepSys_ActivityTranslate = {}
-    self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
+    -- self.ZBWepSys_ActivityTranslate = {}
+    -- self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
 
     self.ZBWepSys_Inventory = {}
 
@@ -563,9 +563,15 @@ function NPC:ZBWepSys_Shoot()
 end
 
 
-function NPC:ZBWepSys_HasShootSched()
+function NPC:ZBWepSys_ShouldFireWeapon()
 
-    return !self:IsCurrentSchedule(SCHED_RELOAD) && !ReloadActs[self:GetActivity()]
+    local act = self:GetActivity()
+
+
+    return self.EnemyVisible && !self.DoingPlayAnim && self.NextWeaponFireVolley < CurTime()
+    && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance}) && !self:IsCurrentSchedule(SCHED_RELOAD) && !ReloadActs[act]
+    && self:HasCondition(COND.WEAPON_HAS_LOS)
+
 
     -- return self:IsCurrentSchedule(SCHED_RANGE_ATTACK1) or self:IsCurrentSchedule(SCHED_RANGE_ATTACK2)
     -- or (self.CombineHasShootScheed && self:CombineHasShootSched())
@@ -575,14 +581,14 @@ end
 
 function NPC:ZBWepSys_FireWeaponThink()
 
-    if self.EnemyVisible && !self.DoingPlayAnim && self.NextWeaponFireVolley < CurTime()
-    && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance}) && self:ZBWepSys_HasShootSched() then
+    if self:ZBWepSys_ShouldFireWeapon() then
 
 
         if self:IsMoving() then
             self:SetActivityIfAvailable({ACT_WALK_AIM}, self.SetMovementActivity)
         else
-            self:SetActivityIfAvailable({ACT_RANGE_ATTACK1}, self.ResetIdealActivity)
+            -- self:PlayAnimation( true, {noTransitions=true})
+            self:SetActivityIfAvailable({self:Weapon_TranslateActivity(ACT_RANGE_ATTACK1)}, self.ResetIdealActivity)
         end
 
         self:ZBWepSys_Shoot()
