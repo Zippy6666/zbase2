@@ -2,9 +2,10 @@ AddCSLuaFile()
 include("sh_internal.lua")
 
 
-
 	-- You can use this weapon base for your swep to have better control over how NPCs handle it --
+	-- vv Make sure you do this vv --
 	-- SWEP.Base = "weapon_zbase"
+	-- SWEP.IsZBaseWeapon = true
 
 
 
@@ -18,7 +19,9 @@ include("sh_internal.lua")
 
 -- IMPORTANT: SHOULD be weapon_zbase for your swep!! (unless you know what you are doing)
 -- The weapon's base script, relative to lua/weapons.
-SWEP.Base = "weapon_base" -- Set to "weapon_base" or a different zbase weapon
+SWEP.Base = "weapon_base" -- Set to "weapon_base"
+SWEP.IsZBaseWeapon = true -- Must exist in your swep
+SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
 
 SWEP.PrintName = "ZBase Weapon" -- The name of the SWEP displayed in the spawn menu.
@@ -27,7 +30,6 @@ SWEP.Author = "Zippy" -- The SWEP's author.
 
 SWEP.Spawnable = false -- Whether or not this weapon can be obtained through the spawn menu.
 SWEP.AdminOnly = false -- If spawnable, this variable determines whether only administrators can use the button in the spawn menu.
-SWEP.NPCSpawnable = true -- Add to NPC weapon list
 SWEP.Category = "ZBase" -- The spawn menu category that this weapon resides in.
 
 

@@ -413,9 +413,9 @@ function NPC:ZBWepSys_SetWepAttributes( zbasewep, engineClass )
     zbasewep.NPCFireRate = 0.2
     zbasewep.NPCFireRestTimeMin = 0.2
     zbasewep.NPCFireRestTimeMax = 1
-    zbasewep.NPCBulletSpreadMult = 0.75
+    zbasewep.NPCBulletSpreadMult = 1
     zbasewep.NPCReloadSound = "common/null.wav"
-    zbasewep.NPCShootDistanceMult = 1
+    zbasewep.NPCShootDistanceMult = 0.75
     zbasewep.NPCHoldType =  "smg" -- https://wiki.facepunch.com/gmod/Hold_Types
 
 
@@ -442,6 +442,9 @@ function NPC:ZBWepSys_SetWepAttributes( zbasewep, engineClass )
 
     end
 
+
+    zbasewep:SetMaxClip1
+
 end
 
 
@@ -455,17 +458,15 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
     timer.Simple(0.1, function()
 
-        self:Give( WepData.isScripted && class or "weapon_zbase" )
-
-
-        local Weapon = self:GetActiveWeapon()
+        local Weapon = self:Give( WepData.isScripted && class or "weapon_zbase" )
         Weapon.FromZBaseInventory = true
-        
 
 
         if !WepData.isScripted then
+            
             Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
             self:ZBWepSys_SetWepAttributes( Weapon, class )
+
         end
 
 

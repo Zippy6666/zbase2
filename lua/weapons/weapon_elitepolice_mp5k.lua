@@ -29,9 +29,8 @@ SWEP.Spawnable = false
 SWEP.WorldModel = Model( "models/weapons/zippy/w_mp5k.mdl" )
 
 
--- IMPORTANT: Set this to true in your base
--- Note that your SWEP will be added to the NPC weapon menu automatically if you do
 SWEP.IsZBaseWeapon = true
+SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
 
 -- NPC Stuff
@@ -58,6 +57,7 @@ SWEP.Primary.ShellEject = "1" -- Set to the name of an attachment to enable shel
 
 --------------------------------------------------------=#
 function SWEP:Initialize()
+    print(self.IsZBaseWeapon)
 	self:SetHoldType( "smg" )
 end
 --------------------------------------------------------=#

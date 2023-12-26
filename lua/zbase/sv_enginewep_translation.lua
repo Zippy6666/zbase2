@@ -202,7 +202,7 @@ ZBase_EngineWeapon_Attributes = {
             Ammo = "RPG", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
             ShellEject = false, 
         },
-        PrimaryAttack = function( self )
+        OnPrimaryAttack = function( self )
             local own = self:GetOwner()
 
 
@@ -227,6 +227,9 @@ ZBase_EngineWeapon_Attributes = {
                 self:ShootEffects()
                 
             end
+
+
+            return true
         end,
     },
 
