@@ -182,6 +182,8 @@ ZBase_EngineWeapon_Attributes = {
 
 
     ["weapon_crowbar"] = {
+        NPCIsMeleeWep = true,
+        NPCHoldType =  "passive", -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
 
@@ -242,6 +244,8 @@ ZBase_EngineWeapon_Attributes = {
 
 
     ["weapon_stunstick"] = {
+        NPCIsMeleeWep = true,
+        NPCHoldType =  "passive", -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
 
