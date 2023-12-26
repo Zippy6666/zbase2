@@ -1,5 +1,4 @@
 >>> TODO <<<
-- Melee weapons
 - AI stuff to aid the shooting system, SNPC support
 - Translation stuff, holdtype, no tpose for combines, etc
 - Finish d3 shit
