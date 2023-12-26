@@ -733,10 +733,6 @@ end)
 
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 
-
-    print(class, swep, swep.IsZBaseWeapon, swep.NPCSpawnable)
-
-
 	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
 		list.Add( "NPCUsableWeapons", { class = class, title = "[ZBase] "..swep.PrintName } )
 	end

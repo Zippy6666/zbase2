@@ -28,6 +28,13 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
 
     end
     
+
+    function NPC:CombineHasShootSched()
+        return self:IsCurrentSchedule( ZBaseESchedID("SCHED_COMBINE_RANGE_ATTACK1") ) or self:IsCurrentSchedule( ZBaseESchedID("SCHED_COMBINE_PRESS_ATTACK") )
+        or self:IsCurrentSchedule( ZBaseESchedID("SCHED_COMBINE_CHARGE_PLAYER") )
+    end
+
+
     
     function NPC:ZBaseEnhancedThink()
 

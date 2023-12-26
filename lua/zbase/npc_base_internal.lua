@@ -13,6 +13,17 @@ local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 
+local ReloadActs = {
+    [ACT_RELOAD] = true,
+    [ACT_RELOAD_SHOTGUN] = true,
+    [ACT_RELOAD_SHOTGUN_LOW] = true,
+    [ACT_RELOAD_SMG1] = true,
+    [ACT_RELOAD_SMG1_LOW] = true,
+    [ACT_RELOAD_PISTOL] = true,
+    [ACT_RELOAD_PISTOL_LOW] = true,
+}
+
+
 --[[
 ==================================================================================================
                                            INIT BRUV
@@ -286,6 +297,9 @@ local StrNPCStates = {
 
 function NPC:ZBaseThink()
     local ene = self:GetEnemy()
+    local sched = self:GetCurrentSchedule()
+    local seq = self:GetSequence()
+    local act = self:GetActivity()
 
 
     -- Enemy visible
@@ -307,23 +321,39 @@ function NPC:ZBaseThink()
 
     -- Enemy updated
     if ene != self.ZBase_LastEnemy then
-        self.ZBase_LastEnemy = ene
         self:DoNewEnemy()
+        self.ZBase_LastEnemy = ene
     end
 
 
     -- Activity change detection
-    if self:GetActivity() != self.ZBaseLastACT then
-        self.ZBaseLastACT = self:GetActivity()
-        self:NewActivityDetected( self.ZBaseLastACT )
+    if act != self.ZBaseLastACT then
+        self:NewActivityDetected( act )
+        self.ZBaseLastACT = act
     end
 
+    
 
     -- Sequence change detection
-    if self:GetSequence() != self.ZBaseLastSequence then
-        self.ZBaseLastSequence = self:GetSequence()
-        self:NewSequenceDetected( self.ZBaseLastSequence, self:GetSequenceName(self.ZBaseLastSequence) )
+    if seq != self.ZBaseLastSequence then
+        self:NewSequenceDetected( seq, self:GetSequenceName(seq) )
+        self.ZBaseLastSequence = seq
     end
+
+
+
+    -- Engine schedule change detection
+    if sched != self.ZBaseLastESched then
+
+        local name = ZBaseSchedDebug(self)
+
+        self:NewESchedDetected( sched, name )
+        
+        self.ZBaseLastESched = sched
+        self.ZBaseLastESchedName = name
+
+    end
+
 
 
     -- Stuff to make play anim work as intended
@@ -392,22 +422,21 @@ end
 
 function NPC:ZBWepSys_Init()
 
-    -- self.ZBWepSys_ActivityTranslate = {}
-    -- self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
+    self.ZBWepSys_ActivityTranslate = {}
+    self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
 
     self.ZBWepSys_Inventory = {}
 
 end
 
 
-function NPC:ZBWepSys_SetWepAttributes( zbasewep, engineClass )
+function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
 
     -- Some defaults
+    zbasewep.IsZBaseWeapon = true
     zbasewep.PrimaryShootSound = "common/null.wav"
     zbasewep.PrimarySpread = 0
     zbasewep.PrimaryDamage = 2
-    
-
     zbasewep.NPCBurstMin = 1
     zbasewep.NPCBurstMax = 1
     zbasewep.NPCFireRate = 0.2
@@ -443,8 +472,26 @@ function NPC:ZBWepSys_SetWepAttributes( zbasewep, engineClass )
     end
 
 
-    zbasewep:SetMaxClip1
+    zbasewep:SetClip1( zbasewep.Primary.DefaultClip )
 
+
+    -- local SetClip = zbasewep.SetClip
+    -- zbasewep.DoingZBaseSetClip = false
+    -- zbasewep.SetClip1 = function( amt )
+
+    --     print(amt, "IM GAE")
+
+    --     if !zbasewep.DoingZBaseSetClip then
+    --         return
+    --     end
+
+    --     return SetClip( self, amt )
+
+    -- end
+
+
+    zbasewep.IsEngineClone = true
+    zbasewep.EngineCloneMaxClip = zbasewep.Primary.DefaultClip
 end
 
 
@@ -465,7 +512,7 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
         if !WepData.isScripted then
             
             Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
-            self:ZBWepSys_SetWepAttributes( Weapon, class )
+            self:ZBWepSys_EngineCloneAttrs( Weapon, class )
 
         end
 
@@ -517,22 +564,25 @@ end
 
 
 function NPC:ZBWepSys_HasShootSched()
-    return self:IsCurrentSchedule(SCHED_RANGE_ATTACK1) or self:IsCurrentSchedule(SCHED_RANGE_ATTACK2)
-    or (self:GetClass()=="npc_combine_s" && self:IsCurrentSchedule(ZBaseESchedID("SCHED_COMBINE_RANGE_ATTACK1")))
+
+    return !self:IsCurrentSchedule(SCHED_RELOAD) && !ReloadActs[self:GetActivity()]
+
+    -- return self:IsCurrentSchedule(SCHED_RANGE_ATTACK1) or self:IsCurrentSchedule(SCHED_RANGE_ATTACK2)
+    -- or (self.CombineHasShootScheed && self:CombineHasShootSched())
+
 end
 
 
 function NPC:ZBWepSys_FireWeaponThink()
 
     if self.EnemyVisible && !self.DoingPlayAnim && self.NextWeaponFireVolley < CurTime()
-    && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance})
-    && self:ZBWepSys_HasShootSched() then
+    && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance}) && self:ZBWepSys_HasShootSched() then
 
 
         if self:IsMoving() then
             self:SetActivityIfAvailable({ACT_WALK_AIM}, self.SetMovementActivity)
         else
-            self:SetActivityIfAvailable({ACT_RANGE_ATTACK1})
+            self:SetActivityIfAvailable({ACT_RANGE_ATTACK1}, self.ResetIdealActivity)
         end
 
         self:ZBWepSys_Shoot()
@@ -954,17 +1004,6 @@ end
 --]]
 
 
-local ReloadActs = {
-    [ACT_RELOAD] = true,
-    [ACT_RELOAD_SHOTGUN] = true,
-    [ACT_RELOAD_SHOTGUN_LOW] = true,
-    [ACT_RELOAD_SMG1] = true,
-    [ACT_RELOAD_SMG1_LOW] = true,
-    [ACT_RELOAD_PISTOL] = true,
-    [ACT_RELOAD_PISTOL_LOW] = true,
-}
-
-
 local RangeAttackActs = {
     [ACT_RANGE_ATTACK1] = true,
     [ACT_RANGE_ATTACK2] = true,
@@ -1195,12 +1234,19 @@ function NPC:NewActivityDetected( act )
 
     -- Reload weapon sounds:
     local wep = self:GetActiveWeapon()
-
     if ReloadActs[act] && IsValid(wep) then
 
-        if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
-            wep:EmitSound(wep.NPCReloadSound)
+        if wep.IsZBaseWeapon then
+
+            if wep.NPCReloadSound != "" then
+                wep:EmitSound(wep.NPCReloadSound)
+            end
+
+
+            self.DoneReloadActSinceSched = true
+
         end
+
 
         if math.random(1, self.OnReloadSound_Chance) == 1 then
             self:EmitSound_Uninterupted(self.OnReloadSounds)
@@ -1223,6 +1269,20 @@ end
 
 function NPC:NewSequenceDetected( seq, seqName )
     self:CustomNewSequenceDetected( seq, seqName )
+end
+
+
+function NPC:NewESchedDetected( sched, schedName )
+
+    -- Shit reload workaround
+    local wep = self:GetActiveWeapon()
+    if wep.IsEngineClone && string.find(self.ZBaseLastESchedName, "RELOAD") && self.DoneReloadActSinceSched then
+
+        wep:SetClip1( wep.EngineCloneMaxClip )
+        self.DoneReloadActSinceSched = false
+
+    end
+
 end
 
 
@@ -3011,9 +3071,6 @@ function NPC:InternalCreateGib( model, data )
 
         end
     end
-
-
-    
 
 
     -- Position

@@ -100,7 +100,7 @@ function SWEP:PrimaryAttack()
 	end
 
 
-	print(self:Clip1(), self.Primary.DefaultClip, self.ClipSize, self:GetMaxClip1())
+	print(self:Clip1())
 
 end
 
