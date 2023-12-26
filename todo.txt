@@ -19,6 +19,8 @@
 - Psychotic description for the funnies (use chatgpt)
 - Credit crunchy soap!!!!!!!!!!!!!
 - requiresd good boi branch!!!
+- future update list
+- bug fixes comin soooooooopneas
 - three discosasoions: bugs, dev help, suggestions
 
 
@@ -35,7 +37,6 @@
 - Jump system
 - Grab ZBase flying NPCs with gravity gun
 - Flying snpcs use air nodes too (not just ground) + other improvements
-- "Entity timers"
 - coolier effects?? from anp?
 - Pickup system (even though they have a weapon active)
 - New secondary fire system

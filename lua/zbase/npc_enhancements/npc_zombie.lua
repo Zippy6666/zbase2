@@ -1,6 +1,9 @@
 local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
+
+
 ZBaseEnhancementTable[my_cls] = function( NPC )
-    --]]============================================================================================================]]
+    
+
     function NPC:ZBaseEnhancedInit()
         self.m_fIsHeadless = true
         self:SetBodygroup(1, 0)
@@ -14,13 +17,16 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             self:SetSaveValue("m_bCrabs", {false, false, false})
         end
     end
-    --]]============================================================================================================]]
+    
+
     function NPC:ZBaseEnhancedThink()
     end
-    --]]============================================================================================================]]
+    
+
     function NPC:ZBaseEnhancedCreateEnt( ent )
     end
-    --]]============================================================================================================]]
+    
+
 end
 
 

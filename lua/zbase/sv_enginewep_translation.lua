@@ -111,8 +111,8 @@ ZBase_EngineWeapon_Attributes = {
         NPCBurstMin = 1,
         NPCBurstMax = 1,
         NPCFireRate = 0,
-        NPCFireRestTimeMin = 1, 
-        NPCFireRestTimeMax = 2,
+        NPCFireRestTimeMin = 0.5, 
+        NPCFireRestTimeMax = 1,
         NPCBulletSpreadMult = 1, 
         NPCReloadSound = "Weapon_Shotgun.NPC_Reload", 
         NPCShootDistanceMult = 0.5,
@@ -122,14 +122,14 @@ ZBase_EngineWeapon_Attributes = {
 
     --[[
     ======================================================================================================================================================
-                                            AR2
+                                            CROSSBOW
     ======================================================================================================================================================
     --]]
     
 
     ["weapon_crossbow"] = {
-        PrimaryShootSound = "Weapon_AR2.NPC_Single",
-        PrimaryDamage = 10,
+        PrimaryShootSound = "Weapon_Crossbow.Single",
+        PrimaryDamage = 40,
         Primary = {
             DefaultClip = 1, 
             Ammo = "XBowBolt", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
@@ -144,8 +144,184 @@ ZBase_EngineWeapon_Attributes = {
         NPCFireRestTimeMin = 0.2, 
         NPCFireRestTimeMax = 1,
         NPCBulletSpreadMult = 0.25, 
-        NPCReloadSound = "Weapon_AR2.NPC_Reload", 
+        NPCReloadSound = "Weapon_Crossbow.BoltElectrify", 
         NPCShootDistanceMult = 1,
         NPCHoldType =  "ar2" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
+
+
+    --[[
+    ======================================================================================================================================================
+                                            .357
+    ======================================================================================================================================================
+    --]]
+
+
+    ["weapon_357"] = {
+        PrimaryShootSound = "Weapon_357.Single",
+        NPCReloadSound = "Weapon_357.RemoveLoader", 
+        NPCFireRestTimeMin = 0.5, 
+        NPCFireRestTimeMax = 1,
+        NPCHoldType =  "revolver", -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCBulletSpreadMult = 1, 
+        NPCShootDistanceMult = 0.75,
+        PrimaryDamage = 30,
+        Primary = {
+            DefaultClip = 6, 
+            Ammo = "357", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+            ShellEject = false, 
+        },
+    },
+
+
+    --[[
+    ======================================================================================================================================================
+                                            CROWBAR
+    ======================================================================================================================================================
+    --]]
+
+
+    ["weapon_crowbar"] = {
+    },
+
+
+    --[[
+    ======================================================================================================================================================
+                                            RPG
+    ======================================================================================================================================================
+    --]]
+
+
+    ["weapon_rpg"] = {
+        NPCHoldType =  "rpg", -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCBulletSpreadMult = 1, 
+        NPCShootDistanceMult = 0.75,
+        MuzzleFlashFlags = 7,
+        Primary = {
+            DefaultClip = 1, 
+            Ammo = "RPG", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+            ShellEject = false, 
+        },
+        PrimaryAttack = function( self )
+            local own = self:GetOwner()
+
+
+            if IsValid(own) then
+                local start = self:GetAttachment(self:LookupAttachment("muzzle")).Pos
+                local vel = own:GetAimVector()*500
+
+
+                local rocket = ents.Create("rpg_missile")
+                rocket:SetPos(start)
+                rocket:SetOwner(own)
+                rocket:SetVelocity(vel+Vector(0,0,100))
+                rocket:SetAngles(vel:Angle())
+                rocket.IsZBaseDMGInfl = true
+                rocket:Spawn()
+                rocket:SetSaveValue("m_flDamage", ZBCVAR.FullHL2WepDMG_PLY:GetBool()&&150 or 70)
+
+
+                self:EmitSound("Weapon_RPG.Single")
+
+
+                self:ShootEffects()
+                
+            end
+        end,
+    },
+
+
+    --[[
+    ======================================================================================================================================================
+                                            STUNSTICK
+    ======================================================================================================================================================
+    --]]
+
+
+    ["weapon_stunstick"] = {
+    },
+
+
+    --[[
+    ======================================================================================================================================================
+                                            HL1 SHOTGUN
+    ======================================================================================================================================================
+    --]]
+
+
+    ["weapon_shotgun_hl1"] = {
+        PrimaryShootSound = "HL1Weapon_Shotgun.Single",
+        NPCReloadSound = "HL1Weapon_Shotgun.Reload",
+        PrimarySpread = 0.02, 
+        PrimaryDamage = 3,
+        Primary = {
+            DefaultClip = 8, 
+            Ammo = "Buckshot", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+            ShellEject = "1", 
+            ShellType = "ShotgunShellEject", -- https://wiki.facepunch.com/gmod/Effects
+            NumShots = 7,
+        },
+        NPCBurstMin = 1,
+        NPCBurstMax = 1,
+        NPCFireRate = 0,
+        NPCFireRestTimeMin = 0.5, 
+        NPCFireRestTimeMax = 1,
+        NPCBulletSpreadMult = 1, 
+        NPCShootDistanceMult = 0.5,
+        NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
+    },
+
+
+    --[[
+    ======================================================================================================================================================
+                                            HL1 .357
+    ======================================================================================================================================================
+    --]]
+
+
+    ["weapon_357_hl1"] = {
+        PrimaryShootSound = "HL1Weapon_357.Single",
+        NPCReloadSound = "HL1Weapon_357.Reload", 
+        NPCFireRestTimeMin = 0.5, 
+        NPCFireRestTimeMax = 1,
+        NPCHoldType =  "revolver", -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCBulletSpreadMult = 1, 
+        NPCShootDistanceMult = 0.75,
+        PrimaryDamage = 30,
+        Primary = {
+            DefaultClip = 6, 
+            Ammo = "357", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+            ShellEject = false, 
+        },
+    },
+
+
+    --[[
+    ======================================================================================================================================================
+                                            HL1 GLOCK
+    ======================================================================================================================================================
+    --]]
+
+
+    ["weapon_glock_hl1"] = {
+        PrimaryDamage = 3,
+        Primary = {
+            DefaultClip = 18, 
+            Ammo = "Pistol", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+            ShellEject = "1", 
+            ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Effects
+            NumShots = 1,
+        },
+        NPCBurstMin = 1, 
+        NPCBurstMax = 1, 
+        NPCFireRate = 0.2, 
+        NPCFireRestTimeMin = 0.2, 
+        NPCFireRestTimeMax = 1,
+        NPCBulletSpreadMult = 1,
+        NPCShootDistanceMult = 0.75,
+        NPCHoldType =  "pistol",  -- https://wiki.facepunch.com/gmod/Hold_Types
+        PrimaryShootSound = "HL1Weapon_Glock.Single",
+        NPCReloadSound = "Weapon_Pistol.Reload", 
+    },
+    
 }

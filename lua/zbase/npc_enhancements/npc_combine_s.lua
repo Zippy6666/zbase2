@@ -1,6 +1,9 @@
 local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
+
+
 ZBaseEnhancementTable[my_cls] = function( NPC )
-    --]]============================================================================================================]]
+    
+    
     function NPC:ZBaseEnhancedInit()
     
         -- Don't allow combines to be elites
@@ -24,7 +27,8 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         })
 
     end
-    --]]============================================================================================================]]
+    
+    
     function NPC:ZBaseEnhancedThink()
 
         -- Put squad slot to 1 if it doesn't have any
@@ -38,11 +42,13 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         self:SetSaveValue("m_nShots", 2)
 
     end
-    --]]============================================================================================================]]
+    
+    
     function NPC:ZBaseEnhancedCreateEnt( ent )
         if ent:GetClass() == "npc_grenade_frag" && !ent.IsZBaseGrenade then
             ent:Remove()
         end
     end
-    --]]============================================================================================================]]
+    
+    
 end

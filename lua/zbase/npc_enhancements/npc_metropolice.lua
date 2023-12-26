@@ -1,6 +1,9 @@
 local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
+
+
 ZBaseEnhancementTable[my_cls] = function( NPC )
-    --]]============================================================================================================]]
+    
+    
     function NPC:ZBaseEnhancedInit()
         -- self:SetAllowedEScheds({
         --     "SCHED_METROPOLICE_WAKE_ANGRY",
@@ -37,8 +40,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         --     "SCHED_METROPOLICE_SMASH_PROP",
         -- })
     end
-    --]]============================================================================================================]]
-    function NPC:ZBaseEnhancedThink()
-    end
-    --]]============================================================================================================]]
+    
+    
 end
