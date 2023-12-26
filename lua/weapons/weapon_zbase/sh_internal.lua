@@ -78,7 +78,8 @@ function SWEP:PrimaryAttack()
 			Src = self:GetOwner():GetShootPos(),
 			Dir = self:GetOwner():GetAimVector(),
 			Spread = Vector(self.PrimarySpread, self.PrimarySpread),
-			Tracer = 2,
+			Tracer = self.Primary.TracerChance,
+			TracerName = self.Primary.TracerName,
 			Num = self.Primary.NumShots,
 		}
 		self:FireBullets(bullet)
@@ -146,11 +147,13 @@ function SWEP:ShootEffects()
 
 
 	-- Muzzle flash
-	local effectdata = EffectData()
-	effectdata:SetFlags(1)
-	effectdata:SetEntity(EffectEnt)
-	util.Effect( "MuzzleFlash", effectdata, true, true )
-
+	if self.Primary.MuzzleFlash then
+		local effectdata = EffectData()
+		effectdata:SetFlags(self.Primary.MuzzleFlashFlags)
+		effectdata:SetEntity(EffectEnt)
+		util.Effect( "MuzzleFlash", effectdata, true, true )
+	end
+	
 
 	-- Shell eject
 	if self.Primary.ShellEject then
@@ -169,7 +172,6 @@ function SWEP:ShootEffects()
 
 
 	if CustomModel then
-		-- EffectEnt:Remove()
 		EffectEnt:SetNoDraw(true)
 		SafeRemoveEntityDelayed(EffectEnt, 0.5)
 	end

@@ -404,7 +404,7 @@ function NPC:ZBWepSys_SetWepAttributes( zbasewep, engineClass )
 
     -- Some defaults
     zbasewep.PrimaryShootSound = "common/null.wav"
-    zbasewep.PrimarySpread = 0.01
+    zbasewep.PrimarySpread = 0
     zbasewep.PrimaryDamage = 2
     
 
@@ -413,7 +413,7 @@ function NPC:ZBWepSys_SetWepAttributes( zbasewep, engineClass )
     zbasewep.NPCFireRate = 0.2
     zbasewep.NPCFireRestTimeMin = 0.2
     zbasewep.NPCFireRestTimeMax = 1
-    zbasewep.NPCBulletSpreadMult = 1
+    zbasewep.NPCBulletSpreadMult = 0.75
     zbasewep.NPCReloadSound = "common/null.wav"
     zbasewep.NPCShootDistanceMult = 1
     zbasewep.NPCHoldType =  "smg" -- https://wiki.facepunch.com/gmod/Hold_Types
@@ -522,7 +522,6 @@ function NPC:ZBWepSys_FireWeaponThink()
 
     if self.EnemyVisible && !self.DoingPlayAnim && self.NextWeaponFireVolley < CurTime()
     && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance})
-    && self:HasCondition(COND.CAN_RANGE_ATTACK1) && self:HasCondition(COND.WEAPON_HAS_LOS)
     && self:ZBWepSys_HasShootSched() then
 
 

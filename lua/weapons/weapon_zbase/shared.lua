@@ -95,7 +95,15 @@ SWEP.Primary.TakeAmmoPerShot = 1 -- Ammo to take for each shot
 SWEP.Primary.NumShots = 1 -- Number of bullets per shot
 SWEP.Primary.ShellEject = false -- Set to the name of an attachment to enable shell ejection
 SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Effects
+SWEP.Primary.TracerName = "Tracer" -- The tracer effect https://wiki.facepunch.com/gmod/Effects
+SWEP.Primary.TracerChance = 2 -- 1 / x
 
+
+-- 1 - Regular muzzleflash
+-- 5 - Combine muzzleflash
+-- 7 - Regular muzzle but bigger
+SWEP.Primary.MuzzleFlashFlags = 1
+SWEP.Primary.MuzzleFlash = true -- Should it have a muzzleflash?
 
 
 --[[
