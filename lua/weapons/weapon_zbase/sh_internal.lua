@@ -10,6 +10,7 @@ AddCSLuaFile()
 
 
 SWEP.IsZBaseWeapon = true
+SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
 
 --[[
@@ -97,6 +98,9 @@ function SWEP:PrimaryAttack()
 		self:EmitSound(self.PrimaryShootSound)
 
 	end
+
+
+	print(self:Clip1(), self.Primary.DefaultClip, self.ClipSize, self:GetMaxClip1())
 
 end
 
