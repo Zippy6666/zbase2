@@ -116,6 +116,9 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.NoWeapon_Scared = false -- Should it run away from the enemy if it doesn't have a weapon?
 
 
+NPC.MeleeWeaponAnimations = {ACT_MELEE_ATTACK1} -- Animations to use when attacking with a melee weapon
+
+
 --[[
 ==================================================================================================
                                            BLOOD
@@ -544,6 +547,14 @@ function NPC:MeleeAnimation()
     self:PlayAnimation(table.Random(self.MeleeAttackAnimations), self.MeleeAttackFaceEnemy, {
         speedMult=self.MeleeAttackAnimationSpeed,
         turnSpeed=self.MeleeAttackTurnSpeed,
+        noTransitions = true,
+    })
+end
+
+
+    -- Animation code for melee weapons
+function NPC:Weapon_MeleeAnim()
+    self:PlayAnimation(table.Random(self.MeleeWeaponAnimations), true,  {
         noTransitions = true,
     })
 end

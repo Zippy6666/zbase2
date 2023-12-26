@@ -8,7 +8,6 @@ include("sh_internal.lua")
 	-- SWEP.IsZBaseWeapon = true
 
 
-
 --[[
 ==================================================================================================
                                            GENERAL
@@ -69,7 +68,7 @@ SWEP.UseHands = true
 
 
 SWEP.DisableDuplicator = false -- Disable the ability for players to duplicate this SWEP
-SWEP.ScriptedEntityType =  "weapon" -- Sets the spawnmenu content icon type for the entity, used by spawnmenu in the Sandbox-derived gamemodes. See spawnmenu.AddContentType for more information.
+SWEP.ScriptedEntityType =  "weapon" -- Sets the spawnmenu content icon type for the entity, used by spawnmenu in the Sandbox-derived gamemodes.
 
 
 SWEP.m_bPlayPickupSound = true -- If set to false, the weapon will not play the weapon pick up sound when picked up.
@@ -127,6 +126,7 @@ SWEP.NPCBulletSpreadMult = 1 -- Higher number = worse accuracy
 SWEP.NPCReloadSound = "" -- Sound when the NPC reloads the gun
 SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number with this weapon
 SWEP.NPCCanBePickedUp = true -- Can NPCs pick up this weapon?
+SWEP.NPCIsMeleeWep = false -- Should the NPC treat the weapon as a melee weapon?
 
 
 -- https://wiki.facepunch.com/gmod/Hold_Types
@@ -251,7 +251,7 @@ if CLIENT then
 		-- Return true to disable default
 	function SWEP:CustomDrawWorldModel( flags )
 	end
-
+	
 
 		-- Called when we are about to draw the translucent world model.
 		-- Return true to disable default

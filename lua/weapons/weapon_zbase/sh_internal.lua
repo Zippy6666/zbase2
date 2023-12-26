@@ -68,7 +68,7 @@ function SWEP:PrimaryAttack()
 
 		-- idk xd
 
-	elseif own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack then
+	elseif own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack && !self.NPCIsMeleeWep then
 
 
 		local bullet = {
@@ -304,7 +304,11 @@ end
 
 	-- This hook is for NPCs, you return what they should try to do with it.
 function SWEP:GetCapabilities()
-	return bit.bor( CAP_WEAPON_RANGE_ATTACK1, CAP_INNATE_RANGE_ATTACK1 )
+	if self.NPCIsMeleeWep then
+		return bit.bor( CAP_WEAPON_MELEE_ATTACK1, CAP_INNATE_MELEE_ATTACK1 )
+	else
+		return bit.bor( CAP_WEAPON_RANGE_ATTACK1, CAP_INNATE_RANGE_ATTACK1 )
+	end
 end
 
 

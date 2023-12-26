@@ -475,23 +475,9 @@ function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
     zbasewep:SetClip1( zbasewep.Primary.DefaultClip )
 
 
-    -- local SetClip = zbasewep.SetClip
-    -- zbasewep.DoingZBaseSetClip = false
-    -- zbasewep.SetClip1 = function( amt )
-
-    --     print(amt, "IM GAE")
-
-    --     if !zbasewep.DoingZBaseSetClip then
-    --         return
-    --     end
-
-    --     return SetClip( self, amt )
-
-    -- end
-
-
     zbasewep.IsEngineClone = true
     zbasewep.EngineCloneMaxClip = zbasewep.Primary.DefaultClip
+    zbasewep.EngineCloneClass = engineClass
 end
 
 
@@ -587,16 +573,30 @@ function NPC:ZBWepSys_FireWeaponThink()
         if self:IsMoving() then
             self:SetActivityIfAvailable({ACT_WALK_AIM}, self.SetMovementActivity)
         else
-            -- self:PlayAnimation( true, {noTransitions=true})
             self:SetActivityIfAvailable({self:Weapon_TranslateActivity(ACT_RANGE_ATTACK1)}, self.ResetIdealActivity)
         end
 
         self:ZBWepSys_Shoot()
 
+    end
 
-    elseif self:GetActivity()==ACT_RANGE_ATTACK1 then
+end
 
-        self:SetIdealActivity(ACT_IDLE)
+
+function NPC:ZBWepSys_MeleeThink()
+
+    local ene = self:GetEnemy()
+
+    if IsValid(ene) then
+
+        if !self.DoingPlayAnim && self:ZBaseDist(ene, {within=ZBaseRoughRadius(ene)}) then
+            self:Weapon_MeleeAnim()
+        end
+    
+        if !self:IsMoving() && !self:IsCurrentSchedule(SCHED_TARGET_CHASE) then
+            self:SetTarget(ene)
+            self:SetSchedule(SCHED_TARGET_CHASE)
+        end
 
     end
 
@@ -622,7 +622,18 @@ function NPC:ZBWepSys_Think()
 
 
     if Weapon.IsZBaseWeapon then
-        self:ZBWepSys_FireWeaponThink()
+
+
+        if Weapon.NPCIsMeleeWep then
+
+            self:ZBWepSys_MeleeThink()
+
+        else
+    
+            self:ZBWepSys_FireWeaponThink()
+
+        end
+
     end
 
 end
@@ -762,6 +773,7 @@ end
 
 function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,faceSpeed,loop,onFinishFunc,isGest,isTransition,noTransitions)
     if GetConVar("ai_disabled"):GetBool() then return end
+    if !anim then return end
 
 
     -- Do anim as gesture if it is one --
@@ -1824,6 +1836,7 @@ end
 
 function NPCB.MeleeAttack:ShouldDoBehaviour( self )
     if !self.BaseMeleeAttack then return false end
+    if self:GetActiveWeapon().NPCIsMeleeWep then return false end
 
 
     local ene = self:GetEnemy()
@@ -2865,15 +2878,11 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     self:CustomOnDeath( dmg, hit_gr, rag )
 
 
-    -- -- Weapon stuff
-    -- if IsValid(self.ZBWepSys_Decoy) then
-    --     self.ZBWepSys_Decoy:Remove()
-    -- end
-
-    -- if self.ZBWepSys_ActiveWeaponClass then
-    --     -- Drop weapon
-    --     self:Give(self.ZBWepSys_ActiveWeaponClass)
-    -- end
+    local wep = self:GetActiveWeapon()
+    if IsValid(wep) && wep.EngineCloneClass then
+        -- Drop weapon
+        self:Give(wep.EngineCloneClass)
+    end
 
 
     self:SetShouldServerRagdoll(false)
