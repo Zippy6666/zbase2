@@ -495,7 +495,7 @@ end
 
     -- Animation code
 function NPC:FlinchAnimation( anim )
-    self:PlayAnimation(anim, false, {
+    return self:PlayAnimation(anim, false, {
         speedMult=self.FlinchAnimationSpeed,
         isGesture=self.FlinchIsGesture,
         face = false,
@@ -544,7 +544,7 @@ end
 
     -- Animation code
 function NPC:MeleeAnimation()
-    self:PlayAnimation(table.Random(self.MeleeAttackAnimations), self.MeleeAttackFaceEnemy, {
+    return self:PlayAnimation(table.Random(self.MeleeAttackAnimations), self.MeleeAttackFaceEnemy, {
         speedMult=self.MeleeAttackAnimationSpeed,
         turnSpeed=self.MeleeAttackTurnSpeed,
         noTransitions = true,
@@ -554,7 +554,7 @@ end
 
     -- Animation code for melee weapons
 function NPC:Weapon_MeleeAnim()
-    self:PlayAnimation(table.Random(self.MeleeWeaponAnimations), true,  {
+    return self:PlayAnimation(table.Random(self.MeleeWeaponAnimations), true,  {
         noTransitions = true,
     })
 end
@@ -635,7 +635,7 @@ end
 
     -- Animation code
 function NPC:RangeAttackAnimation()
-    self:PlayAnimation(table.Random(self.RangeAttackAnimations), false, {
+    return self:PlayAnimation(table.Random(self.RangeAttackAnimations), false, {
         speedMult=self.RangeAttackAnimationSpeed,
         noTransitions = true,
     })
@@ -667,7 +667,7 @@ end
 
     -- Animation code
 function NPC:GrenadeAnimation()
-    self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true, {noTransitions = true})
+    return self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true, {noTransitions = true})
 end
 
 
@@ -894,7 +894,7 @@ end
 
     -- Death animation code
 function NPC:DeathAnimation_Animation()
-    self:PlayAnimation(table.Random(self.DeathAnimations), false, {
+    return self:PlayAnimation(table.Random(self.DeathAnimations), false, {
         speedMult=self.DeathAnimationSpeed,
         face=false,
         duration=self.DeathAnimationDuration,
