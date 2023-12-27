@@ -100,6 +100,7 @@ end
     -- Changes a category's icon from that stupid blue monkey to whatever you like
     -- Example:
     -- ZBaseSetCategoryIcon( "Combine", "icon16/female.png" )
+    -- You probably want to run this in a hook like initialize
     -- Feminist combine xddddd
 function ZBaseSetCategoryIcon( category, path )
     if SERVER then return end
