@@ -24,6 +24,7 @@ NPC.ZBaseStartFaction = "ally"
 
 NPC.BaseMeleeAttack = true
 NPC.MeleeAttackAnimations = {"meleeattack01"}
+NPC.MeleeWeaponAnimations = {"swing"} -- Animations to use when attacking with a melee weapon
 NPC.MeleeAttackAnimationSpeed = 1
 NPC.MeleeDamage_Delay = 0.5 -- Time until the damage strikes
 

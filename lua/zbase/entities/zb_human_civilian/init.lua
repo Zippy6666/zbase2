@@ -19,6 +19,7 @@ NPC.CanSecondaryAttack = false -- Can use weapon secondary attacks
 
 NPC.BaseMeleeAttack = true
 NPC.MeleeAttackAnimations = {"swing"}
+NPC.MeleeWeaponAnimations = {"swing"} -- Animations to use when attacking with a melee weapon
 NPC.MeleeAttackAnimationSpeed = 1
 NPC.MeleeDamage_Delay = 0.5 -- Time until the damage strikes
 

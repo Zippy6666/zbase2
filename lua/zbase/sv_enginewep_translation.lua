@@ -146,7 +146,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCBulletSpreadMult = 0.25, 
         NPCReloadSound = "Weapon_Crossbow.BoltElectrify", 
         NPCShootDistanceMult = 1,
-        NPCHoldType =  "ar2" -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
 
@@ -246,6 +246,11 @@ ZBase_EngineWeapon_Attributes = {
     ["weapon_stunstick"] = {
         NPCIsMeleeWep = true,
         NPCHoldType =  "passive", -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCMeleeWep_Damage = {10, 20}, -- Melee weapon damage {min, max}
+        NPCMeleeWep_DamageType = DMG_SHOCK, -- Melee weapon damage type
+        NPCMeleeWep_HitSound = "Weapon_StunStick.Melee_Hit", -- Sound when the melee weapon hits an entity
+        NPCMeleeWep_DamageAngle = 90, -- Damage angle (180 = everything in front of the NPC is damaged)
+        NPCMeleeWep_DamageDist = 100, -- Melee weapon damage reach distance
     },
 
 
