@@ -385,33 +385,53 @@ local function UpdateLiveNPCs()
 end
 
 
+-- Idk bout this tbh
+-- help
 local function NPCsInherit()
     for cls, t in pairs(ZBaseNPCs) do
-        local function RecursiveInherit( inherit_class )
-            if !ZBaseNPCs[inherit_class] then return end -- Tried inheriting from nonexistant npc
-
-            for k, v in pairs(ZBaseNPCs[inherit_class]) do
-                if t[k] == nil then 
-
-                    t[k] = istable(v) && table.Copy(v) or v
-                end
-            end
-
-            local new_inherit_class = ZBaseNPCs[inherit_class].Inherit
-            if !(new_inherit_class == "npc_zbase" && inherit_class == "npc_zbase") then
-                RecursiveInherit( new_inherit_class )
-            end
-        end
-        RecursiveInherit( t.Inherit )
 
 
         if SERVER then
+            if !t.Behaviours then t.Behaviours = {} end
+
             local path = "zbase/entities/"..cls
             local bh = path.."/behaviour.lua"
             if file.Exists(bh, "LUA") then
                 include(bh)
             end
         end
+
+
+        local function RecursiveInherit( inherit_class )
+
+            if !ZBaseNPCs[inherit_class] then return end -- Tried inheriting from nonexistant npc
+
+
+            for k, v in pairs(ZBaseNPCs[inherit_class]) do
+                if t[k] == nil then
+                    t[k] = istable(v) && table.Copy(v) or v
+                elseif istable(v) && istable(t[k]) then
+                    table.Inherit(t[k], v)
+                    t[k].BaseClass = nil -- lol fuk u
+                    PrintTable(t[k])
+                end
+            end
+
+
+            local new_inherit_class = ZBaseNPCs[inherit_class].Inherit
+            if !(new_inherit_class == "npc_zbase" && inherit_class == "npc_zbase") then
+                RecursiveInherit( new_inherit_class )
+            end
+
+        end
+
+
+        RecursiveInherit( t.Inherit )
+
+
+
+
+
     end
 end
 
