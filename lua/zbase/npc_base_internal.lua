@@ -33,12 +33,14 @@ local ReloadActs = {
 
 function NPC:BeforeSpawn( NPCData )
 
+    
     self.AllowedCustomEScheds = {}
     self.ProhibitCustomEScheds = false
 
 
-    self:CapabilitiesClear()
-    self:InitCap()
+
+    self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Otherwise it might not spawn with a weapon
+    
 
 
     self.BeforeSpawnDone = true
@@ -142,7 +144,8 @@ function NPC:ZBaseInit()
         
 
             -- Set specified internal variables (again just to be sure)
-            self:InitSaveValues()
+            self:CapabilitiesClear()
+            self:InitCap()
         
 
             -- Capability shit

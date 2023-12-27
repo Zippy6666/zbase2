@@ -1,4 +1,5 @@
 >>> TODO <<<
+- Finish d3 mfs
 - ZBase replace default npcs (hijack spawn command? is it nessecary before release?)
 - Clean up code, make sure everything works right, no dmginfo storage, no stop movement for aerial mfs when doing anim
 
