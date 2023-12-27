@@ -460,32 +460,39 @@ function NPC:ZBWepSys_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, is
     -- Original -> Fallback -> "smg" -> "normal"
 
 
-    if !HoldTypeActCheck[startHoldT] or self:SelectWeightedSequence(HoldTypeActCheck[startHoldT]) == -1 then
+    if !isFail && (!HoldTypeActCheck[startHoldT] or self:SelectWeightedSequence(HoldTypeActCheck[startHoldT]) == -1) then
 
-        print(startHoldT, "ain't it...")
+        -- Doesn't support this hold type
+
+        -- print(startHoldT, "ain't it...")
 
 
         if lastFallBack then
+
+            -- "normal"
             self:ZBWepSys_SetHoldType( wep, "normal", false, false, true )
             return
-        end
 
+        elseif isFallBack then
 
-
-        if isFallBack then
+            -- "smg"
             self:ZBWepSys_SetHoldType( wep, "smg", false, true )
             return
+
+        else
+
+            -- Fallback
+            self:ZBWepSys_SetHoldType( wep, HoldTypeFallback[startHoldT], true )
+            return
+
         end
 
-
-        self:ZBWepSys_SetHoldType( wep, HoldTypeFallback[startHoldT], true )
-        return
 
     end
 
 
     wep:SetHoldType(startHoldT)
-    print(startHoldT, "it is")
+    -- print(startHoldT, "it is")
 
 end
 

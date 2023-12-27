@@ -402,10 +402,27 @@ function SWEP:TranslateActivity( act )
 
 
 	-- ZBase
-	if own.ZBWepSys_ActivityTranslate && own.ZBWepSys_ActivityTranslate[act] then
-		return own.ZBWepSys_ActivityTranslate[act]
-	end
+	if own.IsZBaseNPC then
 
+		
+		if self:SelectWeightedSequence(act) == -1 then
+
+			-- Temporary fix for combines, might do advanced system later
+			if act==ACT_WALK_PISTOL then
+				return ACT_WALK_AIM_RIFLE
+			elseif act==ACT_RUN_PISTOL then
+				return ACT_RUN_AIM_RIFLE
+			end
+
+		end
+
+	
+
+		if own.ZBWepSys_ActivityTranslate && own.ZBWepSys_ActivityTranslate[act] then
+			return own.ZBWepSys_ActivityTranslate[act]
+		end
+
+	end
 
 
 	-- Custom

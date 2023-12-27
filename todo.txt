@@ -1,7 +1,5 @@
 >>> TODO <<<
-- Translation stuff, holdtype, no tpose for combines, etc
-- Finish d3 shit
-- ZBase replace default npcs (hijack spawn command?)
+- ZBase replace default npcs (hijack spawn command? is it nessecary before release?)
 - Clean up code, make sure everything works right, no dmginfo storage, no stop movement for aerial mfs when doing anim
 
 
