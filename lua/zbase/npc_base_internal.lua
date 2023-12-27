@@ -630,11 +630,16 @@ end
 
 
 function NPC:ZBWepSys_Shoot()
+    
+    if self:GetActiveWeapon():Clip1() > 0 then
 
-    self.ZBWepSys_AllowShoot = true
-    self:GetActiveWeapon():PrimaryAttack()
-    self.ZBWepSys_AllowShoot = false
+        self.ZBWepSys_AllowShoot = true
+        self:GetActiveWeapon():PrimaryAttack()
+        self.ZBWepSys_AllowShoot = false
 
+    end
+
+    
 
     self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
 
@@ -671,14 +676,25 @@ function NPC:ZBWepSys_FireWeaponThink()
 
     if self:ZBWepSys_ShouldFireWeapon() then
 
-
         if self:IsMoving() then
+
             self:SetActivityIfAvailable({ACT_WALK_AIM}, self.SetMovementActivity)
+
         else
-            self:SetActivityIfAvailable({self:Weapon_TranslateActivity(ACT_RANGE_ATTACK1)}, self.ResetIdealActivity)
+
+
+            self.LastStandingShootAnim = self:Weapon_TranslateActivity(ACT_RANGE_ATTACK1)
+            self:SetActivityIfAvailable({self.LastStandingShootAnim}, self.ResetIdealActivity)
+            
+
         end
 
+
         self:ZBWepSys_Shoot()
+    
+    -- elseif string.find( self:GetSequenceActivityName(self:GetSequence()), "RANGE") then
+
+        -- self:SetActivity(ACT_IDLE)
 
     end
 
@@ -1357,29 +1373,6 @@ function NPC:NewActivityDetected( act )
     local ene = self:GetEnemy()
 
 
-    -- Reload weapon sounds:
-    local wep = self:GetActiveWeapon()
-    if ReloadActs[act] && IsValid(wep) then
-
-        if wep.IsZBaseWeapon then
-
-            if wep.NPCReloadSound != "" then
-                wep:EmitSound(wep.NPCReloadSound)
-            end
-
-
-            self.DoneReloadActSinceSched = true
-
-        end
-
-
-        if math.random(1, self.OnReloadSound_Chance) == 1 then
-            self:EmitSound_Uninterupted(self.OnReloadSounds)
-        end
-
-    end
-
-
 
     if IsValid(ene) && RangeAttackActs[act] && ene.IsZBaseNPC then
         ene:RangeThreatened(self)
@@ -1393,7 +1386,34 @@ end
 
 
 function NPC:NewSequenceDetected( seq, seqName )
+
+    if string.find(self:GetSequenceActivityName(seq), "RELOAD") then
+
+        
+        local wep = self:GetActiveWeapon()
+
+
+        -- Reload weapon sounds:
+        if IsValid(wep) then
+
+            if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
+
+                wep:EmitSound(wep.NPCReloadSound)
+
+            end
+
+
+            if math.random(1, self.OnReloadSound_Chance) == 1 then
+                self:EmitSound_Uninterupted(self.OnReloadSounds)
+            end
+
+        end
+
+    end
+
+    
     self:CustomNewSequenceDetected( seq, seqName )
+
 end
 
 
@@ -1401,10 +1421,9 @@ function NPC:NewESchedDetected( sched, schedName )
 
     -- Shit reload workaround
     local wep = self:GetActiveWeapon()
-    if wep.IsEngineClone && string.find(self.ZBaseLastESchedName, "RELOAD") && self.DoneReloadActSinceSched then
+    if wep.IsEngineClone && string.find(self.ZBaseLastESchedName, "RELOAD") then
 
         wep:SetClip1( wep.EngineCloneMaxClip )
-        self.DoneReloadActSinceSched = false
 
     end
 

@@ -132,8 +132,8 @@ function SWEP:ShootEffects()
 
 
 	local modelname = self:GetNWString("ZBaseNPCWorldModel", nil)
-	local CustomModel = modelname!=nil
-	local EffectEnt = modelname && ents.Create("base_gmodentity") or self
+	local CustomModel = modelname!=nil && modelname!=""
+	local EffectEnt = CustomModel && ents.Create("base_gmodentity") or self
 	local own = self:GetOwner()
 
 
@@ -165,7 +165,7 @@ function SWEP:ShootEffects()
 			local effectdata = EffectData()
 			effectdata:SetEntity(EffectEnt)
 			effectdata:SetOrigin(att.Pos)
-			effectdata:SetAngles(att.Ang)
+			effectdata:SetAngles(att.Ang+self.Primary.ShellAngOffset)
 			util.Effect( self.Primary.ShellType, effectdata, true, true )
 		end
 	
