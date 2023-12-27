@@ -1,6 +1,9 @@
 local NPC = ZBaseNPCs["npc_zbase"]
 
 
+    // These are functions that you can call, don't change them
+
+
 --[[
 ==================================================================================================
                                            ANIMATION
@@ -19,6 +22,7 @@ local NPC = ZBaseNPCs["npc_zbase"]
         -- extraData.faceSpeed - Face turn speed
         -- extraData.noTransitions - If true, it won't do any transition animations
         -- extraData.forceWalkframes - Forces the NPC to move when doing the animation, you can try this if it doesn't move when you want it to
+    -- Returns the provided 'extraData' table or an empty table if none was provided
 function NPC:PlayAnimation( anim, faceEnemy, extraData )
     extraData = extraData or {}
 
@@ -37,17 +41,7 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop, nil, extraData.isGesture, nil, extraData.noTransitions, extraData.forceWalkframes)
 
 
-    -- if extraData.duration && extraData.speedMult then
-    --     return extraData.duration/extraData.speedMult
-    -- end
-    
-    -- if !extraData.duration && extraData.speedMult then
-    --     return self:SequenceDuration()/extraData.speedMult
-    -- end
-
-    -- if extraData.duration && !extraData.speedMult then
-    --     return extraData.duration
-    -- end
+    return extraData or {}
 end
 
 
@@ -154,27 +148,37 @@ end
     -- Triggers the base range attack
 function NPC:RangeAttack()
         -- Animation --
+    local animData = {}
+
+
     if !table.IsEmpty(self.RangeAttackAnimations) then
-        self:RangeAttackAnimation()
+
+        animData = self:RangeAttackAnimation()
+
     end
     -----------------------------------------------------------------=#
 
 
         -- Projectile --
     if self.RangeProjectile_Delay then
+
         timer.Simple(self.RangeProjectile_Delay, function()
+
             if !IsValid(self) then return end
             if self:GetNPCState()==NPC_STATE_DEAD then return end
 
             self:RangeAttackProjectile()
+
         end)
+
     end
     -----------------------------------------------------------------=#
 
 
     -- Special face code
     if !table.IsEmpty(self.RangeAttackAnimations) then
-        self.TimeUntilStopFace = CurTime()+self:SequenceDuration() + 0.25
+
+        self.TimeUntilStopFace = CurTime() + (animData.duration or (self:SequenceDuration() + 0.25)) / (animData.speedMult or 1)
 
 
         local TimerName = "ZBaseFace_Range"..self:EntIndex()
@@ -190,6 +194,7 @@ function NPC:RangeAttack()
 
             self:Face(self:RangeAttack_IdealFacePos(), nil, self.RangeAttackTurnSpeed)
         end)
+
     end
     -----------------------------------------------------------------=#
 
