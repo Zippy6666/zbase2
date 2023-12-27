@@ -90,12 +90,19 @@ SWEP.Automatic = true -- If true makes the weapon shoot automatically as long as
 SWEP.PrimaryShootSound = "Weapon_SMG1.NPC_Single" -- Shoot sound
 SWEP.PrimarySpread = 0.02 -- Spread
 SWEP.PrimaryDamage = 3 -- Damage
+
+
 SWEP.Primary.DefaultClip = 30 -- Clipsize for NPCs
 SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 SWEP.Primary.TakeAmmoPerShot = 1 -- Ammo to take for each shot
 SWEP.Primary.NumShots = 1 -- Number of bullets per shot
+
+
 SWEP.Primary.ShellEject = false -- Set to the name of an attachment to enable shell ejection
 SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Effects
+SWEP.Primary.ShellAngOffset = Angle(0, 0, 0) -- Change the direction of the shell eject direction by this angle
+
+
 SWEP.Primary.TracerName = "Tracer" -- The tracer effect https://wiki.facepunch.com/gmod/Effects
 SWEP.Primary.TracerChance = 2 -- 1 / x
 
