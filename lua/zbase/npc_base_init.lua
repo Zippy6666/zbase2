@@ -117,7 +117,7 @@ NPC.NoWeapon_Scared = false -- Should it run away from the enemy if it doesn't h
 
 
 NPC.MeleeWeaponAnimations = {ACT_MELEE_ATTACK1} -- Animations to use when attacking with a melee weapon
-
+NPC.MeleeWeaponAnimations_TimeUntilDamage = 0.5 -- Time until the damage from melee weapons hit
 
 --[[
 ==================================================================================================

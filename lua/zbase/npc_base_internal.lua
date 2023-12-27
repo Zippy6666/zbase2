@@ -36,6 +36,11 @@ function NPC:BeforeSpawn( NPCData )
     self.AllowedCustomEScheds = {}
     self.ProhibitCustomEScheds = false
 
+
+    self:CapabilitiesClear()
+    self:InitCap()
+
+
     self.BeforeSpawnDone = true
 
 end
@@ -99,9 +104,6 @@ function NPC:ZBaseInit()
     end
 
 
-    self:InitCap()
-
-
     -- Set specified internal variables
     for k, v in pairs(self:GetTable()) do
         if string.StartWith(k, "m_") then
@@ -128,8 +130,8 @@ function NPC:ZBaseInit()
     self:CallOnRemove("ZBaseOnRemove", function() self:OnRemove() end)
 
 
-    -- Squad name
-    -- self:SetKeyValue( "squadname", "zbase_"..Class )
+    -- Capability shit
+    self:InitCap()
 
 
     -- Weapon system
@@ -160,10 +162,6 @@ function NPC:InitCap()
     
     -- https://wiki.facepunch.com/gmod/Enums/CAP
 
-
-    -- Remove all
-    self:CapabilitiesClear()
-
     
     -- Basics
     self:CapabilitiesAdd(CAP_SKIP_NAV_GROUND_CHECK)
@@ -191,12 +189,6 @@ function NPC:InitCap()
     if self.CanJump && self:SelectWeightedSequence(ACT_JUMP) != -1 then
         self:CapabilitiesAdd(CAP_MOVE_JUMP)
     end
-
-
-    -- Melee attack 1
-    -- if self:SelectWeightedSequence(ACT_MELEE_ATTACK1) != -1 then
-    --     self:CapabilitiesAdd(CAP_INNATE_MELEE_ATTACK1)
-    -- end
 
 
     -- Aim pose parameters
@@ -417,6 +409,37 @@ end
 --]]
 
 
+-- https://wiki.facepunch.com/gmod/Hold_Types
+local HoldTypeFallback = {
+    ["pistol"] = "revolver",	-- One hand grasp used for pistols
+    ["smg"] = "ar2",	-- Used for two-handed weapons such as the SMG1 ( rifles with a grip )
+    ["grenade"] = "passive",	-- Used for grenade, similar to melee
+    ["ar2"] = "shotgun",	-- Used for two-handed weapons such as the AR2 ( rifles without a grip )
+    ["shotgun"] = "ar2",	-- Used for weapons such as shotguns
+    ["rpg"] = "ar2",	-- Used for weapons that rest on your shoulder, such as RPG
+    ["physgun"] = "shotgun",	-- Used for the gravity and physics guns
+    ["crossbow"] = "shotgun",	-- Used for weapons such as crossbows, very similar to shotgun
+    ["melee"] = "passive",	-- Hand raised above head, used for crowbar
+    ["slam"] = "passive",	-- Used for weapons such as SLAM/explosives/c4
+    ["fist"] = "passive",	-- Hands up punching hold type
+    ["melee2"] = "passive",	-- Two-handed sword
+    ["knife"] = "passive",	-- Bent over stabbing hold type
+    ["duel"] = "pistol",	-- Dual pistols hold type
+    ["camera"] = "revolver",	-- Holds the weapon in front of your face as a camera
+    ["magic"] = "passive", -- Use your power of will to move objects. One hand in front of you, one hand to your head
+    ["revolver"] = "pistol", -- wo hand pistol holdtype, revolver reload animation.
+}
+
+
+
+local HoldTypeActCheck = {
+    ["pistol"] = ACT_RANGE_ATTACK_PISTOL,
+    ["smg"] = ACT_RANGE_ATTACK_SMG1,
+    ["ar2"] = ACT_RANGE_ATTACK_AR2,
+    ["shotgun"] =ACT_RANGE_ATTACK_SHOTGUN,
+    ["rpg"] = ACT_RANGE_ATTACK_RPG,
+    ["passive"] = ACT_IDLE,
+}
 
 
 
@@ -426,6 +449,43 @@ function NPC:ZBWepSys_Init()
     -- self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
 
     self.ZBWepSys_Inventory = {}
+
+end
+
+
+function NPC:ZBWepSys_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFail )
+
+    -- Set hold type, use fallbacks if npc does not have supporting anims
+    -- Priority:
+    -- Original -> Fallback -> "smg" -> "normal"
+
+
+    if !HoldTypeActCheck[startHoldT] or self:SelectWeightedSequence(HoldTypeActCheck[startHoldT]) == -1 then
+
+        print(startHoldT, "ain't it...")
+
+
+        if lastFallBack then
+            self:ZBWepSys_SetHoldType( wep, "normal", false, false, true )
+            return
+        end
+
+
+
+        if isFallBack then
+            self:ZBWepSys_SetHoldType( wep, "smg", false, true )
+            return
+        end
+
+
+        self:ZBWepSys_SetHoldType( wep, HoldTypeFallback[startHoldT], true )
+        return
+
+    end
+
+
+    wep:SetHoldType(startHoldT)
+    print(startHoldT, "it is")
 
 end
 
@@ -503,7 +563,9 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
         end
 
 
-        Weapon:SetHoldType(Weapon.NPCHoldType)
+        if Weapon.NPCHoldType then
+            self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
+        end
 
     end)
 
@@ -590,12 +652,25 @@ function NPC:ZBWepSys_MeleeThink()
     if IsValid(ene) then
 
         if !self.DoingPlayAnim && self:ZBaseDist(ene, {within=ZBaseRoughRadius(ene)}) then
+
             self:Weapon_MeleeAnim()
+
+            timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
+
+                if IsValid(self) then
+                    self:GetActiveWeapon():NPCMeleeWeaponDamage()
+                end
+            
+            end)
+
         end
     
+
         if !self:IsMoving() && !self:IsCurrentSchedule(SCHED_TARGET_CHASE) then
+
             self:SetTarget(ene)
             self:SetSchedule(SCHED_TARGET_CHASE)
+
         end
 
     end
@@ -1160,14 +1235,6 @@ function NPC:AITick_NonScripted()
     if self.EnemyVisible && !self:ShouldChase() && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) && !self:CurrentlyFollowingPlayer() then
         self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
     end
-
-
-    -- Run up to enemy to use melee weapons
-    -- if self:HasMeleeWeapon() && self:ShouldChase()
-    -- && (self:IsCurrentSchedule(SCHED_ESTABLISH_LINE_OF_FIRE)
-    -- or self:IsCurrentSchedule(SCHED_MOVE_TO_WEAPON_RANGE)) then
-    --     self:SetSchedule(SCHED_CHASE_ENEMY)
-    -- end
 end
 
 

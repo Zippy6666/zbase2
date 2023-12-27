@@ -126,7 +126,6 @@ SWEP.NPCBulletSpreadMult = 1 -- Higher number = worse accuracy
 SWEP.NPCReloadSound = "" -- Sound when the NPC reloads the gun
 SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number with this weapon
 SWEP.NPCCanBePickedUp = true -- Can NPCs pick up this weapon?
-SWEP.NPCIsMeleeWep = false -- Should the NPC treat the weapon as a melee weapon?
 
 
 -- https://wiki.facepunch.com/gmod/Hold_Types
@@ -134,6 +133,21 @@ SWEP.NPCIsMeleeWep = false -- Should the NPC treat the weapon as a melee weapon?
 SWEP.NPCHoldType =  "smg"
 
 
+
+--[[
+==================================================================================================
+                                    NPC HANDLING: Melee weapon
+==================================================================================================
+--]]
+
+
+
+SWEP.NPCIsMeleeWep = false -- Should the NPC treat the weapon as a melee weapon?
+SWEP.NPCMeleeWep_Damage = {10, 10} -- Melee weapon damage {min, max}
+SWEP.NPCMeleeWep_DamageType = DMG_CLUB -- Melee weapon damage type
+SWEP.NPCMeleeWep_HitSound = "Flesh.BulletImpact" -- Sound when the melee weapon hits an entity
+SWEP.NPCMeleeWep_DamageAngle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
+SWEP.NPCMeleeWep_DamageDist = 100 -- Melee weapon damage reach distance
 
 
 --[[
@@ -170,6 +184,12 @@ end
 	-- Called when an NPC primary attacks
 	-- Return true to disable default
 function SWEP:NPCPrimaryAttack()
+end
+
+
+	-- Called when the weapon does its melee damage code
+function SWEP:OnNPCMeleeWeaponDamage( hurtEnts )
+	PrintTable(hurtEnts)
 end
 
 

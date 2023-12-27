@@ -314,6 +314,84 @@ end
 
 --[[
 ==================================================================================================
+                            NPC Stuff: Melee Weapon
+==================================================================================================
+--]]
+
+
+function SWEP:CanTakeMeleeWepDmg( ent )
+    local mtype = ent:GetMoveType()
+    return mtype == MOVETYPE_STEP -- NPC
+    or mtype == MOVETYPE_VPHYSICS -- Prop
+    or mtype == MOVETYPE_WALK -- Player
+end
+
+
+function SWEP:NPCMeleeWeaponDamage(dmgData)
+	local own = self:GetOwner()
+
+
+	if !IsValid(own) then return end
+
+
+    local ownerpos = own:WorldSpaceCenter()
+    local soundEmitted = false
+    local hurtEnts = {}
+
+
+    for _, ent in ipairs(ents.FindInSphere(ownerpos, self.NPCMeleeWep_DamageDist)) do
+        if ent == own then continue end
+        if own.GetNPCState && own:GetNPCState() == NPC_STATE_DEAD then continue end
+        if !own:Visible(ent) then continue end
+
+
+		local disp = own:Disposition(ent)
+        local entpos = ent:WorldSpaceCenter()
+        local undamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
+
+
+        -- Angle check
+        if self.NPCMeleeWep_DamageAngle != 360 then
+            local yawDiff = math.abs( own:WorldToLocalAngles( (entpos-ownerpos):Angle() ).Yaw )*2
+            if self.NPCMeleeWep_DamageAngle < yawDiff then continue end
+        end
+
+
+        if !self:CanTakeMeleeWepDmg(ent) then
+            continue
+        end
+
+
+        -- Damage
+        if !undamagable && disp != D_LI then
+            local dmg = DamageInfo()
+            dmg:SetAttacker(own)
+            dmg:SetInflictor(self)
+            dmg:SetDamage(ZBaseRndTblRange(self.NPCMeleeWep_Damage))
+            dmg:SetDamageType(self.NPCMeleeWep_DamageType)
+            ent:TakeDamageInfo(dmg)
+        end
+    
+
+        -- Sound
+        if !soundEmitted && disp != D_NU then
+            ent:EmitSound(self.NPCMeleeWep_HitSound)
+            soundEmitted = true
+        end
+
+        table.insert(hurtEnts, ent)
+    end
+
+
+	self:OnNPCMeleeWeaponDamage( hurtEnts )
+
+
+    return hurtEnts
+end
+
+
+--[[
+==================================================================================================
                             NPC Stuff: Activity Translate
 ==================================================================================================
 --]]
