@@ -47,6 +47,7 @@ end
 
 
 function NPC:ZBaseInit()
+    -- "Before spawn"
     if !self.BeforeSpawnDone then
         self:BeforeSpawn()
     end
@@ -80,35 +81,17 @@ function NPC:ZBaseInit()
     self.LastHitGroup = HITGROUP_GENERIC
     self.SchedDebug = GetConVar("developer"):GetBool() && ZBCVAR.ShowSched:GetBool()
     self.PlayerToFollow = NULL
-
-
-    -- Network shit
     self:SetNWBool("IsZBaseNPC", true)
     self:SetNWString("ZBaseName", self.Name)
 
 
-    -- FOV and sight dist
-    self:SetSaveValue("m_flFieldOfView", math.cos( (self.SightAngle*(math.pi/180))*0.5 ) )
-    self:SetMaxLookDistance(self.SightDistance)
-
-
-    -- Some calls based on attributes
-    self:SetCurrentWeaponProficiency(self.WeaponProficiency)
-    self:SetBloodColor(self.BloodColor)
+    -- Rendermode
     self:SetRenderMode(self.RenderMode)
 
 
     -- Submaterials
     for k, v in pairs(self.SubMaterials) do
         self:SetSubMaterial(k-1, v)
-    end
-
-
-    -- Set specified internal variables
-    for k, v in pairs(self:GetTable()) do
-        if string.StartWith(k, "m_") then
-            self:SetSaveValue(k, v)
-        end
     end
 
 
@@ -122,16 +105,51 @@ function NPC:ZBaseInit()
     end
 
 
-    -- Phys damage scale
-    self:Fire("physdamagescale", self.PhysDamageScale)
+    -- Set specified internal variables
+    self:InitSaveValues()
+
+
+    -- Tick delay to fix issues
+    timer.Simple(0, function()
+
+        self:SetBloodColor(self.BloodColor)
+        
+    end)
+
+
+    -- Longer delay to prevent overrides
+    timer.Simple(0.1, function()
+    
+        -- Weapon proficiency
+        self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+        
+
+        -- Some calls based on attributes
+        self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+        self:SetBloodColor(self.BloodColor)
+
+
+        -- FOV and sight dist
+        self:SetSaveValue("m_flFieldOfView", math.cos( (self.SightAngle*(math.pi/180))*0.5 ) )
+        self:SetMaxLookDistance(self.SightDistance)
+    
+
+        -- Phys damage scale
+        self:Fire("physdamagescale", self.PhysDamageScale)
+    
+
+        -- Set specified internal variables (again just to be sure)
+        self:InitSaveValues()
+    
+
+        -- Capability shit
+        self:InitCap()
+        
+    end)
 
 
     -- On remove
     self:CallOnRemove("ZBaseOnRemove", function() self:OnRemove() end)
-
-
-    -- Capability shit
-    self:InitCap()
 
 
     -- Weapon system
@@ -155,6 +173,17 @@ function NPC:ZBaseInit()
         self.ZBaseCurFunc = {}
         self:DebugMyFunctions()
     end
+end
+
+
+function NPC:InitSaveValues()
+
+    for k, v in pairs(self:GetTable()) do
+        if string.StartWith(k, "m_") then
+            self:SetSaveValue(k, v)
+        end
+    end
+
 end
 
 
