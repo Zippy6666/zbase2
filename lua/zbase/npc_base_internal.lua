@@ -112,39 +112,43 @@ function NPC:ZBaseInit()
     -- Tick delay to fix issues
     timer.Simple(0, function()
 
-        self:SetBloodColor(self.BloodColor)
-        
+        if IsValid(self) then
+            self:SetBloodColor(self.BloodColor)
+        end
+
     end)
 
 
     -- Longer delay to prevent overrides
     timer.Simple(0.1, function()
-    
-        -- Weapon proficiency
-        self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+
+        if IsValid(self) then
+            -- Weapon proficiency
+            self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+            
+
+            -- Some calls based on attributes
+            self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+            self:SetBloodColor(self.BloodColor)
+
+
+            -- FOV and sight dist
+            self:SetSaveValue("m_flFieldOfView", math.cos( (self.SightAngle*(math.pi/180))*0.5 ) )
+            self:SetMaxLookDistance(self.SightDistance)
         
 
-        -- Some calls based on attributes
-        self:SetCurrentWeaponProficiency(self.WeaponProficiency)
-        self:SetBloodColor(self.BloodColor)
-
-
-        -- FOV and sight dist
-        self:SetSaveValue("m_flFieldOfView", math.cos( (self.SightAngle*(math.pi/180))*0.5 ) )
-        self:SetMaxLookDistance(self.SightDistance)
-    
-
-        -- Phys damage scale
-        self:Fire("physdamagescale", self.PhysDamageScale)
-    
-
-        -- Set specified internal variables (again just to be sure)
-        self:InitSaveValues()
-    
-
-        -- Capability shit
-        self:InitCap()
+            -- Phys damage scale
+            self:Fire("physdamagescale", self.PhysDamageScale)
         
+
+            -- Set specified internal variables (again just to be sure)
+            self:InitSaveValues()
+        
+
+            -- Capability shit
+            self:InitCap()
+        end
+
     end)
 
 
