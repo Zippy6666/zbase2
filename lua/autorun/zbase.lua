@@ -1,5 +1,29 @@
 --[[
 ======================================================================================================================================================
+                                           WELCOME MESSAGE OR SOMETHING IDK
+======================================================================================================================================================
+--]]
+
+
+ZBaseInstalled = (
+
+ZBaseInstalled
+or MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
+or MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
+or MsgN("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
+or MsgN("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
+or MsgN("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
+or MsgN("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --") 
+or MsgN("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
+or MsgN("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
+or MsgN("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
+or true
+
+)
+
+
+--[[
+======================================================================================================================================================
                                            NETWORK
 ======================================================================================================================================================
 --]]
@@ -24,31 +48,11 @@ end
 if CLIENT then
 
     net.Receive("ZBaseError", function()
-        chat.AddText(Color(255, 0, 0), "[ZBase] Fatal error!")
-        chat.AddText(Color(255, 0, 0), "[ZBase] ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
+        chat.AddText(Color(255, 0, 0), "ZBase had a fatal error!")
+        chat.AddText(Color(255, 0, 0), "ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
     end)
 
 end
-
-
---[[
-======================================================================================================================================================
-                                           WELCOME MESSAGE OR SOMETHING IDK
-======================================================================================================================================================
---]]
-
-
-if !ZBaseInitialized then
-    MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
-    MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
-    MsgN("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
-    MsgN("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
-    MsgN("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
-    MsgN("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --") 
-    MsgN("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
-    MsgN("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
-    MsgN("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
-end   
 
 
 --[[
@@ -72,37 +76,6 @@ if SERVER && !string.StartsWith(BRANCH, "x86") && BRANCH != "dev" then
     return
 
 end
-
-
---[[
-======================================================================================================================================================
-                                           ZBASE_RELOAD
-======================================================================================================================================================
---]]
-
-
-if CLIENT then
-    net.Receive("ZBaseReloadClient", function()
-        include("autorun/zbase.lua")
-    end)
-end
-
-
-if SERVER then
-    net.Receive("ZBaseReloadServer", function( _, ply)
-        if !ply:IsSuperAdmin() then return end
-        concommand.Run(ply, "zbase_reload")
-    end)
-end
-
-
-concommand.Add("zbase_reload", function( ply )
-    if ply:IsSuperAdmin() then
-        include("autorun/zbase.lua")
-        net.Start("ZBaseReloadClient")
-        net.Broadcast()
-    end
-end)
 
 
 --[[
@@ -385,58 +358,64 @@ local function UpdateLiveNPCs()
 end
 
 
--- Idk bout this tbh
--- help
-local function NPCsInherit()
-    for cls, t in pairs(ZBaseNPCs) do
+
+local function NPCsInherit(NPCTablesToInheritFrom)
+
+    -- Keep da prints boye
 
 
-        if SERVER then
-            if !t.Behaviours then t.Behaviours = {} end
+    local New_NPCTablesToInheritFrom = {}
 
-            local path = "zbase/entities/"..cls
-            local bh = path.."/behaviour.lua"
-            if file.Exists(bh, "LUA") then
-                include(bh)
-            end
-        end
+    for CurInheritClass, CurInheritTable in pairs(NPCTablesToInheritFrom) do
+
+        -- MsgN("\n------------- CurInheritClass=", CurInheritClass, "-------------")
 
 
-        local function RecursiveInherit( inherit_class )
+        for NPCClass, NPCTable in pairs(ZBaseNPCs) do
 
-            if !ZBaseNPCs[inherit_class] then return end -- Tried inheriting from nonexistant npc
-
-
-            for k, v in pairs(ZBaseNPCs[inherit_class]) do
-                if t[k] == nil then
-                    t[k] = istable(v) && table.Copy(v) or v
-                elseif istable(v) && istable(t[k]) then
-                    table.Inherit(t[k], v)
-                    t[k].BaseClass = nil -- lol fuk u
-                    PrintTable(t[k])
-                end
-            end
+            if NPCClass == "npc_zbase" then continue end -- Don't do shit to the base
 
 
-            local new_inherit_class = ZBaseNPCs[inherit_class].Inherit
-            if !(new_inherit_class == "npc_zbase" && inherit_class == "npc_zbase") then
-                RecursiveInherit( new_inherit_class )
+            if NPCTable.Inherit == CurInheritClass then
+
+                -- MsgN(NPCClass, " inheriting from ", CurInheritClass, "...")
+
+
+                table.Inherit(NPCTable, CurInheritTable)
+                table.Inherit(NPCTable.Behaviours, CurInheritTable.Behaviours)
+
+                NPCTable.BaseClass = nil
+                NPCTable.Behaviours.BaseClass = nil
+
+
+                New_NPCTablesToInheritFrom[NPCClass] = NPCTable
+
             end
 
         end
 
 
-        RecursiveInherit( t.Inherit )
-
-
-
-
+        -- MsgN("---------------------------------------------------------\n")
 
     end
+
+
+    -- for InheritClass in pairs(New_NPCTablesToInheritFrom) do
+    --      MsgN(InheritClass, " has inherited from its parents, and can now be inherited from by other npc tables")
+    -- end
+
+
+    if !table.IsEmpty(New_NPCTablesToInheritFrom) then
+        NPCsInherit(New_NPCTablesToInheritFrom)
+    else
+        MsgN("ZBase npc inherit routine done!")
+    end
+
 end
 
 
 local function RegBase()
+
     ZBaseNPCs["npc_zbase"] = {}
     ZBaseNPCs["npc_zbase"].Behaviours = {}
     ZBaseNPCs["npc_zbase"].IsZBaseNPC = true
@@ -462,33 +441,55 @@ local function RegBase()
             end
         end
     end
+
 end
 
 
+
 local function NPCReg( name )
+
     if name != "npc_zbase" then
+
         local path = "zbase/entities/"..name.."/"
         local sh = path.."shared.lua"
         local cl = path.."cl_init.lua"
         local sv = path.."init.lua"
         
 
-        if file.Exists(sh, "LUA")
-        && (CLIENT or file.Exists(sv, "LUA")) then
+        if file.Exists(sh, "LUA") && (CLIENT or file.Exists(sv, "LUA")) then
+
             ZBaseNPCs[name] = {}
+            ZBaseNPCs[name].Behaviours = {}
+
 
             include(sh)
 
+
             if SERVER then
+
                 include(sv)
+
+    
+                local bh = path.."behaviour.lua"
+                if file.Exists(bh, "LUA") then
+                    include(bh)
+                end
+
             end
+        
+
+
+
 
             if file.Exists(cl, "LUA") && CLIENT then
                 include(cl)
             end
+
         end
     end
+
 end
+
 
 
 local function registerNPCs()
@@ -532,7 +533,7 @@ local function AddNPCsToSpawnMenu()
 
 
         -- Gender studies xd idk
-        if t.Class=="npc_citizen" && (t.Gender == ZBASE_MALE or t.Gender == ZBASE_FEMALE) then
+        if istable(ZBaseSpawnMenuTbl.SpawnFlagTbl) && t.Class=="npc_citizen" && (t.Gender == ZBASE_MALE or t.Gender == ZBASE_FEMALE) then
             table.insert(ZBaseSpawnMenuTbl.SpawnFlagTbl, t.Gender)
         end
 
@@ -543,33 +544,16 @@ end
 
 
 hook.Add("Initialize", "ZBASE", function()
-    NPCsInherit()
-    AddNPCsToSpawnMenu()
-    ZBaseInitialized = true
+
+    ZBaseInstalled = true
+
 end)
 
 
-if ZBaseInitialized then
-
-    IncludeFiles()
-
-    registerNPCs()
-    NPCsInherit()
-    AddNPCsToSpawnMenu()
-    UpdateLiveNPCs()
 
 
-    if CLIENT && ZBCVAR.ReloadSpawnMenu:GetBool() then
-        concommand.Run(LocalPlayer(), "spawnmenu_reload")
-    end
-
-
-    MsgN("ZBase Reloaded!")
-
-else
-
-    AddCSLuaFiles()
-    IncludeFiles()
-    registerNPCs()
-
-end
+AddCSLuaFiles()
+IncludeFiles()
+registerNPCs()
+NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
+AddNPCsToSpawnMenu()

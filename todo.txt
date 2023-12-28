@@ -11,6 +11,7 @@
 
 
 >>> rilis notes!!!!!!! <<<
+- test run from workshop (not legacy)
 - new public repo w copyright
 - Psychotic description for the funnies (use chatgpt)
 - Credit crunchy soap!!!!!!!!!!!!!
