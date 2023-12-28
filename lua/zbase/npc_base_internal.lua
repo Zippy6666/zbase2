@@ -32,16 +32,12 @@ local ReloadActs = {
 
 
 function NPC:BeforeSpawn( NPCData )
-
     
     self.AllowedCustomEScheds = {}
     self.ProhibitCustomEScheds = false
 
-
-
     self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Otherwise it might not spawn with a weapon
     
-
 
     self.BeforeSpawnDone = true
 
@@ -1342,10 +1338,13 @@ end
 
 
 function NPC:SetAllowedEScheds( escheds )
+
     self.ProhibitCustomEScheds = true
+
     for _, v in ipairs(escheds) do
         self.AllowedCustomEScheds[ZBaseESchedID(v)] = v
     end
+
 end
 
 

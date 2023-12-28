@@ -38,9 +38,11 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
 
             
             local zbaseClass = ent:GetKeyValues().parentname
-            local zbaseNPCTable = ZBaseNPCs[ zbaseClass ]
-            if zbaseNPCTable then
-                ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
+            local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
+
+            
+            if ZBaseNPCTable then
+                ZBaseInitialize(ent, ZBaseNPCTable, zbaseClass, false)
             end
         end)
 
@@ -687,11 +689,17 @@ end)
 
 -- ZBase init stuff when spawned from dupe
 duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
+
     local zbaseClass = data[1]
-    local zbaseNPCTable = ZBaseNPCs[ zbaseClass ]
-    if zbaseNPCTable then
-        ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
+    local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
+
+    if ZBaseNPCTable then
+
+        ent.ZBaseInitialized = false
+        ZBaseInitialize(ent, ZBaseNPCTable, zbaseClass, nil)
+
     end
+
 end)
 
 
