@@ -30,12 +30,18 @@ if SERVER then
     util.AddNetworkString("ZBaseListFactions")
     util.AddNetworkString("ZBase_GetFactionsFromServer")
     util.AddNetworkString("ZBaseError")
-    util.AddNetworkString("ZBaseReloadServer")
-    util.AddNetworkString("ZBaseReloadClient")
+    util.AddNetworkString("ZBaseClientReload")
+    util.AddNetworkString("ZBaseReload")
 
 
     net.Receive("ZBase_GetFactionsFromServer", function(_, ply)
         ZBaseListFactions(_, ply)
+    end)
+
+    net.Receive("ZBaseReload", function()
+
+        ZBase_RegisterHandler:NetworkedReload()
+
     end)
 
 end
@@ -46,11 +52,17 @@ if CLIENT then
     function ZBaseError()
         chat.AddText(Color(255, 0, 0), "ZBase had a fatal error!")
         chat.AddText(Color(255, 0, 0), "ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
-        LocalPlayer().ZBase_WrongBranch = true
     end
 
 
     net.Receive("ZBaseError", ZBaseError)
+
+
+    net.Receive("ZBaseClientReload", function()
+
+        ZBase_RegisterHandler:Reload()
+
+    end)
 
 end
 
@@ -228,7 +240,7 @@ sound.Add({
 --]]
 
 
-
+ZBase_RegisterHandler = {}
 ZBaseNPCs = {}
 ZBaseSpawnMenuNPCList = {}
 ZBaseEnhancementTable = {}
@@ -338,15 +350,22 @@ local function AddCSLuaFiles()
 end
 
 
+AddCSLuaFiles()
+IncludeFiles()
+
+
 --[[
 ======================================================================================================================================================
-                                           REGISTER THE BLOODY NPC BASE
-                                           ADD NPCS TO SPAWNMENU
+                                           REGISTER THE BLOODY BASE AND NPCS
+                                           ADD TO SPAWNMENU
 ======================================================================================================================================================
 --]]
 
 
-local function UpdateLiveNPCs()
+
+
+
+function ZBase_RegisterHandler:UpdateLiveNPCs()
     for _, npc in ipairs(ZBaseNPCInstances) do
         local MyUpdatedTable = ZBaseNPCs[npc.NPCName]
         local MyOldTable = npc:GetTable()
@@ -359,7 +378,7 @@ end
 
 
 
-local function NPCsInherit(NPCTablesToInheritFrom)
+function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
 
     -- Keep da prints boye
 
@@ -406,15 +425,13 @@ local function NPCsInherit(NPCTablesToInheritFrom)
 
 
     if !table.IsEmpty(New_NPCTablesToInheritFrom) then
-        NPCsInherit(New_NPCTablesToInheritFrom)
-    else
-        MsgN("ZBase npc inherit routine done!")
+        self:NPCsInherit(New_NPCTablesToInheritFrom)
     end
 
 end
 
 
-local function RegBase()
+function ZBase_RegisterHandler:RegBase()
 
     ZBaseNPCs["npc_zbase"] = {}
     ZBaseNPCs["npc_zbase"].Behaviours = {}
@@ -446,7 +463,7 @@ end
 
 
 
-local function NPCReg( name )
+function ZBase_RegisterHandler:NPCReg( name )
 
     if name != "npc_zbase" then
 
@@ -478,9 +495,6 @@ local function NPCReg( name )
             end
         
 
-
-
-
             if file.Exists(cl, "LUA") && CLIENT then
                 include(cl)
             end
@@ -492,19 +506,19 @@ end
 
 
 
-local function registerNPCs()
+function ZBase_RegisterHandler:RegNPCs()
     local _, dirs = file.Find("zbase/entities/*","LUA")
 
-    RegBase() -- Register base
+    self:RegBase() -- Register base
 
     -- Register all ZBase NPCs
     for _, v in ipairs(dirs) do
-        NPCReg(v)
+        self:NPCReg(v)
     end
 end
 
 
-local function AddNPCsToSpawnMenu()
+function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
     for cls, t in pairs( ZBaseNPCs ) do
         if t.Category == false then continue end -- Don't add to menu
 
@@ -543,17 +557,50 @@ local function AddNPCsToSpawnMenu()
 end
 
 
-hook.Add("Initialize", "ZBASE", function()
+function ZBase_RegisterHandler:Reload()
 
-    ZBaseInstalled = true
 
+    self:RegNPCs()
+    self:NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
+    self:AddNPCsToSpawnMenu()
+    self:UpdateLiveNPCs()
+
+
+    if SERVER && ZBCVAR.ReloadSpawnMenu:GetBool() then
+        RunConsoleCommand("spawnmenu_reload")
+    end
+
+
+    MsgN("ZBase reloaded base and NPCs!", CLIENT && "(CLIENT)" or "(SERVER)")
+
+end
+
+
+function ZBase_RegisterHandler:Load()
+
+    self:RegNPCs()
+    self:NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
+    self:AddNPCsToSpawnMenu()
+
+
+    MsgN("ZBase registered base and NPCs!", CLIENT && "("..tostring(LocalPlayer())..")" or "(SERVER)")
+
+end
+
+
+function ZBase_RegisterHandler:NetworkedReload()
+
+    ZBase_RegisterHandler:Reload()
+
+    net.Start("ZBaseClientReload")
+    net.Broadcast()
+
+end
+
+
+concommand.Add("zbase_reload", function(ply)
+    ZBase_RegisterHandler:NetworkedReload()
 end)
 
 
-
-
-AddCSLuaFiles()
-IncludeFiles()
-registerNPCs()
-NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
-AddNPCsToSpawnMenu()
+ZBase_RegisterHandler:Load()
