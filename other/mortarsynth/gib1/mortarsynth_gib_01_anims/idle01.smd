@@ -1,9 +1,0 @@
-// Created by Crowbar 0.71
-version 1
-nodes
-  0 "Root Bone" -1
-end
-skeleton
-  time 0
-    0 0.000000 0.000000 0.000000 1.570795 -0.001728 -4.710661
-end
