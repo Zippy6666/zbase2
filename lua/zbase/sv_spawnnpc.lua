@@ -362,7 +362,9 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 end
 ---------------------------------------------------------------------------------------------------------=#
 concommand.Add( "zbase_spawnnpc", function( ply, cmd, args )
+
     Spawn_ZBaseNPC( ply, args[ 1 ], args[ 2 ] )
+
 end)
 ---------------------------------------------------------------------------------------------------------=#
 concommand.Add( "zbase_debug_spawn_many", function( ply, cmd, args )

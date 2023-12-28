@@ -5,9 +5,7 @@
 --]]
 
 
-ZBaseInstalled = (
-
-ZBaseInstalled
+ZBaseInstalled = ZBaseInstalled
 or MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
 or MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
 or MsgN("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
@@ -18,8 +16,6 @@ or MsgN("                                     -- █▀▀▄ █──█ 　 �
 or MsgN("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
 or MsgN("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
 or true
-
-)
 
 
 --[[
@@ -47,10 +43,14 @@ end
 
 if CLIENT then
 
-    net.Receive("ZBaseError", function()
+    function ZBaseError()
         chat.AddText(Color(255, 0, 0), "ZBase had a fatal error!")
         chat.AddText(Color(255, 0, 0), "ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
-    end)
+        LocalPlayer().ZBase_WrongBranch = true
+    end
+
+
+    net.Receive("ZBaseError", ZBaseError)
 
 end
 
