@@ -153,7 +153,7 @@ function NPC:RangeAttack()
 
     if !table.IsEmpty(self.RangeAttackAnimations) then
 
-        animData = self:RangeAttackAnimation()
+        animData = self:RangeAttackAnimation() or {}
 
     end
     -----------------------------------------------------------------=#
