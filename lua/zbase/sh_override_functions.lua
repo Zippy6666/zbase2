@@ -9,41 +9,19 @@ local ENT = FindMetaTable("Entity")
 
 
 if SERVER then
-	local OnNPCKilled = GAMEMODE.OnNPCKilled
-	local SpawnNPC = Spawn_NPC
 
+    local SpawnNPC = Spawn_NPC
 
-	--]]==========================================================================================]]
-	function GAMEMODE:OnNPCKilled( npc, attacker, infl )
-		if npc.IsZBaseNPC && npc.Dead then return end
+    
 
-	
-		if IsValid(attacker) && attacker.IsZBaseNPC then
-			attacker:OnKilledEnt( npc )
-		end
-
-        
-        for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
-            zbaseNPC:MarkEnemyAsDead(npc, 2)
-        end
-
-
-		if npc.IsZBaseNPC then
-            npc:OnDeath( attacker, infl, npc.LastDMGINFO, npc.LastHitGroup )
-		end
-
-
-		return OnNPCKilled(self, npc, infl)
-	end
-	--]]==========================================================================================]]
-	function Spawn_NPC( ply, NPCClassName, WeaponName, tr, ... )
+    function Spawn_NPC( ply, NPCClassName, WeaponName, tr, ... )
         if ZBaseNPCs[NPCClassName] then
             return Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr, ... )
         else
-		    return SpawnNPC( ply, NPCClassName, WeaponName, tr, ... )
+            return SpawnNPC( ply, NPCClassName, WeaponName, tr, ... )
         end
-	end
-	--]]==========================================================================================]]
+    end
+
 end
 
 

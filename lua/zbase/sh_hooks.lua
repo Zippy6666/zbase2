@@ -650,6 +650,29 @@ end
 --]]
 
 
+hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
+
+    if npc.IsZBaseNPC && npc.Dead then return end
+
+
+    if IsValid(attacker) && attacker.IsZBaseNPC then
+        attacker:OnKilledEnt( npc )
+    end
+
+    
+    for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
+        zbaseNPC:MarkEnemyAsDead(npc, 2)
+    end
+
+
+    if npc.IsZBaseNPC then
+        npc:OnDeath( attacker, infl, npc.LastDMGINFO, npc.LastHitGroup )
+    end
+
+end)
+
+
+
 hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:OnKilledEnt( ply )
@@ -703,6 +726,7 @@ duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, 
 end)
 
 
+-- Add zbase sweps to npc weapon menu if we should
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 
 	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
@@ -726,11 +750,6 @@ hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
         
 		return false
 	end
-
-
-    if wep.IsZBaseEngineWeapon then
-        return false
-    end
 
 end)
 
