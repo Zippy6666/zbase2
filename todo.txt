@@ -1,5 +1,11 @@
+>> TODO <<
+- Make sure code isn't sketchy
+- Just test zbase a lot, with friends maybe
+- Fix gender issues
+
+
+
 >>> rilis notes!!!!!!! <<<
-- does it have everything it should on release? think though
 - new public repo w copyright + update dummy git
 - test run from workshop (not legacy)
 - title: "ZBASE" (probably) ask chat gpt how to make everything attractive, let it write the description

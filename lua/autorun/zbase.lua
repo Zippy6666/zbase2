@@ -547,7 +547,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
 
 
         -- Gender studies xd idk
-        if istable(ZBaseSpawnMenuTbl.SpawnFlagTbl) && t.Class=="npc_citizen" && (t.Gender == ZBASE_MALE or t.Gender == ZBASE_FEMALE) then
+        if t.Class=="npc_citizen" && (t.Gender == ZBASE_MALE or t.Gender == ZBASE_FEMALE) then
             table.insert(ZBaseSpawnMenuTbl.SpawnFlagTbl, t.Gender)
         end
 
