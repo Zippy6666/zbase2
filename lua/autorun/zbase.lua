@@ -571,7 +571,7 @@ function ZBase_RegisterHandler:Reload()
     end
 
 
-    MsgN("ZBase reloaded base and NPCs!", CLIENT && "(CLIENT)" or "(SERVER)")
+    MsgN("ZBase reloaded base and NPCs!", CLIENT && "("..tostring(LocalPlayer())..")" or "(SERVER)")
 
 end
 
@@ -583,7 +583,7 @@ function ZBase_RegisterHandler:Load()
     self:AddNPCsToSpawnMenu()
 
 
-    MsgN("ZBase registered base and NPCs!", CLIENT && "("..tostring(LocalPlayer())..")" or "(SERVER)")
+    MsgN("ZBase registered base and NPCs!", CLIENT && "(CLIENT)" or "(SERVER)")
 
 end
 
@@ -599,7 +599,9 @@ end
 
 
 concommand.Add("zbase_reload", function(ply)
+
     ZBase_RegisterHandler:NetworkedReload()
+
 end)
 
 

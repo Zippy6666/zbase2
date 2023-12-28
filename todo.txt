@@ -1,14 +1,3 @@
->>> TODO <<<
-- Finish d3 mfs
-- Clean up code, make sure everything works right, no dmginfo storage, no stop movement for aerial mfs when doing anim
-
-
-
-
-
-
-
-
 >>> rilis notes!!!!!!! <<<
 - does it have everything it should on release? think though
 - new public repo w copyright + update dummy git
