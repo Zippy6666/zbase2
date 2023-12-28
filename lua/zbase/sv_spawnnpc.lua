@@ -38,38 +38,16 @@ end
 ---------------------------------------------------------------------------------------------------------=#
 function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSpawnedOnCeiling, bDropToFloor )
 	if NPC.ZBaseInitialized then return end
+	NPC.ZBaseInitialized = true
 
 
-	-- local RecursiveInherits = {}
-	-- local function RecursiveFindInherits( inherit_class )
-	-- 	if !ZBaseNPCs[inherit_class] then return end -- Tried inheriting from nonexistant npc
+	print(Class)
 
 
-	-- 	table.insert(RecursiveInherits, inherit_class)
-
-
-	-- 	local new_inherit_class = ZBaseNPCs[inherit_class].Inherit
-	-- 	if !(new_inherit_class == "npc_zbase" && inherit_class == "npc_zbase") then
-	-- 		RecursiveFindInherits( new_inherit_class )
-	-- 	end
-	-- end
-	-- RecursiveFindInherits(ZBaseNPCs[Class].Inherit)
-	-- table.Reverse(RecursiveInherits)
-
-
-    --     -- Table "transfer" --
-	-- 	-- Inherit
-	-- for _, inherit_class in ipairs(RecursiveInherits) do
-	-- 	for k, v in pairs( ZBaseNPCs[inherit_class] ) do
-	-- 	    NPC[k] = v
-	-- 	end
-	-- end
         -- This npc's table
     for k, v in pairs(ZBaseNPCs[Class]) do
         NPC[k] = v
     end
-
-	print(NPC.Gender==ZBASE_FEMALE)
     --------------------------------------------------------------=#
 
 
@@ -160,11 +138,9 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	end
 
     -- Spawn
-	if isNotFirstSpawn then
-		NPC:BeforeSpawn( NPCData )
-		NPC:Spawn()
-		NPC:Activate()
-	end
+	NPC:BeforeSpawn( NPCData )
+	NPC:Spawn()
+	NPC:Activate()
 
 
 	if isNotFirstSpawn then
@@ -205,15 +181,17 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	end
 
 
-	-- Enhancement dogshit:
+	-- Enhancement dogshit
 	local EnhFunc = ZBaseEnhancementTable[NPCData.Class]
 	if EnhFunc then
+
 		EnhFunc(NPC)
 		
 		local EnhInitFunc = NPC.ZBaseEnhancedInit
 		if EnhInitFunc then
 			EnhInitFunc( NPC )
 		end
+
 	end
 
 
@@ -222,8 +200,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 
 	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
 
-
-	NPC.ZBaseInitialized = true
+	
 	return NPC
 end
 ---------------------------------------------------------------------------------=#

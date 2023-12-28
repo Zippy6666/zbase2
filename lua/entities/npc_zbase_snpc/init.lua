@@ -8,6 +8,7 @@ ENT.IsZBase_SNPC = true
 
 --]]======================================================================================================]]
 function ENT:Initialize()
+
 	self:SetHullType(self.HullType or HULL_MEDIUM)
 	self:SetHullSizeNormal()
 	self:SetSolid(SOLID_BBOX)
@@ -25,6 +26,7 @@ function ENT:Initialize()
 
 
 	self:SNPCInitVars()
+
 end
 --]]======================================================================================================]]
 function ENT:SNPCInitVars()
@@ -42,15 +44,13 @@ function ENT:SNPCInitVars()
 end
 --]]======================================================================================================]]
 function ENT:Think()
-	if ZBCVAR.NoThink:GetBool() then return end
-
 
 	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
 		self:AerialThink()
 	end
 
-
 	self:ZBaseThink()
+
 end
 --]]======================================================================================================]]
 local NPCMETA = FindMetaTable("NPC")
