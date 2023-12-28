@@ -85,7 +85,6 @@ function ZBase_InitWeaponSystem( npc, wep )
     EngineWep:SetPos(Decoy:GetPos())
     EngineWep:SetParent(Decoy)
     EngineWep:AddEffects(EF_BONEMERGE)
-    -- EngineWep:SetParent(Decoy)
 
 
     return Decoy, EngineWep

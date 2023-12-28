@@ -23,69 +23,16 @@ end)
 
 --[[
 ======================================================================================================================================================
-                                           ENTITY CREATED: WEAPON STUFF
-======================================================================================================================================================
---]]
-
-
--- local function BasicPrimaryAttack( wep )
-
---     local effectdata = EffectData()
---     effectdata:SetFlags(wep.ZB_MuzzleFlashFlags or 1)
---     effectdata:SetEntity(wep)
---     util.Effect( "MuzzleFlash", effectdata )
-
-
---     local att = wep:GetAttachment(wep:LookupAttachment("1"))
---     if att && wep.ZB_ShellEject then
---         local effectdata = EffectData()
---         effectdata:SetEntity(wep)
---         effectdata:SetOrigin(att.Pos)
---         effectdata:SetAngles(att.Ang)
---         util.Effect( wep.ZB_ShellEject, effectdata )
---     end
-
-
---     wep:FireBullets({
---         Attacker = wep:GetOwner(),
---         Inflictor = wep,
---         Damage = wep.ZB_Primary or 2,
---         AmmoType = wep.ZB_Ammo,
---         Src = wep:GetOwner():GetShootPos(),
---         Dir = wep:GetOwner():GetAimVector(),
---         Spread = Vector(wep.ZB_Spread or 0.025, wep.ZB_Spread or 0.025),
---         Tracer = 2,
---         Num = wep.ZB_NumShots or 1,
---     })
-
---     wep:EmitSound(wep.ZB_FireSnd)
-
--- end
-
-
--- local HL2Weapon_SWEPTable = {
---     ["weapon_smg1"] = {
---         PrimaryAttack = BasicPrimaryAttack,
---         GetNPCBurstSettings = function() return 6, 8 end,
---         GetNPCRestTimes = function() return 1, 1.5 end,
---         ZB_Damage = 2,
---         ZB_Ammo = "smg1",
---         ZB_ShellEject = "ShellEject",
---         ZB_FireSnd = "Weapon_SMG1.NPC_Single",
---     }
--- }
-
-
---[[
-======================================================================================================================================================
                                            ENTITY CREATED
 ======================================================================================================================================================
 --]]
 
 
 hook.Add("OnEntityCreated", "ZBASE", function( ent )
+
     -- ZBase init stuff when not spawned from menu
     if SERVER then
+
         timer.Simple(0, function()
             if !IsValid(ent) then return end
 
@@ -96,29 +43,38 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
                 ZBaseInitialize(ent, zbaseNPCTable, zbaseClass, false)
             end
         end)
+
     end
 
 
     -- OnOwnedEntCreated
     if SERVER then
+
         timer.Simple(0, function()
+
             if !IsValid(ent) then return end
 
             local own = ent:GetOwner()
             if IsValid(own) && own.IsZBaseNPC then
+
                 own:OnOwnedEntCreated( ent )
 
                 if own.ZBaseEnhancedCreateEnt then
                     own:ZBaseEnhancedCreateEnt( ent )
                 end
+
             end
+
         end)
+
     end
 
 
     -- Relationship stuff
     if SERVER && ent:IsNPC() && ent:GetClass() != "npc_bullseye" && !ent.IsZBaseNavigator then
+
         timer.Simple(0, function()
+
             if !IsValid(ent) then return end
 
 
@@ -162,19 +118,10 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
 
 
             ZBaseSetFaction(ent, !ent.IsZBaseNPC && faction)
+
         end)
     end
 
-
-
-    -- Make hl2 weapons into sweps or something idk what to call this
-    -- local cls = ent:GetClass()
-
-    -- if HL2Weapon_SWEPTable[cls] then
-    --     for varname, var in pairs(HL2Weapon_SWEPTable[cls]) do
-    --         ent[varname] = var
-    --     end
-    -- end
 end)
 
 
@@ -190,9 +137,8 @@ local NextBehaviourThink = CurTime()
 
 
 hook.Add("Tick", "ZBASE", function()
-    if ZBCVAR.NoThink:GetBool() then return end
 
-    
+
     -- Think for NPCs that aren't scripted
     if NextThink < CurTime() then
         for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
@@ -213,6 +159,7 @@ hook.Add("Tick", "ZBASE", function()
     -- Behaviour tick
     if !GetConVar("ai_disabled"):GetBool()
     && NextBehaviourThink < CurTime() then
+
         for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
             local entValid = func()
 
@@ -222,6 +169,7 @@ hook.Add("Tick", "ZBASE", function()
         end
 
         NextBehaviourThink = CurTime() + 0.4
+
     end
 end)
 
@@ -234,6 +182,7 @@ end)
 
 
 if SERVER then
+
     util.AddNetworkString("ZBasePlayerFactionSwitch")
     util.AddNetworkString("ZBaseNPCFactionOverrideSwitch")
 
@@ -279,6 +228,7 @@ if SERVER then
             end)
         end
     end)
+
 end
 
 
@@ -290,28 +240,34 @@ end
 
 
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
+
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
 
 
     -- Attacker is ZBase NPC
     if IsValid(attacker) && attacker.IsZBaseNPC then
+
         attacker:DealDamage( dmg, ent )
 
 
         if attacker.ZBaseEnhancedDealDamage then
             attacker:ZBaseEnhancedDealDamage( dmg, ent )
         end
+
     end
 
 
     -- Victim is ZBase NPC
     if ent.IsZBaseNPC then
+
         local value = ent:OnEntityTakeDamage( dmg )
+
 
         if value != nil then
             return value
         end
+
     end
 
 
@@ -358,6 +314,7 @@ hook.Add("PostEntityTakeDamage", "ZBASE", function( ent, dmg )
     end
 end)
 
+
 local function ScaleDamage( ent, hit_gr, dmg )
     local attacker = dmg:GetAttacker()
 
@@ -390,7 +347,10 @@ local ZBaseWeaponAccuracyBoost = {
 
 
 hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
+
     local data_backup = data
+
+
     if grabbing_bullet_backup_data then return end
 
 
@@ -417,24 +377,10 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
 
         end
     end
-    --------------------------------------------------=#
 
-
-    
-    -- if ent.IsZBaseNPC then
-    --     -- Boost accuracy for some weapons --
-    --     local wep = ent:GetActiveWeapon()
-    --     local ene = ent:GetEnemy()
-
-    --     if IsValid(wep) && IsValid(ene) && ZBaseWeaponAccuracyBoost[wep:GetClass()] then
-    --         local sprd = (5 - ent:GetCurrentWeaponProficiency())/ZBaseWeaponAccuracyBoost[wep:GetClass()]
-    --         data.Spread = Vector(sprd, sprd)
-    --         data.Dir = (ene:WorldSpaceCenter() - ent:GetShootPos()):GetNormalized()
-    --     end
-    -- end
-    
 
     return true
+
 end)
 
 
@@ -462,6 +408,7 @@ local NPCFootstepSubStr = {
 
 
 hook.Add("EntityEmitSound", "ZBASE", function( data )
+
     -- stfu navigator slave mf, you have no right to speak
     if data.Entity.IsZBaseNavigator then
         return false
@@ -498,6 +445,7 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
     if value != nil then
         return value
     end
+
 end)
 
 
@@ -507,30 +455,32 @@ end)
 ======================================================================================================================================================
 --]]
 
+
 if SERVER then
+
     util.AddNetworkString("ZBaseAddGlowEyes")
     util.AddNetworkString("ZBaseAddGlowEyes_Success")
+
 end
 
 
-if !ZBaseEntsWithGlowingEyes then
-    ZBaseEntsWithGlowingEyes = {}
-end
-
-
+ZBaseEntsWithGlowingEyes = ZBaseEntsWithGlowingEyes or {}
 ZBaseGlowingEyes = {}
 
 
+local mat = Material( "effects/blueflare1" )
+
+
 if CLIENT then
+
     net.Receive("ZBaseAddGlowEyes", function()
+
         local Ent = net.ReadEntity()
         local Eyes = net.ReadTable()
         
-        
-        -- print("ZBaseAddGlowEyes", LocalPlayer())
-        
 
         if IsValid(Ent) then
+
             Ent.GlowEyes = table.Copy(Eyes)
 
             table.insert(ZBaseEntsWithGlowingEyes, Ent)
@@ -540,13 +490,17 @@ if CLIENT then
             net.Start("ZBaseAddGlowEyes_Success")
             net.WriteEntity(Ent)
             net.SendToServer()
+
         end
+
     end)
+
 end
 
 
 if SERVER then
     net.Receive("ZBaseAddGlowEyes_Success", function( _, ply )
+
         if !ply.NPCsWithGlowEyes then ply.NPCsWithGlowEyes = {} end
 
 
@@ -564,24 +518,29 @@ if SERVER then
                 end
             end)
         end
+
     end)
 end
 
 
-local mat = Material( "effects/blueflare1" )
+
 hook.Add( "RenderScreenspaceEffects", "ZBaseGlowingEyes", function()
+
     if !ZBCVAR.GlowingEyes:GetBool() then return end
 
     for _, ent in ipairs(ZBaseEntsWithGlowingEyes) do
+
         if !ent.GlowEyes then continue end
         if ent:GetNoDraw() then continue end
 
         
         for _, eye in ipairs(ent.GlowEyes) do
+
             if eye.skin != false && ent:GetSkin() != eye.skin then continue end
 
             local matrix = ent:GetBoneMatrix(eye.bone or 0)
             if matrix then
+
                 local BonePos = matrix:GetTranslation()
                 local BoneAng = matrix:GetAngles()
                 local pos = BonePos + BoneAng:Forward()*eye.offset.x + BoneAng:Right()*eye.offset.y + BoneAng:Up()*eye.offset.z
@@ -590,8 +549,11 @@ hook.Add( "RenderScreenspaceEffects", "ZBaseGlowingEyes", function()
                     render.SetMaterial(mat)
                     render.DrawSprite( pos, eye.scale, eye.scale, eye.color)
                 cam.End3D()
+
             end
+
         end
+
     end
 
 end)
@@ -604,12 +566,13 @@ end)
 --]]
 
 if SERVER then
+
     util.AddNetworkString("ZBaseSetFollowHalo")
     util.AddNetworkString("ZBaseRemoveFollowHalo")
 
 
     hook.Add( "KeyPress", "ZBaseFollow", function( ply, key )
-        if ( key == IN_USE ) then
+        if key == IN_USE then
             local tr = ply:GetEyeTrace()
             local ent = tr.Entity
 
@@ -621,6 +584,7 @@ if SERVER then
             end
         end
     end)
+
 end
 
 

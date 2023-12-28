@@ -66,9 +66,10 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	-- end
         -- This npc's table
     for k, v in pairs(ZBaseNPCs[Class]) do
-		print(Class, k, "=", v)
         NPC[k] = v
     end
+
+	print(NPC.Gender==ZBASE_FEMALE)
     --------------------------------------------------------------=#
 
 
