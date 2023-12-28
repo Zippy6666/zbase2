@@ -40,39 +40,40 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	if NPC.ZBaseInitialized then return end
 
 
-	local RecursiveInherits = {}
-	local function RecursiveFindInherits( inherit_class )
-		if !ZBaseNPCs[inherit_class] then return end -- Tried inheriting from nonexistant npc
+	-- local RecursiveInherits = {}
+	-- local function RecursiveFindInherits( inherit_class )
+	-- 	if !ZBaseNPCs[inherit_class] then return end -- Tried inheriting from nonexistant npc
 
 
-		table.insert(RecursiveInherits, inherit_class)
+	-- 	table.insert(RecursiveInherits, inherit_class)
 
 
-		local new_inherit_class = ZBaseNPCs[inherit_class].Inherit
-		if !(new_inherit_class == "npc_zbase" && inherit_class == "npc_zbase") then
-			RecursiveFindInherits( new_inherit_class )
-		end
-	end
-	RecursiveFindInherits(ZBaseNPCs[Class].Inherit)
-	table.Reverse(RecursiveInherits)
+	-- 	local new_inherit_class = ZBaseNPCs[inherit_class].Inherit
+	-- 	if !(new_inherit_class == "npc_zbase" && inherit_class == "npc_zbase") then
+	-- 		RecursiveFindInherits( new_inherit_class )
+	-- 	end
+	-- end
+	-- RecursiveFindInherits(ZBaseNPCs[Class].Inherit)
+	-- table.Reverse(RecursiveInherits)
 
 
-        -- Table "transfer" --
-		-- Inherit
-	for _, inherit_class in ipairs(RecursiveInherits) do
-		for k, v in pairs( ZBaseNPCs[inherit_class] ) do
-		    NPC[k] = v
-		end
-	end
+    --     -- Table "transfer" --
+	-- 	-- Inherit
+	-- for _, inherit_class in ipairs(RecursiveInherits) do
+	-- 	for k, v in pairs( ZBaseNPCs[inherit_class] ) do
+	-- 	    NPC[k] = v
+	-- 	end
+	-- end
         -- This npc's table
     for k, v in pairs(ZBaseNPCs[Class]) do
+		print(Class, k, "=", v)
         NPC[k] = v
     end
     --------------------------------------------------------------=#
 
 
     -- Set model
-    local model = table.Random(NPCData.Models)
+    local model = istable(NPCData.Models) && table.Random(NPCData.Models)
     if model then
 		NPC.SpawnModel = model
         NPC:SetModel(model)
@@ -88,8 +89,12 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 
 
 	-- Keyvalues
-	for k, v in pairs( NPCData.KeyValues ) do
-		NPC:SetKeyValue( k, v )
+	if istable(NPCData.KeyValues) then
+
+		for k, v in pairs( NPCData.KeyValues ) do
+			NPC:SetKeyValue( k, v )
+		end
+	
 	end
 
 
@@ -97,11 +102,16 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	-- Spawn Flags
 	--
 	local SpawnFlags = bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE )
-	for _, v in ipairs(NPCData.SpawnFlagTbl) do
-		SpawnFlags = bit.bor( SpawnFlags, v )
+
+	if istable(NPCData.SpawnFlagTbl) then
+		for _, v in ipairs(NPCData.SpawnFlagTbl) do
+			SpawnFlags = bit.bor( SpawnFlags, v )
+		end
 	end
+
 	if ( NPCData.TotalSpawnFlags ) then SpawnFlags = NPCData.TotalSpawnFlags end
 	if ( SpawnFlagsSaved ) then SpawnFlags = SpawnFlagsSaved end
+
 	NPC:SetKeyValue( "spawnflags", SpawnFlags )
 	NPC.SpawnFlags = SpawnFlags
 
