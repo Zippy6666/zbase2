@@ -81,13 +81,13 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         ReloadButton:Dock(TOP)
         ReloadButton:DockMargin(5, 25, 5, 0)
         ReloadButton:SetText("Reload ZBase")
-
         function ReloadButton:DoClick()
-            net.Start("ZBaseReloadServer")
+            net.Start("ZBaseReload")
             net.SendToServer()
         end
 
-        panel:Help("Runs 'zbase_reload'")
+
+        panel:Help("Runs 'zbase_reload' which can be necessary if your NPCs aren't updating properly on save.")
 
 
     end)
