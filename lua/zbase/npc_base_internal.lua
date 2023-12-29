@@ -646,22 +646,19 @@ end
 
 function NPC:ZBWepSys_Shoot()
     
-    if self:GetActiveWeapon():Clip1() > 0 then
+    self.ZBWepSys_AllowShoot = true
+    self:GetActiveWeapon():PrimaryAttack()
+    self.ZBWepSys_AllowShoot = false
 
-        self.ZBWepSys_AllowShoot = true
-        self:GetActiveWeapon():PrimaryAttack()
-        self.ZBWepSys_AllowShoot = false
-
-    end
-
-    
 
     self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
+
 
     if self.ZBWepSys_ShotsLeft <= 0 then
 
         local RestTimeMin, RestTimeMax = self:GetActiveWeapon():GetNPCRestTimes()
         local RndRest = math.Rand(RestTimeMin, RestTimeMax)
+
 
         self.NextWeaponFireVolley = CurTime()+RndRest
         self.ZBWepSys_ShotsLeft = nil
@@ -675,10 +672,10 @@ function NPC:ZBWepSys_ShouldFireWeapon()
 
     local act = self:GetActivity()
 
-
+    print( self:GetActiveWeapon():Clip1())
     return self.EnemyVisible && !self.DoingPlayAnim && self.NextWeaponFireVolley < CurTime()
     && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance}) && !self:IsCurrentSchedule(SCHED_RELOAD) && !ReloadActs[act]
-    && self:HasCondition(COND.WEAPON_HAS_LOS)
+    && self:HasCondition(COND.WEAPON_HAS_LOS) && self:GetActiveWeapon():Clip1() > 0
 
 
     -- return self:IsCurrentSchedule(SCHED_RANGE_ATTACK1) or self:IsCurrentSchedule(SCHED_RANGE_ATTACK2)
@@ -700,19 +697,19 @@ function NPC:ZBWepSys_FireWeaponThink()
         if self:IsMoving() && self:ZBWepSys_HasTranslatedAct(ACT_WALK_AIM) then
             self:SetMovementActivity( self:Weapon_TranslateActivity(ACT_WALK_AIM) )
         end
-        
+
 
         -- Shoot anim
         if self:ZBWepSys_HasTranslatedAct(ACT_GESTURE_RANGE_ATTACK1) then
 
-            local gest = self:Weapon_TranslateActivity(ACT_GESTURE_RANGE_ATTACK1)
-            
-            if self:GetActiveWeapon():Clip1() > 0 then
-                self:PlayAnimation( gest, false, {isGesture=true} )
-            end
+            -- Gesture
+            self:PlayAnimation( self:Weapon_TranslateActivity(ACT_GESTURE_RANGE_ATTACK1), false, {isGesture=true} )
 
         else
+
+            -- Normal animation
             self:ResetIdealActivity(self:Weapon_TranslateActivity(ACT_RANGE_ATTACK1))
+
         end
 
 
@@ -1145,40 +1142,39 @@ function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
 end
 
 
-function NPC:SetActivityIfAvailable( acts, func )
-    func = func or self.SetActivity
+-- function NPC:SetActivityIfAvailable( acts, func )
+--     func = func or self.SetActivity
 
 
-    local wep = self:GetActiveWeapon()
-    local holdtype = IsValid(wep) && wep:GetHoldType()
+--     local wep = self:GetActiveWeapon()
+--     local holdtype = IsValid(wep) && wep:GetHoldType()
 
 
-    for _, act in ipairs(acts) do
-        local seq = self:SelectWeightedSequence(act)
-        local actName = self:GetSequenceActivityName(seq)
+--     for _, act in ipairs(acts) do
+--         local seq = self:SelectWeightedSequence(act)
+--         local actName = self:GetSequenceActivityName(seq)
 
-        if seq == -1 then continue end
+--         if seq == -1 then continue end
     
 
-        debugoverlay.Text(self:GetPos()+Vector(0,0,75), actName, 0.1)
-        func(self, act)
+--         debugoverlay.Text(self:GetPos()+Vector(0,0,75), actName, 0.1)
+--         func(self, act)
 
 
-        return true
-    end
+--         return true
+--     end
 
 
-    return false
-end
+--     return false
+-- end
 
 
 function NPC:SetConditionalActivities()
-    local NoWep = !IsValid(self:GetActiveWeapon())
-
     
-    if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) then
-        self:SetActivityIfAvailable({ACT_RUN_PROTECTED, ACT_RUN_CROUCH}, self.SetMovementActivity)
+    if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) && self:SelectWeightedSequence(ACT_RUN_PROTECTED) != -1 then
+        self:SetMovementActivity(ACT_RUN_PROTECTED)
     end
+
 end
 
 
