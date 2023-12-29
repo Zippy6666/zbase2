@@ -30,7 +30,7 @@ function NPC:CustomInitialize()
     end
 
     if ZBCVAR.ZombieRedBlood:GetBool() then
-        self:SetBloodColor(BLOOD_COLOR_RED)
+        self.BloodColor = BLOOD_COLOR_RED
     end
 end
 --]]==============================================================================================]]

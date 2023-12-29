@@ -13,16 +13,6 @@ local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 
-local ReloadActs = {
-    [ACT_RELOAD] = true,
-    [ACT_RELOAD_SHOTGUN] = true,
-    [ACT_RELOAD_SHOTGUN_LOW] = true,
-    [ACT_RELOAD_SMG1] = true,
-    [ACT_RELOAD_SMG1_LOW] = true,
-    [ACT_RELOAD_PISTOL] = true,
-    [ACT_RELOAD_PISTOL_LOW] = true,
-}
-
 
 --[[
 ==================================================================================================
@@ -31,12 +21,15 @@ local ReloadActs = {
 --]]
 
 
+-- Called before spawn if it can, otherwise just before ZBaseInit
 function NPC:BeforeSpawn( NPCData )
     
     self.AllowedCustomEScheds = {}
     self.ProhibitCustomEScheds = false
 
-    self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Otherwise it might not spawn with a weapon
+
+    -- Needed for some NPCs to allow them to spawn with weapons
+    self:CapabilitiesAdd(CAP_USE_WEAPONS)
     
 
     self.BeforeSpawnDone = true
@@ -45,6 +38,7 @@ end
 
 
 function NPC:ZBaseInit()
+
     -- "Before spawn"
     if !self.BeforeSpawnDone then
         self:BeforeSpawn()
@@ -146,6 +140,11 @@ function NPC:ZBaseInit()
 
             -- Capability shit
             self:InitCap()
+
+
+            if self.ZBaseFaction != "none" then
+                self:SetSquad(self.ZBaseFaction)
+            end
         end
 
     end)
@@ -181,10 +180,13 @@ end
 
 function NPC:InitSaveValues()
 
+    -- Set all save values that its table has (m_typeSomething)
     for k, v in pairs(self:GetTable()) do
+
         if string.StartWith(k, "m_") then
             self:SetSaveValue(k, v)
         end
+
     end
 
 end
@@ -248,6 +250,7 @@ end
 
 
 function NPC:GlowEyeInit()
+
     if !ZBCVAR.SvGlowingEyes:GetBool() then return end
 
 
@@ -320,6 +323,7 @@ local StrNPCStates = {
 
 
 function NPC:ZBaseThink()
+
     local ene = self:GetEnemy()
     local sched = self:GetCurrentSchedule()
     local seq = self:GetSequence()
@@ -327,10 +331,10 @@ function NPC:ZBaseThink()
 
 
     -- Enemy visible
-    self.EnemyVisible = self:HasCondition(COND.SEE_ENEMY) or (IsValid(ene) && self:Visible(ene))
+    self.EnemyVisible = IsValid(ene) && (self:HasCondition(COND.SEE_ENEMY) or self:Visible(ene))
 
 
-    -- Slow think
+    -- Slow think, for performance
     if self.NPCNextSlowThink < CurTime() then
         self:DoSlowThink()
         self.NPCNextSlowThink = CurTime()+0.4
@@ -379,7 +383,6 @@ function NPC:ZBaseThink()
     end
 
 
-
     -- Stuff to make play anim work as intended
     if self.DoingPlayAnim then
         self:DoPlayAnim()
@@ -424,6 +427,7 @@ end
 
 
 function NPC:DoSlowThink()
+
     -- Remove squad if faction is 'none'
     if self.ZBaseFaction == "none" && self:SquadName()!="" then
         self:SetSquad("")
@@ -431,6 +435,7 @@ function NPC:DoSlowThink()
 
 
     self:AITick_Slow()
+
 end
 
 
@@ -471,6 +476,17 @@ local HoldTypeActCheck = {
     ["shotgun"] =ACT_RANGE_ATTACK_SHOTGUN,
     ["rpg"] = ACT_RANGE_ATTACK_RPG,
     ["passive"] = ACT_IDLE,
+}
+
+
+local ReloadActs = {
+    [ACT_RELOAD] = true,
+    [ACT_RELOAD_SHOTGUN] = true,
+    [ACT_RELOAD_SHOTGUN_LOW] = true,
+    [ACT_RELOAD_SMG1] = true,
+    [ACT_RELOAD_SMG1_LOW] = true,
+    [ACT_RELOAD_PISTOL] = true,
+    [ACT_RELOAD_PISTOL_LOW] = true,
 }
 
 
@@ -671,29 +687,37 @@ function NPC:ZBWepSys_ShouldFireWeapon()
 end
 
 
+function NPC:ZBWepSys_HasTranslatedAct( act )
+    return self:SelectWeightedSequence( self:Weapon_TranslateActivity(act) )!=-1
+end
+
+
 function NPC:ZBWepSys_FireWeaponThink()
 
     if self:ZBWepSys_ShouldFireWeapon() then
 
-        if self:IsMoving() then
+        -- Set some kind of aim stance if shoot moving
+        if self:IsMoving() && self:ZBWepSys_HasTranslatedAct(ACT_WALK_AIM) then
+            self:SetMovementActivity( self:Weapon_TranslateActivity(ACT_WALK_AIM) )
+        end
+        
 
-            self:SetActivityIfAvailable({ACT_WALK_AIM}, self.SetMovementActivity)
+        -- Shoot anim
+        if self:ZBWepSys_HasTranslatedAct(ACT_GESTURE_RANGE_ATTACK1) then
+
+            local gest = self:Weapon_TranslateActivity(ACT_GESTURE_RANGE_ATTACK1)
+            
+            if self:GetActiveWeapon():Clip1() > 0 then
+                self:PlayAnimation( gest, false, {isGesture=true} )
+            end
 
         else
-
-
-            self.LastStandingShootAnim = self:Weapon_TranslateActivity(ACT_RANGE_ATTACK1)
-            self:SetActivityIfAvailable({self.LastStandingShootAnim}, self.ResetIdealActivity)
-            
-
+            self:ResetIdealActivity(self:Weapon_TranslateActivity(ACT_RANGE_ATTACK1))
         end
 
 
+        -- Press trigger
         self:ZBWepSys_Shoot()
-    
-    -- elseif string.find( self:GetSequenceActivityName(self:GetSequence()), "RANGE") then
-
-        -- self:SetActivity(ACT_IDLE)
 
     end
 
@@ -909,15 +933,27 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
     -- Do anim as gesture if it is one --
     -- Don't do the rest of the code after that --
     if isGest then
+
         local gest = isstring(anim) &&
         self:GetSequenceActivity(self:LookupSequence(anim)) or
         isnumber(anim) && anim
+        
+
+        if self:IsPlayingGesture(gest) then
+            self:RemoveGesture(gest)
+        end
 
 
         local id = self:AddGesture(gest)
+
+
+        self:SetLayerCycle(id, 0)
+        self:SetLayerBlendIn(id, 0.2)
+        self:SetLayerBlendOut(id, 0.2)
+
+
+
         if self.IsZBase_SNPC then
-            self:SetLayerBlendIn(id, 0.2)
-            self:SetLayerBlendOut(id, 0.2)
             self:SetLayerPlaybackRate(id, (playbackRate or 1)*0.5 )
         else
             self:SetLayerPlaybackRate(id, (playbackRate or 1) )
@@ -925,6 +961,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
 
 
         return -- Stop here
+        
     end
     --------------------------------------=#
 
