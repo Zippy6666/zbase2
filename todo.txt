@@ -1,12 +1,9 @@
 >> TODO <<
-- Just make sure everything is good, no more major features needed before release
-    - fix eye issue
-    - make sure wep system doesn't suck, with snpcs as well
-        -- add vars for it
-    - fix gender issue
-    - fix lag spike issue
-    - fix mp gesture issue
-
+- fix gender issue
+- fix lag spike issue
+- improve lost enemy shit
+- make sure they forget enemies as intended
+- just test it a bunch
 
 
 
@@ -19,7 +16,7 @@
 - future update list
 - bug fixes comin soooooooopneas
 - list known bugs
-- three discosasoions: bugs, dev help, suggestions [no stoopid in the comment section >:( ] just make it nice and not stressful i wanna chill mkay, be smart with dat shit
+- three discosasoions: bugs, dev help, suggestions (no stoopid in the comment section)just make it nice and not stressful i wanna chill mkay, be smart with dat shit
 
 
 

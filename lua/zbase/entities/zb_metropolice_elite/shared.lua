@@ -17,8 +17,8 @@ NPC.Inherit = "zb_metropolice" -- Inherit features from any existing zbase npc
 --]]==============================================================================================]]
 
 
-ZBaseAddGlowingEye("models/zippy/elitepolice.mdl", 0, "ValveBiped.Bip01_Head1", Vector(3.8, 7, 1.9), 7, Color(255, 155, 0))
-ZBaseAddGlowingEye("models/zippy/elitepolice.mdl", 0, "ValveBiped.Bip01_Head1", Vector(3.8, 7, -1.9), 7, Color(255, 155, 0))
+ZBaseAddGlowingEye("PoliceEye1", "models/zippy/elitepolice.mdl", 0, "ValveBiped.Bip01_Head1", Vector(3.8, 7, 1.9), 7, Color(255, 155, 0))
+ZBaseAddGlowingEye("PoliceEye2", "models/zippy/elitepolice.mdl", 0, "ValveBiped.Bip01_Head1", Vector(3.8, 7, -1.9), 7, Color(255, 155, 0))
 
 
 --]]==============================================================================================]]

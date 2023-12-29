@@ -4,7 +4,7 @@ local matRefract = Material( "models/props_combine/stasisshield_sheet" )
 
 function EFFECT:Init( data )
 
-	if ( !cl_drawspawneffect:GetBool() ) then return end
+	if ( !GetConVar("cl_drawspawneffect"):GetBool() ) then return end
 
 	-- This is how long the spawn effect
 	-- takes from start to finish.
@@ -32,7 +32,7 @@ end
 
 function EFFECT:Think()
 
-	if ( !cl_drawspawneffect:GetBool() ) then return false end
+	if ( !GetConVar("cl_drawspawneffect"):GetBool() ) then return false end
 	if ( !IsValid( self.ParentEntity ) ) then return false end
 
 	local PPos = self.ParentEntity:GetPos()
