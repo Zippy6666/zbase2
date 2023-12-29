@@ -1,5 +1,5 @@
 AddCSLuaFile()
----------------------------------------------------------------------------------------------------------------------=#
+
 
 sound.Add({
     name = "Weapon_MP5K_Z.NPC_Fire",
@@ -19,7 +19,7 @@ sound.Add({
     sound = "weapons/zippy/mp5k/mp5k_reload.wav",
 })
 
----------------------------------------------------------------------------------------------------------------------=#
+
 
 
 SWEP.Base = "weapon_zbase"
@@ -36,11 +36,11 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 -- NPC Stuff
 SWEP.NPCOnly = true -- Should only NPCs be able to use this weapon?
 SWEP.NPCCanPickUp = true -- Can NPCs pick up this weapon from the ground
-SWEP.NPCBurstMin = 2 -- Minimum amount of bullets the NPC can fire when firing a burst
-SWEP.NPCBurstMax = 4 -- Maximum amount of bullets the NPC can fire when firing a burst
+SWEP.NPCBurstMin = 1 -- Minimum amount of bullets the NPC can fire when firing a burst
+SWEP.NPCBurstMax = 1 -- Maximum amount of bullets the NPC can fire when firing a burst
 SWEP.NPCFireRate = 0.1 -- Shoot delay in seconds
-SWEP.NPCFireRestTimeMin = 0.2 -- Minimum amount of time the NPC rests between bursts in seconds
-SWEP.NPCFireRestTimeMax = 0.4 -- Maximum amount of time the NPC rests between bursts in seconds
+SWEP.NPCFireRestTimeMin = 0.1 -- Minimum amount of time the NPC rests between bursts in seconds
+SWEP.NPCFireRestTimeMax = 0.1 -- Maximum amount of time the NPC rests between bursts in seconds
 SWEP.NPCBulletSpreadMult = 1 -- Higher number = worse accuracy
 SWEP.NPCReloadSound = "Weapon_MP5K.Reload" -- Sound when the NPC reloads the gun
 SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number with this weapon
@@ -55,9 +55,7 @@ SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 SWEP.Primary.ShellEject = "1" -- Set to the name of an attachment to enable shell ejection
 
 
---------------------------------------------------------=#
+
 function SWEP:Initialize()
-    print(self.IsZBaseWeapon)
 	self:SetHoldType( "smg" )
 end
---------------------------------------------------------=#

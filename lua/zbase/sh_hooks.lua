@@ -511,8 +511,7 @@ if SERVER then
 
         if IsValid(Ent) then
             ply.NPCsWithGlowEyes[Ent:EntIndex()] = true
-            
-            -- print("ZBaseAddGlowEyes_Success", ply, Ent, "SUCCESS")
+    
 
             Ent:CallOnRemove("NPCsWithGlowEyesRemove"..ply:EntIndex(), function()
                 if ply.NPCsWithGlowEyes then
@@ -536,7 +535,8 @@ hook.Add( "RenderScreenspaceEffects", "ZBaseGlowingEyes", function()
         if ent:GetNoDraw() then continue end
 
         
-        for _, eye in ipairs(ent.GlowEyes) do
+        for id, eye in pairs(ent.GlowEyes) do
+
 
             if eye.skin != false && ent:GetSkin() != eye.skin then continue end
 

@@ -78,13 +78,15 @@ end
 
 
     -- Used to add glowing eyes to models
+    -- 'identifier' - A unique identifier for this particular eye
     -- 'model' - The model that should have the eye
     -- 'skin' - Which skin should have the eye, set to false to use all skins
-    -- Example:
-    -- ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(0, 50, 255))
-    -- ZBaseAddGlowingEye("models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(0, 50, 255))
-function ZBaseAddGlowingEye(model, skin, bone, offset, scale, color)
-    if !ZBaseGlowingEyes[model] then ZBaseGlowingEyes[model] = {} end
+function ZBaseAddGlowingEye(identifier, model, skin, bone, offset, scale, color)
+
+    if !ZBaseGlowingEyes[model] then
+        ZBaseGlowingEyes[model] = {}
+    end
+
 
     local Eye = {}
     Eye.skin = skin
@@ -93,7 +95,10 @@ function ZBaseAddGlowingEye(model, skin, bone, offset, scale, color)
     Eye.scale = scale
     Eye.color = color
 
-    table.insert(ZBaseGlowingEyes[model], Eye)
+
+    
+    ZBaseGlowingEyes[model][identifier] = Eye
+
 end
 
 

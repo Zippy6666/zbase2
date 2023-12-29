@@ -1,5 +1,11 @@
 >> TODO <<
 - Just make sure everything is good, no more major features needed before release
+    - fix eye issue
+    - make sure wep system doesn't suck, with snpcs as well
+        -- add vars for it
+    - fix gender issue
+    - fix lag spike issue
+    - fix mp gesture issue
 
 
 
