@@ -617,3 +617,6 @@ end)
 
 
 ZBase_RegisterHandler:Load()
+
+
+print("ZBase autorun complete!")

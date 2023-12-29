@@ -951,6 +951,12 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
     if !anim then return end
 
 
+
+    if isGest && !self.IsZBase_SNPC && ZBaseIsMP then return end -- Don't do gestures on non-scripted NPCs in multiplayer, it seems to be broken
+
+
+
+
     -- Do anim as gesture if it is one --
     -- Don't do the rest of the code after that --
     if isGest then
@@ -959,6 +965,9 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
         local gest = isstring(anim) &&
         self:GetSequenceActivity(self:LookupSequence(anim)) or
         isnumber(anim) && anim
+
+
+        print(self:GetSequenceName(gest))
         
 
         -- Don't play the same gesture again, remove the old one first

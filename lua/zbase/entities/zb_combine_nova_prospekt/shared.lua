@@ -17,12 +17,12 @@ NPC.Inherit = "zb_combine_soldier" -- Inherit features from any existing zbase n
 --]]==============================================================================================]]
 
 
-ZBaseAddGlowingEye("models/combine_soldier_prisonguard.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(255, 155, 0))
-ZBaseAddGlowingEye("models/combine_soldier_prisonguard.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(255, 155, 0))
+ZBaseAddGlowingEye("NovaEye1", "models/combine_soldier_prisonguard.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(255, 155, 0))
+ZBaseAddGlowingEye("NovaEye2", "models/combine_soldier_prisonguard.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(255, 155, 0))
 
 
-ZBaseAddGlowingEye("models/combine_soldier_prisonguard.mdl", 1, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(155, 70, 0))
-ZBaseAddGlowingEye("models/combine_soldier_prisonguard.mdl", 1, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(155, 70, 0))
+ZBaseAddGlowingEye("NovaShottyEye1", "models/combine_soldier_prisonguard.mdl", 1, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(155, 70, 0))
+ZBaseAddGlowingEye("NovaShottyEye2", "models/combine_soldier_prisonguard.mdl", 1, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(155, 70, 0))
 
 
 --]]==============================================================================================]]
