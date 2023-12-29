@@ -1,9 +1,11 @@
+
+    // we be behavin
+
 local ZBaseDelayEnt = NULL
 local ZBaseDelayBehaviour_Name
 local NextBehaviourThink = CurTime()
 
 
----------------------------------------------------------------------------------------=#
 function ZBaseDelayBehaviour( delay, ent, name )
     local Ent = ent or ZBaseDelayEnt
     local BehaviourName = name or ZBaseDelayBehaviour_Name
@@ -12,7 +14,8 @@ function ZBaseDelayBehaviour( delay, ent, name )
         Ent.ZBase_Behaviour_Delays[BehaviourName] = CurTime() + delay
     end
 end
----------------------------------------------------------------------------------------=#
+
+
 local function BehaviourTimer( ent )
     if ent.DoingDeathAnim then return end
 
@@ -53,7 +56,8 @@ local function BehaviourTimer( ent )
     ZBaseDelayEnt = NULL
     ZBaseDelayBehaviour_Name = nil
 end
----------------------------------------------------------------------------------------=#
+
+
 function ZBaseBehaviourInit( ent )
 
     ent.ZBase_Behaviour_Delays = {}
@@ -71,4 +75,4 @@ function ZBaseBehaviourInit( ent )
     table.insert(ZBaseBehaviourTimerFuncs, timerFunc)
 
 end
----------------------------------------------------------------------------------------=#
+

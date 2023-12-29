@@ -73,6 +73,8 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox( "Developer", "developer")
         panel:Help("Sets 'developer' to '1'.")
+
+
         panel:CheckBox( "ZBase Reload Spawnmenu", "zbase_reload_spawnmenu")
         panel:Help("Should 'zbase_reload' also reload the spawn menu?")
         
@@ -80,13 +82,11 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         local ReloadButton = vgui.Create("DButton", panel)
         ReloadButton:Dock(TOP)
         ReloadButton:DockMargin(5, 25, 5, 0)
-        ReloadButton:SetText("Reload ZBase")
+        ReloadButton:SetText("Reload NPCs")
         function ReloadButton:DoClick()
             net.Start("ZBaseReload")
             net.SendToServer()
         end
-
-
         panel:Help("Runs 'zbase_reload' which can be necessary if your NPCs aren't updating properly on save.")
 
 

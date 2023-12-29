@@ -1,7 +1,7 @@
-    -- Note: Contains a lot of borrowed gmod source code! --
 
+	// Contains a lot of borrowed gmod source code!
 
----------------------------------------------------------------------------------------------------------=#
+	
 -- A little hacky function to help prevent spawning props partially inside walls
 -- Maybe it should use physics object bounds, not OBB, and use physics object bounds to initial position too
 local function fixupProp( ply, ent, hitpos, mins, maxs )
@@ -29,19 +29,18 @@ local function fixupProp( ply, ent, hitpos, mins, maxs )
 	if ( tr_down.Hit ) then ent:SetPos( entPos + ( tr_down.HitPos - endposD ) ) end
 	if ( tr_up.Hit ) then ent:SetPos( entPos + ( tr_up.HitPos - endposU ) ) end
 end
----------------------------------------------------------------------------------------------------------=#
+
+
 local function TryFixPropPosition( ply, ent, hitpos )
 	fixupProp( ply, ent, hitpos, Vector( ent:OBBMins().x, 0, 0 ), Vector( ent:OBBMaxs().x, 0, 0 ) )
 	fixupProp( ply, ent, hitpos, Vector( 0, ent:OBBMins().y, 0 ), Vector( 0, ent:OBBMaxs().y, 0 ) )
 	fixupProp( ply, ent, hitpos, Vector( 0, 0, ent:OBBMins().z ), Vector( 0, 0, ent:OBBMaxs().z ) )
 end
----------------------------------------------------------------------------------------------------------=#
+
+
 function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSpawnedOnCeiling, bDropToFloor )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
-
-
-	print(Class)
 
 
         -- This npc's table
@@ -281,7 +280,8 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 
 	return ZBaseInitialize( NPC, NPCData, Class, Equipment, true, wasSpawnedOnCeiling, bDropToFloor )
 end
----------------------------------------------------------------------------------------------------------=#
+
+
 function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 
 	-- We don't support this command from dedicated server console
@@ -338,13 +338,15 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 	ply:SendLua( "achievements.SpawnedNPC()" )
 
 end
----------------------------------------------------------------------------------------------------------=#
+
+
 concommand.Add( "zbase_spawnnpc", function( ply, cmd, args )
 
     Spawn_ZBaseNPC( ply, args[ 1 ], args[ 2 ] )
 
 end)
----------------------------------------------------------------------------------------------------------=#
+
+
 concommand.Add( "zbase_debug_spawn_many", function( ply, cmd, args )
 	for x = 1, args[ 2 ] or 25 do
 		for y = 1, args[ 2 ] or 25 do
@@ -364,4 +366,4 @@ concommand.Add( "zbase_debug_spawn_many", function( ply, cmd, args )
 		end
 	end
 end)
----------------------------------------------------------------------------------------------------------=#
+

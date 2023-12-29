@@ -1,7 +1,7 @@
-local cl_drawspawneffect = CreateConVar( "cl_drawspawneffect", "1", { FCVAR_ARCHIVE } )
 local matRefract = Material( "models/props_combine/stasisshield_sheet" )
 
------------------------------------------------------------------------------------------------=#
+
+
 function EFFECT:Init( data )
 
 	if ( !cl_drawspawneffect:GetBool() ) then return end
@@ -28,7 +28,8 @@ function EFFECT:Init( data )
 
 
 end
------------------------------------------------------------------------------------------------=#
+
+
 function EFFECT:Think()
 
 	if ( !cl_drawspawneffect:GetBool() ) then return false end
@@ -50,10 +51,12 @@ function EFFECT:Think()
 	return false
 
 end
------------------------------------------------------------------------------------------------=#
+
+
 function EFFECT:Render()
 end
------------------------------------------------------------------------------------------------=#
+
+
 function EFFECT:RenderOverlay( entity )
 
 	local Fraction = ( self.LifeTime - CurTime() ) / self.Time
@@ -98,7 +101,8 @@ function EFFECT:RenderOverlay( entity )
 	render.EnableClipping( bClipping )
 
 end
------------------------------------------------------------------------------------------------=#
+
+
 function EFFECT:RenderParent()
 
 	if ( !IsValid( self ) ) then return end
@@ -114,7 +118,8 @@ function EFFECT:RenderParent()
 	self.SpawnEffect:RenderOverlay( self )
 
 end
------------------------------------------------------------------------------------------------=#
+
+
 function EFFECT:StartClip( model, spd )
 
 	local mn, mx = model:GetRenderBounds()
@@ -136,4 +141,4 @@ function EFFECT:StartClip( model, spd )
 	return bEnabled
 
 end
------------------------------------------------------------------------------------------------=#
+

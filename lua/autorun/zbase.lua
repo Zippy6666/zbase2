@@ -245,6 +245,7 @@ ZBaseNPCs = {}
 ZBaseSpawnMenuNPCList = {}
 ZBaseEnhancementTable = {}
 ZBaseDynSplatterInstalled = file.Exists("dynsplatter", "LUA")
+ZBaseIsMP = !game.SinglePlayer()
 
 
 
@@ -507,14 +508,21 @@ end
 
 
 function ZBase_RegisterHandler:RegNPCs()
-    local _, dirs = file.Find("zbase/entities/*","LUA")
 
-    self:RegBase() -- Register base
+    -- Empty NPC register
+    table.Empty(ZBaseNPCs)
+
+
+    -- Register base
+    self:RegBase()
+
 
     -- Register all ZBase NPCs
+    local _, dirs = file.Find("zbase/entities/*","LUA")
     for _, v in ipairs(dirs) do
         self:NPCReg(v)
     end
+
 end
 
 
@@ -558,6 +566,9 @@ end
 
 
 function ZBase_RegisterHandler:Reload()
+
+    -- We need to clear the glow eye table on reload, or else it will keep adding new eyes
+    -- table.Empty(ZBaseGlowingEyes)
 
 
     self:RegNPCs()
