@@ -446,6 +446,9 @@ end
 --]]
 
 
+NPCB.ZBWepSys_ChangeActs = {}
+
+
 -- https://wiki.facepunch.com/gmod/Hold_Types
 local HoldTypeFallback = {
     ["pistol"] = "revolver",	-- One hand grasp used for pistols
@@ -479,21 +482,20 @@ local HoldTypeActCheck = {
 }
 
 
-local ReloadActs = {
-    [ACT_RELOAD] = true,
-    [ACT_RELOAD_SHOTGUN] = true,
-    [ACT_RELOAD_SHOTGUN_LOW] = true,
-    [ACT_RELOAD_SMG1] = true,
-    [ACT_RELOAD_SMG1_LOW] = true,
-    [ACT_RELOAD_PISTOL] = true,
-    [ACT_RELOAD_PISTOL_LOW] = true,
+local ActCrouchTranslate = {
+    [ACT_RANGE_ATTACK_PISTOL] = ACT_RANGE_ATTACK_PISTOL_LOW,
+    [ACT_RANGE_ATTACK_SMG1] = ACT_RANGE_ATTACK_SMG1_LOW,
+    [ACT_RANGE_ATTACK_AR2] = ACT_RANGE_ATTACK_AR2_LOW,
+    [ACT_RANGE_ATTACK_SHOTGUN] =ACT_RANGE_ATTACK_SHOTGUN_LOW,
 }
-
 
 
 function NPC:ZBWepSys_Init()
 
     self.ZBWepSys_Inventory = {}
+    
+    self.ZBWepSys_CurShootAct = self.WeaponFire_Activities[1] or ACT_RUN_AIM
+    self.ZBWepSys_CurMoveShootAct = self.WeaponFire_MoveActivities[1] or ACT_RUN_AIM
 
 end
 
@@ -719,65 +721,92 @@ function NPC:ZBWepSys_SetAct_Translated( act, func, ... )
 end
 
 
+function NPCB.ZBWepSys_ChangeActs:ShouldDoBehaviour( self )
+    return self:ZBWepSys_ShouldFireWeapon()
+end
+
+
+function NPCB.ZBWepSys_ChangeActs:Run( self )
+
+    -- Randomize shoot act every now and then
+    self.ZBWepSys_CurMoveShootAct = table.Random(self.WeaponFire_MoveActivities)
+    self.ZBWepSys_CurShootAct = table.Random(self.WeaponFire_Activities)
+
+    ZBaseDelayBehaviour(math.Rand(3, 9))
+
+end
+
+
+function NPC:ZBWepSys_ShootAnim(arguments)
+
+    self.ZBWepSys_AllowRange1Translate = true
+
+
+    local ActToTranslate = self.ZBWepSys_CurShootAct
+
+    
+    -- local IsCrouching = string.find( self:GetSequenceActivityName(self:GetSequence()), "CROUCH" ) != nil
+    -- Convert to crouch if we are crouching
+    -- if IsCrouching then
+    --     ActToTranslate = ActCrouchTranslate[ActToTranslate] or ActToTranslate
+    --     debugoverlay.Text(self:GetPos(), "doing crouch translate", 0.13)
+    -- end
+
+
+    -- Anim
+    local DesiredAct = self:ZBWepSys_SetAct_Translated( ActToTranslate, self.ResetIdealActivity )
+    
+
+    if DesiredAct then
+
+        -- Start anim from the start
+        self:ResetSequenceInfo()
+        self:SetCycle(0)
+        self:ResetSequence( self:SelectWeightedSequence(DesiredAct) )
+
+    end
+
+
+    -- Gesture
+    if self.WeaponFire_DoGesture then
+
+        -- While standing
+        self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
+
+    elseif self:IsMoving() && self.WeaponFire_DoGesture_Moving then
+
+        -- While moving
+        self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
+
+    end
+
+
+    self.ZBWepSys_AllowRange1Translate = false
+
+end
+
+
+
 function NPC:ZBWepSys_FireWeaponThink()
 
     if self:ZBWepSys_ShouldFireWeapon() then
 
-        if self:GetMovementActivity() == -1 then
+        -- if self:GetMovementActivity() != -1 then
 
-            -- Stand shoot act
-
-
-            self.ZBWepSys_AllowRange1Translate = true
-
-
-            -- Anim
-            local DesiredAct = self:ZBWepSys_SetAct_Translated( table.Random(self.WeaponFire_Activities), self.ResetIdealActivity )
-            
-            if DesiredAct then
-
-                -- Skip transition
-                local CurrentAct = self:GetSequenceActivity(self:GetSequence())
-                if CurrentAct != DesiredAct then
-                    self:ResetSequenceInfo()
-                    self:SetCycle(0)
-                    self:ResetSequence( self:SelectWeightedSequence(DesiredAct) )
-                end
-
-            end
+        --     -- Movement act
+        --     self:ZBWepSys_SetAct_Translated( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
         
-
-            -- Gesture
-            if self.WeaponFire_DoGesture then
-                self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
-            end
-
-
-            self.ZBWepSys_AllowRange1Translate = false
-
-        else
-
-            -- Move shoot act
-
-
-            -- Anim
-            self:ZBWepSys_SetAct_Translated( table.Random(self.WeaponFire_MoveActivities), self.SetMovementActivity )
-            
-
-            -- Gesture
-            if self.WeaponFire_DoGesture_Moving then
-                self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
-            end
-
-        end
+        -- end
 
 
         -- Press trigger
         self:ZBWepSys_Shoot()
+        self:ZBWepSys_ShootAnim()
 
     end
 
 end
+
 
 
 function NPC:ZBWepSys_MeleeThink()

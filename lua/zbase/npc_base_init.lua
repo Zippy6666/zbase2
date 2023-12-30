@@ -116,11 +116,11 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.NoWeapon_Scared = false -- Should it run away from the enemy if it doesn't have a weapon?
 
 
-NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1} -- ...
-NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM} -- ...
+NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK1_LOW} -- The NPC will randomly switch between these activities when firing their weapon
+NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM, ACT_RUN_AIM} -- The NPC will randomly switch between these activities when firing their weapon
 
 
-NPC.WeaponFire_DoGesture = false -- Should it play a gesture animation everytime it fires the weapon when standing still?
+NPC.WeaponFire_DoGesture = true -- Should it play a gesture animation everytime it fires the weapon when standing still?
 NPC.WeaponFire_DoGesture_Moving = true -- Should it play a gesture animation everytime it fires the weapon when moving?
 NPC.WeaponFire_Gestures = {ACT_GESTURE_RANGE_ATTACK1} -- The gesture animations to play
 
