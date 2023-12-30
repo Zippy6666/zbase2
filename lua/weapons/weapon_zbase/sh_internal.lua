@@ -404,10 +404,10 @@ function SWEP:TranslateActivity( act )
 	-- ZBase
 	if own.IsZBaseNPC then
 
-		
+		-- Temporary fix for combines, might do advanced system later
+		-- Fixes them not moving with melee weapons
 		if self:SelectWeightedSequence(act) == -1 then
 
-			-- Temporary fix for combines, might do advanced system later
 			if act==ACT_WALK_PISTOL then
 				return ACT_WALK_AIM_RIFLE
 			elseif act==ACT_RUN_PISTOL then
@@ -416,8 +416,25 @@ function SWEP:TranslateActivity( act )
 
 		end
 
+
+
+		if act != own.ZBWepSys_CurShootAct && own:GetNPCState()==NPC_STATE_COMBAT then
+
+			own.ZBWepSys_AllowRange1Translate = true
+			local DoubleTranslatedAct = self:TranslateActivity( own.ZBWepSys_CurShootAct )
+			own.ZBWepSys_AllowRange1Translate = false
+
+
+			own:SetPlaybackRate(0)
+
+
+			return DoubleTranslatedAct
+
+		end
+
 	
 
+		-- Don't let the engine do ACT_RANGE_ATTACK1 with the weapon
 		if act == ACT_RANGE_ATTACK1 && !own.ZBWepSys_AllowRange1Translate then
 
 			return ACT_IDLE

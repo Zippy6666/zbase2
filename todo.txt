@@ -1,10 +1,8 @@
 >> TODO <<
 - Finish weapon system:
-    - make sure weapon settings work
-    - make sure ai is consistent with weapons
-    - shotgun pump / bolt system
     - proper weapon reload system
-    - system that lets you not have shoot while moving (force a schedule?), and have multiple acts
+    - make sure weapon settings work
+    - make sure ai is not retarded weapons
 - fix gender issue
 - fix lag spike issue
 - fix leg jankin
@@ -23,7 +21,7 @@
 - future update list
 - bug fixes comin soooooooopneas
 - list known bugs
-- three discosasoions: bugs, dev help, suggestions (no stoopid in the comment section)just make it nice and not stressful i wanna chill mkay, be smart with dat shit
+- bugs, dev help, suggestions, 
 - turn off comments >:)
 
 
