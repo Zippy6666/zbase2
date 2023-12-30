@@ -116,6 +116,11 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.NoWeapon_Scared = false -- Should it run away from the enemy if it doesn't have a weapon?
 
 
+NPC.WeaponFire_DoGesture = false -- Should it play a gesture animation everytime it fires the weapon when standing still?
+NPC.WeaponFire_DoGesture_Moving = true -- Should it play a gesture animation everytime it fires the weapon when moving?
+NPC.WeaponFire_Gestures = {ACT_GESTURE_RANGE_ATTACK1} -- The gesture animations to play
+
+
 NPC.MeleeWeaponAnimations = {ACT_MELEE_ATTACK1} -- Animations to use when attacking with a melee weapon
 NPC.MeleeWeaponAnimations_TimeUntilDamage = 0.5 -- Time until the damage from melee weapons hit
 

@@ -75,6 +75,14 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:Help("Sets 'developer' to '1'.")
 
 
+        panel:CheckBox( "Show Aerial Navigator", "zbase_show_navigator")
+        panel:Help("Show the 'ghost NPC' that helps the aerial NPCs navigate.")
+
+
+        panel:CheckBox( "Show NPC Schedule", "zbase_show_sched")
+        panel:Help("Show what schedule the NPC is currently doing.")
+
+
         panel:CheckBox( "ZBase Reload Spawnmenu", "zbase_reload_spawnmenu")
         panel:Help("Should 'zbase_reload' also reload the spawn menu?")
         

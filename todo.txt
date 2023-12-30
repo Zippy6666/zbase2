@@ -1,22 +1,30 @@
 >> TODO <<
+- Finish weapon system:
+    - make sure weapon settings work
+    - make sure ai is consistent with weapons
+    - shotgun pump / bolt system
+    - proper weapon reload system
+    - system that lets you not have shoot while moving (force a schedule?)
 - fix gender issue
 - fix lag spike issue
-- improve lost enemy shit
+- fix leg jankin
 - make sure they forget enemies as intended
+- improve lost enemy shit
+- no dmginfo storage
 - just test it a bunch
-
 
 
 >>> rilis notes!!!!!!! <<<
 - new public repo w copyright + update dummy git
 - test run from workshop (not legacy)
-- title: "ZBASE" (probably) ask chat gpt how to make everything attractive, let it write the description
+- title: "ZBASE" (probably) ask chat gpt how to make everything attractive, let it write the description (maybe just make it all goofy idk)
 - Credit crunchy soap!!!!!!!!!!!!!
 - requiresd good boi branch!!!
 - future update list
 - bug fixes comin soooooooopneas
 - list known bugs
 - three discosasoions: bugs, dev help, suggestions (no stoopid in the comment section)just make it nice and not stressful i wanna chill mkay, be smart with dat shit
+- turn off comments >:)
 
 
 
