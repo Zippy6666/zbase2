@@ -493,9 +493,9 @@ local ActCrouchTranslate = {
 function NPC:ZBWepSys_Init()
 
     self.ZBWepSys_Inventory = {}
-    
     self.ZBWepSys_CurShootAct = self.WeaponFire_Activities[1] or ACT_RUN_AIM
     self.ZBWepSys_CurMoveShootAct = self.WeaponFire_MoveActivities[1] or ACT_RUN_AIM
+    self.ZBWepSys_MoveActSet = false
 
 end
 
@@ -743,37 +743,31 @@ function NPC:ZBWepSys_ShootAnim(arguments)
 
 
     local ActToTranslate = self.ZBWepSys_CurShootAct
-
-    
-    -- local IsCrouching = string.find( self:GetSequenceActivityName(self:GetSequence()), "CROUCH" ) != nil
-    -- Convert to crouch if we are crouching
-    -- if IsCrouching then
-    --     ActToTranslate = ActCrouchTranslate[ActToTranslate] or ActToTranslate
-    --     debugoverlay.Text(self:GetPos(), "doing crouch translate", 0.13)
-    -- end
+    local Moving = self:IsMoving()
 
 
-    -- Anim
-    local DesiredAct = self:ZBWepSys_SetAct_Translated( ActToTranslate, self.ResetIdealActivity )
-    
+    if !Moving then
+        local DesiredAct = self:ZBWepSys_SetAct_Translated( ActToTranslate, self.ResetIdealActivity )
+        
 
-    if DesiredAct then
+        if DesiredAct then
 
-        -- Start anim from the start
-        self:ResetSequenceInfo()
-        self:SetCycle(0)
-        self:ResetSequence( self:SelectWeightedSequence(DesiredAct) )
+            -- Start anim from the start
+            self:ResetSequenceInfo()
+            self:SetCycle(0)
+            self:ResetSequence( self:SelectWeightedSequence(DesiredAct) )
 
+        end
     end
 
 
     -- Gesture
-    if self.WeaponFire_DoGesture then
+    if !Moving && self.WeaponFire_DoGesture then
 
         -- While standing
         self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
 
-    elseif self:IsMoving() && self.WeaponFire_DoGesture_Moving then
+    elseif Moving && self.WeaponFire_DoGesture_Moving then
 
         -- While moving
         self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
@@ -789,20 +783,32 @@ end
 
 function NPC:ZBWepSys_FireWeaponThink()
 
+    local Moving = self:IsMoving()
+
+
+
     if self:ZBWepSys_ShouldFireWeapon() then
 
-        -- if self:GetMovementActivity() != -1 then
+        if Moving && !self.ZBWepSys_MoveActSet && !self:InDanger() then
 
-        --     -- Movement act
-        --     self:ZBWepSys_SetAct_Translated( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
-        
-        -- end
+            -- Movement act
+            self:ZBWepSys_SetAct_Translated( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
+            self.ZBWepSys_MoveActSet = true
+            debugoverlay.Text(self:GetPos(), "move act set", 3)
+
+
+        end
 
 
         -- Press trigger
         self:ZBWepSys_Shoot()
         self:ZBWepSys_ShootAnim()
 
+    end
+
+
+    if !Moving then
+        self.ZBWepSys_MoveActSet = false
     end
 
 end
@@ -819,12 +825,11 @@ function NPC:ZBWepSys_MeleeThink()
 
             self:Weapon_MeleeAnim()
 
-            timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
 
+            timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
                 if IsValid(self) then
                     self:GetActiveWeapon():NPCMeleeWeaponDamage()
                 end
-            
             end)
 
         end
@@ -2314,7 +2319,16 @@ function NPC:HandleDanger()
     end
 
 
+    -- RUN BOYE
+    self:SetMovementActivity(ACT_RUN)
+
+
     self:CancelConversation()
+end
+
+
+function NPC:InDanger()
+    return self.LastLoudestSoundHint && self.LastLoudestSoundHint.type == SOUND_DANGER
 end
 
 
