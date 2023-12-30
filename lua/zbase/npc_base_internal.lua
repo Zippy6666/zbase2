@@ -3172,10 +3172,13 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     if RagdollBlacklist[self:GetClass()] then return end
 
 
+    local CopyPosEnt = IsValid(self.ActiveRagdoll) && self.ActiveRagdoll or self
+
+
 	local rag = ents.Create("prop_ragdoll")
 	rag:SetModel(self:GetModel())
-	rag:SetPos(self:GetPos())
-	rag:SetAngles(self:GetAngles())
+	rag:SetPos(CopyPosEnt:GetPos())
+	rag:SetAngles(CopyPosEnt:GetAngles())
 	rag:SetSkin(self:GetSkin())
 	rag:SetColor(self:GetColor())
 	rag:SetMaterial(self:GetMaterial())
@@ -3205,7 +3208,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	for i = 0, physcount - 1 do
 		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
-		local pos, ang = self:GetBonePosition(self:TranslatePhysBoneToBone(i))
+		local pos, ang = CopyPosEnt:GetBonePosition(CopyPosEnt:TranslatePhysBoneToBone(i))
 		physObj:SetPos( pos )
 		physObj:SetAngles( ang )
 
