@@ -12,7 +12,6 @@ AddCSLuaFile()
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
-
 --[[
 ==================================================================================================
                             INIT/THINK
