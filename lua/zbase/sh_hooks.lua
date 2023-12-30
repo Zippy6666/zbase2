@@ -158,6 +158,7 @@ hook.Add("Tick", "ZBASE", function()
     end
 
 
+
     -- Behaviour tick
     if !GetConVar("ai_disabled"):GetBool()
     && NextBehaviourThink < CurTime() then
@@ -173,6 +174,8 @@ hook.Add("Tick", "ZBASE", function()
         NextBehaviourThink = CurTime() + 0.4
 
     end
+
+
 end)
 
 

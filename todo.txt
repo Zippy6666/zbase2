@@ -1,13 +1,7 @@
 >> TODO <<
-- Finish weapon system:
-    - proper weapon reload system
-    - make sure weapon settings work
-    - make sure ai is not retarded weapons
-- fix gender issue
-- fix lag spike issue
-- fix leg jankin
-- make sure they forget enemies as intended
-- improve lost enemy shit
+- Finish weapon system (reload system, ai)
+- fix bugs: gender issue, lag spike issue, leg jankin
+- ai improve: improve lost enemy shit, make sure they forget enemies as intended
 - no dmginfo storage
 - just test it a bunch, d3 as well
 
