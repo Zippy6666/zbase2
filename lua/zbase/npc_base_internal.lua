@@ -734,13 +734,16 @@ function NPC:ZBWepSys_FireWeaponThink()
             -- Anim
             local DesiredAct = self:ZBWepSys_SetAct_Translated( table.Random(self.WeaponFire_Activities), self.ResetIdealActivity )
             
+            if DesiredAct then
 
-            -- Skip transition
-            local CurrentAct = self:GetSequenceActivity(self:GetSequence())
-            if CurrentAct != DesiredAct then
-                self:ResetSequenceInfo()
-                self:SetCycle(0)
-                self:ResetSequence( self:SelectWeightedSequence(DesiredAct) )
+                -- Skip transition
+                local CurrentAct = self:GetSequenceActivity(self:GetSequence())
+                if CurrentAct != DesiredAct then
+                    self:ResetSequenceInfo()
+                    self:SetCycle(0)
+                    self:ResetSequence( self:SelectWeightedSequence(DesiredAct) )
+                end
+
             end
         
 
