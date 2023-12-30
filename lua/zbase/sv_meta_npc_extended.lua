@@ -25,6 +25,10 @@ local VJ_Translation_Flipped = {
 
 
 function NPC:ZBaseSetMutualRel( ent, rel )
+    
+    if !IsValid(ent) then return end
+
+    
     self:AddEntityRelationship(ent, rel, 99)
 
 
@@ -37,6 +41,7 @@ function NPC:ZBaseSetMutualRel( ent, rel )
     if !ent.IsZBaseNPC && ent:IsNPC() then
         ent:AddEntityRelationship(self, rel, 99)
     end
+
 end
 
 
