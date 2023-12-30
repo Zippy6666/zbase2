@@ -419,7 +419,7 @@ function SWEP:TranslateActivity( act )
 
 
 		-- Maintain whatever shoot stance there is when we should
-		if act != own.ZBWepSys_CurShootAct && own:GetNPCState()==NPC_STATE_COMBAT && own.EnemyVisible && !own:IsMoving() then
+		if act != own.ZBWepSys_CurShootAct && own:ZBWepSys_WantsToShot() && !own:IsMoving() then
 
 			own.ZBWepSys_AllowRange1Translate = true
 			local DoubleTranslatedAct = self:TranslateActivity( own.ZBWepSys_CurShootAct )

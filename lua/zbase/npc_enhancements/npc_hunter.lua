@@ -5,16 +5,16 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
     
     
     function NPC:ZBaseEnhancedInit()
-        self:SetAllowedEScheds({
-            "SCHED_HUNTER_RANGE_ATTACK2",
-            "SCHED_HUNTER_CHASE_ENEMY",
-            "SCHED_HUNTER_CHARGE_ENEMY",
-            "SCHED_HUNTER_MELEE_ATTACK1",
-            "SCHED_HUNTER_STAGGER",
-            "SCHED_HUNTER_COMBAT_FACE",
-            "SCHED_HUNTER_FLANK_ENEMY",
-            "SCHED_HUNTER_PATROL_RUN",
-        })
+        -- self:SetAllowedEScheds({
+        --     "SCHED_HUNTER_RANGE_ATTACK2",
+        --     "SCHED_HUNTER_CHASE_ENEMY",
+        --     "SCHED_HUNTER_CHARGE_ENEMY",
+        --     "SCHED_HUNTER_MELEE_ATTACK1",
+        --     "SCHED_HUNTER_STAGGER",
+        --     "SCHED_HUNTER_COMBAT_FACE",
+        --     "SCHED_HUNTER_FLANK_ENEMY",
+        --     "SCHED_HUNTER_PATROL_RUN",
+        -- })
     end
     
     
@@ -23,7 +23,8 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
     
     
     function NPC:ZBaseEnhancedDealDamage(dmg, ent)
-        -- Fixes hunters being unable to hurt eachother
+
+        -- Fixes hunters being unable to hurt each other
         if ent:GetClass() == "npc_hunter" && !self:IsAlly(ent) && !self.DoingHunterDamageFix then
 
             self.DoingHunterDamageFix = true
@@ -32,7 +33,9 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
 
         end
 
+
         self.DoingHunterDamageFix = false
+        
     end
     
     
