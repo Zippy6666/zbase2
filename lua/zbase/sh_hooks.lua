@@ -278,18 +278,11 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
     -- Handle combine balls fired by ZBase NPCs
     if IsValid(attacker.ZBaseComballOwner) then
+
         dmg:SetAttacker(attacker.ZBaseComballOwner)
 
 
-        -- Set to 15 damage if it shouldn't use "full" damage
-        if (!ZBCVAR.FullHL2WepDMG_NPC:GetBool() && (ent:IsNPC() or ent:IsNextBot()))
-        or (!ZBCVAR.FullHL2WepDMG_PLY:GetBool() && ent:IsPlayer()) then
-
-            dmg:SetDamage(15)
-
-        elseif (ZBCVAR.FullHL2WepDMG_NPC:GetBool() && (ent:IsNPC() or ent:IsNextBot())) then
-            -- NPC comball full damage
-
+        if (ent:IsNPC() or ent:IsNextBot()) then
 
             -- Explotano
             if ent:GetClass() == "npc_hunter"
@@ -305,10 +298,12 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
                     ent:TakeDamageInfo(dmg2)
                 end
             end
+
         end
 
 
         attacker = attacker.ZBaseComballOwner
+
     end
 end)
 

@@ -66,7 +66,6 @@ function NPC:ZBaseInit()
     self.NextHealthRegen = CurTime()
     self.NextFootStepTimer = CurTime()
     self.NextRangeThreatened = CurTime()
-    self.NextWeaponFireVolley = CurTime()
     self.EnemyVisible = false
     self.HadPreviousEnemy = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
@@ -493,9 +492,17 @@ local ActCrouchTranslate = {
 function NPC:ZBWepSys_Init()
 
     self.ZBWepSys_Inventory = {}
+
+
     self.ZBWepSys_CurShootAct = self.WeaponFire_Activities[1] or ACT_RUN_AIM
     self.ZBWepSys_CurMoveShootAct = self.WeaponFire_MoveActivities[1] or ACT_RUN_AIM
+
+
     self.ZBWepSys_MoveActSet = false
+
+    
+    self.ZBWepSys_NextBurst = CurTime()
+    self.ZBWepSys_NextShoot = CurTime()
 
 end
 
@@ -659,26 +666,19 @@ function NPC:ZBWepSys_Shoot()
         local RndRest = math.Rand(RestTimeMin, RestTimeMax)
 
 
-        self.NextWeaponFireVolley = CurTime()+RndRest
+        self.ZBWepSys_NextBurst = CurTime()+RndRest
         self.ZBWepSys_ShotsLeft = nil
 
     end
 
+
+    local _, _, cooldown = self:GetActiveWeapon():ZBaseGetNPCBurstSettings()
+    self.ZBWepSys_NextShoot = CurTime()+cooldown
+
 end
 
 
-function NPC:ZBWepSys_ShouldFireWeapon()
-
-    local act = self:GetActivity()
-
-
-    -- MsgN(self.Name, "[", self:EntIndex(), "]")
-    -- MsgN("COND.WEAPON_HAS_LOS -> ", self:HasCondition( COND.WEAPON_HAS_LOS ) )
-    -- MsgN("COND.CAN_RANGE_ATTACK1 -> ", self:HasCondition( COND.CAN_RANGE_ATTACK1 ) )
-    -- MsgN("COND.NO_PRIMARY_AMMO -> ", self:HasCondition( COND.NO_PRIMARY_AMMO ) )
-    -- MsgN("COND.WEAPON_BLOCKED_BY_FRIEND -> ", self:HasCondition( COND.WEAPON_BLOCKED_BY_FRIEND ) )
-    -- MsgN("------------------------------------------")
-
+function NPC:ZBWepSys_WantsToShot()
 
     -- Enemy valid and visible
     return self.EnemyVisible
@@ -686,14 +686,24 @@ function NPC:ZBWepSys_ShouldFireWeapon()
     -- Not playing an animation from PlayAnimation
     && !self.DoingPlayAnim
 
-    -- Volley has started
-    && self.NextWeaponFireVolley < CurTime()
-
     -- Enemy is within shoot distance
     && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance})
 
     -- Conditions
     && self:HasCondition(COND.WEAPON_HAS_LOS) && self:HasCondition(COND.CAN_RANGE_ATTACK1) && !self:HasCondition(COND.WEAPON_BLOCKED_BY_FRIEND)
+
+end
+
+
+function NPC:ZBWepSys_CanFireWeapon()
+
+    -- Ready to fire
+    return self:ZBWepSys_WantsToShot()
+
+    && self.ZBWepSys_NextShoot < CurTime()
+
+    -- Volley has started
+    && self.ZBWepSys_NextBurst < CurTime()
 
 
 end
@@ -722,7 +732,7 @@ end
 
 
 function NPCB.ZBWepSys_ChangeActs:ShouldDoBehaviour( self )
-    return self:ZBWepSys_ShouldFireWeapon()
+    return self:ZBWepSys_WantsToShot()
 end
 
 
@@ -786,21 +796,19 @@ function NPC:ZBWepSys_FireWeaponThink()
     local Moving = self:IsMoving()
 
 
+    if self:ZBWepSys_CanFireWeapon() then
 
-    if self:ZBWepSys_ShouldFireWeapon() then
-
-        if Moving && !self.ZBWepSys_MoveActSet && !self:InDanger() then
+        if Moving && !self.ZBWepSys_MoveActSet then
 
             -- Movement act
             self:ZBWepSys_SetAct_Translated( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
             self.ZBWepSys_MoveActSet = true
-            debugoverlay.Text(self:GetPos(), "move act set", 3)
+            debugoverlay.Text(self:GetPos(), "shoot move act set", 3)
 
 
         end
 
-
-        -- Press trigger
+        -- Press trigger, recoil anim
         self:ZBWepSys_Shoot()
         self:ZBWepSys_ShootAnim()
 
@@ -2721,6 +2729,7 @@ local ZBaseWeaponDMGs = {
 
 
 function NPC:DealDamage( dmg, ent )
+
     local infl = dmg:GetInflictor()
 
 
@@ -2732,67 +2741,6 @@ function NPC:DealDamage( dmg, ent )
 
     dmg:ScaleDamage(ZBCVAR.DMGMult:GetFloat())
 
-
-    -- Proper damage values for hl2 weapons --
-    local wep = self:GetActiveWeapon()
-    local ScaleForNPC = ZBCVAR.FullHL2WepDMG_NPC:GetBool() && (ent:IsNPC() or ent:IsNextBot())
-    local ScaleForPlayer = ZBCVAR.FullHL2WepDMG_PLY:GetBool() && ent:IsPlayer()
-
-    if IsValid(infl) && IsValid(wep) && (ScaleForNPC or ScaleForPlayer) then
-        local dmgTbl = ZBaseWeaponDMGs[wep:GetClass()]
-
-
-        if dmgTbl then
-            local IsPrimaryInfl = (dmgTbl.inflclass == "bullet" && dmg:IsBulletDamage()) or infl:GetClass() == dmgTbl.inflclass
-            local dmgFinal
-            
-            if IsPrimaryInfl then
-                dmgFinal = dmgTbl.dmg
-            else
-                local IsSecondaryInfl = infl:GetClass() == dmgTbl.inflclassSecondary
-
-                if IsSecondaryInfl then
-                    dmgFinal = dmgTbl.dmgSecondary
-                end
-            end
-
-
-            if dmgFinal then
-
-
-                -- Shotgun damage degrade over distance
-                if dmg:IsDamageType(DMG_BUCKSHOT) then
-                    if self:ZBaseDist(ent, {within=200}) then
-                        dmgFinal = math.random(40, 56)
-                    elseif self:ZBaseDist(ent, {within=400}) then
-                        dmgFinal = math.random(16, 40)
-                    else
-                        dmgFinal = math.random(8, 16)
-                    end
-                end
-
-
-                -- Explosion damage degrade over distance
-                if dmg:IsExplosionDamage() then
-                    local Dist = ent:GetPos():DistToSqr(dmg:GetDamagePosition())
-                    
-                    if Dist > 100^2 then
-                        -- Distant
-                        dmgFinal = math.random(dmgFinal*0.66, dmgFinal)
-                    elseif Dist > 50^2 then
-                        -- Close
-                        dmgFinal = math.random(1, dmgFinal*0.33)
-                    end
-                end
-
-
-                -- dmg:SetDamage(dmgFinal)s
-                if dmg:GetDamage() > 0 then
-                    dmg:ScaleDamage((1/dmg:GetDamage())*dmgFinal)
-                end
-            end
-        end
-    end
 end
 
 

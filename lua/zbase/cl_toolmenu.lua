@@ -46,15 +46,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     end)
 
 
-    ZBaseAddMenuCategory("Weapons", function( panel )
-        panel:CheckBox("NPC Full HL2 Weapon Damage", "zbase_full_hl2_wep_damage_npc")
-        panel:Help("Should NPCs deal the same amount of damage with HL2 weapons towards NPCs?")
-
-        panel:CheckBox("Player Full HL2 Weapon Damage", "zbase_full_hl2_wep_damage_ply")
-        panel:Help("Should NPCs deal the same amount of damage with HL2 weapons towards players?")
-    end)
-
-
     ZBaseAddMenuCategory("Aftermath", function( panel )
         panel:NumSlider( "Ragdoll Remove Time", "zbase_rag_remove_time", 0, 600, 1 )
         panel:Help("Time until ragdolls are removed, 0 = never. If keep corpses is enabled, this is ignored.")
