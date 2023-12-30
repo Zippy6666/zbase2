@@ -4,14 +4,14 @@
     - make sure ai is consistent with weapons
     - shotgun pump / bolt system
     - proper weapon reload system
-    - system that lets you not have shoot while moving (force a schedule?)
+    - system that lets you not have shoot while moving (force a schedule?), and have multiple acts
 - fix gender issue
 - fix lag spike issue
 - fix leg jankin
 - make sure they forget enemies as intended
 - improve lost enemy shit
 - no dmginfo storage
-- just test it a bunch
+- just test it a bunch, d3 as well
 
 
 >>> rilis notes!!!!!!! <<<
