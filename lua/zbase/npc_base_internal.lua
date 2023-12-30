@@ -14,6 +14,26 @@ local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 
 
+local function ListConditions(npc)
+	
+	if(!IsValid(npc)) then return end
+	
+	print(npc:GetClass().." ("..npc:EntIndex()..") has conditions:")
+	
+	for c = 0, 100 do
+	
+		if(npc:HasCondition(c)) then
+		
+			print(npc:ConditionName(c))
+			
+		end
+		
+	end
+	
+end
+
+
+
 --[[
 ==================================================================================================
                                            INIT BRUV
@@ -124,7 +144,8 @@ function NPC:ZBaseInit()
 
 
             -- FOV and sight dist
-            self:SetSaveValue("m_flFieldOfView", math.cos( (self.SightAngle*(math.pi/180))*0.5 ) )
+            self.FieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
+            self:SetSaveValue( "m_flFieldOfView", self.FieldOfView )
             self:SetMaxLookDistance(self.SightDistance)
         
 
@@ -497,12 +518,12 @@ function NPC:ZBWepSys_Init()
     self.ZBWepSys_CurShootAct = self.WeaponFire_Activities[1] or ACT_RUN_AIM
     self.ZBWepSys_CurMoveShootAct = self.WeaponFire_MoveActivities[1] or ACT_RUN_AIM
 
-
-    self.ZBWepSys_MoveActSet = false
-
     
     self.ZBWepSys_NextBurst = CurTime()
     self.ZBWepSys_NextShoot = CurTime()
+
+
+    self.ZBWepSys_InShootDist = false
 
 end
 
@@ -687,10 +708,13 @@ function NPC:ZBWepSys_WantsToShot()
     && !self.DoingPlayAnim
 
     -- Enemy is within shoot distance
-    && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance})
+    && self.ZBWepSys_InShootDist
 
     -- Conditions
     && self:HasCondition(COND.WEAPON_HAS_LOS) && self:HasCondition(COND.CAN_RANGE_ATTACK1) && !self:HasCondition(COND.WEAPON_BLOCKED_BY_FRIEND)
+
+    -- No grenades or some shit like that nearby
+    && !self:InDanger()
 
 end
 
@@ -790,20 +814,23 @@ function NPC:ZBWepSys_ShootAnim(arguments)
 end
 
 
-
 function NPC:ZBWepSys_FireWeaponThink()
 
     local Moving = self:IsMoving()
+    local ene = self:GetEnemy()
+    local checkdist = {within=self.MaxShootDistance*self:GetActiveWeapon().NPCShootDistanceMult, away=self.MinShootDistance}
+
+
+    -- In shoot dist check
+    self.ZBWepSys_InShootDist = IsValid(ene) && self:ZBaseDist(ene, checkdist)
 
 
     if self:ZBWepSys_CanFireWeapon() then
 
-        if Moving && !self.ZBWepSys_MoveActSet then
+        if Moving then
 
             -- Movement act
             self:ZBWepSys_SetAct_Translated( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
-            self.ZBWepSys_MoveActSet = true
-            debugoverlay.Text(self:GetPos(), "shoot move act set", 3)
 
 
         end
@@ -815,8 +842,19 @@ function NPC:ZBWepSys_FireWeaponThink()
     end
 
 
-    if !Moving then
-        self.ZBWepSys_MoveActSet = false
+    -- Move to enemy if it has LOS and it's too far away
+    if self.EnemyVisible && !self.ZBWepSys_InShootDist then
+
+        self:SetMaxLookDistance(1)
+        
+        if !self:IsCurrentSchedule(SCHED_CHASE_ENEMY) then
+            self:SetSchedule(SCHED_CHASE_ENEMY)
+        end
+    
+    else
+
+        self:SetMaxLookDistance(self.SightDistance)
+
     end
 
 end
