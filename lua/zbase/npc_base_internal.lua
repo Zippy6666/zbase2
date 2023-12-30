@@ -493,9 +493,6 @@ local ReloadActs = {
 
 function NPC:ZBWepSys_Init()
 
-    -- self.ZBWepSys_ActivityTranslate = {}
-    -- self.ZBWepSys_ActivityTranslate[ACT_RANGE_ATTACK1] = ACT_IDLE -- Prevent engine from doing range animation, do it through base instead
-
     self.ZBWepSys_Inventory = {}
 
 end
@@ -673,6 +670,14 @@ function NPC:ZBWepSys_ShouldFireWeapon()
     local act = self:GetActivity()
 
 
+    -- MsgN(self.Name, "[", self:EntIndex(), "]")
+    -- MsgN("COND.WEAPON_HAS_LOS -> ", self:HasCondition( COND.WEAPON_HAS_LOS ) )
+    -- MsgN("COND.CAN_RANGE_ATTACK1 -> ", self:HasCondition( COND.CAN_RANGE_ATTACK1 ) )
+    -- MsgN("COND.NO_PRIMARY_AMMO -> ", self:HasCondition( COND.NO_PRIMARY_AMMO ) )
+    -- MsgN("COND.WEAPON_BLOCKED_BY_FRIEND -> ", self:HasCondition( COND.WEAPON_BLOCKED_BY_FRIEND ) )
+    -- MsgN("------------------------------------------")
+
+
     -- Enemy valid and visible
     return self.EnemyVisible
 
@@ -685,8 +690,8 @@ function NPC:ZBWepSys_ShouldFireWeapon()
     -- Enemy is within shoot distance
     && self:ZBaseDist(self:GetEnemy(), {within=self.MaxShootDistance, away=self.MinShootDistance})
 
-    -- Has weapon LOS condition
-    && self:HasCondition(COND.WEAPON_HAS_LOS)
+    -- Conditions
+    && self:HasCondition(COND.WEAPON_HAS_LOS) && self:HasCondition(COND.CAN_RANGE_ATTACK1) && !self:HasCondition(COND.WEAPON_BLOCKED_BY_FRIEND)
 
 
 end
@@ -694,7 +699,7 @@ end
 
     -- Translates the activity and sets it if it is available, otherwise it does nothing
     -- Returns the translated activity if it was ran, otherwise false
-function NPC:ZBWepSys_SetTranslatedAct( act, func, ... )
+function NPC:ZBWepSys_SetAct_Translated( act, func, ... )
     func = func or self.SetActivity
 
 
@@ -718,23 +723,50 @@ function NPC:ZBWepSys_FireWeaponThink()
 
     if self:ZBWepSys_ShouldFireWeapon() then
 
-        -- Set some kind of aim stance if shoot moving
-        if self:IsMoving() then
-            self:ZBWepSys_SetTranslatedAct( self:Weapon_TranslateActivity(ACT_WALK_AIM), self.SetMovementActivity )
+        if self:GetMovementActivity() == -1 then
+
+            -- Stand shoot act
+
+
+            self.ZBWepSys_AllowRange1Translate = true
+
+
+            -- Anim
+            local DesiredAct = self:ZBWepSys_SetAct_Translated( table.Random(self.WeaponFire_Activities), self.ResetIdealActivity )
+            
+
+            -- Skip transition
+            local CurrentAct = self:GetSequenceActivity(self:GetSequence())
+            if CurrentAct != DesiredAct then
+                self:ResetSequenceInfo()
+                self:SetCycle(0)
+                self:ResetSequence( self:SelectWeightedSequence(DesiredAct) )
+            end
+        
+
+            -- Gesture
+            if self.WeaponFire_DoGesture then
+                self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
+            end
+
+
+            self.ZBWepSys_AllowRange1Translate = false
+
+        else
+
+            -- Move shoot act
+
+
+            -- Anim
+            self:ZBWepSys_SetAct_Translated( table.Random(self.WeaponFire_MoveActivities), self.SetMovementActivity )
+            
+
+            -- Gesture
+            if self.WeaponFire_DoGesture_Moving then
+                self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
+            end
+
         end
-
-
-        -- Shoot gesture
-        local GestAct = self:ZBWepSys_SetTranslatedAct(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
-
-
-
-        if !GestAct then
-
-            -- Normal animation
-            self:ZBWepSys_SetTranslatedAct( ACT_RANGE_ATTACK1, self.ResetIdealActivity )
-
-        end 
 
 
         -- Press trigger
@@ -823,10 +855,13 @@ end
 
 
 function NPC:SetModel_MaintainBounds(model)
+
     local mins, maxs = self:GetCollisionBounds()
+
     self:SetModel(model)
     self:SetCollisionBounds(mins, maxs)
     self:ResetIdealActivity(ACT_IDLE)
+
 end
 
 
@@ -967,9 +1002,6 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
         isnumber(anim) && anim
 
 
-        print(self:GetSequenceName(gest))
-        
-
         -- Don't play the same gesture again, remove the old one first
         if self:IsPlayingGesture(gest) then
             self:RemoveGesture(gest)
@@ -981,10 +1013,8 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
 
 
         -- Gest options
-        self:SetLayerCycle(id, 0)
         self:SetLayerBlendIn(id, 0.2)
         self:SetLayerBlendOut(id, 0.2)
-
 
 
         -- Playback rate
@@ -1468,12 +1498,12 @@ end
 function NPC:NewESchedDetected( sched, schedName )
 
     -- Shit reload workaround
-    local wep = self:GetActiveWeapon()
-    if wep.IsEngineClone && string.find(self.ZBaseLastESchedName, "RELOAD") then
+    -- local wep = self:GetActiveWeapon()
+    -- if wep.IsEngineClone && string.find(self.ZBaseLastESchedName, "RELOAD") then
 
-        wep:SetClip1( wep.EngineCloneMaxClip )
+    --     wep:SetClip1( wep.EngineCloneMaxClip )
 
-    end
+    -- end
 
 end
 
@@ -1796,12 +1826,18 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
             end
         end)
     
+
         local effectdata = EffectData()
         effectdata:SetFlags(5)
         effectdata:SetEntity(wep)
         util.Effect( "MuzzleFlash", effectdata, true, true )
 
+
         wep:EmitSound("Weapon_IRifle.Single")
+
+
+        self:ZBWepSys_SetAct_Translated(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
+
     end)
 
 
@@ -1842,14 +1878,19 @@ function NPCB.SecondaryFire:ShouldDoBehaviour( self )
     if !self.CanSecondaryAttack then return false end
     if self.DoingPlayAnim then return false end
 
+
     local wep = self:GetActiveWeapon()
 
+
     if !IsValid(wep) then return false end
+
 
     local wepTbl = wep.EngineCloneClass && SecondaryFireWeapons[ wep.EngineCloneClass ]
     if !wepTbl then return false end
 
+
     if self:GetActivity()!=ACT_RANGE_ATTACK1 then return false end
+
 
     return self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
 end
@@ -1870,6 +1911,10 @@ function NPCB.SecondaryFire:Run( self )
     local wep = self:GetActiveWeapon()
 
     SecondaryFireWeapons[ wep.EngineCloneClass ]:Func( self, wep, enemy )
+
+
+    self:ZBWepSys_SetAct_Translated(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
+
 
     ZBaseDelayBehaviour(math.Rand(4, 8))
 

@@ -87,7 +87,7 @@ function SWEP:PrimaryAttack()
 
 
 		if self.Primary.TakeAmmoPerShot > 0 then
-			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+			-- self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
 		end
 
 
@@ -418,8 +418,10 @@ function SWEP:TranslateActivity( act )
 
 	
 
-		if own.ZBWepSys_ActivityTranslate && own.ZBWepSys_ActivityTranslate[act] then
-			return own.ZBWepSys_ActivityTranslate[act]
+		if act == ACT_RANGE_ATTACK1 && !own.ZBWepSys_AllowRange1Translate then
+
+			return ACT_IDLE
+
 		end
 
 	end
