@@ -439,17 +439,27 @@ function NPC:ZBaseThink()
     end
 
 
+    -- Foot steps
     if !GetConVar("ai_disabled"):GetBool() && self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND then
         self:FootStepTimer()
     end
 
 
+    -- Move speed changer
+    if self.MoveSpeedMultiplier != 1 then
+        self:DoMoveSpeed()
+    end
+
+
+    -- Override activities when we should
     self:SetConditionalActivities()
 
 
+    -- Weapon system
     self:ZBWepSys_Think()
 
 
+    -- Custom think
     self:CustomThink()
 end
 
@@ -1765,10 +1775,7 @@ end
 
 
 function NPC:DoMoveSpeed()
-    if self.MoveSpeedMultiplier==0 then return end
-
     local TimeLastMovement = self:GetInternalVariable("m_flTimeLastMovement")
-
     self:SetPlaybackRate(self.MoveSpeedMultiplier)
     self:SetSaveValue("m_flTimeLastMovement", TimeLastMovement*self.MoveSpeedMultiplier)
 end
@@ -2974,18 +2981,18 @@ function NPC:LastDMGINFO( dmg )
     if !self.LastDMGINFOTbl then return end
 
     local lastdmginfo = DamageInfo()
-    lastdmginfo:SetAmmoType(ammotype)
-    lastdmginfo:SetAttacker(attacker)
-    lastdmginfo:SetBaseDamage(basedmg)
-    lastdmginfo:SetDamage(damage)
-    lastdmginfo:SetDamageBonus(dmgbonus)
-    lastdmginfo:SetDamageCustom(dmgcustom)
-    lastdmginfo:SetDamageForce(dmgforce)
-    lastdmginfo:SetDamageType(dmgtype)
-    lastdmginfo:SetDamagePosition(dmgpos)
-    lastdmginfo:SetInflictor(infl)
-    lastdmginfo:SetMaxDamage(maxdmg)
-    lastdmginfo:SetReportedPosition(reportedpos)
+    lastdmginfo:SetAmmoType(self.LastDMGINFOTbl.ammotype)
+    lastdmginfo:SetAttacker(self.LastDMGINFOTbl.attacker)
+    lastdmginfo:SetBaseDamage(self.LastDMGINFOTbl.basedmg)
+    lastdmginfo:SetDamage(self.LastDMGINFOTbl.damage)
+    lastdmginfo:SetDamageBonus(self.LastDMGINFOTbl.dmgbonus)
+    lastdmginfo:SetDamageCustom(self.LastDMGINFOTbl.dmgcustom)
+    lastdmginfo:SetDamageForce(self.LastDMGINFOTbl.dmgforce)
+    lastdmginfo:SetDamageType(self.LastDMGINFOTbl.dmgtype)
+    lastdmginfo:SetDamagePosition(self.LastDMGINFOTbl.dmgpos)
+    lastdmginfo:SetInflictor(self.LastDMGINFOTbl.infl)
+    lastdmginfo:SetMaxDamage(self.LastDMGINFOTbl.maxdmg)
+    lastdmginfo:SetReportedPosition(self.LastDMGINFOTbl.reportedpos)
 
     return lastdmginfo
 
@@ -3001,7 +3008,7 @@ function NPC:OnScaleDamage( dmg, hit_gr )
 
     -- Remember stuff
     self.LastHitGroup = hit_gr
-    self:StoreDMGINFO()
+    self:StoreDMGINFO( dmg )
 
 
 
@@ -3077,7 +3084,7 @@ function NPC:OnEntityTakeDamage( dmg )
 
 
     -- Remember last dmginfo
-    self:StoreDMGINFO()
+    self:StoreDMGINFO( dmg )
     self.LastDamageWasBullet = dmg:IsBulletDamage()
 
 
@@ -3129,7 +3136,7 @@ function NPC:OnPostEntityTakeDamage( dmg )
 
 
     -- Remember last dmginfo again for accuracy sake
-    self:StoreDMGINFO()
+    self:StoreDMGINFO( dmg )
 
 
     -- Fix NPCs being unkillable in SCHED_NPC_FREEZE
