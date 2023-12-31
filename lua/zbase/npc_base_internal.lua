@@ -2070,24 +2070,22 @@ end
 
 
 function NPCB.SecondaryFire:ShouldDoBehaviour( self )
+
     if !self.CanSecondaryAttack then return false end
-    if self.DoingPlayAnim then return false end
 
 
     local wep = self:GetActiveWeapon()
-
-
-    if !IsValid(wep) then return false end
 
 
     local wepTbl = wep.EngineCloneClass && SecondaryFireWeapons[ wep.EngineCloneClass ]
     if !wepTbl then return false end
 
 
-    if self:GetActivity()!=ACT_RANGE_ATTACK1 then return false end
+    if !self:ZBWepSys_WantsToShoot() then return end
 
 
     return self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
+
 end
 
 
@@ -2865,19 +2863,6 @@ end
 --]]
 
 
-local ZBaseWeaponDMGs = {
-    ["weapon_pistol"] = {dmg=5, inflclass="bullet"},
-    ["weapon_357"] = {dmg=40, inflclass="bullet"},
-    ["weapon_ar2"] = {dmg=8, inflclass="bullet"},
-    ["weapon_rpg"] = {dmg=150, inflclass="bullet"},
-    ["weapon_shotgun"] = {dmg=56, inflclass="bullet"},
-    ["weapon_smg1"] = {dmg=4, inflclass="bullet", dmgSecondary=100, inflclassSecondary="grenade_ar2"},
-    ["weapon_rpg"] = {dmg=150, inflclass="rpg_missile"},
-    ["weapon_crossbow"] = {dmg=100, inflclass="crossbow_bolt"},
-    ["weapon_elitepolice_mp5k"] = {dmg=5, inflclass="bullet"},
-}
-
-
 function NPC:DealDamage( dmg, ent )
 
     local infl = dmg:GetInflictor()
@@ -2950,15 +2935,74 @@ function NPC:ApplyZBaseDamageScale(dmg)
 end
 
 
+function NPC:StoreDMGINFO( dmg )
+
+    -- bruh
+    local ammotype = dmg:GetAmmoType()
+    local attacker = dmg:GetAttacker()
+    local basedmg = dmg:GetBaseDamage()
+    local damage = dmg:GetDamage()
+    local dmgbonus = dmg:GetDamageBonus()
+    local dmgcustom = dmg:GetDamageCustom()
+    local dmgforce = dmg:GetDamageForce()
+    local dmgtype = dmg:GetDamageType()
+    local dmgpos = dmg:GetDamagePosition()
+    local infl = dmg:GetInflictor()
+    local maxdmg = dmg:GetMaxDamage()
+    local reportedpos = dmg:GetReportedPosition()
+
+    self.LastDMGINFOTbl = {
+        ammotype = ammotype,
+        attacker = attacker,
+        basedmg = basedmg,
+        damage = damage,
+        dmgbonus = dmgbonus,
+        dmgcustom = dmgcustom,
+        dmgforce = dmgforce,
+        dmgtype = dmgtype,
+        dmgpos = dmgpos,
+        infl = infl,
+        maxdmg = maxdmg,
+        reportedpos = reportedpos,
+    }
+
+end
+
+
+function NPC:LastDMGINFO( dmg )
+
+    if !self.LastDMGINFOTbl then return end
+
+    local lastdmginfo = DamageInfo()
+    lastdmginfo:SetAmmoType(ammotype)
+    lastdmginfo:SetAttacker(attacker)
+    lastdmginfo:SetBaseDamage(basedmg)
+    lastdmginfo:SetDamage(damage)
+    lastdmginfo:SetDamageBonus(dmgbonus)
+    lastdmginfo:SetDamageCustom(dmgcustom)
+    lastdmginfo:SetDamageForce(dmgforce)
+    lastdmginfo:SetDamageType(dmgtype)
+    lastdmginfo:SetDamagePosition(dmgpos)
+    lastdmginfo:SetInflictor(infl)
+    lastdmginfo:SetMaxDamage(maxdmg)
+    lastdmginfo:SetReportedPosition(reportedpos)
+
+    return lastdmginfo
+
+end
+
+
     -- Called first
 function NPC:OnScaleDamage( dmg, hit_gr )
+
     local infl = dmg:GetInflictor()
     local attacker = dmg:GetAttacker()
 
 
     -- Remember stuff
-    self.LastHitGroup = dmg, hit_gr
-    self.LastDMGINFO = dmg
+    self.LastHitGroup = hit_gr
+    self:StoreDMGINFO()
+
 
 
     -- Don't get hurt by NPCs in the same faction
@@ -2997,6 +3041,7 @@ function NPC:OnScaleDamage( dmg, hit_gr )
             self.ZBase_BulletHits = nil
         end)
     end
+
 end
 
 
@@ -3032,7 +3077,7 @@ function NPC:OnEntityTakeDamage( dmg )
 
 
     -- Remember last dmginfo
-    self.LastDMGINFO = dmg
+    self:StoreDMGINFO()
     self.LastDamageWasBullet = dmg:IsBulletDamage()
 
 
@@ -3084,7 +3129,7 @@ function NPC:OnPostEntityTakeDamage( dmg )
 
 
     -- Remember last dmginfo again for accuracy sake
-    self.LastDMGINFO = dmg
+    self:StoreDMGINFO()
 
 
     -- Fix NPCs being unkillable in SCHED_NPC_FREEZE
@@ -3502,12 +3547,16 @@ function NPC:InternalCreateGib( model, data )
     -- Phys stuff
     local phys = Gib:GetPhysicsObject()
     if IsValid(phys) then
+        
         phys:Wake()
 
-        if self.LastDMGINFO then
-            local ForceDir = self.LastDMGINFO:GetDamageForce()/(math.Clamp(phys:GetMass(), 40, 10000))
+        local LastDMGInfo = self:LastDMGINFO()
+
+        if LastDMGInfo then
+            local ForceDir = LastDMGInfo:GetDamageForce()/(math.Clamp(phys:GetMass(), 40, 10000))
             phys:SetVelocity( (ForceDir) + VectorRand()*(ForceDir:Length()*0.33) ) 
         end
+
     end
 
 
@@ -3523,6 +3572,7 @@ end
 
 
 function NPC:DeathAnimation( dmg )
+    -- filzballs code
     local att = dmg:GetAttacker()
     local inf = dmg:GetInflictor()
     local dmgAmt = dmg:GetDamage()
