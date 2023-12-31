@@ -1,6 +1,6 @@
 >> TODO <<
-- Weapon reload system
-- fix bugs: gender issue, lag spike issue, leg jankin
+- Weapon reload system (fake ammo count, unload weapon when fake count is 0)
+- fix bugs: gender issue, lag spike issue, leg jankin, SNPC weird collision
 - ai improve: improve lost enemy shit, make sure they forget enemies as intended
 - no dmginfo storage
 - just test it a bunch, d3 as well
@@ -13,12 +13,7 @@
 - Credit crunchy soap!!!!!!!!!!!!!
 - requiresd good boi branch!!!
 - future update list
-- bug fixes comin soooooooopneas
-- list known bugs
-- bugs, dev help, suggestions, 
-- turn off comments >:)
-
-
+- bugs (list known bugs), dev help, suggestions,
 
 
 >>> IDEAS <<<
@@ -26,12 +21,9 @@
 - Jump system
 - Grab ZBase flying NPCs with gravity gun
 - Flying snpcs use air nodes too (not just ground) + other improvements
-- coolier effects?? from anp?
 - Pickup system (even though they have a weapon active)
 - New secondary fire system
-- Port all my NPCs
 - Able to change model and snpc type live
 - Base weapons
 - Controller
-- Fix SNPC collision
-- ZBase replace default npcs (hijack spawn command? is it nessecary before release?)
+- ZBase replace default npcs (hijack spawn command?)
