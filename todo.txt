@@ -1,6 +1,5 @@
 >> TODO <<
-- Weapon reload system (fake ammo count, unload weapon when fake count is 0)
-- fix bugs: gender issue, lag spike issue, leg jankin, SNPC weird collision
+- fix bugs: gender issue, lag spike issue, leg jankin, SNPC weird collision, weapon tpose and strange behaviour
 - ai improve: improve lost enemy shit, make sure they forget enemies as intended
 - no dmginfo storage
 - just test it a bunch, d3 as well
