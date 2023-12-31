@@ -22,15 +22,12 @@ SWEP.Base = "weapon_base" -- Set to "weapon_base"
 SWEP.IsZBaseWeapon = true -- Must exist in your swep
 SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
-
-SWEP.PrintName = "ZBase Weapon" -- The name of the SWEP displayed in the spawn menu.
-SWEP.Author = "Zippy" -- The SWEP's author.
-
-
 SWEP.Spawnable = false -- Whether or not this weapon can be obtained through the spawn menu.
 SWEP.AdminOnly = false -- If spawnable, this variable determines whether only administrators can use the button in the spawn menu.
 SWEP.Category = "ZBase" -- The spawn menu category that this weapon resides in.
 
+SWEP.PrintName = "ZBase Weapon" -- The name of the SWEP displayed in the spawn menu.
+SWEP.Author = "Zippy" -- The SWEP's author.
 
 SWEP.WorldModel = Model( "models/weapons/w_smg1.mdl" ) -- Relative path to the SWEP's world model.
 SWEP.ViewModel = Model( "models/weapons/c_smg1.mdl" ) -- Relative path to the SWEP's view model.
