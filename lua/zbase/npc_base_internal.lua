@@ -14,18 +14,24 @@ local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
 
 
-local function ListConditions(npc)
+local function ListConditions(npc, dur)
+    dur = dur or 0.13
 	
 	if(!IsValid(npc)) then return end
 	
-	print(npc:GetClass().." ("..npc:EntIndex()..") has conditions:")
+	-- print(npc:GetClass().." ("..npc:EntIndex()..") has conditions:")
+
+    local cond_count = 0
 	
 	for c = 0, 100 do
 	
 		if(npc:HasCondition(c)) then
 		
-			print(npc:ConditionName(c))
+			-- print(npc:ConditionName(c))
+            debugoverlay.Text(npc:GetPos()+npc:GetUp()*cond_count*10+npc:GetRight()*40, npc:ConditionName(c), dur)
 			
+            cond_count = cond_count + 1
+
 		end
 		
 	end
@@ -90,7 +96,6 @@ function NPC:ZBaseInit()
     self.HadPreviousEnemy = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.LastHitGroup = HITGROUP_GENERIC
-    self.SchedDebug = GetConVar("developer"):GetBool() && ZBCVAR.ShowSched:GetBool()
     self.PlayerToFollow = NULL
     self:SetNWBool("IsZBaseNPC", true)
     self:SetNWString("ZBaseName", self.Name)
@@ -415,12 +420,15 @@ function NPC:ZBaseThink()
     end
 
 
-    -- Sched debug
-    if self.SchedDebug then
+    -- Sched and state debug
+    if GetConVar("developer"):GetBool() && ZBCVAR.ShowSched:GetBool() then
+
         local sched = ZBaseSchedDebug(self)
+
         if sched then
             debugoverlay.Text(self:WorldSpaceCenter(), "sched: "..sched..", state: "..StrNPCStates[self:GetNPCState()], 0.13)
         end
+
     end
 
 
@@ -502,11 +510,11 @@ local HoldTypeActCheck = {
 }
 
 
-local ActCrouchTranslate = {
-    [ACT_RANGE_ATTACK_PISTOL] = ACT_RANGE_ATTACK_PISTOL_LOW,
-    [ACT_RANGE_ATTACK_SMG1] = ACT_RANGE_ATTACK_SMG1_LOW,
-    [ACT_RANGE_ATTACK_AR2] = ACT_RANGE_ATTACK_AR2_LOW,
-    [ACT_RANGE_ATTACK_SHOTGUN] =ACT_RANGE_ATTACK_SHOTGUN_LOW,
+local ShootSchedBlacklist = {
+    [SCHED_RELOAD] = true,
+    [SCHED_HIDE_AND_RELOAD] = true,
+    [SCHED_NPC_FREEZE] = true,
+    [ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")] = true,
 }
 
 
@@ -524,6 +532,46 @@ function NPC:ZBWepSys_Init()
 
 
     self.ZBWepSys_InShootDist = false
+
+
+    self.ZBWepSys_PrimaryAmmo = 0
+
+end
+
+
+function NPC:ZBWepSys_Reload()
+
+    -- On reload weapon
+
+
+    local wep = self:GetActiveWeapon()
+
+
+    -- Weapon reload sound
+    if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
+        wep:EmitSound(wep.NPCReloadSound)
+    end
+
+
+    -- Refill ammo
+    timer.Create("ZBaseReloadWeapon"..self:EntIndex(), self:SequenceDuration()*0.7 / self:GetPlaybackRate(), 1, function()
+
+        if !IsValid(self) then return end
+
+        local CurrentStrAct = self:GetSequenceActivityName( self:GetSequence() )
+        local StillReloading = string.find(CurrentStrAct, "RELOAD") != nil
+
+
+        if StillReloading then
+
+            self.ZBWepSys_PrimaryAmmo = self:GetActiveWeapon().Primary.DefaultClip
+
+            self:ClearCondition(COND.LOW_PRIMARY_AMMO)
+            self:ClearCondition(COND.LOW_PRIMARY_AMMO)
+
+        end
+
+    end)
 
 end
 
@@ -610,12 +658,13 @@ function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
     end
 
 
-    zbasewep:SetClip1( zbasewep.Primary.DefaultClip )
+    self.ZBWepSys_PrimaryAmmo = zbasewep.Primary.DefaultClip
 
 
     zbasewep.IsEngineClone = true
     zbasewep.EngineCloneMaxClip = zbasewep.Primary.DefaultClip
     zbasewep.EngineCloneClass = engineClass
+
 end
 
 
@@ -672,11 +721,10 @@ end
 
 
 function NPC:ZBWepSys_Shoot()
-    
-    self.ZBWepSys_AllowShoot = true
-    self:GetActiveWeapon():PrimaryAttack()
-    self.ZBWepSys_AllowShoot = false
 
+
+    self:GetActiveWeapon():PrimaryAttack()
+    
 
     self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
 
@@ -699,7 +747,7 @@ function NPC:ZBWepSys_Shoot()
 end
 
 
-function NPC:ZBWepSys_WantsToShot()
+function NPC:ZBWepSys_WantsToShoot()
 
     -- Enemy valid and visible
     return self.EnemyVisible
@@ -716,13 +764,15 @@ function NPC:ZBWepSys_WantsToShot()
     -- No grenades or some shit like that nearby
     && !self:InDanger()
 
+    && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
+
 end
 
 
 function NPC:ZBWepSys_CanFireWeapon()
 
     -- Ready to fire
-    return self:ZBWepSys_WantsToShot()
+    return self:ZBWepSys_WantsToShoot()
 
     && self.ZBWepSys_NextShoot < CurTime()
 
@@ -735,6 +785,9 @@ end
 
     -- Translates the activity and sets it if it is available, otherwise it does nothing
     -- Returns the translated activity if it was ran, otherwise false
+    -- idk wtf i'm doing
+    -- doesn't this happen automatically
+    -- idfk
 function NPC:ZBWepSys_SetAct_Translated( act, func, ... )
     func = func or self.SetActivity
 
@@ -756,7 +809,7 @@ end
 
 
 function NPCB.ZBWepSys_ChangeActs:ShouldDoBehaviour( self )
-    return self:ZBWepSys_WantsToShot()
+    return self:ZBWepSys_WantsToShoot()
 end
 
 
@@ -818,28 +871,82 @@ function NPC:ZBWepSys_FireWeaponThink()
 
     local Moving = self:IsMoving()
     local ene = self:GetEnemy()
-    local checkdist = {within=self.MaxShootDistance*self:GetActiveWeapon().NPCShootDistanceMult, away=self.MinShootDistance}
+    local wep = self:GetActiveWeapon()
+    local checkdist = {within=self.MaxShootDistance*wep.NPCShootDistanceMult, away=self.MinShootDistance}
+
 
 
     -- In shoot dist check
     self.ZBWepSys_InShootDist = IsValid(ene) && self:ZBaseDist(ene, checkdist)
 
 
+
+    -- Here is where the fun begins
     if self:ZBWepSys_CanFireWeapon() then
 
-        if Moving then
+        -- Check ammo, and apply COND_
+        if self.ZBWepSys_PrimaryAmmo <= 0 then
 
-            -- Movement act
+            -- No ammo
+
+            self.ZBWepSys_AllowShoot = false
+
+            if !self:HasCondition(COND.NO_PRIMARY_AMMO) then
+                self:SetCondition(COND.NO_PRIMARY_AMMO)
+            end
+
+        elseif self.ZBWepSys_PrimaryAmmo <= wep.Primary.DefaultClip*0.25 then
+
+            -- Low ammo
+
+            self.ZBWepSys_AllowShoot = true
+
+            if !self:HasCondition(COND.LOW_PRIMARY_AMMO) then
+                self:SetCondition(COND.LOW_PRIMARY_AMMO)
+            end
+
+        else
+
+            -- Reset COND_
+            if self:HasCondition(COND.NO_PRIMARY_AMMO) then
+                self:ClearCondition(COND.NO_PRIMARY_AMMO)
+            end
+            if self:HasCondition(COND.LOW_PRIMARY_AMMO) then
+                self:ClearCondition(COND.LOW_PRIMARY_AMMO)
+            end
+
+
+            -- Has ammo
+            self.ZBWepSys_AllowShoot = true
+
+        end
+    
+
+        -- When moving
+        if self.ZBWepSys_AllowShoot && Moving then
+
+            -- Shoot move act
             self:ZBWepSys_SetAct_Translated( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
 
 
+            -- No ammo, RUN
+            if self:HasCondition(COND.NO_PRIMARY_AMMO) then
+                self:ZBWepSys_SetAct_Translated( self.ZBWepSys_CurMoveShootAct, ACT_RUN )
+            end
+
         end
 
+
+
         -- Press trigger, recoil anim
-        self:ZBWepSys_Shoot()
-        self:ZBWepSys_ShootAnim()
+        if self.ZBWepSys_AllowShoot then
+            self:ZBWepSys_Shoot()
+            self:ZBWepSys_ShootAnim()
+            self.ZBWepSys_AllowShoot = false
+        end
 
     end
+
 
 
     -- Move to enemy if it has LOS and it's too far away
@@ -856,6 +963,10 @@ function NPC:ZBWepSys_FireWeaponThink()
         self:SetMaxLookDistance(self.SightDistance)
 
     end
+
+
+
+    ListConditions(self)
 
 end
 
@@ -1364,8 +1475,9 @@ function NPC:AITick_Slow()
     debugoverlay.Cross(EneLastKnownPos, 40, 0.3, Color( 255, 0, 0 ))
 
 
-    -- NPC_STATE
+    -- In combat
     if IsCombat then
+
         -- Reset stop alert if in combat
         self.NextStopAlert = nil
 
@@ -1374,13 +1486,17 @@ function NPC:AITick_Slow()
             self.DoEnemyLostSoundWhenLost = true
             self.GotoEneLastKnownPosWhenEluded = true
         end
+
     end
 
+
+    -- Is alert, start timer
     if IsAlert && !self.NextStopAlert then
         self.NextStopAlert = CurTime()+math.Rand(15, 25)
     end
 
 
+    -- Timer out, back to idle
     if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
         self:SetNPCState(NPC_STATE_IDLE)
         self.NextStopAlert = nil
@@ -1390,6 +1506,7 @@ function NPC:AITick_Slow()
     -- Keep following players
     if IsValid(self.PlayerToFollow) && !GetConVar("ai_ignoreplayers"):GetBool()
     && self:ZBaseDist(self.PlayerToFollow, {away=300}) then
+
         local pos = self.PlayerToFollow:GetPos()
         local NavigatorEnt = (IsValid(self.Navigator) && self.Navigator) or self
 
@@ -1401,12 +1518,15 @@ function NPC:AITick_Slow()
         if !NavigatorEnt:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
             self:SetSchedule(SCHED_FORCED_GO_RUN)
         end
+        
     end
 
 
+    -- Stop following if no longer allied
     if IsValid(self.PlayerToFollow) && !self:IsAlly(self.PlayerToFollow) then
         self:StopFollowingCurrentPlayer(true)
     end
+
 end
 
 
@@ -1548,31 +1668,18 @@ end
 
 function NPC:NewSequenceDetected( seq, seqName )
 
-    if string.find(self:GetSequenceActivityName(seq), "RELOAD") then
+    if self:GetActiveWeapon().IsZBaseWeapon && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil then
 
-        
-        local wep = self:GetActiveWeapon()
-
-
-        -- Reload weapon sounds:
-        if IsValid(wep) then
-
-            if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
-
-                wep:EmitSound(wep.NPCReloadSound)
-
-            end
-
-
-            if math.random(1, self.OnReloadSound_Chance) == 1 then
-                self:EmitSound_Uninterupted(self.OnReloadSounds)
-            end
-
+        -- Reload announce sound
+        if math.random(1, self.OnReloadSound_Chance) == 1 then
+            self:EmitSound_Uninterupted(self.OnReloadSounds)
         end
+
+
+        self:ZBWepSys_Reload()
 
     end
 
-    
     self:CustomNewSequenceDetected( seq, seqName )
 
 end
@@ -1592,6 +1699,7 @@ end
 
 
 function NPC:DoNewEnemy()
+
     local ene = self:GetEnemy()
 
 
@@ -1615,8 +1723,21 @@ function NPC:DoNewEnemy()
     end
 
 
+    -- Lost enemy
+    if !IsValid(ene) && self.HadPreviousEnemy && !self.EnemyDied && !self:NearbyAllySpeaking({"LostEnemySounds"}) then
+
+        self:LostEnemySound()
+        self:EmitSound_Uninterupted(self.LostEnemySounds)
+        self.DoEnemyLostSoundWhenLost = false
+
+        debugoverlay.Text(self:GetPos(), "enemy lost", 2)
+
+    end
+
+
     self:EnemyStatus(ene, self.HadPreviousEnemy)
     self.HadPreviousEnemy = ene && true or false
+
 end
 
 
@@ -1777,15 +1898,6 @@ function NPCB.Patrol:Run( self )
     elseif IsAlert && Chase then
 
         self:SetSchedule(SCHED_PATROL_RUN)
-
-
-        -- Enemy was lost at this point
-        if self.DoEnemyLostSoundWhenLost && !self.EnemyDied then
-            self:LostEnemySound()
-            self:EmitSound_Uninterupted(self.LostEnemySounds)
-            self.DoEnemyLostSoundWhenLost = false
-            debugoverlay.Text(self:GetPos(), "enemy lost", 2)
-        end
 
     else
 

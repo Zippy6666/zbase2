@@ -86,7 +86,11 @@ function SWEP:PrimaryAttack()
 
 
 		if self.Primary.TakeAmmoPerShot > 0 then
-			-- self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+
+			if !self.IsZBaseNPC then
+				self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+			end
+
 		end
 
 
@@ -95,6 +99,36 @@ function SWEP:PrimaryAttack()
 
 		-- Sound
 		self:EmitSound(self.PrimaryShootSound)
+
+	end
+
+end
+
+
+function SWEP:TakePrimaryAmmo( num )
+	
+	local own = self:GetOwner()
+
+
+	-- Doesn't use clips
+	if !own.IsZBaseNPC && self.Weapon:Clip1() <= 0 then 
+	
+		if self:Ammo1() <= 0 then return end
+
+
+		own:RemoveAmmo( num, self.Weapon:GetPrimaryAmmoType() )
+		return
+
+	end
+	
+
+	if own.IsZBaseNPC then
+
+		own.ZBWepSys_PrimaryAmmo = own.ZBWepSys_PrimaryAmmo - num
+		
+	else
+
+		self.Weapon:SetClip1( self.Weapon:Clip1() - num )	
 
 	end
 
@@ -418,7 +452,7 @@ function SWEP:TranslateActivity( act )
 
 
 		-- Maintain whatever shoot stance there is when we should
-		if act != own.ZBWepSys_CurShootAct && own:ZBWepSys_WantsToShot() && !own:IsMoving() then
+		if act != own.ZBWepSys_CurShootAct && own:ZBWepSys_WantsToShoot() && !own:IsMoving() then
 
 			own.ZBWepSys_AllowRange1Translate = true
 			local DoubleTranslatedAct = self:TranslateActivity( own.ZBWepSys_CurShootAct )
