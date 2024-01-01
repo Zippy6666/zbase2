@@ -268,7 +268,7 @@ ZBase_EngineWeapon_Attributes = {
 
     ["weapon_stunstick"] = {
         NPCIsMeleeWep = true,
-        NPCHoldType =  "normal", -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCHoldType =  "melee", -- https://wiki.facepunch.com/gmod/Hold_Types
         NPCMeleeWep_Damage = {10, 20}, -- Melee weapon damage {min, max}
         NPCMeleeWep_DamageType = DMG_SHOCK, -- Melee weapon damage type
         NPCMeleeWep_HitSound = "Weapon_StunStick.Melee_Hit", -- Sound when the melee weapon hits an entity

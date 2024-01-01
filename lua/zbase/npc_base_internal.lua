@@ -549,6 +549,7 @@ local HoldTypeFallback = {
     ["camera"] = "revolver",	-- Holds the weapon in front of your face as a camera
     ["magic"] = "passive", -- Use your power of will to move objects. One hand in front of you, one hand to your head
     ["revolver"] = "pistol", -- wo hand pistol holdtype, revolver reload animation.
+    ["passive"] = "normal",
 }
 
 
@@ -3348,15 +3349,15 @@ function NPC:Death_AlliesReact()
     local deathpos = self:GetPos()
 
 
-    if IsValid(ally) && ally:Visible(self) then
+    if IsValid(ally) && ally:Visible(self) && ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
 
         timer.Simple(0.5, function()
 
-            if IsValid(ally) && ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+            if IsValid(ally) then
 
                 ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
 
-                if ally.AllyDeathSounds != "" && self:GetNPCState()==NPC_STATE_IDLE then
+                if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
                     ally:FullReset()
                     ally:Face(deathpos, ally.InternalCurrentSoundDuration)
                 end

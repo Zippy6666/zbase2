@@ -1,5 +1,4 @@
 -- << todo >>
-- ramdomizieae wep
 - prohibit move shoot
 
 
