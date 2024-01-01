@@ -3,9 +3,7 @@
 
 
 >>> rilis notes!!!!!!! <<<
-- new public repo w copyright + update dummy git
 - test run from workshop (not legacy)
-- title: "ZBASE" (probably) ask chat gpt how to make everything attractive, let it write the description (maybe just make it all goofy idk)
 - Credit crunchy soap!!!!!!!!!!!!!
 - requiresd good boi branch!!!
 - future update list
