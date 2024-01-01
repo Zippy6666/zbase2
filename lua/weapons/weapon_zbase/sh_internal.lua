@@ -538,6 +538,7 @@ if CLIENT then
 
 					self.NPCWorldModelOverride:SetNoDraw(true)
 					self.NPCWorldModelOverride:AddEffects(EF_BONEMERGE)
+					self.NPCWorldModelOverride:AddEffects(EF_BONEMERGE_FASTCULL) -- dunno wtf this does but it fixed the leg jankin so
 					self.NPCWorldModelOverride.SetupDone = true
 
 				end
