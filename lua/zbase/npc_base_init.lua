@@ -47,7 +47,7 @@ NPC.ZBaseStartFaction = "none"
 
 
 NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
-NPC.SpawnFlagTbl = {} -- Ex. NPC.SpawnFlagTbl = {SF_NPC_NO_WEAPON_DROP}, https://wiki.facepunch.com/gmod/Enums/SF
+NPC.SpawnFlagTbl = {} -- Ex. NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_FEMALE}, https://wiki.facepunch.com/gmod/Enums/SF
 
 
 NPC.CanOpenDoors = true -- Can open regular doors
@@ -66,11 +66,6 @@ NPC.HealthCooldown = 0.2
 
 
 NPC.ForceAvoidDanger = false -- Force this NPC to avoid dangers such as grenades
-
-
--- The gender, mainly used by npc_citizen. But you can also use it to set the NPC's gender identity XDDD
--- Common: ZBASE_MALE || ZBASE_FEMALE
-NPC.Gender = ZBASE_MALE
 
 
 -- Items to drop on death

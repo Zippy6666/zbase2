@@ -1,5 +1,5 @@
 
-	// Contains a lot of borrowed gmod source code!
+	// Mostly borrowed gmod source code!
 
 	
 -- A little hacky function to help prevent spawning props partially inside walls
@@ -84,11 +84,12 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	if istable(NPCData.SpawnFlagTbl) then
 		for _, v in ipairs(NPCData.SpawnFlagTbl) do
 			SpawnFlags = bit.bor( SpawnFlags, v )
+			print("added to SpawnFlags", v)
 		end
 	end
 
-	if ( NPCData.TotalSpawnFlags ) then SpawnFlags = NPCData.TotalSpawnFlags end
-	if ( SpawnFlagsSaved ) then SpawnFlags = SpawnFlagsSaved end
+	-- if ( NPCData.TotalSpawnFlags ) then SpawnFlags = NPCData.TotalSpawnFlags end
+	-- if ( SpawnFlagsSaved ) then SpawnFlags = SpawnFlagsSaved end
 
 	NPC:SetKeyValue( "spawnflags", SpawnFlags )
 	NPC.SpawnFlags = SpawnFlags
@@ -152,7 +153,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	NPC.NPCName = Class
 	NPC.NPCTable = NPCData
 
-        -- EDITED FROM GMOD SPAWNMENU CODE --
+
 	-- Store spawnmenu data for addons and stuff
 	NPC._wasSpawnedOnCeiling = wasSpawnedOnCeiling
 
@@ -198,6 +199,12 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 
 
 	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
+
+
+	-- for i = 1, math.log(16777216, 2)+1 do
+		-- MsgN(2^i, " ", NPC:HasSpawnFlags(2^i))
+	-- end
+
 
 	
 	return NPC
