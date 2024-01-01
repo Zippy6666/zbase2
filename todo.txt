@@ -1,6 +1,5 @@
->> TODO <<
-- fix bugs: weapon tpose and strange behaviour
-- just test it a bunch, d3 as well
+-- << todo >>
+- rpg fire boolet, crossbow sus
 
 
 >>> rilis notes!!!!!!! <<<

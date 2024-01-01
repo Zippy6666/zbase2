@@ -19,7 +19,7 @@ local function ListConditions(npc, dur)
 	
 	if(!IsValid(npc)) then return end
 	
-	-- print(npc:GetClass().." ("..npc:EntIndex()..") has conditions:")
+	-- MsgN(npc:GetClass().." ("..npc:EntIndex()..") has conditions:")
 
     local cond_count = 0
 	
@@ -27,7 +27,7 @@ local function ListConditions(npc, dur)
 	
 		if(npc:HasCondition(c)) then
 		
-			-- print(npc:ConditionName(c))
+			-- MsgN(npc:ConditionName(c))
             debugoverlay.Text(npc:GetPos()+npc:GetUp()*cond_count*10+npc:GetRight()*40, npc:ConditionName(c), dur)
 			
             cond_count = cond_count + 1
@@ -545,14 +545,6 @@ local HoldTypeActCheck = {
 }
 
 
-local ShootSchedBlacklist = {
-    [SCHED_RELOAD] = true,
-    [SCHED_HIDE_AND_RELOAD] = true,
-    [SCHED_NPC_FREEZE] = true,
-    [ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")] = true,
-}
-
-
 function NPC:ZBWepSys_Init()
 
     self.ZBWepSys_Inventory = {}
@@ -784,6 +776,15 @@ end
 
 function NPC:ZBWepSys_WantsToShoot()
 
+    local ShootSchedBlacklist = {
+        [SCHED_RELOAD] = true,
+        [SCHED_HIDE_AND_RELOAD] = true,
+        [SCHED_NPC_FREEZE] = true,
+        [ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")] = true,
+        [ZBaseESchedID("SCHED_METROPOLICE_WARN_AND_ARREST_ENEMY")] = true,
+    }
+
+
     -- Enemy valid and visible
     return self.EnemyVisible
 
@@ -814,31 +815,7 @@ function NPC:ZBWepSys_CanFireWeapon()
     -- Volley has started
     && self.ZBWepSys_NextBurst < CurTime()
 
-
-end
-
-
-    -- Translates the activity and sets it if it is available, otherwise it does nothing
-    -- Returns the translated activity if it was ran, otherwise false
-    -- idk wtf i'm doing
-    -- doesn't this happen automatically
-    -- idfk
-function NPC:ZBWepSys_SetAct_Translated( act, func, ... )
-    func = func or self.SetActivity
-
-
-    local TranslatedAct = self:Weapon_TranslateActivity(act)
-
-
-    if self:SelectWeightedSequence( TranslatedAct ) != -1 then
-
-        func( self, TranslatedAct, ... )
-        return TranslatedAct
-
-    end
-
-
-    return false
+    && !self.ComballAttacking
 
 end
 
@@ -864,22 +841,29 @@ function NPC:ZBWepSys_ShootAnim(arguments)
     self.ZBWepSys_AllowRange1Translate = true
 
 
-    local ActToTranslate = self.ZBWepSys_CurShootAct
+    local Act = self.ZBWepSys_CurShootAct
     local Moving = self:IsMoving()
 
 
     if !Moving then
-        local DesiredAct = self:ZBWepSys_SetAct_Translated( ActToTranslate, self.ResetIdealActivity )
-        
 
-        if DesiredAct then
+        -- Play shoot animation from start, skip transition
+        -- Sucks ass
 
-            -- Start anim from the start
+
+        self:ZBaseSetAct( Act, self.ResetIdealActivity )
+
+
+        if string.find(self:GetSequenceActivityName(self:GetSequence()), "RANGE") == nil then
+
+            local seq = self:SelectWeightedSequence( self:Weapon_TranslateActivity(self:GetActivity()) )
+
             self:ResetSequenceInfo()
             self:SetCycle(0)
-            self:ResetSequence( self:SelectWeightedSequence(DesiredAct) )
+            self:ResetSequence( seq )
 
         end
+
     end
 
 
@@ -887,12 +871,12 @@ function NPC:ZBWepSys_ShootAnim(arguments)
     if !Moving && self.WeaponFire_DoGesture then
 
         -- While standing
-        self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
+        self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
 
     elseif Moving && self.WeaponFire_DoGesture_Moving then
 
         -- While moving
-        self:ZBWepSys_SetAct_Translated(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
+        self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
 
     end
 
@@ -961,12 +945,12 @@ function NPC:ZBWepSys_FireWeaponThink()
         if self.ZBWepSys_AllowShoot && Moving then
 
             -- Shoot move act
-            self:ZBWepSys_SetAct_Translated( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
+            self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
 
 
             -- No ammo, RUN
             if self:HasCondition(COND.NO_PRIMARY_AMMO) then
-                self:ZBWepSys_SetAct_Translated( self.ZBWepSys_CurMoveShootAct, ACT_RUN )
+                self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, ACT_RUN )
             end
 
         end
@@ -1001,7 +985,7 @@ function NPC:ZBWepSys_FireWeaponThink()
 
 
 
-    ListConditions(self)
+    -- ListConditions(self)
 
 end
 
@@ -1080,6 +1064,34 @@ end
                                            INTERNAL UTIL
 ==================================================================================================
 --]]
+
+
+function NPC:ZBaseSetAct( act, func, ... )
+    func = func or self.SetActivity
+
+
+    -- Do and return given act
+    if self:SelectWeightedSequence( act ) != -1 then
+
+        func( self, act, ... )
+        return act
+
+    end
+
+
+    -- Do and return weapon translated act
+    local ActTranslated = self:Weapon_TranslateActivity(act)
+    if self:SelectWeightedSequence( ActTranslated ) != -1 then
+
+        func( self, ActTranslated, ... )
+        return ActTranslated
+
+    end
+
+
+    return false
+
+end
 
 
 
@@ -2000,6 +2012,9 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
     end
 
 
+    self.ComballAttacking = true
+
+
     timer.Simple(0.75, function()
         if !(IsValid(self) && IsValid(wep) && IsValid(enemy)) then return end
         if self:GetNPCState() == NPC_STATE_DEAD then return end
@@ -2046,10 +2061,13 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
         util.Effect( "MuzzleFlash", effectdata, true, true )
 
 
-        wep:EmitSound("Weapon_IRifle.Single")
+        self:EmitSound("Weapon_IRifle.Single")
 
 
-        self:ZBWepSys_SetAct_Translated(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
+        self:ZBaseSetAct(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
+
+        
+        self.ComballAttacking = false
 
     end)
 
@@ -2124,7 +2142,7 @@ function NPCB.SecondaryFire:Run( self )
     SecondaryFireWeapons[ wep.EngineCloneClass ]:Func( self, wep, enemy )
 
 
-    self:ZBWepSys_SetAct_Translated(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
+    self:ZBaseSetAct(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
 
 
     ZBaseDelayBehaviour(math.Rand(4, 8))
