@@ -13,6 +13,10 @@
     >>USEFUL LINKS<<
 
 
+Templates:
+ZBase Dummy Addon: https://github.com/Zippy6666/zbase-dummy
+
+
 NPC Base:
 Init: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base_init.lua
 Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base_shared.lua
