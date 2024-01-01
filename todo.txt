@@ -1,5 +1,6 @@
 -- << todo >>
-- rpg fire boolet, crossbow sus
+- ramdomizieae wep
+- prohibit move shoot
 
 
 >>> rilis notes!!!!!!! <<<

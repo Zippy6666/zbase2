@@ -267,9 +267,27 @@ function NPC:InitCap()
     end
 
 
-    -- Melee
+    -- Melee1
     if self:SelectWeightedSequence(ACT_MELEE_ATTACK1) != -1 then
         self:CapabilitiesAdd(CAP_INNATE_MELEE_ATTACK1)
+    end
+
+
+    -- Melee2
+    if self:SelectWeightedSequence(ACT_MELEE_ATTACK2) != -1 then
+        self:CapabilitiesAdd(CAP_INNATE_MELEE_ATTACK2)
+    end
+
+
+    -- Range1
+    if self:SelectWeightedSequence(ACT_RANGE_ATTACK1) != -1 then
+        self:CapabilitiesAdd(CAP_INNATE_RANGE_ATTACK1)
+    end
+
+
+    -- Range2
+    if self:SelectWeightedSequence(ACT_RANGE_ATTACK2) != -1 then
+        self:CapabilitiesAdd(CAP_INNATE_RANGE_ATTACK2)
     end
 
 
@@ -1642,14 +1660,27 @@ function NPC:AITick_NonScripted()
 
     end
 
-    
 
-    -- Reload now if hiding spot is too far away
+     -- Reload now if hiding spot is too far away
+    self:StressReload( self:ZBaseDist(self:GetGoalPos(), {away=1000}) )
+
+end
+
+
+function NPC:StressReload( cond )
+
+    cond = cond==nil && true or cond
+    if !cond then return end
+
+   
     if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD)
-    or ( self:GetClass()=="npc_combine_s" && self:IsCurrentSchedule(ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")) ) )
-    && self:ZBaseDist(self:GetGoalPos(), {away=1000}) then
+    or ( self:GetClass()=="npc_combine_s" && self:IsCurrentSchedule(ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")) ) ) then
+
+        self:ClearSchedule()
         self:SetSchedule(SCHED_RELOAD)
+
     end
+
 end
 
 
@@ -2061,7 +2092,7 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
         util.Effect( "MuzzleFlash", effectdata, true, true )
 
 
-        self:EmitSound("Weapon_IRifle.Single")
+        sound.Play("Weapon_IRifle.Single", self:GetPos())
 
 
         self:ZBaseSetAct(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
@@ -2091,7 +2122,7 @@ function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
     grenade:SetVelocity((enemy:GetPos() - startPos):GetNormalized()*1250 + Vector(0,0,200))
     grenade:SetLocalAngularVelocity(AngleRand())
 
-    wep:EmitSound("Weapon_AR2.Double")
+    sound.Play("Weapon_AR2.Double", self:GetPos())
 
     local effectdata = EffectData()
     effectdata:SetFlags(7)
@@ -2910,6 +2941,11 @@ function NPC:DealDamage( dmg, ent )
     end
 
 
+    if infl.IsZBaseCrossbowFiredBolt then
+        dmg:SetDamage(100)
+    end
+
+
     dmg:ScaleDamage(ZBCVAR.DMGMult:GetFloat())
 
 end
@@ -3196,6 +3232,10 @@ function NPC:OnPostEntityTakeDamage( dmg )
     end
 
 
+    -- If we are finding a place to reload, don't do that, reload now instead, we ain't got time for that shit
+    self:StressReload()
+
+
     self.HasZBScaledDamage = false
     self.CustomTakeDamageDone = false
 end
@@ -3316,7 +3356,7 @@ function NPC:Death_AlliesReact()
 
                 ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
 
-                if ally.AllyDeathSounds != "" then
+                if ally.AllyDeathSounds != "" && self:GetNPCState()==NPC_STATE_IDLE then
                     ally:FullReset()
                     ally:Face(deathpos, ally.InternalCurrentSoundDuration)
                 end

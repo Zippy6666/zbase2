@@ -1,3 +1,6 @@
+local trailcol = Color(255,150,100) -- For crossbow
+
+
 ZBase_EngineWeapon_Attributes = {
 
 
@@ -22,8 +25,8 @@ ZBase_EngineWeapon_Attributes = {
         NPCBurstMax = 1, 
         NPCFireRate = 0.2, 
         NPCFireRestTimeMin = 0.2, 
-        NPCFireRestTimeMax = 1,
-        NPCBulletSpreadMult = 1,
+        NPCFireRestTimeMax = 0.6,
+        NPCBulletSpreadMult = 1.5,
         NPCReloadSound = "Weapon_Pistol.Reload", 
         NPCShootDistanceMult = 0.75,
         NPCHoldType =  "pistol" -- https://wiki.facepunch.com/gmod/Hold_Types
@@ -52,7 +55,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCFireRate = 0.1, 
         NPCFireRestTimeMin = 0.1, 
         NPCFireRestTimeMax = 0.1,
-        NPCBulletSpreadMult = 1, 
+        NPCBulletSpreadMult = 1.5, 
         NPCReloadSound = "Weapon_SMG1.NPC_Reload", 
         NPCShootDistanceMult = 0.75,
         NPCHoldType =  "smg" -- https://wiki.facepunch.com/gmod/Hold_Types
@@ -113,7 +116,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCFireRate = 0,
         NPCFireRestTimeMin = 0.5, 
         NPCFireRestTimeMax = 1,
-        NPCBulletSpreadMult = 1, 
+        NPCBulletSpreadMult = 1.5, 
         NPCReloadSound = "Weapon_Shotgun.NPC_Reload", 
         NPCShootDistanceMult = 0.5,
         NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
@@ -138,15 +141,34 @@ ZBase_EngineWeapon_Attributes = {
             TracerChance = 0,
             MuzzleFlash = false
         },
-        NPCBurstMin = 3,
-        NPCBurstMax = 8,
-        NPCFireRate = 0.1,
-        NPCFireRestTimeMin = 0.2, 
-        NPCFireRestTimeMax = 1,
-        NPCBulletSpreadMult = 0.25, 
+        NPCBulletSpreadMult = 0.5, 
         NPCReloadSound = "Weapon_Crossbow.BoltElectrify", 
-        NPCShootDistanceMult = 1,
-        NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCShootDistanceMult = 2,
+        NPCHoldType =  "shotgun", -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCPrimaryAttack = function( self )
+            local own = self:GetOwner()
+
+            if IsValid(own) then
+
+                local start = self:GetAttachment(self:LookupAttachment("muzzle")).Pos
+                local vel = own:GetAimVector()*3000
+
+                local proj = ents.Create("crossbow_bolt")
+                proj:SetPos(start)
+                proj:SetAngles(vel:Angle())
+                proj:SetOwner(own)
+                proj:Spawn()
+                proj:SetVelocity(vel)
+                proj.IsZBaseCrossbowFiredBolt = true
+                util.SpriteTrail(proj, 0, trailcol, true, 2, 0, 0.75, 20, "trails/plasma")
+
+                self:TakePrimaryAmmo(1)
+                self:EmitSound(self.PrimaryShootSound)
+                
+            end
+
+            return true
+        end,
     },
 
 
@@ -163,7 +185,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCFireRestTimeMin = 0.5, 
         NPCFireRestTimeMax = 1,
         NPCHoldType =  "revolver", -- https://wiki.facepunch.com/gmod/Hold_Types
-        NPCBulletSpreadMult = 1, 
+        NPCBulletSpreadMult = 1.5, 
         NPCShootDistanceMult = 0.75,
         PrimaryDamage = 30,
         Primary = {
@@ -183,7 +205,7 @@ ZBase_EngineWeapon_Attributes = {
 
     ["weapon_crowbar"] = {
         NPCIsMeleeWep = true,
-        NPCHoldType =  "passive", -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCHoldType =  "normal", -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
 
@@ -196,7 +218,7 @@ ZBase_EngineWeapon_Attributes = {
 
     ["weapon_rpg"] = {
         NPCHoldType =  "rpg", -- https://wiki.facepunch.com/gmod/Hold_Types
-        NPCBulletSpreadMult = 1, 
+        NPCBulletSpreadMult = 1.5, 
         NPCShootDistanceMult = 0.75,
         MuzzleFlashFlags = 7,
         Primary = {
@@ -204,7 +226,7 @@ ZBase_EngineWeapon_Attributes = {
             Ammo = "RPG", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
             ShellEject = false, 
         },
-        OnPrimaryAttack = function( self )
+        NPCPrimaryAttack = function( self )
             local own = self:GetOwner()
 
 
@@ -220,13 +242,14 @@ ZBase_EngineWeapon_Attributes = {
                 rocket:SetAngles(vel:Angle())
                 rocket.IsZBaseDMGInfl = true
                 rocket:Spawn()
-                rocket:SetSaveValue("m_flDamage", ZBCVAR.FullHL2WepDMG_PLY:GetBool()&&150 or 70)
+                rocket:SetSaveValue("m_flDamage", 150)
 
 
                 self:EmitSound("Weapon_RPG.Single")
 
 
                 self:ShootEffects()
+                self:TakePrimaryAmmo(1)
                 
             end
 
@@ -245,7 +268,7 @@ ZBase_EngineWeapon_Attributes = {
 
     ["weapon_stunstick"] = {
         NPCIsMeleeWep = true,
-        NPCHoldType =  "passive", -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCHoldType =  "normal", -- https://wiki.facepunch.com/gmod/Hold_Types
         NPCMeleeWep_Damage = {10, 20}, -- Melee weapon damage {min, max}
         NPCMeleeWep_DamageType = DMG_SHOCK, -- Melee weapon damage type
         NPCMeleeWep_HitSound = "Weapon_StunStick.Melee_Hit", -- Sound when the melee weapon hits an entity
@@ -278,7 +301,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCFireRate = 0,
         NPCFireRestTimeMin = 0.5, 
         NPCFireRestTimeMax = 1,
-        NPCBulletSpreadMult = 1, 
+        NPCBulletSpreadMult = 1.5, 
         NPCShootDistanceMult = 0.5,
         NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
@@ -297,7 +320,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCFireRestTimeMin = 0.5, 
         NPCFireRestTimeMax = 1,
         NPCHoldType =  "revolver", -- https://wiki.facepunch.com/gmod/Hold_Types
-        NPCBulletSpreadMult = 1, 
+        NPCBulletSpreadMult = 1.5, 
         NPCShootDistanceMult = 0.75,
         PrimaryDamage = 30,
         Primary = {
@@ -329,7 +352,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCFireRate = 0.2, 
         NPCFireRestTimeMin = 0.2, 
         NPCFireRestTimeMax = 1,
-        NPCBulletSpreadMult = 1,
+        NPCBulletSpreadMult = 1.5,
         NPCShootDistanceMult = 0.75,
         NPCHoldType =  "pistol",  -- https://wiki.facepunch.com/gmod/Hold_Types
         PrimaryShootSound = "HL1Weapon_Glock.Single",
