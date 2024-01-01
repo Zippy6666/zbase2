@@ -9,6 +9,6 @@ NPC.Class = "npc_zbase_snpc"
 
 
 NPC.Name = "SNPC Test" -- Name of your NPC
-NPC.Category = "Other" -- Category in the ZBase tab
+NPC.Category = false -- Category in the ZBase tab
 NPC.Weapons = {"weapon_smg1"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc

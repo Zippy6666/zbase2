@@ -8,7 +8,7 @@ ZBaseSetCategoryIcon( "HL2: Humans + Resistance", "games/16/hl2.png" )
 
 
 local PANEL = {}
-local GenericIcon = "entities/bluemonkey.png"
+local GenericIcon = "entities/zippy.png"
 
 
 Derma_Hook( PANEL, "Paint", "Paint", "Tree" )
