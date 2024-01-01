@@ -10,5 +10,5 @@ NPC.Class = "npc_citizen"
 
 NPC.Name = "Female Refugee" -- Name of your NPC
 NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
-NPC.Weapons = {"weapon_crowbar", "weapon_smg1", "weapon_shotgun"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+NPC.Weapons = {"weapon_smg1", "weapon_rpg", "weapon_crowbar", "weapon_crossbow", "weapon_stunstick", "weapon_pistol"}
 NPC.Inherit = "zb_human_refugee" -- Inherit features from any existing zbase npc

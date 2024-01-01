@@ -22,13 +22,12 @@ NPC.HasArmor = {
 
 NPC.BaseMeleeAttack = true
 NPC.MeleeDamage_Delay = 0.5
-NPC.MeleeAttackAnimations = {
-    "Swing",
-}
+NPC.MeleeAttackAnimations = { "Swing" }
+NPC.MeleeWeaponAnimations = {"Swing"} -- Animations to use when attacking with a melee weapon
 
 
-local SF_ARREST = 2097152
-NPC.SpawnFlagTbl = {SF_ARREST}
+
+NPC.SpawnFlagTbl = {2097152}
 
 
 -- Items to drop on death
