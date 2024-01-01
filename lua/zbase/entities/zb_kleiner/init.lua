@@ -22,6 +22,9 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_PERFECT -- WEAPON_PROFICIENCY_POOR ||
 NPC.ZBaseStartFaction = "ally"
 
 
+NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1} -- The NPC will randomly switch between these activities when firing their weapon
+
+ 
 NPC.BaseMeleeAttack = true
 NPC.MeleeAttackAnimations = {"meleeattack01"}
 NPC.MeleeWeaponAnimations = {"swing"} -- Animations to use when attacking with a melee weapon

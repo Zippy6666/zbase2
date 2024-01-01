@@ -108,8 +108,6 @@ NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
-NPC.NoWeapon_Scared = false -- Should it run away from the enemy if it doesn't have a weapon?
-
 
 NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK1_LOW} -- The NPC will randomly switch between these activities when firing their weapon
 NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM, ACT_RUN_AIM} -- The NPC will randomly switch between these activities when firing their weapon
