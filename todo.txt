@@ -10,7 +10,7 @@
 - Controller
 - ZBase replace default npcs (hijack spawn command?)
 - Make sure they forget enemies as intended
-- Vehicle abse
+- Vehicle base
 
 
 >>> rilis notes!!!!!!! <<<

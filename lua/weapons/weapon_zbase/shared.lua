@@ -18,7 +18,7 @@ include("sh_internal.lua")
 
 -- IMPORTANT: SHOULD be weapon_zbase for your swep!! (unless you know what you are doing)
 -- The weapon's base script, relative to lua/weapons.
-SWEP.Base = "weapon_base" -- Set to "weapon_base"
+SWEP.Base = "weapon_base" -- Set to "weapon_zbase"
 SWEP.IsZBaseWeapon = true -- Must exist in your swep
 SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
@@ -193,7 +193,6 @@ end
 
 	-- Called when the weapon does its melee damage code
 function SWEP:OnNPCMeleeWeaponDamage( hurtEnts )
-	PrintTable(hurtEnts)
 end
 
 
