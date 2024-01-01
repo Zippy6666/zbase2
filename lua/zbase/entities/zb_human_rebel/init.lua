@@ -7,6 +7,9 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.StartHealth = 50 -- Max health
 
 
+NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_MALE}
+
+
 NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 
 

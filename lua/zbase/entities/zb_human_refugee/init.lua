@@ -8,6 +8,9 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_GOOD -- WEAPON_PROFICIENCY_POOR || WE
 NPC.StartHealth = 40 -- Max health
 
 
+NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_MALE}
+
+
 NPC.ZBaseStartFaction = "ally" -- Any string, all ZBase NPCs with this faction will be allied, it set to "none", they won't be allied to anybody
 -- Default factions:
 -- "combine" || "ally" || "zombie" || "antlion" || "none"
