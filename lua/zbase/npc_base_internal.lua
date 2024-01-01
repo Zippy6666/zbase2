@@ -569,8 +569,8 @@ function NPC:ZBWepSys_Init()
     self.ZBWepSys_Inventory = {}
 
 
-    self.ZBWepSys_CurShootAct = self.WeaponFire_Activities[1] or ACT_RUN_AIM
-    self.ZBWepSys_CurMoveShootAct = self.WeaponFire_MoveActivities[1] or ACT_RUN_AIM
+    self.ZBWepSys_CurShootAct = self.WeaponFire_Activities[1]
+    self.ZBWepSys_CurMoveShootAct = self.WeaponFire_MoveActivities[1]
 
     
     self.ZBWepSys_NextBurst = CurTime()
@@ -818,6 +818,9 @@ function NPC:ZBWepSys_WantsToShoot()
     -- No grenades or some shit like that nearby
     && !self:InDanger()
 
+    -- Can't move shoot without move shoot act
+    && !( self:IsMoving() && !self.ZBWepSys_CurMoveShootAct )
+
     && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
 
 end
@@ -863,7 +866,7 @@ function NPC:ZBWepSys_ShootAnim(arguments)
     local Moving = self:IsMoving()
 
 
-    if !Moving then
+    if !Moving && Act then
 
         -- Play shoot animation from start, skip transition
         -- Sucks ass
@@ -960,7 +963,7 @@ function NPC:ZBWepSys_FireWeaponThink()
     
 
         -- When moving
-        if self.ZBWepSys_AllowShoot && Moving then
+        if self.ZBWepSys_AllowShoot && Moving && self.ZBWepSys_CurMoveShootAct then
 
             -- Shoot move act
             self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
@@ -1000,10 +1003,6 @@ function NPC:ZBWepSys_FireWeaponThink()
         self:SetMaxLookDistance(self.SightDistance)
 
     end
-
-
-
-    -- ListConditions(self)
 
 end
 
