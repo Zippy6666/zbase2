@@ -1,16 +1,4 @@
--- << todo >>
-- prohibit move shoot
-
-
->>> rilis notes!!!!!!! <<<
-- test run from workshop (not legacy)
-- Credit crunchy soap!!!!!!!!!!!!!
-- requiresd good boi branch!!!
-- future update list
-- bugs (list known bugs), dev help, suggestions,
-
-
->>> IDEAS <<<
+>>> TODO <<<
 - Expanded support for the weapon base so that player functions work on NPCs
 - Jump system
 - Grab ZBase flying NPCs with gravity gun
@@ -22,3 +10,12 @@
 - Controller
 - ZBase replace default npcs (hijack spawn command?)
 - Make sure they forget enemies as intended
+- Vehicle abse
+
+
+>>> rilis notes!!!!!!! <<<
+- test run from workshop (not legacy)
+- Credit crunchy soap!!!!!!!!!!!!!
+- requiresd good boi branch!!!
+- future update list
+- bugs (list known bugs), dev help, suggestions,
