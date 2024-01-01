@@ -579,9 +579,6 @@ function NPC:ZBWepSys_Init()
 
     self.ZBWepSys_InShootDist = false
 
-
-    self.ZBWepSys_PrimaryAmmo = 0
-
 end
 
 
@@ -704,9 +701,6 @@ function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
     end
 
 
-    self.ZBWepSys_PrimaryAmmo = zbasewep.Primary.DefaultClip
-
-
     zbasewep.IsEngineClone = true
     zbasewep.EngineCloneMaxClip = zbasewep.Primary.DefaultClip
     zbasewep.EngineCloneClass = engineClass
@@ -740,6 +734,11 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
             if Weapon.NPCHoldType then
                 self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
+            end
+
+
+            if Weapon.IsZBaseWeapon then
+                self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
             end
         
         end
