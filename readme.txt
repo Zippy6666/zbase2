@@ -8,3 +8,8 @@
 █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█
 █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█
 ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█
+
+
+Useful links:
+Base Init File: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base_init.lua
+Base Shared File: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base_shared.lua
