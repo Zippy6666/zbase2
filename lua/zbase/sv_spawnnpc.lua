@@ -84,7 +84,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	if istable(NPCData.SpawnFlagTbl) then
 		for _, v in ipairs(NPCData.SpawnFlagTbl) do
 			SpawnFlags = bit.bor( SpawnFlags, v )
-			print("added to SpawnFlags", v)
 		end
 	end
 
