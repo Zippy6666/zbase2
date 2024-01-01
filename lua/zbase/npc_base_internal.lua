@@ -111,14 +111,8 @@ function NPC:ZBaseInit()
     end
 
 
-    -- Collisions/Bounds
-    if self.HullType && !self.IsZBase_SNPC then
-        self:SetHullType(self.HullType)
-    end
-    if self.CollisionBounds then
-        self:SetCollisionBounds(self.CollisionBounds.min, self.CollisionBounds.max)
-        self:SetSurroundingBounds(self.CollisionBounds.min*1.25, self.CollisionBounds.max*1.25)
-    end
+    -- Collisions and shit
+    self:InitBounds()
 
 
     -- Set specified internal variables
@@ -203,6 +197,30 @@ function NPC:ZBaseInit()
 end
 
 
+
+function NPC:InitBounds()
+
+    -- Collisions/Bounds
+
+    local MoveType = self:GetMoveType()
+
+
+    if self.HullType && !self.IsZBase_SNPC then
+        self:SetHullType(self.HullType)
+    end
+
+
+    if self.CollisionBounds then
+
+        self:PhysicsInitBox( self.CollisionBounds.min, self.CollisionBounds.max )
+        self:SetSurroundingBounds(self.CollisionBounds.min*1.3, self.CollisionBounds.max*1.3)
+        self:SetMoveType(MoveType)
+
+    end
+
+end
+
+
 function NPC:InitSaveValues()
 
     -- Set all save values that its table has (m_typeSomething)
@@ -230,7 +248,7 @@ function NPC:InitCap()
     self:CapabilitiesAdd(CAP_SQUAD)
     self:CapabilitiesAdd(CAP_USE_WEAPONS)
 
-    
+
     -- Door/button stuff
     if self.CanOpenDoors then
         self:CapabilitiesAdd(CAP_OPEN_DOORS)
@@ -243,10 +261,15 @@ function NPC:InitCap()
     end
 
 
-
     -- Jump
     if self.CanJump && self:SelectWeightedSequence(ACT_JUMP) != -1 then
         self:CapabilitiesAdd(CAP_MOVE_JUMP)
+    end
+
+
+    -- Melee
+    if self:SelectWeightedSequence(ACT_MELEE_ATTACK1) != -1 then
+        self:CapabilitiesAdd(CAP_INNATE_MELEE_ATTACK1)
     end
 
 
@@ -348,6 +371,8 @@ local StrNPCStates = {
 
 
 function NPC:ZBaseThink()
+
+    -- if true then return end
 
     local ene = self:GetEnemy()
     local sched = self:GetCurrentSchedule()
@@ -1178,6 +1203,46 @@ function NPC:DebugMyFunctions()
 end
 
 
+
+function NPC:FullReset()
+    self:TaskComplete()
+    self:ClearGoal()
+    self:ClearSchedule()
+    self:StopMoving()
+    self:SetMoveVelocity(Vector())
+
+    if self.IsZBase_SNPC then
+        self:AerialResetNav()
+        self:ScheduleFinished()
+    end
+end
+
+
+function NPC:ForceGotoLastKnownPos()
+    self:SetLastPosition(self:GetEnemyLastKnownPos())
+    self:SetSchedule(SCHED_FORCED_GO_RUN)
+    self.GotoEneLastKnownPosWhenEluded = false
+
+    debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
+end
+
+
+function NPC:SetAllowedEScheds( escheds )
+
+    self.ProhibitCustomEScheds = true
+
+    for _, v in ipairs(escheds) do
+        self.AllowedCustomEScheds[ZBaseESchedID(v)] = v
+    end
+
+end
+
+
+function NPC:HasCapability( cap )
+    return bit.band(self:CapabilitiesGet(), cap)==cap
+end
+
+
 --[[
 ==================================================================================================
                                            ANIMATION
@@ -1573,35 +1638,6 @@ function NPC:AITick_NonScripted()
     && self:ZBaseDist(self:GetGoalPos(), {away=1000}) then
         self:SetSchedule(SCHED_RELOAD)
     end
-
-
-    -- Sees enemy, but shouldn't chase it, take cover from it instead
-    if self.EnemyVisible && !self:ShouldChase() && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) && !self:CurrentlyFollowingPlayer() then
-        self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
-    end
-end
-
-
-function NPC:FullReset()
-    self:TaskComplete()
-    self:ClearGoal()
-    self:ClearSchedule()
-    self:StopMoving()
-    self:SetMoveVelocity(Vector())
-
-    if self.IsZBase_SNPC then
-        self:AerialResetNav()
-        self:ScheduleFinished()
-    end
-end
-
-
-function NPC:ForceGotoLastKnownPos()
-    self:SetLastPosition(self:GetEnemyLastKnownPos())
-    self:SetSchedule(SCHED_FORCED_GO_RUN)
-    self.GotoEneLastKnownPosWhenEluded = false
-
-    debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
 end
 
 
@@ -1623,17 +1659,6 @@ function NPC:ShouldPreventSetSched( sched )
 
     return self.HavingConversation
     or self.DoingPlayAnim
-end
-
-
-function NPC:SetAllowedEScheds( escheds )
-
-    self.ProhibitCustomEScheds = true
-
-    for _, v in ipairs(escheds) do
-        self.AllowedCustomEScheds[ZBaseESchedID(v)] = v
-    end
-
 end
 
 
@@ -1696,15 +1721,6 @@ end
 
 
 function NPC:NewESchedDetected( sched, schedName )
-
-    -- Shit reload workaround
-    -- local wep = self:GetActiveWeapon()
-    -- if wep.IsEngineClone && string.find(self.ZBaseLastESchedName, "RELOAD") then
-
-    --     wep:SetClip1( wep.EngineCloneMaxClip )
-
-    -- end
-
 end
 
 
@@ -1748,11 +1764,6 @@ function NPC:DoNewEnemy()
     self:EnemyStatus(ene, self.HadPreviousEnemy)
     self.HadPreviousEnemy = ene && true or false
 
-end
-
-
-function NPC:HasCapability( cap )
-    return bit.band(self:CapabilitiesGet(), cap)==cap
 end
 
 
@@ -3210,41 +3221,20 @@ end
 --]]
 
 
-function NPC:OnDeath( attacker, infl, dmg, hit_gr )
-    if self.Dead then return end
-
-
-    self.Dead = true
-    self:SetNPCState(NPC_STATE_DEAD)
-    self:SetNoDraw(true)
-    self:CapabilitiesClear()
-    self:SetCollisionBounds(Vector(), Vector())
-
-
-    self.IsSpeaking = false
-
-
-    -- Stop sounds
-    for _, v in ipairs(self.SoundVarNames) do
-        if !isstring(v) then continue end
-        self:StopSound(self:GetTable()[v])
-    end
-
-
-    -- Death sound
-    if !self.DoingDeathAnim then
-        self:EmitSound(self.DeathSounds)
-    end
-
+function NPC:Death_AlliesReact()
 
     -- Ally death reaction
+    -- (my honest reaction)
+
     local ally = self:GetNearestAlly(600)
     local deathpos = self:GetPos()
+
+
     if IsValid(ally) && ally:Visible(self) then
+
         timer.Simple(0.5, function()
-            if IsValid(ally)
-            && ally.AllyDeathSound_Chance
-            && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+
+            if IsValid(ally) && ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
 
                 ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
 
@@ -3254,20 +3244,32 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
                 end
             
             end
+
         end)
+
     end
 
+end
+
+
+function NPC:Death_ItemDrop()
 
     -- Item drops
+
     local ItemArray = {}
     local DropsDone = 0
+
 
     for cls, opt in pairs(self.ItemDrops) do
         table.insert(ItemArray, {cls=cls, max=opt.max, chance=opt.chance})
     end
 
+
     table.Shuffle(ItemArray)
+
+
     for _, dropData in ipairs(ItemArray) do
+
         if DropsDone >= self.ItemDrops_TotalMax then break end
 
 
@@ -3286,8 +3288,36 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
                 DropsDone = DropsDone+1
             end
         end
+
     end
 
+
+end
+
+
+function NPC:OnDeath( attacker, infl, dmg, hit_gr )
+
+    if self.Dead then return end
+    self.Dead = true
+
+
+    -- Stop sounds
+    self.IsSpeaking = false
+    for _, v in ipairs(self.SoundVarNames) do
+        if !isstring(v) then continue end
+        self:StopSound(self[v])
+    end
+
+
+    -- Death sound
+    if !self.DoingDeathAnim then
+        self:EmitSound(self.DeathSounds)
+    end
+
+
+    -- My honest reaction
+    self:Death_AlliesReact()
+    
 
     -- Gib or ragdoll
     local Gibbed = self:ShouldGib(dmg, hit_gr)
@@ -3297,18 +3327,32 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     end
 
 
-    self:CustomOnDeath( dmg, hit_gr, rag )
-
-
+    -- Drop engine weapon, not stoopid vegetable zbase weapon
     local wep = self:GetActiveWeapon()
     if IsValid(wep) && wep.EngineCloneClass then
-        -- Drop weapon
+
         self:Give(wep.EngineCloneClass)
+
     end
 
 
+    -- Item drop
+    self:Death_ItemDrop()
+
+
+    -- Custom on death
+    self:CustomOnDeath( dmg, hit_gr, rag )
+
+
+    -- No stoopid ragdoll pls
+    self:SetModel("models/hunter/plates/plate.mdl")
     self:SetShouldServerRagdoll(false)
+
+
+    -- Byebye
     self:Remove()
+
+
 end
 
 
