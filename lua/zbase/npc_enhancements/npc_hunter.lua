@@ -5,16 +5,16 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
     
     
     function NPC:ZBaseEnhancedInit()
-        -- self:SetAllowedEScheds({
-        --     "SCHED_HUNTER_RANGE_ATTACK2",
-        --     "SCHED_HUNTER_CHASE_ENEMY",
-        --     "SCHED_HUNTER_CHARGE_ENEMY",
-        --     "SCHED_HUNTER_MELEE_ATTACK1",
-        --     "SCHED_HUNTER_STAGGER",
-        --     "SCHED_HUNTER_COMBAT_FACE",
-        --     "SCHED_HUNTER_FLANK_ENEMY",
-        --     "SCHED_HUNTER_PATROL_RUN",
-        -- })
+        self:SetAllowedEScheds({
+            "SCHED_HUNTER_RANGE_ATTACK2",
+            "SCHED_HUNTER_CHASE_ENEMY",
+            "SCHED_HUNTER_CHARGE_ENEMY",
+            "SCHED_HUNTER_MELEE_ATTACK1",
+            "SCHED_HUNTER_STAGGER",
+            "SCHED_HUNTER_COMBAT_FACE",
+            "SCHED_HUNTER_FLANK_ENEMY",
+            "SCHED_HUNTER_PATROL_RUN",
+        })
     end
     
     
