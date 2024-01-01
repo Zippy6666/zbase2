@@ -561,10 +561,6 @@ end
 
 function ZBase_RegisterHandler:Reload()
 
-    -- We need to clear the glow eye table on reload, or else it will keep adding new eyes
-    -- table.Empty(ZBaseGlowingEyes)
-
-
     self:RegNPCs()
     self:NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
     self:AddNPCsToSpawnMenu()
