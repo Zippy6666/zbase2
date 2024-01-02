@@ -15,6 +15,8 @@
 
 Templates:
 ZBase Dummy Addon: https://github.com/Zippy6666/zbase-dummy
+// Put that in your addon's folder, and go wild. It works similiarly to any other SNPC/NPC/NextBot base.
+// NPCs are stored in "lua/zbase/entities".
 
 
 NPC Base:
