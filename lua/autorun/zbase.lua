@@ -29,7 +29,7 @@ if SERVER then
 
     util.AddNetworkString("ZBaseListFactions")
     util.AddNetworkString("ZBase_GetFactionsFromServer")
-    util.AddNetworkString("ZBaseError")
+    util.AddNetworkString("ZBaseBadBranch")
     util.AddNetworkString("ZBaseClientReload")
     util.AddNetworkString("ZBaseReload")
 
@@ -49,13 +49,13 @@ end
 
 if CLIENT then
 
-    function ZBaseError()
-        chat.AddText(Color(255, 0, 0), "ZBase had a fatal error!")
-        chat.AddText(Color(255, 0, 0), "ZBase only works for the 'x86-64' and 'dev' branch of gmod! Current branch: '", BRANCH, "'.")
+    function ZBaseBadBranch()
+        chat.AddText(Color(255, 0, 0), "WARNING: ZBase will not work properly on the current branch of gmod you are on! Expect errors!")
+        chat.AddText(Color(255, 0, 0), "ZBase was intended for the developer and x86 branches of gmod! Current branch: '", BRANCH, "'.")
     end
 
 
-    net.Receive("ZBaseError", ZBaseError)
+    net.Receive("ZBaseBadBranch", ZBaseBadBranch)
 
 
     net.Receive("ZBaseClientReload", function()
@@ -69,7 +69,7 @@ end
 
 --[[
 ======================================================================================================================================================
-                                           BRANCH
+                                           BAD BRANCH BOY
 ======================================================================================================================================================
 --]]
 
@@ -79,13 +79,11 @@ if SERVER && !string.StartsWith(BRANCH, "x86") && BRANCH != "dev" then
     hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
 
         timer.Simple(3, function()
-            net.Start("ZBaseError")
+            net.Start("ZBaseBadBranch")
             net.Send(ply)
         end)
         
     end)
-
-    return
 
 end
 
