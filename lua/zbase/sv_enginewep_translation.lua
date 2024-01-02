@@ -205,7 +205,7 @@ ZBase_EngineWeapon_Attributes = {
 
     ["weapon_crowbar"] = {
         NPCIsMeleeWep = true,
-        NPCHoldType =  "normal", -- https://wiki.facepunch.com/gmod/Hold_Types
+        NPCHoldType =  "melee", -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
 
