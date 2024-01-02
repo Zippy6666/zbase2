@@ -3045,8 +3045,19 @@ function NPC:LastDMGINFO( dmg )
     if !self.LastDMGINFOTbl then return end
 
     local lastdmginfo = DamageInfo()
+
+
+    if IsValid(self.LastDMGINFOTbl.infl) then
+        lastdmginfo:SetInflictor(self.LastDMGINFOTbl.infl)
+    end
+
+
+    if IsValid(self.LastDMGINFOTbl.attacker) then
+        lastdmginfo:SetAttacker(self.LastDMGINFOTbl.attacker)
+    end
+
+
     lastdmginfo:SetAmmoType(self.LastDMGINFOTbl.ammotype)
-    lastdmginfo:SetAttacker(self.LastDMGINFOTbl.attacker)
     lastdmginfo:SetBaseDamage(self.LastDMGINFOTbl.basedmg)
     lastdmginfo:SetDamage(self.LastDMGINFOTbl.damage)
     lastdmginfo:SetDamageBonus(self.LastDMGINFOTbl.dmgbonus)
@@ -3054,10 +3065,10 @@ function NPC:LastDMGINFO( dmg )
     lastdmginfo:SetDamageForce(self.LastDMGINFOTbl.dmgforce)
     lastdmginfo:SetDamageType(self.LastDMGINFOTbl.dmgtype)
     lastdmginfo:SetDamagePosition(self.LastDMGINFOTbl.dmgpos)
-    lastdmginfo:SetInflictor(self.LastDMGINFOTbl.infl)
     lastdmginfo:SetMaxDamage(self.LastDMGINFOTbl.maxdmg)
     lastdmginfo:SetReportedPosition(self.LastDMGINFOTbl.reportedpos)
 
+    
     return lastdmginfo
 
 end
