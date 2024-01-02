@@ -599,7 +599,7 @@ function NPC:ZBWepSys_Reload()
     -- Refill ammo
     timer.Create("ZBaseReloadWeapon"..self:EntIndex(), self:SequenceDuration()*0.7 / self:GetPlaybackRate(), 1, function()
 
-        if !IsValid(self) then return end
+        if !IsValid(self) or !IsValid(self:GetActiveWeapon()) then return end
 
         local CurrentStrAct = self:GetSequenceActivityName( self:GetSequence() )
         local StillReloading = string.find(CurrentStrAct, "RELOAD") != nil
