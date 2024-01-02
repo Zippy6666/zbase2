@@ -481,6 +481,31 @@ function SWEP:TranslateActivity( act )
 		local override = self.ZBase_ActTranslateOverride[act]
 		if isnumber(override) then
 			return override
+<<<<<<< HEAD
+=======
+		end
+
+
+
+		-- Maintain whatever shoot stance there is when we should
+		if act != own.ZBWepSys_CurShootAct && own:ZBWepSys_WantsToShoot() && !own:IsMoving() then
+
+			own.ZBWepSys_AllowRange1Translate = true
+			local DoubleTranslatedAct = self:TranslateActivity( own.ZBWepSys_CurShootAct )
+			own.ZBWepSys_AllowRange1Translate = false
+
+			return DoubleTranslatedAct
+
+		end
+
+	
+
+		-- Don't let the engine do ACT_RANGE_ATTACK1 with the weapon
+		if act == ACT_RANGE_ATTACK1 && !own.ZBWepSys_AllowRange1Translate then
+
+			return ACT_IDLE
+
+>>>>>>> de85b5e (added useless garbage)
 		end
 
 	end
