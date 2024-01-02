@@ -35,6 +35,12 @@ SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 SWEP.Primary.ShellEject = "1" -- Set to the name of an attachment to enable shell ejection
 
 
+-- idk
+SWEP.ZBase_ActTranslateOverride = {
+	[ACT_IDLE_PISTOL] = ACT_MP_ATTACK_STAND_SECONDARY,
+	[ACT_IDLE_ANGRY_PISTOL] = ACT_MP_ATTACK_STAND_SECONDARY,
+}
+
 
 function SWEP:Initialize()
 	self:SetHoldType( "smg" )

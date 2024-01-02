@@ -137,6 +137,8 @@ SWEP.NPCCanBePickedUp = true -- Can NPCs pick up this weapon?
 SWEP.NPCHoldType =  "smg"
 
 
+SWEP.ZBase_ActTranslateOverride = {} -- Override activities for ZBase NPCs: [ACT_OLD] = ACT_NEW
+
 
 --[[
 ==================================================================================================
