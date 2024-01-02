@@ -9,6 +9,6 @@ NPC.Class = "npc_combine_s"
 
 
 NPC.Name = "TF2 Test" -- Name of your NPC
-NPC.Category = false -- Category in the ZBase tab
-NPC.Weapons = {"weapon_smg1"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
+NPC.Category = "Other" -- Category in the ZBase tab
+NPC.Weapons = {"weapon_tf2_test"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc

@@ -437,6 +437,14 @@ function SWEP:TranslateActivity( act )
 	-- ZBase
 	if own.IsZBaseNPC then
 
+		-- Activity translate override
+		local override = self.ZBase_ActTranslateOverride[act]
+		if isnumber(override) then
+			return override
+		end
+
+
+
 		-- Maintain whatever shoot stance there is when we should
 		if act != own.ZBWepSys_CurShootAct && own:ZBWepSys_WantsToShoot() && !own:IsMoving() then
 
