@@ -491,6 +491,16 @@ function ZBase_RegisterHandler:NPCReg( name )
                     include(bh)
                 end
 
+
+                -- Store internal vars
+                ZBaseNPCs[name].EInternalVars = {}
+                for varname, var in pairs(ZBaseNPCs[name]) do
+                    if string.StartWith(varname, "m_") then
+                        ZBaseNPCs[name].EInternalVars[varname] = var
+                    end
+                end
+                
+
             end
         
 
