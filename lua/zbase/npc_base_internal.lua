@@ -18,8 +18,6 @@ local function ListConditions(npc, dur)
     dur = dur or 0.13
 	
 	if(!IsValid(npc)) then return end
-	
-	-- MsgN(npc:GetClass().." ("..npc:EntIndex()..") has conditions:")
 
     local cond_count = 0
 	
@@ -194,6 +192,13 @@ function NPC:ZBaseInit()
         self.ZBaseCurFunc = {}
         self:DebugMyFunctions()
     end
+
+
+    if ZBaseBadBranch && IsValid(self.ZBase_PlayerWhoSpawnedMe) then
+        net.Start("ZBaseBadBranch")
+        net.Send(self.ZBase_PlayerWhoSpawnedMe)
+    end
+    
 end
 
 
