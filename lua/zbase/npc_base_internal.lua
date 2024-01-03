@@ -114,7 +114,7 @@ function NPC:ZBaseInit()
 
 
     -- Set specified internal variables
-    for varname, var in pairs(self.EInternalVars) do
+    for varname, var in pairs(self.EInternalVars or {}) do
         self:SetSaveValue(varname, var)
     end
 
