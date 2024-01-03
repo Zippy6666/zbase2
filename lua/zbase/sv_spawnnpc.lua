@@ -284,6 +284,9 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 	NPC:SetAngles( Angles )
 
 
+	NPC.ZBase_PlayerWhoSpawnedMe = ply
+
+
 	return ZBaseInitialize( NPC, NPCData, Class, Equipment, true, wasSpawnedOnCeiling, bDropToFloor )
 end
 
