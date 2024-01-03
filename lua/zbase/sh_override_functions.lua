@@ -63,6 +63,7 @@ end
 function ENT:EmitSound( snd, ... )
     local IsZBaseNPC = self:GetNWBool("IsZBaseNPC")
 	if IsZBaseNPC && snd == "" then return end
+    if !IsValid(self) then return end
 
 
     if IsZBaseNPC then
