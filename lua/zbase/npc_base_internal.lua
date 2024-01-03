@@ -114,7 +114,9 @@ function NPC:ZBaseInit()
 
 
     -- Set specified internal variables
-    self:InitSaveValues()
+    for varname, var in pairs(self.EInternalVars) do
+        self:SetSaveValue(varname, var)
+    end
 
 
     -- Tick delay to fix issues
@@ -198,7 +200,7 @@ function NPC:ZBaseInit()
         net.Start("ZBaseBadBranch")
         net.Send(self.ZBase_PlayerWhoSpawnedMe)
     end
-    
+
 end
 
 
@@ -220,20 +222,6 @@ function NPC:InitBounds()
         self:PhysicsInitBox( self.CollisionBounds.min, self.CollisionBounds.max )
         self:SetSurroundingBounds(self.CollisionBounds.min*1.3, self.CollisionBounds.max*1.3)
         self:SetMoveType(MoveType)
-
-    end
-
-end
-
-
-function NPC:InitSaveValues()
-
-    -- Set all save values that its table has (m_typeSomething)
-    for k, v in pairs(self:GetTable()) do
-
-        if string.StartWith(k, "m_") then
-            self:SetSaveValue(k, v)
-        end
 
     end
 
@@ -285,7 +273,7 @@ function NPC:InitCap()
 
 
     -- Range1
-    if self:SelectWeightedSequence(ACT_RANGE_ATTACK1) != -1 then
+    if self:SelectWeightedSequence(ACT_RANGE_ATTACK1) != -1 && self:GetClass() != "npc_antlion" then
         self:CapabilitiesAdd(CAP_INNATE_RANGE_ATTACK1)
     end
 
@@ -1214,27 +1202,27 @@ function NPC:CheckHasAimPoseParam()
 end
 
 
-function NPC:ZBaseFuncPrint()
-    MsgN(self, ":", self.ZBaseCurFunc.name, "(", self.ZBaseCurFunc.args, ")")
-end
+-- function NPC:ZBaseFuncPrint()
+--     MsgN(self, ":", self.ZBaseCurFunc.name, "(", self.ZBaseCurFunc.args, ")")
+-- end
 
 
-function NPC:DebugMyFunctions()
-    for VarName, VarValue in pairs(self:GetTable()) do
-        if VarName == "ZBaseFuncPrint" then continue end
+-- function NPC:DebugMyFunctions()
+--     for VarName, VarValue in pairs(self:GetTable()) do
+--         if VarName == "ZBaseFuncPrint" then continue end
         
 
-        if isfunction(VarValue) then
-            local func = VarValue
+--         if isfunction(VarValue) then
+--             local func = VarValue
 
-            self[VarName] = function(me, ...)
-                self.ZBaseCurFunc = {name=VarName, args=...}
-                return func(me, ...)
-            end
-        end
+--             self[VarName] = function(me, ...)
+--                 self.ZBaseCurFunc = {name=VarName, args=...}
+--                 return func(me, ...)
+--             end
+--         end
 
-    end
-end
+--     end
+-- end
 
 
 
