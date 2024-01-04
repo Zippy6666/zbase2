@@ -728,7 +728,7 @@ function NPC:CustomOnOwnedEntCreated( ent )
 end
 
 
-    -- Accept input, return true to prevent --
+    -- Accept input, return true to prevent
 function NPC:CustomAcceptInput( input, activator, caller, value )
 end
 
@@ -737,6 +737,14 @@ end
     -- Like shooting it with a gun or something
 function NPC:OnRangeThreatened( ent )
 end
+
+
+    -- Called when the NPC wants to fire its weapon
+    -- Return false to prevent it from doing so
+function NPC:ShouldFireWeapon()
+    return true
+end
+
 
 --[[
 ==================================================================================================
