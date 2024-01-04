@@ -190,10 +190,10 @@ function NPC:ZBaseInit()
 
 
     -- Debug shit
-    if GetConVar("developer"):GetBool() then
-        self.ZBaseCurFunc = {}
-        self:DebugMyFunctions()
-    end
+    -- if GetConVar("developer"):GetBool() then
+    --     self.ZBaseCurFunc = {}
+    --     self:DebugMyFunctions()
+    -- end
 
 
     if ZBaseBadBranch && IsValid(self.ZBase_PlayerWhoSpawnedMe) then
