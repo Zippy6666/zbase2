@@ -814,7 +814,12 @@ function NPC:ZBWepSys_WantsToShoot()
     -- Can't move shoot without move shoot act
     && !( self:IsMoving() && !self.ZBWepSys_CurMoveShootAct )
 
+    -- Not in illegal sched
     && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
+
+
+    -- Should fire wep check, should be last
+    && self:ShouldFireWeapon()
 
 end
 
