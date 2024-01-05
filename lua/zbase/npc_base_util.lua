@@ -21,7 +21,6 @@ local NPC = ZBaseNPCs["npc_zbase"]
         -- extraData.duration - The animation duration
         -- extraData.faceSpeed - Face turn speed
         -- extraData.noTransitions - If true, it won't do any transition animations
-        -- extraData.forceWalkframes - Forces the NPC to move when doing the animation, you can try this if it doesn't move when you want it to
     -- Returns the provided 'extraData' table or an empty table if none was provided
 function NPC:PlayAnimation( anim, faceEnemy, extraData )
     extraData = extraData or {}
