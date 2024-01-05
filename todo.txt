@@ -11,3 +11,4 @@
 - ZBase replace default npcs (hijack spawn command?)
 - Make sure they forget enemies as intended
 - Vehicle base
+- Break down doors??

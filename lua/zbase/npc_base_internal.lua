@@ -1849,6 +1849,29 @@ function NPC:OnReactToSound(ent, pos, loudness)
 end
 
 
+
+function NPC:Input_Caller(ent, input, value)
+
+    -- local r = self:OnInputAsCaller(ent, input, value)
+    -- if r == true then
+    --     return true
+    -- end
+
+end
+
+
+
+
+function NPC:Input_Activator(ent, input, value)
+
+    -- local r = self:OnInputAsActivator(ent, input, value)
+    -- if r == true then
+    --     return true
+    -- end
+
+end
+
+
 --[[
 ==================================================================================================
                                            AI FOLLOW PLAYER
@@ -3285,7 +3308,7 @@ end
                                            DEATH
 ==================================================================================================
 --]]
-
+ 
 
 function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
