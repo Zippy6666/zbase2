@@ -2300,7 +2300,6 @@ function NPC:InternalMeleeAttackDamage(dmgData)
             continue
         end
 
-
         -- Push
         if forcevec && !self:IsAlly(ent) then
             local phys = ent:GetPhysicsObject()
@@ -2336,6 +2335,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         table.insert(hurtEnts, ent)
     end
 
+    self:OnMeleeAttackDamage(hurtEnts)
     return hurtEnts
 end
 
