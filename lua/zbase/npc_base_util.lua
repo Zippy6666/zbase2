@@ -133,7 +133,10 @@ function NPC:MeleeAttackDamage()
     end
 
 
-    return self:InternalMeleeAttackDamage(dmgData)
+    local hitEnts = self:InternalMeleeAttackDamage(dmgData)
+
+
+    return hitEnts
 end
 
 

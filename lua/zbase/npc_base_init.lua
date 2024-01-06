@@ -541,6 +541,12 @@ function NPC:PreventMeleeAttack()
 end
 
 
+    -- Called when the melee damage code is ran
+    -- 'hitEnts' table of entities affected by the damage, can be empty
+function NPC:OnMeleeAttackDamage( hitEnts )
+end
+
+
     -- Animation code
 function NPC:MeleeAnimation()
     return self:PlayAnimation(table.Random(self.MeleeAttackAnimations), self.MeleeAttackFaceEnemy, {
