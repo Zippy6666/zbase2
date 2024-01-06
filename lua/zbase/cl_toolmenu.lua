@@ -59,6 +59,16 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     end)
 
 
+    ZBaseAddMenuCategory("Options", function( panel )
+
+
+        panel:CheckBox( "Start Message", "zbase_start_msg")
+        panel:Help("Allow warning/message boxes when joining the game.")
+
+
+    end)
+
+
     ZBaseAddMenuCategory("Developer", function( panel )
 
 
@@ -76,7 +86,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox( "ZBase Reload Spawnmenu", "zbase_reload_spawnmenu")
         panel:Help("Should 'zbase_reload' also reload the spawn menu?")
-        
+
 
         local ReloadButton = vgui.Create("DButton", panel)
         ReloadButton:Dock(TOP)
