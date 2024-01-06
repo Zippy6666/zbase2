@@ -17,7 +17,7 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
             self:SetSaveValue("m_bCrabs", {false, false, false})
         end
     end
-    
+
 
     function NPC:ZBaseEnhancedThink()
     end
