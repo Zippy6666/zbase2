@@ -66,7 +66,7 @@ function ENT:EmitSound( snd, ... )
     if !IsValid(self) then return end
 
 
-    if IsZBaseNPC then
+    if IsZBaseNPC && self.CancelConversation then
         self:CancelConversation()
     end
 
