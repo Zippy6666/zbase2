@@ -72,6 +72,10 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ZBaseAddMenuCategory("Developer", function( panel )
 
 
+        local gitlink = panel:TextEntry("ZBase Github")
+        gitlink:SetValue("https://github.com/Zippy6666/zbase2")
+
+
         panel:CheckBox( "Developer", "developer")
         panel:Help("Sets 'developer' to '1'.")
 
