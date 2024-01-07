@@ -762,6 +762,15 @@ end
 
 
     -- Called when the base plays an animation (from NPC:PlayAnimation() that is)
+    -- 'anim' - The sequence (as a string) or activity (https://wiki.facepunch.com/gmod/Enums/ACT) to play
+    -- 'faceEnemy' - True if it should constantly face enemy while the animation is playing
+    -- 'extraData' (table)
+        -- extraData.isGesture - If true, it will play the animation as a gesture
+        -- extraData.face - Position or entity to constantly face, if set to false, it will face the direction it started the animation in
+        -- extraData.speedMult - Speed multiplier for the animation
+        -- extraData.duration - The animation duration
+        -- extraData.faceSpeed - Face turn speed
+        -- extraData.noTransitions - If true, it won't do any transition animations
 function NPC:OnPlayAnimation( anim, faceEnemy, extraData )
 end
 
