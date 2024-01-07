@@ -1288,6 +1288,19 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
 
 
 
+
+    local extraData = {}
+    extraData.isGesture = isGest -- If true, it will play the animation as a gesture
+    extraData.face = forceFace -- Position or entity to constantly face, if set to false, it will face the direction it started the animation in
+    extraData.speedMult = playbackRate -- Speed multiplier for the animation
+    extraData.duration = duration -- The animation duration
+    extraData.faceSpeed = faceSpeed -- Face turn speed
+    extraData.noTransitions = noTransitions -- If true, it won't do any transition animations
+    self:OnPlayAnimation( anim, forceFace==self:GetEnemy() && forceFace!=nil, extraData )
+
+
+
+
     -- Do anim as gesture if it is one --
     -- Don't do the rest of the code after that --
     if isGest then

@@ -723,8 +723,13 @@ function NPC:CustomNewActivityDetected( act )
 end
 
 
--- Called when the base detects that the NPC is playing a new sequence
+    -- Called when the base detects that the NPC is playing a new sequence
 function NPC:CustomNewSequenceDetected( sequence, SequenceName )
+end
+
+
+    -- Called when the base plays an animation (from NPC:PlayAnimation() that is)
+function NPC:OnPlayAnimation( anim, faceEnemy, extraData )
 end
 
 
@@ -739,7 +744,7 @@ function NPC:CustomAcceptInput( input, activator, caller, value )
 end
 
 
-        -- Accept input, return true to prevent
+    -- Accept input, return true to prevent
 function NPC:CustomAcceptInput( input, activator, caller, value )
 end
 
