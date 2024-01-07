@@ -3318,15 +3318,21 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- Stop sounds
     self.IsSpeaking = false
-    for _, v in ipairs(self.SoundVarNames) do
-        if !isstring(v) then continue end
-        self:StopSound(self[v])
-    end
+
 
 
     -- Death sound
     if !self.DoingDeathAnim then
+
+        for _, v in ipairs(self.SoundVarNames) do
+            if !isstring(v) then continue end
+            self:StopSound(self[v])
+        end
+
+
         self:EmitSound(self.DeathSounds)
+
+        
     end
 
 
@@ -3739,11 +3745,7 @@ function NPC:DeathAnimation( dmg )
         if !IsValid(self) then return end
 
         self.DeathAnim_Finished = true
+        hook.Run("OnNPCKilled", self, IsValid(lastDMGinfo.att) && lastDMGinfo.att or self, IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or self )
 
-        if self.IsZBase_SNPC then
-            self:Die(newDMGinfo)
-        else
-            GAMEMODE:OnNPCKilled(self, IsValid(lastDMGinfo.att) && lastDMGinfo.att or self, IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or self)
-        end
     end)
 end

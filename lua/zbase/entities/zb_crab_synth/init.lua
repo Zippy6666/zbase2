@@ -80,6 +80,13 @@ NPC.FlinchCooldown = {4, 5} -- Flinch cooldown in seconds {min, max}
 NPC.FlinchChance = 1 -- Flinch chance 1/x
 
 
+-- Death animations to use, leave empty to disable the base death animation
+NPC.DeathAnimations = {ACT_BIG_FLINCH}
+NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
+NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
+NPC.DeathAnimationDuration = 0.75 -- Duration of death animation
+
+
 -- Sounds (Use sound scripts to alter pitch and level and such!)
 NPC.AlertSounds = "ZBaseCrabSynth.Alert" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "ZBaseCrabSynth.Idle" -- Sounds emitted while there is no enemy
@@ -484,7 +491,28 @@ function NPC:CustomTakeDamage( dmginfo, HitGroup )
     end
 end
 --]]==============================================================================================]]
+-- Death animation code
+function NPC:DeathAnimation_Animation()
+
+    local explosion = ents.Create("env_explosion")
+    explosion:SetPos(self:WorldSpaceCenter())
+    explosion:Spawn()
+    explosion:Fire("Explode")
+    explosion:Remove()
+
+
+    return self:PlayAnimation(table.Random(self.DeathAnimations), false, {
+        speedMult=self.DeathAnimationSpeed,
+        face=false,
+        duration=self.DeathAnimationDuration,
+        noTransitions = true,
+    })
+
+
+end
+--]]==============================================================================================]]
 function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
+
 
     rag.DamagedSmoke = ents.Create("env_smoketrail")
     rag.DamagedSmoke:SetPos(rag:GetAttachment(rag:LookupAttachment("vent")).Pos)
