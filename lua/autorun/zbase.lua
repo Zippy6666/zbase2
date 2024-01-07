@@ -5,6 +5,10 @@
 --]]
 
 
+-- [b]DISCUSSIONS and COMMENTS have been moved, you'll see them in the TABS ABOVE![/b]
+-- in case that shit happends again lol
+
+
 ZBaseInstalled = ZBaseInstalled
 or MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
 or MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
