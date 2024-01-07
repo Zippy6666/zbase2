@@ -193,7 +193,7 @@ NPC.FlinchIsGesture = false -- Should the flinch animation be played as a gestur
 
 NPC.DeathAnimations = {} -- Death animations to use, leave empty to disable the base death animation
 NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
-NPC.DeathAnimationChance = 2 --  Flinch animation chance 1/x
+NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
 NPC.DeathAnimationDuration = 1 -- Duration of death animation
 
 NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?

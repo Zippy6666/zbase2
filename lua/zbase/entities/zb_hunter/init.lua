@@ -20,6 +20,20 @@ NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 NPC.ZBaseStartFaction = "combine"
 
 
+    -- Death animations to use, leave empty to disable the base death animation
+NPC.DeathAnimations = {
+    "death_stagger_n",
+    "death_stagger_e",
+    "death_stagger_s",
+    "death_stagger_w",
+    "death_stagger_se",
+    "death_stagger_sw",
+}
+NPC.DeathAnimationSpeed = 1.25 -- Speed of the death animation
+NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
+NPC.DeathAnimationDuration = 1 -- Duration of death animation
+
+
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 NPC.IdleSounds = "ZBaseHunter.Idle"
 
