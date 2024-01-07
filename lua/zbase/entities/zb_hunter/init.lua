@@ -26,8 +26,6 @@ NPC.DeathAnimations = {
     "death_stagger_e",
     "death_stagger_s",
     "death_stagger_w",
-    "death_stagger_se",
-    "death_stagger_sw",
 }
 NPC.DeathAnimationSpeed = 1.25 -- Speed of the death animation
 NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
