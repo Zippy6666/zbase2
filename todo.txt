@@ -12,3 +12,4 @@
 - Make sure they forget enemies as intended
 - Vehicle base
 - Break down doors??
+- SCP CB pack?
