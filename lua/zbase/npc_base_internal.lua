@@ -97,6 +97,7 @@ function NPC:ZBaseInit()
     self.PlayerToFollow = NULL
     self:SetNWBool("IsZBaseNPC", true)
     self:SetNWString("ZBaseName", self.Name)
+    self:SetNWString("NPCName", self.NPCName)
 
 
     -- Rendermode
