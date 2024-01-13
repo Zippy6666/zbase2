@@ -29,17 +29,28 @@ function NPC:ZBaseSetMutualRel( ent, rel )
     if !IsValid(ent) then return end
 
     
+    -- Relationship to ent
     self:AddEntityRelationship(ent, rel, 99)
 
 
+    -- Entity's bullseye relationship
     if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
         self:AddEntityRelationship(ent.Bullseye, rel, 99)
     end
 
 
-    -- If recipient is not a zbase npc, make it feel the same way about
+    -- If recipient is not a zbase npc, make it feel the same way about itself
     if !ent.IsZBaseNPC && ent:IsNPC() then
+
+        -- Recipient keep hating its enemies
+        -- Workaround for non-zbase NPCs ignoring players (and maybe other npcs potentially)
+        for _, ene in ipairs(ent:GetKnownEnemies()) do
+            if ene == self then continue end
+            ent:AddEntityRelationship(ene, D_HT, 99)
+        end
+
         ent:AddEntityRelationship(self, rel, 99)
+
     end
 
 end
@@ -57,11 +68,11 @@ end
 
 
 function NPC:ZBaseDecideRelationship( ent )
-    -- Me or the ent has faction neutral, like
     local myFaction = self.ZBaseFaction
     local theirFaction = ent.ZBaseFaction
 
 
+    -- Me or the ent has faction neutral, like
     if myFaction == "neutral" or theirFaction=="neutral" then
         self:ZBaseSetMutualRel( ent, D_LI )
         return

@@ -15,13 +15,15 @@ Derma_Hook( PANEL, "Paint", "Paint", "Tree" )
 PANEL.m_bBackground = true -- Hack for above
 
 
------------------------------------------------------------------------------------------=#
+
+
 hook.Add("InitPostEntity", "ZBaseReplaceFuncsClient", function()
 	-- this does something important idk what
 	local spawnmenu_reload = concommand.GetTable()["spawnmenu_reload"]
 
 
-	--------------------------------------------------------------------=#
+	
+	
 	concommand.Add("spawnmenu_reload", function(...)
         ZBase_JustReloadedSpawnmenu = true
 
@@ -31,9 +33,11 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsClient", function()
             ZBase_JustReloadedSpawnmenu = false 
         end)
 	end)
-	--------------------------------------------------------------------=#
+	
+	
 end)
------------------------------------------------------------------------------------------=#
+
+
 local function DoGenericSpawnmenuRightclickMenu( self )
 	local menu = DermaMenu()
 	
@@ -44,7 +48,8 @@ local function DoGenericSpawnmenuRightclickMenu( self )
 
 	menu:Open()
 end
------------------------------------------------------------------------------------------=#
+
+
 spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	if ( !obj.material ) then return end
 	if ( !obj.nicename ) then return end
@@ -76,7 +81,8 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 
 	return icon
 end)
------------------------------------------------------------------------------------------=#
+
+
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
 	local Categories = {}
 
@@ -135,7 +141,8 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 		FirstNode:InternalDoClick()
 	end
 end)
------------------------------------------------------------------------------------------=#
+
+
 function PANEL:GetAllFactions( factions )
 	self.PlyFactionDropDown:Clear()
 	self.NPCFactionDropDown:Clear()
@@ -150,7 +157,8 @@ function PANEL:GetAllFactions( factions )
 	self.PlyFactionDropDown:ChooseOption(self.PlyFactionDropDown.StartVal)
 	self.NPCFactionDropDown:ChooseOption(self.NPCFactionDropDown.StartVal)
 end
------------------------------------------------------------------------------------------=#
+
+
 net.Receive("ZBaseListFactions", function()
 	local tbl = table.Copy(net.ReadTable())
 
@@ -162,7 +170,8 @@ net.Receive("ZBaseListFactions", function()
 		end
 	end)
 end)
------------------------------------------------------------------------------------------=#
+
+
 function PANEL:AddDropdown( text, func, startVal )
 	local label = vgui.Create("DLabel", self)
 	label:SetText(text)
@@ -179,14 +188,16 @@ function PANEL:AddDropdown( text, func, startVal )
 
 	return dropdown
 end
------------------------------------------------------------------------------------------=#
+
+
 function PANEL:AddHelp( text )
 	local label = vgui.Create("DLabel", self)
 	label:SetText(text)
 	label:Dock(TOP)
 	label:SetColor(Color(100,100,100))
 end
------------------------------------------------------------------------------------------=#
+
+
 function PANEL:Init()
 
 	self:DockPadding( 15, 10, 15, 10 )
@@ -213,7 +224,8 @@ function PANEL:Init()
 	self:Open()
 
 end
------------------------------------------------------------------------------------------=#
+
+
 vgui.Register( "ZBaseSussyBaka", PANEL, "DDrawer" )
 spawnmenu.AddCreationTab( "ZBase", function(...)
 
@@ -236,4 +248,4 @@ spawnmenu.AddCreationTab( "ZBase", function(...)
     return pnlContent
 
 end, "entities/zippy.png", 25)
------------------------------------------------------------------------------------------=#
+
