@@ -117,9 +117,30 @@ end
     -- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
     -- 'pos' - The position to spawn it on
     -- 'normal' - The normal to spawn it on (optional)
-    -- 'weapon_class' The weapon class to equip the npc with (optional)
+    -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
 function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
+
+    if !SERVER then return end
+
+
+    if !ZBaseNPCs[class] then return end
+
+
+    if weapon_class=="default" then
+
+        local weps = ZBaseNPCs[class].Weapons
+
+        if !table.IsEmpty(weps) then
+            weapon_class = table.Random(weps)
+        end
+         
+    end
+
+
+    
     return ZBaseInternalSpawnNPC( NULL, pos, normal or Vector(0, 0, 1), class, weapon_class, nil, true )
+
+
 end
 
 
