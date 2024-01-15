@@ -71,12 +71,13 @@ function SWEP:PrimaryAttack()
 
 
 		local bullet = {
-			Attacker = self:GetOwner(),
+			Attacker = own,
 			Inflictor = self,
 			Damage = self.PrimaryDamage,
 			AmmoType = self.Primary.Ammo,
-			Src = self:GetOwner():GetShootPos(),
-			Dir = self:GetOwner():GetAimVector(),
+			Src = own:GetShootPos(),
+			-- Dir = (own.IsZBaseNPC && own:ZBWepSys_AimVector()) or own:GetAimVector(),
+			Dir = own:GetAimVector(),
 			Spread = Vector(self.PrimarySpread, self.PrimarySpread),
 			Tracer = self.Primary.TracerChance,
 			TracerName = self.Primary.TracerName,
@@ -429,6 +430,30 @@ end
 ==================================================================================================
 --]]
 
+	-- When translated act is a gesture for players, play this activity instead (and apply the gesture on top of that)
+local PlyMdlAct_GestTranslate = {
+
+	-- AR2
+	[ACT_HL2MP_GESTURE_RELOAD_AR2] = ACT_HL2MP_IDLE_AR2,
+	[ACT_HL2MP_GESTURE_RANGE_ATTACK_AR2] = ACT_HL2MP_IDLE_AR2,
+
+}
+
+
+	-- Test for now...
+local PlyMdlActTrans = {
+	["ar2"] = {
+		[ACT_IDLE] = ACT_HL2MP_IDLE_AR2,
+		[ACT_WALK] = ACT_HL2MP_WALK_PASSIVE,
+		[ACT_RUN] = ACT_HL2MP_RUN_PASSIVE,
+		[ACT_RANGE_ATTACK1] = ACT_HL2MP_GESTURE_RANGE_ATTACK_AR2,
+		[ACT_RANGE_ATTACK1_LOW] = ACT_HL2MP_IDLE_CROUCH_AR2,
+		[ACT_RELOAD_SMG1] = ACT_HL2MP_GESTURE_RELOAD_AR2,
+	}
+}
+
+
+
 
 function SWEP:TranslateActivity( act )
 	local own = self:GetOwner()
@@ -441,6 +466,42 @@ function SWEP:TranslateActivity( act )
 		local override = self.ZBase_ActTranslateOverride[act]
 		if isnumber(override) then
 			return override
+		end
+
+
+
+		-- Player model translate:
+		local HasPlyMdl = own:ZBWepSys_HasPlayerModel()
+		if HasPlyMdl then
+
+			local TranslateTbl = PlyMdlActTrans[self:GetHoldType()]
+
+
+
+			if istable(TranslateTbl) then
+				local TranslatedAct = TranslateTbl[act]
+				local TranslatedActGest = PlyMdlAct_GestTranslate[TranslatedAct]
+
+				
+				-- Act is gesture, use different act, but apply the gesture as well
+				if TranslatedActGest then
+					
+					local Gest = TranslatedAct
+					TranslatedAct = TranslatedActGest
+
+
+					if !own:IsPlayingGesture(Gest) then
+						own:PlayAnimation(Gest, false, {isGesture=true}) -- Play gesture
+					end
+
+				end
+
+
+				if TranslatedAct then
+					return TranslatedAct
+				end
+			end
+
 		end
 
 
