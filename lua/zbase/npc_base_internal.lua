@@ -305,7 +305,6 @@ function NPC:InitCap()
         self:CapabilitiesAdd(CAP_MOVE_GROUND)
 	end
 
-
 end
 
 
@@ -383,9 +382,6 @@ local StrNPCStates = {
 
 
 function NPC:ZBaseThink()
-
-    -- if true then return end
-
     local ene = self:GetEnemy()
     local sched = self:GetCurrentSchedule()
     local seq = self:GetSequence()
@@ -576,6 +572,12 @@ function NPC:ZBWepSys_Init()
 end
 
 
+function NPC:ZBWepSys_HasPlayerModel()
+    local SubModels = self:GetSubModels()
+    return istable(SubModels) && SubModels[1] && SubModels[1].name && SubModels[1].name=="models/m_anm.mdl"
+end
+
+
 function NPC:ZBWepSys_Reload()
 
     -- On reload weapon
@@ -614,6 +616,14 @@ end
 
 
 function NPC:ZBWepSys_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFail )
+
+    -- Do simple setholdtype for player models
+    if self:ZBWepSys_HasPlayerModel() then
+        wep:SetHoldType(startHoldT)
+        return
+    end
+
+
 
     -- Set hold type, use fallbacks if npc does not have supporting anims
     -- Priority:
@@ -852,6 +862,27 @@ function NPCB.ZBWepSys_ChangeActs:Run( self )
     self.ZBWepSys_CurShootAct = table.Random(self.WeaponFire_Activities)
 
     ZBaseDelayBehaviour(math.Rand(3, 9))
+
+end
+
+
+function NPC:ZBWepSys_AimVector()
+
+    local shootpos = self:GetShootPos() + VectorRand() * self:GetActiveWeapon():GetNPCBulletSpread(self:GetCurrentWeaponProficiency())*5
+    local targetpos = self:GetEnemyLastSeenPos()
+
+
+    if self.EnemyVisible then
+
+        targetpos = targetpos+self:GetEnemy():OBBCenter()
+        local vec = (targetpos - shootpos):GetNormalized()
+
+        self.ZBWepSys_LastAimVec = vec
+
+    end
+
+
+    return self.ZBWepSys_LastAimVec or (targetpos - shootpos):GetNormalized()
 
 end
 
