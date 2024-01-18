@@ -1424,7 +1424,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
             if !IsValid(self) then return end
 
             self:InternalStopAnimation(isTransition or noTransitions)
-            self:OnAnimEnded( extraData )
+            self:OnAnimEnded( anim, forceFace==self:GetEnemy() && forceFace!=nil, extraData )
 
             if onFinishFunc then
                 onFinishFunc()
