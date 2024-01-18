@@ -190,11 +190,12 @@ NPC.FlinchIsGesture = false -- Should the flinch animation be played as a gestur
 ==================================================================================================
 --]]
 
-
 NPC.DeathAnimations = {} -- Death animations to use, leave empty to disable the base death animation
 NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
 NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
-NPC.DeathAnimationDuration = 1 -- Duration of death animation
+
+-- Duration of death animation, set to false to use the default duration (note that doing so may cause issues with some models/npcs so be careful)
+NPC.DeathAnimationDuration = 1
 
 NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
 NPC.RagdollApplyForce = true -- Should the ragdoll get force applied to it?
@@ -739,6 +740,20 @@ end
         -- extraData.faceSpeed - Face turn speed
         -- extraData.noTransitions - If true, it won't do any transition animations
 function NPC:OnPlayAnimation( anim, faceEnemy, extraData )
+end
+
+
+    -- Called when the base ends an animation (from NPC:PlayAnimation() that is, including transition animations)
+    -- 'extraData' (table)
+        -- extraData.isGesture - If true, it will play the animation as a gesture
+        -- extraData.face - Position or entity to constantly face, if set to false, it will face the direction it started the animation in
+        -- extraData.speedMult - Speed multiplier for the animation
+        -- extraData.duration - The animation duration
+        -- extraData.faceSpeed - Face turn speed
+        -- extraData.noTransitions - If true, it won't do any transition animations
+function NPC:OnAnimEnded( extraData )
+    PrintTable(extraData)
+    print("ended")
 end
 
 

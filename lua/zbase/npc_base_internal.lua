@@ -1424,6 +1424,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
             if !IsValid(self) then return end
 
             self:InternalStopAnimation(isTransition or noTransitions)
+            self:OnAnimEnded( extraData )
 
             if onFinishFunc then
                 onFinishFunc()
@@ -3786,7 +3787,8 @@ function NPC:DeathAnimation( dmg )
     self:CapabilitiesClear()
 
 
-    timer.Simple(self.DeathAnimationDuration/self.DeathAnimationSpeed, function()
+    local dur = self.DeathAnimationDuration && self.DeathAnimationDuration/self.DeathAnimationSpeed or self:SequenceDuration()
+    timer.Simple(dur, function()
         if !IsValid(self) then return end
 
         self.DeathAnim_Finished = true
