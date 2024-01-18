@@ -751,9 +751,7 @@ end
         -- extraData.duration - The animation duration
         -- extraData.faceSpeed - Face turn speed
         -- extraData.noTransitions - If true, it won't do any transition animations
-function NPC:OnAnimEnded( extraData )
-    PrintTable(extraData)
-    print("ended")
+function NPC:OnAnimEnded( anim, faceEnemy, extraData )
 end
 
 
