@@ -84,7 +84,7 @@ NPC.FlinchChance = 1 -- Flinch chance 1/x
 NPC.DeathAnimations = {ACT_BIG_FLINCH}
 NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
 NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
-NPC.DeathAnimationDuration = 0.75 -- Duration of death animation
+NPC.DeathAnimationDuration = false--0.75 -- Duration of death animation
 
 
 -- Sounds (Use sound scripts to alter pitch and level and such!)

@@ -1,15 +1,13 @@
 >>> TODO <<<
-- Expanded support for the weapon base so that player functions work on NPCs
 - Jump system
 - Grab ZBase flying NPCs with gravity gun
 - Flying snpcs use air nodes too (not just ground) + other improvements
 - Pickup system (even though they have a weapon active)
 - New secondary fire system
 - Able to change model and snpc type live
-- Base weapons
 - Controller
-- ZBase replace default npcs (hijack spawn command?)
-- Make sure they forget enemies as intended
+- ZBase replace default npcs
 - Vehicle base
-- Break down doors??
 - SCP CB pack?
+- Some calls for snpcs to improve their collisions and such
+- Add change movement animation func
