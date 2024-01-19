@@ -3574,6 +3574,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
     local totMass = 0
 	local physcount = rag:GetPhysicsObjectCount()
+    local dmgpos = rag:GetDamagePosition()
 	for i = 0, physcount - 1 do
 		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
@@ -3583,19 +3584,24 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
         -- Sum mass
         totMass = totMass+physObj:GetMass()
+
+        if self.RagdollApplyForce then
+            local force = dmg:GetDamageForce()*0.02
+            physObj:SetVelocity(force)
+        end
 	end
 
 
 	-- Ragdoll force
     if self.RagdollApplyForce then
 
-        local force = dmg:GetDamageForce()/(totMass/120)
+        -- local force = dmg:GetDamageForce()/(totMass/120)
 
-        if self.LastDamageWasBullet then
-            ragPhys:SetVelocity(force*0.1)
-        else
-            ragPhys:SetVelocity(force)
-        end
+        -- if self.LastDamageWasBullet then
+        --     ragPhys:SetVelocity(force*0.1)
+        -- else
+        --     ragPhys:SetVelocity(force)
+        -- end
 
     end
 
@@ -3622,7 +3628,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		rag:Ignite(math.Rand(4,8))
 	end
 
-    
+
     -- Handle corpse
     if !keep_corpse or dmg:IsDamageType(DMG_DISSOLVE) then
         -- Nocollide
