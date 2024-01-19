@@ -210,7 +210,7 @@ function NPC:InitBounds()
 
     -- Collisions/Bounds
 
-    local MoveType = self:GetMoveType()
+    -- local MoveType = self:GetMoveType()
 
 
     if self.HullType && !self.IsZBase_SNPC then
@@ -220,9 +220,13 @@ function NPC:InitBounds()
 
     if self.CollisionBounds then
 
-        self:PhysicsInitBox( self.CollisionBounds.min, self.CollisionBounds.max )
+        -- self:PhysicsInitBox( self.CollisionBounds.min, self.CollisionBounds.max )
+        -- self:SetMoveType(MoveType)
+
+
+
+        self:SetCollisionBounds( self.CollisionBounds.min, self.CollisionBounds.max )
         self:SetSurroundingBounds(self.CollisionBounds.min*1.3, self.CollisionBounds.max*1.3)
-        self:SetMoveType(MoveType)
 
     end
 
