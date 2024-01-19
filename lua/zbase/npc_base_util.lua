@@ -326,11 +326,13 @@ function NPC:InduceDeath( dmginfo )
 
     dmginfo = dmginfo or self:LastDMGINFO()
 
-
     self.DeathAnim_Finished = true
 
 
-    hook.Run("OnNPCKilled", self, IsValid(dmginfo.att) && dmginfo.att or self, IsValid(dmginfo.inf) && dmginfo.inf or self )
+    local att = dmginfo:GetAttacker()
+    local infl = dmginfo:GetInflictor()
+
+    hook.Run("OnNPCKilled", self, IsValid(att) && att or self, IsValid(infl) && infl or self )
 
 end
 
