@@ -47,6 +47,49 @@ NPC.SeeDangerSounds = "ZBaseHunter.SeeDanger" -- Sounds emitted when the NPC spo
 NPC.FootStepSounds = "ZBaseHunter.Step"
 
 
-function NPC:CustomInitialize()
+NPC.DodgeAnimations = {
+    Left = "dodge_w",
+    Right = "dodge_e",
+}
+
+
+local HUNTER_DODGE_LEFT = 1
+local HUNTER_DODGE_RIGHT = 2
+
+
+
+function NPC:OnRangeThreatened( ent )
+    local Center = self:WorldSpaceCenter()
+
+
+    local TraceRight = util.TraceLine({
+        start = self:GetPos(),
+        endpos = self:GetPos()+self:GetRight()*200,
+        mask = MASK_NPCSOLID,
+        filter = self,
+    })
+
+
+    local TraceLeft = util.TraceLine({
+        start = self:GetPos(),
+        endpos = self:GetPos()-self:GetRight()*200,
+        mask = MASK_NPCSOLID,
+        filter = self,
+    })
+
+
+    if math.random(1, 2) == 1 && !TraceRight.Hit then
+
+        self:PlayAnimation(self.DodgeAnimations.Right, false, {face=ent, speedMult=1.3})
+
+    elseif !TraceLeft.Hit then
+
+        self:PlayAnimation(self.DodgeAnimations.Left, false, {face=ent, speedMult=1.3})
+    end
+
+
+    self:EmitSound(self.SeeDangerSounds)
+
+
 end
 
