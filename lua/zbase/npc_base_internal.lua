@@ -3792,6 +3792,8 @@ function NPC:DeathAnimation( dmg )
     self:EmitSound(self.DeathSounds)
 
 
+
+    self:StoreDMGINFO(dmg)
     dmg:ScaleDamage(0)
 
 
