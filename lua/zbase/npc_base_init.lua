@@ -193,6 +193,8 @@ NPC.FlinchIsGesture = false -- Should the flinch animation be played as a gestur
 NPC.DeathAnimations = {} -- Death animations to use, leave empty to disable the base death animation
 NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
 NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
+NPC.DeathAnimation_StopAttackingMe = false -- Stop other NPCs from attacking this NPC when it is doing its death animation
+
 
 -- Duration of death animation, set to false to use the default duration (note that doing so may cause issues with some models/npcs so be careful)
 NPC.DeathAnimationDuration = 1
@@ -730,27 +732,11 @@ end
 
 
     -- Called when the base plays an animation (from NPC:PlayAnimation() that is)
-    -- 'anim' - The sequence (as a string) or activity (https://wiki.facepunch.com/gmod/Enums/ACT) to play
-    -- 'faceEnemy' - True if it should constantly face enemy while the animation is playing
-    -- 'extraData' (table)
-        -- extraData.isGesture - If true, it will play the animation as a gesture
-        -- extraData.face - Position or entity to constantly face, if set to false, it will face the direction it started the animation in
-        -- extraData.speedMult - Speed multiplier for the animation
-        -- extraData.duration - The animation duration
-        -- extraData.faceSpeed - Face turn speed
-        -- extraData.noTransitions - If true, it won't do any transition animations
 function NPC:OnPlayAnimation( anim, faceEnemy, extraData )
 end
 
 
     -- Called when the base ends an animation (from NPC:PlayAnimation() that is, including transition animations)
-    -- 'extraData' (table)
-        -- extraData.isGesture - If true, it will play the animation as a gesture
-        -- extraData.face - Position or entity to constantly face, if set to false, it will face the direction it started the animation in
-        -- extraData.speedMult - Speed multiplier for the animation
-        -- extraData.duration - The animation duration
-        -- extraData.faceSpeed - Face turn speed
-        -- extraData.noTransitions - If true, it won't do any transition animations
 function NPC:OnAnimEnded( anim, faceEnemy, extraData )
 end
 
@@ -939,12 +925,16 @@ end
 
     -- Death animation code
 function NPC:DeathAnimation_Animation()
+
     return self:PlayAnimation(table.Random(self.DeathAnimations), false, {
         speedMult=self.DeathAnimationSpeed,
         face=false,
         duration=self.DeathAnimationDuration,
         noTransitions = true,
+        freezeForever = self.DeathAnimationDuration==false,
+        onFinishFunc = function() self:InduceDeath() end, -- Kill NPC when the animation ends
     })
+
 end
 
 

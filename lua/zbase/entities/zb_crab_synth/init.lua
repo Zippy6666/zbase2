@@ -84,7 +84,7 @@ NPC.FlinchChance = 1 -- Flinch chance 1/x
 NPC.DeathAnimations = {ACT_BIG_FLINCH}
 NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
 NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
-NPC.DeathAnimationDuration = false--0.75 -- Duration of death animation
+NPC.DeathAnimationDuration = 0.75 -- Duration of death animation
 
 
 -- Sounds (Use sound scripts to alter pitch and level and such!)
@@ -129,12 +129,14 @@ local CrabFootStepActs = {
 }
 
 
---]]==============================================================================================]]
+
+
 function NPC:CustomInitialize()
     self.MinigunShootSound = CreateSound(self, "ZBaseCrabSynth.MinigunLoop")
     self:CallOnRemove("StopShootSoundLoop", function() self.MinigunShootSound:Stop() end)
 end
---]]==============================================================================================]]
+
+
 function NPC:FootStepTimer()
     -- if !self:IsMoving() then return end -- Comment this out or charge anim won't have steps
     if self.HasEngineFootSteps then return end
@@ -159,7 +161,8 @@ function NPC:FootStepTimer()
         self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Walk
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:MultipleMeleeAttacks()
     local rnd = math.random(1, 3)
 
@@ -199,7 +202,8 @@ function NPC:MultipleMeleeAttacks()
 
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:CustomThink()
     local seqName = self:GetSequenceName(self:GetSequence())
 
@@ -301,7 +305,8 @@ function NPC:CustomThink()
 
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:EnableFlashlight(duration)
     self:DisableFlashlight()
 
@@ -350,14 +355,16 @@ function NPC:EnableFlashlight(duration)
     self.FlashLight = spotlight
     self.FlashLightProj = projtexture
 end
---]]==============================================================================================]]
+
+
 function NPC:DisableFlashlight() 
     if IsValid(self.FlashLight) then
         self.FlashLight:Remove()
         self.FlashLightProj:Remove()
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:OnRangeAttack()
     self.RangeAttackDuration = math.Rand(3, 6)
 
@@ -370,7 +377,8 @@ function NPC:OnRangeAttack()
     self.MinigunCanFire = false -- Cannot fire right now, will be able to fire after windup
     self.MinigunStartDone = false -- Has not started to wind up yet
 end
---]]==============================================================================================]]
+
+
 function NPC:RangeAttackProjectile()
     if !self.CurTrackSpeed then return end
 
@@ -416,7 +424,8 @@ function NPC:RangeAttackProjectile()
     effectdata:SetAttachment(1)
     util.Effect("ChopperMuzzleFlash", effectdata, true, true)
 end
---]]==============================================================================================]]
+
+
 function NPC:MeleeDamageForce( dmgData )
     if dmgData.name == "smallmelee" then
         return {forward=150, up=325, right=-350, randomness=75}
@@ -426,7 +435,8 @@ function NPC:MeleeDamageForce( dmgData )
         return {forward=300, up=350, right=0, randomness=75}
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option) 
     if event == 5 then
         self:MeleeAttackDamage()
@@ -454,7 +464,8 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
         end
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
     if dmginfo:GetDamage() < 80 then return false end
     if !dmginfo:IsExplosionDamage() && !dmginfo:IsDamageType(DMG_DISSOLVE) then return false end
@@ -462,7 +473,8 @@ function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
 
     return true
 end
---]]==============================================================================================]]
+
+
 function NPC:CustomTakeDamage( dmginfo, HitGroup )
     local damageHeight = (dmginfo:GetDamagePosition().z - self:WorldSpaceCenter().z)+10
 
@@ -490,8 +502,8 @@ function NPC:CustomTakeDamage( dmginfo, HitGroup )
 
     end
 end
---]]==============================================================================================]]
--- Death animation code
+
+
 function NPC:DeathAnimation_Animation()
 
     local explosion = ents.Create("env_explosion")
@@ -506,11 +518,13 @@ function NPC:DeathAnimation_Animation()
         face=false,
         duration=self.DeathAnimationDuration,
         noTransitions = true,
+        freezeForever = self.DeathAnimationDuration==false,
+        onFinishFunc = function() self:InduceDeath() end, -- Kill NPC when the animation ends
     })
 
-
 end
---]]==============================================================================================]]
+
+
 function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
 
 
@@ -530,4 +544,4 @@ function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
     SafeRemoveEntityDelayed(rag.DamgedSmoke, 8)
 
 end
---]]==============================================================================================]]
+

@@ -21,6 +21,9 @@ local NPC = ZBaseNPCs["npc_zbase"]
         -- extraData.duration - The animation duration
         -- extraData.faceSpeed - Face turn speed
         -- extraData.noTransitions - If true, it won't do any transition animations
+        -- extraData.freezeForever - If true, the animation will never end
+        -- extraData.onFinishFunc - Function to play when the animation finishes
+        -- extraData.onFinishFuncArgs - Table of arguments to pass in onFinishFunc
     -- Returns the provided 'extraData' table or an empty table if none was provided
 function NPC:PlayAnimation( anim, faceEnemy, extraData )
     extraData = extraData or {}
@@ -36,8 +39,25 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     end
 
 
-    self:InternalPlayAnimation(anim, extraData.duration, extraData.speedMult,
-    SCHED_NPC_FREEZE, face, extraData.faceSpeed, extraData.loop, nil, extraData.isGesture, nil, extraData.noTransitions, extraData.forceWalkframes)
+    local moreArgs = {
+        freezeForever = extraData.freezeForever,
+        onFinishFunc = extraData.onFinishFunc,
+        onFinishFuncArgs = extraData.onFinishFuncArgs,
+    }
+
+
+    -- Deprecated stuff
+    local loop = nil
+    local onFinishFunc = nil
+
+
+    local isTransition = false
+
+
+    self:InternalPlayAnimation(
+        anim, extraData.duration, extraData.speedMult,
+        SCHED_NPC_FREEZE, face, extraData.faceSpeed, loop, onFinishFunc, extraData.isGesture, isTransition, extraData.noTransitions, moreArgs
+    )
 
 
     return extraData or {}
@@ -297,6 +317,21 @@ end
     -- But maybe better performance idk
 function NPC:SeeEne()
     return self.EnemyVisible
+end
+
+
+    -- Kills the NPC (no death animation)
+    -- 'dmginfo' - Damage info, not required
+function NPC:InduceDeath( dmginfo )
+
+    dmginfo = dmginfo or self:LastDMGINFO()
+
+
+    self.DeathAnim_Finished = true
+
+
+    hook.Run("OnNPCKilled", self, IsValid(dmginfo.att) && dmginfo.att or self, IsValid(dmginfo.inf) && dmginfo.inf or self )
+
 end
 
 
