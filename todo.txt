@@ -11,3 +11,4 @@
 - SCP CB pack?
 - Some calls for snpcs to improve their collisions and such
 - Add change movement animation func
+- Improve death ragdoll force

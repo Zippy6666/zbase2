@@ -1309,8 +1309,8 @@ end
 --]]
 
 
-function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,faceSpeed,loop,onFinishFunc,isGest,isTransition,noTransitions)
-    if GetConVar("ai_disabled"):GetBool() then return end
+function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc, isGest, isTransition, noTransitions, moreArgs)
+    -- if GetConVar("ai_disabled"):GetBool() then return end
     if !anim then return end
 
 
@@ -1318,6 +1318,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
     if isGest && !self.IsZBase_SNPC && ZBaseIsMP then return end -- Don't do gestures on non-scripted NPCs in multiplayer, it seems to be broken
 
 
+    moreArgs = moreArgs or {}
 
 
 
@@ -1327,9 +1328,8 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
     extraData.speedMult = playbackRate -- Speed multiplier for the animation
     extraData.duration = duration -- The animation duration
     extraData.faceSpeed = faceSpeed -- Face turn speed
-    extraData.noTransitions = noTransitions -- If true, it won't do any transition animations
+    extraData.noTransitions = moreArgs.freezeForever or noTransitions -- If true, it won't do any transition animations, will be true if this is a "freezeForver animation"
     self:OnPlayAnimation( anim, forceFace==self:GetEnemy() && forceFace!=nil, extraData )
-
 
 
 
@@ -1394,6 +1394,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
             self:ResetIdealActivity(anim)
             self:SetActivity(anim)
 
+
              -- Convert activity to sequence
             anim = self:SelectWeightedSequence(anim)
 
@@ -1423,13 +1424,32 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
         timer.Create("ZBasePlayAnim"..self:EntIndex(), duration, 1, function()
             if !IsValid(self) then return end
 
-            self:InternalStopAnimation(isTransition or noTransitions)
-            self:OnAnimEnded( anim, forceFace==self:GetEnemy() && forceFace!=nil, extraData )
 
+            if moreArgs.freezeForever != true then -- if freezeforever is enabled, never end the animation
+                self:InternalStopAnimation(isTransition or noTransitions)
+                self:OnAnimEnded( anim, forceFace==self:GetEnemy() && forceFace!=nil, extraData )
+            end
+
+
+            -- Old
+            -- Used by transition animations
             if onFinishFunc then
                 onFinishFunc()
             end
+
+
+            if moreArgs.onFinishFunc then
+
+                if istable(moreArgs.onFinishFuncArgs) then
+                    moreArgs.onFinishFunc( unpack(moreArgs.onFinishFuncArgs) )
+                else
+                    moreArgs.onFinishFunc()
+                end
+
+            end
+
         end)
+        
 
 
         -- Face
@@ -1445,6 +1465,7 @@ function NPC:InternalPlayAnimation(anim,duration,playbackRate,sched,forceFace,fa
         end
 
 
+        -- Vars
         self.PlayAnim_PlayBackRate = playbackRate
         self.PlayAnim_Seq = anim
         self.DoingPlayAnim = true
@@ -2677,7 +2698,7 @@ function NPC:OnEmitSound( data )
     -- Mute default "engine" voice when we should
     if !ZBase_EmitSoundCall
     && (self.MuteDefaultVoice or self:NearbyAllySpeaking() or self.IsSpeaking)
-    && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE) then
+    && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE or self.DoingDeathAnim) then
         return false
     end
 
@@ -3763,36 +3784,26 @@ end
 
 
 function NPC:DeathAnimation( dmg )
-    -- filzballs code
-    local att = dmg:GetAttacker()
-    local inf = dmg:GetInflictor()
-    local dmgAmt = dmg:GetDamage()
-    local dmgt = dmg:GetDamageType()
-    local lastDMGinfo = {
-        ['att'] = att,
-        ['inf'] = inf,
-        ['dmgt'] = dmgt,
-    }
+
+    if self.DoingDeathAnim then return end
 
 
     self.DoingDeathAnim = true
     self:EmitSound(self.DeathSounds)
+
+
     dmg:ScaleDamage(0)
+
+
+    self:SetHealth(1)
+    self:CapabilitiesClear()
+
+
+    if self.DeathAnimation_StopAttackingMe then
+        self:AddFlags(FL_NOTARGET)
+    end
 
 
     self:DeathAnimation_Animation()
 
-    self:SetHealth(1)
-    self:AddFlags(FL_NOTARGET)
-    self:CapabilitiesClear()
-
-
-    local dur = self.DeathAnimationDuration && self.DeathAnimationDuration/self.DeathAnimationSpeed or self:SequenceDuration()
-    timer.Simple(dur, function()
-        if !IsValid(self) then return end
-
-        self.DeathAnim_Finished = true
-        hook.Run("OnNPCKilled", self, IsValid(lastDMGinfo.att) && lastDMGinfo.att or self, IsValid(lastDMGinfo.inf) && lastDMGinfo.inf or self )
-
-    end)
 end
