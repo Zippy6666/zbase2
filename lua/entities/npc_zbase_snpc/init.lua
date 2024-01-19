@@ -13,7 +13,8 @@ function ENT:Initialize()
 	self:SetHullSizeNormal()
 	self:SetSolid(SOLID_BBOX)
 	self:SetMoveType(MOVETYPE_STEP)
-
+	self:SetCollisionGroup(COLLISION_GROUP_NPC)
+	
 
 	self.Bullseye = ents.Create("npc_bullseye")
 	self.Bullseye:SetPos(self:GetPos())
