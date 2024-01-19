@@ -3574,7 +3574,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
     local totMass = 0
 	local physcount = rag:GetPhysicsObjectCount()
-    local dmgpos = rag:GetDamagePosition()
+    local dmgpos = dmg:GetDamagePosition()
 	for i = 0, physcount - 1 do
 		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
