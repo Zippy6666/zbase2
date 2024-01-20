@@ -25,8 +25,9 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
 
             if ZBaseBadBranch then
                 Derma_Message( "You are currently on a unsupported branch of gmod! ZBase will not work properly!", "ZBase Warning",  "OK" )
-            elseif VJ then
-                Derma_Message( "I see you're using VJ base! That's fine, there's no compatibility issues,\nbut VJ Base can be quite performance intensive and less ideal at times and is not recommended!\nIf you still want to use VJ Base you can disable this message in the ZBase options tab! Happy NPC:ing :)", "ZBase Warning",  "OK" )
+            -- Ok no more shenanigans
+            -- elseif VJ then
+                -- Derma_Message( "I see you're using VJ base! That's fine, there's no compatibility issues,\nbut VJ Base can be quite performance intensive and less ideal at times and is not recommended!\nIf you still want to use VJ Base you can disable this message in the ZBase options tab! Happy NPC:ing :)", "ZBase Warning",  "OK" )
             end
 
             local wepCol = LocalPlayer():GetWeaponColor()
