@@ -120,10 +120,10 @@ end
     -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
 function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
 
-    if !SERVER then return end
+    if !SERVER then return NULL end
 
 
-    if !ZBaseNPCs[class] then return end
+    if !ZBaseNPCs[class] then return NULL end
 
 
     if weapon_class=="default" then

@@ -3391,19 +3391,9 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     self.IsSpeaking = false
 
 
-
     -- Death sound
     if !self.DoingDeathAnim then
-
-        for _, v in ipairs(self.SoundVarNames) do
-            if !isstring(v) then continue end
-            self:StopSound(self[v])
-        end
-
-
         self:EmitSound(self.DeathSounds)
-
-        
     end
 
 
@@ -3576,38 +3566,23 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	end
 
 
-    local totMass = 0
 	local physcount = rag:GetPhysicsObjectCount()
     local dmgpos = dmg:GetDamagePosition()
 	for i = 0, physcount - 1 do
+
 		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
 		local pos, ang = CopyPosEnt:GetBonePosition(CopyPosEnt:TranslatePhysBoneToBone(i))
 		physObj:SetPos( pos )
 		physObj:SetAngles( ang )
 
-        -- Sum mass
-        totMass = totMass+physObj:GetMass()
 
         if self.RagdollApplyForce then
             local force = dmg:GetDamageForce()*0.02
             physObj:SetVelocity(force)
         end
+
 	end
-
-
-	-- Ragdoll force
-    if self.RagdollApplyForce then
-
-        -- local force = dmg:GetDamageForce()/(totMass/120)
-
-        -- if self.LastDamageWasBullet then
-        --     ragPhys:SetVelocity(force*0.1)
-        -- else
-        --     ragPhys:SetVelocity(force)
-        -- end
-
-    end
 
 
 	-- Hook
@@ -3799,6 +3774,8 @@ function NPC:DeathAnimation( dmg )
 
 
     self.DoingDeathAnim = true
+
+    
     self:EmitSound(self.DeathSounds)
 
 
