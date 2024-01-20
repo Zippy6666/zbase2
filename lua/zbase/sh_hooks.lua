@@ -23,8 +23,6 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
         -- Cool message
         if ZBCVAR.StartMsg:GetBool() then
 
-
-
             if ZBaseBadBranch then
                 Derma_Message( "You are currently on a unsupported branch of gmod! ZBase will not work properly!", "ZBase Warning",  "OK" )
             elseif VJ then
@@ -39,8 +37,13 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
 
     end
 
-end)
 
+    -- Precache zbase ents
+    if SERVER then
+        ZBasePrecacheEnts()
+    end
+
+end)
 
 --[[
 ======================================================================================================================================================

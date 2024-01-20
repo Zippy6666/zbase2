@@ -1,6 +1,5 @@
 >>> TODO <<<
-- Fix physboxes
-- Fix death stutter
+- Nothing for now...
 
 
 >>> IDEAS <<<
