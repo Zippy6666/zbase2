@@ -66,6 +66,10 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:Help("Allow warning/message boxes when joining the game.")
 
 
+        panel:CheckBox( "Precache NPCs", "zbase_precache")
+        panel:Help("Precache NPCs, will lead to a smoother experience at the expense of longer load times.")
+
+
     end)
 
 
