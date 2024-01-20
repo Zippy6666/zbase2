@@ -109,7 +109,7 @@ function NPC:ZBaseUpdateRelationships()
     end
 
     -- Update relationships with players
-    for _, v in ipairs(player.GetAll()) do
+    for _, v in player.Iterator() do
         self:ZBaseDecideRelationship(v)
     end
 end

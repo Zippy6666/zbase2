@@ -349,7 +349,7 @@ function NPC:GlowEyeInit()
         end
 
 
-        for _, ply in pairs(player.GetAll()) do
+        for _, ply in player.Iterator() do
             if !ply.NPCsWithGlowEyes then ply.NPCsWithGlowEyes = {} end
 
 
