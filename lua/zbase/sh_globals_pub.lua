@@ -24,10 +24,6 @@ ZBASE_TOOCLOSEBEHAVIOUR_FACE = 1
 ZBASE_TOOCLOSEBEHAVIOUR_BACK = 2
 
 
--- ZBASE_MALE = SF_CITIZEN_RANDOM_HEAD_MALE or 4194304
--- ZBASE_FEMALE = SF_CITIZEN_RANDOM_HEAD_FEMALE or 8388608
-
-
 --[[
 ======================================================================================================================================================
                                            "ESSENTIAL" FUNCTIONS
