@@ -775,7 +775,6 @@ end
 
 function NPC:ZBWepSys_Shoot()
 
-
     self:GetActiveWeapon():PrimaryAttack()
     
 

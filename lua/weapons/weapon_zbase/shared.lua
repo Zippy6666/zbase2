@@ -101,7 +101,7 @@ SWEP.Primary.ShellAngOffset = Angle(0, 0, 0) -- Change the direction of the shel
 
 
 SWEP.Primary.TracerName = "Tracer" -- The tracer effect https://wiki.facepunch.com/gmod/Effects
-SWEP.Primary.TracerChance = 2 -- 1 / x
+SWEP.Primary.TracerChance = 3 -- 1 / x
 
 
 -- 1 - Regular muzzleflash
@@ -109,6 +109,7 @@ SWEP.Primary.TracerChance = 2 -- 1 / x
 -- 7 - Regular muzzle but bigger
 SWEP.Primary.MuzzleFlashFlags = 1
 SWEP.Primary.MuzzleFlash = true -- Should it have a muzzleflash?
+SWEP.Primary.MuzzleFlashChance = 2 -- Should it have a muzzleflash?
 
 
 --[[
