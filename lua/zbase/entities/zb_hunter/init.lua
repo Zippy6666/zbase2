@@ -31,6 +31,7 @@ NPC.DeathAnimations = {
 NPC.DeathAnimationSpeed = 1.25 -- Speed of the death animation
 NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
 NPC.DeathAnimationDuration = false -- Duration of death animation
+NPC.RagdollUseAltPositioning = true -- Try setting this to true if the ragdoll positioning is buggy
 
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC

@@ -8,6 +8,9 @@ util.AddNetworkString("ZBaseGlowEyes")
 --]]
 
 
+local vec0 = Vector()
+
+
 
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
@@ -1301,7 +1304,7 @@ end
 
 
 function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc, isGest, isTransition, noTransitions, moreArgs)
-    -- if GetConVar("ai_disabled"):GetBool() then return end
+    if self.Dead or self.DoingDeathAnim then return end
     if !anim then return end
 
 
@@ -2775,7 +2778,7 @@ end
 
 
 function NPC:NearbyAllySpeaking( soundList )
-    if self.Dead then return false end -- Otherwise they might not do their death sounds
+    if self.Dead or self.DoingDeathAnim then return false end -- Otherwise they might not do their death sounds
 
 
     for _, ally in ipairs(self:GetNearbyAllies(850)) do
@@ -3527,8 +3530,8 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
 	local rag = ents.Create("prop_ragdoll")
 	rag:SetModel(self:GetModel())
-	rag:SetPos(CopyPosEnt:GetPos())
-	rag:SetAngles(CopyPosEnt:GetAngles())
+    rag:SetPos(CopyPosEnt:GetPos())
+    rag:SetAngles(CopyPosEnt:GetAngles())
 	rag:SetSkin(self:GetSkin())
 	rag:SetColor(self:GetColor())
 	rag:SetMaterial(self:GetMaterial())
@@ -3555,21 +3558,28 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
 	local physcount = rag:GetPhysicsObjectCount()
     local dmgpos = dmg:GetDamagePosition()
+    local force = self.RagdollApplyForce && dmg:GetDamageForce()*0.02
 	for i = 0, physcount - 1 do
 
 		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
 		local pos, ang = CopyPosEnt:GetBonePosition(CopyPosEnt:TranslatePhysBoneToBone(i))
-		physObj:SetPos( pos )
-		physObj:SetAngles( ang )
+
+        if !self.RagdollUseAltPositioning then
+		    physObj:SetPos( pos )
+        end
+
+	    physObj:SetAngles( ang )
 
 
-        if self.RagdollApplyForce then
-            local force = dmg:GetDamageForce()*0.02
+        if force then
             physObj:SetVelocity(force)
         end
 
 	end
+
+
+    
 
 
 	-- Hook
@@ -3757,17 +3767,22 @@ end
 
 function NPC:DeathAnimation( dmg )
 
-    if self.DoingDeathAnim then return end
+    if self.DeathAnimStarted then return end
+    self.DeathAnimStarted = true
+    
 
-
+    self:DeathAnimation_Animation()
     self.DoingDeathAnim = true
+
 
     
     self:EmitSound(self.DeathSounds)
 
 
-
+    dmg:SetDamageForce(vec0)
     self:StoreDMGINFO(dmg)
+
+
     dmg:ScaleDamage(0)
 
 
@@ -3778,8 +3793,5 @@ function NPC:DeathAnimation( dmg )
     if self.DeathAnimation_StopAttackingMe then
         self:AddFlags(FL_NOTARGET)
     end
-
-
-    self:DeathAnimation_Animation()
 
 end

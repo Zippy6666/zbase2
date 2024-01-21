@@ -27,6 +27,9 @@ NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NP
 NPC.FootStepSounds = "NPC_Antlion.Footstep"
 
 
+NPC.RagdollUseAltPositioning = true -- Try setting this to true if the ragdoll positioning is buggy
+
+
 --]]==============================================================================================]]
 function NPC:CustomInitialize()
 
