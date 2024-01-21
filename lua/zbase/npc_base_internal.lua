@@ -71,7 +71,7 @@ function NPC:ZBaseInit()
 
     -- Set model
     if self.SpawnModel && self.SpawnModel != self:GetModel() then
-        self:SetModel_MaintainBounds(self.SpawnModel)
+        self:SetModel(self.SpawnModel)
     end
 
 
@@ -1140,18 +1140,6 @@ function NPC:ZBaseSetAct( act, func, ... )
 
 
     return false
-
-end
-
-
-
-function NPC:SetModel_MaintainBounds(model)
-
-    local mins, maxs = self:GetCollisionBounds()
-
-    self:SetModel(model)
-    self:SetCollisionBounds(mins, maxs)
-    self:ResetIdealActivity(ACT_IDLE)
 
 end
 
