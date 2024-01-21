@@ -22,6 +22,8 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 function SWEP:Initialize()
 
 	self:Init()
+
+	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
 	
 end
 
@@ -78,7 +80,7 @@ function SWEP:PrimaryAttack()
 			Src = own:GetShootPos(),
 			-- Dir = (own.IsZBaseNPC && own:ZBWepSys_AimVector()) or own:GetAimVector(),
 			Dir = own:GetAimVector(),
-			Spread = Vector(self.PrimarySpread, self.PrimarySpread),
+			Spread = self.BulletSpread,
 			Tracer = self.Primary.TracerChance,
 			TracerName = self.Primary.TracerName,
 			Num = self.Primary.NumShots,
@@ -181,12 +183,17 @@ function SWEP:ShootEffects()
 	end
 
 
+	local rf = RecipientFilter()
+	rf:AddPVS(self:GetPos())
+	print(rf:GetCount())
+
+
 	-- Muzzle flash
-	if self.Primary.MuzzleFlash then
+	if self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 then
 		local effectdata = EffectData()
 		effectdata:SetFlags(self.Primary.MuzzleFlashFlags)
 		effectdata:SetEntity(EffectEnt)
-		util.Effect( "MuzzleFlash", effectdata, true, true )
+		util.Effect( "MuzzleFlash", effectdata, true, rf )
 	end
 	
 
@@ -200,7 +207,7 @@ function SWEP:ShootEffects()
 			effectdata:SetEntity(EffectEnt)
 			effectdata:SetOrigin(att.Pos)
 			effectdata:SetAngles(att.Ang+self.Primary.ShellAngOffset)
-			util.Effect( self.Primary.ShellType, effectdata, true, true )
+			util.Effect( self.Primary.ShellType, effectdata, true, rf )
 		end
 	
 	end

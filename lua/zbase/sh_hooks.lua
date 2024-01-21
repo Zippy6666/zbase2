@@ -165,8 +165,9 @@ local NextBehaviourThink = CurTime()
 
 hook.Add("Tick", "ZBASE", function()
 
-
     -- Think for NPCs that aren't scripted
+    -- local startT = SysTime()
+
     if NextThink < CurTime() then
         for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
 
@@ -180,11 +181,20 @@ hook.Add("Tick", "ZBASE", function()
         end
 
         NextThink = CurTime()+0.1
+    
+
+
+        -- if SERVER then
+        --     PrintMessage(HUD_PRINTTALK, "Think time: "..math.Round(SysTime()-startT, 3))
+        -- end
+
     end
 
 
 
     -- Behaviour tick
+    -- local startT = SysTime()
+
     if !GetConVar("ai_disabled"):GetBool()
     && NextBehaviourThink < CurTime() then
 
@@ -198,8 +208,12 @@ hook.Add("Tick", "ZBASE", function()
 
         NextBehaviourThink = CurTime() + 0.4
 
-    end
 
+        -- if SERVER then
+        --     PrintMessage(HUD_PRINTTALK, "Behaviour time: "..math.Round(SysTime()-startT, 3))
+        -- end
+
+    end
 
 end)
 
