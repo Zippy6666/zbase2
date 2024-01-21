@@ -1,5 +1,5 @@
 local NPC = FindMetaTable("NPC")
-
+local ENT = FindMetaTable("Entity")
 
 --[[
 ======================================================================================================================================================
@@ -116,28 +116,31 @@ end
 
 --[[
 ======================================================================================================================================================
-                                           WEAPON STUFF
+                                           SET MODEL
 ======================================================================================================================================================
 --]]
 
-
--- ZBase_OldGetActiveWep = ZBase_OldGetActiveWep or NPC.GetActiveWeapon
-
-
--- function NPC:EngineGetActiveWeapon()
---     return ZBase_OldGetActiveWep(self, ...)
--- end
+ZBase_OldSetModel = ZBase_OldSetModel or ENT.SetModel
 
 
--- function NPC:GetActiveWeapon( ... )
---     if self.IsZBaseNPC then
-        
---     end
+function NPC:SetModel( mdl )
+
+    -- Don't screw up bounds when setting model for zbase npcs
+    -- Also no tpose
+    if self.IsZBaseNPC then
+        local mins, maxs = self:GetCollisionBounds()
+
+        local val = ZBase_OldSetModel( self, mdl )
+        self:SetCollisionBounds(mins, maxs)
+        self:ResetIdealActivity(ACT_IDLE)
+
+        return val
+    end
 
 
---     return ZBase_OldGetActiveWep(self, ...)
--- end
+    return ZBase_OldSetModel( self, mdl )
 
+end
 
 --[[
 ======================================================================================================================================================
