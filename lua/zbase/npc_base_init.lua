@@ -201,6 +201,7 @@ NPC.DeathAnimationDuration = 1
 
 NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
 NPC.RagdollApplyForce = true -- Should the ragdoll get force applied to it?
+NPC.RagdollUseAltPositioning = false -- Try setting this to true if the ragdoll positioning is buggy
 
 --[[
 ==================================================================================================
