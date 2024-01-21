@@ -1,5 +1,6 @@
 >>> TODO <<<
-- Nothing for now...
+- Bug fixes and improvements
+- Turn ZBase into a library for my addons (and other people's addons potentially)
 
 
 >>> IDEAS <<<
