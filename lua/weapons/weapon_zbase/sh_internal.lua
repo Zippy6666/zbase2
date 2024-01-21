@@ -184,8 +184,7 @@ function SWEP:ShootEffects()
 
 
 	local rf = RecipientFilter()
-	rf:AddPVS(self:GetPos())
-	print(rf:GetCount())
+	rf:AddPVS(EffectEnt:GetPos())
 
 
 	-- Muzzle flash
