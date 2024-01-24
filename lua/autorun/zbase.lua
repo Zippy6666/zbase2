@@ -539,6 +539,30 @@ end
 
 
 function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
+
+    -- Replace default fellers
+    local zbase_replacements = {
+        ["zb_human_civilian"] = "npc_citizen",
+        ["zb_antlion"] = "npc_antlion",
+        ["zb_combine_soldier"] = "npc_combine_s",
+        ["zb_zombine"] = "npc_zombine",
+        ["zb_fastzombie"] = "npc_fastzombie",
+        ["zb_human_medic"] = "Medic",
+        ["zb_stalker"] = "npc_stalker",
+        ["zb_kleiner"] = "npc_kleiner",
+        ["zb_zombie"] = "npc_zombie",
+        ["zb_human_rebel"] = "Rebel",
+        ["zb_poisonzombie"] = "npc_poisonzombie",
+        ["zb_metropolice"] = "npc_metropolice",
+        ["zb_combine_elite"] = "CombineElite",
+        ["zb_combine_nova_prospekt"] = "CombinePrison",
+        ["zb_hunter"] = "npc_hunter",
+        ["zb_vortigaunt"] = "npc_vortigaunt",
+        ["zb_human_refugee"] = "Refugee",
+        ["zb_odessa"]     = "npc_odessa",
+    }
+
+
     for cls, t in pairs( ZBaseNPCs ) do
         if t.Category == false then continue end -- Don't add to menu
 
@@ -583,8 +607,12 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
 
             RegularSpawnMenuTable.Category = newcat or cat
 
+            local clsname = "zbase_"..cls
+            if ZBCVAR.Replace:GetBool() && zbase_replacements[cls] then
+                clsname = zbase_replacements[cls]
+            end
 
-            list.Set("NPC", "zbase_"..cls, RegularSpawnMenuTable) -- Add to regular spawn menu
+            list.Set("NPC", clsname, RegularSpawnMenuTable) -- Add to regular spawn menu
         end
     end
 end
