@@ -27,7 +27,7 @@ SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number
 
 
 -- Basic primary attack stuff
-SWEP.Primary.ClipSize = 30
+SWEP.Primary.DefaultClip = 30 -- Clipsize for NPCs
 SWEP.PrimaryDamage = 3
 SWEP.PrimaryShootSound = "Weapon_MP5K_Z.NPC_Fire"
 SWEP.PrimarySpread = 0.02

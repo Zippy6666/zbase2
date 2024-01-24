@@ -79,7 +79,6 @@ SWEP.m_bPlayPickupSound = true -- If set to false, the weapon will not play the 
 --]]
 
 
-
 SWEP.ClipSize = 30 -- The maximum amount of bullets one clip can hold. Setting it to -1 means weapon uses no clips, like a grenade or a rocket launch.
 SWEP.Automatic = true -- If true makes the weapon shoot automatically as long as the player has primary attack button held down
 

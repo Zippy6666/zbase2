@@ -543,6 +543,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
         if t.Category == false then continue end -- Don't add to menu
 
 
+        -- ZBase spawn menu tab
         local ZBaseSpawnMenuTbl = {
             Name=t.Name,
             Category=t.Category,
@@ -563,10 +564,28 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             BodyGroups = BodyGroups,
             StartHealth = t.StartHealth,
             Material = t.Material,
+            IconOverride = "entities/"..cls..".png",
         }
 
 
         ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
+
+
+        -- Regular npc spawn menu
+        -- local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
+        -- local cat = RegularSpawnMenuTable.Category
+        -- local split = isstring(cat) && string.Split(cat, ": ") -- Split away prefixes such as "HL2:"
+        -- local newcat = istable(split) && #split >= 2 && split[2]
+        -- local kvs = RegularSpawnMenuTable.KeyValues
+        -- if kvs then
+        --     kvs["parentname"] = cls
+        -- end
+ 
+
+        -- RegularSpawnMenuTable.Category = newcat or cat
+
+
+        -- list.Set("NPC", "zbase_"..cls, RegularSpawnMenuTable) -- Add to regular spawn menu
     end
 end
 
