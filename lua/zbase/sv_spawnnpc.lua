@@ -289,7 +289,7 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 
 	NPC.ZBase_PlayerWhoSpawnedMe = ply
 
-	print("bDropToFloor", bDropToFloor)
+
 	return ZBaseInitialize( NPC, NPCData, Class, Equipment, true, wasSpawnedOnCeiling, bDropToFloor )
 end
 

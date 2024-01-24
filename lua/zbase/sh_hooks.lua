@@ -152,14 +152,6 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
 end)
 
 
--- hook.Add("PlayerSpawnNPC", "ZBASE", function(...)
-
---     print(...)
-    
--- end)
-
-
-
 hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
 
     -- Relationship override for NPCs
