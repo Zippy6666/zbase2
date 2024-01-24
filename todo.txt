@@ -1,5 +1,4 @@
 >>> TODO <<<
-- Fix gender issue when spawning from regular NPC tab
 - Nothing for now
 
 
