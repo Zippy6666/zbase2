@@ -69,6 +69,14 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Precache NPCs", "zbase_precache")
         panel:Help("Precache NPCs, will lead to a smoother experience at the expense of longer load times.")
 
+    
+        panel:CheckBox("Default Spawn Menu", "zbase_defmenu")
+        panel:Help("Should ZBase NPCs be added to the regular NPC menu too?")
+
+
+        panel:CheckBox("Replace in NPC Menu", "zbase_replace")
+        panel:Help("Should the default HL2 NPCs be replaced by their ZBase equivalents in the spawn menu?")
+
 
     end)
 

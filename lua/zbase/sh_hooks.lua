@@ -186,7 +186,6 @@ hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
 
         if isnumber(offset) then
             ent:SetPos( ent:GetPos()+Vector(0, 0, offset) )
-            print(offset)
         end
     end)
 
