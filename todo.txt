@@ -1,6 +1,7 @@
 >>> TODO <<<
 - Bug fixes and improvements
-- Turn ZBase into a library for my addons (and other people's addons potentially)
+- Fix collision bug with proxspawn
+- Spawn from regular spawn menu
 
 
 >>> IDEAS <<<
@@ -15,4 +16,3 @@
 - ZBase replace default npcs
 - Vehicle base
 - SCP CB pack?
-- Spawn NPCs at random position option (with customizability)
