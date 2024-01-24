@@ -572,20 +572,20 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
 
 
         -- Regular npc spawn menu
-        -- local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
-        -- local cat = RegularSpawnMenuTable.Category
-        -- local split = isstring(cat) && string.Split(cat, ": ") -- Split away prefixes such as "HL2:"
-        -- local newcat = istable(split) && #split >= 2 && split[2]
-        -- local kvs = RegularSpawnMenuTable.KeyValues
-        -- if kvs then
-        --     kvs["parentname"] = cls
-        -- end
+        local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
+        local cat = RegularSpawnMenuTable.Category
+        local split = isstring(cat) && string.Split(cat, ": ") -- Split away prefixes such as "HL2:"
+        local newcat = istable(split) && #split >= 2 && split[2]
+        local kvs = RegularSpawnMenuTable.KeyValues
+        if kvs then
+            kvs["parentname"] = cls
+        end
  
 
-        -- RegularSpawnMenuTable.Category = newcat or cat
+        RegularSpawnMenuTable.Category = newcat or cat
 
 
-        -- list.Set("NPC", "zbase_"..cls, RegularSpawnMenuTable) -- Add to regular spawn menu
+        list.Set("NPC", "zbase_"..cls, RegularSpawnMenuTable) -- Add to regular spawn menu
     end
 end
 

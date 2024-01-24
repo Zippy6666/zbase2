@@ -78,10 +78,9 @@ function NPC:ZBaseInit()
         local mins, maxs = self:GetCollisionBounds() -- Default collision bounds, not affected by base
 
         -- Set model but maintain bounds and don't enter tpose
-        self:SetModel(self:GetModel())
+        self:SetModel(self.SpawnModel)
         self:SetCollisionBounds(mins, maxs)
         self:ResetIdealActivity(ACT_IDLE)
-        -- print("test")
 
     end
 
