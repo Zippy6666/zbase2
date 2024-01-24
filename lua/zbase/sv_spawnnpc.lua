@@ -210,12 +210,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isFirstSpawn, wasSpawn
 	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
 
 
-	-- for i = 1, math.log(16777216, 2)+1 do
-		-- MsgN(2^i, " ", NPC:HasSpawnFlags(2^i))
-	-- end
-
-
-	print("OAISHDOPAIUSHDOIUASH")
 	return NPC
 end
 ---------------------------------------------------------------------------------=#

@@ -48,7 +48,7 @@ end)
 
 --[[
 ======================================================================================================================================================
-                                           ENTITY CREATED
+                                           ENTITY CREATION
 ======================================================================================================================================================
 --]]
 
@@ -150,6 +150,48 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
     end
 
 end)
+
+
+-- hook.Add("PlayerSpawnNPC", "ZBASE", function(...)
+
+--     print(...)
+    
+-- end)
+
+
+
+hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
+
+    -- Relationship override for NPCs
+    if ply.ZBaseNPCFactionOverride && ply.ZBaseNPCFactionOverride != "" then
+
+        timer.Simple(0, function()
+            if !IsValid(ent) or !IsValid(ply) then return end
+            if !ent.IsZBaseNPC then return end
+
+            ZBaseSetFaction( ent, ply.ZBaseNPCFactionOverride )
+        end)
+
+    end
+
+
+    -- Fix NPCs offset when spawned from the regular spawn menu
+    timer.Simple(0, function()
+        if !ent.IsZBaseNPC then return end
+        if !IsValid(ent) or !IsValid(ply) then return end
+
+
+        local offset = (ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_DistanceFromGround) or ent.Offset
+
+
+        if isnumber(offset) then
+            ent:SetPos( ent:GetPos()+Vector(0, 0, offset) )
+            print(offset)
+        end
+    end)
+
+end)
+
 
 
 --[[
@@ -259,18 +301,6 @@ if SERVER then
 
     hook.Add("PlayerInitialSpawn", "ZBASE", function( ply )
         ply.ZBaseFaction = "ally"
-    end)
-
-
-    hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
-        if ply.ZBaseNPCFactionOverride && ply.ZBaseNPCFactionOverride != "" then
-            timer.Simple(0, function()
-                if !IsValid(ent) or !IsValid(ply) then return end
-                if !ent.IsZBaseNPC then return end
-
-                ZBaseSetFaction( ent, ply.ZBaseNPCFactionOverride )
-            end)
-        end
     end)
 
 end
