@@ -9,8 +9,8 @@ ENT.IsZBase_SNPC = true
 --]]======================================================================================================]]
 function ENT:Initialize()
 
-	self:SetHullType(self.HullType or HULL_MEDIUM)
-	self:SetHullSizeNormal()
+	-- self:SetHullType(self.HullType or HULL_MEDIUM)
+	-- self:SetHullSizeNormal()
 	self:SetSolid(SOLID_BBOX)
 	self:SetMoveType(MOVETYPE_STEP)
 	self:SetCollisionGroup(COLLISION_GROUP_NPC)

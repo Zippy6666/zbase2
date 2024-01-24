@@ -146,8 +146,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isFirstSpawn, wasSpawn
 
 
 	if isFirstSpawn then
-
-		print("ass")
 	
 		NPC:Spawn()
 		NPC:Activate()
@@ -166,10 +164,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isFirstSpawn, wasSpawn
 	-- Store spawnmenu data for addons and stuff
 	NPC._wasSpawnedOnCeiling = wasSpawnedOnCeiling
 
-
-	if ( bDropToFloor ) then
-		NPC:DropToFloor()
-	end
 
 
 	-- Body groups
@@ -208,6 +202,11 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isFirstSpawn, wasSpawn
 
 
 	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
+
+
+	if ( bDropToFloor ) then
+		NPC:DropToFloor()
+	end
 
 
 	return NPC
@@ -290,7 +289,7 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 
 	NPC.ZBase_PlayerWhoSpawnedMe = ply
 
-
+	print("bDropToFloor", bDropToFloor)
 	return ZBaseInitialize( NPC, NPCData, Class, Equipment, true, wasSpawnedOnCeiling, bDropToFloor )
 end
 
