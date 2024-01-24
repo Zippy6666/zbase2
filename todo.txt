@@ -1,7 +1,5 @@
 >>> TODO <<<
-- Bug fixes and improvements
-- Fix collision bug with proxspawn
-- Spawn from regular spawn menu
+- Nothing for now
 
 
 >>> IDEAS <<<
@@ -15,4 +13,4 @@
 - Controller
 - ZBase replace default npcs
 - Vehicle base
-- SCP CB pack?
+- More movement with weapon AI

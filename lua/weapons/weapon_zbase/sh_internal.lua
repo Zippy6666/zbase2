@@ -24,6 +24,9 @@ function SWEP:Initialize()
 	self:Init()
 
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
+
+
+	
 	
 end
 

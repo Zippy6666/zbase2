@@ -120,27 +120,27 @@ end
 ======================================================================================================================================================
 --]]
 
-ZBase_OldSetModel = ZBase_OldSetModel or ENT.SetModel
+-- ZBase_OldSetModel = ZBase_OldSetModel or ENT.SetModel
 
 
-function NPC:SetModel( mdl )
+-- function NPC:SetModel( mdl )
 
-    -- Don't screw up bounds when setting model for zbase npcs
-    -- Also no tpose
-    if self.IsZBaseNPC then
-        local mins, maxs = self:GetCollisionBounds()
+--     -- Don't screw up bounds when setting model for zbase npcs
+--     -- Also no tpose
+--     if self.IsZBaseNPC then
+--         local mins, maxs = self:GetCollisionBounds()
 
-        local val = ZBase_OldSetModel( self, mdl )
-        self:SetCollisionBounds(mins, maxs)
-        self:ResetIdealActivity(ACT_IDLE)
+--         local val = ZBase_OldSetModel( self, mdl )
+--         self:SetCollisionBounds(mins, maxs)
+--         self:ResetIdealActivity(ACT_IDLE)
 
-        return val
-    end
+--         return val
+--     end
 
 
-    return ZBase_OldSetModel( self, mdl )
+--     return ZBase_OldSetModel( self, mdl )
 
-end
+-- end
 
 --[[
 ======================================================================================================================================================
