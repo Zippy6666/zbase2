@@ -38,9 +38,10 @@ local function TryFixPropPosition( ply, ent, hitpos )
 end
 
 
-function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSpawnedOnCeiling, bDropToFloor )
+function ZBaseInitialize( NPC, NPCData, Class, Equipment, isFirstSpawn, wasSpawnedOnCeiling, bDropToFloor )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
+
 
 
         -- This npc's table
@@ -48,6 +49,8 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
         NPC[k] = v
     end
     --------------------------------------------------------------=#
+
+
 
 
     -- Set model
@@ -64,6 +67,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	if ( NPCData.Material ) then
 		NPC:SetMaterial( NPCData.Material )
 	end
+
 
 
 	-- Keyvalues
@@ -138,14 +142,20 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 
     -- Spawn
 	NPC:BeforeSpawn( NPCData )
-	NPC:Spawn()
-	NPC:Activate()
 
 
-	if isNotFirstSpawn then
+
+	if isFirstSpawn then
+
+		print("ass")
+	
+		NPC:Spawn()
+		NPC:Activate()
+
 		local ed = EffectData()
 		ed:SetEntity( NPC )
 		util.Effect( "zbasespawn", ed, true, true )
+
 	end
 
 
@@ -205,7 +215,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isNotFirstSpawn, wasSp
 	-- end
 
 
-	
+	print("OAISHDOPAIUSHDOIUASH")
 	return NPC
 end
 ---------------------------------------------------------------------------------=#

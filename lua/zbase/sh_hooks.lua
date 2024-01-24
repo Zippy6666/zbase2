@@ -67,7 +67,7 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
 
             
             if ZBaseNPCTable then
-                ZBaseInitialize(ent, ZBaseNPCTable, zbaseClass, false)
+                ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
             end
         end)
 
@@ -788,7 +788,7 @@ duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, 
     if ZBaseNPCTable then
 
         ent.ZBaseInitialized = false
-        ZBaseInitialize(ent, ZBaseNPCTable, zbaseClass, nil)
+        ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
 
     end
 
