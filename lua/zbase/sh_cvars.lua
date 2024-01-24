@@ -15,7 +15,6 @@ ZBCVAR.HPMult = CreateConVar("zbase_hp_mult", "1", Flags)
 ZBCVAR.DMGMult = CreateConVar("zbase_dmg_mult", "1", Flags)
 ZBCVAR.SvGlowingEyes = CreateConVar("zbase_sv_glowing_eyes", "1", Flags)
 ZBCVAR.PlayerHurtAllies = CreateConVar("zbase_ply_hurt_ally", "0", Flags)
-ZBCVAR.StartMsg = CreateConVar("zbase_start_msg", "1", Flags)
 ZBCVAR.Precache = CreateConVar("zbase_precache", "1", Flags)
 
 
@@ -61,6 +60,18 @@ if CLIENT then
 
 
 end
+
+--[[
+==================================================================================================
+                                           GUI
+==================================================================================================
+--]]
+
+
+ZBCVAR.StartMsg = CreateConVar("zbase_start_msg", "1", Flags)
+ZBCVAR.Replace = CreateConVar("zbase_replace", "1", Flags)
+ZBCVAR.DefaultMenu = CreateConVar("zbase_defmenu", "1", Flags)
+
 
 --[[
 ==================================================================================================
