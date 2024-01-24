@@ -1232,30 +1232,6 @@ function NPC:CheckHasAimPoseParam()
 end
 
 
--- function NPC:ZBaseFuncPrint()
---     MsgN(self, ":", self.ZBaseCurFunc.name, "(", self.ZBaseCurFunc.args, ")")
--- end
-
-
--- function NPC:DebugMyFunctions()
---     for VarName, VarValue in pairs(self:GetTable()) do
---         if VarName == "ZBaseFuncPrint" then continue end
-        
-
---         if isfunction(VarValue) then
---             local func = VarValue
-
---             self[VarName] = function(me, ...)
---                 self.ZBaseCurFunc = {name=VarName, args=...}
---                 return func(me, ...)
---             end
---         end
-
---     end
--- end
-
-
-
 function NPC:FullReset()
     self:TaskComplete()
     self:ClearGoal()
