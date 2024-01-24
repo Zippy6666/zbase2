@@ -595,6 +595,18 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
 
         -- Regular npc spawn menu
         if ZBCVAR.DefaultMenu:GetBool() then
+            local function SpawnFlagTblToBit()
+                local bt = 0
+
+                for _, flag in ipairs(t.SpawnFlagTbl or {}) do
+                    bt = bit.bor(bt, flag)
+                end
+
+                print("bt = ", bt, "for", cls)
+                return bt
+            end
+
+
             local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
             local cat = RegularSpawnMenuTable.Category
             local split = isstring(cat) && string.Split(cat, ": ") -- Split away prefixes such as "HL2:"
@@ -603,8 +615,12 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             if kvs then
                 kvs["parentname"] = cls
             end
+
+
+            local sFlags = RegularSpawnMenuTable.TotalSpawnFlags or SpawnFlagTblToBit()
     
 
+            RegularSpawnMenuTable.TotalSpawnFlags = sFlags
             RegularSpawnMenuTable.Category = newcat or cat
 
             local clsname = "zbase_"..cls
