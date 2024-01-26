@@ -5,10 +5,6 @@
 --]]
 
 
--- [b]DISCUSSIONS and COMMENTS have been moved, you'll see them in the TABS ABOVE![/b]
--- in case that shit happends again lol
-
-
 ZBaseInstalled = ZBaseInstalled
 or MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
 or MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
@@ -602,7 +598,6 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
                     bt = bit.bor(bt, flag)
                 end
 
-                print("bt = ", bt, "for", cls)
                 return bt
             end
 

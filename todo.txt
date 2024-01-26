@@ -1,5 +1,6 @@
 >>> TODO <<<
 - Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab
+- Collision fix whenever the NPC is spawned from anywhere else than the zbase tab
 
 
 >>> IDEAS <<<
