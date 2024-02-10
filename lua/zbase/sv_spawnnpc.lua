@@ -38,7 +38,7 @@ local function TryFixPropPosition( ply, ent, hitpos )
 end
 
 
-function ZBaseInitialize( NPC, NPCData, Class, Equipment, isFirstSpawn, wasSpawnedOnCeiling, bDropToFloor )
+function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawnedOnCeiling, bDropToFloor )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
 
@@ -57,7 +57,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isFirstSpawn, wasSpawn
     local model = istable(NPCData.Models) && table.Random(NPCData.Models)
     if model then
 		NPC.SpawnModel = model
-        NPC:SetModel(model)
+        -- NPC:SetModel(model)
     end
 
 
@@ -145,7 +145,9 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isFirstSpawn, wasSpawn
 
 
 
-	if isFirstSpawn then
+	if isZBTabSpawn then
+
+		-- Spawned from zbase tab
 	
 		NPC:Spawn()
 		NPC:Activate()
@@ -153,6 +155,10 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isFirstSpawn, wasSpawn
 		local ed = EffectData()
 		ed:SetEntity( NPC )
 		util.Effect( "zbasespawn", ed, true, true )
+	
+	else
+
+		-- Not spawned from zbase tab, initializing on a already spawned npc
 
 	end
 

@@ -1,9 +1,9 @@
 >>> TODO <<<
 - Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab
-- Collision fix whenever the NPC is spawned from anywhere else than the zbase tab
-- Fix MuteAllDefaultSoundEmittions being sussy
 - Fix NPCs spawning under ground
 - Fix NPCs hearing their own footsteps/allies footsteps and stopping
+- Fix MuteAllDefaultSoundEmittions being sussy
+- Fix "targets" dying
 
 
 >>> IDEAS <<<
