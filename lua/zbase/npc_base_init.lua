@@ -732,6 +732,12 @@ function NPC:CustomNewSequenceDetected( sequence, SequenceName )
 end
 
 
+    -- Called when the base detects that the NPC is playing a new schedule
+function NPC:CustomNewSchedDetected( sched )
+    print(sched)
+end
+
+
     -- Called when the base plays an animation (from NPC:PlayAnimation() that is)
 function NPC:OnPlayAnimation( anim, faceEnemy, extraData )
 end
