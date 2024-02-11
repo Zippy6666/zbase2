@@ -439,7 +439,7 @@ function NPC:ZBaseThink()
 
         local name = ZBaseSchedDebug(self)
 
-        self:NewESchedDetected( sched, name )
+        self:NewSchedDetected( sched, name )
         
         self.ZBaseLastESched = sched
         self.ZBaseLastESchedName = name
@@ -1796,7 +1796,8 @@ function NPC:NewSequenceDetected( seq, seqName )
 end
 
 
-function NPC:NewESchedDetected( sched, schedName )
+function NPC:NewSchedDetected( sched, schedName )
+    self:CustomNewSchedDetected(sched)
 end
 
 
