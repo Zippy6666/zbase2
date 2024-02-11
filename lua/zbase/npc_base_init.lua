@@ -733,7 +733,8 @@ end
 
 
     -- Called when the base detects that the NPC is playing a new schedule
-function NPC:CustomNewSchedDetected( sched )
+function NPC:CustomNewSchedDetected( sched, oldSched )
+    print(sched, oldSched)
 end
 
 
