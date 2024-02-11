@@ -1797,7 +1797,7 @@ end
 
 
 function NPC:NewSchedDetected( sched, schedName )
-    self:CustomNewSchedDetected(sched)
+    self:CustomNewSchedDetected(sched, self.ZBaseLastESched or -1)
 end
 
 
