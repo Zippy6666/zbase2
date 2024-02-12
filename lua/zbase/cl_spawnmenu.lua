@@ -109,15 +109,20 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			self.PropPanel:SetTriggerSpawnlistChange( false )
 
 			for name, ent in SortedPairsByMemberValue( v, "Name" ) do
+				local mat = ent.IconOverride or GenericIcon
+
+
+				if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
+					mat = "entities/" .. name .. ".png"
+				end
+
+
 				local icon = spawnmenu.CreateContentIcon( "zbase_npcs", self.PropPanel, {
 
 					nicename	= ent.Name or name,
 					spawnname	= name,
 
-					material	=
-								ent.IconOverride
-								or file.Exists( "materials/entities/" .. name .. ".png", "GAME" )&&"entities/" .. name .. ".png"
-								or GenericIcon,
+					material	= mat,
 
 					weapon		= ent.Weapons,
 					admin		= ent.AdminOnly
