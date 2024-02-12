@@ -2,6 +2,7 @@
 - Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab
 - Fix MuteAllDefaultSoundEmittions being sussy
 - Fix "targets" dying
+- Fix icons
 
 
 >>> IDEAS <<<
