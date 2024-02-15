@@ -387,62 +387,115 @@ local StrNPCStates = {
 }
 
 
+local AIDisabled = GetConVar("ai_disabled")
+
+
 function NPC:ZBaseThink()
+    local isAIEnabled = !AIDisabled:GetBool()
     local ene = self:GetEnemy()
     local sched = self:GetCurrentSchedule()
     local seq = self:GetSequence()
     local act = self:GetActivity()
 
 
-    -- Enemy visible
-    self.EnemyVisible = IsValid(ene) && (self:HasCondition(COND.SEE_ENEMY) or self:Visible(ene))
+    if isAIEnabled then
+        -- Enemy visible
+        self.EnemyVisible = IsValid(ene) && (self:HasCondition(COND.SEE_ENEMY) or self:Visible(ene))
 
 
-    -- Slow think, for performance
-    if self.NPCNextSlowThink < CurTime() then
-        self:DoSlowThink()
-        self.NPCNextSlowThink = CurTime()+0.4
-    end
+        -- Slow think, for performance
+        if self.NPCNextSlowThink < CurTime() then
+            self:DoSlowThink()
+            self.NPCNextSlowThink = CurTime()+0.4
+        end
 
 
-    -- NPC think (not SNPC)
-    if !self.IsZBase_SNPC then
-        self:AITick_NonScripted()
-    end
+        -- NPC think (not SNPC)
+        if !self.IsZBase_SNPC then
+            self:AITick_NonScripted()
+        end
 
 
-    -- Enemy updated
-    if ene != self.ZBase_LastEnemy then
-        self:DoNewEnemy()
-        self.ZBase_LastEnemy = ene
-    end
+        -- Enemy updated
+        if ene != self.ZBase_LastEnemy then
+            self:DoNewEnemy()
+            self.ZBase_LastEnemy = ene
+        end
 
 
-    -- Activity change detection
-    if act != self.ZBaseLastACT then
-        self:NewActivityDetected( act )
-        self.ZBaseLastACT = act
-    end
+        -- Activity change detection
+        if act != self.ZBaseLastACT then
+            self:NewActivityDetected( act )
+            self.ZBaseLastACT = act
+        end
+
+        
+
+        -- Sequence change detection
+        if seq != self.ZBaseLastSequence then
+            self:NewSequenceDetected( seq, self:GetSequenceName(seq) )
+            self.ZBaseLastSequence = seq
+        end
+
+
+
+        -- Engine schedule change detection
+        if sched != self.ZBaseLastESched then
+
+            local name = ZBaseSchedDebug(self)
+
+            self:NewSchedDetected( sched, name )
+            
+            self.ZBaseLastESched = sched
+            self.ZBaseLastESchedName = name
+
+        end
+
+
+        -- Handle danger
+        if self.LastLoudestSoundHint then
+            self:HandleDanger()
+        end
+
+
+        -- Sched and state debug
+        if ZBCVAR.ShowSched:GetBool() then
+
+            local sched = ZBaseSchedDebug(self)
+
+            if sched then
+                debugoverlay.Text(self:WorldSpaceCenter(), "sched: "..sched..", state: "..StrNPCStates[self:GetNPCState()], 0.13)
+            end
+
+        end
 
     
-
-    -- Sequence change detection
-    if seq != self.ZBaseLastSequence then
-        self:NewSequenceDetected( seq, self:GetSequenceName(seq) )
-        self.ZBaseLastSequence = seq
-    end
-
+        -- Base regen
+        if self.HealthRegenAmount > 0 && self:Health() < self:GetMaxHealth() && self.NextHealthRegen < CurTime() then
+            self:SetHealth(math.Clamp(self:Health()+self.HealthRegenAmount, 0, self:GetMaxHealth()))
+            self.NextHealthRegen = CurTime()+self.HealthCooldown
+        end
 
 
-    -- Engine schedule change detection
-    if sched != self.ZBaseLastESched then
+        -- Foot steps
+        if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND then
+            self:FootStepTimer()
+        end
 
-        local name = ZBaseSchedDebug(self)
 
-        self:NewSchedDetected( sched, name )
-        
-        self.ZBaseLastESched = sched
-        self.ZBaseLastESchedName = name
+        -- Move speed changer
+        if self.MoveSpeedMultiplier != 1 then
+            self:DoMoveSpeed()
+        end
+
+
+        -- Override activities when we should
+        self:SetConditionalActivities()
+
+
+        -- Weapon system
+        self:ZBWepSys_Think()
+
 
     end
 
@@ -453,53 +506,9 @@ function NPC:ZBaseThink()
     end
 
 
-    -- Handle danger
-    if self.LastLoudestSoundHint then
-        self:HandleDanger()
-    end
-
-
-    -- Sched and state debug
-    if GetConVar("developer"):GetBool() && ZBCVAR.ShowSched:GetBool() then
-
-        local sched = ZBaseSchedDebug(self)
-
-        if sched then
-            debugoverlay.Text(self:WorldSpaceCenter(), "sched: "..sched..", state: "..StrNPCStates[self:GetNPCState()], 0.13)
-        end
-
-    end
-
-
-    -- Base regen
-    if self.HealthRegenAmount > 0 && self:Health() < self:GetMaxHealth() && self.NextHealthRegen < CurTime() then
-        self:SetHealth(math.Clamp(self:Health()+self.HealthRegenAmount, 0, self:GetMaxHealth()))
-        self.NextHealthRegen = CurTime()+self.HealthCooldown
-    end
-
-
-    -- Foot steps
-    if !GetConVar("ai_disabled"):GetBool() && self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND then
-        self:FootStepTimer()
-    end
-
-
-    -- Move speed changer
-    if self.MoveSpeedMultiplier != 1 then
-        self:DoMoveSpeed()
-    end
-
-
-    -- Override activities when we should
-    self:SetConditionalActivities()
-
-
-    -- Weapon system
-    self:ZBWepSys_Think()
-
-
     -- Custom think
     self:CustomThink()
+
 end
 
 
@@ -3199,6 +3208,9 @@ local ShouldPreventGib = {
 
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
+    if true then return true end
+
+
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
 
