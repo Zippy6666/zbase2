@@ -3,6 +3,7 @@
 - Fix MuteAllDefaultSoundEmittions being sussy
 - Fix "targets" dying
 - Fix icons
+- Try optimizing even more
 
 
 >>> IDEAS <<<
