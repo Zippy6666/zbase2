@@ -3208,9 +3208,6 @@ local ShouldPreventGib = {
 
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
-    if true then return true end
-
-
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
 
