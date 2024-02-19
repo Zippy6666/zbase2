@@ -17,7 +17,7 @@ local VJ_Translation = {
     ["CLASS_UNITED_STATES"] = "hecu",
     ["CLASS_BLACKOPS"] = "blackops",
     ["CLASS_RACE_X"] = "racex",
-    ["CLASS_AIDEN"] = "clonecopssss"
+    ["CLASS_AIDEN"] = "clonecop"
 }
 
 
