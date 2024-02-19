@@ -1,12 +1,8 @@
->>> TODO <<<
+# Potential updates
 - Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab
 - Fix MuteAllDefaultSoundEmittions being sussy
 - Fix "targets" dying
 - Fix icons
-
-
->>> IDEAS <<<
-- Add change movement animation func (return the desired movement act)
 - Jump system
 - Grab ZBase flying NPCs with gravity gun
 - Flying snpcs use air nodes too (not just ground) + other improvements
