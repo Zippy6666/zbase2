@@ -497,6 +497,12 @@ function NPC:ZBaseThink()
         self:ZBWepSys_Think()
 
 
+        self.LastMoveActOverride = self:OverrideMovementAct()
+        if self.LastMoveActOverride then
+            self:SetMovementActivity(self.LastMoveActOverride)
+        end
+
+
     end
 
 
@@ -1010,8 +1016,9 @@ function NPC:ZBWepSys_FireWeaponThink()
         if self.ZBWepSys_AllowShoot && Moving && self.ZBWepSys_CurMoveShootAct then
 
             -- Shoot move act
-            self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
-
+            if !self.LastMoveActOverride then
+                self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
+            end
 
             -- No ammo, RUN
             if self:HasCondition(COND.NO_PRIMARY_AMMO) then
@@ -1555,7 +1562,8 @@ end
 
 function NPC:SetConditionalActivities()
     
-    if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) && self:SelectWeightedSequence(ACT_RUN_PROTECTED) != -1 then
+    if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) &&
+    self:SelectWeightedSequence(ACT_RUN_PROTECTED) != -1 && !self.LastMoveActOverride then
         self:SetMovementActivity(ACT_RUN_PROTECTED)
     end
 
@@ -2609,7 +2617,9 @@ function NPC:HandleDanger()
 
 
     -- RUN BOYE
-    self:SetMovementActivity(ACT_RUN)
+    if !self.LastMoveActOverride then
+        self:SetMovementActivity(ACT_RUN)
+    end
 
 
     self:CancelConversation()
