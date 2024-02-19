@@ -776,6 +776,14 @@ function NPC:ShouldFireWeapon()
 end
 
 
+    -- Tries to override the movement activity
+    -- Return any activity to override the movement activity with said activity
+    -- Return false to not override
+function NPC:OverrideMovementAct()
+    return false
+end
+
+
 --[[
 ==================================================================================================
                                            SNPC ONLY FUNCTIONS
