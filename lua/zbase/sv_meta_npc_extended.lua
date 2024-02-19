@@ -13,6 +13,11 @@ local VJ_Translation = {
     ["CLASS_ZOMBIE"] = "zombie",
     ["CLASS_ANTLION"] = "antlion",
     ["CLASS_PLAYER_ALLY"] = "ally",
+    ["CLASS_XEN"] = "xen",
+    ["CLASS_UNITED_STATES"] = "hecu",
+    ["CLASS_BLACKOPS"] = "blackops",
+    ["CLASS_RACE_X"] = "racex",
+    ["CLASS_AIDEN"] = "clonecopssss"
 }
 
 
@@ -21,6 +26,11 @@ local VJ_Translation_Flipped = {
     ["zombie"] = "CLASS_ZOMBIE",
     ["antlion"] = "CLASS_ANTLION",
     ["ally"] = "CLASS_PLAYER_ALLY",
+    ["xen"] = "CLASS_XEN",
+    ["hecu"] = "CLASS_UNITED_STATES",
+    ["blackops"] = "CLASS_BLACKOPS",
+    ["racex"] = "CLASS_RACE_X",
+    ["clonecop"] = "CLASS_AIDEN"
 }
 
 
