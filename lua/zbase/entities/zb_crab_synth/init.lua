@@ -60,7 +60,7 @@ NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_FACE -- ZBASE_CANTREACHENEMY_
 
 
         -- BASE RANGE ATTACK --
-NPC.BaseRangeAttack = true--true -- Use ZBase range attack system
+NPC.BaseRangeAttack = true -- Use ZBase range attack system
 NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
 NPC.RangeProjectile_Inaccuracy = 0.07
 NPC.RangeAttackCooldown = {10, 15} -- Range attack cooldown {min, max}
