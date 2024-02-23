@@ -1926,6 +1926,11 @@ function NPC:Input_Activator(ent, input, value)
 end
 
 
+function NPC:OnBaseSetRel( ent, rel )
+    return self:CustomOnBaseSetRel(ent, rel, priority)
+end
+
+
 --[[
 ==================================================================================================
                                            AI FOLLOW PLAYER

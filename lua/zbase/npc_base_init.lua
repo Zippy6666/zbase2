@@ -778,6 +778,14 @@ function NPC:OverrideMovementAct()
 end
 
 
+    -- Called when the base decides how this NPC should feel about another entity
+    -- Return false to prevent the relationship change
+    -- https://wiki.facepunch.com/gmod/Enums/D
+function NPC:CustomOnBaseSetRel(ent, rel)
+    return true
+end
+
+
 --[[
 ==================================================================================================
                                            SNPC ONLY FUNCTIONS
