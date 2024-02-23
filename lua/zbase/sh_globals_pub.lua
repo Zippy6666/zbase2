@@ -73,6 +73,19 @@ function ZBaseSetFaction( ent, newFaction )
 end
 
 
+    -- Gets the zbase function of an entity
+function ZBaseGetFaction( ent )
+    return ent.ZBaseFaction
+end
+
+
+    -- Change how two entities feel about each other
+    -- https://wiki.facepunch.com/gmod/Enums/D
+function ZBaseSetRelationship( ent1, ent2, rel )
+    ent1:ZBaseSetMutualRel( ent2, rel )
+end
+
+
     -- Used to add glowing eyes to models
     -- 'identifier' - A unique identifier for this particular eye
     -- 'model' - The model that should have the eye
