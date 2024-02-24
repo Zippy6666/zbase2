@@ -1921,6 +1921,12 @@ function NPC:Input_Activator(ent, input, value)
 end
 
 
+
+function NPC:InternalAcceptInput(input, activator, caller, value)
+end
+
+
+
 function NPC:OnBaseSetRel( ent, rel )
     return self:CustomOnBaseSetRel(ent, rel, priority)
 end
@@ -3573,13 +3579,8 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
 	end
 
-
-    
-
-
 	-- Hook
 	hook.Run("CreateEntityRagdoll", self, rag)
-
 
 	-- Dissolve
 	if dmg:IsDamageType(DMG_DISSOLVE) then
