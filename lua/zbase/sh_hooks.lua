@@ -747,9 +747,16 @@ hook.Add("AcceptInput", "ZBASE", function( ent, input, activator, caller, value 
     -- ZBase NPC is ent
     if ent.IsZBaseNPC then
 
-        local r = ent:CustomAcceptInput(input, activator, caller, value)
+        local r1 = ent:InternalAcceptInput(input, activator, caller, value)
 
-        if r == true then
+        if r1 == true then
+            return true
+        end
+
+
+        local r2 = ent:CustomAcceptInput(input, activator, caller, value)
+
+        if r2 == true then
             return true
         end
 
