@@ -1,4 +1,5 @@
---]]======================================================================================================]]
+
+
 function ENT:StartSchedule( sched )
     if self.SNPCType == ZBASE_SNPCTYPE_FLY then
         self:AerialSetSchedule(table.Copy(sched))
@@ -9,7 +10,8 @@ function ENT:StartSchedule( sched )
 	self.CurrentTaskID = 1
 	self:SetTask( sched:GetTask( 1 ) )
 end
---]]======================================================================================================]]
+
+
 function ENT:NewSched( newsched )
 
 	-- Conviniently set any kind of schedule
@@ -25,7 +27,8 @@ function ENT:NewSched( newsched )
 	end
 
 end
---]]======================================================================================================]]
+
+
 function ENT:SelectSchedule( iNPCState )
 	local ene = self:GetEnemy()
 
@@ -60,19 +63,22 @@ function ENT:SelectSchedule( iNPCState )
 		end
 	end
 end
---]]======================================================================================================]]
+
+
 function ENT:GetCurrentCustomSched()
 
 	return self.CurrentSchedule && self.CurrentSchedule.DebugName
 
 end
---]]======================================================================================================]]
+
+
 function ENT:IsCurrentZSched( sched )
 
 	return "ZSched"..sched == self:GetCurrentCustomSched()
 
 end
---]]======================================================================================================]]
+
+
 function ENT:DoingChaseFallbackSched()
 
 	return self:IsCurrentZSched("CombatChase_CannotReachEnemy_DoCover")
@@ -80,17 +86,20 @@ function ENT:DoingChaseFallbackSched()
 	or self:IsCurrentZSched("CombatChase_CantReach_CoverEnemy")
 
 end
---]]======================================================================================================]]
+
+
 function ENT:DoingChaseSched()
 	return self:IsCurrentZSched("CombatChase") or self:IsCurrentZSched("AerialChase_NoNav")
 end
---]]======================================================================================================]]
+
+
 function ENT:TooCloseForCombatChase()
 
 	return self.ChaseMinDistance > 0 && self.EnemyVisible && self:ZBaseDist(self:GetEnemy(), {within=self.ChaseMinDistance})
 
 end
---]]======================================================================================================]]
+
+
 function ENT:GetBetterSchedule()
 	if self.NextGetBetterSchedule > CurTime() then return end
 
@@ -163,7 +172,8 @@ function ENT:GetBetterSchedule()
 
 	self.NextGetBetterSchedule = CurTime()+math.Rand(1, 1.5)
 end
---]]======================================================================================================]]
+
+
 function ENT:GetAerialTranslatedSched()
 
 	-- Return better schedule and goal for aerial NPCs
@@ -181,7 +191,8 @@ function ENT:GetAerialTranslatedSched()
 	end
 
 end
---]]======================================================================================================]]
+
+
 function ENT:IsNavStuck()
 
 	if self.SNPCType != ZBASE_SNPCTYPE_WALK then return false end
@@ -189,13 +200,15 @@ function ENT:IsNavStuck()
 	return self.NextStuck < CurTime()
 
 end
---]]======================================================================================================]]
+
+
 function ENT:SetNotNavStuck()
 
 	self.NextStuck = CurTime()+0.3
 
 end
---]]======================================================================================================]]
+
+
 function ENT:DetermineNavStuck()
 
 	if self:IsGoalActive() && self:GetCurWaypointPos()!=Vector() then
@@ -203,7 +216,8 @@ function ENT:DetermineNavStuck()
 	end
 
 end
---]]======================================================================================================]]
+
+
 function ENT:DoSchedule( schedule )
 
 	-- Stop schedule if current task makes it move and SNPC does not have movement
@@ -227,7 +241,8 @@ function ENT:DoSchedule( schedule )
 	end
 
 end
---]]======================================================================================================]]
+
+
 function ENT:DoNPCState()
 	local state = self:GetNPCState()
 	local ene = self:GetEnemy()
@@ -247,7 +262,8 @@ function ENT:DoNPCState()
 
 	self.LastNPCState = state
 end
---]]======================================================================================================]]
+
+
 function ENT:RunAI( strExp )
 	
 	-- Don't do any run AI stuff if we should play an animation from PlayAnimation()
@@ -314,7 +330,8 @@ function ENT:RunAI( strExp )
 	-- Maintain activity
 	self:MaintainActivity()
 end
---]]======================================================================================================]]
+
+
 function ENT:FaceHurtPos(dmginfo)
 	if !IsValid(self:GetEnemy()) && self.NextFaceHurtPos < CurTime() && !self.DoingPlayAnim && IsValid(dmginfo:GetInflictor()) then
 
@@ -326,4 +343,4 @@ function ENT:FaceHurtPos(dmginfo)
 
 	end
 end
---]]======================================================================================================]]
+

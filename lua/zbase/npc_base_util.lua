@@ -21,7 +21,7 @@ local NPC = ZBaseNPCs["npc_zbase"]
         -- extraData.duration - The animation duration
         -- extraData.faceSpeed - Face turn speed
         -- extraData.noTransitions - If true, it won't do any transition animations
-        -- extraData.freezeForever - If true, the animation will never end
+        -- extraData.freezeForever - If true, the frozen state of the npc will never end, this should really just be used for the death animation
         -- extraData.onFinishFunc - Function to play when the animation finishes
         -- extraData.onFinishFuncArgs - Table of arguments to pass in onFinishFunc
     -- Returns the provided 'extraData' table or an empty table if none was provided

@@ -1,4 +1,5 @@
---]]======================================================================================================]]
+
+
 function ENT:AerialNavigatorPos()
     local start = self:GetPos() + self:GetForward()*self:OBBMaxs().x*2.5
 
@@ -19,7 +20,8 @@ function ENT:AerialNavigatorPos()
 
     return tr.HitPos+tr.HitNormal*5
 end
---]]======================================================================================================]]
+
+
 function ENT:AerialSetSchedule(sched)
     self:AerialResetNav()
  
@@ -36,7 +38,8 @@ function ENT:AerialSetSchedule(sched)
     self:DeleteOnRemove(Navigator)
     self.Navigator = Navigator
 end
---]]======================================================================================================]]
+
+
 function ENT:AerialResetNav()
     self.AerialGoal = nil
 
@@ -44,7 +47,8 @@ function ENT:AerialResetNav()
         self.Navigator:Remove()
     end
 end
---]]======================================================================================================]]
+
+
 function ENT:AerialCalcGoal( pos )
     local tr = util.TraceLine({
         start = pos,
@@ -57,7 +61,8 @@ function ENT:AerialCalcGoal( pos )
 
     self.AerialGoal = pos
 end
---]]======================================================================================================]]
+
+
 function ENT:Aerial_TooCloseToGround()
     local start = self:GetPos()
     local tr = util.TraceLine({
@@ -68,7 +73,8 @@ function ENT:Aerial_TooCloseToGround()
 
     return tr.Hit && tr.Fraction*self.InternalDistanceFromGround
 end
---]]======================================================================================================]]
+
+
 function ENT:Aerial_CalcVel()
     local myPos = self:GetPos()
 
@@ -113,7 +119,8 @@ function ENT:Aerial_CalcVel()
         self.Aerial_CurSpeed = math.Clamp(self.Aerial_CurSpeed-self.Fly_Decelerate, 0, speedLimit)
     end
 end
---]]======================================================================================================]]
+
+
 function ENT:AerialThink()
     self:Aerial_CalcVel()
 
@@ -144,4 +151,4 @@ function ENT:AerialThink()
         debugoverlay.Sphere(self.LastAerialGoalPos, 25, 0.13, Color( 0, 0, 255 ))
     end
 end
---]]======================================================================================================]]
+
