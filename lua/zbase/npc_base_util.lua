@@ -198,7 +198,7 @@ function NPC:RangeAttack()
 
 
     -- Special face code
-    if !table.IsEmpty(self.RangeAttackAnimations) then
+    if !table.IsEmpty(self.RangeAttackAnimations) && self.RangeAttackFaceEnemy then
 
         self.TimeUntilStopFace = CurTime() + (animData.duration or (self:SequenceDuration() + 0.25)) / (animData.speedMult or 1)
 
