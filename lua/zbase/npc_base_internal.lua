@@ -286,7 +286,7 @@ function NPC:InitCap()
 
 
     -- Aim pose parameters
-    if self:CheckHasAimPoseParam() then
+    if self:CheckHasAimPoseParam() && !self.IsZBase_SNPC then
         self:CapabilitiesAdd(CAP_AIM_GUN)
     end
 
