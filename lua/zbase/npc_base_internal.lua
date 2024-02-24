@@ -200,12 +200,6 @@ function NPC:ZBaseInit()
     self:CustomInitialize()
 
 
-    -- Debug shit
-    -- if GetConVar("developer"):GetBool() then
-    --     self.ZBaseCurFunc = {}
-    --     self:DebugMyFunctions()
-    -- end
-
 
     if ZBaseBadBranch && IsValid(self.ZBase_PlayerWhoSpawnedMe) then
         net.Start("ZBaseBadBranch")
@@ -1399,8 +1393,9 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
 
         -- Decide duration
-        duration = duration or self:SequenceDuration(anim)*0.9
-        if playbackRate then
+        if duration == nil then
+            duration = self:SequenceDuration(anim)*0.9
+        elseif isnumber(duration) && playbackRate then
             duration = duration/playbackRate
         end
 

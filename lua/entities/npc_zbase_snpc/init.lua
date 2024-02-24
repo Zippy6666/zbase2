@@ -6,7 +6,8 @@ include("zbase_aerial.lua")
 ENT.IsZBase_SNPC = true
 
 
---]]======================================================================================================]]
+
+
 function ENT:Initialize()
 
 	-- self:SetHullType(self.HullType or HULL_MEDIUM)
@@ -21,6 +22,7 @@ function ENT:Initialize()
 	self.Bullseye:SetAngles(self:GetAngles())
 	self.Bullseye:SetNotSolid(true)
 	self.Bullseye:SetParent(self)
+	self.Bullseye:SetHealth(math.huge)
 	self.Bullseye:AddEFlags(EFL_DONTBLOCKLOS)
 	self.Bullseye:Spawn()
 	self.Bullseye:Activate()
@@ -29,7 +31,8 @@ function ENT:Initialize()
 	self:SNPCInitVars()
 
 end
---]]======================================================================================================]]
+
+
 function ENT:SNPCInitVars()
 	self.NextDetermineNewSched = CurTime()
 	self.Move_AvoidSquadMembers = CurTime()
@@ -43,7 +46,8 @@ function ENT:SNPCInitVars()
 	self.NextGetBetterSchedule = CurTime()
 	self.NextSelectSchedule = CurTime()
 end
---]]======================================================================================================]]
+
+
 function ENT:Think()
 
 	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
@@ -53,7 +57,8 @@ function ENT:Think()
 	self:ZBaseThink()
 
 end
---]]======================================================================================================]]
+
+
 local NPCMETA = FindMetaTable("NPC")
 ZBase_OldGetNearestSquadMember = ZBase_OldGetNearestSquadMember or NPCMETA.GetNearestSquadMember
 
@@ -80,7 +85,8 @@ function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )
 
 	return squadmember
 end
---]]======================================================================================================]]
+
+
 function ENT:OnTakeDamage( dmginfo )
 	-- On hurt behaviour
 	self:SNPCOnHurt(dmginfo)
@@ -95,9 +101,10 @@ function ENT:OnTakeDamage( dmginfo )
 		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
 	end
 end
---]]======================================================================================================]]
+
+
 function ENT:OnRemove()
     self:SetSquad("") -- To prevent m_bDidDeathCleanup from crashing game.
     if self.Dead then self:SetSaveValue("m_bDidDeathCleanup", true) end
 end
---]]======================================================================================================]]
+
