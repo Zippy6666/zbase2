@@ -299,6 +299,7 @@ local function IncludeFiles()
     include("zbase/sh_globals_pub.lua")
     include("zbase/sh_hooks.lua")
     include("zbase/sh_cvars.lua")
+    include("zbase/sh_controller.lua")
 
 
     if SERVER then
@@ -334,6 +335,7 @@ local function AddCSLuaFiles()
     AddCSLuaFile("zbase/sh_globals_pub.lua")
     AddCSLuaFile("zbase/sh_override_functions.lua")
     AddCSLuaFile("zbase/sh_hooks.lua")
+    AddCSLuaFile("zbase/sh_controller.lua")
 
     AddCSLuaFile("zbase/cl_spawnmenu.lua")
     AddCSLuaFile("zbase/cl_toolmenu.lua")

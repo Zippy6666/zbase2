@@ -42,6 +42,10 @@ function NPC:ZBaseSetMutualRel( ent, rel )
     -- Relationship to ent
     local prohibitRel = self.IsZBaseNPC && !self:OnBaseSetRel(ent, rel, 99)
 
+    if self.IsZBPlyControlled  then
+        rel = D_NU
+    end
+
     if !prohibitRel then
         self:AddEntityRelationship(ent, rel, 99)
     end
@@ -53,7 +57,7 @@ function NPC:ZBaseSetMutualRel( ent, rel )
     end
 
 
-    -- If recipient is not a zbase npc, make it feel the same way about itself
+    -- If recipient is not a zbase npc, make the recipient feel the same way about them
     if !ent.IsZBaseNPC && ent:IsNPC() then
 
         -- Recipient keep hating its enemies
