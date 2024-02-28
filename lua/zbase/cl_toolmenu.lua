@@ -88,8 +88,8 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         gitlink:SetValue("https://github.com/Zippy6666/zbase2")
 
 
-        panel:CheckBox( "Developer", "developer")
-        panel:Help("Sets 'developer' to '1'.")
+        -- panel:CheckBox( "Developer", "developer")
+        -- panel:Help("Sets 'developer' to '1'.")
 
 
         panel:CheckBox( "Show Aerial Navigator", "zbase_show_navigator")

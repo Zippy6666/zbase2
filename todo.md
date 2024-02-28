@@ -8,3 +8,4 @@
 - Pickup system (even though they have a weapon active)
 - Controller
 - Vehicle base
+- Improve walkframe sys for non scripted npcs
