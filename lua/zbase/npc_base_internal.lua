@@ -2527,6 +2527,7 @@ function NPCB.Grenade:ShouldDoBehaviour( self )
     return self.BaseGrenadeAttack
     && !table.IsEmpty(self.GrenadeAttackAnimations)
     && self:ZBaseDist(self:GetEnemyLastSeenPos(), {away=400, within=1500})
+    && !self.DoingPlayAnim
 end
 
 
