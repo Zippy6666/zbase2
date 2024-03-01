@@ -11,17 +11,22 @@ if CLIENT then
 
         if IsValid(camEnt) then
             local _, modelmaxs = camEnt:GetModelBounds()
-            
+            debugoverlay.Axis(ply:GetEyeTrace().HitPos, Angle(), 100)
 
             return {
                 origin = camEnt:GetPos()+camEnt:GetUp()*modelmaxs.z*1.1 - ( ang:Forward() * modelmaxs.x*4 ),
-                ang = ang,
+                angles = ang,
                 fov = fov,
                 drawviewer = true,
             }
+
+
+
+            
         end
     end)
 end
+
 
 
 
@@ -29,6 +34,13 @@ if SERVER then
     function ZBCtrlSys:StartControlling( ply, npc )
 
         npc.IsZBPlyControlled = true
+        npc.ZBPlyController  =  ply
+
+        npc.ZBControlTarget = ents.Create("base_gmodentity")
+        npc.ZBControlTarget:SetPos( npc:GetPos() )
+        npc.ZBControlTarget:SetNoDraw(true)
+        npc.ZBControlTarget:Spawn()
+
 
         npc.ZBViewEnt = ents.Create("base_gmodentity")
         npc.ZBViewEnt:SetPos( npc:GetPos() + (npc:GetUp()*npc:OBBMaxs().z*1.25) - (npc:GetForward()*npc:OBBMaxs().x*4) )
@@ -56,10 +68,11 @@ if SERVER then
         if IsValid(npc) then
             npc:SetSaveValue( "m_flFieldOfView", npc.FieldOfView )
             npc.IsZBPlyControlled  = false
+            npc.ZBPlyController  = nil
 
-            if IsValid(npc.ZBViewEnt) then
-                npc.ZBViewEnt:Remove()
-            end
+            SafeRemoveEntity(npc.ZBViewEnt)
+            SafeRemoveEntity(npc.ZBControlTarget)
+
 
         end
 
@@ -89,4 +102,5 @@ if SERVER then
             ZBCtrlSys:StartControlling( ply, npc )
         end
     end)
+
 end
