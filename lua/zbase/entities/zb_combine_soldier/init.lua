@@ -25,6 +25,10 @@ NPC.HasArmor = {
 NPC.m_nKickDamage = 15
 
 
+NPC.BaseMeleeAttack = true -- Use ZBase melee attack system
+NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
+NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack animation
+
 NPC.BaseGrenadeAttack = true -- Use ZBase grenade attack system
 NPC.ThrowGrenadeChance_Visible = 4 -- 1/x chance that it throws a grenade when the enemy is visible
 NPC.ThrowGrenadeChance_Occluded = 2 -- 1/x chance that it throws a grenade when the enemy is not visible
@@ -91,13 +95,18 @@ local ShouldHaveRadioSound = {
     ["OnGrenadeSounds"] = true,
 }
 
---]]==============================================================================================]]
-function NPC:CustomInitialize()
+
+
+function NPC:OnInitCap()
+    self:CapabilitiesRemove(CAP_INNATE_MELEE_ATTACK1)
 end
---]]==============================================================================================]]
+
+
 function NPC:CustomThink()
+    
 end
---]]==============================================================================================]]
+
+
 function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
     if ShouldHaveRadioSound[sndVarName] then
         self:EmitSound("npc/combine_soldier/vo/on"..math.random(1, 2)..".wav")
@@ -109,4 +118,4 @@ function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
         end)
     end
 end
---]]==============================================================================================]]
+

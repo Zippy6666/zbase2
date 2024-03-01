@@ -17,8 +17,3 @@ NPC.m_iTacticalVariant = 1
 -- NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
 -- NPC.DeathAnimationChance = 2 --  Flinch animation chance 1/x
 
-
---]]==============================================================================================]]
-function NPC:CustomInitialize()
-end
---]]==============================================================================================]]
