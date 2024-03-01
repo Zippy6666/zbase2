@@ -99,7 +99,7 @@ NPC.MoveSpeedMultiplier = 1
 --]]
 
 
-NPC.MinShootDistance = 0 -- Maximum distance the NPC can fire its weapon from
+NPC.MinShootDistance = 0 -- Minimum distance the NPC will fire its weapon from
 NPC.MaxShootDistance = 3000 -- Maximum distance the NPC can fire its weapon from
 NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
