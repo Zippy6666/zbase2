@@ -506,6 +506,12 @@ function NPC:ZBaseThink()
     end
 
 
+    -- Player control system
+    if self.IsZBPlyControlled then
+        self:ControllerThink()
+    end
+
+
     -- Custom think
     self:CustomThink()
 
@@ -521,6 +527,37 @@ function NPC:DoSlowThink()
 
 
     self:AITick_Slow()
+
+end
+
+--[[
+==================================================================================================
+                                           CONTROLLER SYSTEM
+==================================================================================================
+--]]
+
+
+function NPC:Controller_Move()
+    self.ZBControlTarget:SetPos(self:GetPos()+self:GetForward()*200)
+    self:SetTarget(self.ZBControlTarget)
+
+    if !self:IsCurrentSchedule(SCHED_TARGET_CHASE) then
+        self:SetSchedule(SCHED_TARGET_CHASE)
+    end
+end
+
+
+function NPC:ControllerThink()
+
+    local ply = self.ZBPlyController
+    local tr = ply:GetEyeTrace()
+
+
+    if ply:KeyDown(IN_FORWARD) then
+        self:Controller_Move()
+    elseif !self:IsCurrentSchedule(SCHED_NPC_FREEZE) then
+        self:SetSchedule(SCHED_NPC_FREEZE)
+    end
 
 end
 
