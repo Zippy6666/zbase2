@@ -401,6 +401,10 @@ NPC.OnReloadSound_Chance = 2
 function NPC:CustomInitialize()
 end
 
+    -- Called when the base gives the NPC capabilities, you can do self:CapabilitiesRemove(CAP_YOUR_CAP) here for example
+function NPC:OnInitCap()
+end
+
 
     -- Called continiously --
 function NPC:CustomThink()

@@ -5,8 +5,22 @@ ZBCtrlSys = {}
 
 
 if CLIENT then
+    hook.Add("CalcView", "ZBCtrlSys", function(ply, pos, ang, fov, znear, zfar)
+        local camEnt = ply:GetNWEntity("ZBCtrlSysCamEnt", NULL)
 
 
+        if IsValid(camEnt) then
+            local _, modelmaxs = camEnt:GetModelBounds()
+            
+
+            return {
+                origin = camEnt:GetPos()+camEnt:GetUp()*modelmaxs.z*1.1 - ( ang:Forward() * modelmaxs.x*4 ),
+                ang = ang,
+                fov = fov,
+                drawviewer = true,
+            }
+        end
+    end)
 end
 
 
@@ -29,7 +43,7 @@ if SERVER then
         end)
 
 
-        ply:SetViewEntity( npc.ZBViewEnt )
+        ply:SetNWEntity("ZBCtrlSysCamEnt", npc)
 
 
         self:UpdateRelationShips()
@@ -51,7 +65,7 @@ if SERVER then
 
 
         if IsValid(ply) then
-            ply:SetViewEntity(ply)
+            ply:SetNWEntity("ZBCtrlSysCamEnt", NULL)
         end
 
         

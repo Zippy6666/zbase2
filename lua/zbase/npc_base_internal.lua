@@ -168,9 +168,6 @@ function NPC:ZBaseInit()
             self:InitCap()
         
 
-            -- Capability shit
-            self:InitCap()
-
 
             if self.ZBaseFaction != "none" then
                 self:SetSquad(self.ZBaseFaction)
@@ -304,6 +301,9 @@ function NPC:InitCap()
     else
         self:CapabilitiesAdd(CAP_MOVE_GROUND)
 	end
+
+
+    self:OnInitCap()
 
 end
 
