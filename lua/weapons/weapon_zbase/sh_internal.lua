@@ -183,6 +183,7 @@ function SWEP:ShootEffects()
 		EffectEnt:SetParent(own)
 		EffectEnt:AddEffects(EF_BONEMERGE)
 		EffectEnt:Spawn()
+		self:DeleteOnRemove(EffectEnt)
 	end
 
 
