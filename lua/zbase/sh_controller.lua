@@ -5,24 +5,36 @@ ZBCtrlSys = {}
 
 
 if CLIENT then
+    local ang0 = Angle()
     hook.Add("CalcView", "ZBCtrlSys", function(ply, pos, ang, fov, znear, zfar)
         local camEnt = ply:GetNWEntity("ZBCtrlSysCamEnt", NULL)
 
 
         if IsValid(camEnt) then
+
             local _, modelmaxs = camEnt:GetModelBounds()
-            debugoverlay.Axis(ply:GetEyeTrace().HitPos, Angle(), 100)
+            local forward = ang:Forward()
+            local camViewPos = camEnt:GetPos()+camEnt:GetUp()*modelmaxs.z*1.1 - ( forward * modelmaxs.x*4 )
+
+
+            -- local camTrace = util.TraceLine({
+            --     start = camViewPos,
+            --     endpos = camViewPos+forward*100000,
+            --     mask = MASK_VISIBLE,
+            -- })
+
+
+
+            -- debugoverlay.Axis(camTrace.HitPos, ang0, 50, 0.1)
+
 
             return {
-                origin = camEnt:GetPos()+camEnt:GetUp()*modelmaxs.z*1.1 - ( ang:Forward() * modelmaxs.x*4 ),
+                origin = camViewPos,
                 angles = ang,
                 fov = fov,
                 drawviewer = true,
             }
 
-
-
-            
         end
     end)
 end
@@ -36,6 +48,7 @@ if SERVER then
         npc.IsZBPlyControlled = true
         npc.ZBPlyController  =  ply
 
+
         npc.ZBControlTarget = ents.Create("base_gmodentity")
         npc.ZBControlTarget:SetPos( npc:GetPos() )
         npc.ZBControlTarget:SetNoDraw(true)
@@ -43,12 +56,14 @@ if SERVER then
 
 
         npc.ZBViewEnt = ents.Create("base_gmodentity")
-        npc.ZBViewEnt:SetPos( npc:GetPos() + (npc:GetUp()*npc:OBBMaxs().z*1.25) - (npc:GetForward()*npc:OBBMaxs().x*4) )
+        npc.ZBViewEnt:SetPos( npc:GetPos() )
         npc.ZBViewEnt:SetAngles(npc:GetAngles())
         npc.ZBViewEnt:SetParent(npc)
         npc.ZBViewEnt:SetNoDraw(true)
         npc.ZBViewEnt:Spawn()
         npc:DeleteOnRemove(npc.ZBViewEnt)
+
+
         npc:SetSaveValue( "m_flFieldOfView", 1 ) -- No FOV, cant see shid
         npc:CallOnRemove("StopControllingZB", function()
             self:StopControlling(ply, npc)
