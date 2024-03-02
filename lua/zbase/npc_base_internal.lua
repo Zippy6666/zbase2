@@ -539,7 +539,7 @@ function NPC:FrameTick()
     end
 
     if self.DoingPlayAnim then
-        self:WalkFrameTest()
+        self:ExecuteWalkFrames()
     end
 
 end
@@ -1585,8 +1585,8 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 end
 
 
-function NPC:WalkFrameTest()
-    self:AutoMovement(self:GetAnimTimeInterval())
+function NPC:ExecuteWalkFrames()
+    self:AutoMovement(self:GetAnimTimeInterval()*0.3)
 end
 
 
