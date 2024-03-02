@@ -89,7 +89,7 @@ NPC.CanJump = true -- Can the NPC jump?
 
 -- Multiply the NPC's movement speed by this amount (ground NPCs)
 -- May not work properly for all NPCs
-NPC.MoveSpeedMultiplier = 1
+NPC.MoveSpeedMultiplier = 0.33
 
 
 --[[

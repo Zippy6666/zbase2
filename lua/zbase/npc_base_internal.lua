@@ -481,12 +481,6 @@ function NPC:ZBaseThink()
         end
 
 
-        -- Move speed changer
-        if self.MoveSpeedMultiplier != 1 then
-            self:DoMoveSpeed()
-        end
-
-
         -- Override activities when we should
         self:SetConditionalActivities()
 
@@ -534,6 +528,18 @@ function NPC:DoSlowThink()
 
 end
 
+
+function NPC:FrameTick()
+
+    local isAIEnabled = !AIDisabled:GetBool()
+
+    -- Move speed changer
+    if isAIEnabled && self.MoveSpeedMultiplier != 1 && self:IsMoving() then
+        self:DoMoveSpeed()
+    end
+
+end
+
 --[[
 ==================================================================================================
                                     PLAYER CONTROL SYSTEM
@@ -559,7 +565,9 @@ function NPC:ControllerThink()
 
 
     local _, modelmaxs = camEnt:GetModelBounds()
-    local forward = ply:EyeAngles():Forward()
+    local eyeangs = ply:EyeAngles()
+    local forward = eyeangs:Forward()
+    local right = eyeangs:Right()
     local camViewPos = camEnt:GetPos()+camEnt:GetUp()*modelmaxs.z*1.1 - ( forward * modelmaxs.x*4 )
     local camTrace = util.TraceLine({
         start = camViewPos,
@@ -569,14 +577,32 @@ function NPC:ControllerThink()
     debugoverlay.Axis(camTrace.HitPos, ang0, 25, 0.13)
 
 
+    local moveDir = Vector(0, 0, 0)
+
     if ply:KeyDown(IN_FORWARD) then
-
-        local movedir = Vector(forward.x, forward.y, 0):GetNormalized()
-        local movepos = self:GetPos()+movedir*MoveTargetDist
-
-        self:Controller_Move(movepos)
-
-    elseif !self:IsCurrentSchedule(SCHED_NPC_FREEZE) then
+        moveDir = moveDir + Vector(forward.x, forward.y, 0):GetNormalized()
+    end
+    
+    if ply:KeyDown(IN_BACK) then
+        moveDir = moveDir - Vector(forward.x, forward.y, 0):GetNormalized()
+    end
+    
+    if ply:KeyDown(IN_MOVELEFT) then
+        moveDir = moveDir - Vector(right.x, right.y, 0):GetNormalized()
+    end
+    
+    if ply:KeyDown(IN_MOVERIGHT) then
+        moveDir = moveDir + Vector(right.x, right.y, 0):GetNormalized()
+    end
+    
+    -- Normalize the accumulated movement direction
+    moveDir = moveDir:GetNormalized()
+    
+    -- Move the controller based on the accumulated direction
+    self:Controller_Move(self:GetPos() + moveDir * MoveTargetDist, ply:KeyDown(IN_RUN))
+    
+    -- If no movement keys are pressed and not frozen, remain still
+    if moveDir == Vector(0, 0, 0) and !self:IsCurrentSchedule(SCHED_NPC_FREEZE) then
         self:SetSchedule(SCHED_NPC_FREEZE)
     end
 
@@ -1938,9 +1964,8 @@ end
 
 
 function NPC:DoMoveSpeed()
-    local TimeLastMovement = self:GetInternalVariable("m_flTimeLastMovement")
     self:SetPlaybackRate(self.MoveSpeedMultiplier)
-    self:SetSaveValue("m_flTimeLastMovement", TimeLastMovement*self.MoveSpeedMultiplier)
+    self:SetSaveValue("m_flTimeLastMovement", -0.1*self.MoveSpeedMultiplier)
 end
 
 
