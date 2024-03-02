@@ -64,7 +64,7 @@ if SERVER then
         npc:DeleteOnRemove(npc.ZBViewEnt)
 
 
-        npc:SetSaveValue( "m_flFieldOfView", 1 ) -- No FOV, cant see shid
+        -- npc:SetSaveValue( "m_flFieldOfView", 1 ) -- No FOV, cant see shid
         npc:CallOnRemove("StopControllingZB", function()
             self:StopControlling(ply, npc)
         end)
@@ -85,7 +85,7 @@ if SERVER then
     function ZBCtrlSys:StopControlling( ply, npc )
 
         if IsValid(npc) then
-            npc:SetSaveValue( "m_flFieldOfView", npc.FieldOfView )
+            -- npc:SetSaveValue( "m_flFieldOfView", npc.FieldOfView )
             npc.IsZBPlyControlled  = false
             npc.ZBPlyController  = nil
 

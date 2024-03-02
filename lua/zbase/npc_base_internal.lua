@@ -555,12 +555,23 @@ end
 ==================================================================================================
 --]]
 
-local MoveTargetDist = 300
+function NPC:Controller_Move( pos, run )
+    local tr = util.TraceLine({
+        start = self:WorldSpaceCenter(),
+        endpos = pos,
+        mask = MASK_SOLID,
+        filter = self,
+    })
+    dest = tr.HitPos+tr.HitNormal*15
 
-function NPC:Controller_Move( pos )
-    self:SetLastPosition(pos)
+
+    self.CurrentControlDest = (self.CurrentControlDest && Lerp(0.33, self.CurrentControlDest, dest)) or dest
+    self:SetLastPosition( self.CurrentControlDest )
     self:SetSchedule(SCHED_FORCED_GO)
-    debugoverlay.Axis(pos, ang0, 75, 0.13)
+    self:SetMovementActivity(self.LastMoveActOverride or (run && ACT_RUN) or ACT_WALK)
+
+    
+    debugoverlay.Axis(self.CurrentControlDest, ang0, 75, 0.13)
 end
 
 
@@ -604,15 +615,12 @@ function NPC:ControllerThink()
         moveDir = moveDir + Vector(right.x, right.y, 0):GetNormalized()
     end
     
-    -- Normalize the accumulated movement direction
-    moveDir = moveDir:GetNormalized()
-    
-    -- Move the controller based on the accumulated direction
-    self:Controller_Move(self:GetPos() + moveDir * MoveTargetDist, ply:KeyDown(IN_RUN))
-    
-    -- If no movement keys are pressed and not frozen, remain still
-    if moveDir == Vector(0, 0, 0) and !self:IsCurrentSchedule(SCHED_NPC_FREEZE) then
-        self:SetSchedule(SCHED_NPC_FREEZE)
+    moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
+    self:Controller_Move(self:WorldSpaceCenter() + moveDir * self:OBBMaxs().x*20, ply:KeyDown(IN_SPEED))
+
+
+    if moveDir:IsZero() && self:IsCurrentSchedule(SCHED_FORCED_GO) then
+        self:ClearSchedule()
     end
 
 end
