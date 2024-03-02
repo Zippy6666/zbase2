@@ -9,6 +9,7 @@ util.AddNetworkString("ZBaseGlowEyes")
 
 
 local vec0 = Vector()
+local ang0 = Angle()
 
 
 
@@ -537,24 +538,45 @@ end
 --]]
 
 
-function NPC:Controller_Move()
-    self.ZBControlTarget:SetPos(self:GetPos()+self:GetForward()*200)
+function NPC:Controller_Move( pos )
+    self.ZBControlTarget:SetPos( pos )
     self:SetTarget(self.ZBControlTarget)
 
-    if !self:IsCurrentSchedule(SCHED_TARGET_CHASE) then
-        self:SetSchedule(SCHED_TARGET_CHASE)
-    end
+    
+    self:SetSchedule(SCHED_TARGET_CHASE)
+
+
+    debugoverlay.Axis(pos, ang0, 75, 0.13)
 end
 
 
 function NPC:ControllerThink()
-
     local ply = self.ZBPlyController
-    local tr = ply:GetEyeTrace()
+
+
+    local camEnt = ply:GetNWEntity("ZBCtrlSysCamEnt", NULL)
+    if !IsValid(camEnt) then return end
+
+
+
+    local _, modelmaxs = camEnt:GetModelBounds()
+    local forward = ply:EyeAngles():Forward()
+    local camViewPos = camEnt:GetPos()+camEnt:GetUp()*modelmaxs.z*1.1 - ( forward * modelmaxs.x*4 )
+    local camTrace = util.TraceLine({
+        start = camViewPos,
+        endpos = camViewPos+forward*100000,
+        mask = MASK_VISIBLE,
+    })
+    debugoverlay.Axis(camTrace.HitPos, ang0, 25, 0.13)
 
 
     if ply:KeyDown(IN_FORWARD) then
-        self:Controller_Move()
+
+        local movedir = Vector(forward.x, forward.y, 0):GetNormalized()
+        local movepos = self:GetPos()+movedir*300
+
+        self:Controller_Move(movepos)
+
     elseif !self:IsCurrentSchedule(SCHED_NPC_FREEZE) then
         self:SetSchedule(SCHED_NPC_FREEZE)
     end

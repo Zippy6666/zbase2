@@ -1,5 +1,5 @@
 # TODO
-- [ ] New synth decals
+- [x] New synth decals
 - [ ] Controller
 - [ ] Improve walkframe sys for non scripted npcs
 - [ ] Weapon randomizer
