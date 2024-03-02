@@ -16,3 +16,4 @@
 - Pickup system (even though they have a weapon active)
 - Vehicle base
 - Prevent t-pose with weapon system
+- Fix poison zombie crash

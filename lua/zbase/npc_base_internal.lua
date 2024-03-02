@@ -538,6 +538,10 @@ function NPC:FrameTick()
         self:DoMoveSpeed()
     end
 
+    if self.DoingPlayAnim then
+        self:WalkFrameTest()
+    end
+
 end
 
 --[[
@@ -1538,23 +1542,23 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
 
         -- Walkframe for non-scripted NPCs
-        if !self.IsZBase_SNPC then
+        -- if !self.IsZBase_SNPC then
 
-            local TimerName = "ZBaseWalkFrames"..self:EntIndex()
+        --     local TimerName = "ZBaseWalkFrames"..self:EntIndex()
 
 
-            timer.Create(TimerName, 0, 0, function()
+        --     timer.Create(TimerName, 0, 0, function()
 
-                if !IsValid(self) or !self.DoingPlayAnim then
-                    timer.Remove(TimerName)
-                    return
-                end
+        --         if !IsValid(self) or !self.DoingPlayAnim then
+        --             timer.Remove(TimerName)
+        --             return
+        --         end
     
-                self:AutoMovement(self:GetAnimTimeInterval()*0.3)
+        --         self:AutoMovement(self:GetAnimTimeInterval()*0.3)
 
-            end)
+        --     end)
 
-        end
+        -- end
         
     end
     ----------------------------------------------------------------=#
@@ -1581,6 +1585,11 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 end
 
 
+function NPC:WalkFrameTest()
+    self:AutoMovement(self:GetAnimTimeInterval())
+end
+
+
 function NPC:DoPlayAnim()
 
     -- Playback rate for the animation
@@ -1592,9 +1601,9 @@ function NPC:DoPlayAnim()
 
 
     -- Walkframes for SNPCs
-    if self.IsZBase_SNPC then
-        self:AutoMovement( self:GetAnimTimeInterval() )
-    end
+    -- if self.IsZBase_SNPC then
+    --     self:AutoMovement( self:GetAnimTimeInterval() )
+    -- end
 
 end
 
