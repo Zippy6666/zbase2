@@ -131,6 +131,9 @@ function NPC:ZBaseInit()
     end
 
 
+    self:SetSquad("zbase") -- Basic squad, will be replaced with faction later
+
+
     -- Tick delay to fix issues
     timer.Simple(0, function()
 
@@ -507,7 +510,7 @@ function NPC:ZBaseThink()
     end
 
 
-    -- Player control system
+    -- Controller
     if self.IsZBPlyControlled then
         self:ControllerThink()
     end
@@ -533,19 +536,15 @@ end
 
 --[[
 ==================================================================================================
-                                           CONTROLLER SYSTEM
+                                    PLAYER CONTROL SYSTEM
 ==================================================================================================
 --]]
 
+local MoveTargetDist = 300
 
 function NPC:Controller_Move( pos )
-    self.ZBControlTarget:SetPos( pos )
-    self:SetTarget(self.ZBControlTarget)
-
-    
-    self:SetSchedule(SCHED_TARGET_CHASE)
-
-
+    self:SetLastPosition(pos)
+    self:SetSchedule(SCHED_FORCED_GO)
     debugoverlay.Axis(pos, ang0, 75, 0.13)
 end
 
@@ -573,7 +572,7 @@ function NPC:ControllerThink()
     if ply:KeyDown(IN_FORWARD) then
 
         local movedir = Vector(forward.x, forward.y, 0):GetNormalized()
-        local movepos = self:GetPos()+movedir*300
+        local movepos = self:GetPos()+movedir*MoveTargetDist
 
         self:Controller_Move(movepos)
 
@@ -1316,11 +1315,13 @@ end
 
 
 function NPC:ForceGotoLastKnownPos()
-    self:SetLastPosition(self:GetEnemyLastKnownPos())
-    self:SetSchedule(SCHED_FORCED_GO_RUN)
-    self.GotoEneLastKnownPosWhenEluded = false
+    if self:HasEnemyMemory() then
+        self:SetLastPosition(self:GetEnemyLastKnownPos())
+        self:SetSchedule(SCHED_FORCED_GO_RUN)
+        self.GotoEneLastKnownPosWhenEluded = false
 
-    debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
+        debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
+    end
 end
 
 
@@ -1666,22 +1667,25 @@ function NPC:AITick_Slow()
     self:InternalDetectDanger()
 
 
+    
+    local EneLastKnownPos = self:HasEnemyMemory() && self:GetEnemyLastKnownPos()
+
+
     -- Loose enemy
-    local EneLastKnownPos = self:GetEnemyLastKnownPos()
     if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= 5 then
         self:MarkEnemyAsEluded()
-
         if self.GotoEneLastKnownPosWhenEluded && self:ShouldChase() then
             self:ForceGotoLastKnownPos()
         end
-
         debugoverlay.Text(self:GetPos(), "marked current enemy as eluded", 2)
     end
 
 
     -- Last known pos debug
-    debugoverlay.Text(EneLastKnownPos+Vector(0, 0, 100), self.Name.."["..self:EntIndex().."] last known enemy pos", 0.3)
-    debugoverlay.Cross(EneLastKnownPos, 40, 0.3, Color( 255, 0, 0 ))
+    if EneLastKnownPos then
+        debugoverlay.Text(EneLastKnownPos+Vector(0, 0, 100), self.Name.."["..self:EntIndex().."] last known enemy pos", 0.3)
+        debugoverlay.Cross(EneLastKnownPos, 40, 0.3, Color( 255, 0, 0 ))
+    end
 
 
     -- In combat
@@ -2091,7 +2095,7 @@ function NPCB.Patrol:Run( self )
 
         self:SetSchedule(SCHED_ALERT_SCAN)
 
-    elseif IsAlert && self:ZBaseDist(self:GetEnemyLastKnownPos(), {away=200}) && self.GotoEneLastKnownPosWhenEluded && Chase then
+    elseif self:HasEnemyMemory() && IsAlert && self:ZBaseDist(self:GetEnemyLastKnownPos(), {away=200}) && self.GotoEneLastKnownPosWhenEluded && Chase then
 
         self:ForceGotoLastKnownPos()
 

@@ -46,6 +46,7 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
     
     
     function NPC:ZBaseEnhancedCreateEnt( ent )
+        -- Remove default grenades
         if ent:GetClass() == "npc_grenade_frag" && !ent.IsZBaseGrenade then
             ent:Remove()
         end

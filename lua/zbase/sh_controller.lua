@@ -71,6 +71,8 @@ if SERVER then
 
 
         ply:SetNWEntity("ZBCtrlSysCamEnt", npc)
+        ply.ZBLastMoveType = ply:GetMoveType()
+        ply:SetMoveType(MOVETYPE_NONE)
 
 
         self:UpdateRelationShips()
@@ -94,6 +96,7 @@ if SERVER then
 
         if IsValid(ply) then
             ply:SetNWEntity("ZBCtrlSysCamEnt", NULL)
+            ply:SetMoveType(ply.ZBLastMoveType)
         end
 
         

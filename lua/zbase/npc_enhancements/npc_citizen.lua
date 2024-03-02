@@ -11,8 +11,7 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         end
 
 
-        -- Don't join player squad
-        self:Fire("RemoveFromPlayerSquad")
+        -- self:Fire("RemoveFromPlayerSquad")
 
     end
 
