@@ -2,7 +2,7 @@
 - [x] New synth decals
 - [ ] Context menu stuff: control, kill, etc
 - [ ] Controller
-- [ ] Improve walkframe sys for non scripted npcs
+- [x] Improve walkframe sys for non scripted npcs
 - [ ] Weapon randomizer
 
 
