@@ -72,6 +72,8 @@ if SERVER then
 
         ply:SetNWEntity("ZBCtrlSysCamEnt", npc)
         ply.ZBLastMoveType = ply:GetMoveType()
+        ply.ZBLastNoTarget = bit.band(ply:GetFlags(), FL_NOTARGET)==FL_NOTARGET
+        ply:SetNoTarget(true)
         ply:SetMoveType(MOVETYPE_NONE)
 
 
@@ -97,6 +99,7 @@ if SERVER then
         if IsValid(ply) then
             ply:SetNWEntity("ZBCtrlSysCamEnt", NULL)
             ply:SetMoveType(ply.ZBLastMoveType)
+            ply:SetNoTarget(ply.ZBLastNoTarget)
         end
 
         

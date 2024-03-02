@@ -248,6 +248,11 @@ hook.Add("Tick", "ZBASE", function()
 
     end
 
+
+    for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
+        zbaseNPC:FrameTick()
+    end
+    
 end)
 
 
