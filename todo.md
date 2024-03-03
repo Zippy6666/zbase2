@@ -4,6 +4,7 @@
 - [ ] Controller
 - [x] Improve walkframe sys for non scripted npcs
 - [ ] Weapon randomizer
+- [ ] Suppressing
 
 
 # Potential updates
