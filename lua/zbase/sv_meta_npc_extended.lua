@@ -39,26 +39,30 @@ function NPC:ZBaseSetMutualRel( ent, rel )
     if !IsValid(ent) then return end
 
     
-    -- Relationship to ent
-    local prohibitRel = self.IsZBaseNPC && !self:OnBaseSetRel(ent, rel, 99)
+    local entHasNoTarget = bit.band(ent:GetFlags(), FL_NOTARGET)==FL_NOTARGET
+    local prohibitRel = (self.IsZBaseNPC && !self:OnBaseSetRel(ent, rel, 99)) or (entHasNoTarget && rel==D_HT)
+
 
     if self.IsZBPlyControlled  then
         rel = D_NU
     end
 
+
+    -- Set relationship to recipient
     if !prohibitRel then
         self:AddEntityRelationship(ent, rel, 99)
     end
 
 
-    -- Entity's bullseye relationship
+    -- Recipient's bullseye relationship
     if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
         self:AddEntityRelationship(ent.Bullseye, rel, 99)
     end
 
 
-    -- If recipient is not a zbase npc, make the recipient feel the same way about them
-    if !ent.IsZBaseNPC && ent:IsNPC() then
+    -- If recipient is not a zbase npc, make the recipient feel the same way about us
+    -- Unless we have notarget
+    if !ent.IsZBaseNPC && ent:IsNPC() && !(bit.band(self:GetFlags(), FL_NOTARGET)==FL_NOTARGET) then
 
         -- Recipient keep hating its enemies
         -- Workaround for non-zbase NPCs ignoring players (and maybe other npcs potentially)
