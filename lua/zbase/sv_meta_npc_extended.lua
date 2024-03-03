@@ -34,29 +34,28 @@ local VJ_Translation_Flipped = {
 }
 
 
-function NPC:ZBaseSetMutualRel( ent, rel )
+function NPC:ZBaseSetMutualRel( ent, relToEnt )
     
     if !IsValid(ent) then return end
 
-    
-    local entHasNoTarget = bit.band(ent:GetFlags(), FL_NOTARGET)==FL_NOTARGET
-    local prohibitRel = (self.IsZBaseNPC && !self:OnBaseSetRel(ent, rel, 99)) or (entHasNoTarget && rel==D_HT)
 
-
+    local relToMe = relToEnt
     if self.IsZBPlyControlled  then
-        rel = D_NU
+        relToEnt = D_NU
     end
 
 
     -- Set relationship to recipient
+    local prohibitRel = (self.IsZBaseNPC && !self:OnBaseSetRel(ent, relToEnt, 99))
     if !prohibitRel then
-        self:AddEntityRelationship(ent, rel, 99)
-    end
 
+        self:AddEntityRelationship(ent, relToEnt, 99)
+    
+        -- Recipient's bullseye relationship, allows snpcs of the same class to hate each other
+        if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
+            self:AddEntityRelationship(ent.Bullseye, relToEnt, 99)
+        end
 
-    -- Recipient's bullseye relationship
-    if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
-        self:AddEntityRelationship(ent.Bullseye, rel, 99)
     end
 
 
@@ -71,7 +70,7 @@ function NPC:ZBaseSetMutualRel( ent, rel )
             ent:AddEntityRelationship(ene, D_HT, 99)
         end
 
-        ent:AddEntityRelationship(self, rel, 99)
+        ent:AddEntityRelationship(self, relToMe, 99)
 
     end
 
