@@ -590,7 +590,17 @@ function NPC:Controller_Move( pos, run )
     self:SetMovementActivity(self.LastMoveActOverride or (run && ACT_RUN) or ACT_WALK)
 
     
-    debugoverlay.Axis(self.CurrentControlDest, ang0, 75, 0.13)
+    -- debugoverlay.Axis(self.CurrentControlDest, ang0, 75, 0.13)
+end
+
+
+function NPC:Controller_ButtonDown(ply, btn)
+    print("Controller_ButtonDown", self, btn)
+end
+
+
+function NPC:Controller_KeyPress(ply, key)
+    print("Controller_KeyPress", self, key)
 end
 
 
@@ -613,7 +623,7 @@ function NPC:ControllerThink()
         endpos = camViewPos+forward*100000,
         mask = MASK_VISIBLE,
     })
-    debugoverlay.Axis(camTrace.HitPos, ang0, 25, 0.13)
+    -- debugoverlay.Axis(camTrace.HitPos, ang0, 25, 0.13)
 
 
     local moveDir = Vector(0, 0, 0)
@@ -930,6 +940,26 @@ function NPC:ZBWepSys_Shoot()
 end
 
 
+function NPC:ZBWepSys_ControllerWantsToShoot()
+    return self.IsZBPlyControlled && self.ZBPlyController:KeyDown(IN_ATTACK)
+end
+
+
+function NPC:ZBWepSys_AIWantsToShoot()
+    -- Enemy valid and visible
+    return self.EnemyVisible
+
+    -- Enemy is within shoot distance
+    && self.ZBWepSys_InShootDist
+
+    -- Conditions
+    && self:HasCondition(COND.WEAPON_HAS_LOS) && self:HasCondition(COND.CAN_RANGE_ATTACK1) && !self:HasCondition(COND.WEAPON_BLOCKED_BY_FRIEND)
+
+    -- No grenades or some shit like that nearby
+    && !self:InDanger()
+end
+
+
 function NPC:ZBWepSys_WantsToShoot()
 
     local ShootSchedBlacklist = {
@@ -941,27 +971,15 @@ function NPC:ZBWepSys_WantsToShoot()
     }
 
 
-    -- Enemy valid and visible
-    return self.EnemyVisible
+    return !self.DoingPlayAnim
 
-    -- Not playing an animation from PlayAnimation
-    && !self.DoingPlayAnim
-
-    -- Enemy is within shoot distance
-    && self.ZBWepSys_InShootDist
-
-    -- Conditions
-    && self:HasCondition(COND.WEAPON_HAS_LOS) && self:HasCondition(COND.CAN_RANGE_ATTACK1) && !self:HasCondition(COND.WEAPON_BLOCKED_BY_FRIEND)
-
-    -- No grenades or some shit like that nearby
-    && !self:InDanger()
+    && (self:ZBWepSys_AIWantsToShoot() or self:ZBWepSys_ControllerWantsToShoot())
 
     -- Can't move shoot without move shoot act
     && !( self:IsMoving() && !self.ZBWepSys_CurMoveShootAct )
 
     -- Not in illegal sched
     && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
-
 
     -- Should fire wep check, should be last
     && self:ShouldFireWeapon()
@@ -1722,7 +1740,7 @@ function NPC:AITick_Slow()
         if self.GotoEneLastKnownPosWhenEluded && self:ShouldChase() then
             self:ForceGotoLastKnownPos()
         end
-        debugoverlay.Text(self:GetPos(), "marked current enemy as eluded", 2)
+        -- debugoverlay.Text(self:GetPos(), "marked current enemy as eluded", 2)
     end
 
 

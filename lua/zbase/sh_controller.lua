@@ -47,6 +47,7 @@ if SERVER then
 
         npc.IsZBPlyControlled = true
         npc.ZBPlyController  =  ply
+        -- Set NPC_STATE and enemy!
 
 
         npc.ZBControlTarget = ents.Create("base_gmodentity")
@@ -71,6 +72,7 @@ if SERVER then
 
 
         ply:SetNWEntity("ZBCtrlSysCamEnt", npc)
+        ply.ZBControlledNPC = npc
         ply.ZBLastMoveType = ply:GetMoveType()
         ply.ZBLastNoTarget = bit.band(ply:GetFlags(), FL_NOTARGET)==FL_NOTARGET
         ply:SetNoTarget(true)
@@ -88,6 +90,7 @@ if SERVER then
             -- npc:SetSaveValue( "m_flFieldOfView", npc.FieldOfView )
             npc.IsZBPlyControlled  = false
             npc.ZBPlyController  = nil
+            ply.ZBControlledNPC = nil
 
             SafeRemoveEntity(npc.ZBViewEnt)
             SafeRemoveEntity(npc.ZBControlTarget)
@@ -113,6 +116,20 @@ if SERVER then
             v:ZBaseUpdateRelationships()
         end
     end
+
+
+    hook.Add("PlayerButtonDown", "ZBCtrlSys", function(ply, btn)
+        if IsValid(ply.ZBControlledNPC) then
+            ply.ZBControlledNPC:Controller_ButtonDown(ply, btn)
+        end
+    end)
+
+
+    hook.Add("KeyPress", "ZBCtrlSys", function(ply, key)
+        if IsValid(ply.ZBControlledNPC) then
+            ply.ZBControlledNPC:Controller_KeyPress(ply, key)
+        end
+    end)
 
 
     concommand.Add("ZBaseControlTest", function()
