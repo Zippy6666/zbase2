@@ -54,6 +54,18 @@ function ENT:Think()
 		self:AerialThink()
 	end
 
+
+	-- Apply notarget to its bullseye
+	local hasNoTarget, bullseyeNoTarget = self:Conv_HasFlags(FL_NOTARGET), self.Bullseye:Conv_HasFlags(FL_NOTARGET)
+	if hasNoTarget && !bullseyeNoTarget then
+		self.Bullseye:AddFlags(FL_NOTARGET)
+		print("added bullseye notarget")
+	elseif !hasNoTarget && bullseyeNoTarget then
+		self.Bullseye:RemoveFlags(FL_NOTARGET)
+		print("removed bullseye notarget")
+	end
+
+
 	self:ZBaseThink()
 
 end
