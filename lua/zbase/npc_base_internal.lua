@@ -552,8 +552,27 @@ end
 --[[
 ==================================================================================================
                                     PLAYER CONTROL SYSTEM
+
+    >> TODO <<
+    - Space -> fly up, otherwise jump
+    - Ctrl -> fly down
+    - Control priority system
+    - Some way to get control help, with hints i guess
+
+
+    >> Control Priotity Sys <<
+    First two controls are left and right click, the rest are gonna be 1, 2, 3, 4, 5, and so on.
+    1. Use weapon
+    2. Fire secondary
+    3. Range attack
+    4. Melee attack
+    5. Grenade attack
+    6. User defined attacks
+    7. "Free attack"
+
 ==================================================================================================
 --]]
+
 
 function NPC:Controller_Move( pos, run )
     local tr = util.TraceLine({
@@ -1363,7 +1382,7 @@ function NPC:ForceGotoLastKnownPos()
         self:SetSchedule(SCHED_FORCED_GO_RUN)
         self.GotoEneLastKnownPosWhenEluded = false
 
-        debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
+        -- debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
     end
 end
 
@@ -1708,10 +1727,10 @@ function NPC:AITick_Slow()
 
 
     -- Last known pos debug
-    if EneLastKnownPos then
-        debugoverlay.Text(EneLastKnownPos+Vector(0, 0, 100), self.Name.."["..self:EntIndex().."] last known enemy pos", 0.3)
-        debugoverlay.Cross(EneLastKnownPos, 40, 0.3, Color( 255, 0, 0 ))
-    end
+    -- if EneLastKnownPos then
+    --     debugoverlay.Text(EneLastKnownPos+Vector(0, 0, 100), self.Name.."["..self:EntIndex().."] last known enemy pos", 0.3)
+    --     debugoverlay.Cross(EneLastKnownPos, 40, 0.3, Color( 255, 0, 0 ))
+    -- end
 
 
     -- In combat
@@ -1853,7 +1872,7 @@ function NPC:RangeThreatened( threat )
     if self.NextRangeThreatened > CurTime() then return end
 
 
-    debugoverlay.Text(self:GetPos(), "threatened")
+    -- debugoverlay.Text(self:GetPos(), "threatened")
     self:OnRangeThreatened(threat)
 
 
@@ -1934,7 +1953,7 @@ function NPC:DoNewEnemy()
         self:EmitSound_Uninterupted(self.LostEnemySounds)
         self.DoEnemyLostSoundWhenLost = false
 
-        debugoverlay.Text(self:GetPos(), "enemy lost", 2)
+        -- debugoverlay.Text(self:GetPos(), "enemy lost", 2)
 
     end
 
@@ -2088,6 +2107,7 @@ NPCB.Patrol = {
 }
 
 
+local PatrolCvar = GetConVar("zbase_patrol")
 local SchedsToReplaceWithPatrol = {
     [SCHED_IDLE_STAND] = true,
     [SCHED_ALERT_STAND] = true,
@@ -2097,7 +2117,8 @@ local SchedsToReplaceWithPatrol = {
 
 
 function NPCB.Patrol:ShouldDoBehaviour( self )
-    return self.CanPatrol
+    return PatrolCvar:GetBool()
+    && self.CanPatrol
     && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()]
     && self:GetMoveType() == MOVETYPE_STEP
 end

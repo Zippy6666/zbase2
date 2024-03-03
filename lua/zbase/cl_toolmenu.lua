@@ -36,6 +36,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
         panel:Help("Multiply ZBase NPCs' damage by this number.")
 
+        panel:CheckBox( "Patrol", "zbase_patrol" )
+        panel:Help("Enable base patrol system.")
+
         panel:CheckBox( "Hurt Allies", "zbase_ply_hurt_ally" )
         panel:Help("Allow players to hurt their allies.")
 

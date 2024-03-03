@@ -5,6 +5,8 @@
 - [x] Improve walkframe sys for non scripted npcs
 - [ ] Weapon randomizer
 - [ ] Suppressing
+- [ ] Squads take turn firing (for zbwepsys)
+- [ ] Patrol option
 
 
 # Potential updates
