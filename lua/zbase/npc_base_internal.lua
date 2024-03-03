@@ -539,7 +539,7 @@ function NPC:FrameTick()
     local isAIEnabled = !AIDisabled:GetBool()
 
     -- Move speed changer
-    if isAIEnabled && self.MoveSpeedMultiplier != 1 && self:IsMoving() then
+    if isAIEnabled && self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && self:IsMoving() then
         self:DoMoveSpeed()
     end
 
@@ -1497,9 +1497,9 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
         -- Decide duration
         if !duration then
-            duration = self:SequenceDuration(anim)*0.9
-        elseif isnumber(duration) && playbackRate then
-            duration = duration/playbackRate
+            duration = (self:SequenceDuration(anim)*0.9)/self.MoveSpeedMultiplier
+        elseif isnumber(duration) then
+            duration = duration/(playbackRate or self.MoveSpeedMultiplier or 1)
         end
 
 
