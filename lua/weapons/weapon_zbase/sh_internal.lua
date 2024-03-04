@@ -413,6 +413,8 @@ function SWEP:NPCMeleeWeaponDamage(dmgData)
             dmg:SetInflictor(self)
             dmg:SetDamage(ZBaseRndTblRange(self.NPCMeleeWep_Damage))
             dmg:SetDamageType(self.NPCMeleeWep_DamageType)
+            dmg:SetDamageForce(own:GetForward()*100)
+            dmg:SetDamagePosition(ent:WorldSpaceAABB())
             ent:TakeDamageInfo(dmg)
         end
     

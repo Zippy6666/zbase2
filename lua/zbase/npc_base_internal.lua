@@ -2463,7 +2463,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
         local entpos = ent:WorldSpaceCenter()
         local undamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
-        local forcevec 
+        local forcevec = self:GetForward()*100
 
 
         -- Angle check
@@ -2488,7 +2488,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         end
 
         -- Push
-        if forcevec && !self:IsAlly(ent) then
+        if !self:IsAlly(ent) then
             local phys = ent:GetPhysicsObject()
 
             if IsValid(phys) then
@@ -2506,6 +2506,8 @@ function NPC:InternalMeleeAttackDamage(dmgData)
             dmg:SetInflictor(self)
             dmg:SetDamage(ZBaseRndTblRange(dmgData.amt))
             dmg:SetDamageType(dmgData.type)
+            dmg:SetDamageForce(forcevec)
+            dmg:SetDamagePosition(ent:WorldSpaceAABB())
             ent:TakeDamageInfo(dmg)
         end
     

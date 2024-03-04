@@ -1,6 +1,9 @@
 AddCSLuaFile()
 
 
+local vec0 = Vector()
+
+
 ENT.Base = "base_gmodentity"
 ENT.Type = "anim"
 ENT.Author = "Zippy"
@@ -183,12 +186,14 @@ function ENT:Initialize()
     end
 
     self.GravGunPlayer = NULL
+    self.LastVel = vec0
 
     self:PostInit()
 end
 --]]==============================================================================================]]
 function ENT:Think()
     self:OnThink()
+    self.LastVel = self:GetVelocity()
 end
 --]]==============================================================================================]]
 function ENT:PhysicsCollide( colData, collider )
@@ -213,7 +218,11 @@ function ENT:ProjectileDamage( ent, dmg, dmgtype )
     )
     dmginfo:SetDamage(dmg)
     dmginfo:SetDamageType(dmgtype)
-    dmginfo:SetDamageForce(self:GetVelocity()*10)
+
+    local vel = self.LastVel*10
+
+    dmginfo:SetDamageForce(vel)
+    dmginfo:SetDamagePosition(self:GetPos())
 
     ent:TakeDamageInfo(dmginfo)
 end
@@ -232,6 +241,8 @@ function ENT:ProjectileBlastDamage( dmg, dmgtype, radius, force )
     )
     dmginfo:SetDamage(dmg)
     dmginfo:SetDamageType(dmgtype)
+    dmginfo:SetDamageForce(VectorRand()*force)
+    dmginfo:SetDamagePosition(self:GetPos())
 
     local physexplosion = ents.Create("env_physexplosion")
     physexplosion:SetPos(self:WorldSpaceCenter())
