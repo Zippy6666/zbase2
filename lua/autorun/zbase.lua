@@ -1,11 +1,3 @@
---[[
-=======================================================================================================================
-                                            CONVENIENCE LIB
-=======================================================================================================================
---]]
-
-
--- Missing conv message
 if CLIENT then
     function MissingConvMsg()
         local frame = vgui.Create("DFrame")
@@ -26,30 +18,18 @@ if CLIENT then
         label:SetURL("https://steamcommunity.com/sharedfiles/filedetails/?id=3146473253")
         label:Dock(BOTTOM)
         label:SetContentAlignment(5)  -- 5 corresponds to center alignment
-    
-        chat.AddText(Color(255, 0, 0), "WARNING: ZBase will not load without the CONV library!")
-        chat.AddText(Color(255, 0, 0), "Get it at: https://steamcommunity.com/sharedfiles/filedetails/?id=3146473253")
     end
-end
-
-
-if file.Exists("convenience/adam.lua", "LUA") then
-
-    -- Include conv library
-    AddCSLuaFile("convenience/adam.lua")
-    include("convenience/adam.lua")
-
-elseif SERVER then
-
+elseif SERVER && !file.Exists("convenience/adam.lua", "LUA") then
     -- Conv lib not on on server, send message to clients
     hook.Add("PlayerInitialSpawn", "convenienceerrormsg", function( ply )
         local sendstr = 'MissingConvMsg()'
         ply:SendLua(sendstr)
     end)
-
-
-    return -- Don't load
-
+    hook.Add("PlayerInitialSpawn", "convenienceerrormsg_zbase", function( ply )
+        local sendstr = 'chat.AddText(Color(255, 0, 0), "WARNING: ZBase may not work as intended on the server without the CONV library!") '
+        sendstr = sendstr..'chat.AddText(Color(255, 0, 0), "Get it at: https://steamcommunity.com/sharedfiles/filedetails/?id=3146473253")'
+        ply:SendLua(sendstr)
+    end)
 end
 
 
