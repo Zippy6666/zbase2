@@ -35,12 +35,13 @@ function ZBasePrecacheEnts()
                 if spawnedwepclasses[wepcls] then continue end
 
                 local wepent = ents.Create(wepcls)
+                if !IsValid(wepent) then continue end
                 wepent:Spawn()
                 spawnedwepclasses[wepcls] = true
 
                 SafeRemoveEntityDelayed(wepent, 0)
 
-                MsgN("precached weapon ", wepent)
+                -- MsgN("precached weapon ", wepent)
             end
 
         end
@@ -53,7 +54,7 @@ function ZBasePrecacheEnts()
         -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
         local zbaseent = ZBaseSpawnZBaseNPC( zbasecls, vec0, nil, nil)
         SafeRemoveEntityDelayed(zbaseent, 0)
-        MsgN("precached npc ", zbaseent, " (", zbasecls, ")")
+        -- MsgN("precached npc ", zbaseent, " (", zbasecls, ")")
 
     end
 
