@@ -1493,6 +1493,9 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
     -- Main function --
     local function playAnim()
+        local lastEne = self:GetEnemy() -- Store enemy
+
+
         -- Reset stuff
         self:FullReset()
 
@@ -1568,6 +1571,12 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
             end
 
+
+            -- Update enemy memory, since the frozen state makes it forget
+            if IsValid(lastEne) then
+                self:UpdateEnemyMemory( lastEne, self:GetEnemyLastSeenPos() )
+            end
+
         end)
         
 
@@ -1609,7 +1618,6 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
         return -- Stop here
     end
     -----------------------------------------------------------------=#
-
 
     -- No transition, just play the animation
     playAnim()
