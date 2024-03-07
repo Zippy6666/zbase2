@@ -123,8 +123,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 	end
 	if ( Equipment && Equipment != "none" && valid ) then
 
-		print(ZBCVAR.RandWepNPCBlackList:GetString(), Class)
-
 		if ZBCVAR.RandWep:GetBool() && !string.find(ZBCVAR.RandWepNPCBlackList:GetString(), Class) then
 
 			local randTBL = table.Copy(ZBaseNPCWeps)
