@@ -404,11 +404,6 @@ ZBaseReflectedBullet = false
 
 
 local grabbing_bullet_backup_data = false
-local ZBaseWeaponAccuracyBoost = {
-    ["weapon_shotgun"] = 30,
-    ["weapon_smg1"] = 40,
-    ["weapon_pistol"] = 50,
-}
 
 
 hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
@@ -829,10 +824,12 @@ end)
 
 
 -- Add zbase sweps to npc weapon menu if we should
+ZBaseNPCWeps = ZBaseNPCWeps or {}
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 
 	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
 		list.Add( "NPCUsableWeapons", { class = class, title = "[ZBase] "..swep.PrintName } )
+        table.insert(ZBaseNPCWeps, class)
 	end
 
 end)

@@ -3,7 +3,11 @@
 - [ ] Context menu stuff: control, kill, etc
 - [ ] Controller
 - [x] Improve walkframe sys for non scripted npcs
-- [ ] zbwepsys: Weapon randomizer, Suppressing, better pose params, Squads take turn firing
+- [ ] Weapon system:
+    - [ ] Weapon randomizer
+    - [ ] Suppressing
+    - [ ] Better pose params
+    - [ ] Squads take turn firing
 - [x] Patrol option
 
 

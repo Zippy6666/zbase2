@@ -62,24 +62,31 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     end)
 
 
-    ZBaseAddMenuCategory("Options", function( panel )
+    ZBaseAddMenuCategory("Weapons", function( panel )
+        panel:CheckBox("Random Weapon", "zbase_randwep")
+        panel:Help("Should ZBase NPCs spawn with a random zbase weapon?")
 
+        -- panel:TextEntry("Rand Wep Blacklist", "zbase_randwep_blacklist")
+        -- panel:Help("ZBase weapons that are not allowed in the random list.")
+    
+        panel:TextEntry("Rand Wep Blacklist", "zbase_randwep_blacklist_npc")
+        panel:Help("ZBase NPCs that should not have their weapons randomized, separate with spaces.")
+    end)
+
+
+    ZBaseAddMenuCategory("Options", function( panel )
 
         panel:CheckBox( "Start Message", "zbase_start_msg")
         panel:Help("Allow warning/message boxes when joining the game.")
 
-
         panel:CheckBox( "Precache NPCs", "zbase_precache")
         panel:Help("Precache NPCs, will lead to a smoother experience at the expense of longer load times.")
-
     
         panel:CheckBox("Default Spawn Menu", "zbase_defmenu")
         panel:Help("Should ZBase NPCs be added to the regular NPC menu too?")
 
-
         panel:CheckBox("Replace in NPC Menu", "zbase_replace")
         panel:Help("Should the default HL2 NPCs be replaced by their ZBase equivalents in the spawn menu?")
-
 
     end)
 
