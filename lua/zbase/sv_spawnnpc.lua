@@ -122,8 +122,26 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 		if ( v == Equipment ) then valid = true break end
 	end
 	if ( Equipment && Equipment != "none" && valid ) then
+
+		print(ZBCVAR.RandWepNPCBlackList:GetString(), Class)
+
+		if ZBCVAR.RandWep:GetBool() && !string.find(ZBCVAR.RandWepNPCBlackList:GetString(), Class) then
+
+			local randTBL = table.Copy(ZBaseNPCWeps)
+			table.Add(randTBL,
+			{"weapon_pistol", "weapon_357", "weapon_crossbow",
+			"weapon_crowbar", "weapon_ar2", "weapon_rpg",
+			"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
+
+			local randWep = table.Random(randTBL)
+			Equipment = randWep
+
+		end
+
+
 		NPC:SetKeyValue( "additionalequipment", Equipment )
 		NPC.Equipment = Equipment
+
 	end
 
 

@@ -18,6 +18,17 @@ ZBCVAR.PlayerHurtAllies = CreateConVar("zbase_ply_hurt_ally", "0", Flags)
 ZBCVAR.Precache = CreateConVar("zbase_precache", "1", Flags)
 ZBCVAR.Patrol = CreateConVar("zbase_patrol", "1", Flags)
 
+--[[
+==================================================================================================
+                                           RANDOM WEAPON
+==================================================================================================
+--]]
+
+ZBCVAR.RandWep = CreateConVar("zbase_randwep", "0", Flags)
+
+
+local NPCBlackList = "beta_unit_combine_assassin"
+ZBCVAR.RandWepNPCBlackList = CreateConVar("zbase_randwep_blacklist_npc", NPCBlackList, Flags)
 
 --[[
 ==================================================================================================
