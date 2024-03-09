@@ -653,24 +653,25 @@ if CLIENT then
 
 
     hook.Add( "RenderScreenspaceEffects", "ZBaseEffects", function()
-        for _, v in ipairs(LocalPlayer().ZBaseFollowHaloEnts) do
-            cam.Start3D()
-                local tr = util.TraceLine({
-                    start = v:GetPos()+Vector(0, 0, 50),
-                    endpos = v:GetPos()-Vector(0, 0, 400),
-                    mask = MASK_NPCWORLDSTATIC,
-                })
-
-
-                if tr.Hit then
-                    local wepCol = LocalPlayer():GetWeaponColor()
-                    local alpha = 60*(1.5+math.sin(CurTime()*3))
-                    local col = Color(alpha*wepCol.r, alpha*wepCol.g, alpha*wepCol.b)
-                    
-                    render.SetMaterial( mat )
-                    render.DrawQuadEasy( tr.HitPos+Vector(0, 0, 1), Vector(0, 0, 1), 75, 75, col, ( CurTime() * 75 ) % 360 )
-                end
-            cam.End3D()
+        local tbl = LocalPlayer().ZBaseFollowHaloEnts
+        if tbl then
+            for _, v in ipairs(tbl) do
+                cam.Start3D()
+                    local tr = util.TraceLine({
+                        start = v:GetPos()+Vector(0, 0, 50),
+                        endpos = v:GetPos()-Vector(0, 0, 400),
+                        mask = MASK_NPCWORLDSTATIC,
+                    })
+                    if tr.Hit then
+                        local wepCol = LocalPlayer():GetWeaponColor()
+                        local alpha = 60*(1.5+math.sin(CurTime()*3))
+                        local col = Color(alpha*wepCol.r, alpha*wepCol.g, alpha*wepCol.b)
+                        
+                        render.SetMaterial( mat )
+                        render.DrawQuadEasy( tr.HitPos+Vector(0, 0, 1), Vector(0, 0, 1), 75, 75, col, ( CurTime() * 75 ) % 360 )
+                    end
+                cam.End3D()
+            end
         end
     end)
 
