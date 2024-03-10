@@ -408,12 +408,6 @@ function NPC:ZBaseThink()
         end
 
 
-        -- NPC think (not SNPC)
-        if !self.IsZBase_SNPC then
-            self:AITick_NonScripted()
-        end
-
-
         -- Enemy updated
         if ene != self.ZBase_LastEnemy then
             self:DoNewEnemy()
@@ -479,10 +473,6 @@ function NPC:ZBaseThink()
         if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND then
             self:FootStepTimer()
         end
-
-
-        -- Override activities when we should
-        self:SetConditionalActivities()
 
 
         -- Weapon system
@@ -1029,18 +1019,18 @@ function NPC:ZBWepSys_ShootAnim(arguments)
         -- Sucks ass
 
 
-        self:ZBaseSetAct( Act, self.ResetIdealActivity )
+        -- self:ZBaseSetAct( Act, self.ResetIdealActivity )
 
 
-        if string.find(self:GetSequenceActivityName(self:GetSequence()), "RANGE") == nil then
+        -- if string.find(self:GetSequenceActivityName(self:GetSequence()), "RANGE") == nil then
 
-            local seq = self:SelectWeightedSequence( self:Weapon_TranslateActivity(self:GetActivity()) )
+        --     local seq = self:SelectWeightedSequence( self:Weapon_TranslateActivity(self:GetActivity()) )
 
-            self:ResetSequenceInfo()
-            self:SetCycle(0)
-            self:ResetSequence( seq )
+        --     self:ResetSequenceInfo()
+        --     self:SetCycle(0)
+        --     self:ResetSequence( seq )
 
-        end
+        -- end
 
     end
 
@@ -1049,12 +1039,12 @@ function NPC:ZBWepSys_ShootAnim(arguments)
     if !Moving && self.WeaponFire_DoGesture then
 
         -- While standing
-        self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
+        -- self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
 
     elseif Moving && self.WeaponFire_DoGesture_Moving then
 
         -- While moving
-        self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
+        -- self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
 
     end
 
@@ -1124,12 +1114,12 @@ function NPC:ZBWepSys_FireWeaponThink()
 
             -- Shoot move act
             if !self.LastMoveActOverride then
-                self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
+                -- self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
             end
 
             -- No ammo, RUN
             if self:HasCondition(COND.NO_PRIMARY_AMMO) then
-                self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, ACT_RUN )
+                -- self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, ACT_RUN )
             end
 
         end
@@ -1151,9 +1141,6 @@ function NPC:ZBWepSys_FireWeaponThink()
     if self.EnemyVisible && !self.ZBWepSys_InShootDist then
 
     end
-
-    debugoverlay.Cross(self:GetGoalPos(), 100, 0.13, Color(255, 0, 0))
-    debugoverlay.Text(self:GetGoalPos(), tostring(self:GetGoalTarget()), 0.13)
 end
 
 
@@ -1234,26 +1221,26 @@ end
 
 
 function NPC:ZBaseSetAct( act, func, ... )
-    func = func or self.SetActivity
+    -- func = func or self.SetActivity
 
 
-    -- Do and return given act
-    if self:SelectWeightedSequence( act ) != -1 then
+    -- -- Do and return given act
+    -- if self:SelectWeightedSequence( act ) != -1 then
 
-        func( self, act, ... )
-        return act
+    --     func( self, act, ... )
+    --     return act
 
-    end
+    -- end
 
 
-    -- Do and return weapon translated act
-    local ActTranslated = self:Weapon_TranslateActivity(act)
-    if self:SelectWeightedSequence( ActTranslated ) != -1 then
+    -- -- Do and return weapon translated act
+    -- local ActTranslated = self:Weapon_TranslateActivity(act)
+    -- if self:SelectWeightedSequence( ActTranslated ) != -1 then
 
-        func( self, ActTranslated, ... )
-        return ActTranslated
+    --     func( self, ActTranslated, ... )
+    --     return ActTranslated
 
-    end
+    -- end
 
 
     return false
@@ -1367,17 +1354,6 @@ function NPC:ForceGotoLastKnownPos()
     --     self:SetSchedule(SCHED_FORCED_GO_RUN)
     --     self.GotoEneLastKnownPosWhenEluded = false
     -- end
-end
-
-
-function NPC:SetAllowedEScheds( escheds )
-
-    self.ProhibitCustomEScheds = true
-
-    for _, v in ipairs(escheds) do
-        self.AllowedCustomEScheds[ZBaseESchedID(v)] = v
-    end
-
 end
 
 
@@ -1651,16 +1627,6 @@ function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
 end
 
 
-function NPC:SetConditionalActivities()
-    
-    if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) &&
-    self:SelectWeightedSequence(ACT_RUN_PROTECTED) != -1 && !self.LastMoveActOverride then
-        self:SetMovementActivity(ACT_RUN_PROTECTED)
-    end
-
-end
-
-
 --[[
 ==================================================================================================
                                            AI GENERAL
@@ -1775,31 +1741,6 @@ function NPC:AITick_Slow()
 end
 
 
-function NPC:AITick_NonScripted()
-    -- local ene = self:GetEnemy()
-
-    -- if self.ProhibitCustomEScheds then
-
-    --     local state = self:GetNPCState()
-    --     local sched = self:GetCurrentSchedule()
-
-
-    --     if sched > 88 && !self.AllowedCustomEScheds[sched] then
-
-    --         self.Debug_ProhibitedCusESched = sched
-
-    --         self:SetSchedule( (state==NPC_STATE_ALERT && SCHED_ALERT_STAND) or (state==NPC_STATE_COMBAT && SCHED_COMBAT_FACE)
-    --         or SCHED_IDLE_STAND )
-
-    --     end
-
-    -- end
-
-     -- Reload now if hiding spot is too far away
-    -- self:StressReload( self:ZBaseDist(self:GetGoalPos(), {away=1000}) )
-end
-
-
 function NPC:StressReload( cond )
 
     -- Causes the NPC to reload on the spot when in a hide-and-reload sched
@@ -1807,9 +1748,16 @@ function NPC:StressReload( cond )
     cond = cond==nil && true or cond
     if !cond then return end
 
-   
-    if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD)
-    or ( self:GetClass()=="npc_combine_s" && self:IsCurrentSchedule(ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")) ) ) then
+
+    local SCHED_COMBINE_HIDE_AND_RELOAD = ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")
+
+
+    if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) then
+
+        self:ClearSchedule() 
+        self:SetSchedule(SCHED_RELOAD)
+
+    elseif self:GetClass()=="npc_combine_s" && self:IsCurrentSchedule(SCHED_COMBINE_HIDE_AND_RELOAD)) then
 
         self:ClearSchedule()
         self:SetSchedule(SCHED_RELOAD)
@@ -2709,12 +2657,6 @@ function NPC:HandleDanger()
 
     if (Class_ShouldRunRandomOnDanger[self:Classify()] or self.ForceAvoidDanger) && self:GetCurrentSchedule() <= 88 && !self:IsCurrentSchedule(SCHED_RUN_RANDOM) then
         self:SetSchedule(SCHED_RUN_RANDOM)
-    end
-
-
-    -- RUN BOYE
-    if !self.LastMoveActOverride then
-        self:SetMovementActivity(ACT_RUN)
     end
 
 

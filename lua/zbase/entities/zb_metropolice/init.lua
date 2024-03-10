@@ -27,9 +27,6 @@ NPC.MeleeWeaponAnimations = {"Swing"} -- Animations to use when attacking with a
 
 
 
-NPC.SpawnFlagTbl = {2097152}
-
-
 -- Items to drop on death
 -- ["item_class_name"] = {chance=1/x, max=x}
 NPC.ItemDrops = {
