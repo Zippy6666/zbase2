@@ -10,22 +10,6 @@ ZBasePatchTable[my_cls] = function( NPC )
         self:SetSaveValue("m_iNumGrenades", 0) -- No grenades
 
     end
-
-
-
-    function NPC:ZBaseEnhancedThink()
-
-        -- Put squad slot to 1 if it doesn't have any
-        -- Allows multiple combines in the same squad to fire at once
-        if self:GetInternalVariable("m_iMySquadSlot") == -1 then
-            self:SetSaveValue("m_iMySquadSlot", 1)
-        end
-
-
-        -- Keeps them shooting
-        self:SetSaveValue("m_nShots", 2)
-
-    end
     
     
     function NPC:ZBaseEnhancedCreateEnt( ent )

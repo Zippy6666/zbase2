@@ -743,52 +743,6 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
 end)
 
 
-hook.Add("AcceptInput", "ZBASE", function( ent, input, activator, caller, value )
-
-    -- ZBase NPC is ent
-    if ent.IsZBaseNPC then
-
-        local r1 = ent:InternalAcceptInput(input, activator, caller, value)
-
-        if r1 == true then
-            return true
-        end
-
-
-        local r2 = ent:CustomAcceptInput(input, activator, caller, value)
-
-        if r2 == true then
-            return true
-        end
-
-    end
-
-
-    -- ZBase NPC is activator
-    if activator.IsZBaseNPC then
-
-        local r = activator:Input_Activator(ent, input, value)
-
-        if r == true then
-            return true
-        end
-
-    end
-
-
-    -- ZBase NPC is caller
-    if caller.IsZBaseNPC then
-
-        local r = caller:Input_Caller(ent, input, value)
-
-        if r == true then
-            return true
-        end
-
-    end
-
-end)
-
 
 hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
     if ent.IsZBaseNPC && ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_GravGunPuntForceMult > 0 then

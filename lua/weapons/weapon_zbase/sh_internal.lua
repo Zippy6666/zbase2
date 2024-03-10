@@ -330,13 +330,15 @@ end
 
 function SWEP:GetNPCBurstSettings()
 	
-	local own = self:GetOwner()
+	-- local own = self:GetOwner()
 
-	if IsValid(own) && own.IsZBaseNPC then
-		return 0, 0, math.huge
-	else
-		return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
-	end
+	-- if IsValid(own) && own.IsZBaseNPC then
+	-- 	return 0, 0, math.huge
+	-- else
+	-- 	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
+	-- end
+
+	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
 
 end
 
@@ -479,64 +481,6 @@ function SWEP:TranslateActivity( act )
 		if isnumber(override) then
 			return override
 		end
-
-
-
-		-- Player model translate:
-		-- local HasPlyMdl = own:ZBWepSys_HasPlayerModel()
-		-- if HasPlyMdl then
-
-		-- 	local TranslateTbl = PlyMdlActTrans[self:GetHoldType()]
-
-
-
-		-- 	if istable(TranslateTbl) then
-		-- 		local TranslatedAct = TranslateTbl[act]
-		-- 		local TranslatedActGest = PlyMdlAct_GestTranslate[TranslatedAct]
-
-				
-		-- 		-- Act is gesture, use different act, but apply the gesture as well
-		-- 		if TranslatedActGest then
-					
-		-- 			local Gest = TranslatedAct
-		-- 			TranslatedAct = TranslatedActGest
-
-
-		-- 			if !own:IsPlayingGesture(Gest) then
-		-- 				own:PlayAnimation(Gest, false, {isGesture=true}) -- Play gesture
-		-- 			end
-
-		-- 		end
-
-
-		-- 		if TranslatedAct then
-		-- 			return TranslatedAct
-		-- 		end
-		-- 	end
-
-		-- end
-
-
-
-		-- Maintain whatever shoot stance there is when we should
-		-- if act != own.ZBWepSys_CurShootAct && own:ZBWepSys_WantsToShoot() && !own:IsMoving() then
-
-		-- 	own.ZBWepSys_AllowRange1Translate = true
-		-- 	local DoubleTranslatedAct = self:TranslateActivity( own.ZBWepSys_CurShootAct )
-		-- 	own.ZBWepSys_AllowRange1Translate = false
-
-		-- 	return DoubleTranslatedAct
-
-		-- end
-
-	
-
-		-- Don't let the engine do ACT_RANGE_ATTACK1 with the weapon
-		-- if act == ACT_RANGE_ATTACK1 && !own.ZBWepSys_AllowRange1Translate then
-
-		-- 	return ACT_IDLE
-
-		-- end
 
 	end
 

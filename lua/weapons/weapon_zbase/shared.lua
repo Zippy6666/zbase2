@@ -108,7 +108,7 @@ SWEP.Primary.TracerChance = 3 -- 1 / x
 -- 7 - Regular muzzle but bigger
 SWEP.Primary.MuzzleFlashFlags = 1
 SWEP.Primary.MuzzleFlash = true -- Should it have a muzzleflash?
-SWEP.Primary.MuzzleFlashChance = 2 -- Should it have a muzzleflash?
+SWEP.Primary.MuzzleFlashChance = 1 -- Should it have a muzzleflash?
 
 
 --[[
