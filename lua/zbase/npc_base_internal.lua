@@ -588,9 +588,6 @@ function NPC:Controller_Move( pos, run )
     self:SetLastPosition( self.CurrentControlDest )
     self:SetSchedule(SCHED_FORCED_GO)
     self:SetMovementActivity(self.LastMoveActOverride or (run && ACT_RUN) or ACT_WALK)
-
-    
-    -- debugoverlay.Axis(self.CurrentControlDest, ang0, 75, 0.13)
 end
 
 
@@ -623,7 +620,6 @@ function NPC:ControllerThink()
         endpos = camViewPos+forward*100000,
         mask = MASK_VISIBLE,
     })
-    -- debugoverlay.Axis(camTrace.HitPos, ang0, 25, 0.13)
 
 
     local moveDir = Vector(0, 0, 0)
@@ -1154,28 +1150,10 @@ function NPC:ZBWepSys_FireWeaponThink()
     -- Move to enemy if it has LOS and it's too far away
     if self.EnemyVisible && !self.ZBWepSys_InShootDist then
 
-        self:SetMaxLookDistance(1)
-        
-        if !self:IsCurrentSchedule(SCHED_CHASE_ENEMY) then
-            self:SetSchedule(SCHED_CHASE_ENEMY)
-        end
-    
-    else
-
-        self:SetMaxLookDistance(self.SightDistance)
-
     end
 
-
-    -- Poseparams
-    -- if self:HasCapability(CAP_AIM_GUN) then
-    --     local ideal_poseparam_ang = self:WorldToLocalAngles( self:GetAimVector():Angle() )
-    --     self.ZBWepSys_PoseParamAng = (self.ZBWepSys_PoseParamAng && LerpAngle( 0.4, self.ZBWepSys_PoseParamAng, ideal_poseparam_ang)) or ideal_poseparam_ang
-    --     self:SetPoseParameter("aim_pitch", self.ZBWepSys_PoseParamAng.x)
-    --     self:SetPoseParameter("aim_yaw", self.ZBWepSys_PoseParamAng.y)
-    -- end
-
-
+    debugoverlay.Cross(self:GetGoalPos(), 100, 0.13, Color(255, 0, 0))
+    debugoverlay.Text(self:GetGoalPos(), tostring(self:GetGoalTarget()), 0.13)
 end
 
 
@@ -1384,13 +1362,11 @@ end
 
 
 function NPC:ForceGotoLastKnownPos()
-    if self:HasEnemyMemory() then
-        self:SetLastPosition(self:GetEnemyLastKnownPos())
-        self:SetSchedule(SCHED_FORCED_GO_RUN)
-        self.GotoEneLastKnownPosWhenEluded = false
-
-        -- debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
-    end
+    -- if self:HasEnemyMemory() then
+    --     self:SetLastPosition(self:GetEnemyLastKnownPos())
+    --     self:SetSchedule(SCHED_FORCED_GO_RUN)
+    --     self.GotoEneLastKnownPosWhenEluded = false
+    -- end
 end
 
 
@@ -1733,19 +1709,15 @@ function NPC:AITick_Slow()
 
     -- Loose enemy
     if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= 5 then
+
         self:MarkEnemyAsEluded()
-        if self.GotoEneLastKnownPosWhenEluded && self:ShouldChase() then
-            self:ForceGotoLastKnownPos()
-        end
-        -- debugoverlay.Text(self:GetPos(), "marked current enemy as eluded", 2)
+
+        -- if self.GotoEneLastKnownPosWhenEluded && self:ShouldChase() then
+        --     self:ForceGotoLastKnownPos()
+        -- end
+    
     end
 
-
-    -- Last known pos debug
-    -- if EneLastKnownPos then
-    --     debugoverlay.Text(EneLastKnownPos+Vector(0, 0, 100), self.Name.."["..self:EntIndex().."] last known enemy pos", 0.3)
-    --     debugoverlay.Cross(EneLastKnownPos, 40, 0.3, Color( 255, 0, 0 ))
-    -- end
 
 
     -- In combat
@@ -1804,38 +1776,33 @@ end
 
 
 function NPC:AITick_NonScripted()
-    if GetConVar("ai_disabled"):GetBool() then return end
+    -- local ene = self:GetEnemy()
+
+    -- if self.ProhibitCustomEScheds then
+
+    --     local state = self:GetNPCState()
+    --     local sched = self:GetCurrentSchedule()
 
 
-    local ene = self:GetEnemy()
+    --     if sched > 88 && !self.AllowedCustomEScheds[sched] then
 
+    --         self.Debug_ProhibitedCusESched = sched
 
+    --         self:SetSchedule( (state==NPC_STATE_ALERT && SCHED_ALERT_STAND) or (state==NPC_STATE_COMBAT && SCHED_COMBAT_FACE)
+    --         or SCHED_IDLE_STAND )
 
-    if self.ProhibitCustomEScheds then
+    --     end
 
-        local state = self:GetNPCState()
-        local sched = self:GetCurrentSchedule()
-
-
-        if sched > 88 && !self.AllowedCustomEScheds[sched] then
-
-            self.Debug_ProhibitedCusESched = sched
-
-            self:SetSchedule( (state==NPC_STATE_ALERT && SCHED_ALERT_STAND) or (state==NPC_STATE_COMBAT && SCHED_COMBAT_FACE)
-            or SCHED_IDLE_STAND )
-
-        end
-
-    end
-
+    -- end
 
      -- Reload now if hiding spot is too far away
-    self:StressReload( self:ZBaseDist(self:GetGoalPos(), {away=1000}) )
-
+    -- self:StressReload( self:ZBaseDist(self:GetGoalPos(), {away=1000}) )
 end
 
 
 function NPC:StressReload( cond )
+
+    -- Causes the NPC to reload on the spot when in a hide-and-reload sched
 
     cond = cond==nil && true or cond
     if !cond then return end
@@ -1850,7 +1817,6 @@ function NPC:StressReload( cond )
     end
 
 end
-
 
 
 function NPC:ShouldChase()
@@ -1887,7 +1853,6 @@ function NPC:RangeThreatened( threat )
     if self.NextRangeThreatened > CurTime() then return end
 
 
-    -- debugoverlay.Text(self:GetPos(), "threatened")
     self:OnRangeThreatened(threat)
 
 
@@ -1967,8 +1932,6 @@ function NPC:DoNewEnemy()
         self:LostEnemySound()
         self:EmitSound_Uninterupted(self.LostEnemySounds)
         self.DoEnemyLostSoundWhenLost = false
-
-        -- debugoverlay.Text(self:GetPos(), "enemy lost", 2)
 
     end
 
@@ -2084,8 +2047,8 @@ function NPC:StartFollowingPlayer( ply )
     net.WriteEntity(self)
     net.Send(self.PlayerToFollow)
 
-    self:SetTarget(ply)
-    self:SetSchedule(SCHED_TARGET_FACE)
+    -- self:SetTarget(ply)
+    -- self:SetSchedule(SCHED_TARGET_FACE)
 
     self:EmitSound_Uninterupted(self.FollowPlayerSounds)
 
@@ -2675,32 +2638,32 @@ function NPCB.Grenade:Run( self )
     if self.EnemyVisible then
         -- Throw grenade at enemy now
         self:ThrowGrenade()
-    else
-        -- Enemy not seen yet, try approaching and doing grenade attack later
+    -- else
+    --     -- Enemy not seen yet, try approaching and doing grenade attack later
 
 
-        self:SetLastPosition(self:GetEnemyLastSeenPos())
-        self:SetSchedule(SCHED_FORCED_GO_RUN)
+    --     self:SetLastPosition(self:GetEnemyLastSeenPos())
+    --     self:SetSchedule(SCHED_FORCED_GO_RUN)
 
 
-        local TimerName = "GrenadeThrowTimer"..self:EntIndex()
-        timer.Create(TimerName, 1, 8, function()
-            if !IsValid(self) or !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
-            or self:ZBaseDist(self:GetEnemyLastSeenPos(), {within=400})
-            or self:GetEnemyLastSeenPos()==self.LastGrenadeTargetPos -- Don't target the same position again
-            then
-                timer.Remove(TimerName)
-                return
-            end
+    --     local TimerName = "GrenadeThrowTimer"..self:EntIndex()
+    --     timer.Create(TimerName, 1, 8, function()
+    --         if !IsValid(self) or !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
+    --         or self:ZBaseDist(self:GetEnemyLastSeenPos(), {within=400})
+    --         or self:GetEnemyLastSeenPos()==self.LastGrenadeTargetPos -- Don't target the same position again
+    --         then
+    --             timer.Remove(TimerName)
+    --             return
+    --         end
 
-            local TargetPos = self:GetEnemyLastSeenPos()
-            if self:VisibleVec(TargetPos) then
-                self:ThrowGrenade()
-                self.LastGrenadeTargetPos = TargetPos
-                timer.Remove(TimerName)
-            end
+    --         local TargetPos = self:GetEnemyLastSeenPos()
+    --         if self:VisibleVec(TargetPos) then
+    --             self:ThrowGrenade()
+    --             self.LastGrenadeTargetPos = TargetPos
+    --             timer.Remove(TimerName)
+    --         end
 
-        end)
+    --     end)
     end
 
 
@@ -2739,13 +2702,13 @@ function NPC:HandleDanger()
     end
 
 
-    if (Class_ShouldRunRandomOnDanger[self:Classify()] or self.ForceAvoidDanger) && self:GetCurrentSchedule() <= 88 && !self:IsCurrentSchedule(SCHED_RUN_RANDOM) then
-        self:SetSchedule(SCHED_RUN_RANDOM)
+    if isGrenade && self:GetNPCState()==NPC_STATE_IDLE then
+        self:SetNPCState(NPC_STATE_ALERT)
     end
 
 
-    if isGrenade && self:GetNPCState()==NPC_STATE_IDLE then
-        self:SetNPCState(NPC_STATE_ALERT)
+    if (Class_ShouldRunRandomOnDanger[self:Classify()] or self.ForceAvoidDanger) && self:GetCurrentSchedule() <= 88 && !self:IsCurrentSchedule(SCHED_RUN_RANDOM) then
+        self:SetSchedule(SCHED_RUN_RANDOM)
     end
 
 
