@@ -988,71 +988,6 @@ function NPC:ZBWepSys_CanFireWeapon()
 end
 
 
-function NPCB.ZBWepSys_ChangeActs:ShouldDoBehaviour( self )
-    return self:ZBWepSys_WantsToShoot()
-end
-
-
-function NPCB.ZBWepSys_ChangeActs:Run( self )
-
-    -- Randomize shoot act every now and then
-    self.ZBWepSys_CurMoveShootAct = table.Random(self.WeaponFire_MoveActivities)
-    self.ZBWepSys_CurShootAct = table.Random(self.WeaponFire_Activities)
-
-    ZBaseDelayBehaviour(math.Rand(3, 9))
-
-end
-
-
-function NPC:ZBWepSys_ShootAnim(arguments)
-
-    self.ZBWepSys_AllowRange1Translate = true
-
-
-    local Act = self.ZBWepSys_CurShootAct
-    local Moving = self:IsMoving()
-
-
-    if !Moving && Act then
-
-        -- Play shoot animation from start, skip transition
-        -- Sucks ass
-
-
-        -- self:ZBaseSetAct( Act, self.ResetIdealActivity )
-
-
-        -- if string.find(self:GetSequenceActivityName(self:GetSequence()), "RANGE") == nil then
-
-        --     local seq = self:SelectWeightedSequence( self:Weapon_TranslateActivity(self:GetActivity()) )
-
-        --     self:ResetSequenceInfo()
-        --     self:SetCycle(0)
-        --     self:ResetSequence( seq )
-
-        -- end
-
-    end
-
-
-    -- Gesture
-    if !Moving && self.WeaponFire_DoGesture then
-
-        -- While standing
-        -- self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
-
-    elseif Moving && self.WeaponFire_DoGesture_Moving then
-
-        -- While moving
-        -- self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
-
-    end
-
-
-    self.ZBWepSys_AllowRange1Translate = false
-
-end
-
 
 function NPC:ZBWepSys_FireWeaponThink()
 
@@ -1107,40 +1042,16 @@ function NPC:ZBWepSys_FireWeaponThink()
             self.ZBWepSys_AllowShoot = true
 
         end
-    
-
-        -- When moving
-        if self.ZBWepSys_AllowShoot && Moving && self.ZBWepSys_CurMoveShootAct then
-
-            -- Shoot move act
-            if !self.LastMoveActOverride then
-                -- self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
-            end
-
-            -- No ammo, RUN
-            if self:HasCondition(COND.NO_PRIMARY_AMMO) then
-                -- self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, ACT_RUN )
-            end
-
-        end
-
 
 
         -- Press trigger, recoil anim
         if self.ZBWepSys_AllowShoot then
             self:ZBWepSys_Shoot()
-            self:ZBWepSys_ShootAnim()
             self.ZBWepSys_AllowShoot = false
         end
 
     end
 
-
-
-    -- Move to enemy if it has LOS and it's too far away
-    if self.EnemyVisible && !self.ZBWepSys_InShootDist then
-
-    end
 end
 
 
@@ -1218,35 +1129,6 @@ end
                                            INTERNAL UTIL
 ==================================================================================================
 --]]
-
-
-function NPC:ZBaseSetAct( act, func, ... )
-    -- func = func or self.SetActivity
-
-
-    -- -- Do and return given act
-    -- if self:SelectWeightedSequence( act ) != -1 then
-
-    --     func( self, act, ... )
-    --     return act
-
-    -- end
-
-
-    -- -- Do and return weapon translated act
-    -- local ActTranslated = self:Weapon_TranslateActivity(act)
-    -- if self:SelectWeightedSequence( ActTranslated ) != -1 then
-
-    --     func( self, ActTranslated, ... )
-    --     return ActTranslated
-
-    -- end
-
-
-    return false
-
-end
-
 
 
 -- Make the NPC face certain directions
@@ -1345,15 +1227,6 @@ function NPC:FullReset()
         self:AerialResetNav()
         self:ScheduleFinished()
     end
-end
-
-
-function NPC:ForceGotoLastKnownPos()
-    -- if self:HasEnemyMemory() then
-    --     self:SetLastPosition(self:GetEnemyLastKnownPos())
-    --     self:SetSchedule(SCHED_FORCED_GO_RUN)
-    --     self.GotoEneLastKnownPosWhenEluded = false
-    -- end
 end
 
 
@@ -1677,10 +1550,6 @@ function NPC:AITick_Slow()
     if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= 5 then
 
         self:MarkEnemyAsEluded()
-
-        -- if self.GotoEneLastKnownPosWhenEluded && self:ShouldChase() then
-        --     self:ForceGotoLastKnownPos()
-        -- end
     
     end
 
@@ -1741,32 +1610,6 @@ function NPC:AITick_Slow()
 end
 
 
-function NPC:StressReload( cond )
-
-    -- Causes the NPC to reload on the spot when in a hide-and-reload sched
-
-    cond = cond==nil && true or cond
-    if !cond then return end
-
-
-    local SCHED_COMBINE_HIDE_AND_RELOAD = ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")
-
-
-    if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) then
-
-        self:ClearSchedule() 
-        self:SetSchedule(SCHED_RELOAD)
-
-    elseif self:GetClass()=="npc_combine_s" && self:IsCurrentSchedule(SCHED_COMBINE_HIDE_AND_RELOAD)) then
-
-        self:ClearSchedule()
-        self:SetSchedule(SCHED_RELOAD)
-
-    end
-
-end
-
-
 function NPC:ShouldChase()
     if self.NoWeapon_Scared && !IsValid(self:GetActiveWeapon()) then return false end
     if self:CurrentlyFollowingPlayer() then return false end
@@ -1776,14 +1619,14 @@ end
 
 
 function NPC:ShouldPreventSetSched( sched )
-    -- Prevent SetSchedule from being ran if these conditions apply:
 
+    -- Prevent SetSchedule from being ran if these conditions apply:
 
     if sched==SCHED_FORCED_GO then return false end
 
-
     return self.HavingConversation
     or self.DoingPlayAnim
+
 end
 
 
@@ -1931,35 +1774,6 @@ function NPC:OnReactToSound(ent, pos, loudness)
 end
 
 
-
-function NPC:Input_Caller(ent, input, value)
-
-    -- local r = self:OnInputAsCaller(ent, input, value)
-    -- if r == true then
-    --     return true
-    -- end
-
-end
-
-
-
-
-function NPC:Input_Activator(ent, input, value)
-
-    -- local r = self:OnInputAsActivator(ent, input, value)
-    -- if r == true then
-    --     return true
-    -- end
-
-end
-
-
-
-function NPC:InternalAcceptInput(input, activator, caller, value)
-end
-
-
-
 function NPC:OnBaseSetRel( ent, rel )
     return self:CustomOnBaseSetRel(ent, rel, priority)
 end
@@ -2066,10 +1880,6 @@ function NPCB.Patrol:Run( self )
     if IsValid(self.PlayerToFollow) then
 
         self:SetSchedule(SCHED_ALERT_SCAN)
-
-    elseif self:HasEnemyMemory() && IsAlert && self:ZBaseDist(self:GetEnemyLastKnownPos(), {away=200}) && self.GotoEneLastKnownPosWhenEluded && Chase then
-
-        self:ForceGotoLastKnownPos()
 
     elseif IsAlert && Chase then
 
@@ -2209,9 +2019,6 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
 
         sound.Play("Weapon_IRifle.Single", self:GetPos())
 
-
-        self:ZBaseSetAct(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
-
         
         self.ComballAttacking = false
 
@@ -2286,9 +2093,6 @@ function NPCB.SecondaryFire:Run( self )
     local wep = self:GetActiveWeapon()
 
     SecondaryFireWeapons[ wep.EngineCloneClass ]:Func( self, wep, enemy )
-
-
-    self:ZBaseSetAct(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
 
 
     ZBaseDelayBehaviour(math.Rand(4, 8))
@@ -3355,10 +3159,6 @@ function NPC:OnPostEntityTakeDamage( dmg )
             self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
         end
     end
-
-
-    -- If we are finding a place to reload, don't do that, reload now instead, we ain't got time for that shit
-    self:StressReload()
 
 
     self.HasZBScaledDamage = false
