@@ -6,11 +6,8 @@ ZBasePatchTable[my_cls] = function( NPC )
     
     function NPC:ZBaseEnhancedInit()
     
-        -- Don't allow combines to be elites
-        -- All bines should be able to throw grenades and ar2 altfire!!!!
-        self.m_fIsElite = false
-        self.m_iTacticalVariant = 1
-        self.m_iNumGrenades = 0
+        self:SetSaveValue("m_fIsElite", false) -- No elites, should be handled by the user instead
+        self:SetSaveValue("m_iNumGrenades", 0) -- No grenades
 
     end
 
@@ -25,17 +22,19 @@ ZBasePatchTable[my_cls] = function( NPC )
         end
 
 
-        -- Keep shootin boye
+        -- Keeps them shooting
         self:SetSaveValue("m_nShots", 2)
 
     end
     
     
     function NPC:ZBaseEnhancedCreateEnt( ent )
-        -- Remove default grenades
+
+        -- Remove default grenades, if they spawn
         if ent:GetClass() == "npc_grenade_frag" && !ent.IsZBaseGrenade then
             ent:Remove()
         end
+    
     end
     
     
