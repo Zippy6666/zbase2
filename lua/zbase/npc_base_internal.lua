@@ -648,9 +648,6 @@ end
 --]]
 
 
-NPCB.ZBWepSys_ChangeActs = {}
-
-
 -- https://wiki.facepunch.com/gmod/Hold_Types
 local HoldTypeFallback = {
     ["pistol"] = "revolver",	-- One hand grasp used for pistols
@@ -688,10 +685,6 @@ local HoldTypeActCheck = {
 function NPC:ZBWepSys_Init()
 
     self.ZBWepSys_Inventory = {}
-
-
-    self.ZBWepSys_CurShootAct = self.WeaponFire_Activities[1]
-    self.ZBWepSys_CurMoveShootAct = self.WeaponFire_MoveActivities[1]
 
     
     self.ZBWepSys_NextBurst = CurTime()
@@ -937,9 +930,6 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     -- Enemy is within shoot distance
     && self.ZBWepSys_InShootDist
-
-    -- Conditions
-    && self:HasCondition(COND.WEAPON_HAS_LOS) && self:HasCondition(COND.CAN_RANGE_ATTACK1) && !self:HasCondition(COND.WEAPON_BLOCKED_BY_FRIEND)
 
     -- No grenades or some shit like that nearby
     && !self:InDanger()
@@ -1610,14 +1600,6 @@ function NPC:AITick_Slow()
 end
 
 
-function NPC:ShouldChase()
-    if self.NoWeapon_Scared && !IsValid(self:GetActiveWeapon()) then return false end
-    if self:CurrentlyFollowingPlayer() then return false end
-
-    return true
-end
-
-
 function NPC:ShouldPreventSetSched( sched )
 
     -- Prevent SetSchedule from being ran if these conditions apply:
@@ -1874,14 +1856,13 @@ end
 
 function NPCB.Patrol:Run( self )
     local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
-    local Chase = self:ShouldChase()
 
 
     if IsValid(self.PlayerToFollow) then
 
         self:SetSchedule(SCHED_ALERT_SCAN)
 
-    elseif IsAlert && Chase then
+    elseif IsAlert then
 
         self:SetSchedule(SCHED_PATROL_RUN)
 

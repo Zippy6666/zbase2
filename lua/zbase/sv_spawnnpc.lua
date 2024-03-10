@@ -83,7 +83,8 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 	--
 	-- Spawn Flags
 	--
-	local SpawnFlags = bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE )
+	-- local SpawnFlags = bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE )
+	local SpawnFlags = bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK )
 
 	if istable(NPCData.SpawnFlagTbl) then
 		for _, v in ipairs(NPCData.SpawnFlagTbl) do
