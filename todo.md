@@ -1,22 +1,20 @@
 # TODO
-- [x] New synth decals
-- [ ] Context menu stuff: control, kill, etc
-- [ ] Controller
-- [x] Improve walkframe sys for non scripted npcs
-- [ ] Weapon system:
-    - [ ] Weapon randomizer
-    - [ ] Suppressing
-    - [ ] Better pose params
-    - [ ] Squads take turn firing
-- [x] Patrol option
-
-
-# Potential updates
-- Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab
-- Jump system
-- Flying snpcs use air nodes too (not just ground) + other improvements
-- Pickup system (even though they have a weapon active)
-- Vehicle base
-- Prevent t-pose with weapon system
-- Fix poison zombie crash
-- ZBase tool menu improvement (fix configure zbase thingy)
+- [ ] Fixes
+    - [x] Fix poison zombie crash
+    - [ ] ZBase tool menu improvement (fix configure zbase thingy)
+    - [ ] Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab
+    - [ ] Rewrite grenade AI
+    - [ ] Weapon system:
+        - [ ] Better pose params
+        - [ ] Prevent t-pose
+- [ ] Additions
+    - [ ] Replace feature
+    - [ ] Variable that disallows allies to call for help NPC that has this variable set to true, like NPC.CanBeCalledForHelp
+    - [ ] Controller
+        - [ ] Weapon firing
+        - [ ] Jumping/fly control
+        - [ ] Fully implemented attack system
+    - [ ] Context menu stuff: control, kill, etc
+    - [ ] Weapon system:
+        - [x] Weapon randomizer
+        - [ ] Suppressing

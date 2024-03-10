@@ -5,11 +5,11 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
     
 
     function NPC:ZBaseEnhancedInit()
-        self.m_fIsHeadless = true
+        self:SetSaveValue("m_fIsHeadless", true)
         self:SetBodygroup(1, 0)
 
         if self:GetClass()=="npc_poisonzombie" then
-            self.m_nCrabCount = 0
+            self:SetSaveValue("m_nCrabCount", 0)
             self:SetBodygroup(2, 0)
             self:SetBodygroup(3, 0)
             self:SetBodygroup(4, 0)
