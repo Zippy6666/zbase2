@@ -483,60 +483,60 @@ function SWEP:TranslateActivity( act )
 
 
 		-- Player model translate:
-		local HasPlyMdl = own:ZBWepSys_HasPlayerModel()
-		if HasPlyMdl then
+		-- local HasPlyMdl = own:ZBWepSys_HasPlayerModel()
+		-- if HasPlyMdl then
 
-			local TranslateTbl = PlyMdlActTrans[self:GetHoldType()]
+		-- 	local TranslateTbl = PlyMdlActTrans[self:GetHoldType()]
 
 
 
-			if istable(TranslateTbl) then
-				local TranslatedAct = TranslateTbl[act]
-				local TranslatedActGest = PlyMdlAct_GestTranslate[TranslatedAct]
+		-- 	if istable(TranslateTbl) then
+		-- 		local TranslatedAct = TranslateTbl[act]
+		-- 		local TranslatedActGest = PlyMdlAct_GestTranslate[TranslatedAct]
 
 				
-				-- Act is gesture, use different act, but apply the gesture as well
-				if TranslatedActGest then
+		-- 		-- Act is gesture, use different act, but apply the gesture as well
+		-- 		if TranslatedActGest then
 					
-					local Gest = TranslatedAct
-					TranslatedAct = TranslatedActGest
+		-- 			local Gest = TranslatedAct
+		-- 			TranslatedAct = TranslatedActGest
 
 
-					if !own:IsPlayingGesture(Gest) then
-						own:PlayAnimation(Gest, false, {isGesture=true}) -- Play gesture
-					end
+		-- 			if !own:IsPlayingGesture(Gest) then
+		-- 				own:PlayAnimation(Gest, false, {isGesture=true}) -- Play gesture
+		-- 			end
 
-				end
+		-- 		end
 
 
-				if TranslatedAct then
-					return TranslatedAct
-				end
-			end
+		-- 		if TranslatedAct then
+		-- 			return TranslatedAct
+		-- 		end
+		-- 	end
 
-		end
+		-- end
 
 
 
 		-- Maintain whatever shoot stance there is when we should
-		if act != own.ZBWepSys_CurShootAct && own:ZBWepSys_WantsToShoot() && !own:IsMoving() then
+		-- if act != own.ZBWepSys_CurShootAct && own:ZBWepSys_WantsToShoot() && !own:IsMoving() then
 
-			own.ZBWepSys_AllowRange1Translate = true
-			local DoubleTranslatedAct = self:TranslateActivity( own.ZBWepSys_CurShootAct )
-			own.ZBWepSys_AllowRange1Translate = false
+		-- 	own.ZBWepSys_AllowRange1Translate = true
+		-- 	local DoubleTranslatedAct = self:TranslateActivity( own.ZBWepSys_CurShootAct )
+		-- 	own.ZBWepSys_AllowRange1Translate = false
 
-			return DoubleTranslatedAct
+		-- 	return DoubleTranslatedAct
 
-		end
+		-- end
 
 	
 
 		-- Don't let the engine do ACT_RANGE_ATTACK1 with the weapon
-		if act == ACT_RANGE_ATTACK1 && !own.ZBWepSys_AllowRange1Translate then
+		-- if act == ACT_RANGE_ATTACK1 && !own.ZBWepSys_AllowRange1Translate then
 
-			return ACT_IDLE
+		-- 	return ACT_IDLE
 
-		end
+		-- end
 
 	end
 
