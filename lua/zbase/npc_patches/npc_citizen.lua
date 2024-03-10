@@ -1,7 +1,7 @@
 local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
 
 
-ZBaseEnhancementTable[my_cls] = function( NPC )
+ZBasePatchTable[my_cls] = function( NPC )
 
     function NPC:ZBaseEnhancedThink()
 
@@ -9,9 +9,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         if IsValid(ene) && ene:IsPlayer() then
             self:SetSaveValue("m_flPlayerHealTime", 5)
         end
-
-
-        -- self:Fire("RemoveFromPlayerSquad")
 
     end
 

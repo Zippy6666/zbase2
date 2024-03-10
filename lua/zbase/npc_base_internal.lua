@@ -1018,27 +1018,6 @@ function NPCB.ZBWepSys_ChangeActs:Run( self )
 end
 
 
-function NPC:ZBWepSys_AimVector()
-
-    local shootpos = self:GetShootPos() + VectorRand() * self:GetActiveWeapon():GetNPCBulletSpread(self:GetCurrentWeaponProficiency())*5
-    local targetpos = self:GetEnemyLastSeenPos()
-
-
-    if self.EnemyVisible then
-
-        targetpos = targetpos+self:GetEnemy():OBBCenter()
-        local vec = (targetpos - shootpos):GetNormalized()
-
-        self.ZBWepSys_LastAimVec = vec
-
-    end
-
-
-    return self.ZBWepSys_LastAimVec or (targetpos - shootpos):GetNormalized()
-
-end
-
-
 function NPC:ZBWepSys_ShootAnim(arguments)
 
     self.ZBWepSys_AllowRange1Translate = true
@@ -1186,6 +1165,16 @@ function NPC:ZBWepSys_FireWeaponThink()
         self:SetMaxLookDistance(self.SightDistance)
 
     end
+
+
+    -- Poseparams
+    -- if self:HasCapability(CAP_AIM_GUN) then
+    --     local ideal_poseparam_ang = self:WorldToLocalAngles( self:GetAimVector():Angle() )
+    --     self.ZBWepSys_PoseParamAng = (self.ZBWepSys_PoseParamAng && LerpAngle( 0.4, self.ZBWepSys_PoseParamAng, ideal_poseparam_ang)) or ideal_poseparam_ang
+    --     self:SetPoseParameter("aim_pitch", self.ZBWepSys_PoseParamAng.x)
+    --     self:SetPoseParameter("aim_yaw", self.ZBWepSys_PoseParamAng.y)
+    -- end
+
 
 end
 

@@ -1,7 +1,7 @@
 local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
 
 
-ZBaseEnhancementTable[my_cls] = function( NPC )
+ZBasePatchTable[my_cls] = function( NPC )
     
     
     function NPC:ZBaseEnhancedInit()
@@ -11,20 +11,6 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         self.m_fIsElite = false
         self.m_iTacticalVariant = 1
         self.m_iNumGrenades = 0
-
-        self:SetAllowedEScheds({
-            "SCHED_COMBINE_COMBAT_FAIL",
-            "SCHED_COMBINE_HIDE_AND_RELOAD",
-            "SCHED_COMBINE_PRESS_ATTACK",
-            "SCHED_COMBINE_RANGE_ATTACK1",
-            "SCHED_COMBINE_TAKE_COVER_FROM_BEST_SOUND",
-            "SCHED_COMBINE_RUN_AWAY_FROM_BEST_SOUND",
-            "SCHED_COMBINE_TAKECOVER_FAILED",
-            "SCHED_COMBINE_BUGBAIT_DISTRACTION",
-            "SCHED_COMBINE_CHARGE_PLAYER",
-            "SCHED_COMBINE_BURNING_STAND",
-            "SCHED_COMBINE_COMBAT_FACE",
-        })
 
     end
 

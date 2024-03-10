@@ -1,9 +1,9 @@
 local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
 
 
-ZBaseEnhancementTable[my_cls] = function( NPC )
+ZBasePatchTable[my_cls] = function( NPC )
     
-
+    -- No headcrabs
     function NPC:ZBaseEnhancedInit()
         self:SetSaveValue("m_fIsHeadless", true)
         self:SetBodygroup(1, 0)
@@ -18,18 +18,10 @@ ZBaseEnhancementTable[my_cls] = function( NPC )
         end
     end
 
-
-    function NPC:ZBaseEnhancedThink()
-    end
-    
-
-    function NPC:ZBaseEnhancedCreateEnt( ent )
-    end
-    
-
 end
 
 
-ZBaseEnhancementTable["npc_fastzombie"] = ZBaseEnhancementTable[my_cls]
-ZBaseEnhancementTable["npc_poisonzombie"] = ZBaseEnhancementTable[my_cls]
-ZBaseEnhancementTable["npc_zombine"] = ZBaseEnhancementTable[my_cls]
+-- Same for all other zombies
+ZBasePatchTable["npc_fastzombie"] = ZBasePatchTable[my_cls]
+ZBasePatchTable["npc_poisonzombie"] = ZBasePatchTable[my_cls]
+ZBasePatchTable["npc_zombine"] = ZBasePatchTable[my_cls]

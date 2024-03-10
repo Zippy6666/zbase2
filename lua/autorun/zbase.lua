@@ -276,7 +276,7 @@ sound.Add({
 ZBase_RegisterHandler = {}
 ZBaseNPCs = {}
 ZBaseSpawnMenuNPCList = {}
-ZBaseEnhancementTable = {}
+ZBasePatchTable = {}
 ZBaseDynSplatterInstalled = file.Exists("dynsplatter", "LUA")
 ZBaseIsMP = !game.SinglePlayer()
 
@@ -347,8 +347,8 @@ local function IncludeFiles()
 
         
         -- Include NPC enhancement files
-        local files = file.Find("zbase/npc_enhancements/*","LUA")
-        local enhPath = "zbase/npc_enhancements/"
+        local files = file.Find("zbase/npc_patches/*","LUA")
+        local enhPath = "zbase/npc_patches/"
         for _, v in ipairs(files) do
             include(enhPath..v)
         end

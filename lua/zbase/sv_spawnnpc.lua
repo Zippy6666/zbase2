@@ -206,15 +206,15 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 	end
 
 
-	-- Enhancement dogshit
-	local EnhFunc = ZBaseEnhancementTable[NPCData.Class]
-	if EnhFunc then
+	-- "Patches"
+	local patchFunc = ZBasePatchTable[NPCData.Class]
+	if patchFunc then
 
-		EnhFunc(NPC)
+		patchFunc(NPC)
 		
-		local EnhInitFunc = NPC.ZBaseEnhancedInit
-		if EnhInitFunc then
-			EnhInitFunc( NPC )
+		local patchInitFunc = NPC.ZBaseEnhancedInit
+		if patchInitFunc then
+			patchInitFunc( NPC )
 		end
 
 	end

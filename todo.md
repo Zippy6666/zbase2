@@ -5,7 +5,6 @@
     - [ ] Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab
     - [ ] Rewrite grenade AI
     - [ ] Weapon system:
-        - [ ] Better pose params
         - [ ] Prevent t-pose
 - [ ] Additions
     - [ ] Replace feature
