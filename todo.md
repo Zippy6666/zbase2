@@ -1,19 +1,22 @@
 # TODO
 - [ ] Fixes
     - [x] Fix poison zombie crash
-    - [ ] ZBase tool menu improvement (fix configure zbase thingy)
-    - [ ] Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab (recreate the npc)
-    - [ ] Rewrite grenade AI
+    - [x] Rewrite grenade AI
     - [ ] Fix animation pauses
-    - [ ] Force range attack anim when there is none
-    - [ ] New face code with target face sched instead
+    - [ ] Some clever way to handle weapon anims + backwards compatability (maybe)
 - [ ] Additions
-    - [ ] Replace feature
     - [ ] Variable that disallows allies to call for help NPC that has this variable set to true, like NPC.CanBeCalledForHelp
-    - [ ] Controller
-        - [ ] Weapon firing
-        - [ ] Jumping/fly control
-        - [ ] Fully implemented attack system
-    - [ ] Context menu stuff: control, kill, etc
     - [ ] Weapon randomizer: Randomize outside of zbase tab too
-    - [ ] Suppressing + New AI when using weapons
+    - [ ] Suppressing + Force move when using weapons
+
+
+# POTENTIAL UPDATES
+- ZBase tool menu improvement (fix configure zbase thingy)
+- Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab (recreate the npc)
+- New face code with target face sched instead
+- Controller
+    - Weapon firing
+    - Jumping/fly control
+    - Fully implemented attack system
+- Context menu stuff: control, kill, etc
+- Replace feature
