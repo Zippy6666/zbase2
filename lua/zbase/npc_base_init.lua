@@ -28,6 +28,8 @@ NPC.SightAngle = 90 -- Sight angle
 NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.CallForHelpDistance = 2000 -- Call for help distance
 NPC.HearDistMult = 1 -- Hearing distance multiplier when this addon is enabled: https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
+NPC.TimeUntilLooseEnemy = 15 -- Time until it no longer knows where the enemy is
+NPC.TimeUntilExitAlert = 15 -- Time until it goes from an alert state, to an idle state
 
 
 NPC.HullType = false -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
