@@ -38,6 +38,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox( "Patrol", "zbase_patrol" )
         panel:Help("Enable base patrol system.")
+    
+        panel:CheckBox( "Call for Help", "zbase_callforhelp" )
+        panel:Help("Enable base call for help system. Lets NPCs call allies outside of its squad for help.")
 
         panel:CheckBox( "Hurt Allies", "zbase_ply_hurt_ally" )
         panel:Help("Allow players to hurt their allies.")

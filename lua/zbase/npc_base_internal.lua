@@ -1411,9 +1411,9 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
 
             -- Update enemy memory, since the frozen state makes it forget
-            if IsValid(lastEne) then
-                self:UpdateEnemyMemory( lastEne, self:GetEnemyLastSeenPos() )
-            end
+            -- if IsValid(lastEne) then
+            --     self:UpdateEnemyMemory( lastEne, self:GetEnemyLastSeenPos() )
+            -- end
 
         end)
         
@@ -1928,6 +1928,7 @@ end
 ==================================================================================================
 --]]
 
+    // Call allies outside of squad for help
 
 NPCB.FactionCallForHelp = {
     MustHaveEnemy = true,
@@ -1937,20 +1938,26 @@ NPCB.FactionCallForHelp = {
 function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
     return self.CallForHelp && self.CallForHelpDistance > 0
     && self.ZBaseFaction != "none" && self.ZBaseFaction != "neutral"
+    && ZBCVAR.CallForHelp:GetBool()
 end
 
 
 function NPCB.FactionCallForHelp:Run( self )
     local ally = self:GetNearestAlly(self.CallForHelpDistance)
-
-
     local ene = self:GetEnemy()
 
+    if IsValid(ally) && ally:IsNPC() && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) && self:GetSquad()!=ally:GetSquad() then
 
-    if IsValid(ally) && ally:IsNPC() && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) then
         ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
         ally:AlertSound()
+
+        ZBaseDOverlay("Text", function()
+            local pos = self:GetPos()+self:GetUp()*25
+            return {pos, "Was called by ally.", 2}
+        end)
+
         self:OnCallForHelp(ally)
+
     end
 
 
@@ -2391,9 +2398,11 @@ NPCB.Grenade = {
 
 
 function NPCB.Grenade:ShouldDoBehaviour( self )
+    local lastSeenPos = self:GetEnemyLastSeenPos()
     return self.BaseGrenadeAttack
     && !table.IsEmpty(self.GrenadeAttackAnimations)
-    && self:ZBaseDist(self:GetEnemyLastSeenPos(), {away=400, within=1500})
+    && !lastSeenPos:IsZero()
+    && self:ZBaseDist(lastSeenPos, {away=400, within=1500})
     && !self.DoingPlayAnim
 end
 
@@ -2402,7 +2411,6 @@ function NPCB.Grenade:Delay( self )
     local should_throw_visible = self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Visible)==1
     local should_throw_occluded = !self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Occluded)==1
 
-
     if !should_throw_visible && !should_throw_occluded then
         return ZBaseRndTblRange(self.GrenadeCoolDown)
     end
@@ -2410,42 +2418,10 @@ end
 
 
 function NPCB.Grenade:Run( self )
-    local ene = self:GetEnemy()
 
-
-    if self.EnemyVisible then
-        -- Throw grenade at enemy now
-        self:ThrowGrenade()
-    -- else
-    --     -- Enemy not seen yet, try approaching and doing grenade attack later
-
-
-    --     self:SetLastPosition(self:GetEnemyLastSeenPos())
-    --     self:SetSchedule(SCHED_FORCED_GO_RUN)
-
-
-    --     local TimerName = "GrenadeThrowTimer"..self:EntIndex()
-    --     timer.Create(TimerName, 1, 8, function()
-    --         if !IsValid(self) or !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
-    --         or self:ZBaseDist(self:GetEnemyLastSeenPos(), {within=400})
-    --         or self:GetEnemyLastSeenPos()==self.LastGrenadeTargetPos -- Don't target the same position again
-    --         then
-    --             timer.Remove(TimerName)
-    --             return
-    --         end
-
-    --         local TargetPos = self:GetEnemyLastSeenPos()
-    --         if self:VisibleVec(TargetPos) then
-    --             self:ThrowGrenade()
-    --             self.LastGrenadeTargetPos = TargetPos
-    --             timer.Remove(TimerName)
-    --         end
-
-    --     end)
-    end
-
-
+    self:ThrowGrenade()
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.GrenadeCoolDown))
+
 end
 
 
