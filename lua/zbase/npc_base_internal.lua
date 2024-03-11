@@ -41,6 +41,13 @@ local function ListConditions(npc, dur)
 end
 
 
+local Developer = GetConVar("developer")
+local function ZBaseDOverlay( funcname, argsFunc )
+    if !Developer:GetBool() then return end
+    local args = argsFunc()
+    debugoverlay[funcname](unpack(args))
+end
+
 
 --[[
 ==================================================================================================
@@ -453,11 +460,15 @@ function NPC:ZBaseThink()
         -- Sched and state debug
         if ZBCVAR.ShowSched:GetBool() then
 
-            local sched = ZBaseSchedDebug(self)
+            ZBaseDOverlay( "Text", function()
 
-            if sched then
-                debugoverlay.Text(self:WorldSpaceCenter(), "sched: "..sched..", state: "..StrNPCStates[self:GetNPCState()], 0.13)
-            end
+                return {
+                    self:WorldSpaceCenter()+self:GetUp()*50,
+                    "sched: "..tostring(ZBaseSchedDebug(self)), --..", state: "..StrNPCStates[self:GetNPCState()],
+                    0.13,
+                }
+
+            end)
 
         end
 
@@ -507,6 +518,7 @@ function NPC:ZBaseThink()
 
     -- Custom think
     self:CustomThink()
+
 
 end
 
@@ -931,8 +943,8 @@ function NPC:ZBWepSys_AIWantsToShoot()
     -- Enemy is within shoot distance
     && self.ZBWepSys_InShootDist
 
-    -- No grenades or some shit like that nearby
-    && !self:InDanger()
+    -- Weapon LOS COND
+    && self:HasCondition(COND.WEAPON_HAS_LOS)
 end
 
 
@@ -950,9 +962,6 @@ function NPC:ZBWepSys_WantsToShoot()
     return !self.DoingPlayAnim
 
     && (self:ZBWepSys_AIWantsToShoot() or self:ZBWepSys_ControllerWantsToShoot())
-
-    -- Can't move shoot without move shoot act
-    && !( self:IsMoving() && !self.ZBWepSys_CurMoveShootAct )
 
     -- Not in illegal sched
     && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
@@ -984,12 +993,11 @@ function NPC:ZBWepSys_FireWeaponThink()
     local Moving = self:IsMoving()
     local ene = self:GetEnemy()
     local wep = self:GetActiveWeapon()
-    local checkdist = {within=self.MaxShootDistance*wep.NPCShootDistanceMult, away=self.MinShootDistance}
-
+    self.ZBWepSys_CheckDist = {within=self.MaxShootDistance*wep.NPCShootDistanceMult, away=self.MinShootDistance}
 
 
     -- In shoot dist check
-    self.ZBWepSys_InShootDist = IsValid(ene) && self:ZBaseDist(ene, checkdist)
+    self.ZBWepSys_InShootDist = IsValid(ene) && self:ZBaseDist(ene, self.ZBWepSys_CheckDist)
 
 
 
@@ -1036,8 +1044,10 @@ function NPC:ZBWepSys_FireWeaponThink()
 
         -- Press trigger, recoil anim
         if self.ZBWepSys_AllowShoot then
+
             self:ZBWepSys_Shoot()
             self.ZBWepSys_AllowShoot = false
+
         end
 
     end
@@ -1079,35 +1089,59 @@ end
 
 
 function NPC:ZBWepSys_Think()
-
     local Weapon = self:GetActiveWeapon()
-    if !IsValid(Weapon) then return end
+    local ene = self:GetEnemy()
 
 
-    local WeaponCls = Weapon:GetClass()
+    -- No weapon, don't do anything
+    if !IsValid(Weapon) then
     
+        -- Reset sight distance to its default
+        if self:GetMaxLookDistance()!=self.SightDistance then
+            self:SetMaxLookDistance(self.SightDistance)
+        end
 
-    if !Weapon.FromZBaseInventory then
-
-        self:ZBWepSys_StoreInInventory( Weapon )
-        self:ZBWepSys_SetActiveWeapon( WeaponCls )
-        return
-
+        return -- Stop here
     end
 
 
+    -- Store in inventory
+    local WeaponCls = Weapon:GetClass()
+    if !Weapon.FromZBaseInventory then
+        self:ZBWepSys_StoreInInventory( Weapon )
+        self:ZBWepSys_SetActiveWeapon( WeaponCls )
+        return
+    end
+
+
+    -- Weapon think
     if Weapon.IsZBaseWeapon then
-
-
         if Weapon.NPCIsMeleeWep then
-
             self:ZBWepSys_MeleeThink()
-
         else
-    
             self:ZBWepSys_FireWeaponThink()
-
         end
+    end
+
+
+    
+    local maxShootDist = self.ZBWepSys_CheckDist && self.ZBWepSys_CheckDist.within
+    local alteredSightDist = false
+    if IsValid(ene) && maxShootDist && self:GetMaxLookDistance()!=maxShootDist then
+
+        -- Adjust sight distance to match shoot distance when the enemy is valid
+        self:SetMaxLookDistance(maxShootDist)
+        ZBaseDOverlay("Line", function()
+
+            local center = self:WorldSpaceCenter()
+            return {center, center+self:GetForward()*maxShootDist, 2, Color(255, 196, 0)}
+
+        end)
+
+    elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.SightDistance then
+
+        -- Adjust sight distance back to normal when enemy is not valid
+        self:SetMaxLookDistance(self.SightDistance)
 
     end
 
@@ -1532,12 +1566,14 @@ function NPC:AITick_Slow()
     self:InternalDetectDanger()
 
 
-    
-    local EneLastKnownPos = self:HasEnemyMemory() && self:GetEnemyLastKnownPos()
-
 
     -- Loose enemy
-    if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= 5 then
+    if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
+
+        ZBaseDOverlay("Text", function()
+            local pos = self:GetPos()
+            return {pos, "Marked "..tostring(ene).. " eluded.", 2}
+        end)
 
         self:MarkEnemyAsEluded()
     
@@ -1562,7 +1598,7 @@ function NPC:AITick_Slow()
 
     -- Is alert, start timer
     if IsAlert && !self.NextStopAlert then
-        self.NextStopAlert = CurTime()+math.Rand(15, 25)
+        self.NextStopAlert = CurTime()+self.TimeUntilExitAlert
     end
 
 
@@ -1570,6 +1606,10 @@ function NPC:AITick_Slow()
     if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
         self:SetNPCState(NPC_STATE_IDLE)
         self.NextStopAlert = nil
+        ZBaseDOverlay("Text", function()
+            local pos = self:GetPos()
+            return {pos, "Alert time elapsed, switching to NPC_STATE_IDLE", 2}
+        end)
     end
 
 
@@ -1678,6 +1718,11 @@ function NPC:DoNewEnemy()
 
     local ene = self:GetEnemy()
 
+
+    ZBaseDOverlay("Text", function()
+        local pos = self:WorldSpaceCenter()
+        return {pos, "DoNewEnemy:  "..tostring(ene), 2}
+    end)
 
     if IsValid(ene) then
         -- New enemy

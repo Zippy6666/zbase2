@@ -15,8 +15,5 @@
         - [ ] Jumping/fly control
         - [ ] Fully implemented attack system
     - [ ] Context menu stuff: control, kill, etc
-    - [ ] Weapon system:
-        - [x] Weapon randomizer
-            - [ ] Randomize outside of zbase tab too
-        - [ ] Suppressing
-        - [ ] New AI when using weapons
+    - [ ] Weapon randomizer: Randomize outside of zbase tab too
+    - [ ] Suppressing + New AI when using weapons
