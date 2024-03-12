@@ -7,7 +7,8 @@
 - [ ] Additions
     - [ ] Variable that disallows allies to call for help NPC that has this variable set to true, like NPC.CanBeCalledForHelp
     - [ ] Weapon randomizer: Randomize outside of zbase tab too
-    - [ ] Suppressing + Force move when using weapons
+    - [ ] Suppressing
+    - [ ] Patches for npcs to better support the weapon system
 
 
 # POTENTIAL UPDATES

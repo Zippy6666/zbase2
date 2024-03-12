@@ -4,6 +4,22 @@
 
 --[[
 ======================================================================================================================================================
+                                           NPC PATCHES
+======================================================================================================================================================
+--]]
+
+
+function ZBasePatchNPCClass(debuginfo)
+    local shortsrc = debuginfo.short_src
+    local split = string.Split(shortsrc, "/")
+    local name = split[#split]
+    local split2 = string.Split(name, ".")
+    return split2[1]
+end
+
+
+--[[
+======================================================================================================================================================
                                            PRECACHE
 ======================================================================================================================================================
 --]]
@@ -15,7 +31,7 @@ function ZBasePrecacheEnts()
 
     if !SERVER then return end
 
-    MsgN("ZBASE PRECACHE:")
+    -- MsgN("ZBASE PRECACHE:")
 
 
     local StartT = SysTime()
@@ -59,7 +75,7 @@ function ZBasePrecacheEnts()
     end
 
 
-    MsgN("Precache complete (", math.Round(SysTime()-StartT, 2), " seconds)")
+    -- MsgN("Precache complete (", math.Round(SysTime()-StartT, 2), " seconds)")
 
 end
 
