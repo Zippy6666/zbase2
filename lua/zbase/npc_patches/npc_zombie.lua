@@ -1,10 +1,10 @@
-local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
+local my_cls = ZBasePatchNPCClass(debug.getinfo(1,'S'))
 
 
 ZBasePatchTable[my_cls] = function( NPC )
     
     -- No headcrabs
-    function NPC:ZBaseEnhancedInit()
+    function NPC:Patch_Init()
         self:SetSaveValue("m_fIsHeadless", true)
         self:SetBodygroup(1, 0)
 

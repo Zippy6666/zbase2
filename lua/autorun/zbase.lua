@@ -287,16 +287,6 @@ ZBaseNPCInstances_NonScripted = ZBaseNPCInstances_NonScripted or {}
 ZBaseBehaviourTimerFuncs = ZBaseBehaviourTimerFuncs or {}
 
 
-
-function ZBaseEnhancementNPCClass(debuginfo)
-    local shortsrc = debuginfo.short_src
-    local split = string.Split(shortsrc, "/")
-    local name = split[#split]
-    local split2 = string.Split(name, ".")
-    return split2[1]
-end
-
-
 function ZBaseListFactions( _, ply )
 
     if SERVER then

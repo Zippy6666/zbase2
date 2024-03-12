@@ -86,8 +86,8 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
 
                 own:OnOwnedEntCreated( ent )
 
-                if own.ZBaseEnhancedCreateEnt then
-                    own:ZBaseEnhancedCreateEnt( ent )
+                if own.Patch_CreateEnt then
+                    own:Patch_CreateEnt( ent )
                 end
 
             end
@@ -207,8 +207,8 @@ hook.Add("Tick", "ZBASE", function()
             zbaseNPC:ZBaseThink()
 
 
-            if zbaseNPC.ZBaseEnhancedThink then
-                zbaseNPC:ZBaseEnhancedThink()
+            if zbaseNPC.Patch_Think then
+                zbaseNPC:Patch_Think()
             end
 
         end
@@ -321,8 +321,8 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
         attacker:DealDamage( dmg, ent )
 
 
-        if attacker.ZBaseEnhancedDealDamage then
-            attacker:ZBaseEnhancedDealDamage( dmg, ent )
+        if attacker.Patch_DealDamage then
+            attacker:Patch_DealDamage( dmg, ent )
         end
 
     end
