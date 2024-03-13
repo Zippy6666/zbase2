@@ -12,3 +12,5 @@
 - Get rid of old shit face codes, and get rid of 0 delay endless timers
 - Weapon randomizer: Randomize outside of zbase tab too
 - Suppressing
+
+glizzy
