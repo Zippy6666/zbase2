@@ -211,10 +211,9 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 	if patchFunc then
 
 		patchFunc(NPC)
-		
-		local patchInitFunc = NPC.ZBaseEnhancedInit
-		if patchInitFunc then
-			patchInitFunc( NPC )
+
+		if NPC.Patch_Init then
+			NPC.Patch_Init( NPC )
 		end
 
 	end

@@ -41,6 +41,13 @@ local function ListConditions(npc, dur)
 end
 
 
+local Developer = GetConVar("developer")
+local function ZBaseDOverlay( funcname, argsFunc )
+    if !Developer:GetBool() then return end
+    local args = argsFunc()
+    debugoverlay[funcname](unpack(args))
+end
+
 
 --[[
 ==================================================================================================
@@ -101,6 +108,7 @@ function NPC:ZBaseInit()
     self.NextHealthRegen = CurTime()
     self.NextFootStepTimer = CurTime()
     self.NextRangeThreatened = CurTime()
+    self.NextOutOfShootRangeSched = CurTime()
     self.EnemyVisible = false
     self.HadPreviousEnemy = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
@@ -408,12 +416,6 @@ function NPC:ZBaseThink()
         end
 
 
-        -- NPC think (not SNPC)
-        if !self.IsZBase_SNPC then
-            self:AITick_NonScripted()
-        end
-
-
         -- Enemy updated
         if ene != self.ZBase_LastEnemy then
             self:DoNewEnemy()
@@ -459,11 +461,15 @@ function NPC:ZBaseThink()
         -- Sched and state debug
         if ZBCVAR.ShowSched:GetBool() then
 
-            local sched = ZBaseSchedDebug(self)
+            ZBaseDOverlay( "Text", function()
 
-            if sched then
-                debugoverlay.Text(self:WorldSpaceCenter(), "sched: "..sched..", state: "..StrNPCStates[self:GetNPCState()], 0.13)
-            end
+                return {
+                    self:WorldSpaceCenter()+self:GetUp()*50,
+                    "sched: "..tostring(ZBaseSchedDebug(self)), --..", state: "..StrNPCStates[self:GetNPCState()],
+                    0.13,
+                }
+
+            end)
 
         end
 
@@ -481,16 +487,14 @@ function NPC:ZBaseThink()
         end
 
 
-        -- Override activities when we should
-        self:SetConditionalActivities()
-
-
         -- Weapon system
         self:ZBWepSys_Think()
 
 
+        -- Move anim override
         self.LastMoveActOverride = self:OverrideMovementAct()
-        if self.LastMoveActOverride then
+        self.MovementOverrideActive = isnumber(self.LastMoveActOverride)
+        if self.MovementOverrideActive then
             self:SetMovementActivity(self.LastMoveActOverride)
         end
 
@@ -517,6 +521,7 @@ function NPC:ZBaseThink()
 
     -- Custom think
     self:CustomThink()
+
 
 end
 
@@ -587,10 +592,6 @@ function NPC:Controller_Move( pos, run )
     self.CurrentControlDest = (self.CurrentControlDest && Lerp(0.33, self.CurrentControlDest, dest)) or dest
     self:SetLastPosition( self.CurrentControlDest )
     self:SetSchedule(SCHED_FORCED_GO)
-    self:SetMovementActivity(self.LastMoveActOverride or (run && ACT_RUN) or ACT_WALK)
-
-    
-    -- debugoverlay.Axis(self.CurrentControlDest, ang0, 75, 0.13)
 end
 
 
@@ -623,7 +624,6 @@ function NPC:ControllerThink()
         endpos = camViewPos+forward*100000,
         mask = MASK_VISIBLE,
     })
-    -- debugoverlay.Axis(camTrace.HitPos, ang0, 25, 0.13)
 
 
     local moveDir = Vector(0, 0, 0)
@@ -660,9 +660,6 @@ end
                                            WEAPON SYSTEM
 ==================================================================================================
 --]]
-
-
-NPCB.ZBWepSys_ChangeActs = {}
 
 
 -- https://wiki.facepunch.com/gmod/Hold_Types
@@ -702,10 +699,6 @@ local HoldTypeActCheck = {
 function NPC:ZBWepSys_Init()
 
     self.ZBWepSys_Inventory = {}
-
-
-    self.ZBWepSys_CurShootAct = self.WeaponFire_Activities[1]
-    self.ZBWepSys_CurMoveShootAct = self.WeaponFire_MoveActivities[1]
 
     
     self.ZBWepSys_NextBurst = CurTime()
@@ -952,11 +945,8 @@ function NPC:ZBWepSys_AIWantsToShoot()
     -- Enemy is within shoot distance
     && self.ZBWepSys_InShootDist
 
-    -- Conditions
-    && self:HasCondition(COND.WEAPON_HAS_LOS) && self:HasCondition(COND.CAN_RANGE_ATTACK1) && !self:HasCondition(COND.WEAPON_BLOCKED_BY_FRIEND)
-
-    -- No grenades or some shit like that nearby
-    && !self:InDanger()
+    -- Weapon LOS COND
+    && self:HasCondition(COND.WEAPON_HAS_LOS)
 end
 
 
@@ -974,9 +964,6 @@ function NPC:ZBWepSys_WantsToShoot()
     return !self.DoingPlayAnim
 
     && (self:ZBWepSys_AIWantsToShoot() or self:ZBWepSys_ControllerWantsToShoot())
-
-    -- Can't move shoot without move shoot act
-    && !( self:IsMoving() && !self.ZBWepSys_CurMoveShootAct )
 
     -- Not in illegal sched
     && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
@@ -1002,84 +989,41 @@ function NPC:ZBWepSys_CanFireWeapon()
 end
 
 
-function NPCB.ZBWepSys_ChangeActs:ShouldDoBehaviour( self )
-    return self:ZBWepSys_WantsToShoot()
-end
-
-
-function NPCB.ZBWepSys_ChangeActs:Run( self )
-
-    -- Randomize shoot act every now and then
-    self.ZBWepSys_CurMoveShootAct = table.Random(self.WeaponFire_MoveActivities)
-    self.ZBWepSys_CurShootAct = table.Random(self.WeaponFire_Activities)
-
-    ZBaseDelayBehaviour(math.Rand(3, 9))
-
-end
-
-
-function NPC:ZBWepSys_ShootAnim(arguments)
-
-    self.ZBWepSys_AllowRange1Translate = true
-
-
-    local Act = self.ZBWepSys_CurShootAct
-    local Moving = self:IsMoving()
-
-
-    if !Moving && Act then
-
-        -- Play shoot animation from start, skip transition
-        -- Sucks ass
-
-
-        self:ZBaseSetAct( Act, self.ResetIdealActivity )
-
-
-        if string.find(self:GetSequenceActivityName(self:GetSequence()), "RANGE") == nil then
-
-            local seq = self:SelectWeightedSequence( self:Weapon_TranslateActivity(self:GetActivity()) )
-
-            self:ResetSequenceInfo()
-            self:SetCycle(0)
-            self:ResetSequence( seq )
-
-        end
-
-    end
-
-
-    -- Gesture
-    if !Moving && self.WeaponFire_DoGesture then
-
-        -- While standing
-        self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
-
-    elseif Moving && self.WeaponFire_DoGesture_Moving then
-
-        -- While moving
-        self:ZBaseSetAct(table.Random(self.WeaponFire_Gestures), self.PlayAnimation, false, {isGesture=true} )
-
-    end
-
-
-    self.ZBWepSys_AllowRange1Translate = false
-
-end
-
-
+local OutOfShootRangeSched = SCHED_FORCED_GO_RUN
 function NPC:ZBWepSys_FireWeaponThink()
 
-    local Moving = self:IsMoving()
     local ene = self:GetEnemy()
     local wep = self:GetActiveWeapon()
-    local checkdist = {within=self.MaxShootDistance*wep.NPCShootDistanceMult, away=self.MinShootDistance}
-
+    self.ZBWepSys_CheckDist = {within=self.MaxShootDistance*wep.NPCShootDistanceMult, away=self.MinShootDistance}
 
 
     -- In shoot dist check
-    self.ZBWepSys_InShootDist = IsValid(ene) && self:ZBaseDist(ene, checkdist)
+    self.ZBWepSys_InShootDist = IsValid(ene) && self:ZBaseDist(ene, self.ZBWepSys_CheckDist)
 
+
+
+    -- Force move to enemy, do so if:
+    -- > Enemy is outside of the shooting range
+    -- > Enemy is visible
+    -- > We are not currently doing any schedule that causes the NPC to move
+    if IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
+    && !self:IsMoving() && !self:IsCurrentSchedule(OutOfShootRangeSched) && self.NextOutOfShootRangeSched < CurTime() then
+
+        local lastpos = ene:GetPos()+ene:GetForward()*ene:OBBMaxs().x*3
+        self:SetLastPosition(lastpos)
+        self:SetSchedule(OutOfShootRangeSched)
+        self.NextOutOfShootRangeSched = CurTime()+3
+
+        ZBaseDOverlay("Text", function()
+            local pos = self:GetPos()
+            return {pos, "Doing base out of shoot range behaviour.", 2}
+        end)
+
+        ZBaseDOverlay("Cross", function()
+            return {lastpos, 30, 2, Color(0, 255, 0)}
+        end)
+
+    end
 
 
     -- Here is where the fun begins
@@ -1121,60 +1065,17 @@ function NPC:ZBWepSys_FireWeaponThink()
             self.ZBWepSys_AllowShoot = true
 
         end
-    
-
-        -- When moving
-        if self.ZBWepSys_AllowShoot && Moving && self.ZBWepSys_CurMoveShootAct then
-
-            -- Shoot move act
-            if !self.LastMoveActOverride then
-                self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, self.SetMovementActivity )
-            end
-
-            -- No ammo, RUN
-            if self:HasCondition(COND.NO_PRIMARY_AMMO) then
-                self:ZBaseSetAct( self.ZBWepSys_CurMoveShootAct, ACT_RUN )
-            end
-
-        end
 
 
-
-        -- Press trigger, recoil anim
+        -- Press trigger
         if self.ZBWepSys_AllowShoot then
+
             self:ZBWepSys_Shoot()
-            self:ZBWepSys_ShootAnim()
             self.ZBWepSys_AllowShoot = false
+
         end
 
     end
-
-
-
-    -- Move to enemy if it has LOS and it's too far away
-    if self.EnemyVisible && !self.ZBWepSys_InShootDist then
-
-        self:SetMaxLookDistance(1)
-        
-        if !self:IsCurrentSchedule(SCHED_CHASE_ENEMY) then
-            self:SetSchedule(SCHED_CHASE_ENEMY)
-        end
-    
-    else
-
-        self:SetMaxLookDistance(self.SightDistance)
-
-    end
-
-
-    -- Poseparams
-    -- if self:HasCapability(CAP_AIM_GUN) then
-    --     local ideal_poseparam_ang = self:WorldToLocalAngles( self:GetAimVector():Angle() )
-    --     self.ZBWepSys_PoseParamAng = (self.ZBWepSys_PoseParamAng && LerpAngle( 0.4, self.ZBWepSys_PoseParamAng, ideal_poseparam_ang)) or ideal_poseparam_ang
-    --     self:SetPoseParameter("aim_pitch", self.ZBWepSys_PoseParamAng.x)
-    --     self:SetPoseParameter("aim_yaw", self.ZBWepSys_PoseParamAng.y)
-    -- end
-
 
 end
 
@@ -1213,35 +1114,59 @@ end
 
 
 function NPC:ZBWepSys_Think()
-
     local Weapon = self:GetActiveWeapon()
-    if !IsValid(Weapon) then return end
+    local ene = self:GetEnemy()
 
 
-    local WeaponCls = Weapon:GetClass()
+    -- No weapon, don't do anything
+    if !IsValid(Weapon) then
     
+        -- Reset sight distance to its default
+        if self:GetMaxLookDistance()!=self.SightDistance then
+            self:SetMaxLookDistance(self.SightDistance)
+        end
 
-    if !Weapon.FromZBaseInventory then
-
-        self:ZBWepSys_StoreInInventory( Weapon )
-        self:ZBWepSys_SetActiveWeapon( WeaponCls )
-        return
-
+        return -- Stop here
     end
 
 
+    -- Store in inventory
+    local WeaponCls = Weapon:GetClass()
+    if !Weapon.FromZBaseInventory then
+        self:ZBWepSys_StoreInInventory( Weapon )
+        self:ZBWepSys_SetActiveWeapon( WeaponCls )
+        return
+    end
+
+
+    -- Weapon think
     if Weapon.IsZBaseWeapon then
-
-
         if Weapon.NPCIsMeleeWep then
-
             self:ZBWepSys_MeleeThink()
-
         else
-    
             self:ZBWepSys_FireWeaponThink()
-
         end
+    end
+
+
+    
+    local maxShootDist = self.ZBWepSys_CheckDist && self.ZBWepSys_CheckDist.within
+    local alteredSightDist = false
+    if IsValid(ene) && maxShootDist && self:GetMaxLookDistance()!=maxShootDist then
+
+        -- Adjust sight distance to match shoot distance when the enemy is valid
+        self:SetMaxLookDistance(maxShootDist)
+        ZBaseDOverlay("Line", function()
+
+            local center = self:WorldSpaceCenter()
+            return {center, center+self:GetForward()*maxShootDist, 2, Color(255, 196, 0)}
+
+        end)
+
+    elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.SightDistance then
+
+        -- Adjust sight distance back to normal when enemy is not valid
+        self:SetMaxLookDistance(self.SightDistance)
 
     end
 
@@ -1255,39 +1180,11 @@ end
 --]]
 
 
-function NPC:ZBaseSetAct( act, func, ... )
-    func = func or self.SetActivity
-
-
-    -- Do and return given act
-    if self:SelectWeightedSequence( act ) != -1 then
-
-        func( self, act, ... )
-        return act
-
-    end
-
-
-    -- Do and return weapon translated act
-    local ActTranslated = self:Weapon_TranslateActivity(act)
-    if self:SelectWeightedSequence( ActTranslated ) != -1 then
-
-        func( self, ActTranslated, ... )
-        return ActTranslated
-
-    end
-
-
-    return false
-
-end
-
-
-
--- Make the NPC face certain directions
--- 'face' - A position or an entity to face, or a  representing the yaw.
--- 'duration' - Face duration, if not set, you can run the function in think for example
--- 'speed' - Turn speed, if not set, it will be the default turn speed
+    -- OLD and should probably be rewritten...
+    -- Make the NPC face certain directions
+    -- 'face' - A position or an entity to face, or a  representing the yaw.
+    -- 'duration' - Face duration, if not set, you can run the function in think for example
+    -- 'speed' - Turn speed, if not set, it will be the default turn speed
 function NPC:Face( face, duration, speed )
 
     local function turn( yaw )
@@ -1380,28 +1277,6 @@ function NPC:FullReset()
         self:AerialResetNav()
         self:ScheduleFinished()
     end
-end
-
-
-function NPC:ForceGotoLastKnownPos()
-    if self:HasEnemyMemory() then
-        self:SetLastPosition(self:GetEnemyLastKnownPos())
-        self:SetSchedule(SCHED_FORCED_GO_RUN)
-        self.GotoEneLastKnownPosWhenEluded = false
-
-        -- debugoverlay.Text(self:GetPos(), "going to last known pos", 2)
-    end
-end
-
-
-function NPC:SetAllowedEScheds( escheds )
-
-    self.ProhibitCustomEScheds = true
-
-    for _, v in ipairs(escheds) do
-        self.AllowedCustomEScheds[ZBaseESchedID(v)] = v
-    end
-
 end
 
 
@@ -1562,9 +1437,9 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
 
             -- Update enemy memory, since the frozen state makes it forget
-            if IsValid(lastEne) then
-                self:UpdateEnemyMemory( lastEne, self:GetEnemyLastSeenPos() )
-            end
+            -- if IsValid(lastEne) then
+            --     self:UpdateEnemyMemory( lastEne, self:GetEnemyLastSeenPos() )
+            -- end
 
         end)
         
@@ -1675,16 +1550,6 @@ function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
 end
 
 
-function NPC:SetConditionalActivities()
-    
-    if self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ENEMY) &&
-    self:SelectWeightedSequence(ACT_RUN_PROTECTED) != -1 && !self.LastMoveActOverride then
-        self:SetMovementActivity(ACT_RUN_PROTECTED)
-    end
-
-end
-
-
 --[[
 ==================================================================================================
                                            AI GENERAL
@@ -1727,25 +1592,19 @@ function NPC:AITick_Slow()
     self:InternalDetectDanger()
 
 
-    
-    local EneLastKnownPos = self:HasEnemyMemory() && self:GetEnemyLastKnownPos()
-
 
     -- Loose enemy
-    if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= 5 then
+    if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
+
+        ZBaseDOverlay("Text", function()
+            local pos = self:GetPos()
+            return {pos, "Marked "..tostring(ene).. " eluded.", 2}
+        end)
+
         self:MarkEnemyAsEluded()
-        if self.GotoEneLastKnownPosWhenEluded && self:ShouldChase() then
-            self:ForceGotoLastKnownPos()
-        end
-        -- debugoverlay.Text(self:GetPos(), "marked current enemy as eluded", 2)
+    
     end
 
-
-    -- Last known pos debug
-    -- if EneLastKnownPos then
-    --     debugoverlay.Text(EneLastKnownPos+Vector(0, 0, 100), self.Name.."["..self:EntIndex().."] last known enemy pos", 0.3)
-    --     debugoverlay.Cross(EneLastKnownPos, 40, 0.3, Color( 255, 0, 0 ))
-    -- end
 
 
     -- In combat
@@ -1765,7 +1624,7 @@ function NPC:AITick_Slow()
 
     -- Is alert, start timer
     if IsAlert && !self.NextStopAlert then
-        self.NextStopAlert = CurTime()+math.Rand(15, 25)
+        self.NextStopAlert = CurTime()+self.TimeUntilExitAlert
     end
 
 
@@ -1773,6 +1632,10 @@ function NPC:AITick_Slow()
     if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
         self:SetNPCState(NPC_STATE_IDLE)
         self.NextStopAlert = nil
+        ZBaseDOverlay("Text", function()
+            local pos = self:GetPos()
+            return {pos, "Alert time elapsed, switching to NPC_STATE_IDLE", 2}
+        end)
     end
 
 
@@ -1803,73 +1666,15 @@ function NPC:AITick_Slow()
 end
 
 
-function NPC:AITick_NonScripted()
-    if GetConVar("ai_disabled"):GetBool() then return end
-
-
-    local ene = self:GetEnemy()
-
-
-
-    if self.ProhibitCustomEScheds then
-
-        local state = self:GetNPCState()
-        local sched = self:GetCurrentSchedule()
-
-
-        if sched > 88 && !self.AllowedCustomEScheds[sched] then
-
-            self.Debug_ProhibitedCusESched = sched
-
-            self:SetSchedule( (state==NPC_STATE_ALERT && SCHED_ALERT_STAND) or (state==NPC_STATE_COMBAT && SCHED_COMBAT_FACE)
-            or SCHED_IDLE_STAND )
-
-        end
-
-    end
-
-
-     -- Reload now if hiding spot is too far away
-    self:StressReload( self:ZBaseDist(self:GetGoalPos(), {away=1000}) )
-
-end
-
-
-function NPC:StressReload( cond )
-
-    cond = cond==nil && true or cond
-    if !cond then return end
-
-   
-    if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD)
-    or ( self:GetClass()=="npc_combine_s" && self:IsCurrentSchedule(ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")) ) ) then
-
-        self:ClearSchedule()
-        self:SetSchedule(SCHED_RELOAD)
-
-    end
-
-end
-
-
-
-function NPC:ShouldChase()
-    if self.NoWeapon_Scared && !IsValid(self:GetActiveWeapon()) then return false end
-    if self:CurrentlyFollowingPlayer() then return false end
-
-    return true
-end
-
-
 function NPC:ShouldPreventSetSched( sched )
-    -- Prevent SetSchedule from being ran if these conditions apply:
 
+    -- Prevent SetSchedule from being ran if these conditions apply:
 
     if sched==SCHED_FORCED_GO then return false end
 
-
     return self.HavingConversation
     or self.DoingPlayAnim
+
 end
 
 
@@ -1887,7 +1692,6 @@ function NPC:RangeThreatened( threat )
     if self.NextRangeThreatened > CurTime() then return end
 
 
-    -- debugoverlay.Text(self:GetPos(), "threatened")
     self:OnRangeThreatened(threat)
 
 
@@ -1941,6 +1745,11 @@ function NPC:DoNewEnemy()
     local ene = self:GetEnemy()
 
 
+    ZBaseDOverlay("Text", function()
+        local pos = self:WorldSpaceCenter()
+        return {pos, "DoNewEnemy:  "..tostring(ene), 2}
+    end)
+
     if IsValid(ene) then
         -- New enemy
         -- Do alert sound
@@ -1967,8 +1776,6 @@ function NPC:DoNewEnemy()
         self:LostEnemySound()
         self:EmitSound_Uninterupted(self.LostEnemySounds)
         self.DoEnemyLostSoundWhenLost = false
-
-        -- debugoverlay.Text(self:GetPos(), "enemy lost", 2)
 
     end
 
@@ -2020,35 +1827,6 @@ function NPC:OnReactToSound(ent, pos, loudness)
 end
 
 
-
-function NPC:Input_Caller(ent, input, value)
-
-    -- local r = self:OnInputAsCaller(ent, input, value)
-    -- if r == true then
-    --     return true
-    -- end
-
-end
-
-
-
-
-function NPC:Input_Activator(ent, input, value)
-
-    -- local r = self:OnInputAsActivator(ent, input, value)
-    -- if r == true then
-    --     return true
-    -- end
-
-end
-
-
-
-function NPC:InternalAcceptInput(input, activator, caller, value)
-end
-
-
-
 function NPC:OnBaseSetRel( ent, rel )
     return self:CustomOnBaseSetRel(ent, rel, priority)
 end
@@ -2084,8 +1862,8 @@ function NPC:StartFollowingPlayer( ply )
     net.WriteEntity(self)
     net.Send(self.PlayerToFollow)
 
-    self:SetTarget(ply)
-    self:SetSchedule(SCHED_TARGET_FACE)
+    -- self:SetTarget(ply)
+    -- self:SetSchedule(SCHED_TARGET_FACE)
 
     self:EmitSound_Uninterupted(self.FollowPlayerSounds)
 
@@ -2149,18 +1927,13 @@ end
 
 function NPCB.Patrol:Run( self )
     local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
-    local Chase = self:ShouldChase()
 
 
     if IsValid(self.PlayerToFollow) then
 
         self:SetSchedule(SCHED_ALERT_SCAN)
 
-    elseif self:HasEnemyMemory() && IsAlert && self:ZBaseDist(self:GetEnemyLastKnownPos(), {away=200}) && self.GotoEneLastKnownPosWhenEluded && Chase then
-
-        self:ForceGotoLastKnownPos()
-
-    elseif IsAlert && Chase then
+    elseif IsAlert then
 
         self:SetSchedule(SCHED_PATROL_RUN)
 
@@ -2181,6 +1954,7 @@ end
 ==================================================================================================
 --]]
 
+    // Call allies outside of squad for help
 
 NPCB.FactionCallForHelp = {
     MustHaveEnemy = true,
@@ -2190,20 +1964,27 @@ NPCB.FactionCallForHelp = {
 function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
     return self.CallForHelp && self.CallForHelpDistance > 0
     && self.ZBaseFaction != "none" && self.ZBaseFaction != "neutral"
+    && ZBCVAR.CallForHelp:GetBool()
 end
 
 
 function NPCB.FactionCallForHelp:Run( self )
     local ally = self:GetNearestAlly(self.CallForHelpDistance)
-
-
     local ene = self:GetEnemy()
 
+    if IsValid(ally) && ally:IsNPC() && ally.CanBeCalledForHelp && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene)
+    && self:GetSquad()!=ally:GetSquad() then
 
-    if IsValid(ally) && ally:IsNPC() && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) then
         ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
         ally:AlertSound()
+
+        ZBaseDOverlay("Text", function()
+            local pos = self:GetPos()+self:GetUp()*25
+            return {pos, "Was called by ally.", 2}
+        end)
+
         self:OnCallForHelp(ally)
+
     end
 
 
@@ -2216,9 +1997,6 @@ end
                                            AI SECONDARY FIRE
 ==================================================================================================
 --]]
-
-
-    // Kinda old, will probably be redone with the new weapon system
 
 
 ZBaseComballOwner = NULL
@@ -2298,9 +2076,6 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
 
         sound.Play("Weapon_IRifle.Single", self:GetPos())
 
-
-        self:ZBaseSetAct(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
-
         
         self.ComballAttacking = false
 
@@ -2375,9 +2150,6 @@ function NPCB.SecondaryFire:Run( self )
     local wep = self:GetActiveWeapon()
 
     SecondaryFireWeapons[ wep.EngineCloneClass ]:Func( self, wep, enemy )
-
-
-    self:ZBaseSetAct(ACT_GESTURE_RANGE_ATTACK1, self.PlayAnimation, false, {isGesture=true} )
 
 
     ZBaseDelayBehaviour(math.Rand(4, 8))
@@ -2650,9 +2422,11 @@ NPCB.Grenade = {
 
 
 function NPCB.Grenade:ShouldDoBehaviour( self )
+    local lastSeenPos = self:GetEnemyLastSeenPos()
     return self.BaseGrenadeAttack
     && !table.IsEmpty(self.GrenadeAttackAnimations)
-    && self:ZBaseDist(self:GetEnemyLastSeenPos(), {away=400, within=1500})
+    && !lastSeenPos:IsZero()
+    && self:ZBaseDist(lastSeenPos, {away=400, within=1500})
     && !self.DoingPlayAnim
 end
 
@@ -2661,7 +2435,6 @@ function NPCB.Grenade:Delay( self )
     local should_throw_visible = self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Visible)==1
     local should_throw_occluded = !self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Occluded)==1
 
-
     if !should_throw_visible && !should_throw_occluded then
         return ZBaseRndTblRange(self.GrenadeCoolDown)
     end
@@ -2669,42 +2442,10 @@ end
 
 
 function NPCB.Grenade:Run( self )
-    local ene = self:GetEnemy()
 
-
-    if self.EnemyVisible then
-        -- Throw grenade at enemy now
-        self:ThrowGrenade()
-    else
-        -- Enemy not seen yet, try approaching and doing grenade attack later
-
-
-        self:SetLastPosition(self:GetEnemyLastSeenPos())
-        self:SetSchedule(SCHED_FORCED_GO_RUN)
-
-
-        local TimerName = "GrenadeThrowTimer"..self:EntIndex()
-        timer.Create(TimerName, 1, 8, function()
-            if !IsValid(self) or !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
-            or self:ZBaseDist(self:GetEnemyLastSeenPos(), {within=400})
-            or self:GetEnemyLastSeenPos()==self.LastGrenadeTargetPos -- Don't target the same position again
-            then
-                timer.Remove(TimerName)
-                return
-            end
-
-            local TargetPos = self:GetEnemyLastSeenPos()
-            if self:VisibleVec(TargetPos) then
-                self:ThrowGrenade()
-                self.LastGrenadeTargetPos = TargetPos
-                timer.Remove(TimerName)
-            end
-
-        end)
-    end
-
-
+    self:ThrowGrenade()
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.GrenadeCoolDown))
+
 end
 
 
@@ -2739,19 +2480,13 @@ function NPC:HandleDanger()
     end
 
 
-    if (Class_ShouldRunRandomOnDanger[self:Classify()] or self.ForceAvoidDanger) && self:GetCurrentSchedule() <= 88 && !self:IsCurrentSchedule(SCHED_RUN_RANDOM) then
-        self:SetSchedule(SCHED_RUN_RANDOM)
-    end
-
-
     if isGrenade && self:GetNPCState()==NPC_STATE_IDLE then
         self:SetNPCState(NPC_STATE_ALERT)
     end
 
 
-    -- RUN BOYE
-    if !self.LastMoveActOverride then
-        self:SetMovementActivity(ACT_RUN)
+    if (Class_ShouldRunRandomOnDanger[self:Classify()] or self.ForceAvoidDanger) && self:GetCurrentSchedule() <= 88 && !self:IsCurrentSchedule(SCHED_RUN_RANDOM) then
+        self:SetSchedule(SCHED_RUN_RANDOM)
     end
 
 
@@ -3450,10 +3185,6 @@ function NPC:OnPostEntityTakeDamage( dmg )
             self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
         end
     end
-
-
-    -- If we are finding a place to reload, don't do that, reload now instead, we ain't got time for that shit
-    self:StressReload()
 
 
     self.HasZBScaledDamage = false

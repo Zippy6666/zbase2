@@ -84,40 +84,10 @@ end
 
 if CLIENT then
 
-    net.Receive("ZBaseBadBranch", function()
-        chat.AddText(Color(255, 0, 0), "WARNING: ZBase will not work properly on the current branch this server is on! Expect errors!")
-        chat.AddText(Color(255, 0, 0), "ZBase was intended for the developer and x86 branches of gmod! Current branch: '", BRANCH, "'.")
-    end)
-
-
     net.Receive("ZBaseClientReload", function()
 
         ZBase_RegisterHandler:Reload()
 
-    end)
-
-end
-
-
---[[
-======================================================================================================================================================
-                                           BAD BRANCH BOY
-======================================================================================================================================================
---]]
-
-
-ZBaseBadBranch = SERVER && !string.StartsWith(BRANCH, "x86") && BRANCH != "dev"
-
-
-if ZBaseBadBranch then
-
-    hook.Add("PlayerInitialSpawn", "ZBase", function( ply )
-
-        timer.Simple(3, function()
-            net.Start("ZBaseBadBranch")
-            net.Send(ply)
-        end)
-        
     end)
 
 end
@@ -285,16 +255,6 @@ ZBaseIsMP = !game.SinglePlayer()
 ZBaseNPCInstances = ZBaseNPCInstances or {}
 ZBaseNPCInstances_NonScripted = ZBaseNPCInstances_NonScripted or {}
 ZBaseBehaviourTimerFuncs = ZBaseBehaviourTimerFuncs or {}
-
-
-
-function ZBaseEnhancementNPCClass(debuginfo)
-    local shortsrc = debuginfo.short_src
-    local split = string.Split(shortsrc, "/")
-    local name = split[#split]
-    local split2 = string.Split(name, ".")
-    return split2[1]
-end
 
 
 function ZBaseListFactions( _, ply )

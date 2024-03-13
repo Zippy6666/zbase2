@@ -86,8 +86,8 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
 
                 own:OnOwnedEntCreated( ent )
 
-                if own.ZBaseEnhancedCreateEnt then
-                    own:ZBaseEnhancedCreateEnt( ent )
+                if own.Patch_CreateEnt then
+                    own:Patch_CreateEnt( ent )
                 end
 
             end
@@ -207,8 +207,8 @@ hook.Add("Tick", "ZBASE", function()
             zbaseNPC:ZBaseThink()
 
 
-            if zbaseNPC.ZBaseEnhancedThink then
-                zbaseNPC:ZBaseEnhancedThink()
+            if zbaseNPC.Patch_Think then
+                zbaseNPC:Patch_Think()
             end
 
         end
@@ -321,8 +321,8 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
         attacker:DealDamage( dmg, ent )
 
 
-        if attacker.ZBaseEnhancedDealDamage then
-            attacker:ZBaseEnhancedDealDamage( dmg, ent )
+        if attacker.Patch_DealDamage then
+            attacker:Patch_DealDamage( dmg, ent )
         end
 
     end
@@ -742,52 +742,6 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
     end
 end)
 
-
-hook.Add("AcceptInput", "ZBASE", function( ent, input, activator, caller, value )
-
-    -- ZBase NPC is ent
-    if ent.IsZBaseNPC then
-
-        local r1 = ent:InternalAcceptInput(input, activator, caller, value)
-
-        if r1 == true then
-            return true
-        end
-
-
-        local r2 = ent:CustomAcceptInput(input, activator, caller, value)
-
-        if r2 == true then
-            return true
-        end
-
-    end
-
-
-    -- ZBase NPC is activator
-    if activator.IsZBaseNPC then
-
-        local r = activator:Input_Activator(ent, input, value)
-
-        if r == true then
-            return true
-        end
-
-    end
-
-
-    -- ZBase NPC is caller
-    if caller.IsZBaseNPC then
-
-        local r = caller:Input_Caller(ent, input, value)
-
-        if r == true then
-            return true
-        end
-
-    end
-
-end)
 
 
 hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )

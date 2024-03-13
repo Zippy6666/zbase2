@@ -27,7 +27,10 @@ NPC.SightDistance = 7000 -- Sight distance
 NPC.SightAngle = 90 -- Sight angle
 NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.CallForHelpDistance = 2000 -- Call for help distance
+NPC.CanBeCalledForHelp = true -- Can this NPC be called by other allies when they need help?
 NPC.HearDistMult = 1 -- Hearing distance multiplier when this addon is enabled: https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
+NPC.TimeUntilLooseEnemy = 15 -- Time until it no longer knows where the enemy is
+NPC.TimeUntilExitAlert = 15 -- Time until it goes from an alert state, to an idle state
 
 
 NPC.HullType = false -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
@@ -98,7 +101,6 @@ NPC.MoveSpeedMultiplier = 1
 ==================================================================================================
 --]]
 
-
 NPC.MinShootDistance = 0 -- Minimum distance the NPC will fire its weapon from
 NPC.MaxShootDistance = 3000 -- Maximum distance the NPC can fire its weapon from
 NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
@@ -106,13 +108,15 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
 
-NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK1_LOW} -- The NPC will randomly switch between these activities when firing their weapon
-NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM, ACT_RUN_AIM} -- The NPC will randomly switch between these activities when firing their weapon
+-- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF --
+-- NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK1_LOW} -- The NPC will randomly switch between these activities when firing their weapon
+-- NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM, ACT_RUN_AIM} -- The NPC will randomly switch between these activities when firing their weapon
 
 
-NPC.WeaponFire_DoGesture = false -- Should it play a gesture animation everytime it fires the weapon when standing still?
-NPC.WeaponFire_DoGesture_Moving = true -- Should it play a gesture animation everytime it fires the weapon when moving?
-NPC.WeaponFire_Gestures = {ACT_GESTURE_RANGE_ATTACK1} -- The gesture animations to play
+-- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF --
+-- NPC.WeaponFire_DoGesture = true -- Should it play a gesture animation everytime it fires the weapon when standing still?
+-- NPC.WeaponFire_DoGesture_Moving = true -- Should it play a gesture animation everytime it fires the weapon when moving?
+-- NPC.WeaponFire_Gestures = {ACT_GESTURE_RANGE_ATTACK1} -- The gesture animations to play
 
 
 NPC.MeleeWeaponAnimations = {ACT_MELEE_ATTACK1} -- Animations to use when attacking with a melee weapon

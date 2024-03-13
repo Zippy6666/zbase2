@@ -1,41 +1,24 @@
-local my_cls = ZBaseEnhancementNPCClass(debug.getinfo(1,'S'))
+local my_cls = ZBasePatchNPCClass(debug.getinfo(1,'S'))
 
 
 ZBasePatchTable[my_cls] = function( NPC )
     
     
-    function NPC:ZBaseEnhancedInit()
+    function NPC:Patch_Init()
     
-        -- Don't allow combines to be elites
-        -- All bines should be able to throw grenades and ar2 altfire!!!!
-        self.m_fIsElite = false
-        self.m_iTacticalVariant = 1
-        self.m_iNumGrenades = 0
-
-    end
-
-
-
-    function NPC:ZBaseEnhancedThink()
-
-        -- Put squad slot to 1 if it doesn't have any
-        -- Allows multiple combines in the same squad to fire at once
-        if self:GetInternalVariable("m_iMySquadSlot") == -1 then
-            self:SetSaveValue("m_iMySquadSlot", 1)
-        end
-
-
-        -- Keep shootin boye
-        self:SetSaveValue("m_nShots", 2)
+        self:SetSaveValue("m_fIsElite", false) -- No elites, should be handled by the user instead
+        self:SetSaveValue("m_iNumGrenades", 0) -- No grenades
 
     end
     
     
-    function NPC:ZBaseEnhancedCreateEnt( ent )
-        -- Remove default grenades
+    function NPC:Patch_CreateEnt( ent )
+
+        -- Remove default grenades, if they spawn
         if ent:GetClass() == "npc_grenade_frag" && !ent.IsZBaseGrenade then
             ent:Remove()
         end
+    
     end
     
     
