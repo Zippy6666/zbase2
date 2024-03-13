@@ -1155,10 +1155,35 @@ end
 --]]
 
 
--- Make the NPC face certain directions
--- 'face' - A position or an entity to face, or a  representing the yaw.
--- 'duration' - Face duration, if not set, you can run the function in think for example
--- 'speed' - Turn speed, if not set, it will be the default turn speed
+    -- Old function used by the weapon system, really just for backwards compatability
+function NPC:ZBaseSetAct( act, func, ... )
+    func = func or self.SetActivity
+
+    if self:SelectWeightedSequence( act ) != -1 then
+
+        func( self, act, ... )
+        return act
+
+    end
+
+    local ActTranslated = self:Weapon_TranslateActivity(act)
+    if self:SelectWeightedSequence( ActTranslated ) != -1 then
+
+        func( self, ActTranslated, ... )
+        return ActTranslated
+
+    end
+
+    return false
+
+end
+
+
+    -- OLD and should probably be rewritten...
+    -- Make the NPC face certain directions
+    -- 'face' - A position or an entity to face, or a  representing the yaw.
+    -- 'duration' - Face duration, if not set, you can run the function in think for example
+    -- 'speed' - Turn speed, if not set, it will be the default turn speed
 function NPC:Face( face, duration, speed )
 
     local function turn( yaw )
