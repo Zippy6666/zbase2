@@ -108,6 +108,7 @@ function NPC:ZBaseInit()
     self.NextHealthRegen = CurTime()
     self.NextFootStepTimer = CurTime()
     self.NextRangeThreatened = CurTime()
+    self.NextOutOfShootRangeSched = CurTime()
     self.EnemyVisible = false
     self.HadPreviousEnemy = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
@@ -490,8 +491,10 @@ function NPC:ZBaseThink()
         self:ZBWepSys_Think()
 
 
+        -- Move anim override
         self.LastMoveActOverride = self:OverrideMovementAct()
-        if self.LastMoveActOverride then
+        self.MovementOverrideActive = isnumber(self.LastMoveActOverride)
+        if self.MovementOverrideActive then
             self:SetMovementActivity(self.LastMoveActOverride)
         end
 
@@ -589,7 +592,6 @@ function NPC:Controller_Move( pos, run )
     self.CurrentControlDest = (self.CurrentControlDest && Lerp(0.33, self.CurrentControlDest, dest)) or dest
     self:SetLastPosition( self.CurrentControlDest )
     self:SetSchedule(SCHED_FORCED_GO)
-    self:SetMovementActivity(self.LastMoveActOverride or (run && ACT_RUN) or ACT_WALK)
 end
 
 
@@ -987,10 +989,9 @@ function NPC:ZBWepSys_CanFireWeapon()
 end
 
 
-
+local OutOfShootRangeSched = SCHED_FORCED_GO_RUN
 function NPC:ZBWepSys_FireWeaponThink()
 
-    local Moving = self:IsMoving()
     local ene = self:GetEnemy()
     local wep = self:GetActiveWeapon()
     self.ZBWepSys_CheckDist = {within=self.MaxShootDistance*wep.NPCShootDistanceMult, away=self.MinShootDistance}
@@ -999,6 +1000,30 @@ function NPC:ZBWepSys_FireWeaponThink()
     -- In shoot dist check
     self.ZBWepSys_InShootDist = IsValid(ene) && self:ZBaseDist(ene, self.ZBWepSys_CheckDist)
 
+
+
+    -- Force move to enemy, do so if:
+    -- > Enemy is outside of the shooting range
+    -- > Enemy is visible
+    -- > We are not currently doing any schedule that causes the NPC to move
+    if IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
+    && !self:IsMoving() && !self:IsCurrentSchedule(OutOfShootRangeSched) && self.NextOutOfShootRangeSched < CurTime() then
+
+        local lastpos = ene:GetPos()+ene:GetForward()*ene:OBBMaxs().x*3
+        self:SetLastPosition(lastpos)
+        self:SetSchedule(OutOfShootRangeSched)
+        self.NextOutOfShootRangeSched = CurTime()+3
+
+        ZBaseDOverlay("Text", function()
+            local pos = self:GetPos()
+            return {pos, "Doing base out of shoot range behaviour.", 2}
+        end)
+
+        ZBaseDOverlay("Cross", function()
+            return {lastpos, 30, 2, Color(0, 255, 0)}
+        end)
+
+    end
 
 
     -- Here is where the fun begins
@@ -1042,7 +1067,7 @@ function NPC:ZBWepSys_FireWeaponThink()
         end
 
 
-        -- Press trigger, recoil anim
+        -- Press trigger
         if self.ZBWepSys_AllowShoot then
 
             self:ZBWepSys_Shoot()
@@ -1153,30 +1178,6 @@ end
                                            INTERNAL UTIL
 ==================================================================================================
 --]]
-
-
-    -- Old function used by the weapon system, really just for backwards compatability
-function NPC:ZBaseSetAct( act, func, ... )
-    func = func or self.SetActivity
-
-    if self:SelectWeightedSequence( act ) != -1 then
-
-        func( self, act, ... )
-        return act
-
-    end
-
-    local ActTranslated = self:Weapon_TranslateActivity(act)
-    if self:SelectWeightedSequence( ActTranslated ) != -1 then
-
-        func( self, ActTranslated, ... )
-        return ActTranslated
-
-    end
-
-    return false
-
-end
 
 
     -- OLD and should probably be rewritten...
@@ -1971,7 +1972,8 @@ function NPCB.FactionCallForHelp:Run( self )
     local ally = self:GetNearestAlly(self.CallForHelpDistance)
     local ene = self:GetEnemy()
 
-    if IsValid(ally) && ally:IsNPC() && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) && self:GetSquad()!=ally:GetSquad() then
+    if IsValid(ally) && ally:IsNPC() && ally.CanBeCalledForHelp && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene)
+    && self:GetSquad()!=ally:GetSquad() then
 
         ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
         ally:AlertSound()
@@ -1995,9 +1997,6 @@ end
                                            AI SECONDARY FIRE
 ==================================================================================================
 --]]
-
-
-    // Kinda old, will probably be redone with the new weapon system
 
 
 ZBaseComballOwner = NULL
