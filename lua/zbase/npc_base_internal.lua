@@ -1376,10 +1376,8 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
         -- Decide duration
         if !duration then
             duration = (self:SequenceDuration(anim)*0.9)/self.MoveSpeedMultiplier
-            print("default duration:", duration)
         elseif isnumber(duration) then
             duration = duration/(playbackRate or self.MoveSpeedMultiplier or 1)
-            print("custom duration:", duration)
         end
 
 
