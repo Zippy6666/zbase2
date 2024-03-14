@@ -1,5 +1,39 @@
 
-    // You probably don't want to use these
+    // You probably don't want to use these globals
+
+local vec0 = Vector()
+
+
+ZBaseFactionTranslation = SERVER && {
+    [CLASS_COMBINE] = "combine",
+    [CLASS_COMBINE_GUNSHIP] = "combine",
+    [CLASS_MANHACK] = "combine",
+    [CLASS_METROPOLICE] = "combine",
+    [CLASS_MILITARY] = "combine",
+    [CLASS_SCANNER] = "combine",
+    [CLASS_STALKER] = "combine",
+    [CLASS_PROTOSNIPER] = "combine",
+    [CLASS_COMBINE_HUNTER] = "combine",
+    [CLASS_HACKED_ROLLERMINE] = "ally",
+    [CLASS_HUMAN_PASSIVE] = "ally",
+    [CLASS_VORTIGAUNT] = "ally",
+    [CLASS_PLAYER] = "ally",
+    [CLASS_PLAYER_ALLY] = "ally",
+    [CLASS_PLAYER_ALLY_VITAL] = "ally",
+    [CLASS_CITIZEN_PASSIVE] = "ally",
+    [CLASS_CITIZEN_REBEL] = "ally",
+    [CLASS_BARNACLE] = "xen",
+    [CLASS_ALIEN_MILITARY] = "xen",
+    [CLASS_ALIEN_MONSTER] = "xen",
+    [CLASS_ALIEN_PREDATOR] = "xen",
+    [CLASS_MACHINE] = "hecu",
+    [CLASS_HUMAN_MILITARY] = "hecu",
+    [CLASS_HEADCRAB] = "zombie",
+    [CLASS_ZOMBIE] = "zombie",
+    [CLASS_ALIEN_PREY] = "zombie",
+    [CLASS_ANTLION] = "antlion",
+    [CLASS_EARTH_FAUNA] = "neutral",
+} or nil
 
 
 --[[
@@ -197,6 +231,58 @@ function ZBaseSchedDebug( ent )
 end
 
 
+--[[
+======================================================================================================================================================
+                                           NPC Copy System
+======================================================================================================================================================
+--]]
+
+
+    -- "NPC copy" system, makes a zbase "NPC copy" of any type/class from any spawned NPC
+local invisCol = Color(255,255,255,0)
+function ZBaseNPCCopy( npc, zbase_cls )
+
+    -- Store the old NPCs squad and name
+    local name = npc:GetName()
+    local squad = npc:GetSquad()
+
+    
+    -- New ZBase NPC
+    local ZBaseNPC = ZBaseSpawnZBaseNPC( zbase_cls, nil, nil, "default" )
+    ZBaseNPC.DontAutoSetSquad = true
+    ZBaseNPC.ZBaseStartFaction =  ZBaseFactionTranslation[npc:Classify()]
+    ZBaseNPC:SetPos(npc:GetPos())
+    ZBaseNPC:SetAngles(npc:GetAngles())
+    ZBaseNPC:SetName(name)
+    ZBaseNPC:SetSquad(squad)
+    undo.ReplaceEntity(npc, ZBaseNPC)
+    cleanup.ReplaceEntity(npc, ZBaseNPC)
+
+
+    -- Set NPC into a "dull state"
+    npc:SetName("")
+    npc:SetSquad("")
+    npc:CapabilitiesClear()
+    npc:AddEFlags(EFL_DONTBLOCKLOS)
+    npc:AddFlags(FL_NOTARGET)
+    npc:SetCollisionBounds(vec0, vec0)
+    npc:SetParent(ZBaseNPC)
+    npc:SetMaxLookDistance(1)
+    npc:SetNoDraw(true)
+    npc:SetRenderMode(RENDERMODE_TRANSCOLOR)
+    npc:DrawShadow(false)
+    npc:SetColor(invisCol)
+    npc:SetNWBool("ZBaseNPCCopy_DullState", true)
+    npc.ZBaseNPCCopy_DullState = true
+
+
+    -- Remove "dull state" NPC's weapon if any
+    local npcWep = npc:GetActiveWeapon()
+    if IsValid(npcWep) then
+        npcWep:Remove()
+    end
+
+end
 
 
 --[[

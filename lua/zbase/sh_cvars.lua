@@ -18,6 +18,7 @@ ZBCVAR.PlayerHurtAllies = CreateConVar("zbase_ply_hurt_ally", "0", Flags)
 ZBCVAR.Precache = CreateConVar("zbase_precache", "1", Flags)
 ZBCVAR.Patrol = CreateConVar("zbase_patrol", "1", Flags)
 ZBCVAR.CallForHelp = CreateConVar("zbase_callforhelp", "1", Flags)
+ZBCVAR.CampaignReplace = CreateConVar("zbase_camp_replace", "0", Flags)
 
 --[[
 ==================================================================================================
