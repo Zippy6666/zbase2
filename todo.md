@@ -12,7 +12,6 @@
     - Jumping/fly control
     - Fully implemented attack system
 - Context menu stuff: control, kill, etc
-
 - Fix animation pauses
 - Get rid of old shit face codes, and get rid of 0 delay endless timers
 - Weapon randomizer: Randomize outside of zbase tab too
