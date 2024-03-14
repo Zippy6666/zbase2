@@ -282,30 +282,32 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 
 
 	--
-	-- Offset the position
+	-- Set Position if any
 	--
-	NPC:SetPos( Position + Normal * 32 )
-	if NPCData.Offset then
-		timer.Simple(0, function()
-			if !IsValid(NPC) then return end
+	if Position then
+		NPC:SetPos( Position + Normal * 32 )
+		if NPCData.Offset then
+			timer.Simple(0, function()
+				if !IsValid(NPC) then return end
 
-			NPC:SetPos( Position + Normal * NPCData.Offset )
-		end)
+				NPC:SetPos( Position + Normal * NPCData.Offset )
+			end)
 
-		bDropToFloor = false
+			bDropToFloor = false
+		end
+	
+		-- Rotate to face player (expected behaviour)
+		local Angles = Angle( 0, 0, 0 )
+		if ( IsValid( ply ) ) then
+			Angles = ply:GetAngles()
+		end
+
+		Angles.pitch = 0
+		Angles.roll = 0
+		Angles.yaw = Angles.yaw + 180
+		if ( NPCData.Rotate ) then Angles = Angles + NPCData.Rotate end
+		NPC:SetAngles( Angles )
 	end
-
-	-- Rotate to face player (expected behaviour)
-	local Angles = Angle( 0, 0, 0 )
-	if ( IsValid( ply ) ) then
-		Angles = ply:GetAngles()
-	end
-
-	Angles.pitch = 0
-	Angles.roll = 0
-	Angles.yaw = Angles.yaw + 180
-	if ( NPCData.Rotate ) then Angles = Angles + NPCData.Rotate end
-	NPC:SetAngles( Angles )
 
 
 	NPC.ZBase_PlayerWhoSpawnedMe = ply

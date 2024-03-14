@@ -55,98 +55,48 @@ end)
 
 hook.Add("OnEntityCreated", "ZBASE", function( ent )
 
-    -- ZBase init stuff when not spawned from menu
+    -- ZBase init stuff when NOT SPAWNED FROM MENU
     if SERVER then
-
         timer.Simple(0, function()
             if !IsValid(ent) then return end
-
             
             local zbaseClass = ent:GetKeyValues().parentname
             local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
-
             
             if ZBaseNPCTable then
                 ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
             end
         end)
-
     end
 
 
-    -- OnOwnedEntCreated
+    -- When a entity owned by a zbase NPC is created
     if SERVER then
-
         timer.Simple(0, function()
-
             if !IsValid(ent) then return end
 
             local own = ent:GetOwner()
             if IsValid(own) && own.IsZBaseNPC then
-
                 own:OnOwnedEntCreated( ent )
 
                 if own.Patch_CreateEnt then
                     own:Patch_CreateEnt( ent )
                 end
-
             end
-
         end)
-
     end
 
 
-    -- Relationship stuff
+    -- When any NPC is created
+    -- Give zbase faction
     if SERVER && ent:IsNPC() && ent:GetClass() != "npc_bullseye" && !ent.IsZBaseNavigator then
-
-        timer.Simple(0, function()
-
-            if !IsValid(ent) then return end
-
-
-            local FactionTranslation = {
-                [CLASS_COMBINE] = "combine",
-                [CLASS_COMBINE_GUNSHIP] = "combine",
-                [CLASS_MANHACK] = "combine",
-                [CLASS_METROPOLICE] = "combine",
-                [CLASS_MILITARY] = "combine",
-                [CLASS_SCANNER] = "combine",
-                [CLASS_STALKER] = "combine",
-                [CLASS_PROTOSNIPER] = "combine",
-                [CLASS_COMBINE_HUNTER] = "combine",
-                [CLASS_HACKED_ROLLERMINE] = "ally",
-                [CLASS_HUMAN_PASSIVE] = "ally",
-                [CLASS_VORTIGAUNT] = "ally",
-                [CLASS_PLAYER] = "ally",
-                [CLASS_PLAYER_ALLY] = "ally",
-                [CLASS_PLAYER_ALLY_VITAL] = "ally",
-                [CLASS_CITIZEN_PASSIVE] = "ally",
-                [CLASS_CITIZEN_REBEL] = "ally",
-                [CLASS_BARNACLE] = "xen",
-                [CLASS_ALIEN_MILITARY] = "xen",
-                [CLASS_ALIEN_MONSTER] = "xen",
-                [CLASS_ALIEN_PREDATOR] = "xen",
-                [CLASS_MACHINE] = "hecu",
-                [CLASS_HUMAN_MILITARY] = "hecu",
-                [CLASS_HEADCRAB] = "zombie",
-                [CLASS_ZOMBIE] = "zombie",
-                [CLASS_ALIEN_PREY] = "zombie",
-                [CLASS_ANTLION] = "antlion",
-                [CLASS_EARTH_FAUNA] = "neutral",
-            }
-
-
-            local faction = FactionTranslation[ent:Classify()]
-
-
+        function ent:ZBaseRelSetup()
             table.insert(ZBaseRelationshipEnts, ent)
+            ZBaseSetFaction(ent, !ent.IsZBaseNPC && ZBaseFactionTranslation[ent:Classify()])
             ent:CallOnRemove("ZBaseRelationshipEntsRemove", function() table.RemoveByValue(ZBaseRelationshipEnts, ent) end)
+        end
 
-
-            ZBaseSetFaction(ent, !ent.IsZBaseNPC && faction)
-
-        end)
+        ent:CallNextTick( "ZBaseRelSetup" )
     end
 
 end)
@@ -314,6 +264,14 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
 
+    -- NPCs with ZBaseNPCCopy_DullState should not be able to take damage, nor should they be able to deal damage
+    if ent.ZBaseNPCCopy_DullState or attacker.ZBaseNPCCopy_DullState or infl.ZBaseNPCCopy_DullState then
+        dmg:SetDamage(0)
+        return true
+    end
+
+
+
 
     -- Attacker is ZBase NPC
     if IsValid(attacker) && attacker.IsZBaseNPC then
@@ -469,11 +427,16 @@ local NPCFootstepSubStr = {
 
 hook.Add("EntityEmitSound", "ZBASE", function( data )
 
-    -- stfu navigator slave mf, you have no right to speak
+    -- Silence navigator
     if data.Entity.IsZBaseNavigator then
         return false
     end
 
+
+    -- Silence "dull state" NPCs
+    if IsValid(data.Entity) && data.Entity:GetNWBool("ZBaseNPCCopy_DullState") then
+        return false
+    end
 
 
     if !IsValid(data.Entity) then return end

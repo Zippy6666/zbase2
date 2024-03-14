@@ -304,6 +304,7 @@ local function IncludeFiles()
         include("zbase/sv_behaviour_system.lua")
         include("zbase/sv_spawnnpc.lua")
         include("zbase/sv_enginewep_translation.lua")
+        include("zbase/sv_replacer.lua")
 
         
         -- Include NPC enhancement files

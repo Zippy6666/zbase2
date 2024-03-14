@@ -70,6 +70,8 @@ function ZBaseSetFaction( ent, newFaction )
     for _, v in ipairs(ZBaseRelationshipEnts) do
         v:ZBaseUpdateRelationships()
     end
+
+    MsgN("ZBaseSetFaction ", ent, " ", ent.ZBaseFaction)
 end
 
 
@@ -124,7 +126,7 @@ end
 
     -- Spawn a ZBase NPC
     -- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
-    -- 'pos' - The position to spawn it on
+    -- 'pos' - The position to spawn it on (optional, will be Vector(0,0,0) otherwise)
     -- 'normal' - The normal to spawn it on (optional)
     -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
 function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
@@ -147,7 +149,7 @@ function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
 
 
     
-    return ZBaseInternalSpawnNPC( NULL, pos, normal or Vector(0, 0, 1), class, weapon_class, nil, true )
+    return ZBaseInternalSpawnNPC( nil, pos, normal or Vector(0, 0, 1), class, weapon_class, nil, true )
 
 
 end

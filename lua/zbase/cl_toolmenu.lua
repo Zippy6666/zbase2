@@ -91,6 +91,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Replace in NPC Menu", "zbase_replace")
         panel:Help("Should the default HL2 NPCs be replaced by their ZBase equivalents in the spawn menu?")
 
+        panel:CheckBox("Campaign Replace", "zbase_camp_replace")
+        panel:Help("Enable the zbase campaign replace system. Replaces retail HL2 NPCs with any desired ZBase NPC.")
+
     end)
 
 

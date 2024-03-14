@@ -123,6 +123,10 @@ function NPC:ZBaseInit()
     self:SetRenderMode(self.RenderMode)
 
 
+    -- Forces npcs with "target" keyvalue to walk
+    self:Fire("wake") 
+
+
     -- Submaterials
     for k, v in pairs(self.SubMaterials) do
         self:SetSubMaterial(k-1, v)
@@ -139,7 +143,9 @@ function NPC:ZBaseInit()
     end
 
 
-    self:SetSquad("zbase") -- Basic squad, will be replaced with faction later
+    if !self.DontAutoSetSquad then
+        self:SetSquad("zbase") -- Basic squad, will be replaced with faction later
+    end
 
 
     -- Tick delay to fix issues
@@ -181,7 +187,7 @@ function NPC:ZBaseInit()
         
 
 
-            if self.ZBaseFaction != "none" then
+            if self.DontAutoSetSquad && self.ZBaseFaction != "none" then
                 self:SetSquad(self.ZBaseFaction)
             end
         end
@@ -210,10 +216,10 @@ function NPC:ZBaseInit()
 
 
 
-    if ZBaseBadBranch && IsValid(self.ZBase_PlayerWhoSpawnedMe) then
-        net.Start("ZBaseBadBranch")
-        net.Send(self.ZBase_PlayerWhoSpawnedMe)
-    end
+    -- if ZBaseBadBranch && IsValid(self.ZBase_PlayerWhoSpawnedMe) then
+    --     net.Start("ZBaseBadBranch")
+    --     net.Send(self.ZBase_PlayerWhoSpawnedMe)
+    -- end
 
 end
 
@@ -893,23 +899,32 @@ end
 function NPC:ZBWepSys_StoreInInventory( wep )
 
     self.ZBWepSys_Inventory[wep:GetClass()] = {model=wep:GetModel(), isScripted=wep:IsScripted()}
-
     wep:Remove()
 
 end
 
 
 function NPC:ZBNWepSys_NewNumShots()
-    local ShotsMin, ShotsMax = self:GetActiveWeapon():ZBaseGetNPCBurstSettings()
-    local RndShots = math.random(ShotsMin, ShotsMax)
+    local wep = self:GetActiveWeapon()
 
-    return RndShots
+    if IsValid(wep) && wep.ZBaseGetNPCBurstSettings then
+        local ShotsMin, ShotsMax = wep:ZBaseGetNPCBurstSettings()
+
+        local RndShots = math.random(ShotsMin, ShotsMax)
+        return RndShots
+    end
+
+    return 1
 end
 
 
 function NPC:ZBWepSys_Shoot()
 
-    self:GetActiveWeapon():PrimaryAttack()
+    local wep = self:GetActiveWeapon()
+    if !IsValid(wep) then return end
+
+
+    wep:PrimaryAttack()
     
 
     self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
@@ -917,7 +932,7 @@ function NPC:ZBWepSys_Shoot()
 
     if self.ZBWepSys_ShotsLeft <= 0 then
 
-        local RestTimeMin, RestTimeMax = self:GetActiveWeapon():GetNPCRestTimes()
+        local RestTimeMin, RestTimeMax = wep:GetNPCRestTimes()
         local RndRest = math.Rand(RestTimeMin, RestTimeMax)
 
 
@@ -927,7 +942,7 @@ function NPC:ZBWepSys_Shoot()
     end
 
 
-    local _, _, cooldown = self:GetActiveWeapon():ZBaseGetNPCBurstSettings()
+    local _, _, cooldown = wep:ZBaseGetNPCBurstSettings()
     self.ZBWepSys_NextShoot = CurTime()+cooldown
 
 end
