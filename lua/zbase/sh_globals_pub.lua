@@ -70,8 +70,6 @@ function ZBaseSetFaction( ent, newFaction )
     for _, v in ipairs(ZBaseRelationshipEnts) do
         v:ZBaseUpdateRelationships()
     end
-
-    MsgN("ZBaseSetFaction ", ent, " ", ent.ZBaseFaction)
 end
 
 

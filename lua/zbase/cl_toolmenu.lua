@@ -93,6 +93,16 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox("Campaign Replace", "zbase_camp_replace")
         panel:Help("Enable the zbase campaign replace system. Replaces retail HL2 NPCs with any desired ZBase NPC.")
+    
+        local ReloadButton = vgui.Create("DButton", panel)
+        ReloadButton:Dock(TOP)
+        ReloadButton:DockMargin(5, 25, 5, 0)
+        ReloadButton:SetText("Load Campaign Replace File")
+        function ReloadButton:DoClick()
+            net.Start("zbase_camp_replace_reload")
+            net.SendToServer()
+        end
+        panel:Help("Loads the 'zbase_campaign_replace.json' file in your data directory with your supplied changes.")
 
     end)
 
