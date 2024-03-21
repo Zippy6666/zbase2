@@ -112,8 +112,9 @@ function NPC:ZBaseInit()
     self.EnemyVisible = false
     self.HadPreviousEnemy = false
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
-    self.LastHitGroup = HITGROUP_GENERIC
+    self.ZBLastHitGr = HITGROUP_GENERIC
     self.PlayerToFollow = NULL
+    self.GuardSpot = self:GetPos()
     self:SetNWBool("IsZBaseNPC", true)
     self:SetNWString("ZBaseName", self.Name)
     self:SetNWString("NPCName", self.NPCName)
@@ -1854,6 +1855,45 @@ end
 --]]
 
 
+local ThorElg = 500
+
+NPCB.Stationary = {
+}
+
+function NPCB.Stationary:ShouldDoBehaviour( self )
+    return ZBCVAR.Stationary:GetBool()
+end
+
+function NPCB.Stationary:Delay(self)
+end
+
+function NPCB.Stationary:Run( self )
+    if self:ZBaseDist(self.GuardSpot, {away=ThorElg}) then
+
+        self:ClearGoal()
+        self:SetLastPosition(self.GuardSpot)
+        self:SetSchedule(SCHED_FORCED_GO)
+
+        ZBaseDOverlay("Sphere", function()
+            return {self.GuardSpot, 25, 3, Color(0, 0, 255)}
+        end)
+    
+        ZBaseDOverlay("Text", function()
+            return {self:WorldSpaceCenter(), "Returning to guard pos.", 3}
+        end)
+    end
+
+    ZBaseDelayBehaviour(2)
+end
+
+
+--[[
+==================================================================================================
+                                           AI FOLLOW PLAYER
+==================================================================================================
+--]]
+
+
 function NPC:CanStartFollowPlayers()
     return self.CanFollowPlayers && !GetConVar("ai_ignoreplayers"):GetBool() && !IsValid(self.PlayerToFollow)
     && self.SNPCType != ZBASE_SNPCTYPE_STATIONARY
@@ -3042,7 +3082,7 @@ function NPC:OnScaleDamage( dmg, hit_gr )
 
 
     -- Remember stuff
-    self.LastHitGroup = hit_gr
+    self.ZBLastHitGr = hit_gr
     self:StoreDMGINFO( dmg )
 
 
@@ -3113,6 +3153,13 @@ function NPC:OnEntityTakeDamage( dmg )
 
     if (self:IsAlly(attacker) or attacker.LastOwnerZBaseFaction==self.ZBaseFaction or (infl.IsZBaseDMGInfl && attacker==self))
     && !(ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer()) then
+        dmg:ScaleDamage(0)
+        return true
+    end
+
+
+    -- In "stationary mode" zbase npcs cannot hurt each other
+    if ZBCVAR.Stationary:GetBool() && attacker.IsZBaseNPC then
         dmg:ScaleDamage(0)
         return true
     end
@@ -3192,10 +3239,10 @@ function NPC:OnPostEntityTakeDamage( dmg )
 
     -- Flinch
     if !table.IsEmpty(self.FlinchAnimations) && math.random(1, self.FlinchChance) == 1 && self.NextFlinch < CurTime() then
-        local anim = self:GetFlinchAnimation(dmg, self.LastHitGroup)
+        local anim = self:GetFlinchAnimation(dmg, self.ZBLastHitGr)
 
 
-        if self:OnFlinch(dmg, self.LastHitGroup, anim) != false then
+        if self:OnFlinch(dmg, self.ZBLastHitGr, anim) != false then
             self:FlinchAnimation(anim)
             self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
         end
