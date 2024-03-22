@@ -79,10 +79,12 @@ NPC.OnRangeSound_Chance = 3
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
 
---]]==============================================================================================]]
+
+
 function NPC:CustomInitialize()
 end
---]]==============================================================================================]]
+
+
 function NPC:RangeAttackProjectile()
     local projStartPos = self:Projectile_SpawnPos()
 
@@ -97,8 +99,10 @@ function NPC:RangeAttackProjectile()
         proj_phys:SetVelocity(self:RangeAttackProjectileVelocity()+Vector(0, 0, 200))
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:PreventRangeAttack()
     return IsValid(self:GetActiveWeapon()) or !self:IsFacing(self:GetEnemy(), 45)
 end
---]]==============================================================================================]]
+
+
