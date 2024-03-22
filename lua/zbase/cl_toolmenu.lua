@@ -45,6 +45,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Hurt Allies", "zbase_ply_hurt_ally" )
         panel:Help("Allow players to hurt their allies.")
 
+        panel:CheckBox("Allies Hurt Players", "zbase_ally_hurt_ply")
+        panel:Help("Allow NPC allied with the player to hurt the player.")
+
         panel:CheckBox("Zombie Headcrabs", "zbase_zombie_headcrabs")
         panel:Help("Should the default ZBase zombies spawn with headcrabs?")
         panel:CheckBox("Zombie Red Blood", "zbase_zombie_red_blood")
