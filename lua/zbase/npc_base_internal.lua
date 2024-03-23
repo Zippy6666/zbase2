@@ -2932,11 +2932,11 @@ end
 function NPC:DealDamage( dmg, ent )
 
     local infl = dmg:GetInflictor()
+    local disp = self:Disposition(ent)
 
-
-    if ent:IsPlayer() && !ZBCVAR.AlliesHurtPlayer:GetBool() then
-        dmg:ScaleDamage(0)
-    end
+    -- if ent:IsPlayer() && disp==D_LI && !ZBCVAR.AlliesHurtPlayer:GetBool() then
+    --     dmg:ScaleDamage(0)
+    -- end
 
 
     local value = self:CustomDealDamage(ent, dmg)
