@@ -3335,7 +3335,9 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 
     -- Item drop
-    self:Death_ItemDrop()
+    if ZBCVAR.ItemDrop:GetBool() then
+        self:Death_ItemDrop()
+    end
 
 
     -- Custom on death
@@ -3344,6 +3346,29 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- No stoopid ragdoll pls
     self:SetShouldServerRagdoll(false)
+
+
+    -- Weapon dissolve
+    if ZBCVAR.DissolveWep:GetBool() then
+
+        local myWep = self:GetActiveWeapon()
+
+        conv.callNextTick(function()
+            if IsValid(myWep) then
+
+                myWep:SetName("zbase_wep_dissolve"..myWep:EntIndex())
+
+                local dissolve = ents.Create("env_entity_dissolver")
+                dissolve:SetKeyValue("target", rag:GetName())
+                dissolve:SetKeyValue("dissolvetype", 0)
+                dissolve:Fire("Dissolve", myWep:GetName())
+                dissolve:Spawn()
+                myWep:DeleteOnRemove(dissolve)
+
+            end
+        end)
+
+    end
 
 
     -- Byebye

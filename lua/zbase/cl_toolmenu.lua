@@ -111,6 +111,13 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:ControlHelp("Time until gibs are removed, 0 = never. Not affected by keep corpses.")
         panel:NumSlider( "Max Gibs", "zbase_gib_max", 1, 200, 0 )
         panel:ControlHelp("Max gibs, if there is one too many, the oldest gib will be removed. Not affected by keep corpses.")
+
+        panel:CheckBox( "Item Drops", "zbase_item_drops")
+        panel:ControlHelp("Should NPCs drop items?")
+
+        panel:CheckBox( "Dissolve Weapons", "zbase_dissolve_wep")
+        panel:ControlHelp("Should the NPC's weapons dissolve?")
+        
     end)
 
     --[[
