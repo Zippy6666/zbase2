@@ -5,7 +5,6 @@
 
 
 # POTENTIAL UPDATES
-- ZBase tool menu improvement (fix configure zbase thingy)
 - New face code with target face sched instead
 - Controller
     - Weapon firing
