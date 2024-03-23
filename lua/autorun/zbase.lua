@@ -632,7 +632,7 @@ function ZBase_RegisterHandler:Reload()
     self:RegNPCs()
     self:NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
     self:AddNPCsToSpawnMenu()
-    self:UpdateLiveNPCs()
+    -- self:UpdateLiveNPCs()
 
 
     if SERVER && ZBCVAR.ReloadSpawnMenu:GetBool() then
