@@ -17,10 +17,18 @@ end
 
 
 local function BehaviourTimer( ent )
+
+    -- Doing death anim, no behaviours then pls
     if ent.DoingDeathAnim then return end
 
-    ZBaseDelayEnt = ent
 
+    -- No behaviour with EFL_NO_THINK_FUNCTION
+    if bit.band(ent:GetFlags(), EFL_NO_THINK_FUNCTION )==EFL_NO_THINK_FUNCTION then
+        return
+    end
+
+
+    ZBaseDelayEnt = ent
     for BehaviourName, Behaviour in pairs(ent.Behaviours) do
         if !Behaviour.Run then continue end
         ZBaseDelayBehaviour_Name = BehaviourName
@@ -29,26 +37,27 @@ local function BehaviourTimer( ent )
         if ent.ZBase_Behaviour_Delays[BehaviourName] > CurTime() then continue end
 
 
+        -- Checks
         local enemy = ent:GetEnemy()
         local has_ene = IsValid(enemy)
-
         if (Behaviour.MustHaveEnemy && !has_ene)
         or (Behaviour.MustNotHaveEnemy && has_ene)
         or (Behaviour.MustHaveVisibleEnemy && !(has_ene && ent.EnemyVisible) )
         or (Behaviour.MustFaceEnemy && !ent:IsFacing(enemy)) then
             continue
         end
-
-
         if Behaviour.ShouldDoBehaviour && !Behaviour:ShouldDoBehaviour( ent ) then continue end
         
 
+        -- Delay
         local delay = Behaviour.Delay && Behaviour:Delay( ent )
         if delay then
             ZBaseDelayBehaviour( delay, ent, BehaviourName )
             return
         end
 
+
+        -- Run the behaviour
         Behaviour:Run( ent )
 
     end
