@@ -149,6 +149,11 @@ function NPC:ZBaseInit()
     end
 
 
+    -- Sleep state
+    -- self:SetKeyValue("sleepstate", ZBCVAR.SleepState:GetString())
+    -- print(self:GetKeyValues().sleepstate)
+
+
     -- Tick delay to fix issues
     timer.Simple(0, function()
 
@@ -185,7 +190,6 @@ function NPC:ZBaseInit()
             -- Set specified internal variables (again just to be sure)
             self:CapabilitiesClear()
             self:InitCap()
-        
 
 
             if self.DontAutoSetSquad && self.ZBaseFaction != "none" then

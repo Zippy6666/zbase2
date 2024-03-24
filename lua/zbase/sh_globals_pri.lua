@@ -246,9 +246,12 @@ function ZBaseNPCCopy( npc, zbase_cls )
     local name = npc:GetName()
     local squad = npc:GetSquad()
 
-    
+    local npcWep = npc:GetActiveWeapon()
+    local wepCls = IsValid(npcWep) && !table.IsEmpty(ZBaseNPCs[zbase_cls].Weapons) && npcWep:GetClass()
+
+
     -- New ZBase NPC
-    local ZBaseNPC = ZBaseSpawnZBaseNPC( zbase_cls, nil, nil, "default" )
+    local ZBaseNPC = ZBaseSpawnZBaseNPC( zbase_cls, nil, nil, wepCls or nil )
     ZBaseNPC.DontAutoSetSquad = true
     ZBaseNPC.ZBaseStartFaction =  ZBaseFactionTranslation[npc:Classify()]
     ZBaseNPC:SetPos(npc:GetPos())
@@ -257,7 +260,6 @@ function ZBaseNPCCopy( npc, zbase_cls )
     ZBaseNPC:SetSquad(squad)
     undo.ReplaceEntity(npc, ZBaseNPC)
     cleanup.ReplaceEntity(npc, ZBaseNPC)
-
 
     -- Set NPC into a "dull state"
     npc:SetName("")
@@ -275,9 +277,7 @@ function ZBaseNPCCopy( npc, zbase_cls )
     npc:SetNWBool("ZBaseNPCCopy_DullState", true)
     npc.ZBaseNPCCopy_DullState = true
 
-
     -- Remove "dull state" NPC's weapon if any
-    local npcWep = npc:GetActiveWeapon()
     if IsValid(npcWep) then
         npcWep:Remove()
     end
