@@ -1065,7 +1065,7 @@ function NPC:ZBWepSys_FireWeaponThink()
     -- > Enemy is outside of the shooting range
     -- > Enemy is visible
     -- > We are not currently doing any schedule that causes the NPC to move
-    if IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
+    if !ZBCVAR.Static:GetBool() && IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
     && !self:IsMoving() && !self:IsCurrentSchedule(OutOfShootRangeSched) && self.NextOutOfShootRangeSched < CurTime() then
 
         local lastpos = ene:GetPos()+ene:GetForward()*ene:OBBMaxs().x*3
@@ -1928,31 +1928,37 @@ end
 
 local ThorElg = 500
 
-NPCB.Stationary = {
+NPCB.Static = {
 }
 
-function NPCB.Stationary:ShouldDoBehaviour( self )
-    return ZBCVAR.Stationary:GetBool()
+function NPCB.Static:ShouldDoBehaviour( self )
+    return ZBCVAR.Static:GetBool()
 end
 
-function NPCB.Stationary:Delay(self)
+function NPCB.Static:Delay(self)
 end
 
-function NPCB.Stationary:Run( self )
+function NPCB.Static:Run( self )
+
+    -- Guard spot too far away, go back
     if self:ZBaseDist(self.GuardSpot, {away=ThorElg}) then
 
-        self:ClearGoal()
-        self:SetLastPosition(self.GuardSpot)
-        self:SetSchedule(SCHED_FORCED_GO)
+        local newDest = self.GuardSpot+Vector(math.random(-ThorElg*0.5, ThorElg*0.5), math.random(-ThorElg*0.5, ThorElg*0.5))
+
+        self:FullReset()
+        self:SetLastPosition(newDest)
+        self:SetSchedule(SCHED_FORCED_GO_RUN)
 
         ZBaseDOverlay("Sphere", function()
-            return {self.GuardSpot, 25, 3, Color(0, 0, 255)}
+            return {newDest, 25, 3, Color(0, 0, 255)}
         end)
-    
+
         ZBaseDOverlay("Text", function()
             return {self:WorldSpaceCenter(), "Returning to guard pos.", 3}
         end)
+
     end
+
 
     ZBaseDelayBehaviour(2)
 end
@@ -3235,7 +3241,7 @@ function NPC:OnEntityTakeDamage( dmg )
 
 
     -- In "stationary mode" zbase npcs cannot hurt each other
-    if ZBCVAR.Stationary:GetBool() && attacker.IsZBaseNPC then
+    if ZBCVAR.Static:GetBool() && attacker.IsZBaseNPC then
         dmg:ScaleDamage(0)
         return true
     end
@@ -3430,7 +3436,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
                 myWep:SetName("zbase_wep_dissolve"..myWep:EntIndex())
 
                 local dissolve = ents.Create("env_entity_dissolver")
-                dissolve:SetKeyValue("target", rag:GetName())
+                dissolve:SetKeyValue("target", myWep:GetName())
                 dissolve:SetKeyValue("dissolvetype", 0)
                 dissolve:Fire("Dissolve", myWep:GetName())
                 dissolve:Spawn()

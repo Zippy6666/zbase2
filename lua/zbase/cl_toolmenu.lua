@@ -59,6 +59,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     
         panel:CheckBox( "Hurt Allies", "zbase_ply_hurt_ally" )
         panel:ControlHelp("Allow players to hurt their allies.")
+
+        panel:CheckBox( "Static Mode", "zbase_static" )
+        panel:ControlHelp("Makes NPCs hold down the spot they spawned on. Also makes so that NPCs cannot hurt each other. This can be better for a PVE campaign-like experience.")
     
         panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' health by this number.")
