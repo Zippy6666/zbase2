@@ -1,7 +1,8 @@
 # TODO
 - [ ] Spawnflag fix whenever the NPC is spawned from anywhere else than the zbase tab, use NPC copy system
-- [ ] Make dialogue face behaviour less prohibiting
+- [x] Make dialogue face behaviour less prohibiting
 - [x] Fix animation pauses
+- [ ] Replacer compatability improvement
 
 
 # POTENTIAL UPDATES

@@ -772,7 +772,7 @@ end)
 
 -- Disable client ragdolls
 hook.Add("CreateClientsideRagdoll", "ZBaseNoRag", function(ent, rag)
-	if ent:GetNWBool("IsZBaseNPC") then
+	if ent:GetNWBool("IsZBaseNPC") or ent:GetNWBool("ZBaseNPCCopy_DullState") then
 		rag:Remove()
 	end
 end)

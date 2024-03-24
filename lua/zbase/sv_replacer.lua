@@ -70,6 +70,7 @@ end)
 
 
     -- Tick delayed OnEntityCreated
+local ep2Mounted = IsMounted('ep2')
 hook.Add("OnEntityCreated", "ZBaseReplaceSys", function( ent ) conv.callNextTick( function()
 
     if !ZBCVAR.CampaignReplace:GetBool() then return end
@@ -98,7 +99,15 @@ hook.Add("OnEntityCreated", "ZBaseReplaceSys", function( ent ) conv.callNextTick
             end
         end
         if ZBCls then
-            ZBaseNPCCopy(ent, ZBCls)
+
+            local zbaseNPC = ZBaseNPCCopy(ent, ZBCls)
+
+            -- Start burrowed
+            if ep2Mounted && ent:GetKeyValues().startburrowed then
+                sound.Play("npc/antlion/digup1.wav", zbaseNPC:GetPos(), 100, math.random(90, 110), 1)
+                ParticleEffect("door_explosion_smoke", zbaseNPC:GetPos(), zbaseNPC:GetAngles())
+            end
+            
         end
 
     end

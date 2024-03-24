@@ -240,6 +240,7 @@ end
 
     -- "NPC copy" system, makes a zbase "NPC copy" of any type/class from any spawned NPC
 local invisCol = Color(255,255,255,0)
+local developer = GetConVar("developer")
 function ZBaseNPCCopy( npc, zbase_cls )
 
     -- Store the old NPCs squad and name
@@ -268,19 +269,41 @@ function ZBaseNPCCopy( npc, zbase_cls )
     npc:AddEFlags(EFL_DONTBLOCKLOS)
     npc:AddFlags(FL_NOTARGET)
     npc:SetCollisionBounds(vec0, vec0)
-    npc:SetParent(ZBaseNPC)
     npc:SetMaxLookDistance(1)
-    npc:SetNoDraw(true)
-    npc:SetRenderMode(RENDERMODE_TRANSCOLOR)
-    npc:DrawShadow(false)
-    npc:SetColor(invisCol)
+
+    if developer:GetBool() then
+        npc:SetMaterial("models/wireframe")
+    else
+        npc:SetNoDraw(true)
+        npc:SetRenderMode(RENDERMODE_TRANSCOLOR)
+        npc:DrawShadow(false)
+        npc:SetColor(invisCol)
+    end
+
     npc:SetNWBool("ZBaseNPCCopy_DullState", true)
     npc.ZBaseNPCCopy_DullState = true
+
+
+    ZBaseNPC:CallOnRemove("KillDullNPC", function()
+        if IsValid(npc) then
+            if !npc:GetNoDraw() then
+                npc:SetNoDraw(true)
+            end
+
+            npc:SetShouldServerRagdoll(false)
+            npc:SetHealth(0)
+            npc:SetNPCState(NPC_STATE_DEAD)
+            npc:SetSchedule(SCHED_DIE_RAGDOLL)
+        end
+    end)
 
     -- Remove "dull state" NPC's weapon if any
     if IsValid(npcWep) then
         npcWep:Remove()
     end
+
+
+    return ZBaseNPC
 
 end
 
