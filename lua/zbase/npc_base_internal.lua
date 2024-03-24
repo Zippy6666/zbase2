@@ -1003,6 +1003,8 @@ function NPC:ZBWepSys_CanFireWeapon()
     -- Ready to fire
     return self:ZBWepSys_WantsToShoot()
 
+    && self:ZBWepSys_HasShootAnim()
+
     && self.ZBWepSys_NextShoot < CurTime()
 
     -- Volley has started
@@ -1011,6 +1013,39 @@ function NPC:ZBWepSys_CanFireWeapon()
     && !self.ComballAttacking
 
 end
+
+
+local strNeedles = {
+    "RIFLE",
+    "PISTOL",
+    "SHOTGUN",
+    "RANGE_ATTACK",
+}
+function NPC:ZBWepSys_HasShootAnim()
+    local strMoveAct = self:GetSequenceActivityName(self:GetMovementSequence())
+    local strAct = self:GetSequenceActivityName(self:GetSequence())
+
+    for _, needle in ipairs(strNeedles) do
+        if string.find(strAct, needle) or string.find(strMoveAct, needle) then
+            return true
+        end
+    end
+
+    return false
+end
+
+
+-- function NPC:ZBWepSys_ForceShootStance()
+--     ZBaseDOverlay("Text", function()
+--         return {self:GetShootPos(), "Force shoot stance", 0.13}
+--     end)
+
+--     if self:IsMoving() && !self.MovementOverrideActive then
+--         self:SetMovementActivity(ACT_RUN_AIM)
+--     else
+--         self:SetActivity(ACT_RANGE_ATTACK1)
+--     end
+-- end
 
 
 local OutOfShootRangeSched = SCHED_FORCED_GO_RUN
@@ -1091,10 +1126,38 @@ function NPC:ZBWepSys_FireWeaponThink()
         end
 
 
-        -- Press trigger
+        -- Should shoot
         if self.ZBWepSys_AllowShoot then
 
+            -- Shoot
             self:ZBWepSys_Shoot()
+
+
+            -- Force shoot stance if NPC doesn't do any
+            -- if !self:ZBWepSys_HasShootAnim() then
+            --     self:ZBWepSys_ForceShootStance()
+            -- end
+        
+
+            -- Pose parameters
+            -- if self:HasCapability(CAP_AIM_GUN) then
+
+            --     local aimAng = self:GetAimVector():Angle()
+            --     local ideal_poseparam_ang = self:WorldToLocalAngles(aimAng)
+            --     local x, y = ideal_poseparam_ang.x, ideal_poseparam_ang.y
+
+            --     self:SetPoseParameter("aim_pitch", x)
+            --     self:SetPoseParameter("aim_yaw", y)
+
+            -- end
+
+
+            -- Make sure yaw is precise
+            -- "-2" is the last yaw speed
+            self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
+
+
+            -- Reset var
             self.ZBWepSys_AllowShoot = false
 
         end
