@@ -9,7 +9,7 @@ ZBase_EngineWeapon_Attributes = {
                                             Pistol
     ======================================================================================================================================================
     --]]
-
+ 
 
     ["weapon_pistol"] = {
         PrimaryShootSound = "Weapon_Pistol.NPC_Single", 
@@ -41,7 +41,7 @@ ZBase_EngineWeapon_Attributes = {
 
 
     ["weapon_smg1"] = {
-        PrimaryShootSound = "Weapon_SMG1.Single",
+        PrimaryShootSound = "Weapon_SMG1.NPC_Single",
         PrimaryDamage = 2,
         Primary = {
             DefaultClip = 45, 
@@ -49,6 +49,7 @@ ZBase_EngineWeapon_Attributes = {
             ShellEject = "1", 
             ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Effects
             NumShots = 1,
+            MuzzleFlashChance = 2,
         },
         NPCBurstMin = 1, 
         NPCBurstMax = 1, 
