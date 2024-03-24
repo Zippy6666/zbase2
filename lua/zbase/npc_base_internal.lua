@@ -404,11 +404,19 @@ local AIDisabled = GetConVar("ai_disabled")
 
 
 function NPC:ZBaseThink()
+    
+    -- Don't think if has EFL_NO_THINK_FUNCTION
+    if bit.band(self:GetFlags(), EFL_NO_THINK_FUNCTION )==EFL_NO_THINK_FUNCTION then
+        return
+    end
+
+
     local isAIEnabled = !AIDisabled:GetBool()
     local ene = self:GetEnemy()
     local sched = self:GetCurrentSchedule()
     local seq = self:GetSequence()
     local act = self:GetActivity()
+
 
 
     if isAIEnabled then
