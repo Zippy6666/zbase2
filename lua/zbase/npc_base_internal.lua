@@ -404,7 +404,7 @@ local AIDisabled = GetConVar("ai_disabled")
 
 
 function NPC:ZBaseThink()
-    
+
     -- Don't think if has EFL_NO_THINK_FUNCTION
     if bit.band(self:GetFlags(), EFL_NO_THINK_FUNCTION )==EFL_NO_THINK_FUNCTION then
         return
@@ -1425,7 +1425,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
         -- Decide duration
         if !duration then
-            duration = (self:SequenceDuration(anim)*0.9)/self.MoveSpeedMultiplier
+            duration = (self:SequenceDuration(anim)*0.9)/(playbackRate or self.MoveSpeedMultiplier or 1)
         elseif isnumber(duration) then
             duration = duration/(playbackRate or self.MoveSpeedMultiplier or 1)
         end
