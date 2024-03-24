@@ -3,15 +3,25 @@ util.AddNetworkString("zbase_camp_replace_reload")
 
 local CurrentReplaceList = {}
 local filename = "zbase_campaign_replace.json"
-local loadMSG = "Loaded '"..filename.."'!"
+local loadMSG = "Loaded '"..filename.."'! See details in the console."
 local failMSG = "Failed to load '"..filename.."', likely due to invalid syntax!"
+
+
 local defaultReplace = {
-    ["npc_combine_s"] = { ["zb_combine_soldier"]=1, ["zb_combine_elite"]=6 },
-    ["npc_metropolice"] = { ["zb_metropolice"]=1, ["zb_metropolice_elite"]=4 },
-    ["npc_zombie"] = { ["zb_zombie"]=1, ["zb_fastzombie"]=3, ["zb_poisonzombie"]=5, ["zb_zombine"]=3 },
-    ["npc_zombine"] = {["zb_zombine"]=1},
-    ["npc_fastzombie"] = {["zb_fastzombie"]=1},
-    ["npc_antlion"] = { ["zb_antlion"]=1, ["zb_antlion_spitter"]=4 },
+    npc_combine_s = { zb_combine_soldier=1, zb_combine_elite=3, zb_combine_nova_prospekt=2 },
+    npc_metropolice = { zb_metropolice=1, zb_metropolice_elite=2 },
+    npc_zombie = { zb_zombie=1, zb_fastzombie=2, zb_poisonzombie=4, zb_zombine=3 },
+    npc_zombine = {zb_zombine=1},
+    npc_fastzombie = {zb_fastzombie=1},
+    npc_antlion = { zb_antlion=1, zb_antlion_spitter=2 },
+    npc_citizen = {
+        zb_human_civilian=2,
+        zb_human_refugee=1,
+        zb_human_rebel=2,
+        zb_human_medic=3,
+        zb_human_rebel_f=2,
+        zb_human_medic_f=3,
+    }
 }
 
 
@@ -34,6 +44,7 @@ local function zbase_camp_replace_reload()
     if tbl then
         table.CopyFromTo( tbl, CurrentReplaceList )
         MsgN(loadMSG)
+        PrintTable(CurrentReplaceList)
         return true
     else
         MsgN(failMSG)

@@ -63,6 +63,16 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Static Mode", "zbase_static" )
         panel:ControlHelp("Makes NPCs hold down the spot they spawned on. Also makes so that NPCs cannot hurt each other. This can be better for a PVE campaign-like experience.")
     
+
+        -- local sleep_state_combox = panel:ComboBox("Sleep State", "zbase_sleep_state")
+        -- sleep_state_combox:AddChoice("None", "0")
+        -- sleep_state_combox:AddChoice("Waiting for Threat", "1")
+        -- sleep_state_combox:AddChoice("Waiting for PVS", "2")
+        -- sleep_state_combox:AddChoice("Waiting for input, ignore PVS", "3")
+        -- sleep_state_combox:AddChoice("Auto PVS", "4")
+        -- sleep_state_combox:AddChoice("Auto PVS after PVS", "5")
+    
+
         panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' health by this number.")
         panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
