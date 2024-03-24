@@ -262,7 +262,7 @@ end
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
     local attacker = dmg:GetAttacker()
-    local att_own = attacker:GetOwner()
+    local att_own = IsValid(attacker) && attacker:GetOwner() or NULL
     local infl = dmg:GetInflictor()
 
     -- NPCs with ZBaseNPCCopy_DullState should not be able to take damage, nor should they be able to deal damage
@@ -545,7 +545,7 @@ end
 
 
 
-hook.Add( "RenderScreenspaceEffects", "ZBaseGlowingEyes", function()
+hook.Add( "PostDrawEffects", "ZBaseGlowingEyes", function()
 
     if !ZBCVAR.GlowingEyes:GetBool() then return end
 
