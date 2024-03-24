@@ -1947,7 +1947,7 @@ function NPCB.Static:Run( self )
 
         self:FullReset()
         self:SetLastPosition(newDest)
-        self:SetSchedule(SCHED_FORCED_GO_RUN)
+        self:SetSchedule( (self:GetNPCState()==NPC_STATE_COMBAT && SCHED_FORCED_GO_RUN) or SCHED_FORCED_GO )
 
         ZBaseDOverlay("Sphere", function()
             return {newDest, 25, 3, Color(0, 0, 255)}
@@ -2912,53 +2912,95 @@ end
 
 
 function NPCB.Dialogue:Run( self )
+
+    -- Nearest ally
     local ally = self:GetNearestAlly(350)
     if !IsValid(ally) then return end
 
 
-    local extraBehaviourDelay = 0
+    local DialogueExtraCoolDown = 0
 
 
-    -- Ally is zbase NPC:
-    if ally.IsZBaseNPC && !IsValid(ally:GetEnemy()) && !ally.HavingConversation && self:Visible(ally)
-    && ally.Dialogue_Answer_Sounds != "" then
+
+    if ally.IsZBaseNPC -- Ally is a ZBase NPC
+    && !IsValid(ally:GetEnemy()) -- Ally has no enemy
+    && !ally.HavingConversation -- Ally is not having conversation currently
+    && self:Visible(ally) -- Ally visible from self
+    && ally.Dialogue_Answer_Sounds != "" -- Ally can respond
+    
+    then
+
+        -- Question
         self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
 
+        -- Face the recipient
         self:FullReset()
-        self:Face(ally, self.InternalCurrentSoundDuration+0.2)
+        self:SetTarget(ally)
+        self:SetSchedule(SCHED_TARGET_FACE)
+
+        -- Set vars for me
         self.HavingConversation = true
         self.DialogueMate = ally
 
+        -- Recipient faces me
         ally:FullReset()
-        ally:Face(self, self.InternalCurrentSoundDuration+0.2)
+        ally:SetTarget(self)
+        ally:SetSchedule(SCHED_TARGET_FACE)
+
+        -- Set vars for recipient
         ally.HavingConversation = true
         ally.DialogueMate = self
+    
 
-        extraBehaviourDelay = self.InternalCurrentSoundDuration+0.2
+        ZBaseDOverlay("Text", function()
+            local pos = self:WorldSpaceCenter()
+            return {pos, "*Question*", self.InternalCurrentSoundDuration}
+        end)
 
+
+        -- ResetTimer
         timer.Create("DialogueAnswer"..ally:EntIndex(), self.InternalCurrentSoundDuration+0.4, 1, function()
-            if IsValid(ally) then
-                ally:EmitSound_Uninterupted(ally.Dialogue_Answer_Sounds)
-                ally:Face(self, ally.InternalCurrentSoundDuration)
 
+
+            if IsValid(ally) then
+
+                -- Recipient answers me
+                ally:EmitSound_Uninterupted(ally.Dialogue_Answer_Sounds)
+
+                print("ally answer")
+
+                ZBaseDOverlay("Text", function()
+                    local pos = ally:WorldSpaceCenter()
+                    return {pos, "*Answer*", ally.InternalCurrentSoundDuration}
+                end)
+
+
+                -- Reset recipient from dialogue state
                 timer.Simple(ally.InternalCurrentSoundDuration, function()
                     if !IsValid(ally) then return end
                     ally:CancelConversation()
                 end)
 
+                -- Not sure if this does anything of value
                 ZBaseDelayBehaviour( ZBaseRndTblRange(ally.IdleSoundCooldown), ally, "Dialogue" )
+
             end
 
             if IsValid(self) then
-                self:Face(ally, ally.InternalCurrentSoundDuration)
 
+                -- Reset from dialogue state
                 timer.Simple(ally.InternalCurrentSoundDuration or 0, function()
                     if !IsValid(self) then return end
                     self:CancelConversation()
                 end)
+
             end
         end)
-    
+
+
+        DialogueExtraCoolDown = self.InternalCurrentSoundDuration+0.2
+
+
     -- Ally is player:
     elseif ally:IsPlayer() && !GetConVar("ai_ignoreplayers"):GetBool() then
         self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
@@ -2967,7 +3009,8 @@ function NPCB.Dialogue:Run( self )
     end
 
 
-    ZBaseDelayBehaviour( ZBaseRndTblRange(self.IdleSoundCooldown)+extraBehaviourDelay )
+    ZBaseDelayBehaviour( ZBaseRndTblRange(self.IdleSoundCooldown)+DialogueExtraCoolDown )
+
 end
 
 
