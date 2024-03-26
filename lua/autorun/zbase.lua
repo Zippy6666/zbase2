@@ -559,6 +559,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
 
     for cls, t in pairs( ZBaseNPCs ) do
         if t.Category == false then continue end -- Don't add to menu
+        if cls == "npc_zbase" then continue end -- Don't add base to menu
 
 
         -- ZBase spawn menu tab
