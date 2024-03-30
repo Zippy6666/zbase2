@@ -1730,22 +1730,12 @@ function NPC:AITick_Slow()
     end
 
 
-    -- Keep following players
-    if IsValid(self.PlayerToFollow) && !GetConVar("ai_ignoreplayers"):GetBool()
-    && self:ZBaseDist(self.PlayerToFollow, {away=300}) then
+    -- Follow player that we should follow
+    if IsValid(self.PlayerToFollow) && self:ZBaseDist(self.PlayerToFollow, {away=200}) && !self:IsCurrentSchedule(SCHED_TARGET_CHASE) && !self:ZBWepSys_CanFireWeapon() then
 
-        local pos = self.PlayerToFollow:GetPos()
-        local NavigatorEnt = (IsValid(self.Navigator) && self.Navigator) or self
+        self:SetTarget(self.PlayerToFollow)
+        self:SetSchedule(SCHED_TARGET_CHASE)
 
-
-        NavigatorEnt:SetLastPosition(pos)
-        NavigatorEnt:NavSetGoalTarget(self.PlayerToFollow, (self:GetPos()-pos):GetNormalized()*125)
-
-
-        if !NavigatorEnt:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
-            self:SetSchedule(SCHED_FORCED_GO_RUN)
-        end
-        
     end
 
 
@@ -2046,16 +2036,12 @@ local SchedsToReplaceWithPatrol = {
 
 
 function NPCB.Patrol:ShouldDoBehaviour( self )
-    return PatrolCvar:GetBool()
-    && self.CanPatrol
-    && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()]
-    && self:GetMoveType() == MOVETYPE_STEP
+    return PatrolCvar:GetBool() && self.CanPatrol && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()] && self:GetMoveType() == MOVETYPE_STEP
 end
 
 
 function NPCB.Patrol:Delay(self)
-    if self:IsMoving()
-    or self.DoingPlayAnim then
+    if self:IsMoving() or self.DoingPlayAnim then
         return math.random(8, 15)
     end
 end
@@ -2065,17 +2051,29 @@ function NPCB.Patrol:Run( self )
     local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
 
 
-    if IsValid(self.PlayerToFollow) then
+    if IsValid(self.PlayerToFollow) && !self:IsMoving() then
 
         self:SetSchedule(SCHED_ALERT_SCAN)
+
+        ZBaseDOverlay("Text", function()
+            return {self:GetPos(), "SCHED_ALERT_SCAN as patrol.", 2}
+        end)
 
     elseif IsAlert then
 
         self:SetSchedule(SCHED_PATROL_RUN)
+    
+        ZBaseDOverlay("Text", function()
+            return {self:GetPos(), "Alert patrol.", 2}
+        end)
 
     else
 
         self:SetSchedule(SCHED_PATROL_WALK)
+    
+        ZBaseDOverlay("Text", function()
+            return {self:GetPos(), "Patrol.", 2}
+        end)
 
     end
 
