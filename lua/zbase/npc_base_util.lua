@@ -285,6 +285,10 @@ function NPC:ThrowGrenade()
     self:GrenadeAnimation()
     self:EmitSound_Uninterupted(self.OnGrenadeSounds)
 
+    if self.GrenCount > 0 && self.GrenCount != -1 then
+        self.GrenCount = self.GrenCount - 1
+    end
+
     timer.Simple(self.GrenadeReleaseTime, function()
         if !IsValid(self) then return end
 

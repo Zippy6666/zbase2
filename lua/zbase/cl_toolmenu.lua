@@ -77,6 +77,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:ControlHelp("Multiply ZBase NPCs' health by this number.")
         panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' damage by this number.")
+
     end)
 
     --[[
@@ -140,11 +141,21 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     --]]
 
     ZBaseAddMenuCategory("E - Weapons", function( panel )
+
         panel:CheckBox("Random Weapon", "zbase_randwep")
         panel:ControlHelp("Should ZBase NPCs spawn with a random zbase weapon? Only works when they are spawned from the zbase tab at the moment!")
 
         panel:TextEntry("Rand Wep Blacklist", "zbase_randwep_blacklist_npc")
         panel:ControlHelp("ZBase NPCs that should not have their weapons randomized, separate with spaces.")
+    
+        panel:NumSlider( "Grenades", "zbase_gren_count", -1, 20, 0 )
+        panel:ControlHelp("How many grenades should they be able to carry? -1 = infinite.")
+        panel:NumSlider( "Secondary Attacks", "zbase_alt_count", -1, 20, 0 )
+        panel:ControlHelp("How many alt-fire attacks should they be able to do? -1 = infinite.")
+
+        panel:CheckBox("Grenade/Secondary Random", "zbase_gren_alt_rand")
+        panel:ControlHelp("If enabled, ZBase NPCs will spawn with anywhere from 0 to the max value of grenades and alt-fire attacks, where the sliders above act as the max value.")
+        
     end)
 
     --[[

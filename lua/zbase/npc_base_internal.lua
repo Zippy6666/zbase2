@@ -115,6 +115,7 @@ function NPC:ZBaseInit()
     self.ZBLastHitGr = HITGROUP_GENERIC
     self.PlayerToFollow = NULL
     self.GuardSpot = self:GetPos()
+    self:InitGrenades()
     self:SetNWBool("IsZBaseNPC", true)
     self:SetNWString("ZBaseName", self.Name)
     self:SetNWString("NPCName", self.NPCName)
@@ -226,6 +227,34 @@ function NPC:ZBaseInit()
     --     net.Send(self.ZBase_PlayerWhoSpawnedMe)
     -- end
 
+end
+
+
+function NPC:InitGrenades()
+    if ZBCVAR.GrenAltRand:GetBool() then
+
+        -- Random grenades and alts
+
+        if ZBCVAR.GrenCount:GetInt() == -1 then
+            self.GrenCount = -1
+        else
+            self.GrenCount = math.random(0, ZBCVAR.GrenCount:GetInt())
+        end
+    
+        if ZBCVAR.AltCount:GetInt() == -1 then
+            self.AltCount = -1
+        else
+            self.AltCount = math.random(0, ZBCVAR.AltCount:GetInt())
+        end
+
+    else
+
+        -- Fixed number or grenades and alts
+
+        self.GrenCount = ZBCVAR.GrenCount:GetInt()
+        self.AltCount = ZBCVAR.AltCount:GetInt()
+
+    end
 end
 
 
@@ -2264,7 +2293,8 @@ function NPCB.SecondaryFire:ShouldDoBehaviour( self )
     if !self:ZBWepSys_WantsToShoot() then return end
 
 
-    return self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
+    return (self.AltCount > 0 or self.AltCount == -1)
+    && self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
 
 end
 
@@ -2285,6 +2315,9 @@ function NPCB.SecondaryFire:Run( self )
 
     SecondaryFireWeapons[ wep.EngineCloneClass ]:Func( self, wep, enemy )
 
+    if self.AltCount > 0 && self.AltCount != -1 then
+        self.AltCount = self.AltCount - 1
+    end
 
     ZBaseDelayBehaviour(math.Rand(4, 8))
 
@@ -2558,6 +2591,7 @@ NPCB.Grenade = {
 function NPCB.Grenade:ShouldDoBehaviour( self )
     local lastSeenPos = self:GetEnemyLastSeenPos()
     return self.BaseGrenadeAttack
+    && (self.GrenCount == -1 or self.GrenCount > 0)
     && !table.IsEmpty(self.GrenadeAttackAnimations)
     && !lastSeenPos:IsZero()
     && self:ZBaseDist(lastSeenPos, {away=400, within=1500})
