@@ -10,8 +10,6 @@ ENT.IsZBase_SNPC = true
 
 function ENT:Initialize()
 
-	-- self:SetHullType(self.HullType or HULL_MEDIUM)
-	-- self:SetHullSizeNormal()
 	self:SetSolid(SOLID_BBOX)
 	self:SetMoveType(MOVETYPE_STEP)
 	self:SetCollisionGroup(COLLISION_GROUP_NPC)
@@ -26,6 +24,9 @@ function ENT:Initialize()
 	self.Bullseye:AddEFlags(EFL_DONTBLOCKLOS)
 	self.Bullseye:Spawn()
 	self.Bullseye:Activate()
+
+
+	print(self.m_iClass)
 
 
 	self:SNPCInitVars()
@@ -59,10 +60,8 @@ function ENT:Think()
 	local hasNoTarget, bullseyeNoTarget = self:Conv_HasFlags(FL_NOTARGET), self.Bullseye:Conv_HasFlags(FL_NOTARGET)
 	if hasNoTarget && !bullseyeNoTarget then
 		self.Bullseye:AddFlags(FL_NOTARGET)
-		print("added bullseye notarget")
 	elseif !hasNoTarget && bullseyeNoTarget then
 		self.Bullseye:RemoveFlags(FL_NOTARGET)
-		print("removed bullseye notarget")
 	end
 
 
