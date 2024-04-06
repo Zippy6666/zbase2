@@ -5,7 +5,6 @@ local vec0 = Vector()
 
 
 ZBaseFactionTranslation = SERVER && {
-    [CLASS_COMBINE] = "combine",
     [CLASS_COMBINE_GUNSHIP] = "combine",
     [CLASS_MANHACK] = "combine",
     [CLASS_METROPOLICE] = "combine",
@@ -14,25 +13,37 @@ ZBaseFactionTranslation = SERVER && {
     [CLASS_STALKER] = "combine",
     [CLASS_PROTOSNIPER] = "combine",
     [CLASS_COMBINE_HUNTER] = "combine",
+    [CLASS_COMBINE] = "combine",
     [CLASS_HACKED_ROLLERMINE] = "ally",
     [CLASS_HUMAN_PASSIVE] = "ally",
     [CLASS_VORTIGAUNT] = "ally",
     [CLASS_PLAYER] = "ally",
-    [CLASS_PLAYER_ALLY] = "ally",
     [CLASS_PLAYER_ALLY_VITAL] = "ally",
     [CLASS_CITIZEN_PASSIVE] = "ally",
     [CLASS_CITIZEN_REBEL] = "ally",
+    [CLASS_PLAYER_ALLY] = "ally",
     [CLASS_BARNACLE] = "xen",
     [CLASS_ALIEN_MILITARY] = "xen",
-    [CLASS_ALIEN_MONSTER] = "xen",
     [CLASS_ALIEN_PREDATOR] = "xen",
+    [CLASS_ALIEN_MONSTER] = "xen",
     [CLASS_MACHINE] = "hecu",
     [CLASS_HUMAN_MILITARY] = "hecu",
     [CLASS_HEADCRAB] = "zombie",
-    [CLASS_ZOMBIE] = "zombie",
     [CLASS_ALIEN_PREY] = "zombie",
+    [CLASS_ZOMBIE] = "zombie",
     [CLASS_ANTLION] = "antlion",
     [CLASS_EARTH_FAUNA] = "neutral",
+} or nil
+
+
+ZBaseFactionTranslation_Flipped = SERVER and {
+    combine = CLASS_COMBINE,
+    ally = CLASS_PLAYER_ALLY,
+    xen = CLASS_ALIEN_MONSTER,
+    hecu = CLASS_HUMAN_MILITARY,
+    zombie = CLASS_ZOMBIE,
+    antlion = CLASS_ANTLION,
+    neutral = CLASS_EARTH_FAUNA,
 } or nil
 
 

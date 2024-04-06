@@ -26,9 +26,6 @@ function ENT:Initialize()
 	self.Bullseye:Activate()
 
 
-	print(self.m_iClass)
-
-
 	self:SNPCInitVars()
 
 end

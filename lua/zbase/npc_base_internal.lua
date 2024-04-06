@@ -149,7 +149,6 @@ function NPC:ZBaseInit()
         self:SetSquad("zbase") -- Basic squad, will be replaced with faction later
     end
 
-
     -- Sleep state
     -- self:SetKeyValue("sleepstate", ZBCVAR.SleepState:GetString())
     -- print(self:GetKeyValues().sleepstate)
@@ -160,6 +159,10 @@ function NPC:ZBaseInit()
 
         if IsValid(self) then
             self:SetBloodColor(self.BloodColor)
+        end
+    
+        if self.IsZBase_SNPC && self:GetNPCClass() == -1 && ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)] then
+            self:SetNPCClass(ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)])
         end
 
     end)
@@ -193,9 +196,10 @@ function NPC:ZBaseInit()
             self:InitCap()
 
 
-            if self.DontAutoSetSquad && self.ZBaseFaction != "none" then
+            if !self.DontAutoSetSquad && self.ZBaseFaction != "none" then
                 self:SetSquad(self.ZBaseFaction)
             end
+
         end
 
     end)
