@@ -277,8 +277,8 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 
 
 NPC.BaseGrenadeAttack = false -- Use ZBase grenade attack system
-NPC.ThrowGrenadeChance_Visible = 4 -- 1/x chance that it throws a grenade when the enemy is visible
-NPC.ThrowGrenadeChance_Occluded = 2 -- 1/x chance that it throws a grenade when the enemy is not visible
+NPC.ThrowGrenadeChance_Visible = 5 -- 1/x chance that it throws a grenade when the enemy is visible
+NPC.ThrowGrenadeChance_Occluded = 3 -- 1/x chance that it throws a grenade when the enemy is not visible
 NPC.GrenadeCoolDown = {4, 8} -- {min, max}
 NPC.GrenadeAttackAnimations = {} -- Grenade throw animation
 NPC.GrenadeEntityClass = "npc_grenade_frag" -- The grenade to throw, can be anything, like a fucking cat or somthing
