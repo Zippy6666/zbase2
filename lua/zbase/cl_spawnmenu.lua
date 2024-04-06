@@ -84,8 +84,9 @@ end)
 
 
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
-	local Categories = {}
 
+	-- Find all categories
+	local Categories = {}
 	for k, v in pairs( ZBaseSpawnMenuNPCList ) do
 		local Category = v.Category or "Other"
 		if ( !isstring( Category ) ) then Category = tostring( Category ) end
@@ -95,10 +96,30 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 		Categories[ Category ] = Tab
 	end
 
-	-- Create an icon for each one and put them on the panel
+
+
+	-- THE ALL NODE
+	local all_node = tree:AddNode( "[ALL]", GenericIcon ) -- Add a node to the tree
+	local AllPropPanel
+	all_node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
+		-- If we've already populated it - forget it.
+		if ( self.PropPanel ) then return end
+
+		self.PropPanel = vgui.Create( "ContentContainer", pnlContent )
+		self.PropPanel:SetVisible( false )
+		self.PropPanel:SetTriggerSpawnlistChange( false )
+		AllPropPanel = self.PropPanel
+	end
+	-- If we click on the node populate it and switch to it.
+	all_node.DoClick = function( self )
+		self:DoPopulate()
+		pnlContent:SwitchPanel( self.PropPanel )
+	end
+
+
+	-- Create the categories
 	for CategoryName, v in SortedPairs( Categories ) do
 		local node = tree:AddNode( CategoryName, ZBaseCategoryImages[CategoryName] or GenericIcon ) -- Add a node to the tree
-
 		node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
 			-- If we've already populated it - forget it.
 			if ( self.PropPanel ) then return end
@@ -111,40 +132,44 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			for name, ent in SortedPairsByMemberValue( v, "Name" ) do
 				local mat = ent.IconOverride or GenericIcon
 
-
 				if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
 					mat = "entities/" .. name .. ".png"
 				end
 
-
 				local icon = spawnmenu.CreateContentIcon( "zbase_npcs", self.PropPanel, {
-
 					nicename	= ent.Name or name,
 					spawnname	= name,
-
 					material	= mat,
-
 					weapon		= ent.Weapons,
 					admin		= ent.AdminOnly
-
 				} )
+
+				if AllPropPanel then
+					local icon = spawnmenu.CreateContentIcon( "zbase_npcs", AllPropPanel, {
+						nicename	= ent.Name or name,
+						spawnname	= name,
+						material	= mat,
+						weapon		= ent.Weapons,
+						admin		= ent.AdminOnly,
+					} )
+					MsgN("AllPropPanel = ", AllPropPanel, " (", CategoryName, ")")
+				end
 			end
 		end
 
 		-- If we click on the node populate it and switch to it.
 		node.DoClick = function( self )
-
 			self:DoPopulate()
 			pnlContent:SwitchPanel( self.PropPanel )
-
 		end
 	end
 
-	-- Select the first node
-	local FirstNode = tree:Root():GetChildNode( 0 )
-	if ( IsValid( FirstNode ) ) then
-		FirstNode:InternalDoClick()
-	end
+
+	-- Select the first node (likely the "all" node)
+	-- local FirstNode = tree:Root():GetChildNode( 0 )
+	-- if ( IsValid( FirstNode ) ) then
+	-- 	FirstNode:InternalDoClick()
+	-- end
 end)
 
 

@@ -6,8 +6,9 @@
 - [ ] Context menu stuff: control, kill, etc
 - [x] Grenade limit
 - [x] Alt limit
+- [ ] Classify my homies. (auto classify??????????????????????)
+- [x] "All" category
 
 
 # POTENTIAL UPDATES
-- Weapon randomizer: Randomize outside of zbase tab too
 - Suppressing
