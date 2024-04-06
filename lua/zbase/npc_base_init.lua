@@ -293,9 +293,10 @@ NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin uni
 ==================================================================================================
 --]]
 
-
+-- What is this SNPC classified as? (don't confuse with faction!) https://wiki.facepunch.com/gmod/Enums/CLASS
+-- -1 = Pick automatically
+NPC.m_iClass = -1
 NPC.m_fMaxYawSpeed = 10 -- Max turning speed
-NPC.m_iClass = CLASS_NONE -- What is this SNPC classified as? (don't confuse with faction!) https://wiki.facepunch.com/gmod/Enums/CLASS
 NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- SNPC Type: ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
 
 
