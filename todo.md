@@ -4,12 +4,11 @@
     - [ ] Jumping/fly control
     - [ ] Fully implemented attack system
 - [ ] Context menu stuff: control, kill, etc
-- [x] Grenade limit
-- [x] Alt limit
-- [x] Classify my homies. (auto classify??????????????????????)
-- [x] "All" category
 - [x] Fix dissolving
 - [ ] Conv call after ticks in init
+- [x] Able to configure NPC agressiveness with weapons in some way
+    - [ ] Optimize performance if necessary
+- [x] Nerf combine ball / crossbow bolt / smg nade option etc
 
 
 # POTENTIAL UPDATES

@@ -161,6 +161,7 @@ ZBase_EngineWeapon_Attributes = {
                 proj:Spawn()
                 proj:SetVelocity(vel)
                 proj.IsZBaseCrossbowFiredBolt = true
+                proj.IsZBaseDMGInfl = true
                 util.SpriteTrail(proj, 0, trailcol, true, 2, 0, 0.75, 20, "trails/plasma")
 
                 self:TakePrimaryAmmo(1)
