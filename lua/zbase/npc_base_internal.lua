@@ -119,6 +119,7 @@ function NPC:ZBaseInit()
     self:SetNWBool("IsZBaseNPC", true)
     self:SetNWString("ZBaseName", self.Name)
     self:SetNWString("NPCName", self.NPCName)
+    self:AddEFlags(EFL_NO_DISSOLVE)
 
 
     -- Rendermode
@@ -174,7 +175,7 @@ function NPC:ZBaseInit()
         if IsValid(self) then
             -- Weapon proficiency
             self:SetCurrentWeaponProficiency(self.WeaponProficiency)
-            
+
 
             -- Some calls based on attributes
             self:SetCurrentWeaponProficiency(self.WeaponProficiency)
@@ -3480,7 +3481,10 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     -- Gib or ragdoll
     local Gibbed = self:ShouldGib(dmg, hit_gr)
     local rag
-    if !Gibbed then
+
+
+    -- Become ragdoll if we should
+    if !Gibbed && !dmg:IsDamageType(DMG_REMOVENORAGDOLL) then
         rag = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
     end
 
@@ -3501,7 +3505,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 
     -- Custom on death
-    self:CustomOnDeath( dmg, hit_gr, rag )
+    self:CustomOnDeath( dmg, hit_gr, rag or NULL )
 
 
     -- No stoopid ragdoll pls
@@ -3539,9 +3543,6 @@ end
 
 
 function NPC:Death_AlliesReact()
-
-    -- Ally death reaction
-    -- (my honest reaction)
 
     local ally = self:GetNearestAlly(600)
     local deathpos = self:GetPos()
@@ -3649,6 +3650,8 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     rag.IsZBaseRag = true
 	rag:Spawn()
 
+    local infl = dmg:GetInflictor()
+
 
     for k, v in pairs(self:GetBodyGroups()) do
         rag:SetBodygroup(v.id, self:GetBodygroup(v.id))
@@ -3692,8 +3695,15 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	-- Hook
 	hook.Run("CreateEntityRagdoll", self, rag)
 
+
+    -- Damage type tester
+    -- for i = 0, 30 do
+    --     print(2^i, dmg:IsDamageType(2^i))
+    -- end
+
+
 	-- Dissolve
-	if dmg:IsDamageType(DMG_DISSOLVE) then
+	if dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball") then
 		rag:SetName( "base_ai_ext_rag" .. rag:EntIndex() )
 
 		local dissolve = ents.Create("env_entity_dissolver")
@@ -3899,5 +3909,17 @@ function NPC:DeathAnimation( dmg )
     if self.DeathAnimation_StopAttackingMe then
         self:AddFlags(FL_NOTARGET)
     end
+
+
+    -- Dissolve if we should
+    -- if dmg:IsDamageType(DMG_DISSOLVE) then
+    --     self:SetName("zbase_dissolving_npc"..self:EntIndex())
+    --     local dissolve = ents.Create("env_entity_dissolver")
+    --     dissolve:SetKeyValue("target", self:GetName())
+    --     dissolve:SetKeyValue("dissolvetype", dmg:IsDamageType(DMG_SHOCK) && 2 or 0)
+    --     dissolve:Fire("Dissolve", self:GetName())
+    --     dissolve:Spawn()
+    --     self:DeleteOnRemove(dissolve)
+    -- end
 
 end

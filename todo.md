@@ -8,7 +8,8 @@
 - [x] Alt limit
 - [x] Classify my homies. (auto classify??????????????????????)
 - [x] "All" category
-- [ ] Fix dissolvingggggggggggggggggggggggggggggggggggg
+- [x] Fix dissolving
+- [ ] Conv call after ticks in init
 
 
 # POTENTIAL UPDATES
