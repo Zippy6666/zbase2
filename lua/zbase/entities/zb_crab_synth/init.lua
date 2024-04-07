@@ -51,10 +51,6 @@ NPC.DamageScaling = {
 NPC.PhysDamageScale = 0 -- Damage scale from props
 
 
-NPC.EnergyBallDamageScale = 0.1 -- Damage scale from combine energy balls
-NPC.ExplodeEnergyBall = true -- Should combine energy balls explode when they hit this NPC?
-
-
 NPC.SquadGiveSpace = 256
 NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_FACE -- ZBASE_CANTREACHENEMY_HIDE || ZBASE_CANTREACHENEMY_FACE
 
