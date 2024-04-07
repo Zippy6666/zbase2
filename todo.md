@@ -7,6 +7,7 @@
 - [x] Fix dissolving
 - [ ] Conv call after ticks in init
 - [x] Able to configure NPC agressiveness with weapons in some way
+    - [ ] Consider attacking when firing weapon, not when hurt enemy
     - [ ] Optimize performance if necessary
 - [x] Nerf combine ball / crossbow bolt / smg nade option etc
 
