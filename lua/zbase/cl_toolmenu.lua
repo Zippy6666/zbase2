@@ -63,7 +63,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Static Mode", "zbase_static" )
         panel:ControlHelp("Makes NPCs hold down the spot they spawned on. Also makes so that NPCs cannot hurt each other. This can be better for a PVE campaign-like experience.")
     
-
         -- local sleep_state_combox = panel:ComboBox("Sleep State", "zbase_sleep_state")
         -- sleep_state_combox:AddChoice("None", "0")
         -- sleep_state_combox:AddChoice("Waiting for Threat", "1")
@@ -72,12 +71,21 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         -- sleep_state_combox:AddChoice("Auto PVS", "4")
         -- sleep_state_combox:AddChoice("Auto PVS after PVS", "5")
     
+        panel:NumSlider("Max NPCs Firing", "zbase_max_npcs_shoot_ply", 0, 10, 0)
+        panel:ControlHelp("Maximum amount of NPCs that can shoot at a single player at once. 0 = infinite.")
 
         panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' health by this number.")
         panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' damage by this number.")
 
+        panel:NumSlider( "Grenades", "zbase_gren_count", -1, 20, 0 )
+        panel:ControlHelp("How many grenades should they be able to carry? -1 = infinite.")
+        panel:NumSlider( "Secondary Attacks", "zbase_alt_count", -1, 20, 0 )
+        panel:ControlHelp("How many alt-fire attacks should they be able to do? -1 = infinite.")
+
+        panel:CheckBox("Grenade/Secondary Random", "zbase_gren_alt_rand")
+        panel:ControlHelp("If enabled, ZBase NPCs will spawn with anywhere from 0 to the max value of grenades and alt-fire attacks, where the sliders above act as the max value.")
     end)
 
     --[[
@@ -147,15 +155,10 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:TextEntry("Rand Wep Blacklist", "zbase_randwep_blacklist_npc")
         panel:ControlHelp("ZBase NPCs that should not have their weapons randomized, separate with spaces.")
-    
-        panel:NumSlider( "Grenades", "zbase_gren_count", -1, 20, 0 )
-        panel:ControlHelp("How many grenades should they be able to carry? -1 = infinite.")
-        panel:NumSlider( "Secondary Attacks", "zbase_alt_count", -1, 20, 0 )
-        panel:ControlHelp("How many alt-fire attacks should they be able to do? -1 = infinite.")
 
-        panel:CheckBox("Grenade/Secondary Random", "zbase_gren_alt_rand")
-        panel:ControlHelp("If enabled, ZBase NPCs will spawn with anywhere from 0 to the max value of grenades and alt-fire attacks, where the sliders above act as the max value.")
-        
+        panel:CheckBox("Nerf Powerful Weapons", "zbase_nerf")
+        panel:ControlHelp("Powerful weapons like ar2 energy balls and rpgs will have a more reasonable amount of damage towards players.")
+
     end)
 
     --[[

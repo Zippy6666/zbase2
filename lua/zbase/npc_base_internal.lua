@@ -207,7 +207,10 @@ function NPC:ZBaseInit()
 
 
     -- On remove
-    self:CallOnRemove("ZBaseOnRemove", function() self:OnRemove() end)
+    self:CallOnRemove("ZBaseOnRemove", function()
+        self:InternalOnRemove()
+        self:OnRemove()
+    end)
 
 
     -- Weapon system
@@ -649,12 +652,12 @@ end
 
 
 function NPC:Controller_ButtonDown(ply, btn)
-    print("Controller_ButtonDown", self, btn)
+    MsgN("Controller_ButtonDown", self, btn)
 end
 
 
 function NPC:Controller_KeyPress(ply, key)
-    print("Controller_KeyPress", self, key)
+    MsgN("Controller_KeyPress", self, key)
 end
 
 
@@ -1000,7 +1003,26 @@ function NPC:ZBWepSys_ControllerWantsToShoot()
 end
 
 
+function NPC:ZBWepSys_TooManyAttacking( ply )
+    local attacking, max = 0, ZBCVAR.MaxNPCsShootPly:GetInt()
+
+    for k in pairs(ply.AttackingZBaseNPCs) do
+        if k == self then continue end
+        attacking = attacking+1
+        if attacking >= max then
+            ply.TooManyZBaseAttackers = true
+            return true
+        end
+    end
+
+    return false
+end
+
+
 function NPC:ZBWepSys_AIWantsToShoot()
+    local ene = self:GetEnemy()
+
+
     -- Enemy valid and visible
     return self.EnemyVisible
 
@@ -1009,6 +1031,9 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     -- Weapon LOS COND
     && self:HasCondition(COND.WEAPON_HAS_LOS)
+
+    -- Take turns firing
+    && !(  ZBCVAR.MaxNPCsShootPly:GetBool() && ene:IsPlayer() && istable(ene.AttackingZBaseNPCs) && self:ZBWepSys_TooManyAttacking(ene)  )
 end
 
 
@@ -2307,7 +2332,7 @@ end
 function NPCB.SecondaryFire:Delay( self )
 
     if math.random(1, 2) == 1 then
-        return math.Rand(4, 8)
+        return math.Rand(4, 6)
     end
 
 end
@@ -3008,7 +3033,6 @@ function NPCB.Dialogue:Run( self )
                 -- Recipient answers me
                 ally:EmitSound_Uninterupted(ally.Dialogue_Answer_Sounds)
 
-                print("ally answer")
 
                 ZBaseDOverlay("Text", function()
                     local pos = ally:WorldSpaceCenter()
@@ -3089,26 +3113,61 @@ end
 ==================================================================================================
 --]]
 
-
+local attackingResetDelay = 1.5 -- Time until a zbase npc is not considered to attack a player, after hurting them
 function NPC:DealDamage( dmg, ent )
 
     local infl = dmg:GetInflictor()
     local disp = self:Disposition(ent)
 
-    -- if ent:IsPlayer() && disp==D_LI && !ZBCVAR.AlliesHurtPlayer:GetBool() then
-    --     dmg:ScaleDamage(0)
-    -- end
 
-
+    -- Custom deal damage
     local value = self:CustomDealDamage(ent, dmg)
     if value != nil then
         return value
     end
 
-
+    -- Crossbow base damage
     if infl.IsZBaseCrossbowFiredBolt then
         dmg:SetDamage(100)
     end
+
+
+    -- Nerf smg nades/ energy balls etc
+    if ZBCVAR.Nerf:GetBool() && IsValid(infl) && infl.IsZBaseDMGInfl && ent:IsPlayer() then
+        
+        if infl:GetClass()=="rpg_missile" or infl:GetClass()=="grenade_ar2" then
+            -- RPG rocket ~ 50 dmg
+            -- SMG Nade ~ 33 dmg
+            dmg:ScaleDamage(0.33)
+        elseif infl:GetClass()=="prop_combine_ball" then
+            -- Combine ball ~ 33 dmg
+            dmg:ScaleDamage(0.033)
+        elseif infl:GetClass() == "crossbow_bolt" then
+            -- Crossbow bolt 50 dmg
+            dmg:ScaleDamage(0.5)
+        end
+
+    end
+
+
+    -- Decide how many ZBase NPCs are attacking this player
+    if ent:IsPlayer() then
+        -- How many ZBase NPCs are attacking this player
+
+        local ply = ent
+        ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
+        ply.AttackingZBaseNPCs[self]=true
+
+
+        ply:ConvTimer("RemoveFromAttackingZBaseNPCs"..self:EntIndex(), attackingResetDelay, function()
+            -- No longer considered to be attacking
+            if ply.AttackingZBaseNPCs[self] then
+                ply.AttackingZBaseNPCs[self] = nil
+            end
+        end)
+
+    end
+
 
 
     dmg:ScaleDamage(ZBCVAR.DMGMult:GetFloat())
@@ -3698,7 +3757,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
     -- Damage type tester
     -- for i = 0, 30 do
-    --     print(2^i, dmg:IsDamageType(2^i))
+    --     MsgN(2^i, dmg:IsDamageType(2^i))
     -- end
 
 
@@ -3922,4 +3981,14 @@ function NPC:DeathAnimation( dmg )
     --     self:DeleteOnRemove(dissolve)
     -- end
 
+end
+
+
+
+function NPC:InternalOnRemove()
+    for _, ply in player.Iterator() do
+        if IsValid(ply) && ply.AttackingZBaseNPCs[self]!=nil then
+            ply.AttackingZBaseNPCs[self]=nil
+        end
+    end
 end
