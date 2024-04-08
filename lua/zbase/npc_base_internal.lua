@@ -3987,7 +3987,7 @@ end
 
 function NPC:InternalOnRemove()
     for _, ply in player.Iterator() do
-        if IsValid(ply) && ply.AttackingZBaseNPCs[self]!=nil then
+        if IsValid(ply) && istable(ply.AttackingZBaseNPCs) then
             ply.AttackingZBaseNPCs[self]=nil
         end
     end
