@@ -15,3 +15,5 @@
 
 # POTENTIAL UPDATES
 - Suppressing
+- Throw back grenades
+- Nextbots?????????
