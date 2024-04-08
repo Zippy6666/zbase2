@@ -71,7 +71,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         -- sleep_state_combox:AddChoice("Auto PVS", "4")
         -- sleep_state_combox:AddChoice("Auto PVS after PVS", "5")
     
-        panel:NumSlider("Max NPCs Firing", "zbase_max_npcs_shoot_ply", 0, 10, 0)
+        panel:NumSlider("Max NPCs Firing [WIP]", "zbase_max_npcs_shoot_ply", 0, 10, 0)
         panel:ControlHelp("Maximum amount of NPCs that can shoot at a single player at once. 0 = infinite.")
 
         panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )

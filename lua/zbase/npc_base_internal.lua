@@ -2407,6 +2407,7 @@ function NPC:CanBeMeleed( ent )
     return mtype == MOVETYPE_STEP -- NPC
     or mtype == MOVETYPE_VPHYSICS -- Prop
     or mtype == MOVETYPE_WALK -- Player
+    or ent:IsNextBot() -- Bextbit
 end
 
 
