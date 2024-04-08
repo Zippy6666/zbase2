@@ -54,11 +54,15 @@ function ENT:Think()
 
 
 	-- Apply notarget to its bullseye
-	local hasNoTarget, bullseyeNoTarget = self:Conv_HasFlags(FL_NOTARGET), self.Bullseye:Conv_HasFlags(FL_NOTARGET)
-	if hasNoTarget && !bullseyeNoTarget then
-		self.Bullseye:AddFlags(FL_NOTARGET)
-	elseif !hasNoTarget && bullseyeNoTarget then
-		self.Bullseye:RemoveFlags(FL_NOTARGET)
+	if IsValid(self.Bullseye) then
+
+		local hasNoTarget, bullseyeNoTarget = self:Conv_HasFlags(FL_NOTARGET), self.Bullseye:Conv_HasFlags(FL_NOTARGET)
+		if hasNoTarget && !bullseyeNoTarget then
+			self.Bullseye:AddFlags(FL_NOTARGET)
+		elseif !hasNoTarget && bullseyeNoTarget then
+			self.Bullseye:RemoveFlags(FL_NOTARGET)
+		end
+
 	end
 
 
