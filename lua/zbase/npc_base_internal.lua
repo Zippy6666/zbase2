@@ -3129,7 +3129,6 @@ function NPC:DealDamage( dmg, ent )
 
     -- Cannot suicide
     if self==ent then
-        print("cannot kys bro")
         dmg:ScaleDamage(0)
         return true
     end

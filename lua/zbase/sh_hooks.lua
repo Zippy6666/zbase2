@@ -274,6 +274,7 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
 
     -- Attacker is ZBase NPC, run DealDamage
+    -- TODO: register if it was an owned ent that did the damage
     local zbase_attacker = IsValid(attacker) && attacker.IsZBaseNPC && attacker
     if zbase_attacker then
         zbase_attacker:DealDamage( dmg, ent )
