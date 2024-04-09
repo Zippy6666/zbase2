@@ -3224,11 +3224,8 @@ function NPC:ApplyZBaseDamageScale(dmg)
     if self.HasZBScaledDamage then return end
     self.HasZBScaledDamage = true
 
-
-    for dmgType, mult in pairs(self.DamageScaling) do
-        if dmg:IsDamageType(dmgType) then
-            dmg:ScaleDamage(mult)
-        end
+    if ( self.DamageScaling[dmg:GetDamageType()] ) then
+        dmg:ScaleDamage(self.DamageScaling[dmg:GetDamageType()]
     end
 end
 
@@ -3307,8 +3304,6 @@ function NPC:OnScaleDamage( dmg, hit_gr )
     local infl = dmg:GetInflictor()
     local attacker = dmg:GetAttacker()
 
-
-
     -- Players not hurting allies
     if !ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer() && self:IsAlly(attacker) then
 
@@ -3328,7 +3323,6 @@ function NPC:OnScaleDamage( dmg, hit_gr )
     self.ZBLastHitGr = hit_gr
     self:StoreDMGINFO( dmg )
 
-    
     self:ApplyZBaseDamageScale(dmg)
 
 
