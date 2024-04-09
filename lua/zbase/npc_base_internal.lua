@@ -298,6 +298,7 @@ function NPC:InitCap()
     self:CapabilitiesAdd(CAP_MOVE_SHOOT)
     self:CapabilitiesAdd(CAP_SQUAD)
     self:CapabilitiesAdd(CAP_USE_WEAPONS)
+    self:CapabilitiesAdd(CAP_FRIENDLY_DMG_IMMUNE)
 
 
     -- Door/button stuff
@@ -3120,6 +3121,18 @@ function NPC:DealDamage( dmg, ent )
     local infl = dmg:GetInflictor()
     local disp = self:Disposition(ent)
 
+    -- Friendly fire immune
+    if ent.GetCapabilities && bit.band(ent:GetCapabilities(), CAP_FRIENDLY_DMG_IMMUNE)==CAP_FRIENDLY_DMG_IMMUNE && self:Disposition(ent)==D_LI then
+        dmg:ScaleDamage(0)
+        return true
+    end
+
+    -- Cannot suicide
+    if self==ent then
+        print("cannot kys bro")
+        dmg:ScaleDamage(0)
+        return true
+    end
 
     -- Custom deal damage
     local value = self:CustomDealDamage(ent, dmg)
@@ -3127,10 +3140,13 @@ function NPC:DealDamage( dmg, ent )
         return value
     end
 
+
+
     -- Crossbow base damage
     if infl.IsZBaseCrossbowFiredBolt then
         dmg:SetDamage(100)
     end
+
 
 
     -- Nerf smg nades/ energy balls etc
@@ -3301,22 +3317,31 @@ end
 
 
     -- Called first
+local isSinglePlayer = game.SinglePlayer()
 function NPC:OnScaleDamage( dmg, hit_gr )
-
     local infl = dmg:GetInflictor()
     local attacker = dmg:GetAttacker()
+
+
+
+    -- Players not hurting allies
+    if !ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer() && self:IsAlly(attacker) then
+
+        -- Hacky way to not apply decals from bullets
+        if isSinglePlayer then
+            local last_rendermode = self:GetRenderMode() 
+            self:SetRenderMode(RENDERMODE_TRANSALPHA)
+            self:CallNextTick("SetRenderMode", last_rendermode)
+        end
+
+        dmg:ScaleDamage(0)
+        return
+    end
 
 
     -- Remember stuff
     self.ZBLastHitGr = hit_gr
     self:StoreDMGINFO( dmg )
-
-
-
-    -- Don't get hurt by NPCs in the same faction
-    if (self:IsAlly(attacker)) && !(ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer()) then
-        dmg:ScaleDamage(0)
-    end
 
     
     self:ApplyZBaseDamageScale(dmg)
@@ -3377,8 +3402,8 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
 
-    if (self:IsAlly(attacker) or attacker.LastOwnerZBaseFaction==self.ZBaseFaction or (infl.IsZBaseDMGInfl && attacker==self))
-    && !(ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer()) then
+    -- Players not hurting allies
+    if !ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer() && self:IsAlly(attacker) then
         dmg:ScaleDamage(0)
         return true
     end
@@ -3482,6 +3507,12 @@ end
 
 
 function NPC:OnBulletHit(BulletEnt, tr, dmginfo, bulletData)
+    -- Players not hurting allies
+    if IsValid(BulletEnt) && !ZBCVAR.PlayerHurtAllies:GetBool() && BulletEnt:IsPlayer() && self:IsAlly(BulletEnt) then
+        return
+    end
+
+
     -- Bullet reflection
     if self.ArmorReflectsBullets then
         ZBaseReflectedBullet = true
