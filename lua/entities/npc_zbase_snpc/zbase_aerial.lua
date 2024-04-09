@@ -133,7 +133,7 @@ function ENT:AerialThink()
     end
 
 
-    local vec = !GetConVar("ai_disabled"):GetBool() && self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed) or Vector()
+    local vec = !GetConVar("ai_disabled"):GetBool() && self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed) or vector_origin
     if self.ShouldMoveFromGround then
         vec = vec+Vector(0,0,35)
     else

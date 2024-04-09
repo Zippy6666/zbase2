@@ -1,9 +1,5 @@
 AddCSLuaFile()
 
-
-local vec0 = Vector()
-
-
 ENT.Base = "base_gmodentity"
 ENT.Type = "anim"
 ENT.Author = "Zippy"
@@ -186,7 +182,7 @@ function ENT:Initialize()
     end
 
     self.GravGunPlayer = NULL
-    self.LastVel = vec0
+    self.LastVel = vector_origin
 
     self:PostInit()
 end

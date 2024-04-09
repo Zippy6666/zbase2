@@ -5,7 +5,6 @@ ZBCtrlSys = {}
 
 
 if CLIENT then
-    local ang0 = Angle()
     hook.Add("CalcView", "ZBCtrlSys", function(ply, pos, ang, fov, znear, zfar)
         local camEnt = ply:GetNWEntity("ZBCtrlSysCamEnt", NULL)
 
@@ -25,7 +24,7 @@ if CLIENT then
 
 
 
-            -- debugoverlay.Axis(camTrace.HitPos, ang0, 50, 0.1)
+            -- debugoverlay.Axis(camTrace.HitPos, angle_zero, 50, 0.1)
 
 
             return {
