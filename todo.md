@@ -11,6 +11,10 @@
     - [ ] Consider attacking when firing weapon, not when hurt enemy
     - [ ] Optimize performance if necessary
 - [x] Nerf combine ball / crossbow bolt / smg nade option etc
+- [ ] Improve shooting animations for some npcs, such as combine soldiers
+- [ ] Improve hunter death animations
+- [ ] Set sight distance to 1 when the NPC is too close to fire weapons (so that range animation stops)
+- [ ] Fix allies being able to kill each other with combine balls and other things potentially
 
 
 # POTENTIAL UPDATES
