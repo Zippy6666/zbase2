@@ -131,7 +131,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 			"weapon_crowbar", "weapon_ar2", "weapon_rpg",
 			"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
 
-			local randWep = table.Random(randTBL)
+			local randWep = randTBL[math.random(1, #randTBL)]
 			Equipment = randWep
 
 		end
