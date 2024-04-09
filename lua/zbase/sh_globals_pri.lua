@@ -1,8 +1,4 @@
-
-    // You probably don't want to use these globals
-
-local vec0 = Vector()
-
+// You probably don't want to use these globals
 
 ZBaseFactionTranslation = SERVER && {
     [CLASS_COMBINE_GUNSHIP] = "combine",
@@ -81,8 +77,6 @@ function ZBasePrecacheEnts()
 
     local StartT = SysTime()
     local spawnedwepclasses = {}
-    local vec0 = Vector()
-
 
     for zbasecls, npctbl in pairs(ZBaseNPCs) do
 
@@ -113,7 +107,7 @@ function ZBasePrecacheEnts()
         -- 'pos' - The position to spawn it on
         -- 'normal' - The normal to spawn it on (optional)
         -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
-        local zbaseent = ZBaseSpawnZBaseNPC( zbasecls, vec0, nil, nil)
+        local zbaseent = ZBaseSpawnZBaseNPC( zbasecls, vector_origin, nil, nil)
         SafeRemoveEntityDelayed(zbaseent, 0)
         -- MsgN("precached npc ", zbaseent, " (", zbasecls, ")")
 
@@ -279,7 +273,7 @@ function ZBaseNPCCopy( npc, zbase_cls )
     npc:CapabilitiesClear()
     npc:AddEFlags(EFL_DONTBLOCKLOS)
     npc:AddFlags(FL_NOTARGET)
-    npc:SetCollisionBounds(vec0, vec0)
+    npc:SetCollisionBounds(vector_origin, vector_origin)
     npc:SetMaxLookDistance(1)
 
     if developer:GetBool() then
