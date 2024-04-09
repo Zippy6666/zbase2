@@ -171,11 +171,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 		local ed = EffectData()
 		ed:SetEntity( NPC )
 		util.Effect( "zbasespawn", ed, true, true )
-	
-	else
-
-		-- Not spawned from zbase tab, initializing on a already spawned npc
-
 	end
 
 

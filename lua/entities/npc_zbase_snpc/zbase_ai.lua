@@ -211,7 +211,7 @@ end
 
 function ENT:DetermineNavStuck()
 
-	if self:IsGoalActive() && self:GetCurWaypointPos()!=Vector() then
+	if self:IsGoalActive() && self:GetCurWaypointPos()!=vector_origin then
 		self:SetNotNavStuck()
 	end
 

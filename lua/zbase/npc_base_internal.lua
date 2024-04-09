@@ -7,12 +7,6 @@ util.AddNetworkString("ZBaseGlowEyes")
 ==================================================================================================
 --]]
 
-
-local vec0 = Vector()
-local ang0 = Angle()
-
-
-
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
@@ -1414,7 +1408,7 @@ function NPC:FullReset()
     self:ClearGoal()
     self:ClearSchedule()
     self:StopMoving()
-    self:SetMoveVelocity(Vector())
+    self:SetMoveVelocity(vector_origin)
 
     if self.IsZBase_SNPC then
         self:AerialResetNav()
@@ -3977,7 +3971,7 @@ function NPC:DeathAnimation( dmg )
     self:EmitSound(self.DeathSounds)
 
 
-    dmg:SetDamageForce(vec0)
+    dmg:SetDamageForce(vector_origin)
     self:StoreDMGINFO(dmg)
 
 
