@@ -64,7 +64,6 @@ if SERVER then
 
     util.AddNetworkString("ZBaseListFactions")
     util.AddNetworkString("ZBase_GetFactionsFromServer")
-    util.AddNetworkString("ZBaseBadBranch")
     util.AddNetworkString("ZBaseClientReload")
     util.AddNetworkString("ZBaseReload")
 
