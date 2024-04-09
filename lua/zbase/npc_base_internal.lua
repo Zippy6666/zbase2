@@ -3225,7 +3225,7 @@ function NPC:ApplyZBaseDamageScale(dmg)
     self.HasZBScaledDamage = true
 
     if ( self.DamageScaling[dmg:GetDamageType()] ) then
-        dmg:ScaleDamage(self.DamageScaling[dmg:GetDamageType()]
+        dmg:ScaleDamage(self.DamageScaling[dmg:GetDamageType()])
     end
 end
 
