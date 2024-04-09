@@ -227,14 +227,6 @@ function NPC:ZBaseInit()
 
     -- Custom init
     self:CustomInitialize()
-
-
-
-    -- if ZBaseBadBranch && IsValid(self.ZBase_PlayerWhoSpawnedMe) then
-    --     net.Start("ZBaseBadBranch")
-    --     net.Send(self.ZBase_PlayerWhoSpawnedMe)
-    -- end
-
 end
 
 
