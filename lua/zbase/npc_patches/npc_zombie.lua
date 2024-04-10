@@ -10,10 +10,11 @@ ZBasePatchTable[my_cls] = function( NPC )
 
         if self:GetClass()=="npc_poisonzombie" then
             self:SetSaveValue("m_nCrabCount", 0)
-            self:SetBodygroup(2, 0)
-            self:SetBodygroup(3, 0)
-            self:SetBodygroup(4, 0)
-            self:SetBodygroup(5, 0)
+
+            for i = 2, 5 do
+                self:SetBodygroup(i, 0)
+            end
+
             self:SetSaveValue("m_bCrabs", {false, false, false})
         end
     end

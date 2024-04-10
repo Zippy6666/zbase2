@@ -7,12 +7,6 @@ util.AddNetworkString("ZBaseGlowEyes")
 ==================================================================================================
 --]]
 
-
-local vec0 = Vector()
-local ang0 = Angle()
-
-
-
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 
@@ -1414,7 +1408,7 @@ function NPC:FullReset()
     self:ClearGoal()
     self:ClearSchedule()
     self:StopMoving()
-    self:SetMoveVelocity(Vector())
+    self:SetMoveVelocity(vector_origin)
 
     if self.IsZBase_SNPC then
         self:AerialResetNav()
@@ -3230,11 +3224,8 @@ function NPC:ApplyZBaseDamageScale(dmg)
     if self.HasZBScaledDamage then return end
     self.HasZBScaledDamage = true
 
-
-    for dmgType, mult in pairs(self.DamageScaling) do
-        if dmg:IsDamageType(dmgType) then
-            dmg:ScaleDamage(mult)
-        end
+    if ( self.DamageScaling[dmg:GetDamageType()] ) then
+        dmg:ScaleDamage(self.DamageScaling[dmg:GetDamageType()])
     end
 end
 
@@ -3313,8 +3304,6 @@ function NPC:OnScaleDamage( dmg, hit_gr )
     local infl = dmg:GetInflictor()
     local attacker = dmg:GetAttacker()
 
-
-
     -- Players not hurting allies
     if !ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer() && self:IsAlly(attacker) then
 
@@ -3334,7 +3323,6 @@ function NPC:OnScaleDamage( dmg, hit_gr )
     self.ZBLastHitGr = hit_gr
     self:StoreDMGINFO( dmg )
 
-    
     self:ApplyZBaseDamageScale(dmg)
 
 
@@ -3977,7 +3965,7 @@ function NPC:DeathAnimation( dmg )
     self:EmitSound(self.DeathSounds)
 
 
-    dmg:SetDamageForce(vec0)
+    dmg:SetDamageForce(vector_origin)
     self:StoreDMGINFO(dmg)
 
 
