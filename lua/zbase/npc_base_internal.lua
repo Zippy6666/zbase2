@@ -2013,7 +2013,7 @@ end
 
 function NPC:CanStartFollowPlayers()
     return self.CanFollowPlayers && !GetConVar("ai_ignoreplayers"):GetBool() && !IsValid(self.PlayerToFollow)
-    && self.SNPCType != ZBASE_SNPCTYPE_STATIONARY
+    && self.SNPCType != ZBASE_SNPCTYPE_STATIONARY && GetConVar("zbase_followplayers"):GetBool()
 end
 
 
