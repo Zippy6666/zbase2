@@ -1325,7 +1325,6 @@ end
 function NPC:Face( face, duration, speed )
 
     local function turn( yaw )
-        if GetConVar("ai_disabled"):GetBool() then return end
         if self:IsMoving() then return end
 
 
@@ -1703,9 +1702,6 @@ local RangeAttackActs = {
 
 
 function NPC:AITick_Slow()
-    if GetConVar("ai_disabled"):GetBool() then return end
-
-
     local ene = self:GetEnemy()
     local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
     local IsCombat = self:GetNPCState() == NPC_STATE_COMBAT
@@ -2011,9 +2007,11 @@ end
 --]]
 
 
+local ignorePly = GetConVar("ai_ignoreplayers")
+local followPly = GetConVar("zbase_followplayers")
 function NPC:CanStartFollowPlayers()
-    return self.CanFollowPlayers && !GetConVar("ai_ignoreplayers"):GetBool() && !IsValid(self.PlayerToFollow)
-    && self.SNPCType != ZBASE_SNPCTYPE_STATIONARY && GetConVar("zbase_followplayers"):GetBool()
+    return self.CanFollowPlayers && !ignorePly:GetBool() && !IsValid(self.PlayerToFollow)
+    && self.SNPCType != ZBASE_SNPCTYPE_STATIONARY && followPly:GetBool()
 end
 
 
@@ -3055,7 +3053,7 @@ function NPCB.Dialogue:Run( self )
 
 
     -- Ally is player:
-    elseif ally:IsPlayer() && !GetConVar("ai_ignoreplayers"):GetBool() then
+    elseif ally:IsPlayer() && !ignorePly:GetBool() then
         self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
         self:SetTarget(ally)
         self:SetSchedule(SCHED_TARGET_FACE)
