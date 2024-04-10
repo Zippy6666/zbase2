@@ -54,41 +54,34 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Patrol", "zbase_patrol" )
         panel:ControlHelp("Enable base patrol system.")
     
-        panel:CheckBox( "Call for Help", "zbase_callforhelp" )
-        panel:ControlHelp("Enable base call for help system. Lets NPCs call allies outside of its squad for help.")
-    
         panel:CheckBox( "Hurt Allies", "zbase_ply_hurt_ally" )
         panel:ControlHelp("Allow players to hurt their allies.")
-
-        panel:CheckBox( "Static Mode", "zbase_static" )
-        panel:ControlHelp("Makes NPCs hold down the spot they spawned on. Also makes so that NPCs cannot hurt each other. This can be better for a PVE campaign-like experience.")
     
-        -- local sleep_state_combox = panel:ComboBox("Sleep State", "zbase_sleep_state")
-        -- sleep_state_combox:AddChoice("None", "0")
-        -- sleep_state_combox:AddChoice("Waiting for Threat", "1")
-        -- sleep_state_combox:AddChoice("Waiting for PVS", "2")
-        -- sleep_state_combox:AddChoice("Waiting for input, ignore PVS", "3")
-        -- sleep_state_combox:AddChoice("Auto PVS", "4")
-        -- sleep_state_combox:AddChoice("Auto PVS after PVS", "5")
-    
-        panel:NumSlider("Max NPCs Firing [WIP]", "zbase_max_npcs_shoot_ply", 0, 10, 0)
-        panel:ControlHelp("Maximum amount of NPCs that can shoot at a single player at once. 0 = infinite.")
-
         panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' health by this number.")
         panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' damage by this number.")
+    
 
         panel:NumSlider( "Grenades", "zbase_gren_count", -1, 20, 0 )
         panel:ControlHelp("How many grenades should they be able to carry? -1 = infinite.")
         panel:NumSlider( "Secondary Attacks", "zbase_alt_count", -1, 20, 0 )
         panel:ControlHelp("How many alt-fire attacks should they be able to do? -1 = infinite.")
-
         panel:CheckBox("Grenade/Secondary Random", "zbase_gren_alt_rand")
         panel:ControlHelp("If enabled, ZBase NPCs will spawn with anywhere from 0 to the max value of grenades and alt-fire attacks, where the sliders above act as the max value.")
     
+        panel:CheckBox( "Call for Help", "zbase_callforhelp" )
+        panel:ControlHelp("Enable base call for help system. Lets NPCs call allies outside of its squad for help.")
+
+
         panel:CheckBox("Follow Players", "zbase_followplayers")
-        panel:ControlHelp("If enabled, ZBase NPCs will follow players hwne they can if you press 'E' on them.")
+        panel:ControlHelp("If enabled, ZBase NPCs will follow allied players when the use key is pressed on them.")
+
+        panel:NumSlider("Max NPCs Firing [WIP]", "zbase_max_npcs_shoot_ply", 0, 10, 0)
+        panel:ControlHelp("Maximum amount of NPCs that can shoot at a single player at once. 0 = infinite.")
+
+        panel:CheckBox( "Static Mode", "zbase_static" )
+        panel:ControlHelp("Makes NPCs hold down the spot they spawned on. Also makes so that NPCs cannot hurt each other. This can be better for a PVE campaign-like experience.")
     end)
 
     --[[
