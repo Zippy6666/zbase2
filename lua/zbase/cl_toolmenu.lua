@@ -86,6 +86,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox("Grenade/Secondary Random", "zbase_gren_alt_rand")
         panel:ControlHelp("If enabled, ZBase NPCs will spawn with anywhere from 0 to the max value of grenades and alt-fire attacks, where the sliders above act as the max value.")
+    
+        panel:CheckBox("Follow Players", "zbase_followplayers")
+        panel:ControlHelp("If enabled, ZBase NPCs will follow players hwne they can if you press 'E' on them.")
     end)
 
     --[[

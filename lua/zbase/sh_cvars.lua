@@ -34,7 +34,7 @@ ZBCVAR.DefaultMenu = CreateConVar("zbase_defmenu", "0", Flags)
 ZBCVAR.ReloadSpawnMenu = CreateConVar("zbase_reload_spawnmenu", "0", Flags)
 ZBCVAR.ShowNavigator = CreateConVar("zbase_show_navigator", "0", Flags)
 ZBCVAR.ShowSched = CreateConVar("zbase_show_sched", "0", Flags)
-
+ZBCVAR.FollowingEnabled = CreateConVar("zbase_followplayers", "1", Flags)
 
 if CLIENT then
     ZBCVAR.GlowingEyes = CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)
