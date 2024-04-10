@@ -15,7 +15,8 @@
 - [ ] Improve hunter death animations
 - [ ] Set sight distance to 1 when the NPC is too close to fire weapons (so that range animation stops)
 - [ ] Fix allies being able to kill each other with combine balls and other things potentially
-- [ ] Fix regular spawn menu spawning not applying spawn flags
+- [x] Fix regular spawn menu spawning not applying spawn flags
+    - [ ] Compatability with spawn menu replace
 
 
 # POTENTIAL UPDATES
