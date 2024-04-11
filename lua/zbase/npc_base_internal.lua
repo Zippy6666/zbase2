@@ -1189,8 +1189,8 @@ function NPC:ZBWepSys_FireWeaponThink()
             -- end
         
 
-            -- Pose parameters
-            -- if self:HasCapability(CAP_AIM_GUN) then
+            -- Pose parameters for snpc
+            -- if self.IsZBase_SNPC && self:HasCapability(CAP_AIM_GUN) then
 
             --     local aimAng = self:GetAimVector():Angle()
             --     local ideal_poseparam_ang = self:WorldToLocalAngles(aimAng)
@@ -1205,6 +1205,9 @@ function NPC:ZBWepSys_FireWeaponThink()
             -- Make sure yaw is precise
             -- "-2" is the last yaw speed
             self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
+
+
+            self:OnFireWeapon()
 
 
             -- Reset var
