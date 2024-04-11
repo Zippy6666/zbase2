@@ -144,60 +144,8 @@ function NPC:ZBaseInit()
         self:SetSquad("zbase") -- Basic squad, will be replaced with faction later
     end
 
-    -- Sleep state
-    -- self:SetKeyValue("sleepstate", ZBCVAR.SleepState:GetString())
-    -- print(self:GetKeyValues().sleepstate)
 
-
-    -- Tick delay to fix issues
-    timer.Simple(0, function()
-
-        if IsValid(self) then
-            self:SetBloodColor(self.BloodColor)
-        end
-    
-        if self.IsZBase_SNPC && self:GetNPCClass() == -1 && ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)] then
-            self:SetNPCClass(ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)])
-        end
-
-    end)
-
-
-    -- Longer delay to prevent overrides
-    timer.Simple(0.1, function()
-
-        if IsValid(self) then
-            -- Weapon proficiency
-            self:SetCurrentWeaponProficiency(self.WeaponProficiency)
-
-
-            -- Some calls based on attributes
-            self:SetCurrentWeaponProficiency(self.WeaponProficiency)
-            self:SetBloodColor(self.BloodColor)
-
-
-            -- FOV and sight dist
-            self.FieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
-            self:SetSaveValue( "m_flFieldOfView", self.FieldOfView )
-            self:SetMaxLookDistance(self.SightDistance)
-        
-
-            -- Phys damage scale
-            self:Fire("physdamagescale", self.PhysDamageScale)
-        
-
-            -- Set specified internal variables (again just to be sure)
-            self:CapabilitiesClear()
-            self:InitCap()
-
-
-            if !self.DontAutoSetSquad && self.ZBaseFaction != "none" then
-                self:SetSquad(self.ZBaseFaction)
-            end
-
-        end
-
-    end)
+    self:CallNextTick("InitNextTick")
 
 
     -- On remove
@@ -221,6 +169,52 @@ function NPC:ZBaseInit()
 
     -- Custom init
     self:CustomInitialize()
+end
+
+
+function NPC:InitNextTick()
+    -- Blood color
+    self:SetBloodColor(self.BloodColor)
+
+    -- Auto set npc class
+    if self.IsZBase_SNPC && self:GetNPCClass() == -1 && ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)] then
+        self:SetNPCClass(ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)])
+    end
+
+    self:CallNextTick("Init2Ticks")
+end
+
+
+function NPC:Init2Ticks()
+    -- Weapon proficiency
+    self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+
+
+    -- Some calls based on attributes
+    self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+    self:SetBloodColor(self.BloodColor)
+
+
+    -- FOV and sight dist
+    self.FieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
+    self:SetSaveValue( "m_flFieldOfView", self.FieldOfView )
+    self:SetMaxLookDistance(self.SightDistance)
+
+
+    -- Phys damage scale
+    self:Fire("physdamagescale", self.PhysDamageScale)
+
+
+    -- Set specified internal variables (again just to be sure)
+    self:CapabilitiesClear()
+    self:InitCap()
+
+
+    -- Set squad name to faction name
+    if !self.DontAutoSetSquad
+    && self.ZBaseFaction != "none" then
+        self:SetSquad(self.ZBaseFaction)
+    end
 end
 
 
@@ -1189,8 +1183,8 @@ function NPC:ZBWepSys_FireWeaponThink()
             -- end
         
 
-            -- Pose parameters
-            -- if self:HasCapability(CAP_AIM_GUN) then
+            -- Pose parameters for snpc
+            -- if self.IsZBase_SNPC && self:HasCapability(CAP_AIM_GUN) then
 
             --     local aimAng = self:GetAimVector():Angle()
             --     local ideal_poseparam_ang = self:WorldToLocalAngles(aimAng)
@@ -1205,6 +1199,9 @@ function NPC:ZBWepSys_FireWeaponThink()
             -- Make sure yaw is precise
             -- "-2" is the last yaw speed
             self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
+
+
+            self:OnFireWeapon()
 
 
             -- Reset var

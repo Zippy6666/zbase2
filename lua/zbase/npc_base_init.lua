@@ -688,6 +688,21 @@ function NPC:GrenadeAnimation()
     return self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true, {noTransitions = true})
 end
 
+--[[
+==================================================================================================
+                                           WEAPON FUNCTIONS
+==================================================================================================
+--]]
+
+    -- Called when the NPC fires its weapon
+function NPC:OnFireWeapon()
+end
+
+    -- Called when the NPC wants to fire its weapon
+    -- Return false to prevent it from doing so
+function NPC:ShouldFireWeapon()
+    return true
+end
 
 --[[
 ==================================================================================================
@@ -769,13 +784,6 @@ end
     -- Called when the NPC notices that an entity is trying to do some kind of range attack on it
     -- Like shooting it with a gun or something
 function NPC:OnRangeThreatened( ent )
-end
-
-
-    -- Called when the NPC wants to fire its weapon
-    -- Return false to prevent it from doing so
-function NPC:ShouldFireWeapon()
-    return true
 end
 
 
