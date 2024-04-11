@@ -1,5 +1,4 @@
 # TODO
-- [ ] Set sight distance to 1 when the NPC is too close to fire weapons (so that range animation stops)
 - [ ] Controller
     - [ ] Weapon firing
     - [ ] Jumping/fly control
