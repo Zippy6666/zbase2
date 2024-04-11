@@ -1,6 +1,4 @@
 # TODO
-- [ ] Improve shooting animations for some npcs, such as combine soldiers
-- [ ] Improve hunter death animations
 - [ ] Set sight distance to 1 when the NPC is too close to fire weapons (so that range animation stops)
 - [ ] Controller
     - [ ] Weapon firing
@@ -8,7 +6,6 @@
     - [ ] Fully implemented attack system
 - [ ] Fix allies being able to kill each other with combine balls and other things potentially
 - [ ] Context menu stuff: control, kill, etc
-- [ ] Conv call after ticks in init
 - [x] Fix dissolving
 - [x] Able to configure NPC agressiveness with weapons in some way
     - [x] Fix recent errors
