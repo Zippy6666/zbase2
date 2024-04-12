@@ -2437,7 +2437,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         end
 
         -- Push
-        if !self:IsAlly(ent) then
+        if ((!self:IsAlly(ent)) or (self:IsAlly(ent) && self:Disposition(ent) == D_HT )) then
             local phys = ent:GetPhysicsObject()
 
             if IsValid(phys) then
@@ -2449,7 +2449,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
 
         -- Damage
-        if !undamagable && !self:IsAlly(ent) then
+        if !undamagable && ((!self:IsAlly(ent)) or (self:IsAlly(ent) && self:Disposition(ent) == D_HT)) then
             local dmg = DamageInfo()
             dmg:SetAttacker(self)
             dmg:SetInflictor(self)
@@ -3550,7 +3550,10 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- Become ragdoll if we should
     if !Gibbed && !dmg:IsDamageType(DMG_REMOVENORAGDOLL) then
-        rag = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
+        local Ragdoll = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
+        if IsValid(Ragdoll) then
+            rag = Ragdoll
+        end
     end
 
 
@@ -3570,7 +3573,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 
     -- Custom on death
-    self:CustomOnDeath( dmg, hit_gr, rag or NULL )
+    self:CustomOnDeath( dmg, hit_gr, rag )
 
 
     -- No stoopid ragdoll pls
