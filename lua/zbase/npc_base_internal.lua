@@ -2437,7 +2437,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         end
 
         -- Push
-        if !self:IsAlly(ent) then
+        if ((!self:IsAlly(ent)) or (self:IsAlly(ent) && self:Disposition(ent) == D_HT )) then
             local phys = ent:GetPhysicsObject()
 
             if IsValid(phys) then
