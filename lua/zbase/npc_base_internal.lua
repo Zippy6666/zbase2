@@ -600,9 +600,10 @@ end
     - Ctrl -> fly down
     - Control priority system
     - Some way to get control help, with hints i guess
+    - Just make it feel good
 
 
-    >> Control Priotity Sys <<
+    >> Control Priority Sys <<
     First two controls are left and right click, the rest are gonna be 1, 2, 3, 4, 5, and so on.
     1. Use weapon
     2. Fire secondary
@@ -633,12 +634,12 @@ end
 
 
 function NPC:Controller_ButtonDown(ply, btn)
-    MsgN("Controller_ButtonDown", self, btn)
+    -- MsgN("Controller_ButtonDown", self, btn)
 end
 
 
 function NPC:Controller_KeyPress(ply, key)
-    MsgN("Controller_KeyPress", self, key)
+    -- MsgN("Controller_KeyPress", self, key)
 end
 
 
@@ -659,8 +660,22 @@ function NPC:ControllerThink()
     local camTrace = util.TraceLine({
         start = camViewPos,
         endpos = camViewPos+forward*100000,
-        mask = MASK_VISIBLE,
+        mask = MASK_VISIBLE_AND_NPCS,
+        filter = self,
     })
+
+
+    if IsValid(self.ZBControlTarget) then
+
+        self.ZBControlTarget:SetPos(camTrace.HitPos+camTrace.HitNormal*5)
+
+        -- if !IsValid(self:GetEnemy()) then
+        --     self:AddEntityRelationship(self.ZBControlTarget, D_HT, 99)
+        --     self:UpdateEnemyMemory(self.ZBControlTarget, camTrace.HitPos+camTrace.HitNormal*5)
+        --     self:SetEnemy(self.ZBControlTarget)
+        -- end
+
+    end
 
 
     local moveDir = Vector(0, 0, 0)
@@ -685,9 +700,22 @@ function NPC:ControllerThink()
     self:Controller_Move(self:WorldSpaceCenter() + moveDir * self:OBBMaxs().x*20, ply:KeyDown(IN_SPEED))
 
 
-    if moveDir:IsZero() && self:IsCurrentSchedule(SCHED_FORCED_GO) then
-        self:ClearSchedule()
-    end
+    -- if moveDir:IsZero() && self:IsCurrentSchedule(SCHED_FORCED_GO) then
+    --     self:ClearSchedule()
+    -- end
+
+
+    -- if self:GetNPCState()!=NPC_STATE_COMBAT then
+    --     self:SetNPCState(NPC_STATE_COMBAT)
+    --     print("npc state combat")
+    -- end
+
+    -- -- Continue having control target as enemy
+    -- if !IsValid(self:GetEnemy()) && IsValid(self.ZBControlTarget) then
+    --     self:ClearEnemyMemory()
+    --     self:UpdateEnemyMemory(self.ZBControlTarget, self.ZBControlTarget:GetPos())
+    --     print("update enemy mem")
+    -- end
 
 end
 
@@ -980,7 +1008,8 @@ end
 
 
 function NPC:ZBWepSys_ControllerWantsToShoot()
-    return self.IsZBPlyControlled && self.ZBPlyController:KeyDown(IN_ATTACK)
+    -- return self.IsZBPlyControlled && self.ZBPlyController:KeyDown(IN_ATTACK)
+    return false
 end
 
 
@@ -3314,11 +3343,11 @@ function NPC:OnScaleDamage( dmg, hit_gr )
     if !ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer() && self:IsAlly(attacker) then
 
         -- Hacky way to not apply decals from bullets
-        if isSinglePlayer then
-            local last_rendermode = self:GetRenderMode() 
-            self:SetRenderMode(RENDERMODE_TRANSALPHA)
-            self:CallNextTick("SetRenderMode", last_rendermode)
-        end
+        -- if isSinglePlayer then
+        --     local last_rendermode = self:GetRenderMode() 
+        --     self:SetRenderMode(RENDERMODE_TRANSALPHA)
+        --     self:CallNextTick("SetRenderMode", last_rendermode)
+        -- end
 
         dmg:ScaleDamage(0)
         return

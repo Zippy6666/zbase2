@@ -11,9 +11,9 @@ if CLIENT then
 
         if IsValid(camEnt) then
 
-            local _, modelmaxs = camEnt:GetModelBounds()
+            -- local _, modelmaxs = camEnt:GetModelBounds()
             local forward = ang:Forward()
-            local camViewPos = camEnt:GetPos()+camEnt:GetUp()*modelmaxs.z*1.1 - ( forward * modelmaxs.x*4 )
+            local camViewPos = camEnt:GetPos()+camEnt:GetUp()*90 - ( forward * 200 )
 
 
             -- local camTrace = util.TraceLine({
@@ -46,13 +46,13 @@ if SERVER then
 
         npc.IsZBPlyControlled = true
         npc.ZBPlyController  =  ply
-        -- Set NPC_STATE and enemy!
 
-
-        npc.ZBControlTarget = ents.Create("base_gmodentity")
-        npc.ZBControlTarget:SetPos( npc:GetPos() )
-        npc.ZBControlTarget:SetNoDraw(true)
+        npc.ZBControlTarget = ents.Create("npc_bullseye")
+        npc.ZBControlTarget:SetPos( npc:WorldSpaceCenter() )
+        npc.ZBControlTarget:SetNotSolid(true)
+        npc.ZBControlTarget:SetHealth(math.huge)
         npc.ZBControlTarget:Spawn()
+        npc.ZBControlTarget:Activate()
 
 
         npc.ZBViewEnt = ents.Create("base_gmodentity")
@@ -63,11 +63,12 @@ if SERVER then
         npc.ZBViewEnt:Spawn()
         npc:DeleteOnRemove(npc.ZBViewEnt)
 
-
-        -- npc:SetSaveValue( "m_flFieldOfView", 1 ) -- No FOV, cant see shid
+        npc.ZBHadJumpCap = npc:HasCapability(CAP_MOVE_JUMP)
+        npc:CapabilitiesRemove(CAP_MOVE_JUMP)
         npc:CallOnRemove("StopControllingZB", function()
             self:StopControlling(ply, npc)
         end)
+        npc:ClearEnemyMemory()
 
 
         ply:SetNWEntity("ZBCtrlSysCamEnt", npc)
@@ -80,16 +81,29 @@ if SERVER then
 
         self:UpdateRelationShips()
 
+        undo.Create("ZBase Control")
+        undo.SetPlayer(ply)
+        undo.AddFunction(function() self:StopControlling( ply, npc ) end)
+        undo.SetCustomUndoText( "Stopped Controlling ".. npc.Name )
+        undo.Finish()
+
+
     end
 
 
     function ZBCtrlSys:StopControlling( ply, npc )
 
         if IsValid(npc) then
+
+            if npc.ZBHadJumpCap then
+                npc:CapabilitiesAdd(CAP_MOVE_JUMP)
+            end
+
             -- npc:SetSaveValue( "m_flFieldOfView", npc.FieldOfView )
             npc.IsZBPlyControlled  = false
             npc.ZBPlyController  = nil
             ply.ZBControlledNPC = nil
+            npc.ZBHadJumpCap = nil
 
             SafeRemoveEntity(npc.ZBViewEnt)
             SafeRemoveEntity(npc.ZBControlTarget)
@@ -127,16 +141,6 @@ if SERVER then
     hook.Add("KeyPress", "ZBCtrlSys", function(ply, key)
         if IsValid(ply.ZBControlledNPC) then
             ply.ZBControlledNPC:Controller_KeyPress(ply, key)
-        end
-    end)
-
-
-    concommand.Add("ZBaseControlTest", function()
-        local ply = Entity(1)
-        local npc = ply:GetEyeTrace().Entity
-
-        if IsValid(npc) && npc.IsZBaseNPC then
-            ZBCtrlSys:StartControlling( ply, npc )
         end
     end)
 
