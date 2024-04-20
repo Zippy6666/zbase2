@@ -1758,7 +1758,7 @@ function NPC:AITick_Slow()
     end
 
 
-    -- Timer out, back to idle
+    -- Stop alert timer out, back to idle
     if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
         self:SetNPCState(NPC_STATE_IDLE)
         self.NextStopAlert = nil
@@ -1770,13 +1770,9 @@ function NPC:AITick_Slow()
 
 
     -- Follow player that we should follow
-    if IsValid(self.PlayerToFollow) && self:ZBaseDist(self.PlayerToFollow, {away=200}) && !self:IsCurrentSchedule(SCHED_TARGET_CHASE) && !self:ZBWepSys_CanFireWeapon() then
-
-        self:SetTarget(self.PlayerToFollow)
-        self:SetSchedule(SCHED_TARGET_CHASE)
-
+    if self:CanPursueFollowing() then
+        self:PursueFollowing()
     end
-
 
     -- Stop following if no longer allied
     if IsValid(self.PlayerToFollow) && !self:IsAlly(self.PlayerToFollow) then
@@ -1788,10 +1784,12 @@ end
 
 function NPC:ShouldPreventSetSched( sched )
 
-    -- Prevent SetSchedule from being ran if these conditions apply:
-
+    -- Forced go will run no matter what
     if sched==SCHED_FORCED_GO then return false end
+    if sched==SCHED_FORCED_GO_RUN then return false end
 
+
+    -- Prevent SetSchedule from being ran if these conditions apply:
     return self.HavingConversation
     or self.DoingPlayAnim
 
@@ -1954,7 +1952,7 @@ end
 
 --[[
 ==================================================================================================
-                                           AI FOLLOW PLAYER
+                                           STATIC/STATIONARY MODE
 ==================================================================================================
 --]]
 
@@ -2052,6 +2050,19 @@ function NPC:StopFollowingCurrentPlayer( noSound )
 
 
     self:FollowPlayerStatus(NULL)
+end
+
+
+function NPC:CanPursueFollowing()
+    return IsValid(self.PlayerToFollow) && self:ZBaseDist(self.PlayerToFollow, {away=200}) && !self:ZBWepSys_CanFireWeapon()
+    && !self:IsCurrentSchedule(SCHED_TARGET_CHASE)
+    && !self:IsCurrentSchedule(SCHED_FORCED_GO)
+    && !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
+end
+
+function NPC:PursueFollowing()
+    self:SetTarget(self.PlayerToFollow)
+    self:SetSchedule(SCHED_TARGET_CHASE)
 end
 
 
