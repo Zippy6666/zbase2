@@ -13,6 +13,11 @@
 - [x] Nerf combine ball / crossbow bolt / smg nade option etc
 - [x] Fix regular spawn menu spawning not applying spawn flags
     - [ ] Compatability with spawn menu replace
+- [ ] Improve weapon out of range behaviour
+- [ ] Fix spawn menu all category
+- [ ] Follow/join squad stuff
+    - [ ] Play follow sounds when joining squad
+    - [ ] Cannot do follow when in squad
 
 
 # POTENTIAL UPDATES
