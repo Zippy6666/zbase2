@@ -94,7 +94,7 @@ end)
 
 AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )
 
-    npc:TakeDamage(0, ply, ply)
+    npc:TakeDamage(0, game.GetWorld(), game.GetWorld())
     npc:InduceDeath()
 
 end)
