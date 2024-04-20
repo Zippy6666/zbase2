@@ -42,6 +42,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Glowing Eyes (Client)", "zbase_glowing_eyes")
         panel:ControlHelp("Render glowing eyes if any are available.")
 
+        panel:CheckBox("Default Spawn Menu", "zbase_defmenu")
+        panel:ControlHelp("Should ZBase NPCs be added to the regular NPC menu too?")
+
     end)
 
     --[[
@@ -91,9 +94,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     --]]
 
     ZBaseAddMenuCategory("C - Replacer", function( panel )
-        panel:CheckBox("Default Spawn Menu", "zbase_defmenu")
-        panel:ControlHelp("Should ZBase NPCs be added to the regular NPC menu too?")
-
         panel:CheckBox("Replace in NPC Menu", "zbase_replace")
         panel:ControlHelp("Should the default HL2 NPCs be replaced by their ZBase equivalents in the spawn menu?")
 

@@ -2,7 +2,6 @@ local Flags = bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY)
 
 
 ZBCVAR = {}
--- ZBCVAR.SleepState = CreateConVar("zbase_sleep_state", "0", Flags)
 ZBCVAR.HPMult = CreateConVar("zbase_hp_mult", "1", Flags)
 ZBCVAR.DMGMult = CreateConVar("zbase_dmg_mult", "1", Flags)
 ZBCVAR.Nerf = CreateConVar("zbase_nerf", "1", Flags)
@@ -11,7 +10,7 @@ ZBCVAR.GrenCount = CreateConVar("zbase_gren_count", "-1", Flags)
 ZBCVAR.AltCount = CreateConVar("zbase_alt_count", "-1", Flags)
 ZBCVAR.GrenAltRand = CreateConVar("zbase_gren_alt_rand", "0", Flags)
 ZBCVAR.PlayerHurtAllies = CreateConVar("zbase_ply_hurt_ally", "0", Flags)
-ZBCVAR.Precache = CreateConVar("zbase_precache", "1", Flags)
+ZBCVAR.Precache = CreateConVar("zbase_precache", "0", Flags)
 ZBCVAR.Patrol = CreateConVar("zbase_patrol", "1", Flags)
 ZBCVAR.CallForHelp = CreateConVar("zbase_callforhelp", "1", Flags)
 ZBCVAR.CampaignReplace = CreateConVar("zbase_camp_replace", "0", Flags)
