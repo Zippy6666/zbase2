@@ -40,14 +40,9 @@ function NPC:ZBaseSetMutualRel( ent, relToEnt )
 
 
     local relToMe = relToEnt
-    if self.IsZBPlyControlled && self.ZBControlTarget == ent then
-        -- Always hate control target if controlled
-        relToEnt = D_HT
-        print("hate control target")
-    elseif self.IsZBPlyControlled then
+    if self.IsZBPlyControlled then
         -- Neutral to all else if controlled
         relToEnt = D_NU
-        print("neutral to", ent)
     end
 
 

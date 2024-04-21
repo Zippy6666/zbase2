@@ -617,7 +617,9 @@ end
 --]]
 
 
-function NPC:Controller_Move( pos, run )
+function NPC:Controller_Move( pos )
+
+    -- Move to pos
     local tr = util.TraceLine({
         start = self:WorldSpaceCenter(),
         endpos = pos,
@@ -625,21 +627,34 @@ function NPC:Controller_Move( pos, run )
         filter = self,
     })
     dest = tr.HitPos+tr.HitNormal*15
-
-
     self.CurrentControlDest = (self.CurrentControlDest && Lerp(0.33, self.CurrentControlDest, dest)) or dest
     self:SetLastPosition( self.CurrentControlDest )
     self:SetSchedule(SCHED_FORCED_GO)
+
+    -- Decide movement act
+    if !self.MovementOverrideActive then
+        self:SetMovementActivity(self.ZBPlyController:KeyDown(IN_SPEED) && ACT_RUN or ACT_WALK)
+    end
+
 end
 
 
 function NPC:Controller_ButtonDown(ply, btn)
-    -- MsgN("Controller_ButtonDown", self, btn)
+
+
+
 end
 
 
 function NPC:Controller_KeyPress(ply, key)
-    -- MsgN("Controller_KeyPress", self, key)
+
+    -- Reload ZBase weapon (ZBase weapon only for now)
+    -- local wep = self:GetActiveWeapon()
+    -- if key==IN_RELOAD && IsValid(wep) && wep.IsZBaseWeapon && !self:IsCurrentSchedule(SCHED_RELOAD) && self.ZBWepSys_PrimaryAmmo < wep.Primary.DefaultClip then
+    --     print("test")
+    --     self:SetSchedule(SCHED_RELOAD)
+    -- end
+
 end
 
 
@@ -651,12 +666,11 @@ function NPC:ControllerThink()
     if !IsValid(camEnt) then return end
 
 
-
-    local _, modelmaxs = camEnt:GetModelBounds()
+    -- Camera tracer
     local eyeangs = ply:EyeAngles()
     local forward = eyeangs:Forward()
     local right = eyeangs:Right()
-    local camViewPos = camEnt:GetPos()+camEnt:GetUp()*modelmaxs.z*1.1 - ( forward * modelmaxs.x*4 )
+    local camViewPos = camEnt:GetPos()
     local camTrace = util.TraceLine({
         start = camViewPos,
         endpos = camViewPos+forward*100000,
@@ -665,57 +679,42 @@ function NPC:ControllerThink()
     })
 
 
+    -- The controller "target"
     if IsValid(self.ZBControlTarget) then
 
+        -- Position target at cursor
         self.ZBControlTarget:SetPos(camTrace.HitPos+camTrace.HitNormal*5)
 
-        -- if !IsValid(self:GetEnemy()) then
-        --     self:AddEntityRelationship(self.ZBControlTarget, D_HT, 99)
-        --     self:UpdateEnemyMemory(self.ZBControlTarget, camTrace.HitPos+camTrace.HitNormal*5)
-        --     self:SetEnemy(self.ZBControlTarget)
-        -- end
+        -- Be enemy to target
+        if !IsValid(self:GetEnemy()) then
+            self:AddEntityRelationship(self.ZBControlTarget, D_HT, 99)
+            self:UpdateEnemyMemory(self.ZBControlTarget, camTrace.HitPos+camTrace.HitNormal*5)
+            self:SetEnemy(self.ZBControlTarget)
+            self:SetUnforgettable( self.ZBControlTarget )
+        end
 
     end
 
 
+    -- Decide move direction
     local moveDir = Vector(0, 0, 0)
-
     if ply:KeyDown(IN_FORWARD) then
         moveDir = moveDir + Vector(forward.x, forward.y, 0):GetNormalized()
     end
-    
     if ply:KeyDown(IN_BACK) then
         moveDir = moveDir - Vector(forward.x, forward.y, 0):GetNormalized()
     end
-    
     if ply:KeyDown(IN_MOVELEFT) then
         moveDir = moveDir - Vector(right.x, right.y, 0):GetNormalized()
     end
-    
     if ply:KeyDown(IN_MOVERIGHT) then
         moveDir = moveDir + Vector(right.x, right.y, 0):GetNormalized()
     end
-    
     moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
-    self:Controller_Move(self:WorldSpaceCenter() + moveDir * self:OBBMaxs().x*20, ply:KeyDown(IN_SPEED))
 
 
-    -- if moveDir:IsZero() && self:IsCurrentSchedule(SCHED_FORCED_GO) then
-    --     self:ClearSchedule()
-    -- end
-
-
-    -- if self:GetNPCState()!=NPC_STATE_COMBAT then
-    --     self:SetNPCState(NPC_STATE_COMBAT)
-    --     print("npc state combat")
-    -- end
-
-    -- -- Continue having control target as enemy
-    -- if !IsValid(self:GetEnemy()) && IsValid(self.ZBControlTarget) then
-    --     self:ClearEnemyMemory()
-    --     self:UpdateEnemyMemory(self.ZBControlTarget, self.ZBControlTarget:GetPos())
-    --     print("update enemy mem")
-    -- end
+    -- Move
+    self:Controller_Move(self:WorldSpaceCenter() + moveDir * self:OBBMaxs().x*20)
 
 end
 
@@ -1007,8 +1006,8 @@ function NPC:ZBWepSys_Shoot()
 end
 
 
+    -- WIP
 function NPC:ZBWepSys_ControllerWantsToShoot()
-    -- return self.IsZBPlyControlled && self.ZBPlyController:KeyDown(IN_ATTACK)
     return false
 end
 
@@ -1312,25 +1311,20 @@ function NPC:ZBWepSys_Think()
     end
 
 
-    
+    -- Adjust sight distance to match shoot distance when the enemy is valid
+    -- Adjust sight distance back to normal when enemy is not valid
     local maxShootDist = self.ZBWepSys_CheckDist && self.ZBWepSys_CheckDist.within
     local alteredSightDist = false
     if IsValid(ene) && maxShootDist && self:GetMaxLookDistance()!=maxShootDist then
 
-        -- Adjust sight distance to match shoot distance when the enemy is valid
         self:SetMaxLookDistance(maxShootDist)
         ZBaseDOverlay("Line", function()
-
             local center = self:WorldSpaceCenter()
             return {center, center+self:GetForward()*maxShootDist, 2, Color(255, 196, 0)}
-
         end)
 
     elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.SightDistance then
-
-        -- Adjust sight distance back to normal when enemy is not valid
         self:SetMaxLookDistance(self.SightDistance)
-
     end
 
 end
