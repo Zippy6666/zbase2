@@ -687,7 +687,7 @@ function NPC:ControllerThink()
 
         -- Be enemy to target
         if !IsValid(self:GetEnemy()) then
-            self:AddEntityRelationship(self.ZBControlTarget, D_HT, 99)
+            self:AddEntityRelationship(self.ZBControlTarget, D_HT, 0)
             self:UpdateEnemyMemory(self.ZBControlTarget, camTrace.HitPos+camTrace.HitNormal*5)
             self:SetEnemy(self.ZBControlTarget)
             self:SetUnforgettable( self.ZBControlTarget )

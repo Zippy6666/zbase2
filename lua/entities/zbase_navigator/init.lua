@@ -23,7 +23,7 @@ end
 --]]======================================================================================================]]
 function ENT:SelectSchedule()
 	if IsValid(self.ForceEnemy) then
-		self:AddEntityRelationship(self.ForceEnemy, D_HT, 99)
+		self:AddEntityRelationship(self.ForceEnemy, D_HT, 0)
 		self:SetEnemy(self.ForceEnemy)
 		self:UpdateEnemyMemory(self.ForceEnemy, self.ForceEnemy:GetPos())
 	end
