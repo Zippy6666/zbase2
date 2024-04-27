@@ -47,14 +47,19 @@ if SERVER then
         npc.IsZBPlyControlled = true
         npc.ZBPlyController  =  ply
 
+
+        -- Only target the target which will follow the players cursor
         npc.ZBControlTarget = ents.Create("npc_bullseye")
         npc.ZBControlTarget:SetPos( npc:WorldSpaceCenter() )
         npc.ZBControlTarget:SetNotSolid(true)
         npc.ZBControlTarget:SetHealth(math.huge)
         npc.ZBControlTarget:Spawn()
         npc.ZBControlTarget:Activate()
+        npc:ClearEnemyMemory()
+        self:UpdateRelationShips()
 
 
+        -- Setup camera
         npc.ZBViewEnt = ents.Create("base_gmodentity")
         npc.ZBViewEnt:SetPos( npc:GetPos() )
         npc.ZBViewEnt:SetAngles(npc:GetAngles())
@@ -62,31 +67,38 @@ if SERVER then
         npc.ZBViewEnt:SetNoDraw(true)
         npc.ZBViewEnt:Spawn()
         npc:DeleteOnRemove(npc.ZBViewEnt)
+        ply:SetNWEntity("ZBCtrlSysCamEnt", npc)
 
+
+        -- Disable jump capability for NPC
         npc.ZBHadJumpCap = npc:HasCapability(CAP_MOVE_JUMP)
         npc:CapabilitiesRemove(CAP_MOVE_JUMP)
-        npc:CallOnRemove("StopControllingZB", function()
-            self:StopControlling(ply, npc)
-        end)
-        npc:ClearEnemyMemory()
 
-
-        ply:SetNWEntity("ZBCtrlSysCamEnt", npc)
+        
+        -- Player variables
         ply.ZBControlledNPC = npc
         ply.ZBLastMoveType = ply:GetMoveType()
         ply.ZBLastNoTarget = bit.band(ply:GetFlags(), FL_NOTARGET)==FL_NOTARGET
         ply:SetNoTarget(true)
         ply:SetMoveType(MOVETYPE_NONE)
+        
 
-
-        self:UpdateRelationShips()
-
+        -- Undo stops controlling
         undo.Create("ZBase Control")
         undo.SetPlayer(ply)
         undo.AddFunction(function() self:StopControlling( ply, npc ) end)
         undo.SetCustomUndoText( "Stopped Controlling ".. npc.Name )
         undo.Finish()
 
+
+        -- If the NPC is removed the controlling should also stop
+        npc:CallOnRemove("StopControllingZB", function()
+            self:StopControlling(ply, npc)
+        end)
+
+
+        -- WIP message
+        ply:PrintMessage(HUD_PRINTTALK, "Warning: The ZBase controller is still WIP!")
 
     end
 

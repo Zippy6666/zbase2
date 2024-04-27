@@ -40,14 +40,9 @@ function NPC:ZBaseSetMutualRel( ent, relToEnt )
 
 
     local relToMe = relToEnt
-    if self.IsZBPlyControlled && self.ZBControlTarget == ent then
-        -- Always hate control target if controlled
-        relToEnt = D_HT
-        print("hate control target")
-    elseif self.IsZBPlyControlled then
+    if self.IsZBPlyControlled then
         -- Neutral to all else if controlled
         relToEnt = D_NU
-        print("neutral to", ent)
     end
 
 
@@ -55,11 +50,11 @@ function NPC:ZBaseSetMutualRel( ent, relToEnt )
     local prohibitRel = (self.IsZBaseNPC && !self:OnBaseSetRel(ent, relToEnt, 99))
     if !prohibitRel then
 
-        self:AddEntityRelationship(ent, relToEnt, 0)
+        self:AddEntityRelationship(ent, relToEnt, 99)
     
         -- Recipient's bullseye relationship, allows snpcs of the same class to hate each other
         if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
-            self:AddEntityRelationship(ent.Bullseye, relToEnt, 0)
+            self:AddEntityRelationship(ent.Bullseye, relToEnt, 99)
         end
 
     end
@@ -73,10 +68,10 @@ function NPC:ZBaseSetMutualRel( ent, relToEnt )
         -- Workaround for non-zbase NPCs ignoring players (and maybe other npcs potentially)
         for _, ene in ipairs(ent:GetKnownEnemies()) do
             if ene == self then continue end
-            ent:AddEntityRelationship(ene, D_HT, 0)
+            ent:AddEntityRelationship(ene, D_HT, 99)
         end
 
-        ent:AddEntityRelationship(self, relToMe, 0)
+        ent:AddEntityRelationship(self, relToMe, 99)
 
     end
 
