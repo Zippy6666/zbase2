@@ -292,7 +292,7 @@ function NPC:ThrowGrenade()
     timer.Simple(self.GrenadeReleaseTime, function()
         if !IsValid(self) then return end
 
-        local grenade = ents.Create(self.GrenadeEntityClass)
+        local grenade = ents.Create(table.Random(self.GrenadeEntityClass))
         grenade.IsZBaseGrenade = true
         grenade.IsZBaseDMGInfl = true
         grenade:SetPos(self:GrenadeSpawnPos())
