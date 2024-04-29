@@ -17,8 +17,6 @@
 - [ ] Follow/join squad stuff
     - [ ] Play follow sounds when joining squad
     - [ ] Cannot do follow when in squad
-- [ ] Error proof zbwepsys
-
 
 # POTENTIAL UPDATES
 - Suppressing
