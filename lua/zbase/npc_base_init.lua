@@ -284,7 +284,7 @@ NPC.GrenadeAttackAnimations = {} -- Grenade throw animation
 NPC.GrenadeEntityClass = "npc_grenade_frag" -- The grenade to throw, can be anything, like a fucking cat or somthing
 NPC.GrenadeReleaseTime = 0.85 -- Time until grenade leaves the hand
 NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the grenade on
-NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin units or something idfk
+NPC.GrenadeMaxSpin = 11-- The amount to spin the grenade measured in spin units or something idfk
 
 
 --[[
