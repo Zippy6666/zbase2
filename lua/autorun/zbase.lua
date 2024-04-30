@@ -103,7 +103,7 @@ end
 --]]
 
 
-game.AddParticles("particles/zbase_blood_impact.pcf")
+game.AddParticles("particles/zbase/zbase_blood_impact.pcf")
 
 game.AddParticles("particles/striderbuster.pcf")
 game.AddParticles("particles/mortarsynth_fx.pcf")
