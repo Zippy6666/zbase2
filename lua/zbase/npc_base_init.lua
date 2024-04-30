@@ -669,6 +669,12 @@ end
 
     -- The position to spawn the grenade at
 function NPC:GrenadeSpawnPos()
+    local attachment = self.GrenadeAttachment
+
+    if ( istable(attachment) ) then
+        attachment = attachment[math.random(1, #attachment)]
+    end
+
     return self:GetAttachment(self:LookupAttachment(self.GrenadeAttachment)).Pos
 end
 
