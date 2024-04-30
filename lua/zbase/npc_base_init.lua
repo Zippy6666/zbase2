@@ -653,8 +653,19 @@ end
 
     -- Animation code
 function NPC:RangeAttackAnimation()
-    return self:PlayAnimation(table.Random(self.RangeAttackAnimations), false, {
-        speedMult=self.RangeAttackAnimationSpeed,
+    local rangeAttack = self.RangeAttackAnimations
+    local rangeAnimSpeed = self.RangeAttackAnimationSpeed
+
+    if ( istable(rangeAttack) ) then
+        rangeAttack = rangeAttack[math.random(1, #rangeAttack)]
+    end
+
+    if ( istable(rangeAnimSpeed) ) then
+        rangeAnimSpeed = rangeAnimSpeed[math.random(1, #rangeAnimSpeed)]
+    end
+
+    return self:PlayAnimation(rangeAttack, false, {
+        speedMult = self.rangeAnimSpeed,
         noTransitions = true,
     })
 end
@@ -669,6 +680,12 @@ end
 
     -- The position to spawn the grenade at
 function NPC:GrenadeSpawnPos()
+    local attachment = self.GrenadeAttachment
+
+    if ( istable(attachment) ) then
+        attachment = attachment[math.random(1, #attachment)]
+    end
+
     return self:GetAttachment(self:LookupAttachment(self.GrenadeAttachment)).Pos
 end
 
@@ -677,6 +694,13 @@ end
 function NPC:GrenadeVelocity()
     local StartPos = self:GrenadeSpawnPos()
     local EndPos = self:GetEnemyLastSeenPos()
+
+    local fuckedUpValue = 340282346638528859811704183484516925440.000000
+
+    if ( EndPos == Vector(fuckedUpValue, fuckedUpValue, fuckedUpValue) ) then
+        // EndPos = self:GetForward() * 800 This doesn't work
+    end
+
     local UpAmount = math.Clamp(EndPos.z - StartPos.z, 150, 10000)
 
     return (EndPos - StartPos)+Vector(0, 0, UpAmount)
@@ -685,7 +709,13 @@ end
 
     -- Animation code
 function NPC:GrenadeAnimation()
-    return self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true, {noTransitions = true})
+    local grenadeAnim = self.GrenadeAttackAnimations
+
+    if ( istable(grenadeAnim) ) then
+        grenadeAnim = grenadeAnim[math.random(1, #grenadeAnim)]
+    end
+
+    return self:PlayAnimation(grenadeAnim, true, {noTransitions = true})
 end
 
 --[[
