@@ -692,7 +692,13 @@ end
 
     -- Animation code
 function NPC:GrenadeAnimation()
-    return self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true, {noTransitions = true})
+    local grenadeAnim = self.GrenadeAttackAnimations
+
+    if ( istable(grenadeAnim) ) then
+        grenadeAnim = grenadeAnim[math.random(1, #grenadeAnim)]
+    end
+
+    return self:PlayAnimation(grenadeAnim, true, {noTransitions = true})
 end
 
 --[[
