@@ -695,12 +695,6 @@ function NPC:GrenadeVelocity()
     local StartPos = self:GrenadeSpawnPos()
     local EndPos = self:GetEnemyLastSeenPos()
 
-    local fuckedUpValue = 340282346638528859811704183484516925440.000000
-
-    if ( EndPos == Vector(fuckedUpValue, fuckedUpValue, fuckedUpValue) ) then
-        // EndPos = self:GetForward() * 800 This doesn't work
-    end
-
     local UpAmount = math.Clamp(EndPos.z - StartPos.z, 150, 10000)
 
     return (EndPos - StartPos)+Vector(0, 0, UpAmount)
