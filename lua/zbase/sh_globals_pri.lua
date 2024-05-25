@@ -268,6 +268,7 @@ function ZBaseNPCCopy( npc, zbase_cls )
     cleanup.ReplaceEntity(npc, ZBaseNPC)
 
     -- Set NPC into a "dull state"
+    npc:SetModel("models/error.mdl")
     npc:SetName("")
     npc:SetSquad("")
     npc:CapabilitiesClear()
@@ -275,15 +276,10 @@ function ZBaseNPCCopy( npc, zbase_cls )
     npc:AddFlags(FL_NOTARGET)
     npc:SetCollisionBounds(vector_origin, vector_origin)
     npc:SetMaxLookDistance(1)
-
-    if developer:GetBool() then
-        npc:SetMaterial("models/wireframe")
-    else
-        npc:SetNoDraw(true)
-        npc:SetRenderMode(RENDERMODE_TRANSCOLOR)
-        npc:DrawShadow(false)
-        npc:SetColor(invisCol)
-    end
+    npc:SetNoDraw(true)
+    npc:SetRenderMode(RENDERMODE_TRANSCOLOR)
+    npc:DrawShadow(false)
+    npc:SetColor(invisCol)
 
     npc:SetNWBool("ZBaseNPCCopy_DullState", true)
     npc.ZBaseNPCCopy_DullState = true
