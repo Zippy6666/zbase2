@@ -3644,65 +3644,6 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 end
 
 
-function NPC:OnDeath( attacker, infl, dmg, hit_gr )
-
-    if self.Dead then return end
-    self.Dead = true
-
-
-    -- Stop sounds
-    self.IsSpeaking = false
-    for _, v in ipairs(self.SoundVarNames) do
-        if !isstring(v) then continue end
-        self:StopSound(self[v])
-    end
-
-
-    -- Death sound
-    if !self.DoingDeathAnim then
-        self:EmitSound(self.DeathSounds)
-    end
-
-
-    -- My honest reaction
-    self:Death_AlliesReact()
-    
-
-    -- Gib or ragdoll
-    local Gibbed = self:ShouldGib(dmg, hit_gr)
-    local rag
-    if !Gibbed then
-        rag = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
-    end
-
-
-    -- Drop engine weapon, not stoopid vegetable zbase weapon
-    local wep = self:GetActiveWeapon()
-    if IsValid(wep) && wep.EngineCloneClass then
-
-        self:Give(wep.EngineCloneClass)
-
-    end
-
-
-    -- Item drop
-    self:Death_ItemDrop()
-
-
-    -- Custom on death
-    self:CustomOnDeath( dmg, hit_gr, rag )
-
-
-    -- No stoopid ragdoll pls
-    self:SetShouldServerRagdoll(false)
-
-
-    -- Byebye
-    self:Remove()
-
-
-end
-
 
 function NPC:Death_AlliesReact()
 

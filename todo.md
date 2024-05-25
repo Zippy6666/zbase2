@@ -17,8 +17,5 @@
 - [ ] Follow/join squad stuff
     - [ ] Play follow sounds when joining squad
     - [ ] Cannot do follow when in squad
-
-# POTENTIAL UPDATES
-- Suppressing
-- Throw back grenades
-- Nextbots?????????
+    - [ ] Fix halos for my system
+- [x] Fix item drop/weapon cvars
