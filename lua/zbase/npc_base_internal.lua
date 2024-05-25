@@ -3165,17 +3165,18 @@ function NPC:DealDamage( dmg, ent )
 
     -- Nerf smg nades/ energy balls etc
     if ZBCVAR.Nerf:GetBool() && IsValid(infl) && infl.IsZBaseDMGInfl && ent:IsPlayer() then
-        
+
         if infl:GetClass()=="rpg_missile" or infl:GetClass()=="grenade_ar2" then
+
             -- RPG rocket ~ 50 dmg
             -- SMG Nade ~ 33 dmg
             dmg:ScaleDamage(0.33)
-        elseif infl:GetClass()=="prop_combine_ball" then
-            -- Combine ball ~ 33 dmg
-            dmg:ScaleDamage(0.033)
+
         elseif infl:GetClass() == "crossbow_bolt" then
+
             -- Crossbow bolt 50 dmg
             dmg:ScaleDamage(0.5)
+    
         end
 
     end
