@@ -1,16 +1,22 @@
+local enableZBaseLogo = CreateClientConVar("zbase_enable_logo", "0", true, false)
+
 local function ZBaseAddMenuCategory( name, func, cat )
     spawnmenu.AddToolMenuOption("ZBase", cat or "ZBase", name, name, "", "", function(panel)
-        panel:ControlHelp("")
-        panel:ControlHelp("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
-        panel:ControlHelp("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
-        panel:ControlHelp("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
-        panel:ControlHelp("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
-        panel:ControlHelp("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
-        panel:ControlHelp("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --")
-        panel:ControlHelp("")
-        panel:ControlHelp("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
-        panel:ControlHelp("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
-        panel:ControlHelp("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
+
+        if enableZBaseLogo:GetBool() then
+            panel:ControlHelp("")
+            panel:ControlHelp("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
+            panel:ControlHelp("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
+            panel:ControlHelp("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
+            panel:ControlHelp("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
+            panel:ControlHelp("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
+            panel:ControlHelp("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --")
+            panel:ControlHelp("")
+            panel:ControlHelp("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
+            panel:ControlHelp("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
+            panel:ControlHelp("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
+        end
+
         panel:ControlHelp("")
         panel:ControlHelp("-- "..string.upper(name).." --")
         func(panel)
@@ -29,6 +35,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     --]]
 
     ZBaseAddMenuCategory("A - General", function( panel )
+
+        panel:CheckBox( "Logo", "zbase_enable_logo")
+        panel:ControlHelp("Enable the ASCII-style ZBase logo in the tool menu. Requires the spawnmenu to be reloaded.")
 
         panel:CheckBox( "Start Message", "zbase_start_msg")
         panel:ControlHelp("Allow warning/message boxes when joining the game.")
