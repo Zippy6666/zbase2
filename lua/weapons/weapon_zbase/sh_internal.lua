@@ -192,11 +192,30 @@ function SWEP:ShootEffects()
 
 
 	-- Muzzle flash
-	if self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 then
+	if IsValid(EffectEnt) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 then
+
 		local effectdata = EffectData()
 		effectdata:SetFlags(self.Primary.MuzzleFlashFlags)
 		effectdata:SetEntity(EffectEnt)
 		util.Effect( "MuzzleFlash", effectdata, true, rf )
+
+		local att_num = EffectEnt:LookupAttachment("muzzle")
+		if ZBCVAR.MuzzleLight:GetBool() && att_num > 0 then
+
+			local att = EffectEnt:GetAttachment(att_num)
+			local col = self.Primary.MuzzleFlashFlags==5 && "25 125 255" or "255 125 25"
+			local muzzleLight = ents.Create("light_dynamic")
+			muzzleLight:SetKeyValue("brightness", "1")
+			muzzleLight:SetKeyValue("distance", "250")
+			muzzleLight:SetPos(att.Pos)
+			muzzleLight:Fire("Color", col)
+			muzzleLight:Spawn()
+			muzzleLight:Activate()
+			muzzleLight:Fire("TurnOn", "", 0)
+			SafeRemoveEntityDelayed(muzzleLight, 0.1)
+
+		end
+
 	end
 	
 

@@ -164,6 +164,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Nerf Powerful Weapons", "zbase_nerf")
         panel:ControlHelp("Powerful weapons like ar2 energy balls and rpgs will have a more reasonable amount of damage towards players.")
 
+        panel:CheckBox("Dynamic Light", "zbase_muzzle_light")
+        panel:ControlHelp("Should weapons emit dynamic light?")
+
     end)
 
     --[[
