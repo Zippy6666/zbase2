@@ -3,7 +3,7 @@
 - [x] Fix issue with targeting striders and (dropships?)
 - [ ] Copy system for NPCs with parentname
 - [ ] Toggle zbwepsys
-- [ ] Fix spawnmenu replace
+- [x] Fix spawnmenu replace
 - [x] Don't print out replacer JSON on boot
 
 2.

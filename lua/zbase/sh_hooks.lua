@@ -127,14 +127,19 @@ end)
 
     -- Override code for spawning zbase npcs from regular spawn menu
 hook.Add("PlayerSpawnNPC", "ZBASE", function(ply, npc_type, wep_cls)
-    npc_type = string.Right(npc_type, #npc_type-6)
+
+    local replace_cls = ZBCVAR.Replace:GetBool() && ZBASE_MENU_REPLACEMENTS_FLIPPED[npc_type]
+
+    npc_type = replace_cls or string.Right(npc_type, #npc_type-6)
     local zb_npc_tbl = ZBaseNPCs[npc_type]
+
     if zb_npc_tbl then 
     
         Spawn_ZBaseNPC(ply, npc_type, wep_cls, ply:GetEyeTrace())
         return false
 
     end
+
 end)
 
 
