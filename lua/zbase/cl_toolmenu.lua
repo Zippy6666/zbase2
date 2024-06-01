@@ -156,9 +156,12 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Random Weapon", "zbase_randwep")
         panel:ControlHelp("Should ZBase NPCs spawn with a random zbase weapon?")
 
-        panel:TextEntry("Rand Wep Blacklist", "zbase_randwep_blacklist_npc")
+        panel:TextEntry("Rand Wep NPC Blacklist", "zbase_randwep_blacklist_npc")
         panel:ControlHelp("ZBase NPCs that should not have their weapons randomized, separate with spaces.")
-
+    
+        panel:TextEntry("Rand Wep Blacklist", "zbase_randwep_blacklist_wep")
+        panel:ControlHelp("ZBase weapons that should be blacklisted, separate with spaces.")
+        
         panel:NumSlider("Max NPCs Firing", "zbase_max_npcs_shoot_ply", 0, 10, 0)
         panel:ControlHelp("Maximum amount of NPCs that can shoot at a single player at once. 0 = infinite.")
 

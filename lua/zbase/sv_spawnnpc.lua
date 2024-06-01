@@ -131,9 +131,20 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 			"weapon_crowbar", "weapon_ar2", "weapon_rpg",
 			"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
 
+			for i, wclass in ipairs( table.Copy(randTBL) ) do
+				if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
+					print(wclass, "found")
+					table.RemoveByValue(randTBL, wclass)
+				end
+			end
+
 			local randWep = randTBL[math.random(1, #randTBL)]
-			print("randWep: '", randWep, "'")
-			Equipment = randWep
+
+			if randWep then
+				Equipment = randWep
+			else
+				PrintMessage(HUD_PRINTTALK, "Unable to randomize weapons...")
+			end
 
 		end
 

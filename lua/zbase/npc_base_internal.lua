@@ -938,7 +938,9 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
         if Weapon.NPCHoldType then
             self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
         end
-
+        if Weapon.IsZBaseWeapon then
+            self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
+        end
     else
         
         self:Conv_STimer(0.1, function()
