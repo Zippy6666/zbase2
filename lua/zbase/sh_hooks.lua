@@ -53,11 +53,15 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
             if !IsValid(ent) then return end
             
             local zbaseClass = ent:GetKeyValues().parentname
-            local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
-            
-            if ZBaseNPCTable then
-                ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
+            if ZBaseNPCs[zbaseClass] then
+                ZBaseNPCCopy( ent, zbaseClass )
             end
+
+            -- local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
+            
+            -- if ZBaseNPCTable then
+            --     ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
+            -- end
         end)
     end
 

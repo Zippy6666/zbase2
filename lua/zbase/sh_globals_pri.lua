@@ -289,19 +289,46 @@ function ZBaseNPCCopy( npc, zbase_cls )
     undo.ReplaceEntity(npc, ZBaseNPC)
     cleanup.ReplaceEntity(npc, ZBaseNPC)
 
+    -- Position aerial npc up if stuck in ground
+    local uppamt = ZBaseNPC:OBBMins().z*2
+    local tr_aerial_fixer = util.TraceLine({
+        start = npc:WorldSpaceCenter(),
+        endpos = npc:WorldSpaceCenter()+Vector(0,0,uppamt),
+    })
+    if tr_aerial_fixer.Hit then
+        -- MsgN("stuck, going", uppamt, "up")
+        ZBaseNPC:SetPos(tr_aerial_fixer.HitPos+tr_aerial_fixer.HitNormal*(uppamt))
+    end
+
+
     -- Set NPC into a "dull state"
-    npc:SetModel("models/error.mdl")
+    npc:SetModel("models/props_lab/huladoll.mdl")
     npc:SetName("")
     npc:SetSquad("")
-    npc:CapabilitiesClear()
-    npc:AddEFlags(EFL_DONTBLOCKLOS)
+
+    npc:AddEFlags(bit.bor(EFL_DONTBLOCKLOS, EFL_NO_THINK_FUNCTION))
     npc:AddFlags(FL_NOTARGET)
+
     npc:SetCollisionBounds(vector_origin, vector_origin)
+    npc:SetMoveType(MOVETYPE_NONE)
+    npc:SetSolid(SOLID_NONE)
+
+    npc:CapabilitiesClear()
     npc:SetMaxLookDistance(1)
-    npc:SetNoDraw(true)
-    npc:SetRenderMode(RENDERMODE_TRANSCOLOR)
-    npc:DrawShadow(false)
-    npc:SetColor(invisCol)
+
+    if developer:GetBool() then
+        npc:SetMaterial("models/wireframe")
+    else
+        npc:SetNoDraw(true)
+        npc:SetRenderMode(RENDERMODE_TRANSCOLOR)
+        npc:DrawShadow(false)
+        npc:SetColor(invisCol)
+    end
+
+    for _, child in ipairs(npc:GetChildren()) do
+        -- Remove manhack light, etc
+        child:Remove()
+    end
 
     npc:SetNWBool("ZBaseNPCCopy_DullState", true)
     npc.ZBaseNPCCopy_DullState = true
@@ -317,6 +344,8 @@ function ZBaseNPCCopy( npc, zbase_cls )
             npc:SetHealth(0)
             npc:SetNPCState(NPC_STATE_DEAD)
             npc:SetSchedule(SCHED_DIE_RAGDOLL)
+
+            SafeRemoveEntityDelayed(npc, 2)
         end
     end)
 
