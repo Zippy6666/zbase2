@@ -923,32 +923,40 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
     if !self.ZBWepSys_Inventory[class] then return end
 
-
     local WepData = self.ZBWepSys_Inventory[class]
 
 
-    local Weapon = self:Give( WepData.isScripted && class or "weapon_zbase" )
-    Weapon.FromZBaseInventory = true
-    -- Weapon:SetRenderMode(RENDERMODE_TRANSCOLOR)
-    -- Weapon:SetColor(barely_visible)
-
 
     if !WepData.isScripted then
-        
+
+        local Weapon = self:Give( "weapon_zbase" )
+
         Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
         self:ZBWepSys_EngineCloneAttrs( Weapon, class )
 
+        Weapon.FromZBaseInventory = true
+        if Weapon.NPCHoldType then
+            self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
+        end
+
+    else
+        
+        self:Conv_STimer(0.1, function()
+            local Weapon = self:Give( class )
+
+            Weapon.FromZBaseInventory = true
+            if Weapon.NPCHoldType then
+                self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
+            end
+            if Weapon.IsZBaseWeapon then
+                self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
+            end
+        end)
+
     end
 
 
-    if Weapon.NPCHoldType then
-        self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
-    end
 
-
-    if Weapon.IsZBaseWeapon then
-        self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
-    end
 
 end
 

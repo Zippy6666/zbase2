@@ -132,6 +132,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 			"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
 
 			local randWep = randTBL[math.random(1, #randTBL)]
+			print("randWep: '", randWep, "'")
 			Equipment = randWep
 
 		end

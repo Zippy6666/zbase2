@@ -16,7 +16,6 @@
 3.
 - [x] Improve melee weapon behaviour
 - [x] (multiple shooters option) Consider attacking when firing weapon, not when hurt enemy
-- [ ] Fix holdtypes
 
 4.
 - [ ] Improve weapon out of range behaviour (cancel forced go if in range again, or maybe if hurt?)
@@ -24,6 +23,7 @@
     - [ ] Play follow sounds when joining squad
     - [ ] Cannot do follow when in squad
 - [ ] Improve playanimation func a bit maybe, try without scripted state
+- [ ] Fix holdtypes
 
 5.
 - [ ] Finish Controller
