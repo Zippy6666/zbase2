@@ -15,8 +15,8 @@
 
 3.
 - [x] Improve melee weapon behaviour
+- [x] (multiple shooters option) Consider attacking when firing weapon, not when hurt enemy
 - [ ] Fix holdtypes
-- [ ] (multiple shooters option) Consider attacking when firing weapon, not when hurt enemy
 
 4.
 - [ ] Improve weapon out of range behaviour (cancel forced go if in range again, or maybe if hurt?)

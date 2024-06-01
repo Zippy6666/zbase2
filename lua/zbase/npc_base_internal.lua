@@ -1015,12 +1015,16 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
     local attacking, max = 0, ZBCVAR.MaxNPCsShootPly:GetInt()
 
     for k in pairs(ply.AttackingZBaseNPCs) do
+
         if k == self then continue end
+
         attacking = attacking+1
+
         if attacking >= max then
             ply.TooManyZBaseAttackers = true
             return true
         end
+
     end
 
     return false
@@ -1120,6 +1124,31 @@ end
 --         self:SetActivity(ACT_RANGE_ATTACK1)
 --     end
 -- end
+
+local attackingResetDelay = 1 -- Time until a zbase npc is not considered to attack a player, after hurting them
+function NPC:InternalOnFireWeapon()
+    if !ZBCVAR.MaxNPCsShootPly:GetBool() then return end
+
+    local ene = self:GetEnemy()
+
+    -- Decide how many ZBase NPCs are attacking this player
+    if ene:IsPlayer() then
+        -- How many ZBase NPCs are attacking this player
+
+        local ply = ene
+        ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
+        ply.AttackingZBaseNPCs[self]=true
+
+
+        ply:ConvTimer("RemoveFromAttackingZBaseNPCs"..self:EntIndex(), attackingResetDelay, function()
+            -- No longer considered to be attacking
+            if ply.AttackingZBaseNPCs[self] then
+                ply.AttackingZBaseNPCs[self] = nil
+            end
+        end)
+
+    end
+end
 
 
 local OutOfShootRangeSched = SCHED_FORCED_GO_RUN
@@ -1232,6 +1261,9 @@ function NPC:ZBWepSys_FireWeaponThink()
             end
 
 
+
+
+            self:InternalOnFireWeapon()
             self:OnFireWeapon()
 
 
@@ -3137,7 +3169,7 @@ end
 ==================================================================================================
 --]]
 
-local attackingResetDelay = 1.5 -- Time until a zbase npc is not considered to attack a player, after hurting them
+
 function NPC:DealDamage( dmg, ent )
 
     local infl = dmg:GetInflictor()
@@ -3189,25 +3221,6 @@ function NPC:DealDamage( dmg, ent )
             dmg:SetDamage(15)
     
         end
-
-    end
-
-
-    -- Decide how many ZBase NPCs are attacking this player
-    if ent:IsPlayer() then
-        -- How many ZBase NPCs are attacking this player
-
-        local ply = ent
-        ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
-        ply.AttackingZBaseNPCs[self]=true
-
-
-        ply:ConvTimer("RemoveFromAttackingZBaseNPCs"..self:EntIndex(), attackingResetDelay, function()
-            -- No longer considered to be attacking
-            if ply.AttackingZBaseNPCs[self] then
-                ply.AttackingZBaseNPCs[self] = nil
-            end
-        end)
 
     end
 
@@ -3416,7 +3429,7 @@ function NPC:OnEntityTakeDamage( dmg )
 
 
     if self.DoingDeathAnim && !self.DeathAnim_Finished then
-        dmg:ScaleDamage(0)
+        -- dmg:ScaleDamage(0)
         return true
     end
 

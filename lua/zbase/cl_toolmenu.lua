@@ -89,7 +89,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Follow Players", "zbase_followplayers")
         panel:ControlHelp("If enabled, ZBase NPCs will follow allied players when the use key is pressed on them.")
 
-        panel:NumSlider("Max NPCs Firing [WIP]", "zbase_max_npcs_shoot_ply", 0, 10, 0)
+        panel:NumSlider("Max NPCs Firing", "zbase_max_npcs_shoot_ply", 0, 10, 0)
         panel:ControlHelp("Maximum amount of NPCs that can shoot at a single player at once. 0 = infinite.")
 
         panel:CheckBox( "Static Mode", "zbase_static" )
