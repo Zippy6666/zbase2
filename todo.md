@@ -2,9 +2,13 @@
 1.
 - [x] Fix issue with targeting striders and (dropships?)
 - [ ] Copy system for NPCs with parentname
-- [ ] Toggle zbwepsys
 - [x] Fix spawnmenu replace
 - [x] Don't print out replacer JSON on boot
+- [ ] Improve wep sys
+    - [ ] Fix holdtypes
+    - [x] Must face target to shoot
+    - [ ] Invisible weapon until model decided
+- [ ] Increase follow halo dist from ground, align with floor
 
 2.
 - [ ] Fix allies being able to kill each other with combine balls and other things potentially
@@ -14,7 +18,6 @@
 - [ ] Follow/join squad stuff
     - [ ] Play follow sounds when joining squad
     - [ ] Cannot do follow when in squad
-    - [ ] Increase halo dist from ground, align with floor
 
 4.
 - [ ] Fix comball nerf option

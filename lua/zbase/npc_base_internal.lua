@@ -1041,6 +1041,9 @@ function NPC:ZBWepSys_AIWantsToShoot()
     -- Weapon LOS COND
     && self:HasCondition(COND.WEAPON_HAS_LOS)
 
+    -- Facing enemy
+    && self:IsFacing(ene)
+
     -- Take turns firing
     && !(  ZBCVAR.MaxNPCsShootPly:GetBool() && ene:IsPlayer() && istable(ene.AttackingZBaseNPCs) && self:ZBWepSys_TooManyAttacking(ene)  )
 end
@@ -1224,9 +1227,10 @@ function NPC:ZBWepSys_FireWeaponThink()
             -- end
 
 
-            -- Make sure yaw is precise
-            -- "-2" is the last yaw speed
-            self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
+            -- Make sure yaw is precise when standing and shooting
+            if !self:IsMoving() then
+                self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
+            end
 
 
             self:OnFireWeapon()
