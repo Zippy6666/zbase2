@@ -133,7 +133,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 
 			for i, wclass in ipairs( table.Copy(randTBL) ) do
 				if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
-					print(wclass, "found")
 					table.RemoveByValue(randTBL, wclass)
 				end
 			end
