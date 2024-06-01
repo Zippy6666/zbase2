@@ -155,7 +155,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 		end
 
 
-		table.Add(npcs, v)
+		table.Merge(npcs, v)
 	end
 
 
