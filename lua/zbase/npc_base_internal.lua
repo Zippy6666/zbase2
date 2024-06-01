@@ -1266,11 +1266,10 @@ function NPC:ZBWepSys_MeleeThink()
         end
     
 
-        if !self:IsMoving() && !self:IsCurrentSchedule(SCHED_TARGET_CHASE) then
+        if !self:IsMoving() then
 
             self:SetTarget(ene)
-            self:SetSchedule(SCHED_TARGET_CHASE)
-
+            self:SetSchedule(SCHED_CHASE_ENEMY)
         end
 
     end
@@ -3145,7 +3144,7 @@ function NPC:DealDamage( dmg, ent )
     local disp = self:Disposition(ent)
 
     -- Friendly fire immune
-    if ent.GetCapabilities && bit.band(ent:GetCapabilities(), CAP_FRIENDLY_DMG_IMMUNE)==CAP_FRIENDLY_DMG_IMMUNE && self:Disposition(ent)==D_LI then
+    if disp==D_LI or disp==D_NU then
         dmg:ScaleDamage(0)
         return true
     end
@@ -3184,6 +3183,10 @@ function NPC:DealDamage( dmg, ent )
 
             -- Crossbow bolt 50 dmg
             dmg:ScaleDamage(0.5)
+
+        elseif infl:GetClass() == "prop_combine_ball" then
+
+            dmg:SetDamage(15)
     
         end
 

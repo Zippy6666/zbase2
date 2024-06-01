@@ -276,7 +276,7 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
-    local infl_own = IsValid(infl) && infl:GetOwner()
+    local att_own = IsValid(attacker) && attacker:GetOwner()
 
 
     -- NPCs with ZBaseNPCCopy_DullState should not be able to take damage, nor should they be able to deal damage
@@ -287,8 +287,10 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
 
     -- Attacker is ZBase NPC, run DealDamage
-    -- TODO: register if it was an owned ent that did the damage
     local zbase_attacker = IsValid(attacker) && attacker.IsZBaseNPC && attacker
+    if IsValid(att_own) && att_own.IsZBaseNPC then
+        zbase_attacker = att_own
+    end
     if zbase_attacker then
         zbase_attacker:DealDamage( dmg, ent )
         if zbase_attacker.Patch_DealDamage then
