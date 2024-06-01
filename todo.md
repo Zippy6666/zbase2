@@ -4,7 +4,7 @@
 - [ ] Copy system for NPCs with parentname
 - [ ] Toggle zbwepsys
 - [ ] Fix spawnmenu replace
-- [ ] Don't print out replacer JSON on boot
+- [x] Don't print out replacer JSON on boot
 
 2.
 - [ ] Fix allies being able to kill each other with combine balls and other things potentially

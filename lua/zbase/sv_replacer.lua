@@ -35,7 +35,7 @@ end
 
 
 
-local function zbase_camp_replace_reload()
+local function zbase_camp_replace_reload(domsg)
 
     -- Create the file if it doesn't exist
     CreateFile()
@@ -43,12 +43,21 @@ local function zbase_camp_replace_reload()
     local tbl = util.JSONToTable( file.Read(filename, "DATA") )
     if tbl then
         table.CopyFromTo( tbl, CurrentReplaceList )
-        MsgN(loadMSG)
-        PrintTable(CurrentReplaceList)
+
+        if domsg then
+            MsgN(loadMSG)
+            PrintTable(CurrentReplaceList)
+        end
+
         return true
     else
-        MsgN(failMSG)
+
+        if domsg then
+            MsgN(failMSG)
+        end
+
         return false
+
     end
 
 end
@@ -58,7 +67,7 @@ end
 
 net.Receive("zbase_camp_replace_reload", function()
     
-    local success = zbase_camp_replace_reload()
+    local success = zbase_camp_replace_reload(true)
     if success then
         PrintMessage(HUD_PRINTTALK, loadMSG)
     else
