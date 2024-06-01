@@ -37,6 +37,7 @@ local VJ_Translation_Flipped = {
 function NPC:ZBaseSetMutualRel( ent, relToEnt )
     
     if !IsValid(ent) then return end
+    if string.lower( ent:GetClass() ) == "bullseye_strider_focus" then return end
 
 
     local relToMe = relToEnt
@@ -49,6 +50,8 @@ function NPC:ZBaseSetMutualRel( ent, relToEnt )
     -- Set relationship to recipient
     local prohibitRel = (self.IsZBaseNPC && !self:OnBaseSetRel(ent, relToEnt, 0))
     if !prohibitRel then
+
+        -- MsgN(ent)
 
         self:AddEntityRelationship(ent, relToEnt, 0)
     
