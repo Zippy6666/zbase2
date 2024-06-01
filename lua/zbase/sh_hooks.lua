@@ -47,6 +47,7 @@ end)
 hook.Add("OnEntityCreated", "ZBASE", function( ent )
 
     -- ZBase init stuff when NOT SPAWNED FROM MENU
+    -- Uses parentname to determine if it is a zbase npc
     if SERVER then
         timer.Simple(0, function()
             if !IsValid(ent) then return end

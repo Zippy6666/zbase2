@@ -539,30 +539,6 @@ end
 
 function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
 
-    -- Replace default fellers
-    ZBASE_MENU_REPLACEMENTS = {
-        ["zb_human_civilian"] = "npc_citizen",
-        ["zb_antlion"] = "npc_antlion",
-        ["zb_combine_soldier"] = "npc_combine_s",
-        ["zb_zombine"] = "npc_zombine",
-        ["zb_fastzombie"] = "npc_fastzombie",
-        ["zb_human_medic"] = "Medic",
-        ["zb_stalker"] = "npc_stalker",
-        ["zb_kleiner"] = "npc_kleiner",
-        ["zb_zombie"] = "npc_zombie",
-        ["zb_human_rebel"] = "Rebel",
-        ["zb_poisonzombie"] = "npc_poisonzombie",
-        ["zb_metropolice"] = "npc_metropolice",
-        ["zb_combine_elite"] = "CombineElite",
-        ["zb_combine_nova_prospekt"] = "CombinePrison",
-        ["zb_hunter"] = "npc_hunter",
-        ["zb_vortigaunt"] = "npc_vortigaunt",
-        ["zb_human_refugee"] = "Refugee",
-        ["zb_odessa"]     = "npc_odessa",
-    }
-    ZBASE_MENU_REPLACEMENTS_FLIPPED = table.Flip( table.Copy(ZBASE_MENU_REPLACEMENTS) )
-
-
     for cls, t in pairs( ZBaseNPCs ) do
         if t.Category == false then continue end -- Don't add to menu
         if cls == "npc_zbase" then continue end -- Don't add base to menu

@@ -5,10 +5,10 @@
 - [x] Fix spawnmenu replace
 - [x] Don't print out replacer JSON on boot
 - [ ] Improve wep sys
-    - [ ] Fix holdtypes
     - [x] Must face target to shoot
     - [ ] Invisible weapon until model decided
 - [ ] Increase follow halo dist from ground, align with floor
+- [ ] Alpabetical order in ALL category
 
 2.
 - [ ] Fix allies being able to kill each other with combine balls and other things potentially
