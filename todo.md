@@ -1,4 +1,5 @@
 # TODO
+
 1.
 - [x] Fix issue with targeting striders and (dropships?)
 - [x] Copy system for NPCs with parentname
@@ -9,7 +10,8 @@
 
 2.
 - [ ] Fix allies being able to kill each other with combine balls and other things potentially
-- [ ] Fix dissolving when using combine balls (hunter doesnt dissolve, neither do black mesa gibs)
+- [x] Fix dissolving when using combine balls (hunter doesnt dissolve, neither do black mesa gibs)
+- [ ] Fix comball nerf option
 
 3.
 - [ ] Follow/join squad stuff
@@ -17,7 +19,6 @@
     - [ ] Cannot do follow when in squad
 
 4.
-- [ ] Fix comball nerf option
 - [ ] (multiple shooters option) Consider attacking when firing weapon, not when hurt enemy
 - [ ] Improve weapon out of range behaviour (cancel forced go if in range again, or maybe if hurt?)
 - [ ] Improve melee weapon behaviour

@@ -3270,7 +3270,6 @@ end
 
 function NPC:StoreDMGINFO( dmg )
 
-    -- bruh
     local ammotype = dmg:GetAmmoType()
     local attacker = dmg:GetAttacker()
     local basedmg = dmg:GetBaseDamage()
@@ -3433,6 +3432,12 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
 
+    -- Combine balls should have dissolve damage
+    if IsValid(infl) && infl:GetClass()=="prop_combine_ball" then
+        dmg:SetDamageType(DMG_DISSOLVE)
+    end
+
+
     -- Remember last dmginfo
     self:StoreDMGINFO( dmg )
     self.LastDamageWasBullet = dmg:IsBulletDamage()
@@ -3584,7 +3589,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- My honest reaction
     self:Death_AlliesReact()
-    
+
 
     -- Gib or ragdoll
     local Gibbed = self:ShouldGib(dmg, hit_gr)
@@ -4021,18 +4026,6 @@ function NPC:DeathAnimation( dmg )
     if self.DeathAnimation_StopAttackingMe then
         self:AddFlags(FL_NOTARGET)
     end
-
-
-    -- Dissolve if we should
-    -- if dmg:IsDamageType(DMG_DISSOLVE) then
-    --     self:SetName("zbase_dissolving_npc"..self:EntIndex())
-    --     local dissolve = ents.Create("env_entity_dissolver")
-    --     dissolve:SetKeyValue("target", self:GetName())
-    --     dissolve:SetKeyValue("dissolvetype", dmg:IsDamageType(DMG_SHOCK) && 2 or 0)
-    --     dissolve:Fire("Dissolve", self:GetName())
-    --     dissolve:Spawn()
-    --     self:DeleteOnRemove(dissolve)
-    -- end
 
 end
 
