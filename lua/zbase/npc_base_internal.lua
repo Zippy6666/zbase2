@@ -524,10 +524,6 @@ function NPC:ZBaseThink()
         end
 
 
-        -- Weapon system
-        self:ZBWepSys_Think()
-
-
         -- Move anim override
         self.LastMoveActOverride = self:OverrideMovementAct()
         self.MovementOverrideActive = isnumber(self.LastMoveActOverride)
@@ -537,6 +533,9 @@ function NPC:ZBaseThink()
 
 
     end
+
+    -- Weapon system
+    self:ZBWepSys_Think()
 
 
     -- Stuff to make play anim work as intended
@@ -771,6 +770,12 @@ function NPC:ZBWepSys_Init()
 
     self.ZBWepSys_InShootDist = false
 
+
+    local wep = self:GetActiveWeapon()
+    if IsValid(wep) && !wep:IsScripted() then
+        wep:SetNoDraw(true)
+    end
+
 end
 
 
@@ -913,7 +918,7 @@ function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
 
 end
 
-
+local barely_visible = Color(5,5,5,5)
 function NPC:ZBWepSys_SetActiveWeapon( class )
 
     if !self.ZBWepSys_Inventory[class] then return end
@@ -922,34 +927,28 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
     local WepData = self.ZBWepSys_Inventory[class]
 
 
-    timer.Simple(0.1, function()
-
-        if IsValid(self) then
-
-            local Weapon = self:Give( WepData.isScripted && class or "weapon_zbase" )
-            Weapon.FromZBaseInventory = true
+    local Weapon = self:Give( WepData.isScripted && class or "weapon_zbase" )
+    Weapon.FromZBaseInventory = true
+    -- Weapon:SetRenderMode(RENDERMODE_TRANSCOLOR)
+    -- Weapon:SetColor(barely_visible)
 
 
-            if !WepData.isScripted then
-                
-                Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
-                self:ZBWepSys_EngineCloneAttrs( Weapon, class )
-
-            end
-
-
-            if Weapon.NPCHoldType then
-                self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
-            end
-
-
-            if Weapon.IsZBaseWeapon then
-                self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
-            end
+    if !WepData.isScripted then
         
-        end
+        Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
+        self:ZBWepSys_EngineCloneAttrs( Weapon, class )
 
-    end)
+    end
+
+
+    if Weapon.NPCHoldType then
+        self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
+    end
+
+
+    if Weapon.IsZBaseWeapon then
+        self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
+    end
 
 end
 
@@ -1301,34 +1300,39 @@ function NPC:ZBWepSys_Think()
     if !Weapon.FromZBaseInventory then
         self:ZBWepSys_StoreInInventory( Weapon )
         self:ZBWepSys_SetActiveWeapon( WeaponCls )
-        return
+        return -- Stop here
     end
 
 
-    -- Weapon think
-    if Weapon.IsZBaseWeapon then
-        if Weapon.NPCIsMeleeWep then
-            self:ZBWepSys_MeleeThink()
-        else
-            self:ZBWepSys_FireWeaponThink()
+    if !AIDisabled:GetBool() then
+
+
+        -- Weapon think
+        if Weapon.IsZBaseWeapon then
+            if Weapon.NPCIsMeleeWep then
+                self:ZBWepSys_MeleeThink()
+            else
+                self:ZBWepSys_FireWeaponThink()
+            end
         end
-    end
 
 
-    -- Adjust sight distance to match shoot distance when the enemy is valid
-    -- Adjust sight distance back to normal when enemy is not valid
-    local maxShootDist = self.ZBWepSys_CheckDist && self.ZBWepSys_CheckDist.within
-    local alteredSightDist = false
-    if IsValid(ene) && maxShootDist && self:GetMaxLookDistance()!=maxShootDist then
+        -- Adjust sight distance to match shoot distance when the enemy is valid
+        -- Adjust sight distance back to normal when enemy is not valid
+        local maxShootDist = self.ZBWepSys_CheckDist && self.ZBWepSys_CheckDist.within
+        local alteredSightDist = false
+        if IsValid(ene) && maxShootDist && self:GetMaxLookDistance()!=maxShootDist then
 
-        self:SetMaxLookDistance(maxShootDist)
-        ZBaseDOverlay("Line", function()
-            local center = self:WorldSpaceCenter()
-            return {center, center+self:GetForward()*maxShootDist, 2, Color(255, 196, 0)}
-        end)
+            self:SetMaxLookDistance(maxShootDist)
+            ZBaseDOverlay("Line", function()
+                local center = self:WorldSpaceCenter()
+                return {center, center+self:GetForward()*maxShootDist, 2, Color(255, 196, 0)}
+            end)
 
-    elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.SightDistance then
-        self:SetMaxLookDistance(self.SightDistance)
+        elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.SightDistance then
+            self:SetMaxLookDistance(self.SightDistance)
+        end
+
     end
 
 end

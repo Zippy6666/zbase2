@@ -626,14 +626,17 @@ if CLIENT then
     local mat = Material("effects/blueflare1")
 
 
+    local startoffset = Vector(0, 0, 50)
+    local endoffset = Vector(0, 0, 400)
+    local up = Vector(0, 0, 1)
     hook.Add( "RenderScreenspaceEffects", "ZBaseEffects", function()
         local tbl = LocalPlayer().ZBaseFollowHaloEnts
         if tbl then
             for _, v in ipairs(tbl) do
                 cam.Start3D()
                     local tr = util.TraceLine({
-                        start = v:GetPos()+Vector(0, 0, 50),
-                        endpos = v:GetPos()-Vector(0, 0, 400),
+                        start = v:GetPos()+startoffset,
+                        endpos = v:GetPos()-endoffset,
                         mask = MASK_NPCWORLDSTATIC,
                     })
                     if tr.Hit then
@@ -642,7 +645,7 @@ if CLIENT then
                         local col = Color(alpha*wepCol.r, alpha*wepCol.g, alpha*wepCol.b)
                         
                         render.SetMaterial( mat )
-                        render.DrawQuadEasy( tr.HitPos+Vector(0, 0, 1), Vector(0, 0, 1), 75, 75, col, ( CurTime() * 75 ) % 360 )
+                        render.DrawQuadEasy( tr.HitPos+tr.HitNormal*1.5, up, 75, 75, col, ( CurTime() * 75 ) % 360 )
                     end
                 cam.End3D()
             end

@@ -118,6 +118,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 	all_node:InternalDoClick()
 
 	-- Create the categories
+	local npcs = {}
 	for CategoryName, v in SortedPairs( Categories ) do
 		local node = tree:AddNode( CategoryName, ZBaseCategoryImages[CategoryName] or GenericIcon ) -- Add a node to the tree
 		node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
@@ -152,25 +153,29 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			self:DoPopulate()
 			pnlContent:SwitchPanel( self.PropPanel )
 		end
-	
 
-		-- Populate "All" category with the npcs of this category
-		for name, ent in SortedPairsByMemberValue( v, "Name" ) do
-			local mat = ent.IconOverride or GenericIcon
 
-			if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
-				mat = "entities/" .. name .. ".png"
-			end
-
-			local icon = spawnmenu.CreateContentIcon( "zbase_npcs", AllPropPanel, {
-				nicename	= ent.Name or name,
-				spawnname	= name,
-				material	= mat,
-				weapon		= ent.Weapons,
-				admin		= ent.AdminOnly,
-			} )
-		end
+		table.Add(npcs, v)
 	end
+
+
+	-- Populate "All" category with the npcs of this category
+	for name, ent in SortedPairsByMemberValue( npcs, "Name" ) do
+		local mat = ent.IconOverride or GenericIcon
+
+		if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
+			mat = "entities/" .. name .. ".png"
+		end
+
+		local icon = spawnmenu.CreateContentIcon( "zbase_npcs", AllPropPanel, {
+			nicename	= ent.Name or name,
+			spawnname	= name,
+			material	= mat,
+			weapon		= ent.Weapons,
+			admin		= ent.AdminOnly,
+		} )
+	end
+
 end)
 
 

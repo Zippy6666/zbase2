@@ -1,14 +1,11 @@
 # TODO
 1.
 - [x] Fix issue with targeting striders and (dropships?)
-- [ ] Copy system for NPCs with parentname
+- [x] Copy system for NPCs with parentname
 - [x] Fix spawnmenu replace
 - [x] Don't print out replacer JSON on boot
-- [ ] Improve wep sys
-    - [x] Must face target to shoot
-    - [ ] Invisible weapon until model decided
-- [ ] Increase follow halo dist from ground, align with floor
-- [ ] Alpabetical order in ALL category
+- [x] Increase follow halo dist from ground, align with floor
+- [x] Alpabetical order in ALL category
 
 2.
 - [ ] Fix allies being able to kill each other with combine balls and other things potentially

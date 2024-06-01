@@ -19,14 +19,15 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 --]]
 
 
+local barely_visible = Color(5,5,5,5)
 function SWEP:Initialize()
 
 	self:Init()
 
+
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
 
-	print(self:GetClass())
-	
+
 end
 
 
@@ -568,6 +569,11 @@ if CLIENT then
 					self.NPCWorldModelOverride:SetNoDraw(true)
 					self.NPCWorldModelOverride:AddEffects(EF_BONEMERGE)
 					self.NPCWorldModelOverride:AddEffects(EF_BONEMERGE_FASTCULL) -- dunno wtf this does but it fixed the leg jankin so
+
+					-- local ed = EffectData()
+					-- ed:SetEntity( self.NPCWorldModelOverride )
+					-- util.Effect( "zbasespawn", ed, true, true )
+
 					self.NPCWorldModelOverride.SetupDone = true
 
 				end
@@ -578,25 +584,19 @@ if CLIENT then
 
 			else
 
-				local modelname = self:GetNWString("ZBaseNPCWorldModel", nil)
+				local modelname = self:GetNWString("ZBaseNPCWorldModel", false)
 
 
 				if modelname then
-
 					self.NPCWorldModelOverride = ClientsideModel( modelname )
-
-					
+				else
+					self:DrawModel()	
 				end
-
-
-				self:DrawModel()
 			
 			end
 	
 		else
-
 			self:DrawModel()
-
 		end
 
 	end
