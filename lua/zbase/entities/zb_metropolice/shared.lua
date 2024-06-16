@@ -14,6 +14,10 @@ NPC.Weapons = {"weapon_smg1", "weapon_pistol", "weapon_pistol"} -- Example: {"we
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 
+ZBaseAddGlowingEye("PoliceEye1", "models/police.mdl", 0, "ValveBiped.Bip01_Head1", Vector(3.8, 7, 1.9), 7, Color(0, 50, 255))
+ZBaseAddGlowingEye("PoliceEye2", "models/police.mdl", 0, "ValveBiped.Bip01_Head1", Vector(3.8, 7, -1.9), 7, Color(0, 50, 255))
+
+
 --]]==============================================================================================]]
 sound.Add({
     name = "ZBaseMetrocop.Step",

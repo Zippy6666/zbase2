@@ -1,6 +1,6 @@
 local Flags = bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY)
 
-
+ 
 ZBCVAR = {}
 ZBCVAR.HPMult = CreateConVar("zbase_hp_mult", "1", Flags)
 ZBCVAR.DMGMult = CreateConVar("zbase_dmg_mult", "1", Flags)
@@ -28,6 +28,7 @@ ZBCVAR.MaxGibs = CreateConVar("zbase_gib_max", "30", Flags)
 ZBCVAR.GibCollide = CreateConVar("zbase_gib_collide", "0", Flags)
 ZBCVAR.ZombieHeadcrabs = CreateConVar("zbase_zombie_headcrabs", "0", Flags)
 ZBCVAR.ZombieRedBlood = CreateConVar("zbase_zombie_red_blood", "1", Flags)
+ZBCVAR.MetroCopGlowEyes = CreateConVar("zbase_metrocop_glow_eyes", "0", Flags)
 ZBCVAR.SvGlowingEyes = CreateConVar("zbase_sv_glowing_eyes", "1", Flags)
 ZBCVAR.StartMsg = CreateConVar("zbase_start_msg", "1", Flags)
 ZBCVAR.Replace = CreateConVar("zbase_replace", "0", Flags)

@@ -160,8 +160,9 @@ function NPC:ZBaseInit()
 
 
     -- Glowing eyes
-    self:GlowEyeInit()
-
+    if self:ShouldGlowEyes() then
+        self:GlowEyeInit()
+    end
 
     -- Makes behaviour system function
     ZBaseBehaviourInit( self )

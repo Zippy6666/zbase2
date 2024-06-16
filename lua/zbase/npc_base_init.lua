@@ -19,7 +19,6 @@ NPC.Models = {}
 NPC.RenderMode = RENDERMODE_NORMAL -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
 NPC.SubMaterials = {} -- Submaterials {*number index* = *string name*}
 
-
 NPC.StartHealth = 50 -- Max health
 
 
@@ -397,7 +396,7 @@ NPC.OnReloadSound_Chance = 2
 
 --[[
 ==================================================================================================
-                                           ESSENTIAL FUNCTIONS
+                                           INIT/THINK
 ==================================================================================================
 --]]
 
@@ -408,6 +407,12 @@ end
 
     -- Called when the base gives the NPC capabilities, you can do self:CapabilitiesRemove(CAP_YOUR_CAP) here for example
 function NPC:OnInitCap()
+end
+
+
+    -- Should the NPC have glowing eyes on spawn if the model supports it?
+function NPC:ShouldGlowEyes()
+    return true
 end
 
 

@@ -67,7 +67,8 @@ local ShouldHaveRadioSound = {
     ["KilledEnemySounds"] = true,
     ["OnGrenadeSounds"] = true,
 }
---]]==============================================================================================]]
+
+
 function NPC:CustomInitialize()
 
     local Manhacks = math.random(0, 1)
@@ -75,7 +76,8 @@ function NPC:CustomInitialize()
     self:SetBodygroup(0, Manhacks)
 
 end
---]]==============================================================================================]]
+
+
 function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
     if ShouldHaveRadioSound[sndVarName] then
         self:EmitSound("npc/metropolice/vo/on"..math.random(1, 2)..".wav")
@@ -87,4 +89,9 @@ function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
         end)
     end
 end
---]]==============================================================================================]]
+
+
+function NPC:ShouldGlowEyes()
+    return ZBCVAR.MetroCopGlowEyes:GetBool()
+end
+

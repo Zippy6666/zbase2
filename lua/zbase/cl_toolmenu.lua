@@ -224,6 +224,19 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:ControlHelp("Should the zombies spawn with red blood?")
 
     end, "Default NPCs")
+
+    --[[
+    ==================================================================================================
+                                            COMBINE
+    ==================================================================================================
+    --]]
+    
+    ZBaseAddMenuCategory("Combine", function( panel )
+
+        panel:CheckBox("Metro Cop Glowing Eyes", "zbase_metrocop_glow_eyes")
+        panel:ControlHelp("Should metrocops eyes glow?")
+
+    end, "Default NPCs")
 end)
 
 
