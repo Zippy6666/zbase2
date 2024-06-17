@@ -40,22 +40,21 @@ end
 --]]
 
 
--- [b]DISCUSSIONS and COMMENTS have been moved, you'll see them in the TABS ABOVE![/b]
--- in case that shit happends again lol
+ZBaseInstalled = true
 
-
-ZBaseInstalled = ZBaseInstalled
-or MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
-or MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
-or MsgN("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
-or MsgN("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
-or MsgN("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
-or MsgN("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --") 
-or MsgN("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
-or MsgN("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
-or MsgN("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
-or true
-
+if SERVER then
+    ZBaseDidConsoleLogo = ZBaseDidConsoleLogo
+    or MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
+    or MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
+    or MsgN("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
+    or MsgN("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
+    or MsgN("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
+    or MsgN("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --") 
+    or MsgN("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
+    or MsgN("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
+    or MsgN("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
+    or true
+end
 
 --[[
 ======================================================================================================================================================
@@ -382,14 +381,9 @@ end
 
 function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
 
-    -- Keep da prints boye
-
-
     local New_NPCTablesToInheritFrom = {}
 
     for CurInheritClass, CurInheritTable in pairs(NPCTablesToInheritFrom) do
-
-        -- MsgN("\n------------- CurInheritClass=", CurInheritClass, "-------------")
 
 
         for NPCClass, NPCTable in pairs(ZBaseNPCs) do
@@ -399,7 +393,6 @@ function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
 
             if NPCTable.Inherit == CurInheritClass then
 
-                -- MsgN(NPCClass, " inheriting from ", CurInheritClass, "...")
 
 
                 table.Inherit(NPCTable, CurInheritTable)
@@ -416,14 +409,9 @@ function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
         end
 
 
-        -- MsgN("---------------------------------------------------------\n")
 
     end
 
-
-    -- for InheritClass in pairs(New_NPCTablesToInheritFrom) do
-    --      MsgN(InheritClass, " has inherited from its parents, and can now be inherited from by other npc tables")
-    -- end
 
 
     if !table.IsEmpty(New_NPCTablesToInheritFrom) then
@@ -623,8 +611,6 @@ function ZBase_RegisterHandler:Reload()
     end
 
 
-    MsgN("ZBase reloaded base and NPCs!", CLIENT && "("..tostring(LocalPlayer())..")" or "(SERVER)")
-
 end
 
 
@@ -634,8 +620,6 @@ function ZBase_RegisterHandler:Load()
     self:NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
     self:AddNPCsToSpawnMenu()
 
-
-    MsgN("ZBase registered base and NPCs!", CLIENT && "(CLIENT)" or "(SERVER)")
 
 end
 
@@ -659,5 +643,6 @@ end)
 
 ZBase_RegisterHandler:Load()
 
-
-MsgN("ZBase autorun complete!")
+if SERVER then
+    MsgN("ZBase autorun complete!")
+end
