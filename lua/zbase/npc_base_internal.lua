@@ -1301,7 +1301,7 @@ function NPC:ZBWepSys_MeleeThink()
 
 
             timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
-                if IsValid(self) then
+                if IsValid(self) && IsValid(self:GetActiveWeapon()) then
                     self:GetActiveWeapon():NPCMeleeWeaponDamage()
                 end
             end)
