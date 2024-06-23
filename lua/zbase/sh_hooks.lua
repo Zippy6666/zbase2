@@ -51,14 +51,14 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
     if SERVER then
         timer.Simple(0, function()
             if !IsValid(ent) then return end
-            
+
             local zbaseClass = ent:GetKeyValues().parentname
             if ZBaseNPCs[zbaseClass] then
                 ZBaseNPCCopy( ent, zbaseClass )
             end
 
             -- local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
-            
+
             -- if ZBaseNPCTable then
             --     ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
             -- end
@@ -138,8 +138,8 @@ hook.Add("PlayerSpawnNPC", "ZBASE", function(ply, npc_type, wep_cls)
     npc_type = replace_cls or string.Right(npc_type, #npc_type-6)
     local zb_npc_tbl = ZBaseNPCs[npc_type]
 
-    if zb_npc_tbl then 
-    
+    if zb_npc_tbl then
+
         Spawn_ZBaseNPC(ply, npc_type, wep_cls, ply:GetEyeTrace())
         return false
 
@@ -177,7 +177,7 @@ hook.Add("Tick", "ZBASE", function()
         end
 
         NextThink = CurTime()+0.1
-    
+
 
 
         -- if SERVER then
@@ -215,7 +215,7 @@ hook.Add("Tick", "ZBASE", function()
     for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
         zbaseNPC:FrameTick()
     end
-    
+
 end)
 
 
@@ -249,7 +249,7 @@ if SERVER then
 
     net.Receive("ZBaseNPCFactionOverrideSwitch", function( _, ply )
         local faction = net.ReadString()
-        
+
         if faction == "No Override" then
             ply.ZBaseNPCFactionOverride = nil
         else
@@ -513,7 +513,7 @@ if CLIENT then
 
         local Ent = net.ReadEntity()
         local Eyes = net.ReadTable()
-        
+
 
         if IsValid(Ent) then
 
@@ -545,7 +545,7 @@ if SERVER then
 
         if IsValid(Ent) then
             ply.NPCsWithGlowEyes[Ent:EntIndex()] = true
-    
+
 
             Ent:CallOnRemove("NPCsWithGlowEyesRemove"..ply:EntIndex(), function()
                 if ply.NPCsWithGlowEyes then
@@ -568,7 +568,7 @@ hook.Add( "PostDrawEffects", "ZBaseGlowingEyes", function()
         if !ent.GlowEyes then continue end
         if ent:GetNoDraw() then continue end
 
-        
+
         for id, eye in pairs(ent.GlowEyes) do
 
 
@@ -612,11 +612,20 @@ if SERVER then
             local tr = ply:GetEyeTrace()
             local ent = tr.Entity
 
+            if not ( IsValid(ent) ) then
+                return
+            end
+
+            if ent:ZBaseDist(ply, {away=200}) then return end
 
             if ent.PlayerToFollow == ply then
                 ent:StopFollowingCurrentPlayer()
             elseif IsValid(ent) && ent.IsZBaseNPC && ent:CanStartFollowPlayers() then
                 ent:StartFollowingPlayer(ply)
+            end
+
+            if ( ent.OnUse and isfunction( ent.OnUse ) ) then
+                ent:OnUse(ply)
             end
         end
     end)
@@ -645,7 +654,7 @@ if CLIENT then
                         local wepCol = LocalPlayer():GetWeaponColor()
                         local alpha = 60*(1.5+math.sin(CurTime()*3))
                         local col = Color(alpha*wepCol.r, alpha*wepCol.g, alpha*wepCol.b)
-                        
+
                         render.SetMaterial( mat )
                         render.DrawQuadEasy( tr.HitPos+tr.HitNormal*1.5, up, 75, 75, col, ( CurTime() * 75 ) % 360 )
                     end
@@ -697,7 +706,7 @@ hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
         attacker:OnKilledEnt( npc )
     end
 
-    
+
     for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
         zbaseNPC:MarkEnemyAsDead(npc, 2)
     end
@@ -771,16 +780,16 @@ end)
 
 -- Don't pickup some zbase weapons
 hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
-    
+
 	if wep.IsZBaseWeapon && wep.NPCOnly then
-        
+
         if !wep.Pickup_GaveAmmo then
 		    ply:GiveAmmo(wep:GetMaxClip1(), wep:GetPrimaryAmmoType())
             wep.Pickup_GaveAmmo = true
         end
 
 		wep:Remove()
-        
+
 		return false
 	end
 
