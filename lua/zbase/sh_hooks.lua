@@ -616,6 +616,10 @@ if SERVER then
                 return
             end
 
+            if not ( ent.IsZBaseNPC ) then
+                return
+            end
+
             if ent:ZBaseDist(ply, {away=200}) then return end
 
             if ent.PlayerToFollow == ply then
