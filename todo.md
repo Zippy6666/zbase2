@@ -18,6 +18,9 @@
 - [x] (multiple shooters option) Consider attacking when firing weapon, not when hurt enemy
 
 4.
+- [ ] Optimize spawning, death, and sound emittions if possible
+
+5.
 - [ ] Improve weapon out of range behaviour (cancel forced go if in range again, or maybe if hurt?)
 - [ ] Follow/join squad stuff
     - [ ] Play follow sounds when joining squad
@@ -25,5 +28,5 @@
 - [ ] Improve playanimation func a bit maybe, try without scripted state
 - [ ] Fix holdtypes
 
-5.
+6.
 - [ ] Finish Controller

@@ -12,7 +12,6 @@ if SERVER then
 
     local SpawnNPC = Spawn_NPC
 
-    
 
     function Spawn_NPC( ply, NPCClassName, WeaponName, tr, ... )
         if ZBaseNPCs[NPCClassName] then
@@ -34,6 +33,8 @@ end
 
 local listGet = list.Get
 local emitSound = ENT.EmitSound
+
+
 ZBase_EmitSoundCall = false
 
 
@@ -77,15 +78,4 @@ function ENT:EmitSound( snd, ... )
 
 
 	return v
-end
-
-
---[[
-======================================================================================================================================================
-                                           CLIENT
-======================================================================================================================================================
---]]
-
-
-if CLIENT then
 end

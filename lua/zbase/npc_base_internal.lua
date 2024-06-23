@@ -920,6 +920,9 @@ function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
 end
 
 local barely_visible = Color(5,5,5,5)
+local engineWepTrans = {
+    weapon_pistol = "weapon_zb_pistol"
+}
 function NPC:ZBWepSys_SetActiveWeapon( class )
 
     if !self.ZBWepSys_Inventory[class] then return end
@@ -930,9 +933,9 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
     if !WepData.isScripted then
 
-        local Weapon = self:Give( "weapon_zbase" )
+        local Weapon = self:Give( "weapon_zb_" .. string.Right(class, #class - 7) )
 
-        Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
+        -- Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
         self:ZBWepSys_EngineCloneAttrs( Weapon, class )
 
         Weapon.FromZBaseInventory = true
