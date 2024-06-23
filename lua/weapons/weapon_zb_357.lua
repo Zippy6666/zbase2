@@ -8,4 +8,4 @@ SWEP.Spawnable = false
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = false -- Add to NPC weapon list
 
-SWEP.WorldModel = Model( "models/weapons/w_pistol.mdl" )
+SWEP.WorldModel = Model( "models/weapons/w_357.mdl" )

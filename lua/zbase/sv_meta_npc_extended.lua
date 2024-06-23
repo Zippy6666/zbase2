@@ -139,27 +139,47 @@ function NPC:ZBaseUpdateRelationships()
     end
 end
 
-
 --[[
 ======================================================================================================================================================
-                                           SCHEDULE STUFF
+                                           Other
 ======================================================================================================================================================
 --]]
 
 
 ZBase_OldSetSchedule = ZBase_OldSetSchedule or NPC.SetSchedule
+ZBase_OldDropWeapon = ZBase_OldDropWeapon or NPC.DropWeapon
 
-
-function NPC:SetSchedule( sched )
+function NPC:SetSchedule( sched, ... )
+    -- Prevent LUA from setting schedules to ZBase NPCs if we should
     if self.IsZBaseNPC && self:ShouldPreventSetSched( sched ) then
         return
     end
 
-
+    -- Aerial ZBase NPC
     if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then
-        self:AerialSetSchedule(sched)
+        self:AerialSetSchedule(sched, ...)
     end
 
+    -- Usual drop weapon
+    return ZBase_OldSetSchedule(self, sched, ...)
+end
 
-    return ZBase_OldSetSchedule(self, sched)
+
+function NPC:DropWeapon( wep, ... )
+    -- Fix zbase npcs not dropping engine weapons
+    if self.IsZBaseNPC then
+        wep = wep or self:GetActiveWeapon()
+
+        if wep.IsEngineClone then
+            local newWep = self:Give(wep.EngineCloneClass)
+            local val = ZBase_OldDropWeapon( self, newWep, ...)
+
+            wep:Remove()
+
+            return val
+        end
+    end
+
+    -- Usual drop weapon
+    return ZBase_OldDropWeapon(self, wep, ...)
 end

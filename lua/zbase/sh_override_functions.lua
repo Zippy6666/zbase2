@@ -1,6 +1,5 @@
 local ENT = FindMetaTable("Entity")
 
-
 --[[
 ======================================================================================================================================================
                                            SERVER
@@ -11,8 +10,7 @@ local ENT = FindMetaTable("Entity")
 if SERVER then
 
     local SpawnNPC = Spawn_NPC
-
-
+    
     function Spawn_NPC( ply, NPCClassName, WeaponName, tr, ... )
         if ZBaseNPCs[NPCClassName] then
             return Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr, ... )

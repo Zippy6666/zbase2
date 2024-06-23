@@ -920,50 +920,54 @@ function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
 end
 
 local barely_visible = Color(5,5,5,5)
-local engineWepTrans = {
-    weapon_pistol = "weapon_zb_pistol"
+local engineWeapon_HasReservedReplacement = {
+    weapon_zb_pistol = true,
+    weapon_zb_smg1 = true,
+    weapon_zb_shotgun = true,
+    weapon_zb_stunstick = true,
+    weapon_zb_crowbar = true,
+    weapon_zb_rpg = true,
+    weapon_zb_crossbow = true,
+    weapon_zb_ar2 = true,
+    weapon_zb_357 = true,
 }
 function NPC:ZBWepSys_SetActiveWeapon( class )
-
     if !self.ZBWepSys_Inventory[class] then return end
 
     local WepData = self.ZBWepSys_Inventory[class]
 
 
-
     if !WepData.isScripted then
 
-        local Weapon = self:Give( "weapon_zb_" .. string.Right(class, #class - 7) )
+        local zbwepclass = "weapon_zb_" .. string.Right(class, #class - 7)
+        local Weapon
+        if engineWeapon_HasReservedReplacement[zbwepclass] then
+            Weapon = self:Give( zbwepclass )
+        else
+            Weapon = self:Give("weapon_zbase") 
+            Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
+        end
 
-        -- Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
         self:ZBWepSys_EngineCloneAttrs( Weapon, class )
 
         Weapon.FromZBaseInventory = true
-        if Weapon.NPCHoldType then
-            self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
-        end
-        if Weapon.IsZBaseWeapon then
-            self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
-        end
+
+        self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
+        self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
     else
         
         self:Conv_STimer(0.1, function()
             local Weapon = self:Give( class )
 
             Weapon.FromZBaseInventory = true
-            if Weapon.NPCHoldType then
-                self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
-            end
+
             if Weapon.IsZBaseWeapon then
                 self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
+                self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
             end
         end)
 
     end
-
-
-
-
 end
 
 
