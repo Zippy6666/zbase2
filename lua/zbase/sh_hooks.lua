@@ -652,18 +652,19 @@ if CLIENT then
         ent:CallOnRemove("RemoveFromZBaseHaloEnts", function() table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent) end)
 
         chat.AddText(Color(wepCol.r*255, wepCol.g*255, wepCol.b*255), ent:GetNWBool("ZBaseName").." started following you.")
-
-
         surface.PlaySound( "buttons/button16.wav" )
     end)
 
 
     net.Receive("ZBaseRemoveFollowHalo", function()
         local ent = net.ReadEntity()
+        local wepCol = LocalPlayer():GetWeaponColor()
         if !IsValid(ent) then return end
 
         table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent)
 
+
+        chat.AddText(Color(wepCol.r*255, wepCol.g*255, wepCol.b*255), ent:GetNWBool("ZBaseName").." stopped following you.")
         surface.PlaySound( "buttons/button16.wav" )
     end)
 end
@@ -684,7 +685,7 @@ hook.Add( "KeyPress", "ZBaseUse", function( ply, key )
     local ent = tr.Entity
 
 
-    if key == IN_USE && IsValid(ent) && ent.IsZBaseNPC && ent:ZBaseDist(ply, {away=200}) then
+    if key == IN_USE && IsValid(ent) && ent.IsZBaseNPC && ent:ZBaseDist(ply, {within=200}) then
 
         -- Start/stop following
         if !IsValid(ent.PlayerToFollow) && ent:CanStartFollowPlayers() then
