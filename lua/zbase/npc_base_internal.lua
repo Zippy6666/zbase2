@@ -2502,7 +2502,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         if ent.GetNPCState && ent:GetNPCState() == NPC_STATE_DEAD then continue end
 
         local disp = self:Disposition(ent)
-        if (!dmgData.affectProps && disp == D_NU) then continue end
+  if (!dmgData.affectProps && disp == D_NU && self:GetEnemy() != ent) then continue end
 
         if !self:Visible(ent) then continue end
 
@@ -2546,7 +2546,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
 
         -- Damage
-        if !undamagable && ((!self:IsAlly(ent)) or (self:IsAlly(ent) && self:Disposition(ent) == D_HT)) then
+       if !undamagable && ((!self:IsAlly(ent)) or (self:IsAlly(ent) && self:GetEnemy() == ent)) then
             local dmg = DamageInfo()
             dmg:SetAttacker(self)
             dmg:SetInflictor(self)
@@ -3200,7 +3200,7 @@ function NPC:DealDamage( dmg, ent )
     local disp = self:Disposition(ent)
 
     -- Friendly fire immune
-    if disp==D_LI or disp==D_NU then
+    if disp==D_LI or disp==D_NU && self:GetEnemy() != ent then
         dmg:ScaleDamage(0)
         return true
     end
@@ -3656,7 +3656,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- Item drop
     if ZBCVAR.ItemDrop:GetBool() then
-        self:Death_ItemDrop()
+        self:Death_ItemDrop(dmg)
     end
 
 
@@ -3704,13 +3704,12 @@ function NPC:Death_AlliesReact()
     local ally = self:GetNearestAlly(600)
     local deathpos = self:GetPos()
 
-
-    if IsValid(ally) && ally:Visible(self) && ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+    if IsValid(ally) && ally:Visible(self) then if isfunction(ally.OnAllyDeath) then ally:OnAllyDeath(self) end
+if	ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
 
         timer.Simple(0.5, function()
 
             if IsValid(ally) then
-
                 ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
 
                 if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
@@ -3721,13 +3720,10 @@ function NPC:Death_AlliesReact()
             end
 
         end)
-
-    end
-
-end
+end end end
 
 
-function NPC:Death_ItemDrop()
+function NPC:Death_ItemDrop(dmg)
 
     -- Item drops
 
@@ -3759,8 +3755,18 @@ function NPC:Death_ItemDrop()
                 drop:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
                 drop:Spawn()
                 SafeRemoveEntityDelayed(drop, 120)
-
                 DropsDone = DropsDone+1
+					if dmg:IsDamageType(DMG_DISSOLVE) then
+				local dissolver = ents.Create("env_entity_dissolver")
+			dissolver:SetPos(drop:GetPos())
+			dissolver:Spawn()
+			dissolver:Activate()
+			dissolver:SetKeyValue("magnitude",100)
+			dissolver:SetKeyValue("dissolvetype",table.Random{0,2})
+			drop:SetName("z_dissolve_drop")
+			dissolver:Fire("Dissolve","z_dissolve_drop")
+			dissolver:Fire("Kill", "", 0.1)
+            end
             end
         end
 
