@@ -22,9 +22,8 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
 
         -- Cool message
         if ZBCVAR.StartMsg:GetBool() then
-            local wepCol = LocalPlayer():GetWeaponColor()
-            local col = Color(255*wepCol.r, 255*wepCol.g, 255*wepCol.b)
-            chat.AddText(col, "ZBase is running on this server! Github link: https://github.com/Zippy6666/zbase2 (this message can be disabled in the ZBase options tab).")
+            local wepCol = LocalPlayer():GetWeaponColor():ToColor()
+            chat.AddText(wepCol, "ZBase is running on this server! Github link: https://github.com/Zippy6666/zbase2 (this message can be disabled in the ZBase options tab).")
         end
 
     end
@@ -300,6 +299,8 @@ local NPCFootstepSubStr = {
 
 
 hook.Add("EntityEmitSound", "ZBASE", function( data )
+    if !IsValid(data.Entity) then return end
+
 
     -- Silence navigator
     if data.Entity.IsZBaseNavigator then
@@ -313,34 +314,27 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
     end
 
 
-    if !IsValid(data.Entity) then return end
-    if !data.Entity:GetNWBool("IsZBaseNPC") then return end
 
+    -- ZBase NPCs
+    if data.Entity:GetNWBool("IsZBaseNPC") then
+        -- Mute engine footsteps, and call EngineFootStep
+        local StepSubStr = NPCFootstepSubStr[data.Entity:GetClass()]
+        local IsEngineFootStep = !ZBase_EmitSoundCall && ((StepSubStr && string.find(data.SoundName, StepSubStr)) or string.find(data.SoundName, "footstep"))
+        if IsEngineFootStep then
+            if SERVER then
+                data.Entity:EngineFootStep()
+            end
 
-    local StepSubStr = NPCFootstepSubStr[data.Entity:GetClass()]
-    local IsEngineFootStep = !ZBase_EmitSoundCall && ((StepSubStr && string.find(data.SoundName, StepSubStr))
-    or string.find(data.SoundName, "footstep"))
+            return false
+        end
 
-
-    if IsEngineFootStep then
+        -- On emit sound call
         if SERVER then
-            data.Entity:EngineFootStep()
+            local value = data.Entity:OnEmitSound( data )
+            if value != nil then
+                return value
+            end
         end
-
-        return false
-    end
-
-
-    if SERVER then
-        local value = data.Entity:OnEmitSound( data )
-        if value != nil then
-            return value
-        end
-    end
-
-
-    if value != nil then
-        return value
     end
 
 end)
@@ -489,12 +483,10 @@ if CLIENT then
                         mask = MASK_NPCWORLDSTATIC,
                     })
                     if tr.Hit then
-                        local wepCol = LocalPlayer():GetWeaponColor()
-                        local alpha = 60*(1.5+math.sin(CurTime()*3))
-                        local col = Color(alpha*wepCol.r, alpha*wepCol.g, alpha*wepCol.b)
+                        local wepCol = LocalPlayer():GetWeaponColor():ToColor()
 
                         render.SetMaterial( mat )
-                        render.DrawQuadEasy( tr.HitPos+tr.HitNormal*1.5, up, 75, 75, col, ( CurTime() * 75 ) % 360 )
+                        render.DrawQuadEasy( tr.HitPos+tr.HitNormal*1.5, up, 60, 60, wepCol, ( CurTime() * 75 ) % 360 )
                     end
                 cam.End3D()
             end
@@ -504,26 +496,24 @@ if CLIENT then
 
     net.Receive("ZBaseSetFollowHalo", function()
         local ent = net.ReadEntity()
-        local wepCol = LocalPlayer():GetWeaponColor()
+        local wepCol = LocalPlayer():GetWeaponColor():ToColor()
         if !IsValid(ent) then return end
 
-        table.insert(LocalPlayer().ZBaseFollowHaloEnts, ent)
-        ent:CallOnRemove("RemoveFromZBaseHaloEnts", function() table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent) end)
+        table.InsertEntity(LocalPlayer().ZBaseFollowHaloEnts, ent)
 
-        chat.AddText(Color(wepCol.r*255, wepCol.g*255, wepCol.b*255), ent:GetNWBool("ZBaseName").." started following you.")
+        chat.AddText(wepCol, ent:GetNWBool("ZBaseName").." started following you.")
         surface.PlaySound( "buttons/button16.wav" )
     end)
 
 
     net.Receive("ZBaseRemoveFollowHalo", function()
         local ent = net.ReadEntity()
-        local wepCol = LocalPlayer():GetWeaponColor()
+        local wepCol = LocalPlayer():GetWeaponColor():ToColor()
         if !IsValid(ent) then return end
 
         table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent)
 
-
-        chat.AddText(Color(wepCol.r*255, wepCol.g*255, wepCol.b*255), ent:GetNWBool("ZBaseName").." stopped following you.")
+        chat.AddText(wepCol, ent:GetNWBool("ZBaseName").." stopped following you.")
         surface.PlaySound( "buttons/button16.wav" )
     end)
 end
