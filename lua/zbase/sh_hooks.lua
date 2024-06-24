@@ -43,36 +43,21 @@ end)
 ======================================================================================================================================================
 --]]
 
-
-hook.Add("OnEntityCreated", "ZBASE", function( ent )
-
-    -- ZBase init stuff when NOT SPAWNED FROM MENU
-    -- Uses parentname to determine if it is a zbase npc
-    if SERVER then
-
-        timer.Simple(0, function()
+if SERVER then
+    hook.Add("OnEntityCreated", "ZBASE", function( ent )
+        conv.callNextTick(function()
             if !IsValid(ent) then return end
 
+
+            -- ZBase init stuff when NOT SPAWNED FROM MENU
+            -- Uses parentname to determine if it is a zbase npc
             local zbaseClass = ent:GetKeyValues().parentname
             if ZBaseNPCs[zbaseClass] then
                 ZBaseNPCCopy( ent, zbaseClass )
             end
 
-            -- local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
 
-            -- if ZBaseNPCTable then
-            --     ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
-            -- end
-        end)
-
-    end
-
-
-    -- When a entity owned by a zbase NPC is created
-    if SERVER then
-        timer.Simple(0, function()
-            if !IsValid(ent) then return end
-
+            -- When a entity owned by a ZBase NPC is created
             local own = ent:GetOwner()
             if IsValid(own) && own.IsZBaseNPC then
                 own:OnOwnedEntCreated( ent )
@@ -81,24 +66,20 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
                     own:Patch_CreateEnt( ent )
                 end
             end
+        
+
+            -- Give ZBASE faction
+            if ent:IsNPC() && ent:GetClass() != "npc_bullseye" && !ent.IsZBaseNavigator then
+                -- Register as entity that is affected by the ZBASE relationship system
+                table.InsertEntity(ZBaseRelationshipEnts, ent)
+
+                -- If a ZBASE NPC, apply the supplied start faction
+                -- If a different NPC, find a fitting ZBASE faction to apply
+                ZBaseSetFaction(ent, !ent.IsZBaseNPC && ZBaseFactionTranslation[ent:Classify()])
+            end
         end)
-    end
-
-
-    -- When any NPC is created
-    -- Give zbase faction
-    if SERVER && ent:IsNPC() && ent:GetClass() != "npc_bullseye" && !ent.IsZBaseNavigator then
-        function ent:ZBaseRelSetup()
-            table.insert(ZBaseRelationshipEnts, ent)
-            ZBaseSetFaction(ent, !ent.IsZBaseNPC && ZBaseFactionTranslation[ent:Classify()])
-            ent:CallOnRemove("ZBaseRelationshipEntsRemove", function() table.RemoveByValue(ZBaseRelationshipEnts, ent) end)
-        end
-
-        ent:CallNextTick( "ZBaseRelSetup" )
-    end
-
-end)
-
+    end)
+end
 
 hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
 
@@ -156,70 +137,72 @@ end)
 ======================================================================================================================================================
 --]]
 
+if SERVER then
 
-local NextThink = CurTime()
-local NextBehaviourThink = CurTime()
-
-
-hook.Add("Tick", "ZBASE", function()
-
-    -- Think for NPCs that aren't scripted
-    -- local startT = SysTime()
-
-    if NextThink < CurTime() then
-        for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
-
-            zbaseNPC:ZBaseThink()
+    local NextThink = CurTime()
+    local NextBehaviourThink = CurTime()
 
 
-            if zbaseNPC.Patch_Think then
-                zbaseNPC:Patch_Think()
+    hook.Add("Tick", "ZBASE", function()
+
+        -- Think for NPCs that aren't scripted
+        -- local startT = SysTime()
+
+        if NextThink < CurTime() then
+            for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
+
+                zbaseNPC:ZBaseThink()
+
+
+                if zbaseNPC.Patch_Think then
+                    zbaseNPC:Patch_Think()
+                end
+
             end
+
+            NextThink = CurTime()+0.1
+
+
+
+            -- if SERVER then
+            --     PrintMessage(HUD_PRINTTALK, "Think time: "..math.Round(SysTime()-startT, 3))
+            -- end
 
         end
 
-        NextThink = CurTime()+0.1
 
 
+        -- Behaviour tick
+        -- local startT = SysTime()
 
-        -- if SERVER then
-        --     PrintMessage(HUD_PRINTTALK, "Think time: "..math.Round(SysTime()-startT, 3))
-        -- end
+        if !GetConVar("ai_disabled"):GetBool()
+        && NextBehaviourThink < CurTime() then
 
-    end
+            for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
+                local entValid = func()
 
-
-
-    -- Behaviour tick
-    -- local startT = SysTime()
-
-    if !GetConVar("ai_disabled"):GetBool()
-    && NextBehaviourThink < CurTime() then
-
-        for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
-            local entValid = func()
-
-            if !entValid then
-                table.remove(ZBaseBehaviourTimerFuncs, k)
+                if !entValid then
+                    table.remove(ZBaseBehaviourTimerFuncs, k)
+                end
             end
+
+            NextBehaviourThink = CurTime() + 0.4
+
+
+            -- if SERVER then
+            --     PrintMessage(HUD_PRINTTALK, "Behaviour time: "..math.Round(SysTime()-startT, 3))
+            -- end
+
         end
 
-        NextBehaviourThink = CurTime() + 0.4
 
+        for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
+            zbaseNPC:FrameTick()
+        end
 
-        -- if SERVER then
-        --     PrintMessage(HUD_PRINTTALK, "Behaviour time: "..math.Round(SysTime()-startT, 3))
-        -- end
+    end)
 
-    end
-
-
-    for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
-        zbaseNPC:FrameTick()
-    end
-
-end)
-
+end
 
 --[[
 ======================================================================================================================================================
@@ -232,11 +215,6 @@ if SERVER then
 
     util.AddNetworkString("ZBasePlayerFactionSwitch")
     util.AddNetworkString("ZBaseNPCFactionOverrideSwitch")
-
-
-    if !ZBaseRelationshipEnts then
-        ZBaseRelationshipEnts = {}
-    end
 
 
     net.Receive("ZBasePlayerFactionSwitch", function( _, ply )

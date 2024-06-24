@@ -1,4 +1,8 @@
+ZBaseInstalled = true
+
+
 if CLIENT then
+
     function MissingConvMsg()
         local frame = vgui.Create("DFrame")
         frame:SetSize(300, 125)
@@ -19,17 +23,22 @@ if CLIENT then
         label:Dock(BOTTOM)
         label:SetContentAlignment(5)  -- 5 corresponds to center alignment
     end
+
 elseif SERVER && !file.Exists("convenience/adam.lua", "LUA") then
+
     -- Conv lib not on on server, send message to clients
     hook.Add("PlayerInitialSpawn", "convenienceerrormsg", function( ply )
         local sendstr = 'MissingConvMsg()'
         ply:SendLua(sendstr)
     end)
+
+    -- This second hook is needed so that the ZBASE message isn't overwritten
     hook.Add("PlayerInitialSpawn", "convenienceerrormsg_zbase", function( ply )
-        local sendstr = 'chat.AddText(Color(255, 0, 0), "WARNING: ZBase may not work as intended on the server without the CONV library!") '
+        local sendstr = 'chat.AddText(Color(255, 0, 0), "WARNING: ZBase WILL not work as intended without the CONV library!") '
         sendstr = sendstr..'chat.AddText(Color(255, 0, 0), "Get it at: https://steamcommunity.com/sharedfiles/filedetails/?id=3146473253")'
         ply:SendLua(sendstr)
     end)
+
 end
 
 
@@ -39,8 +48,6 @@ end
 ======================================================================================================================================================
 --]]
 
-
-ZBaseInstalled = true
 
 if SERVER then
     ZBaseDidConsoleLogo = ZBaseDidConsoleLogo
@@ -248,15 +255,16 @@ sound.Add({
 ZBase_RegisterHandler = {}
 ZBaseNPCs = {}
 ZBaseSpawnMenuNPCList = {}
-ZBasePatchTable = {}
 ZBaseDynSplatterInstalled = file.Exists("dynsplatter", "LUA")
-ZBaseIsMP = !game.SinglePlayer()
 
 
-
-ZBaseNPCInstances = ZBaseNPCInstances or {}
-ZBaseNPCInstances_NonScripted = ZBaseNPCInstances_NonScripted or {}
-ZBaseBehaviourTimerFuncs = ZBaseBehaviourTimerFuncs or {}
+if SERVER then
+    ZBaseNPCInstances = ZBaseNPCInstances or {}
+    ZBaseNPCInstances_NonScripted = ZBaseNPCInstances_NonScripted or {}
+    ZBaseBehaviourTimerFuncs = ZBaseBehaviourTimerFuncs or {}
+    ZBaseRelationshipEnts = ZBaseRelationshipEnts or {}
+    ZBasePatchTable = {}
+end
 
 
 function ZBaseListFactions( _, ply )
@@ -361,22 +369,6 @@ IncludeFiles()
                                            ADD TO SPAWNMENU
 ======================================================================================================================================================
 --]]
-
-
-
-
-
-function ZBase_RegisterHandler:UpdateLiveNPCs()
-    for _, npc in ipairs(ZBaseNPCInstances) do
-        local MyUpdatedTable = ZBaseNPCs[npc.NPCName]
-        local MyOldTable = npc:GetTable()
-
-        for attr, val in pairs(MyUpdatedTable) do
-            MyOldTable[attr] = val
-        end
-    end
-end
-
 
 
 function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
@@ -603,8 +595,6 @@ function ZBase_RegisterHandler:Reload()
     self:RegNPCs()
     self:NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
     self:AddNPCsToSpawnMenu()
-    -- self:UpdateLiveNPCs()
-
 
     if SERVER && ZBCVAR.ReloadSpawnMenu:GetBool() then
         RunConsoleCommand("spawnmenu_reload")

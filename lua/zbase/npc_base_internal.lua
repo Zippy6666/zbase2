@@ -7,9 +7,11 @@ util.AddNetworkString("ZBaseGlowEyes")
 ==================================================================================================
 --]]
 
+
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
-
+local IsMultiplayer = !game.SinglePlayer()
+local Developer = GetConVar("developer")
 
 
 local function ListConditions(npc, dur)
@@ -35,7 +37,6 @@ local function ListConditions(npc, dur)
 end
 
 
-local Developer = GetConVar("developer")
 local function ZBaseDOverlay( funcname, argsFunc )
     if !Developer:GetBool() then return end
     local args = argsFunc()
@@ -1511,7 +1512,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
 
 
-    if isGest && !self.IsZBase_SNPC && ZBaseIsMP then return end -- Don't do gestures on non-scripted NPCs in multiplayer, it seems to be broken
+    if isGest && !self.IsZBase_SNPC && IsMultiplayer then return end -- Don't do gestures on non-scripted NPCs in multiplayer, it seems to be broken
 
 
     moreArgs = moreArgs or {}
