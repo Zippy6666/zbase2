@@ -574,7 +574,7 @@ hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
 
     -- On death
     if npc.IsZBaseNPC then
-        npc:OnDeath( attacker, infl, npc:LastDMGINFO() or DamageInfo(), npc.LastHitGroup )
+        npc:OnDeath( attacker, infl, npc:LastDMGINFO() or DamageInfo(), npc.ZBLastHitGr )
     end
 
 end)
