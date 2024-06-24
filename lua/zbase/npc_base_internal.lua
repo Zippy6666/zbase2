@@ -3623,7 +3623,7 @@ function NPC:Death_ItemDrop(dmg)
     local DropsDone = 0
 
 
-    for cls, opt in ipairs(self.ItemDrops) do
+    for cls, opt in pairs(self.ItemDrops) do
         table.insert(ItemArray, {cls=cls, max=opt.max, chance=opt.chance})
     end
 
