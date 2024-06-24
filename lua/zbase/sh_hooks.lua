@@ -218,7 +218,7 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
 
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
-    local att_own = IsValid(attacker) && attacker:GetOwner()
+    local att_own = (IsValid(attacker) && attacker:GetOwner()) or NULL
 
 
     -- NPCs with ZBaseNPCCopy_DullState should not be able to take damage, nor should they be able to deal damage
@@ -228,11 +228,17 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     end
 
 
-    -- Attacker is ZBase NPC, run DealDamage
+    -- Attacker is ZBase NPC
     local zbase_attacker = IsValid(attacker) && attacker.IsZBaseNPC && attacker
+
+
+    -- ZBase NPC is the owner of this attacker, maybe this attacker is a grenade
     if IsValid(att_own) && att_own.IsZBaseNPC then
         zbase_attacker = att_own
     end
+
+
+    -- Run ZBase NPCs' DealDamage
     if zbase_attacker then
         zbase_attacker:DealDamage( dmg, ent )
         if zbase_attacker.Patch_DealDamage then
@@ -244,45 +250,14 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
     -- Victim is ZBase NPC
     if ent.IsZBaseNPC then
 
+        -- Run OnEntityTakeDamage
         local value = ent:OnEntityTakeDamage( dmg )
-
-
         if value != nil then
             return value
         end
 
     end
 
-
-    -- Handle combine balls fired by ZBase NPCs
-    if IsValid(attacker.ZBaseComballOwner) then
-
-        dmg:SetAttacker(attacker.ZBaseComballOwner)
-
-
-        if (ent:IsNPC() or ent:IsNextBot()) then
-
-            -- Explotano
-            if ent:GetClass() == "npc_hunter"
-            or ent:GetClass() == "npc_strider" then
-                attacker:Fire("Explode")
-
-                if attacker.ZBaseComballOwner.ZBaseFaction != ent.ZBaseFaction
-                or attacker.ZBaseComballOwner.ZBaseFaction == "none" then
-                    local dmg2 = DamageInfo()
-                    dmg2:SetDamage(ent:GetClass() == "npc_strider" && 100 or 1000)
-                    dmg2:SetDamageType(DMG_DISSOLVE)
-                    dmg2:SetAttacker(dmg:GetAttacker())
-                    ent:TakeDamageInfo(dmg2)
-                end
-            end
-
-        end
-
-
-        attacker = attacker.ZBaseComballOwner
-
-    end
 end)
 
 
