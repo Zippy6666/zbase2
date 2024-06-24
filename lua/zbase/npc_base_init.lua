@@ -841,6 +841,11 @@ function NPC:CustomOnBaseSetRel(ent, rel)
 end
 
 
+    -- Called when a player presses their USE key on the NPC
+function NPC:OnUse()
+end
+
+
 --[[
 ==================================================================================================
                                            SNPC ONLY FUNCTIONS

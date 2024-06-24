@@ -49,6 +49,7 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
     -- ZBase init stuff when NOT SPAWNED FROM MENU
     -- Uses parentname to determine if it is a zbase npc
     if SERVER then
+
         timer.Simple(0, function()
             if !IsValid(ent) then return end
 
@@ -63,6 +64,7 @@ hook.Add("OnEntityCreated", "ZBASE", function( ent )
             --     ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
             -- end
         end)
+
     end
 
 
@@ -607,29 +609,6 @@ if SERVER then
     util.AddNetworkString("ZBaseRemoveFollowHalo")
 
 
-    hook.Add( "KeyPress", "ZBaseFollow", function( ply, key )
-        if key == IN_USE then
-            local tr = ply:GetEyeTrace()
-            local ent = tr.Entity
-
-            if not ( IsValid(ent) ) then
-                return
-            end
-
-            if ent:ZBaseDist(ply, {away=200}) then return end
-
-            if ent.PlayerToFollow == ply then
-                ent:StopFollowingCurrentPlayer()
-            elseif IsValid(ent) && ent.IsZBaseNPC && ent:CanStartFollowPlayers() then
-                ent:StartFollowingPlayer(ply)
-            end
-
-            if ( ent.OnUse and isfunction( ent.OnUse ) ) then
-                ent:OnUse(ply)
-            end
-        end
-    end)
-
 end
 
 
@@ -695,6 +674,33 @@ end
                                            OTHER
 ======================================================================================================================================================
 --]]
+
+
+hook.Add( "KeyPress", "ZBaseUse", function( ply, key )
+    if !IsValid(ply) then return end
+
+
+    local tr = ply:GetEyeTrace()
+    local ent = tr.Entity
+
+
+    if key == IN_USE && IsValid(ent) && ent.IsZBaseNPC && ent:ZBaseDist(ply, {away=200}) then
+
+        -- Start/stop following
+        if !IsValid(ent.PlayerToFollow) && ent:CanStartFollowPlayers() then
+            ent:StartFollowingPlayer(ply)
+        elseif ent.PlayerToFollow == ply then
+            ent:StopFollowingCurrentPlayer()
+        end
+
+        -- On NPC used
+        if ( isfunction( ent.OnUse ) ) then
+            ent:OnUse(ply)
+        end
+
+    end
+end)
+
 
 
 hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)

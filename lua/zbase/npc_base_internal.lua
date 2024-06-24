@@ -2119,22 +2119,20 @@ end
 
 function NPC:StopFollowingCurrentPlayer( noSound )
     local ply = self.PlayerToFollow
-    if not ( IsValid(ply) ) then
+
+    if IsValid(ply) && self:ZBaseDist(ply, {away=200}) then
         return
     end
-
-    if self:ZBaseDist(ply, {away=200}) then return end
 
     net.Start("ZBaseRemoveFollowHalo")
     net.WriteEntity(self)
     net.Send(ply)
 
-    ply = NULL
+    self.PlayerToFollow = NULL
 
     if !noSound then
         self:EmitSound_Uninterupted(self.UnfollowPlayerSounds)
     end
-
 
     self:FollowPlayerStatus(NULL)
 end
