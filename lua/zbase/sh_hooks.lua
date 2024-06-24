@@ -268,69 +268,13 @@ hook.Add("PostEntityTakeDamage", "ZBASE", function( ent, dmg )
 end)
 
 
-local function ScaleDamage( ent, hit_gr, dmg )
+hook.Add("ScaleNPCDamage", "ZBASE", function ( npc, hit_gr, dmg )
     local attacker = dmg:GetAttacker()
 
-    if ent.IsZBaseNPC then
-        ent:OnScaleDamage( dmg, hit_gr )
+    if npc.IsZBaseNPC then
+        npc:OnScaleDamage( dmg, hit_gr )
     end
-end
-
-
-hook.Add("ScaleNPCDamage", "ZBASE", ScaleDamage)
-hook.Add("ScalePlayerDamage", "ZBASE", ScaleDamage)
-
-
---[[
-======================================================================================================================================================
-                                           BULLETS
-======================================================================================================================================================
---]]
-
-
-ZBaseReflectedBullet = false
-
-
-local grabbing_bullet_backup_data = false
-
-
-hook.Add("EntityFireBullets", "ZBASE", function( ent, data, ... )
-
-    local data_backup = data
-
-
-    if grabbing_bullet_backup_data then return end
-
-
-    grabbing_bullet_backup_data = true
-    hook.Run("EntityFireBullets", ent, data, ...)
-    grabbing_bullet_backup_data = false
-
-
-    data = data_backup
-
-
-    -- On bullet hit
-    if !ZBaseReflectedBullet then
-        local callback = data.Callback
-        data.Callback = function(callback_ent, tr, dmginfo, ...)
-
-            if callback then
-                callback(callback_ent, tr, dmginfo, ...)
-            end
-
-            if IsValid(tr.Entity) && tr.Entity.IsZBaseNPC then
-                tr.Entity:OnBulletHit(ent, tr, dmginfo, data)
-            end
-
-        end
-    end
-
-
-    return true
-
 end)
-
 
 
 --[[
