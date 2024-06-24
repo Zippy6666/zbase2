@@ -3382,21 +3382,18 @@ function NPC:OnEntityTakeDamage( dmg )
 
 
     if self.DoingDeathAnim && !self.DeathAnim_Finished then
-        -- dmg:ScaleDamage(0)
         return true
     end
 
 
     -- Players not hurting allies
     if !ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer() && self:IsAlly(attacker) then
-        dmg:ScaleDamage(0)
         return true
     end
 
 
     -- In "stationary mode" zbase npcs cannot hurt each other
     if ZBCVAR.Static:GetBool() && attacker.IsZBaseNPC then
-        dmg:ScaleDamage(0)
         return true
     end
 
@@ -3412,6 +3409,7 @@ function NPC:OnEntityTakeDamage( dmg )
     self.LastDamageWasBullet = dmg:IsBulletDamage()
 
 
+    -- Damage scale
     self:ApplyZBaseDamageScale(dmg)
 
 
@@ -3422,15 +3420,15 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
 
-    local boutaDie = self:Health()-dmg:GetDamage() <= 0 -- mf bouta fng die lmfao
+    local boutaDie = self:Health()-dmg:GetDamage() <= 0
 
 
     if boutaDie then
-        -- the brawn jameee
         self.IsSpeaking = false
     end
 
 
+    -- Prevent engine gib
     if boutaDie && ShouldPreventGib[self:GetClass()] then
         if dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball") then
             dmg:SetDamageType(bit.bor(DMG_DISSOLVE, DMG_NEVERGIB))
@@ -3450,6 +3448,7 @@ end
 
     -- Called last
 function NPC:OnPostEntityTakeDamage( dmg )
+
     -- Custom blood
     if dmg:GetDamage() > 0 then
         self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
