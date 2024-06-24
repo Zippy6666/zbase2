@@ -36,9 +36,9 @@ local emitSound = ENT.EmitSound
 ZBase_EmitSoundCall = false
 
 
+-- Add ZBase NPCs to NPC list
 function list:Get()
     if !ZBase_JustReloadedSpawnmenu && self == "NPC" then
-        -- Add ZBase NPCs to NPC list
 
         local ZBaseTableAdd = {}
         for k, v in pairs(ZBaseSpawnMenuNPCList) do
