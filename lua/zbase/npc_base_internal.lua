@@ -25,7 +25,7 @@ function NPC:ZBaseInit()
     if self.SpawnModel then
 
         -- Default collision bounds
-        local mins, maxs = self:GetCollisionBounds() 
+        local mins, maxs = self:GetCollisionBounds()
 
         -- Set model but maintain bounds and give animation
         self:SetModel(self.SpawnModel)
@@ -3623,7 +3623,7 @@ function NPC:Death_ItemDrop(dmg)
     local DropsDone = 0
 
 
-    for cls, opt in pairs(self.ItemDrops) do
+    for cls, opt in ipairs(self.ItemDrops) do
         table.insert(ItemArray, {cls=cls, max=opt.max, chance=opt.chance})
     end
 
@@ -3639,26 +3639,26 @@ function NPC:Death_ItemDrop(dmg)
         for i = 1, dropData.max do
             if DropsDone >= self.ItemDrops_TotalMax then break end
 
-
-            if math.random(1, dropData.chance)==1 then
+            if math.random(1, dropData.chance) == 1 then
                 local drop = ents.Create(dropData.cls)
                 drop:SetPos(self:WorldSpaceCenter())
                 drop:SetAngles(AngleRand())
                 drop:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
                 drop:Spawn()
                 SafeRemoveEntityDelayed(drop, 120)
-                DropsDone = DropsDone+1
-					if dmg:IsDamageType(DMG_DISSOLVE) then
-				local dissolver = ents.Create("env_entity_dissolver")
-			dissolver:SetPos(drop:GetPos())
-			dissolver:Spawn()
-			dissolver:Activate()
-			dissolver:SetKeyValue("magnitude",100)
-			dissolver:SetKeyValue("dissolvetype",table.Random{0,2})
-			drop:SetName("z_dissolve_drop")
-			dissolver:Fire("Dissolve","z_dissolve_drop")
-			dissolver:Fire("Kill", "", 0.1)
-            end
+
+                DropsDone = DropsDone + 1
+                if dmg:IsDamageType(DMG_DISSOLVE) then
+                    local dissolver = ents.Create("env_entity_dissolver")
+                    dissolver:SetPos(drop:GetPos())
+                    dissolver:Spawn()
+                    dissolver:Activate()
+                    dissolver:SetKeyValue("magnitude",100)
+                    dissolver:SetKeyValue("dissolvetype", math.random(0, 2))
+                    drop:SetName("z_dissolve_drop")
+                    dissolver:Fire("Dissolve","z_dissolve_drop")
+                    dissolver:Fire("Kill", "", 0.1)
+                end
             end
         end
 

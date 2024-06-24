@@ -67,7 +67,7 @@ if SERVER then
                     own:Patch_CreateEnt( ent )
                 end
             end
-        
+
 
             -- Give ZBASE faction
             if ent:IsNPC() && ent:GetClass() != "npc_bullseye" && !ent.IsZBaseNavigator then
@@ -125,7 +125,7 @@ if SERVER then
 
         -- Regular think for non-scripted NPCs
         if NextThink < CurTime() then
-        
+
             for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
 
                 zbaseNPC:ZBaseThink()
