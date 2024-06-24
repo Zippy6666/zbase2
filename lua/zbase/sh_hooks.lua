@@ -49,9 +49,11 @@ if SERVER then
 
 
             -- ZBase init stuff when NOT SPAWNED FROM MENU
+            -- (also when not spawned from a dupe)
             -- Uses parentname to determine if it is a zbase npc
+            -- Uses the "copy system"
             local zbaseClass = ent:GetKeyValues().parentname
-            if ZBaseNPCs[zbaseClass] then
+            if ZBaseNPCs[zbaseClass] && !ent.IsDupeSpawnedZBaseNPC then
                 ZBaseNPCCopy( ent, zbaseClass )
             end
 
@@ -558,16 +560,19 @@ hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
     if npc.IsZBaseNPC && npc.Dead then return end
 
 
+    -- Call on killed ent
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:OnKilledEnt( npc )
     end
 
 
+    -- Mark enemy as dead
     for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
         zbaseNPC:MarkEnemyAsDead(npc, 2)
     end
 
 
+    -- On death
     if npc.IsZBaseNPC then
         npc:OnDeath( attacker, infl, npc:LastDMGINFO() or DamageInfo(), npc.LastHitGroup )
     end
@@ -577,10 +582,13 @@ end)
 
 
 hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
+
+    -- Call on killed ent
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:OnKilledEnt( ply )
     end
 
+    -- Mark enemy as dead
     for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
         zbaseNPC:MarkEnemyAsDead(ply, 2)
     end
@@ -588,6 +596,7 @@ end)
 
 
 
+-- Gravity gun punt for aerial ZBASE NPCs
 hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
     if ent.IsZBaseNPC && ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_GravGunPuntForceMult > 0 then
         local timerName = "ZBaseNPCPuntVel"..ent:EntIndex()
@@ -615,6 +624,7 @@ duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, 
     if ZBaseNPCTable then
 
         ent.ZBaseInitialized = false
+        ent.IsDupeSpawnedZBaseNPC = true
         ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
 
     end
@@ -623,7 +633,6 @@ end)
 
 
 -- Add zbase sweps to npc weapon menu if we should
-ZBaseNPCWeps = ZBaseNPCWeps or {}
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 
 	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
@@ -640,7 +649,7 @@ hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
 	if wep.IsZBaseWeapon && wep.NPCOnly then
 
         if !wep.Pickup_GaveAmmo then
-		    ply:GiveAmmo(wep:GetMaxClip1(), wep:GetPrimaryAmmoType())
+		    ply:GiveAmmo(wep.Primary.DefaultClip, wep:GetPrimaryAmmoType())
             wep.Pickup_GaveAmmo = true
         end
 
