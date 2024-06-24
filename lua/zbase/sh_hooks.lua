@@ -70,47 +70,23 @@ if SERVER then
 
             -- Give ZBASE faction
             if ent:IsNPC() && ent:GetClass() != "npc_bullseye" && !ent.IsZBaseNavigator then
+
                 -- Register as entity that is affected by the ZBASE relationship system
                 table.InsertEntity(ZBaseRelationshipEnts, ent)
 
-                -- If a ZBASE NPC, apply the supplied start faction
+                -- If a ZBASE NPC, apply the supplied start faction, or the override chosen by the player
                 -- If a different NPC, find a fitting ZBASE faction to apply
-                ZBaseSetFaction(ent, !ent.IsZBaseNPC && ZBaseFactionTranslation[ent:Classify()])
+                if ent.IsZBaseNPC then
+                    local PlayerFactionOverride = IsValid(ent.ZBase_PlayerWhoSpawnedMe) && ent.ZBase_PlayerWhoSpawnedMe.ZBaseNPCFactionOverride
+                    ZBaseSetFaction(ent, PlayerFactionOverride or nil)
+                else
+                    ZBaseSetFaction(ent, ZBaseFactionTranslation[ent:Classify()])
+                end
+
             end
         end)
     end)
 end
-
-hook.Add("PlayerSpawnedNPC", "ZBASE", function(ply, ent)
-
-    -- Relationship override for NPCs
-    if ply.ZBaseNPCFactionOverride && ply.ZBaseNPCFactionOverride != "" then
-
-        timer.Simple(0, function()
-            if !IsValid(ent) or !IsValid(ply) then return end
-            if !ent.IsZBaseNPC then return end
-
-            ZBaseSetFaction( ent, ply.ZBaseNPCFactionOverride )
-        end)
-
-    end
-
-
-    -- Fix NPCs offset when spawned from the regular spawn menu
-    timer.Simple(0, function()
-        if !ent.IsZBaseNPC then return end
-        if !IsValid(ent) or !IsValid(ply) then return end
-
-
-        local offset = (ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_DistanceFromGround) or ent.Offset
-
-
-        if isnumber(offset) then
-            ent:SetPos( ent:GetPos()+Vector(0, 0, offset) )
-        end
-    end)
-
-end)
 
 
     -- Override code for spawning zbase npcs from regular spawn menu
@@ -145,14 +121,13 @@ if SERVER then
 
     hook.Add("Tick", "ZBASE", function()
 
-        -- Think for NPCs that aren't scripted
-        -- local startT = SysTime()
 
+        -- Regular think for non-scripted NPCs
         if NextThink < CurTime() then
+        
             for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
 
                 zbaseNPC:ZBaseThink()
-
 
                 if zbaseNPC.Patch_Think then
                     zbaseNPC:Patch_Think()
@@ -162,19 +137,11 @@ if SERVER then
 
             NextThink = CurTime()+0.1
 
-
-
-            -- if SERVER then
-            --     PrintMessage(HUD_PRINTTALK, "Think time: "..math.Round(SysTime()-startT, 3))
-            -- end
-
         end
 
 
 
         -- Behaviour tick
-        -- local startT = SysTime()
-
         if !GetConVar("ai_disabled"):GetBool()
         && NextBehaviourThink < CurTime() then
 
@@ -187,11 +154,6 @@ if SERVER then
             end
 
             NextBehaviourThink = CurTime() + 0.4
-
-
-            -- if SERVER then
-            --     PrintMessage(HUD_PRINTTALK, "Behaviour time: "..math.Round(SysTime()-startT, 3))
-            -- end
 
         end
 
