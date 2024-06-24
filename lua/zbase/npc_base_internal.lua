@@ -1,47 +1,10 @@
 util.AddNetworkString("ZBaseGlowEyes")
 
 
---[[
-==================================================================================================
-                    !! YOU GOT NOTHING TO DO HERE BOYE, GO BACK TO npc_base_init !!
-==================================================================================================
---]]
-
-
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 local IsMultiplayer = !game.SinglePlayer()
 local Developer = GetConVar("developer")
-
-
-local function ListConditions(npc, dur)
-    dur = dur or 0.13
-
-	if(!IsValid(npc)) then return end
-
-    local cond_count = 0
-
-	for c = 0, 100 do
-
-		if(npc:HasCondition(c)) then
-
-			-- MsgN(npc:ConditionName(c))
-            debugoverlay.Text(npc:GetPos()+npc:GetUp()*cond_count*10+npc:GetRight()*40, npc:ConditionName(c), dur)
-
-            cond_count = cond_count + 1
-
-		end
-
-	end
-
-end
-
-
-local function ZBaseDOverlay( funcname, argsFunc )
-    if !Developer:GetBool() then return end
-    local args = argsFunc()
-    debugoverlay[funcname](unpack(args))
-end
 
 
 --[[
@@ -51,36 +14,20 @@ end
 --]]
 
 
-    -- Called before spawn if it can, otherwise just before ZBaseInit
-function NPC:BeforeSpawn( NPCData )
-
-    self.AllowedCustomEScheds = {}
-    self.ProhibitCustomEScheds = false
-
-
-    -- Needed for some NPCs to allow them to spawn with weapons
-    self:CapabilitiesAdd(CAP_USE_WEAPONS)
-
-
-    self.BeforeSpawnDone = true
-
+function NPC:PreSpawn()
+    self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Important! Or else some NPCs won't spawn with weapons.
 end
 
 
 function NPC:ZBaseInit()
 
-    -- "Before spawn"
-    if !self.BeforeSpawnDone then
-        self:BeforeSpawn()
-    end
-
-
     -- Set model
-    if self.SpawnModel && self.SpawnModel != self:GetModel() then
+    if self.SpawnModel then
 
-        local mins, maxs = self:GetCollisionBounds() -- Default collision bounds, not affected by base
+        -- Default collision bounds
+        local mins, maxs = self:GetCollisionBounds() 
 
-        -- Set model but maintain bounds and don't enter tpose
+        -- Set model but maintain bounds and give animation
         self:SetModel(self.SpawnModel)
         self:SetCollisionBounds(mins, maxs)
         self:ResetIdealActivity(ACT_IDLE)
@@ -500,7 +447,7 @@ function NPC:ZBaseThink()
         -- Sched and state debug
         if ZBCVAR.ShowSched:GetBool() then
 
-            ZBaseDOverlay( "Text", function()
+            conv.overlay( "Text", function()
 
                 return {
                     self:WorldSpaceCenter()+self:GetUp()*50,
@@ -1133,7 +1080,7 @@ end
 
 
 -- function NPC:ZBWepSys_ForceShootStance()
---     ZBaseDOverlay("Text", function()
+--     conv.overlay("Text", function()
 --         return {self:GetShootPos(), "Force shoot stance", 0.13}
 --     end)
 
@@ -1195,12 +1142,12 @@ function NPC:ZBWepSys_FireWeaponThink()
         self:SetSchedule(OutOfShootRangeSched)
         self.NextOutOfShootRangeSched = CurTime()+3
 
-        ZBaseDOverlay("Text", function()
+        conv.overlay("Text", function()
             local pos = self:GetPos()
             return {pos, "Doing base out of shoot range behaviour.", 2}
         end)
 
-        ZBaseDOverlay("Cross", function()
+        conv.overlay("Cross", function()
             return {lastpos, 30, 2, Color(0, 255, 0)}
         end)
 
@@ -1374,7 +1321,7 @@ function NPC:ZBWepSys_Think()
         if IsValid(ene) && maxShootDist && self:GetMaxLookDistance()!=maxShootDist then
 
             self:SetMaxLookDistance(maxShootDist)
-            ZBaseDOverlay("Line", function()
+            conv.overlay("Line", function()
                 local center = self:WorldSpaceCenter()
                 return {center, center+self:GetForward()*maxShootDist, 2, Color(255, 196, 0)}
             end)
@@ -1807,7 +1754,7 @@ function NPC:AITick_Slow()
     -- Loose enemy
     if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
 
-        ZBaseDOverlay("Text", function()
+        conv.overlay("Text", function()
             local pos = self:GetPos()
             return {pos, "Marked "..tostring(ene).. " eluded.", 2}
         end)
@@ -1843,7 +1790,7 @@ function NPC:AITick_Slow()
     if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
         self:SetNPCState(NPC_STATE_IDLE)
         self.NextStopAlert = nil
-        ZBaseDOverlay("Text", function()
+        conv.overlay("Text", function()
             local pos = self:GetPos()
             return {pos, "Alert time elapsed, switching to NPC_STATE_IDLE", 2}
         end)
@@ -1944,7 +1891,7 @@ function NPC:DoNewEnemy()
     local ene = self:GetEnemy()
 
 
-    ZBaseDOverlay("Text", function()
+    conv.overlay("Text", function()
         local pos = self:WorldSpaceCenter()
         return {pos, "DoNewEnemy:  "..tostring(ene), 2}
     end)
@@ -2061,11 +2008,11 @@ function NPCB.Static:Run( self )
         self:SetLastPosition(newDest)
         self:SetSchedule( (self:GetNPCState()==NPC_STATE_COMBAT && SCHED_FORCED_GO_RUN) or SCHED_FORCED_GO )
 
-        ZBaseDOverlay("Sphere", function()
+        conv.overlay("Sphere", function()
             return {newDest, 25, 3, Color(0, 0, 255)}
         end)
 
-        ZBaseDOverlay("Text", function()
+        conv.overlay("Text", function()
             return {self:WorldSpaceCenter(), "Returning to guard pos.", 3}
         end)
 
@@ -2193,7 +2140,7 @@ function NPCB.Patrol:Run( self )
 
         self:SetSchedule(SCHED_ALERT_SCAN)
 
-        ZBaseDOverlay("Text", function()
+        conv.overlay("Text", function()
             return {self:GetPos(), "SCHED_ALERT_SCAN as patrol.", 2}
         end)
 
@@ -2201,7 +2148,7 @@ function NPCB.Patrol:Run( self )
 
         self:SetSchedule(SCHED_PATROL_RUN)
 
-        ZBaseDOverlay("Text", function()
+        conv.overlay("Text", function()
             return {self:GetPos(), "Alert patrol.", 2}
         end)
 
@@ -2209,7 +2156,7 @@ function NPCB.Patrol:Run( self )
 
         self:SetSchedule(SCHED_PATROL_WALK)
 
-        ZBaseDOverlay("Text", function()
+        conv.overlay("Text", function()
             return {self:GetPos(), "Patrol.", 2}
         end)
 
@@ -2250,7 +2197,7 @@ function NPCB.FactionCallForHelp:Run( self )
         ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
         ally:AlertSound()
 
-        ZBaseDOverlay("Text", function()
+        conv.overlay("Text", function()
             local pos = self:GetPos()+self:GetUp()*25
             return {pos, "Was called by ally.", 2}
         end)
@@ -3098,7 +3045,7 @@ function NPCB.Dialogue:Run( self )
         ally.DialogueMate = self
 
 
-        ZBaseDOverlay("Text", function()
+        conv.overlay("Text", function()
             local pos = self:WorldSpaceCenter()
             return {pos, "*Question*", self.InternalCurrentSoundDuration}
         end)
@@ -3114,7 +3061,7 @@ function NPCB.Dialogue:Run( self )
                 ally:EmitSound_Uninterupted(ally.Dialogue_Answer_Sounds)
 
 
-                ZBaseDOverlay("Text", function()
+                conv.overlay("Text", function()
                     local pos = ally:WorldSpaceCenter()
                     return {pos, "*Answer*", ally.InternalCurrentSoundDuration}
                 end)
@@ -3312,30 +3259,20 @@ function NPC:StoreDMGINFO( dmg )
 
     local ammotype = dmg:GetAmmoType()
     local attacker = dmg:GetAttacker()
-    local basedmg = dmg:GetBaseDamage()
     local damage = dmg:GetDamage()
-    local dmgbonus = dmg:GetDamageBonus()
-    local dmgcustom = dmg:GetDamageCustom()
     local dmgforce = dmg:GetDamageForce()
     local dmgtype = dmg:GetDamageType()
     local dmgpos = dmg:GetDamagePosition()
     local infl = dmg:GetInflictor()
-    local maxdmg = dmg:GetMaxDamage()
-    local reportedpos = dmg:GetReportedPosition()
 
     self.LastDMGINFOTbl = {
         ammotype = ammotype,
         attacker = attacker,
-        basedmg = basedmg,
         damage = damage,
-        dmgbonus = dmgbonus,
-        dmgcustom = dmgcustom,
         dmgforce = dmgforce,
         dmgtype = dmgtype,
         dmgpos = dmgpos,
         infl = infl,
-        maxdmg = maxdmg,
-        reportedpos = reportedpos,
     }
 
 end
@@ -3359,15 +3296,15 @@ function NPC:LastDMGINFO( dmg )
 
 
     lastdmginfo:SetAmmoType(self.LastDMGINFOTbl.ammotype)
-    lastdmginfo:SetBaseDamage(self.LastDMGINFOTbl.basedmg)
+    lastdmginfo:SetBaseDamage(self.LastDMGINFOTbl.damage)
     lastdmginfo:SetDamage(self.LastDMGINFOTbl.damage)
-    lastdmginfo:SetDamageBonus(self.LastDMGINFOTbl.dmgbonus)
-    lastdmginfo:SetDamageCustom(self.LastDMGINFOTbl.dmgcustom)
+    lastdmginfo:SetDamageBonus(0)
+    lastdmginfo:SetDamageCustom(self.LastDMGINFOTbl.damage)
     lastdmginfo:SetDamageForce(self.LastDMGINFOTbl.dmgforce)
     lastdmginfo:SetDamageType(self.LastDMGINFOTbl.dmgtype)
     lastdmginfo:SetDamagePosition(self.LastDMGINFOTbl.dmgpos)
-    lastdmginfo:SetMaxDamage(self.LastDMGINFOTbl.maxdmg)
-    lastdmginfo:SetReportedPosition(self.LastDMGINFOTbl.reportedpos)
+    lastdmginfo:SetMaxDamage(self.LastDMGINFOTbl.damage)
+    lastdmginfo:SetReportedPosition(self.LastDMGINFOTbl.dmgpos)
 
 
     return lastdmginfo
@@ -3383,14 +3320,6 @@ function NPC:OnScaleDamage( dmg, hit_gr )
 
     -- Players not hurting allies
     if !ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer() && self:IsAlly(attacker) then
-
-        -- Hacky way to not apply decals from bullets
-        -- if isSinglePlayer then
-        --     local last_rendermode = self:GetRenderMode()
-        --     self:SetRenderMode(RENDERMODE_TRANSALPHA)
-        --     self:CallNextTick("SetRenderMode", last_rendermode)
-        -- end
-
         dmg:ScaleDamage(0)
         return
     end
@@ -3566,42 +3495,6 @@ function NPC:OnPostEntityTakeDamage( dmg )
     self.CustomTakeDamageDone = false
 end
 
-
-
-function NPC:OnBulletHit(BulletEnt, tr, dmginfo, bulletData)
-    -- Players not hurting allies
-    if IsValid(BulletEnt) && !ZBCVAR.PlayerHurtAllies:GetBool() && BulletEnt:IsPlayer() && self:IsAlly(BulletEnt) then
-        return
-    end
-
-
-    -- Bullet reflection
-    if self.ArmorReflectsBullets then
-        ZBaseReflectedBullet = true
-
-        local ent = ents.Create("base_gmodentity")
-        ent:SetPos(tr.HitPos)
-        ent:Spawn()
-
-        ent:FireBullets({
-            Src = tr.HitPos,
-            Dir = tr.HitNormal,
-            Spread = Vector(0.33, 0.33),
-            Num = bulletData.Num,
-            Attacker = Entity(0),
-            Inflictor = Entity(0),
-            Damage = math.random(1, 3),
-            IgnoreEntity = self,
-        })
-
-        ent:Remove()
-
-        ZBaseReflectedBullet = false
-    end
-
-
-    self:CustomOnBulletHit(BulletEnt, tr, bulletData)
-end
 
 
 --[[
@@ -4072,9 +3965,12 @@ end
 
 
 function NPC:InternalOnRemove()
+
+    -- Unregister me as a NPC that is attacking players
     for _, ply in player.Iterator() do
         if IsValid(ply) && istable(ply.AttackingZBaseNPCs) then
             ply.AttackingZBaseNPCs[self]=nil
         end
     end
+
 end

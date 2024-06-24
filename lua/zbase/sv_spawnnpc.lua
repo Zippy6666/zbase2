@@ -38,7 +38,7 @@ local function TryFixPropPosition( ply, ent, hitpos )
 end
 
 
-function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawnedOnCeiling, bDropToFloor )
+function ZBaseInitialize( NPC, NPCData, Class, Equipment, _, wasSpawnedOnCeiling, bDropToFloor )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
 
@@ -53,11 +53,10 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 
 
 
-    -- Set model
+    -- Decide model
     local model = istable(NPCData.Models) && table.Random(NPCData.Models)
     if model then
 		NPC.SpawnModel = model
-        -- NPC:SetModel(model)
     end
 
 
@@ -167,24 +166,20 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, isZBTabSpawn, wasSpawn
 		NPC.OnDuplicated = NPCData.OnDuplicated
 	end
 
-    -- Spawn
-	NPC:BeforeSpawn( NPCData )
+
+	-- Spawn and activate
+	NPC:PreSpawn()
+	NPC:Spawn()
+	NPC:Activate()
 
 
-
-	if isZBTabSpawn then
-
-		-- Spawned from zbase tab
-	
-		NPC:Spawn()
-		NPC:Activate()
-
-		local ed = EffectData()
-		ed:SetEntity( NPC )
-		util.Effect( "zbasespawn", ed, true, true )
-	end
+	-- Spawn effect
+	local ed = EffectData()
+	ed:SetEntity( NPC )
+	util.Effect( "zbasespawn", ed, true, true )
 
 
+	-- Store name and table like the usual spawn menu spawn system in GMOD
 	NPC.NPCName = Class
 	NPC.NPCTable = NPCData
 
