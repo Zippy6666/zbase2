@@ -836,9 +836,12 @@ end
 
 
     -- Called when a player presses their USE key on the NPC
-function NPC:OnUse()
+function NPC:OnUse(ply)
 end
 
+    -- Called when an ally dies
+function NPC:OnAllyDeath(ally)
+end
 
 --[[
 ==================================================================================================
