@@ -160,7 +160,6 @@ NPC.ArmorPenChance = 2 -- 1/x Chance that the armor is penetrated, false = never
 NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this, set to false to disable
 NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
 NPC.ArmorHitSpark = true -- Do a spark on armor hit
-NPC.ArmorReflectsBullets = false -- Should the armor visually reflect bullets?
 
 
 -- Scale damage against certain damage types:
@@ -480,11 +479,6 @@ end
 
     -- Called when the NPC kills another entity (player or NPC)
 function NPC:CustomOnKilledEnt( ent )
-end
-
-
-    -- Called when the NPC is hit by a bullet
-function NPC:CustomOnBulletHit(BulletEnt, tr, bulletData)
 end
 
 
@@ -838,6 +832,11 @@ end
     -- https://wiki.facepunch.com/gmod/Enums/D
 function NPC:CustomOnBaseSetRel(ent, rel)
     return true
+end
+
+
+    -- Called when a player presses their USE key on the NPC
+function NPC:OnUse()
 end
 
 
