@@ -37,6 +37,7 @@ local VJ_Translation_Flipped = {
 function NPC:ZBaseSetMutualRel( ent, relToEnt )
     
     if !IsValid(ent) then return end
+    if ent.ANPlusData then return end -- Don't run on ANP NPCs
     if string.lower( ent:GetClass() ) == "bullseye_strider_focus" then return end
 
 
@@ -65,14 +66,15 @@ function NPC:ZBaseSetMutualRel( ent, relToEnt )
 
     -- If recipient is not a zbase npc, make the recipient feel the same way about us
     -- Unless we have notarget
-    if !ent.IsZBaseNPC && ent:IsNPC() && !(bit.band(self:GetFlags(), FL_NOTARGET)==FL_NOTARGET) then
+    if !ent.IsZBaseNPC && ent:IsNPC() &&
+    !(bit.band(self:GetFlags(), FL_NOTARGET)==FL_NOTARGET) then
 
         -- Recipient keep hating its enemies
         -- Workaround for non-zbase NPCs ignoring players (and maybe other npcs potentially)
-        for _, ene in ipairs(ent:GetKnownEnemies()) do
-            if ene == self then continue end
-            ent:AddEntityRelationship(ene, D_HT, 0)
-        end
+        -- for _, ene in ipairs(ent:GetKnownEnemies()) do
+        --     if ene == self then continue end
+        --     ent:AddEntityRelationship(ene, D_HT, 0)
+        -- end
 
         ent:AddEntityRelationship(self, relToMe, 0)
 
