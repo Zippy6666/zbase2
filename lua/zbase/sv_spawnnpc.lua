@@ -38,7 +38,7 @@ local function TryFixPropPosition( ply, ent, hitpos )
 end
 
 
-function ZBaseInitialize( NPC, NPCData, Class, Equipment, _, wasSpawnedOnCeiling, bDropToFloor )
+function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
 
@@ -108,7 +108,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, _, wasSpawnedOnCeiling
         end
     end
 
-
 	--
 	-- What weapon this NPC should be carrying
 	--
@@ -120,7 +119,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, _, wasSpawnedOnCeiling
 	for _, v in pairs( NPCData.Weapons or {} ) do
 		if ( v == Equipment ) then valid = true break end
 	end
-	if ( Equipment && Equipment != "none" && valid ) then
+	if Equipment && Equipment != "none" && valid then
 
 		if ZBCVAR.RandWep:GetBool() && !string.find(ZBCVAR.RandWepNPCBlackList:GetString(), Class) then
 
@@ -169,24 +168,24 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, _, wasSpawnedOnCeiling
 
 	-- Spawn and activate
 	NPC:PreSpawn()
-	NPC:Spawn()
-	NPC:Activate()
+	if !skipSpawnAndActivate then
+		NPC:Spawn()
+		NPC:Activate()
+	end
 
 
 	-- Spawn effect
-	local ed = EffectData()
-	ed:SetEntity( NPC )
-	util.Effect( "zbasespawn", ed, true, true )
+	if !skipSpawnAndActivate then
+		local ed = EffectData()
+		ed:SetEntity( NPC )
+		util.Effect( "zbasespawn", ed, true, true )
+	end
 
 
 	-- Store name and table like the usual spawn menu spawn system in GMOD
 	NPC.NPCName = Class
 	NPC.NPCTable = NPCData
-
-
-	-- Store spawnmenu data for addons and stuff
 	NPC._wasSpawnedOnCeiling = wasSpawnedOnCeiling
-
 
 
 	-- Body groups
@@ -200,6 +199,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, _, wasSpawnedOnCeiling
     -- "Register"
     table.insert(ZBaseNPCInstances, NPC)
 	NPC:CallOnRemove("ZBaseNPCInstancesRemove", function() table.RemoveByValue(ZBaseNPCInstances, NPC) end)
+
 
 	if !NPC.IsZBase_SNPC then
 		table.insert(ZBaseNPCInstances_NonScripted, NPC)
@@ -234,7 +234,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, _, wasSpawnedOnCeiling
 	return NPC
 end
 ---------------------------------------------------------------------------------=#
-function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor )
+function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
 	local NPCList = ZBaseSpawnMenuNPCList
 	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
 
@@ -314,7 +314,7 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 	NPC.ZBase_PlayerWhoSpawnedMe = ply
 
 
-	return ZBaseInitialize( NPC, NPCData, Class, Equipment, true, wasSpawnedOnCeiling, bDropToFloor )
+	return ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate )
 end
 
 

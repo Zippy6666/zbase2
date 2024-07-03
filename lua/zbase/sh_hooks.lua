@@ -623,9 +623,11 @@ duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, 
 
     if ZBaseNPCTable then
 
-        ent.ZBaseInitialized = false
+        ent.ZBaseInitialized = false -- So that it can be initialized again
         ent.IsDupeSpawnedZBaseNPC = true
-        ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, nil, false, false, true )
+
+        local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
+        ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
 
     end
 
