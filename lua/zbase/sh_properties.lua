@@ -93,11 +93,11 @@ AddZBaseNPCProperty("Add to My Faction", "icon16/add.png", function( self, npc, 
 end)
 
 
-AddZBaseNPCProperty("Control", "icon16/controller.png", function( self, npc, length, ply )
+-- AddZBaseNPCProperty("Control", "icon16/controller.png", function( self, npc, length, ply )
 
-    ZBCtrlSys:StartControlling( ply, npc )
+--     ZBCtrlSys:StartControlling( ply, npc )
 
-end)
+-- end)
 
 
 AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )

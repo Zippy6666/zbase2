@@ -23,14 +23,3 @@
 
 ### Projectile base
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
-
-# TODO:
-- [ ] Optimize spawning, death, and sound emittions
-- [ ] Clean up code
-- [ ] Improve weapon out of range behaviour (cancel forced go if in range again, or maybe if hurt?)
-- [ ] Follow/join squad stuff
-    - [ ] Play follow sounds when joining squad
-    - [ ] Cannot do follow when in squad
-- [ ] Improve playanimation func a bit maybe, try without scripted state
-- [ ] Fix some melee holdtypes
-- [ ] Finish the controller

@@ -97,9 +97,10 @@ function NPC:ZBaseInit()
 
 
     -- On remove
-    self:CallOnRemove("ZBaseOnRemove", function()
-        self:InternalOnRemove()
-        self:OnRemove()
+    local me = self
+    self:CallOnRemove("ZBaseOnRemove"..self:EntIndex(), function()
+        me:InternalOnRemove()
+        me:OnRemove()
     end)
 
 
@@ -154,14 +155,12 @@ function NPC:Init2Ticks()
     self:Fire("physdamagescale", self.PhysDamageScale)
 
 
-    -- Set specified internal variables (again just to be sure)
     self:CapabilitiesClear()
     self:InitCap()
 
 
     -- Set squad name to faction name
-    if !self.DontAutoSetSquad
-    && self.ZBaseFaction != "none" then
+    if !self.DontAutoSetSquad && self.ZBaseFaction != "none" then
         self:SetSquad(self.ZBaseFaction)
     end
 end

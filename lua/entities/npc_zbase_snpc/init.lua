@@ -114,9 +114,3 @@ function ENT:OnTakeDamage( dmginfo )
 	end
 end
 
-
-function ENT:OnRemove()
-    self:SetSquad("") -- To prevent m_bDidDeathCleanup from crashing game.
-    if self.Dead then self:SetSaveValue("m_bDidDeathCleanup", true) end
-end
-
