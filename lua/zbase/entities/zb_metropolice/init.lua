@@ -1,6 +1,18 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 
+local Arrest = 2097152
+local ShouldHaveRadioSound = {
+    ["LostEnemySounds"] = true,
+    ["OnReloadSounds"] = true,
+    ["Dialogue_Question_Sounds"] = true,
+    ["Dialogue_Answer_Sounds"] = true,
+    ["AlertSounds"] = true,
+    ["KilledEnemySounds"] = true,
+    ["OnGrenadeSounds"] = true,
+}
+
+
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
@@ -35,6 +47,7 @@ NPC.ItemDrops = {
 
 
 NPC.KeyValues = {weapondrawn="1"}
+NPC.SpawnFlagTbl = {Arrest}
 
 
 NPC.AlertSounds = "ZBaseMetrocop.Alert" -- Sounds emitted when an enemy is seen for the first time
@@ -58,15 +71,6 @@ NPC.FootStepSounds = "ZBaseMetrocop.Step" -- Footstep sound
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
 
-local ShouldHaveRadioSound = {
-    ["LostEnemySounds"] = true,
-    ["OnReloadSounds"] = true,
-    ["Dialogue_Question_Sounds"] = true,
-    ["Dialogue_Answer_Sounds"] = true,
-    ["AlertSounds"] = true,
-    ["KilledEnemySounds"] = true,
-    ["OnGrenadeSounds"] = true,
-}
 
 
 function NPC:CustomInitialize()

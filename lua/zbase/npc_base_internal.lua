@@ -1025,6 +1025,7 @@ function NPC:ZBWepSys_WantsToShoot()
         [SCHED_NPC_FREEZE] = true,
         [ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")] = true,
         [ZBaseESchedID("SCHED_METROPOLICE_WARN_AND_ARREST_ENEMY")] = true,
+        [ZBaseESchedID("SCHED_METROPOLICE_ARREST_ENEMY")] = true,
     }
 
 
@@ -1035,7 +1036,6 @@ function NPC:ZBWepSys_WantsToShoot()
     -- Not in illegal sched
     && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
 
-    -- Should fire wep check, should be last
     && self:ShouldFireWeapon()
 
 end

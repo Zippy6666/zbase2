@@ -49,10 +49,6 @@ NPC.Dialogue_Question_Sounds = "ZBaseElitePolice.Question"
 NPC.Dialogue_Answer_Sounds = "ZBaseElitePolice.Answer"
 
 
---]]==============================================================================================]]
-function NPC:CustomInitialize()
-end
---]]==============================================================================================]]
 function NPC:BeforeEmitSound( sndData, sndVarName )
     if sndVarName == "DeathSounds" && self:IsOnFire() then
         return "ZBaseElitePolice.FireDeath"
@@ -76,11 +72,12 @@ function NPC:BeforeEmitSound( sndData, sndVarName )
         return "ZBaseElitePolice.IdleEnemyOccluded"
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:CustomNewActivityDetected( act )
     -- 2152 = Deploy manhack
     if act==2152 then
         self:EmitSound_Uninterupted("ZBaseElitePolice.Deploy")
     end
 end
---]]==============================================================================================]]
+
