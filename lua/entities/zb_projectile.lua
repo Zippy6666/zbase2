@@ -259,7 +259,9 @@ function ENT:Die( dmg )
     self.Dead = true
     self:OnKill( dmg )
     self:SetMoveType(MOVETYPE_NONE)
-    self:Remove()
+    if SERVER then 
+    self:Remove() 
+    end
 end
 --]]==============================================================================================]]
 function ENT:OnTakeDamage( dmg )
