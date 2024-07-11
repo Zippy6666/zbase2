@@ -57,6 +57,7 @@ function NPC:ZBaseInit()
     self.ZBLastHitGr = HITGROUP_GENERIC
     self.PlayerToFollow = NULL
     self.GuardSpot = self:GetPos()
+    self.InternalCurrentSoundDuration = 0
     self:InitGrenades()
     self:SetNWBool("IsZBaseNPC", true)
     self:SetNWString("ZBaseName", self.Name)
