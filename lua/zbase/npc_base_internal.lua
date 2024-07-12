@@ -3052,10 +3052,8 @@ function NPCB.Dialogue:Run( self )
 
 
         -- ResetTimer
-        print(self.InternalCurrentSoundDuration+0.4, "ResetTimer")
-        timer.Create("DialogueAnswerTimer"..ally:EntIndex(), self.InternalCurrentSoundDuration+0.4, 1, function()
 
-            print("reset timer ran")
+        timer.Create("DialogueAnswerTimer"..ally:EntIndex(), self.InternalCurrentSoundDuration+0.4, 1, function()
 
             if IsValid(ally) then
 
