@@ -481,10 +481,11 @@ function NPC:EmitFootStepSound()
 
     stepent:SetNoDraw(true)
     stepent:SetPos(self:GetPos())
-    stepent.IsZBaseStepEnt = true
+    stepent:SetOwner(self)
     stepent:Spawn()
-    stepent:EmitSound(self.FootStepSounds)
+    stepent.IsZBaseStepEnt = true
 
     local dur = SoundDuration(self.FootStepSounds)
+    stepent:EmitSound(self.FootStepSounds)
     SafeRemoveEntityDelayed(stepent, dur)
 end

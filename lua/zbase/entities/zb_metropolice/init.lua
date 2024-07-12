@@ -70,14 +70,11 @@ NPC.FootStepSounds = "ZBaseMetrocop.Step" -- Footstep sound
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
-
-
-
 function NPC:CustomInitialize()
 
     local Manhacks = math.random(0, 1)
-    self.m_iManhacks = Manhacks
-    self:SetBodygroup(0, Manhacks)
+    self:SetSaveValue("m_iManhacks", Manhacks)
+    self:SetBodygroup(1, Manhacks)
 
 end
 
