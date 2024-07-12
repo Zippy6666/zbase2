@@ -472,3 +472,19 @@ function NPC:Zombie_GiveHeadCrabs()
         end
     end
 end
+
+
+    -- Emit a foot step sound, should idealy be used instead of regular emit sound code
+    -- Uses self.FootStepSounds
+function NPC:EmitFootStepSound()
+    local stepent = ents.Create("base_gmodentity")
+
+    stepent:SetNoDraw(true)
+    stepent:SetPos(self:GetPos())
+    stepent.IsZBaseStepEnt = true
+    stepent:Spawn()
+    stepent:EmitSound(self.FootStepSounds)
+
+    local dur = SoundDuration(self.FootStepSounds)
+    SafeRemoveEntityDelayed(stepent, dur)
+end

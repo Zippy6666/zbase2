@@ -949,7 +949,7 @@ function NPC:FootStepTimer()
     if self.HasEngineFootSteps then return end
 
 
-    sound.Play(self.FootStepSounds, self:GetPos())
+    self:EmitFootStepSound()
 
 
     -- Set footstep cooldown

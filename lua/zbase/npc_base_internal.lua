@@ -1956,7 +1956,7 @@ function NPC:DoMoveSpeed()
 end
 
 
-function NPC:OnReactToSound(ent, pos, loudness)
+function NPC:InternalOnReactToSound(ent, pos, loudness)
     if self:GetNPCState()==NPC_STATE_ALERT then
 
         self:CancelConversation()
@@ -3052,8 +3052,10 @@ function NPCB.Dialogue:Run( self )
 
 
         -- ResetTimer
-        timer.Create("DialogueAnswer"..ally:EntIndex(), self.InternalCurrentSoundDuration+0.4, 1, function()
+        print(self.InternalCurrentSoundDuration+0.4, "ResetTimer")
+        timer.Create("DialogueAnswerTimer"..ally:EntIndex(), self.InternalCurrentSoundDuration+0.4, 1, function()
 
+            print("reset timer ran")
 
             if IsValid(ally) then
 
@@ -3117,7 +3119,7 @@ function NPC:CancelConversation()
         self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Question_Sounds)
         self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Answer_Sounds)
 
-        timer.Remove("DialogueAnswer"..self.DialogueMate:EntIndex())
+        timer.Remove("DialogueAnswerTimer"..self.DialogueMate:EntIndex())
         timer.Remove("ZBaseFace"..self.DialogueMate:EntIndex())
     end
 
@@ -3128,7 +3130,7 @@ function NPC:CancelConversation()
     self:StopSound(self.Dialogue_Question_Sounds)
     self:StopSound(self.Dialogue_Answer_Sounds)
 
-    timer.Remove("DialogueAnswer"..self:EntIndex())
+    timer.Remove("DialogueAnswerTimer"..self:EntIndex())
     timer.Remove("ZBaseFace"..self:EntIndex())
 end
 
