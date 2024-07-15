@@ -15,7 +15,9 @@ local Developer = GetConVar("developer")
 
 
 function NPC:PreSpawn()
-    self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Important! Or else some NPCs won't spawn with weapons.
+    if #self.Weapons >= 1 then
+        self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Important! Or else some NPCs won't spawn with weapons.
+    end
 end
 
 
@@ -137,12 +139,7 @@ end
 
 
 function NPC:Init2Ticks()
-    -- Weapon proficiency
-    self:SetCurrentWeaponProficiency(self.WeaponProficiency)
-
-
-    -- Some calls based on attributes
-    self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+    -- Blood color (again?)
     self:SetBloodColor(self.BloodColor)
 
 
@@ -518,6 +515,10 @@ function NPC:DoSlowThink()
         self:SetSquad("")
     end
 
+    if self:GetCurrentWeaponProficiency() != self.WeaponProficiency then
+        self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+        debugoverlay.Text(self:GetPos(), "ZBASE NPC's weapon proficiency set to its 'self.WeaponProficiency'")
+    end
 
     self:AITick_Slow()
 
