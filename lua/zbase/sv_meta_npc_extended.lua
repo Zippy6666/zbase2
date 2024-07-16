@@ -39,6 +39,7 @@ function NPC:ZBaseSetMutualRel( ent, relToEnt )
     if !IsValid(ent) then return end
     if ent.ANPlusData then return end -- Don't run on ANP NPCs
     if string.lower( ent:GetClass() ) == "bullseye_strider_focus" then return end
+    if ent.is_fake then return end -- Used by NPC suppression system for example
 
 
     local relToMe = relToEnt
