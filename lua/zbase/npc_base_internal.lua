@@ -1464,7 +1464,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
 
     moreArgs = moreArgs or {}
-
+    playbackRate = playbackRate
 
 
     local extraData = {}
@@ -1563,9 +1563,9 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
         -- Decide duration
         if !duration then
-            duration = (self:SequenceDuration(anim)*0.9)/(playbackRate or self.MoveSpeedMultiplier or 1)
+            duration = (self:SequenceDuration(anim)*0.9)/(playbackRate or 1)
         elseif isnumber(duration) then
-            duration = duration/(playbackRate or self.MoveSpeedMultiplier or 1)
+            duration = duration/(playbackRate or 1)
         end
 
 
@@ -1952,7 +1952,10 @@ end
 
 
 function NPC:DoMoveSpeed()
-    self:SetPlaybackRate(self.MoveSpeedMultiplier)
+    if !self.DoingPlayAnim then
+        self:SetPlaybackRate(self.MoveSpeedMultiplier)
+    end
+    
     self:SetSaveValue("m_flTimeLastMovement", -0.1*self.MoveSpeedMultiplier)
 end
 

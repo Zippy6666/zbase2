@@ -149,7 +149,7 @@ function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
 
     local NPC = ZBaseInternalSpawnNPC( nil, pos, normal or up, class, weapon_class, nil, true )
     if !IsValid(NPC) then
-        ErrorNoHaltWithStack("No such NPC found: '", SpawnMenuTable.Class, "'\n")
+        ErrorNoHaltWithStack("No such NPC found: '", class, "'\n")
     else
         return NPC
     end

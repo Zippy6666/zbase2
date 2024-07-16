@@ -4,6 +4,9 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 NPC.StartHealth = 80 -- Max health
 
 
+NPC.MoveSpeedMultiplier = 1.33 -- Multiply the NPC's movement speed by this amount (ground NPCs)
+
+
 -- Default engine blood color, set to DONT_BLEED if you want to use custom blood instead
 NPC.BloodColor = DONT_BLEED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER

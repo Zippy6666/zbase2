@@ -30,8 +30,6 @@ NPC.FollowPlayerSounds = "ZBaseVortigaunt.Follow" -- Sounds emitted when the NPC
 NPC.UnfollowPlayerSounds = "ZBaseVortigaunt.Unfollow" -- Sounds emitted when the NPC stops following a player
 
 
---]]==============================================================================================]]
-    -- Called when the NPC is created --
 function NPC:CustomInitialize()
+    self:Fire("EnableArmorRecharge")
 end
---]]==============================================================================================]]
