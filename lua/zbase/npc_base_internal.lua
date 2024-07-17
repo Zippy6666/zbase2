@@ -236,11 +236,8 @@ function NPC:InitCap()
     -- https://wiki.facepunch.com/gmod/Enums/CAP
 
 
-    -- Basics
-    self:CapabilitiesAdd(CAP_SKIP_NAV_GROUND_CHECK)
-    self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
+    -- Squad
     self:CapabilitiesAdd(CAP_SQUAD)
-    self:CapabilitiesAdd(CAP_FRIENDLY_DMG_IMMUNE)
 
 
     -- Weapon
@@ -248,6 +245,7 @@ function NPC:InitCap()
         self:CapabilitiesAdd(CAP_USE_WEAPONS)
         self:CapabilitiesAdd(CAP_DUCK)
         self:CapabilitiesAdd(CAP_MOVE_SHOOT)
+        self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
     end
 
 
@@ -306,11 +304,13 @@ function NPC:InitCap()
     end
 
 
+
     -- Movement
-	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
+	if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then
 		self:SetNavType(NAV_FLY)
-    else
+    elseif self:GetMoveType()==MOVETYPE_STEP then
         self:CapabilitiesAdd(CAP_MOVE_GROUND)
+        self:CapabilitiesAdd(CAP_SKIP_NAV_GROUND_CHECK)
 	end
 
 
