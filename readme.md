@@ -25,6 +25,6 @@
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
 
 ### TODO
-- [ ] Fix dialogue
+- [x] Fix dialogue
 - [ ] Finish new NPCs
 - [ ] Update workshop with new screenshots + addon recommendations

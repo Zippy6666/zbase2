@@ -624,7 +624,6 @@ function NPC:Controller_KeyPress(ply, key)
     -- Reload ZBase weapon (ZBase weapon only for now)
     -- local wep = self:GetActiveWeapon()
     -- if key==IN_RELOAD && IsValid(wep) && wep.IsZBaseWeapon && !self:IsCurrentSchedule(SCHED_RELOAD) && self.ZBWepSys_PrimaryAmmo < wep.Primary.DefaultClip then
-    --     print("test")
     --     self:SetSchedule(SCHED_RELOAD)
     -- end
 
@@ -3086,8 +3085,7 @@ function NPCB.Dialogue:Run( self )
             if IsValid(ally) then
 
                 -- Recipient answers me
-                ally:EmitSound_Uninterupted(ally.Dialogue_Answer_Sounds)
-
+                ally:EmitSound(ally.Dialogue_Answer_Sounds)
 
                 conv.overlay("Text", function()
                     local pos = ally:WorldSpaceCenter()

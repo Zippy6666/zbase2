@@ -89,11 +89,6 @@ function ENT:EmitSound( snd, ... )
     if !IsValid(self) then return end
 
 
-    if IsZBaseNPC && self.CancelConversation then
-        self:CancelConversation()
-    end
-
-
 	ZBase_EmitSoundCall = true
 	local v = emitSound(self, snd, ...)
 	ZBase_EmitSoundCall = false
