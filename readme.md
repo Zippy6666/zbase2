@@ -27,4 +27,5 @@
 ### TODO
 - [x] Fix dialogue
 - [ ] Finish new NPCs
+- [ ] Glow lib on elite police and resistance hunter
 - [ ] Update workshop with new screenshots + addon recommendations

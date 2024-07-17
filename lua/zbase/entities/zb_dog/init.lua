@@ -21,7 +21,7 @@ NPC.CollisionBounds = {min=Vector(-40, -40, 0), max=Vector(40, 40, 80)} -- Examp
 NPC.BaseMeleeAttack = true -- Use ZBase melee attack system
 NPC.MeleeAttackFaceEnemy = false -- Should it face enemy while doing the melee attack?
 NPC.MeleeAttackTurnSpeed = 15 -- Speed that it turns while trying to face the enemy when melee attacking
-NPC.MeleeAttackDistance = 200 -- Distance that it initiates the melee attack from
+NPC.MeleeAttackDistance = 300 -- Distance that it initiates the melee attack from
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever you want
 
@@ -31,13 +31,13 @@ NPC.MeleeAttackAnimationSpeed = 2 -- Speed multiplier for the melee attack anima
 
 
 NPC.MeleeDamage = {50, 50} -- Melee damage {min, max}
-NPC.MeleeDamage_Distance = 500 -- Damage reach distance
+NPC.MeleeDamage_Distance = 400 -- Damage reach distance
 NPC.MeleeDamage_Angle = 360 -- Damage angle (180 = everything in front of the NPC is damaged)
-NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead for example)
-NPC.MeleeDamage_Type = DMG_CLUB -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
-NPC.MeleeDamage_Sound = "ZBase.Melee2" -- Sound when the melee attack hits an enemy
-NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
-NPC.MeleeDamage_AffectProps = false -- Affect props and other entites
+NPC.MeleeDamage_Delay = 0.75 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead for example)
+NPC.MeleeDamage_Type = DMG_BLAST -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
+NPC.MeleeDamage_Sound = "" -- Sound when the melee attack hits an enemy
+NPC.MeleeDamage_Sound_Prop = "" -- Sound when the melee attack hits props
+NPC.MeleeDamage_AffectProps = true -- Affect props and other entites
 
 NPC.FootStepSounds = "NPC_dog.RunFootstepLeft"
 
@@ -47,4 +47,17 @@ function NPC:CustomNewSchedDetected( sched, oldSched )
     if self:SeeEne() && sched == SCHED_TAKE_COVER_FROM_ENEMY then
         self:SetSchedule(SCHED_CHASE_ENEMY)
     end
+end
+
+    -- Force to apply to entities affected by the melee attack damage, relative to the NPC
+function NPC:MeleeDamageForce( dmgData )
+    return {forward=300, up=300, right=0, randomness=200}
+end
+
+
+local ringCol = Color(25, 25, 25)
+function NPC:OnMeleeAttackDamage( hitEnts )
+    self:EmitSound("physics/concrete/boulder_impact_hard3.wav", 140, math.random(80, 90), 1, CHAN_AUTO)
+    util.ScreenShake(self:GetPos(), 12, 200, 1, 750, true)
+    effects.BeamRingPoint( self:GetPos(), 0.25, 0, 800, 70, 0, ringCol, {material="sprites/smoke"} )
 end
