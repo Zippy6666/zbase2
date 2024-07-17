@@ -9,6 +9,6 @@ NPC.Class = "npc_magnusson"
 
 
 NPC.Name = "Dr. Arne Magnusson" -- Name of your NPC
-NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
+NPC.Category = false -- Category in the ZBase tab
 NPC.Weapons = {"weapon_ar2"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_kleiner" -- Inherit features from any existing zbase npc

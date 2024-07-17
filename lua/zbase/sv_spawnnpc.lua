@@ -326,8 +326,10 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 	if ( !NPCClassName ) then return end
 
 	-- Give the gamemode an opportunity to deny spawning
+	ZBase_PlayerSpawnNPCHookCall = true
 	if ( !gamemode.Call( "PlayerSpawnNPC", ply, NPCClassName, WeaponName ) ) then return end
-
+	ZBase_PlayerSpawnNPCHookCall = nil
+	
 	if ( !tr ) then
 
 		local vStart = ply:GetShootPos()
