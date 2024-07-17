@@ -2673,23 +2673,29 @@ NPCB.Grenade = {
 
 
 function NPCB.Grenade:ShouldDoBehaviour( self )
+
     local lastSeenPos = self:GetEnemyLastSeenPos()
-    return self.BaseGrenadeAttack
-    && (self.GrenCount == -1 or self.GrenCount > 0)
-    && !table.IsEmpty(self.GrenadeAttackAnimations)
-    && !lastSeenPos:IsZero()
-    && self:ZBaseDist(lastSeenPos, {away=400, within=1500})
-    && !self.DoingPlayAnim
+
+    return self.BaseGrenadeAttack && !self.DoingPlayAnim && (self.GrenCount == -1 or self.GrenCount > 0) && !table.IsEmpty(self.GrenadeAttackAnimations)
+    && self:GetNPCState()==NPC_STATE_COMBAT && !lastSeenPos:IsZero() && self:ZBaseDist(lastSeenPos, {away=400, within=1500}) && self:VisibleVec(lastSeenPos)
+
 end
 
 
 function NPCB.Grenade:Delay( self )
+
     local should_throw_visible = self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Visible)==1
     local should_throw_occluded = !self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Occluded)==1
 
     if !should_throw_visible && !should_throw_occluded then
         return ZBaseRndTblRange(self.GrenadeCoolDown)
     end
+
+    local lastSeenPos = self:GetEnemyLastSeenPos()
+    if !self:IsFacing(lastSeenPos, 45) then
+        return ZBaseRndTblRange(self.GrenadeCoolDown)*0.5
+    end
+
 end
 
 
