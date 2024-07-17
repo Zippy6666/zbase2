@@ -138,6 +138,22 @@ function NPC:InitNextTick()
 end
 
 
+local dontClearCap = {
+    npc_strider = true,
+    npc_cscanner = true,
+    npc_clawscanner = true,
+    npc_helicopter = true,
+    npc_combinegunship = true,
+    npc_turret_ceiling = true,
+    npc_manhack = true,
+    npc_combine_camera = true,
+    npc_barnacle = true,
+    npc_crow = true,
+    npc_pigeon = true,
+    npc_seagull = true,
+    npc_rollermine = true,
+    npc_antlion_grub = true,
+}
 function NPC:Init2Ticks()
     -- Blood color (again?)
     self:SetBloodColor(self.BloodColor)
@@ -153,7 +169,10 @@ function NPC:Init2Ticks()
     self:Fire("physdamagescale", self.PhysDamageScale)
 
 
-    self:CapabilitiesClear()
+    if !dontClearCap[self:GetClass()] then
+        self:CapabilitiesClear()
+    end
+
     self:InitCap()
 
 
@@ -220,11 +239,16 @@ function NPC:InitCap()
     -- Basics
     self:CapabilitiesAdd(CAP_SKIP_NAV_GROUND_CHECK)
     self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
-    self:CapabilitiesAdd(CAP_DUCK)
-    self:CapabilitiesAdd(CAP_MOVE_SHOOT)
     self:CapabilitiesAdd(CAP_SQUAD)
-    self:CapabilitiesAdd(CAP_USE_WEAPONS)
     self:CapabilitiesAdd(CAP_FRIENDLY_DMG_IMMUNE)
+
+
+    -- Weapon
+    if istable(self.Weapons) && #self.Weapons >= 1 then
+        self:CapabilitiesAdd(CAP_USE_WEAPONS)
+        self:CapabilitiesAdd(CAP_DUCK)
+        self:CapabilitiesAdd(CAP_MOVE_SHOOT)
+    end
 
 
     -- Door/button stuff
@@ -258,7 +282,7 @@ function NPC:InitCap()
 
 
     -- Range1
-    if self:SelectWeightedSequence(ACT_RANGE_ATTACK1) != -1 && self:GetClass() != "npc_antlion" then
+    if self:SelectWeightedSequence(ACT_RANGE_ATTACK1) != -1 then
         self:CapabilitiesAdd(CAP_INNATE_RANGE_ATTACK1)
     end
 

@@ -30,11 +30,11 @@ NPC.FootStepSounds = "NPC_Antlion.Footstep"
 NPC.RagdollUseAltPositioning = true -- Try setting this to true if the ragdoll positioning is buggy
 
 
---]]==============================================================================================]]
-function NPC:CustomInitialize()
-
+function NPC:OnInitCap()
+    self:CapabilitiesRemove(CAP_INNATE_RANGE_ATTACK1)
 end
---]]==============================================================================================]]
+
+
 function NPC:ShouldGib( dmginfo, hit_gr )
     if dmginfo:GetDamage() < 40 then return end
 
@@ -59,4 +59,4 @@ function NPC:ShouldGib( dmginfo, hit_gr )
 
     return true
 end
---]]==============================================================================================]]
+

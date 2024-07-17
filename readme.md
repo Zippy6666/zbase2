@@ -26,3 +26,5 @@
 
 ### TODO
 - [ ] Fix dialogue
+- [ ] Finish new NPCs
+- [ ] Update workshop with new screenshots + addon recommendations
