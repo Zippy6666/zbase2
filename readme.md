@@ -8,7 +8,7 @@
 
 # Create a ZBase addon:
 ### Templates:
-- ZBase Dummy Addon: https://github.com/Zippy6666/zbase-dummy. Put that in your addon's folder, and go wild. It works similiarly to any other SNPC/NPC/NextBot base. NPCs are stored in "lua/zbase/entities".
+- ZBase Dummy Addon: https://github.com/Zippy6666/zbase2/tree/dummy. Put that in your addon's folder, and go wild. It works similiarly to any other SNPC/NPC/NextBot base. NPCs are stored in "lua/zbase/entities".
 
 ### Base variables and functions:
 - Init: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base_init.lua
