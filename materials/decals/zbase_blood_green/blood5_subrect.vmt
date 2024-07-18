@@ -1,8 +1,0 @@
-"Subrect"
-{
-	"$Material"	"decals/zbase_blood_green/blood5"
-	"$Pos"		"0 0"
-	"$Size"		"512 512"
-	"$decalscale" 	0.20
-	"$modelmaterial" "decals/zbase_blood_green/Blood5"
-}
