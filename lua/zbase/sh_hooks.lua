@@ -54,7 +54,7 @@ if SERVER then
             -- Uses the "copy system"
             local zbaseClass = ent:GetKeyValues().parentname
             if ZBaseNPCs[zbaseClass] && !ent.IsDupeSpawnedZBaseNPC then
-                ZBaseNPCCopy( ent, zbaseClass )
+                ZBaseNPCCopy( ent, zbaseClass, true )
             end
 
 
