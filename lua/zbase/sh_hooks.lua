@@ -583,23 +583,19 @@ hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
 
 end)
 
-local function findnearestally(self) 
-local allies = {}
 
-    for _, v in ipairs(ents.FindInSphere(self:GetPos(), 600)) do
-        if v == self then continue end
-        if !v:IsNPC() && !v:IsPlayer() then continue end
-
-        if v != self && v.ZBaseFaction != "none" && v.ZBaseFaction == self.ZBaseFaction then
-            table.insert(allies, v)
-        end
-    end
-
-local mindist
+-- Find nearest zbase ally to player
+local function FindNearestZBaseAllyToPly( ply ) 
+    local mindist
     local ally
-if #allies < 1 then return end
-    for _, v in ipairs(allies) do
-        local dist = self:GetPos():DistToSqr(v:GetPos())
+
+    for _, v in ipairs(ents.FindInSphere(ply:GetPos(), 600)) do
+        if !v.IsZBaseNPC then continue end
+        if v.ZBaseFaction == "none" then continue end
+        if v.ZBaseFaction != ply.ZBaseFaction then continue end
+
+        local dist = ply:GetPos():DistToSqr(v:GetPos())
+
         if !mindist or dist < mindist then
             mindist = dist
             ally = v
@@ -607,41 +603,48 @@ if #allies < 1 then return end
     end
 
     return ally
-	end
+end
 
-hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
 
- -- Make allied NPCs react
-   local ally = findnearestally(ply)
+hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
+
+    if table.IsEmpty(ZBaseNPCInstances) then return end -- No ZBase NPCs, don't do any ZBase stuff on player death
+
+
+    local ally = FindNearestZBaseAllyToPly(ply) -- Find nearest zbase ally to player
     local deathpos = ply:GetPos()
 
-    if IsValid(ally) && ally:Visible(ply) then if isfunction(ally.OnAllyDeath) then ally:OnAllyDeath(ply) end
-if	ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
 
-        timer.Simple(0.5, function()
-
-            if IsValid(ally) then
-                ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
-
-                if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
-                    ally:FullReset()
-                    ally:Face(deathpos, ally.InternalCurrentSoundDuration)
+    
+    if IsValid(ally) && ally:Visible(ply) then
+        if isfunction(ally.OnAllyDeath) then
+            ally:OnAllyDeath(ply)
+        end
+    
+        if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+            timer.Simple(0.5, function()
+                if IsValid(ally) then
+                    ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
+    
+                    if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
+                        ally:FullReset()
+                        ally:Face(deathpos, ally.InternalCurrentSoundDuration)
+                    end
                 end
+            end)
+        end
+    end
 
-            end
-
-        end)
-end end
-		
-    -- Call on killed ent
+    -- ZBase NPC killed player
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:OnKilledEnt( ply )
     end
 
-    -- Mark enemy as dead
+    -- Mark this player as dead for all ZBase NPCs
     for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
         zbaseNPC:MarkEnemyAsDead(ply, 2)
     end
+
 end)
 
 

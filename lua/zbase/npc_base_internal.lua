@@ -3624,27 +3624,28 @@ end
 
 
 function NPC:Death_AlliesReact()
-
     local ally = self:GetNearestAlly(600)
     local deathpos = self:GetPos()
 
-    if IsValid(ally) && ally:Visible(self) then if isfunction(ally.OnAllyDeath) then ally:OnAllyDeath(self) end
-if	ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+    if IsValid(ally) && ally:Visible(self) then
+        if isfunction(ally.OnAllyDeath) then
+            ally:OnAllyDeath(self)
+        end
 
-        timer.Simple(0.5, function()
+        if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+            timer.Simple(0.5, function()
+                if IsValid(ally) then
+                    ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
 
-            if IsValid(ally) then
-                ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
-
-                if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
-                    ally:FullReset()
-                    ally:Face(deathpos, ally.InternalCurrentSoundDuration)
+                    if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
+                        ally:FullReset()
+                        ally:Face(deathpos, ally.InternalCurrentSoundDuration)
+                    end
                 end
-
-            end
-
-        end)
-end end end
+            end)
+        end
+    end
+end
 
 
 function NPC:Death_ItemDrop(dmg)
