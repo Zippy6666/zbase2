@@ -583,10 +583,56 @@ hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
 
 end)
 
+local function findnearestally(self) 
+local allies = {}
 
+    for _, v in ipairs(ents.FindInSphere(self:GetPos(), 600)) do
+        if v == self then continue end
+        if !v:IsNPC() && !v:IsPlayer() then continue end
+
+        if v != self && v.ZBaseFaction != "none" && v.ZBaseFaction == self.ZBaseFaction then
+            table.insert(allies, v)
+        end
+    end
+
+local mindist
+    local ally
+if #allies < 1 then return end
+    for _, v in ipairs(allies) do
+        local dist = self:GetPos():DistToSqr(v:GetPos())
+        if !mindist or dist < mindist then
+            mindist = dist
+            ally = v
+        end
+    end
+
+    return ally
+	end
 
 hook.Add("PlayerDeath", "ZBASE", function( ply, _, attacker )
 
+ -- Make allied NPCs react
+   local ally = findnearestally(ply)
+    local deathpos = ply:GetPos()
+
+    if IsValid(ally) && ally:Visible(ply) then if isfunction(ally.OnAllyDeath) then ally:OnAllyDeath(ply) end
+if	ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+
+        timer.Simple(0.5, function()
+
+            if IsValid(ally) then
+                ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
+
+                if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
+                    ally:FullReset()
+                    ally:Face(deathpos, ally.InternalCurrentSoundDuration)
+                end
+
+            end
+
+        end)
+end end
+		
     -- Call on killed ent
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:OnKilledEnt( ply )
