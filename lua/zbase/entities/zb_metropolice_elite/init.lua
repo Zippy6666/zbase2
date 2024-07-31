@@ -79,3 +79,7 @@ function NPC:CustomNewActivityDetected( act )
     end
 end
 
+
+function NPC:ShouldGlowEyes()
+    return true
+end
