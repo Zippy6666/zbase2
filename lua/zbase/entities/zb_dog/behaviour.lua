@@ -16,10 +16,10 @@ function BEHAVIOUR.D0GLeap:ShouldDoBehaviour( self )
     local npcState = self:GetNPCState()
     local goal = self:GetGoalPos()
 
-    if npcState != NPC_STATE_COMBAT && npcState != NPC_STATE_ALERT then return false end
+    if npcState != NPC_STATE_COMBAT then return false end
 
     if goal:IsZero() then return false end
-    if self:ZBaseDist(goal, {away=1000, within=400}) then return false end
+    if !self:ZBaseDist(goal, {away=300, within=1200}) then return false end
 
 
     return true
@@ -52,12 +52,16 @@ function BEHAVIOUR.D0GLeap:Run( self )
     self:CallOnRemove("RemoveFromD0GsDoingLeap", function() D0GsDoingLeap[self] = nil end)
 
 
+    local jumpAssumedFinished = 2.2
     local jumpPos = self:GetGoalPos()
     debugoverlay.Cross(jumpPos, 25, 1)
     self:MoveJumpStart( (jumpPos-self:GetPos())*0.5+upVec )
-    self:PlayAnimation("klab_exit", true, {speedMult=0.75, duration=1.8})
+    self:PlayAnimation("klab_exit", true, {speedMult=0.75, duration=jumpAssumedFinished})
+    self:EmitSound("NPC_dog.Angry_3")
 
-    self:CONV_TimerSimple(2, function()
+    self:CONV_TimerSimple(jumpAssumedFinished, function()
+        self:StopCurrentAnimation()
+        self:PlayAnimation("roll", true, {speedMult=2})
         self:MeleeAttackDamage()
         D0GsDoingLeap[self] = nil
     end)

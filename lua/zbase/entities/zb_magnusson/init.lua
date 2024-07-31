@@ -15,6 +15,9 @@ NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the gren
 NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin units or something idfk
 
 
+NPC.CanSecondaryAttack = false -- Can use weapon secondary attacks
+
+
 -- Sounds (Use sound scripts to alter pitch and level and such!)
 NPC.AlertSounds = "ZBaseMagnusson.Alert" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
