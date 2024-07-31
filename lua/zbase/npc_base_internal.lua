@@ -3880,9 +3880,6 @@ end
 --]]
 
 
-ZBaseGibs = {}
-
-
 function NPC:InternalCreateGib( model, data )
     data = data or {}
 

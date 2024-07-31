@@ -264,6 +264,7 @@ if SERVER then
     ZBaseNPCInstances_NonScripted = ZBaseNPCInstances_NonScripted or {}
     ZBaseBehaviourTimerFuncs = ZBaseBehaviourTimerFuncs or {}
     ZBaseRelationshipEnts = ZBaseRelationshipEnts or {}
+    ZBaseGibs = ZBaseGibs or {}
     ZBasePatchTable = {}
 end
 
