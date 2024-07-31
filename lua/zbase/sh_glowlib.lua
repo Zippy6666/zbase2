@@ -10,6 +10,32 @@ GlowLib:Define("models/zippy/elitepolice.mdl", {
 })
 
 
+GlowLib:Define("models/zippy/mortarsynth.mdl", {
+    Position = function(self, ent)
+        local attachmentData = ent:GetAttachment(ent:LookupAttachment("tentacle"))
+        return attachmentData.Pos-attachmentData.Ang:Forward()*-45-attachmentData.Ang:Right()*7
+    end,
+    Size = 0.6,
+    Attachment = "tentacle",
+    Color = {
+        [0] = Color(0, 75, 255),
+    },
+})
+
+
+GlowLib:Define("models/zippy/synth.mdl", {
+    Position = function(self, ent)
+        local attachmentData = ent:GetAttachment(ent:LookupAttachment("vent"))
+        return attachmentData.Pos-attachmentData.Ang:Forward()*-35-attachmentData.Ang:Right()*0
+    end,
+    Size = 1.2,
+    Attachment = "vent",
+    Color = {
+        [0] = Color(0, 75, 255),
+    },
+})
+
+
 GlowLib:Define("models/zippy/resistancehunter.mdl", {
     Position = function(self, ent)
         local attachmentData = ent:GetAttachment(ent:LookupAttachment("top_eye"))
