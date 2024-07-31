@@ -25,6 +25,5 @@
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
 
 ### TODO
-- [x] Fix dialogue
-- [ ] Glow lib on elite police and resistance hunter
-- [ ] Update workshop with new screenshots + addon recommendations
+- [ ] Glow lib support
+- [ ] New NPCs + NPC upgrades
