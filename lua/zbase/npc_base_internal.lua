@@ -621,11 +621,6 @@ end
 
 function NPC:Controller_KeyPress(ply, key)
 
-    -- Reload ZBase weapon (ZBase weapon only for now)
-    -- local wep = self:GetActiveWeapon()
-    -- if key==IN_RELOAD && IsValid(wep) && wep.IsZBaseWeapon && !self:IsCurrentSchedule(SCHED_RELOAD) && self.ZBWepSys_PrimaryAmmo < wep.Primary.DefaultClip then
-    --     self:SetSchedule(SCHED_RELOAD)
-    -- end
 
 end
 
@@ -766,6 +761,12 @@ function NPC:ZBWepSys_Reload()
     local wep = self:GetActiveWeapon()
 
 
+    -- Reload announce sound
+    if math.random(1, self.OnReloadSound_Chance) == 1 then
+        self:EmitSound_Uninterupted(self.OnReloadSounds)
+    end
+
+
     -- Weapon reload sound
     if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
         wep:EmitSound(wep.NPCReloadSound)
@@ -786,7 +787,7 @@ function NPC:ZBWepSys_Reload()
             self.ZBWepSys_PrimaryAmmo = self:GetActiveWeapon().Primary.DefaultClip
 
             self:ClearCondition(COND.LOW_PRIMARY_AMMO)
-            self:ClearCondition(COND.LOW_PRIMARY_AMMO)
+            self:ClearCondition(COND.NO_PRIMARY_AMMO)
 
         end
 
@@ -1345,10 +1346,6 @@ function NPC:ZBWepSys_Think()
         if IsValid(ene) && maxShootDist && self:GetMaxLookDistance()!=maxShootDist then
 
             self:SetMaxLookDistance(maxShootDist)
-            conv.overlay("Line", function()
-                local center = self:WorldSpaceCenter()
-                return {center, center+self:GetForward()*maxShootDist, 2, Color(255, 196, 0)}
-            end)
 
         elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.SightDistance then
             self:SetMaxLookDistance(self.SightDistance)
@@ -1890,12 +1887,6 @@ function NPC:NewSequenceDetected( seq, seqName )
 
     if self:GetActiveWeapon().IsZBaseWeapon && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil then
 
-        -- Reload announce sound
-        if math.random(1, self.OnReloadSound_Chance) == 1 then
-            self:EmitSound_Uninterupted(self.OnReloadSounds)
-        end
-
-
         self:ZBWepSys_Reload()
 
     end
@@ -1906,7 +1897,41 @@ end
 
 
 function NPC:NewSchedDetected( sched, schedName )
+
+    -- Has no reload animation, do workaround
+    local wep = self:GetActiveWeapon()
+    if sched == SCHED_RELOAD && self:SelectWeightedSequence(ACT_RELOAD) == -1 && wep.IsZBaseWeapon then
+        
+        self:ClearSchedule()
+        self:TaskComplete()
+
+        if !self.DoingReloadWorkaround then
+
+            self.DoingReloadWorkaround = true
+
+            self:ClearCondition(COND.LOW_PRIMARY_AMMO)
+            self:ClearCondition(COND.NO_PRIMARY_AMMO)
+
+            -- Weapon reload sound
+            if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
+                wep:EmitSound(wep.NPCReloadSound)
+            end
+
+
+            self:CONV_TimerSimple(1, function()
+                if !IsValid(wep) then return end
+
+                self.ZBWepSys_PrimaryAmmo = wep.Primary.DefaultClip
+
+                self.DoingReloadWorkaround = false
+            end)
+        end
+
+    end
+
+
     self:CustomNewSchedDetected(sched, self.ZBaseLastESched or -1)
+
 end
 
 
@@ -2364,6 +2389,7 @@ end
 function NPCB.SecondaryFire:ShouldDoBehaviour( self )
 
     if !self.CanSecondaryAttack then return false end
+    if self.DoingPlayAnim then return false end
 
 
     local wep = self:GetActiveWeapon()
