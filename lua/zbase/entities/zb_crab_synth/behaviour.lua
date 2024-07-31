@@ -9,7 +9,7 @@ BEHAVIOUR.ChargeAttack = {
 }
 
 
---]]====================================================================================================================]]
+
 
 
 -- Return true to allow the behaviour to run, otherwise return false
@@ -18,7 +18,7 @@ function BEHAVIOUR.ChargeAttack:ShouldDoBehaviour( self )
     return true
 end
 
---]]====================================================================================================================]]
+
 
 
 -- Called before running the behaviour
@@ -31,7 +31,7 @@ function BEHAVIOUR.ChargeAttack:Delay( self )
     end
 end
 
---]]====================================================================================================================]]
+
 
 
 -- Called continiously as long as it should do the behaviour 
@@ -43,4 +43,3 @@ function BEHAVIOUR.ChargeAttack:Run( self )
     ZBaseDelayBehaviour(math.Rand(18, 22))
 end
 
---]]====================================================================================================================]]

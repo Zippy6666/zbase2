@@ -1,6 +1,6 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-NPC.StartHealth = 2000 -- Max health
+NPC.StartHealth = 1500 -- Max health
 
 -- ZBase faction
 -- Can be any string, all ZBase NPCs with the same faction will be allied
@@ -27,13 +27,13 @@ NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever 
 
 
 NPC.MeleeAttackAnimations = {"pound"} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
-NPC.MeleeAttackAnimationSpeed = 2 -- Speed multiplier for the melee attack animation
+NPC.MeleeAttackAnimationSpeed = 1.5 -- Speed multiplier for the melee attack animation
 
 
 NPC.MeleeDamage = {50, 50} -- Melee damage {min, max}
 NPC.MeleeDamage_Distance = 400 -- Damage reach distance
 NPC.MeleeDamage_Angle = 360 -- Damage angle (180 = everything in front of the NPC is damaged)
-NPC.MeleeDamage_Delay = 0.75 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead for example)
+NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead for example)
 NPC.MeleeDamage_Type = DMG_BLAST -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.MeleeDamage_Sound = "" -- Sound when the melee attack hits an enemy
 NPC.MeleeDamage_Sound_Prop = "" -- Sound when the melee attack hits props
@@ -42,22 +42,35 @@ NPC.MeleeDamage_AffectProps = true -- Affect props and other entites
 NPC.FootStepSounds = "NPC_dog.RunFootstepLeft"
 
 
+
     -- Called when the base detects that the NPC is playing a new schedule
 function NPC:CustomNewSchedDetected( sched, oldSched )
-    if self:SeeEne() && sched == SCHED_TAKE_COVER_FROM_ENEMY then
+    if self:SeeEne() && sched != SCHED_CHASE_ENEMY then
         self:SetSchedule(SCHED_CHASE_ENEMY)
     end
 end
 
     -- Force to apply to entities affected by the melee attack damage, relative to the NPC
 function NPC:MeleeDamageForce( dmgData )
-    return {forward=300, up=300, right=0, randomness=200}
+    return {forward=400, up=100, right=0, randomness=200}
+end
+
+local ringCol = Color(25, 25, 25)
+function NPC:D0G_Pound()
+    self:EmitSound("physics/concrete/boulder_impact_hard3.wav", 140, math.random(80, 90), 1, CHAN_AUTO)
+
+    local ef = EffectData()
+    ef:SetOrigin(self:GetPos())
+    ef:SetEntity(self)
+    ef:SetScale(100)
+    util.Effect("ThumperDust", ef, true, true)
+    util.ScreenShake(self:GetPos(), 12, 200, 1, 750, true)
+
+    effects.BeamRingPoint( self:GetPos(), 0.25, 0, 800, 70, 0, ringCol, {material="sprites/smoke"} )
 end
 
 
-local ringCol = Color(25, 25, 25)
+
 function NPC:OnMeleeAttackDamage( hitEnts )
-    self:EmitSound("physics/concrete/boulder_impact_hard3.wav", 140, math.random(80, 90), 1, CHAN_AUTO)
-    util.ScreenShake(self:GetPos(), 12, 200, 1, 750, true)
-    effects.BeamRingPoint( self:GetPos(), 0.25, 0, 800, 70, 0, ringCol, {material="sprites/smoke"} )
+    self:D0G_Pound()
 end
