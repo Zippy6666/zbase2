@@ -31,5 +31,21 @@ NPC.UnfollowPlayerSounds = "ZBaseVortigaunt.Unfollow" -- Sounds emitted when the
 
 
 function NPC:CustomInitialize()
-    self:Fire("EnableArmorRecharge")
+    self.CanHeal = false
+end
+
+
+function NPC:CustomThink()
+    local ene = self:GetEnemy()
+    local eneIsPly = IsValid(ene) && ene:IsPlayer()
+
+    if eneIsPly && self.CanHeal then
+        self:Fire("DisableArmorRecharge")
+        self.CanHeal = false
+    elseif !eneIsPly && !self.CanHeal then
+        self:Fire("EnableArmorRecharge")
+        self.CanHeal = true
+    end
+
+
 end
