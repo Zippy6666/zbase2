@@ -5,6 +5,8 @@ NPC.StartHealth = 320
 
 
 NPC.BloodColor = DONT_BLEED
+NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
+NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 
 NPC.CollisionBounds = {min=Vector(-65, -65, 0), max=Vector(65, 65, 80)}
@@ -34,21 +36,19 @@ NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits 
 NPC.HasArmor = {
     [HITGROUP_GENERIC] = true,
 }
-NPC.ArmorPenChance = false -- 1/x Chance that the armor is penetrated, false = never
 NPC.ArmorAlwaysPenDamage = false -- Always penetrate the armor if the damage is more than this, set to false to disable
-NPC.ArmorHitSpark = false -- Do a spark on armor hit
-NPC.ArmorReflectsBullets = false -- Should the armor reflect bullets?
+
 
 -- Scale damage against certain damage types:
 -- https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.DamageScaling = {
-    [DMG_GENERIC] = 0,
-    [DMG_NEVERGIB] = 0,
-    [DMG_SLASH] = 0,
-    [DMG_BURN] = 0,
-    [DMG_CLUB] = 0,
+    [DMG_GENERIC] = 0.01,
+    [DMG_NEVERGIB] = 0.01,
+    [DMG_SLASH] = 0.01,
+    [DMG_BURN] = 0.01,
+    [DMG_CLUB] = 0.01,
 }
-NPC.PhysDamageScale = 0 -- Damage scale from props
+NPC.PhysDamageScale = 0.01 -- Damage scale from props
 
 
 NPC.SquadGiveSpace = 256
