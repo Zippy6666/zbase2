@@ -539,9 +539,18 @@ function NPC:DoSlowThink()
         self:SetSquad("")
     end
 
+
+    -- Config weapon proficiency
     if self:GetCurrentWeaponProficiency() != self.WeaponProficiency then
         self:SetCurrentWeaponProficiency(self.WeaponProficiency)
         debugoverlay.Text(self:GetPos(), "ZBASE NPC's weapon proficiency set to its 'self.WeaponProficiency'")
+    end
+
+
+    -- Switch to SCHED_RELOAD if in SCHED_HIDE_AND_RELOAD and enemy is not visible
+    if self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) && !self.EnemyVisible then
+        self:SetSchedule(SCHED_RELOAD)
+        debugoverlay.Text(self:GetPos(), "Switching to SCHED_RELOAD because enemy occluded")
     end
 
     self:AITick_Slow()
@@ -1775,10 +1784,7 @@ function NPC:AITick_Slow()
     -- Loose enemy
     if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
 
-        conv.overlay("Text", function()
-            local pos = self:GetPos()
-            return {pos, "Marked "..tostring(ene).. " eluded.", 2}
-        end)
+
 
         self:MarkEnemyAsEluded()
 
