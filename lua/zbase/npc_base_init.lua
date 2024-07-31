@@ -711,6 +711,12 @@ function NPC:GrenadeAnimation()
     return self:PlayAnimation(grenadeAnim, true, {noTransitions = true})
 end
 
+
+    -- Called when the grenade entity spawned, allowing you to do stuff with it
+function NPC:OnGrenadeSpawned( grenade )
+end
+
+
 --[[
 ==================================================================================================
                                            WEAPON FUNCTIONS

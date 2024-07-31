@@ -7,12 +7,12 @@ NPC.ItemDrops = {
 NPC.BaseGrenadeAttack = true -- Use ZBase grenade attack system
 NPC.ThrowGrenadeChance_Visible = 2 -- 1/x chance that it throws a grenade when the enemy is visible
 NPC.ThrowGrenadeChance_Occluded = 2 -- 1/x chance that it throws a grenade when the enemy is not visible
-NPC.GrenadeCoolDown = {4, 8} -- {min, max}
+NPC.GrenadeCoolDown = {3, 6} -- {min, max}
 NPC.GrenadeAttackAnimations = {"throw1"} -- Grenade throw animation
 NPC.GrenadeEntityClass = {"weapon_striderbuster"} -- The type of grenade(s) to throw, can be anything. Randomized.
 NPC.GrenadeReleaseTime = 0.85 -- Time until grenade leaves the hand
 NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the grenade on
-NPC.GrenadeMaxSpin = 11-- The amount to spin the grenade measured in spin units or something idfk
+NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin units or something idfk
 
 
 -- Sounds (Use sound scripts to alter pitch and level and such!)
@@ -42,3 +42,25 @@ NPC.Dialogue_Answer_Sounds = "ZBaseMagnusson.Answer" -- Dialogue answers, emitte
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = "ZBaseMagnusson.HearDanger"
+
+
+    -- The velocity to apply to the grenade
+function NPC:GrenadeVelocity()
+    local StartPos = self:GrenadeSpawnPos()
+    local EndPos = self:GetEnemyLastSeenPos()
+
+    local UpAmount = math.Clamp(EndPos.z - StartPos.z, 150, 10000)
+
+    return ( (EndPos - StartPos)+Vector(0, 0, UpAmount) )*1.5
+end
+
+
+    -- Called a tick after an entity owned by this NPC is created
+    -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
+function NPC:OnGrenadeSpawned( grenade )
+
+    grenade:EmitSound("Weapon_StriderBuster.Ping")
+
+end
+
+

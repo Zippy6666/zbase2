@@ -309,6 +309,8 @@ function NPC:ThrowGrenade()
             phys:SetVelocity(self:GrenadeVelocity()+Vector(0, 0, 100))
             phys:SetAngleVelocity(VectorRand()*self.GrenadeMaxSpin)
         end
+
+        self:OnGrenadeSpawned(grenade)
     end)
 end
 
