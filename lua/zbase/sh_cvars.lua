@@ -40,6 +40,7 @@ ZBCVAR.FollowingEnabled = CreateConVar("zbase_followplayers", "1", Flags)
 
 if CLIENT then
     ZBCVAR.GlowingEyes = CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)
+    ZBCVAR.AllCat = CreateConVar("zbase_allcat", "1", FCVAR_ARCHIVE)
 end
 
 

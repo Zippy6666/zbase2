@@ -54,6 +54,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Default Spawn Menu", "zbase_defmenu")
         panel:ControlHelp("Should ZBase NPCs be added to the regular NPC menu too?")
 
+        panel:CheckBox("Show 'ALL' Catagory", "zbase_allcat")
+        panel:ControlHelp("Should there be a 'ALL' catagory in the ZBase tab?")
+
     end)
 
     --[[

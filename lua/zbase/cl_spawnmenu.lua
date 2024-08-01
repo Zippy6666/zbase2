@@ -99,23 +99,25 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 
 
 	-- THE ALL NODE
-	local all_node = tree:AddNode( "[ALL]", GenericIcon ) -- Add a node to the tree
 	local AllPropPanel
-	all_node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
-		-- If we've already populated it - forget it.
-		if ( self.PropPanel ) then return end
+	if ZBCVAR.AllCat:GetBool() then
+		local all_node = tree:AddNode( "[ALL]", GenericIcon ) -- Add a node to the tree
+		all_node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
+			-- If we've already populated it - forget it.
+			if ( self.PropPanel ) then return end
 
-		self.PropPanel = vgui.Create( "ContentContainer", pnlContent )
-		self.PropPanel:SetVisible( false )
-		self.PropPanel:SetTriggerSpawnlistChange( false )
-		AllPropPanel = self.PropPanel
+			self.PropPanel = vgui.Create( "ContentContainer", pnlContent )
+			self.PropPanel:SetVisible( false )
+			self.PropPanel:SetTriggerSpawnlistChange( false )
+			AllPropPanel = self.PropPanel
+		end
+		-- If we click on the node populate it and switch to it.
+		all_node.DoClick = function( self )
+			self:DoPopulate()
+			pnlContent:SwitchPanel( self.PropPanel )
+		end
+		all_node:InternalDoClick()
 	end
-	-- If we click on the node populate it and switch to it.
-	all_node.DoClick = function( self )
-		self:DoPopulate()
-		pnlContent:SwitchPanel( self.PropPanel )
-	end
-	all_node:InternalDoClick()
 
 	-- Create the categories
 	local npcs = {}
@@ -160,22 +162,25 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 
 
 	-- Populate "All" category with the npcs of this category
-	for name, ent in SortedPairsByMemberValue( npcs, "Name" ) do
-		local mat = ent.IconOverride or GenericIcon
+	if ZBCVAR.AllCat:GetBool() then
 
-		if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
-			mat = "entities/" .. name .. ".png"
+		for name, ent in SortedPairsByMemberValue( npcs, "Name" ) do
+			local mat = ent.IconOverride or GenericIcon
+
+			if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
+				mat = "entities/" .. name .. ".png"
+			end
+
+			local icon = spawnmenu.CreateContentIcon( "zbase_npcs", AllPropPanel, {
+				nicename	= ent.Name or name,
+				spawnname	= name,
+				material	= mat,
+				weapon		= ent.Weapons,
+				admin		= ent.AdminOnly,
+			} )
 		end
-
-		local icon = spawnmenu.CreateContentIcon( "zbase_npcs", AllPropPanel, {
-			nicename	= ent.Name or name,
-			spawnname	= name,
-			material	= mat,
-			weapon		= ent.Weapons,
-			admin		= ent.AdminOnly,
-		} )
-	end
-
+	
+	end 
 end)
 
 
