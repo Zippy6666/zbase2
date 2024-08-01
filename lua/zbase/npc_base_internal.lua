@@ -3972,32 +3972,31 @@ function NPC:InternalCreateGib( model, data )
     end)
 
 
-    -- Phys stuff
+    -- Dissolve if should
     local LastDMGInfo = self:LastDMGINFO()
 	if LastDMGInfo && LastDMGInfo:IsDamageType(DMG_DISSOLVE) && !data.DontDissolve then
-                    local dissolver = ents.Create("env_entity_dissolver")
-                    dissolver:SetPos(Gib:GetPos())
-                    dissolver:Spawn()
-                    dissolver:Activate()
-                    dissolver:SetKeyValue("magnitude",100)
-                    dissolver:SetKeyValue("dissolvetype", math.random(0, 2))
-                    Gib:SetName("z_dissolve_gib")
-                    dissolver:Fire("Dissolve","z_dissolve_gib")
-                    dissolver:Fire("Kill", "", 0.1)
-                end
-	for i = 0, Gib:GetPhysicsObjectCount() - 1 do
-local phys = Gib:GetPhysicsObjectNum(i)
-    if IsValid(phys) then
-
-        phys:Wake()
-
-        if LastDMGInfo then
-            local ForceDir = LastDMGInfo:GetDamageForce()/(math.Clamp(phys:GetMass(), 40, 10000))
-            phys:SetVelocity( (ForceDir) + VectorRand()*(ForceDir:Length()*0.33) )
-        end end
-
+        local dissolver = ents.Create("env_entity_dissolver")
+        dissolver:SetPos(Gib:GetPos())
+        dissolver:Spawn()
+        dissolver:Activate()
+        dissolver:SetKeyValue("magnitude",100)
+        dissolver:SetKeyValue("dissolvetype", math.random(0, 2))
+        Gib:SetName("z_dissolve_gib")
+        dissolver:Fire("Dissolve","z_dissolve_gib")
+        dissolver:Fire("Kill", "", 0.1)
     end
 
+    -- Phys stuff
+	for i = 0, Gib:GetPhysicsObjectCount() - 1 do
+        local phys = Gib:GetPhysicsObjectNum(i)
+        if IsValid(phys) then
+            phys:Wake()
+            if LastDMGInfo then
+                local ForceDir = LastDMGInfo:GetDamageForce()/(math.Clamp(phys:GetMass(), 40, 10000))
+                phys:SetVelocity( (ForceDir) + VectorRand()*(ForceDir:Length()*0.33) )
+            end 
+        end
+    end
 
     return Gib
 end

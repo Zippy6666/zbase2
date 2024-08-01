@@ -25,5 +25,5 @@
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
 
 ### TODO
-- [ ] Glow lib support
-- [ ] New NPCs + NPC upgrades
+- [x] Glow lib support
+- [x] New NPCs + NPC upgrades
