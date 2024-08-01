@@ -1,3 +1,6 @@
+if !GlowLib then return end
+
+
 GlowLib:Define("models/zippy/elitepolice.mdl", {
     Position = function(self, ent)
         local attachmentData = ent:GetAttachment(ent:LookupAttachment("eyes"))

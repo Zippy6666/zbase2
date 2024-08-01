@@ -23,3 +23,5 @@
 
 ### Projectile base
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
+
+- [ ] Fix error with VJ
