@@ -67,6 +67,15 @@ function NPC:ZBaseInit()
     self:AddEFlags(EFL_NO_DISSOLVE)
 
 
+    -- Get names of sound variables
+    self.SoundVarNames = {}
+    for k, v in pairs(ZBaseNPCs[self.NPCName]) do
+        if isstring(v) && #v > 0 && string.EndsWith(k, "Sounds") then
+            self.SoundVarNames[v] = k
+        end
+    end
+
+
     -- Rendermode
     self:SetRenderMode(self.RenderMode)
 
@@ -2908,37 +2917,34 @@ end
 
 
 function NPC:OnEmitSound( data )
-    local altered = false
-    local sndVarName
-
-
-    -- What sound variable was it? if any
-    for _, v in ipairs(self.SoundVarNames) do
-        if self[v] == data.OriginalSoundName then
-            sndVarName = v
-            break
-        end
-    end
-
+    local altered
+    local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
+    local isVoiceSound = data.SoundName == "invalid.wav" or (data.Channel == CHAN_VOICE && data.SoundName != "common/null.wav")
+    
 
     -- Mute default "engine" voice when we should
-    if !ZBase_EmitSoundCall
-    && (self.MuteDefaultVoice or self:NearbyAllySpeaking() or self.IsSpeaking)
-    && (data.SoundName == "invalid.wav" or data.Channel == CHAN_VOICE or self.DoingDeathAnim) then
+    if !ZBase_EmitSoundCall && self.MuteDefaultVoice && isVoiceSound then
         return false
     end
 
 
-    -- Mute default sounds
+    -- Don't emit voice sounds on during these conditions
+    if (self:NearbyAllySpeaking() or self.IsSpeaking or self.DoingDeathAnim) && isVoiceSound then
+        return false
+    end
+
+
+    -- Mute default sounds if we should
     if !ZBase_EmitSoundCall && self.MuteAllDefaultSoundEmittions then
         return false
     end
 
 
-    -- Avoid sound repitition
+    -- Avoid sound repetition
     local sndTbl = sound.GetProperties(data.OriginalSoundName)
 
     if sndTbl && istable(sndTbl.sound) && table.Count(sndTbl.sound) > 1 && ZBase_EmitSoundCall then
+
         if !SoundIndexes[data.OriginalSoundName] then
             self:RestartSoundCycle(sndTbl, data)
         else
@@ -2962,50 +2968,45 @@ function NPC:OnEmitSound( data )
     local value = self:BeforeEmitSound( data, sndVarName )
     if isstring(value) then
 
-        self.TempSoundCvar = sndVarName
-
-
+        -- Emit new sound
         if ZBase_DontSpeakOverThisSound then
             self:EmitSound_Uninterupted(value)
         else
             self:EmitSound(value)
         end
 
-
-        self.TempSoundCvar = nil
+        -- Stop this sound
         return false
 
     elseif value == false then
+
+        -- Prevent sound
         return false
+
     end
 
 
-    -- Garbage variable
-    if sndVarName then
-        self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
-    end
+    -- Internal sound duration
+    self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
 
-
-    -- CustomOnSoundEmitted
-    self:CustomOnSoundEmitted( data, SoundDuration(data.SoundName), sndVarName )
 
 
     -- Determine that if we are speaking
-    if data.Channel == CHAN_VOICE && data.SoundName != "common/null.wav" then
+    if isVoiceSound then
         self.IsSpeaking = true
         self.IsSpeaking_SoundVar = sndVarName
 
-        timer.Create("ZBaseStopSpeaking"..self:EntIndex(), SoundDuration(data.SoundName), 1, function()
-            if IsValid(self) then
-                self.IsSpeaking = false
-            end
+        timer.Create("ZBaseStopSpeaking"..self:EntIndex(), self.InternalCurrentSoundDuration+0.1, 1, function()
+            self.IsSpeaking = false
         end)
     end
 
 
-    if altered then
-        return true
-    end
+    -- Custom on sound emitted
+    self:CustomOnSoundEmitted( data, self.InternalCurrentSoundDuration, sndVarName )
+
+
+    return altered
 end
 
 
