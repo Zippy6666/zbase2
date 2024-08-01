@@ -67,8 +67,8 @@ end
 function ZBaseSetFaction( ent, newFaction )
     ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
 
-    for _, v in ipairs(ZBaseRelationshipEnts) do
-        v:ZBaseUpdateRelationships()
+    for _, v in ipairs(ZBaseNPCInstances) do
+        v:UpdateRelationships()
     end
 end
 
@@ -82,7 +82,7 @@ end
     -- Change how two entities feel about each other
     -- https://wiki.facepunch.com/gmod/Enums/D
 function ZBaseSetRelationship( ent1, ent2, rel )
-    ent1:ZBaseSetMutualRel( ent2, rel )
+    ent1:ZBASE_SetMutualRelationship( ent2, rel )
 end
 
 

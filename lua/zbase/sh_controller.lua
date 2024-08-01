@@ -137,8 +137,8 @@ if SERVER then
 
 
     function ZBCtrlSys:UpdateRelationShips()
-        for _, v in ipairs(ZBaseRelationshipEnts) do
-            v:ZBaseUpdateRelationships()
+        for _, v in ipairs(ZBaseNPCInstances) do
+            v:UpdateRelationships()
         end
     end
 

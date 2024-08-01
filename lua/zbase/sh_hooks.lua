@@ -1,3 +1,5 @@
+local Developer = GetConVar("developer")
+
 --[[
 ======================================================================================================================================================
                                            INIT POST ENTITY
@@ -43,6 +45,34 @@ end)
 --]]
 
 if SERVER then
+
+    local function ShouldUseZBaseRelationshipSys(ent)
+
+        if !ent:IsNPC() then
+            return false
+        end
+
+        local npc = ent
+        local class =  string.lower( npc:GetClass() )
+        
+        if class=="bullseye_strider_focus" or class=="npc_bullseye" then
+            return false
+        end
+
+        if npc.IsVJBaseSNPC then return false end
+        if npc.ANPlusData then return false end
+        if npc.IsZBaseNavigator then return false end
+        if npc.ZBaseNPCCopy_DullState then return false end
+
+        -- Used by NPC suppression system
+        if npc.is_fake then return false end
+
+
+        return true
+        
+    end
+
+
     hook.Add("OnEntityCreated", "ZBASE", function( ent )
         conv.callNextTick(function()
             if !IsValid(ent) then return end
@@ -67,24 +97,37 @@ if SERVER then
                     own:Patch_CreateEnt( ent )
                 end
             end
+        end)
 
+        conv.callAfterTicks(2, function()
 
-            -- Give ZBASE faction
-            if ent:IsNPC() && ent:GetClass() != "npc_bullseye" && !ent.IsZBaseNavigator then
+            if !IsValid(ent) then return end
 
-                -- Register as entity that is affected by the ZBASE relationship system
+            -- Give ZBASE faction and start using
+            local shouldUseRelSys = ShouldUseZBaseRelationshipSys(ent)
+            if shouldUseRelSys then
+
+                if Developer:GetBool() then
+                    MsgN("adding ", ent, " to ZBASE relationship system...")
+                end
+
+                -- Very important!
                 table.InsertEntity(ZBaseRelationshipEnts, ent)
 
                 -- If a ZBASE NPC, apply the supplied start faction, or the override chosen by the player
                 -- If a different NPC, find a fitting ZBASE faction to apply
                 if ent.IsZBaseNPC then
+
                     local PlayerFactionOverride = IsValid(ent.ZBase_PlayerWhoSpawnedMe) && ent.ZBase_PlayerWhoSpawnedMe.ZBaseNPCFactionOverride
                     ZBaseSetFaction(ent, PlayerFactionOverride or nil)
-                else
-                    ZBaseSetFaction(ent, ZBaseFactionTranslation[ent:Classify()])
-                end
 
+                else
+
+                    ZBaseSetFaction(ent, ZBaseFactionTranslation[ent:Classify()])
+
+                end
             end
+        
         end)
     end)
 end
@@ -188,8 +231,8 @@ if SERVER then
         local faction = net.ReadString()
         ply.ZBaseFaction = faction
 
-        for _, v in ipairs(ZBaseRelationshipEnts) do
-            v:ZBaseUpdateRelationships()
+        for _, v in ipairs(ZBaseNPCInstances) do
+            v:UpdateRelationships()
         end
     end)
 
