@@ -60,7 +60,7 @@ if SERVER then
         end
 
         if npc.IsVJBaseSNPC then return false end
-        if npc.ANPlusData then return false end
+        -- if npc.ANPlusData then return false end
         if npc.IsZBaseNavigator then return false end
         if npc.ZBaseNPCCopy_DullState then return false end
 
@@ -123,7 +123,7 @@ if SERVER then
 
                 else
 
-                    ZBaseSetFaction(ent, ZBaseFactionTranslation[ent:Classify()])
+                    ZBaseSetFaction(ent, ZBaseFactionTranslation[ent.m_iClass or ent:Classify()])
 
                 end
             end
