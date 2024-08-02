@@ -550,7 +550,7 @@ if CLIENT then
 
         table.InsertEntity(LocalPlayer().ZBaseFollowHaloEnts, ent)
 
-        chat.AddText(wepCol, ent:GetNWBool("ZBaseName").." started following you.")
+        chat.AddText(wepCol, "NPC started following you.")
         surface.PlaySound( "buttons/button16.wav" )
     end)
 
@@ -562,7 +562,7 @@ if CLIENT then
 
         table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent)
 
-        chat.AddText(wepCol, ent:GetNWBool("ZBaseName").." stopped following you.")
+        chat.AddText(wepCol, "NPC stopped following you.")
         surface.PlaySound( "buttons/button16.wav" )
     end)
 end
