@@ -2195,6 +2195,7 @@ function NPC:StartFollowingPlayer( ply )
 
     net.Start("ZBaseSetFollowHalo")
     net.WriteEntity(self)
+    net.WriteString(self.Name)
     net.Send(self.PlayerToFollow)
 
     -- self:SetTarget(ply)
@@ -2216,6 +2217,7 @@ function NPC:StopFollowingCurrentPlayer( noSound )
 
     net.Start("ZBaseRemoveFollowHalo")
     net.WriteEntity(self)
+    net.WriteString(self.Name)
     net.Send(ply)
 
     self.PlayerToFollow = NULL

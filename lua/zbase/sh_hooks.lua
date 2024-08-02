@@ -545,11 +545,12 @@ if CLIENT then
     net.Receive("ZBaseSetFollowHalo", function()
         local ent = net.ReadEntity()
         local wepCol = LocalPlayer():GetWeaponColor():ToColor()
+        local name = net.ReadString()
         if !IsValid(ent) then return end
 
         table.InsertEntity(LocalPlayer().ZBaseFollowHaloEnts, ent)
 
-        chat.AddText(wepCol, "NPC started following you.")
+        chat.AddText(wepCol, name.." started following you.")
         surface.PlaySound( "buttons/button16.wav" )
     end)
 
@@ -557,11 +558,12 @@ if CLIENT then
     net.Receive("ZBaseRemoveFollowHalo", function()
         local ent = net.ReadEntity()
         local wepCol = LocalPlayer():GetWeaponColor():ToColor()
+        local name = net.ReadString()
         if !IsValid(ent) then return end
 
         table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent)
 
-        chat.AddText(wepCol, "NPC stopped following you.")
+        chat.AddText(wepCol, name.." stopped following you.")
         surface.PlaySound( "buttons/button16.wav" )
     end)
 end
