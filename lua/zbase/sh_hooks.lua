@@ -670,7 +670,7 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
     
                     if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
                         ally:FullReset()
-                        ally:Face(deathpos, ally.InternalCurrentSoundDuration)
+                        ally:Face(deathpos, ally.InternalCurrentVoiceSoundDuration)
                     end
                 end
             end)

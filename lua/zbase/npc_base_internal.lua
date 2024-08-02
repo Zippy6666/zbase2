@@ -42,6 +42,7 @@ function NPC:ZBaseInit()
     self.PlayerToFollow = NULL
     self.GuardSpot = self:GetPos()
     self.InternalCurrentSoundDuration = 0
+    self.InternalCurrentVoiceSoundDuration = 0
 
 
     self:InitModel()
@@ -493,7 +494,7 @@ function NPC:ZBaseThink()
 
 
         -- Foot steps
-        if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND then
+        if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND && !self.HavingConversation then
             self:FootStepTimer()
         end
 
@@ -2911,19 +2912,7 @@ function NPC:RestartSoundCycle( sndTbl, data )
 end
 
 
-local subReachDist = 1000^2
-function NPC:DoSubtitles( sndVarName )
 
-    if sndVarName=="IdleSounds" or sndVarName=="Dialogue_Question_Sounds" or sndVarName=="Dialogue_Answer_Sounds" then
-        local str = "gui.AddCaption( '["..self.Name..": Chatter]', 2 )"
-        for _, ply in player.Iterator() do
-            local plyDist = self:GetPos():DistToSqr(ply:GetPos())
-            if plyDist <= subReachDist then
-                ply:SendLua(str)
-            end
-        end
-    end
-end 
 
 
 function NPC:OnEmitSound( data )
@@ -2931,9 +2920,6 @@ function NPC:OnEmitSound( data )
     local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
     local isVoiceSound = data.SoundName == "invalid.wav" or (data.Channel == CHAN_VOICE && data.SoundName != "common/null.wav")
 
-
-    -- self:DoSubtitles( sndVarName )
-    
 
     -- Mute default "engine" voice when we should
     if !ZBase_EmitSoundCall && self.MuteDefaultVoice && isVoiceSound then
@@ -3006,6 +2992,7 @@ function NPC:OnEmitSound( data )
     if isVoiceSound then
         self.IsSpeaking = true
         self.IsSpeaking_SoundVar = sndVarName
+        self.InternalCurrentVoiceSoundDuration = SoundDuration(data.SoundName)
 
         timer.Create("ZBaseStopSpeaking"..self:EntIndex(), self.InternalCurrentSoundDuration+0.1, 1, function()
             self.IsSpeaking = false
@@ -3201,29 +3188,32 @@ function NPCB.Dialogue:Run( self )
         ally.DialogueMate = self
 
 
+        local sndDurQuestion = self.InternalCurrentVoiceSoundDuration
+
         conv.overlay("Text", function()
             local pos = self:WorldSpaceCenter()
-            return {pos, "*Question*", self.InternalCurrentSoundDuration}
+            return {pos, "*Question*", sndDurQuestion}
         end)
 
 
-        -- ResetTimer
-
-        timer.Create("DialogueAnswerTimer"..ally:EntIndex(), self.InternalCurrentSoundDuration+0.4, 1, function()
+        timer.Create("DialogueAnswerTimer"..ally:EntIndex(), sndDurQuestion+0.4, 1, function()
 
             if IsValid(ally) then
 
                 -- Recipient answers me
                 ally:EmitSound(ally.Dialogue_Answer_Sounds)
 
+                
+                local sndDurAns = ally.InternalCurrentVoiceSoundDuration
+
                 conv.overlay("Text", function()
                     local pos = ally:WorldSpaceCenter()
-                    return {pos, "*Answer*", ally.InternalCurrentSoundDuration}
+                    return {pos, "*Answer*", sndDurAns}
                 end)
 
 
                 -- Reset recipient from dialogue state
-                timer.Simple(ally.InternalCurrentSoundDuration, function()
+                timer.Simple(sndDurAns, function()
                     if !IsValid(ally) then return end
                     ally:CancelConversation()
                 end)
@@ -3231,21 +3221,20 @@ function NPCB.Dialogue:Run( self )
                 -- Not sure if this does anything of value
                 ZBaseDelayBehaviour( ZBaseRndTblRange(ally.IdleSoundCooldown), ally, "Dialogue" )
 
-            end
-
-            if IsValid(self) then
-
+ 
                 -- Reset from dialogue state
-                timer.Simple(ally.InternalCurrentSoundDuration or 0, function()
+                timer.Simple(sndDurAns, function()
                     if !IsValid(self) then return end
+                    print("reset")
                     self:CancelConversation()
                 end)
 
             end
+
         end)
 
 
-        DialogueExtraCoolDown = self.InternalCurrentSoundDuration+0.2
+        DialogueExtraCoolDown = sndDurQuestion+0.2
 
 
     -- Ally is player:
@@ -3762,7 +3751,7 @@ function NPC:Death_AlliesReact()
 
                     if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
                         ally:FullReset()
-                        ally:Face(deathpos, ally.InternalCurrentSoundDuration)
+                        ally:Face(deathpos, ally.InternalCurrentVoiceSoundDuration)
                     end
                 end
             end)
