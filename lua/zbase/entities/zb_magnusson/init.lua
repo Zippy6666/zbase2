@@ -1,5 +1,8 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
+
+NPC.Models = {"models/magnusson.mdl"}
+
 NPC.ItemDrops = {
     ["weapon_striderbuster"] = {chance=2, max=1}
 }

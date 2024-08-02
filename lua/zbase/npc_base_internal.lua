@@ -2911,10 +2911,28 @@ function NPC:RestartSoundCycle( sndTbl, data )
 end
 
 
+local subReachDist = 1000^2
+function NPC:DoSubtitles( sndVarName )
+
+    if sndVarName=="IdleSounds" or sndVarName=="Dialogue_Question_Sounds" or sndVarName=="Dialogue_Answer_Sounds" then
+        local str = "gui.AddCaption( '["..self.Name..": Chatter]', 2 )"
+        for _, ply in player.Iterator() do
+            local plyDist = self:GetPos():DistToSqr(ply:GetPos())
+            if plyDist <= subReachDist then
+                ply:SendLua(str)
+            end
+        end
+    end
+end 
+
+
 function NPC:OnEmitSound( data )
     local altered
     local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
     local isVoiceSound = data.SoundName == "invalid.wav" or (data.Channel == CHAN_VOICE && data.SoundName != "common/null.wav")
+
+
+    -- self:DoSubtitles( sndVarName )
     
 
     -- Mute default "engine" voice when we should
@@ -2959,6 +2977,10 @@ function NPC:OnEmitSound( data )
     -----------------------------------------------=#
 
 
+    -- Internal sound duration
+    self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
+
+
     -- Custom on emit sound, allow the user to replace what sound to play
     local value = self:BeforeEmitSound( data, sndVarName )
     if isstring(value) then
@@ -2981,12 +3003,6 @@ function NPC:OnEmitSound( data )
     end
 
 
-    -- Internal sound duration
-    self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
-
-
-
-    -- Determine that if we are speaking
     if isVoiceSound then
         self.IsSpeaking = true
         self.IsSpeaking_SoundVar = sndVarName

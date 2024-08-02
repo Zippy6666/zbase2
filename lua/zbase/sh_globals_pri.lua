@@ -61,6 +61,9 @@ ZBASE_MENU_REPLACEMENTS = {
     ["zb_vortigaunt"] = "npc_vortigaunt",
     ["zb_human_refugee"] = "Refugee",
     ["zb_odessa"]     = "npc_odessa",
+    ["zb_magnusson"] = "npc_magnusson",
+    ["zb_dog"] = "npc_dog",
+    ["zb_uriah"] = "VortigauntUriah",
 }
 ZBASE_MENU_REPLACEMENTS_FLIPPED = table.Flip( table.Copy(ZBASE_MENU_REPLACEMENTS) )
 

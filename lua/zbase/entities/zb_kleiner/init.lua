@@ -1,5 +1,7 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
+NPC.Models = {"models/kleiner.mdl"}
+
 
 NPC.StartHealth = 100 -- Max health
 
@@ -59,9 +61,6 @@ NPC.Dialogue_Answer_Sounds = "ZBaseKleiner.Answer" -- Dialogue answers, emitted 
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = "ZBaseKleiner.HearDanger"
-
-
-NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
 
 --]]==============================================================================================]]

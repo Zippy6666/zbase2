@@ -90,6 +90,9 @@ end
 
 local ringCol = Color(25, 25, 25)
 function NPC:D0G_Pound()
+    if !self:IsOnGround() then return end
+
+    
     self:EmitSound("physics/concrete/boulder_impact_hard3.wav", 140, math.random(80, 90), 1, CHAN_AUTO)
 
     local ef = EffectData()

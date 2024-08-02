@@ -55,12 +55,11 @@ if SERVER then
         local npc = ent
         local class =  string.lower( npc:GetClass() )
         
-        if class=="bullseye_strider_focus" or class=="npc_bullseye" then
+        if class=="bullseye_strider_focus" or class=="npc_bullseye" or class=="pill_puppet" then
             return false
         end
 
         if npc.IsVJBaseSNPC then return false end
-        -- if npc.ANPlusData then return false end
         if npc.IsZBaseNavigator then return false end
         if npc.ZBaseNPCCopy_DullState then return false end
 
