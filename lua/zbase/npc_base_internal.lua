@@ -23,26 +23,8 @@ end
 
 function NPC:ZBaseInit()
 
-    -- Set model
-    if self.SpawnModel then
-
-        -- Default collision bounds
-        local mins, maxs = self:GetCollisionBounds()
-
-        -- Set model but maintain bounds and give animation
-        self:SetModel(self.SpawnModel)
-        self:SetCollisionBounds(mins, maxs)
-        self:ResetIdealActivity(ACT_IDLE)
-
-    end
-
-
-    -- Set health
-    self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
-    self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
-
-
     -- Vars
+    self:SetNWBool("IsZBaseNPC", true)
     self.NextPainSound = CurTime()
     self.NextAlertSound = CurTime()
     self.NPCNextSlowThink = CurTime()
@@ -60,38 +42,18 @@ function NPC:ZBaseInit()
     self.PlayerToFollow = NULL
     self.GuardSpot = self:GetPos()
     self.InternalCurrentSoundDuration = 0
-    self:InitGrenades()
-    self:SetNWBool("IsZBaseNPC", true)
-    self:SetNWString("ZBaseName", self.Name)
-    self:SetNWString("NPCName", self.NPCName)
+
+
+    self:InitModel()
+    self:InitBounds()
     self:AddEFlags(EFL_NO_DISSOLVE)
 
+    self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
+    self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
 
-    -- Get names of sound variables
-    self.SoundVarNames = {}
-    for k, v in pairs(ZBaseNPCs[self.NPCName]) do
-        if isstring(v) && #v > 0 && string.EndsWith(k, "Sounds") then
-            self.SoundVarNames[v] = k
-        end
-    end
-
-
-    -- Rendermode
-    self:SetRenderMode(self.RenderMode)
-
-
-    -- Forces npcs with "target" keyvalue to walk
-    self:Fire("wake")
-
-
-    -- Submaterials
-    for k, v in pairs(self.SubMaterials) do
-        self:SetSubMaterial(k-1, v)
-    end
-
-
-    -- Collisions and shit
-    self:InitBounds()
+    self:InitGrenades()
+    self:InitSounds()
+    self:ZBWepSys_Init()
 
 
     -- Set specified internal variables
@@ -100,37 +62,28 @@ function NPC:ZBaseInit()
     end
 
 
-    if !self.DontAutoSetSquad then
-        self:SetSquad("zbase") -- Basic squad, will be replaced with faction later
-    end
-
-
-    self:CallNextTick("InitNextTick")
-
-
-    -- On remove
-    local me = self
-    self:CallOnRemove("ZBaseOnRemove"..self:EntIndex(), function()
-        me:InternalOnRemove()
-        me:OnRemove()
-    end)
-
-
-    -- Weapon system
-    self:ZBWepSys_Init()
-
-
-    -- Glowing eyes
-    if self:ShouldGlowEyes() then
-        self:GlowEyeInit()
-    end
-
     -- Makes behaviour system function
     ZBaseBehaviourInit( self )
 
 
-    -- Custom init
+    self:CallOnRemove("ZBaseOnRemove"..self:EntIndex(), function()
+        self:InternalOnRemove()
+        self:OnRemove()
+    end)
+
+
+    if !self.DontAutoSetSquad then
+        self:SetSquad("zbase")
+    end
+
+
+    self:Fire("wake")
+
+
     self:CustomInitialize()
+    self:CallNextTick("InitNextTick")
+
+
 end
 
 
@@ -178,16 +131,58 @@ function NPC:Init2Ticks()
     self:Fire("physdamagescale", self.PhysDamageScale)
 
 
+    -- Capabilities
     if !dontClearCap[self:GetClass()] then
         self:CapabilitiesClear()
     end
-
     self:InitCap()
 
 
     -- Set squad name to faction name
     if !self.DontAutoSetSquad && self.ZBaseFaction != "none" then
         self:SetSquad(self.ZBaseFaction)
+    end
+end
+
+
+function NPC:InitSounds()
+    -- Get names of sound variables
+    self.SoundVarNames = {}
+    for k, v in pairs(ZBaseNPCs[self.NPCName]) do
+        if isstring(v) && #v > 0 && string.EndsWith(k, "Sounds") then
+            self.SoundVarNames[v] = k
+        end
+    end
+
+end
+
+
+function NPC:InitModel()
+    self:SetRenderMode(self.RenderMode)
+
+
+    -- Set sub materials
+    for k, v in pairs(self.SubMaterials) do
+        self:SetSubMaterial(k-1, v)
+    end
+
+    -- Set model
+    if self.SpawnModel then
+
+        -- Default collision bounds
+        local mins, maxs = self:GetCollisionBounds()
+
+        -- Set model but maintain bounds and give animation
+        self:SetModel(self.SpawnModel)
+        self:SetCollisionBounds(mins, maxs)
+        self:ResetIdealActivity(ACT_IDLE)
+
+    end
+
+
+    -- Glowing eyes
+    if self:ShouldGlowEyes() then
+        self:GlowEyeInit()
     end
 end
 
