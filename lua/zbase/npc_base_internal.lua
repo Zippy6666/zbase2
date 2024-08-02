@@ -3203,7 +3203,7 @@ function NPCB.Dialogue:Run( self )
                 -- Recipient answers me
                 ally:EmitSound(ally.Dialogue_Answer_Sounds)
 
-                
+
                 local sndDurAns = ally.InternalCurrentVoiceSoundDuration
 
                 conv.overlay("Text", function()
@@ -3225,7 +3225,6 @@ function NPCB.Dialogue:Run( self )
                 -- Reset from dialogue state
                 timer.Simple(sndDurAns, function()
                     if !IsValid(self) then return end
-                    print("reset")
                     self:CancelConversation()
                 end)
 
