@@ -735,7 +735,7 @@ end)
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 
 	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
-		list.Add( "NPCUsableWeapons", { class = class, title = "[ZB] "..swep.PrintName.." ("..class..")" } )
+		list.Add( "NPCUsableWeapons", { class = class, title = "ZBASE: "..swep.PrintName.." ("..class..")" } )
         table.insert(ZBaseNPCWeps, class)
 	end
 
