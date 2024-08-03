@@ -341,6 +341,11 @@ function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction )
     npc.ZBaseNPCCopy_DullState = true
 
 
+    npc:CallOnRemove("RemoveZBaseNPC", function()
+        SafeRemoveEntityDelayed(ZBaseNPC, 0)
+    end)
+
+
     ZBaseNPC:CallOnRemove("KillDullNPC", function()
         if IsValid(npc) then
             if !npc:GetNoDraw() then
