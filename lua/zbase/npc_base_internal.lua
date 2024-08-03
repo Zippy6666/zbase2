@@ -49,6 +49,10 @@ function NPC:ZBaseInit()
     self:InitBounds()
     self:AddEFlags(EFL_NO_DISSOLVE)
 
+    if ZBCVAR.NPCNocollide:GetBool() then
+        self:SetCollisionGroup(COLLISION_GROUP_NPC_SCRIPTED)
+    end
+
     self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
     self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
 

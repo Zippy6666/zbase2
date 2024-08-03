@@ -56,6 +56,12 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox("Show 'ALL' Catagory", "zbase_allcat")
         panel:ControlHelp("Should there be a 'ALL' catagory in the ZBase tab?")
+    
+        panel:CheckBox( "Player Friendly Fire", "zbase_ply_hurt_ally" )
+        panel:ControlHelp("Allow players to hurt their allies.")
+
+        panel:CheckBox( "NPC Nocollide", "zbase_nocollide" )
+        panel:ControlHelp("NPCs will not collide with eachother (COLLISION_GROUP_NPC_SCRIPTED).")
 
     end)
 
@@ -66,11 +72,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     --]]
 
     ZBaseAddMenuCategory("B - AI", function( panel )
-        panel:CheckBox( "Patrol", "zbase_patrol" )
-        panel:ControlHelp("Enable base patrol system.")
-    
-        panel:CheckBox( "Hurt Allies", "zbase_ply_hurt_ally" )
-        panel:ControlHelp("Allow players to hurt their allies.")
     
         panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' health by this number.")
@@ -85,6 +86,11 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Grenade/Secondary Random", "zbase_gren_alt_rand")
         panel:ControlHelp("If enabled, ZBase NPCs will spawn with anywhere from 0 to the max value of grenades and alt-fire attacks, where the sliders above act as the max value.")
     
+
+        panel:CheckBox( "Patrol", "zbase_patrol" )
+        panel:ControlHelp("Enable base patrol system.")
+
+
         panel:CheckBox( "Call for Help", "zbase_callforhelp" )
         panel:ControlHelp("Enable base call for help system. Lets NPCs call allies outside of its squad for help.")
 
