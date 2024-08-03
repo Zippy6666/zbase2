@@ -845,7 +845,13 @@ end
 
 
 function NPC:ZBWepSys_TransACT()
-    return ACT_IDLE
+    local wep = self:GetActiveWeapon()
+    local aiTrans = wep.ActivityTranslateAI
+
+
+    if self.ZBWepSys_IsFiring then
+        return aiTrans[ACT_RANGE_ATTACK1]
+    end
 end
 
 
@@ -1288,6 +1294,7 @@ function NPC:ZBWepSys_FireWeaponThink()
 
             -- Shoot
             self:ZBWepSys_Shoot()
+            self.ZBWepSys_IsFiring = true
 
 
 
@@ -1303,6 +1310,10 @@ function NPC:ZBWepSys_FireWeaponThink()
 
             -- Reset var
             self.ZBWepSys_AllowShoot = false
+
+        else
+
+            self.ZBWepSys_IsFiring = false
 
         end
 
