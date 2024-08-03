@@ -85,7 +85,7 @@ function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )
 		if !v:IsNPC() then continue end
 		if zbaseSNPCOnly && !v.IsZBase_SNPC then continue end
 
-		if self:SquadName() == v:GetKeyValues().squadname then
+		if self:GetKeyValues().squadname == v:GetKeyValues().squadname then
 			local dist = self:GetPos():DistToSqr(v:GetPos())
 
 			if !mindist or dist < mindist then
