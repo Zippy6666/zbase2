@@ -55,7 +55,7 @@ if SERVER then
         local npc = ent
         local class =  string.lower( npc:GetClass() )
         
-        if class=="bullseye_strider_focus" or class=="npc_bullseye" or class=="pill_puppet" then
+        if class=="bullseye_strider_focus" or class=="npc_bullseye" or class == "pill_puppet" then
             return false
         end
 

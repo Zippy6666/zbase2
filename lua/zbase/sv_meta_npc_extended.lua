@@ -13,10 +13,6 @@ function NPC:ZBASE_SetMutualRelationship( ent, rel )
     local myLastDispToEnt = self:Disposition(ent)
 
 
-    if myLastDispToEnt == rel then return end -- Relationship unchanged
-    if (bit.band(ent:GetFlags(), FL_NOTARGET)==FL_NOTARGET) then return end -- Recipient has notarget
-
-
     local relToEnt = rel
     local allowAddRelationship = !(self.IsZBaseNPC && !self:OnBaseSetRel(ent, relToEnt, 0))
 
@@ -25,6 +21,23 @@ function NPC:ZBASE_SetMutualRelationship( ent, rel )
     if self.IsZBPlyControlled then
         relToEnt = D_NU
     end
+
+
+    -- Recipient has notarget
+    if (bit.band(ent:GetFlags(), FL_NOTARGET)==FL_NOTARGET) then
+        relToEnt = D_NU
+    end
+
+
+    -- Player using pill pack, don't do relationship operation, let parakeet's pill pack do that instead
+    if ent:IsPlayer() && IsValid(ent.pk_pill_ent) then
+        return
+    end
+
+
+
+    if myLastDispToEnt == relToEnt then return end -- Relationship unchanged, don't do any relationship operations
+
 
     
     -- Set relationship to recipient
