@@ -844,10 +844,15 @@ function NPC:ZBWepSys_Init()
 end
 
 
-function NPC:ZBWepSys_HasPlayerModel()
-    local SubModels = self:GetSubModels()
-    return istable(SubModels) && SubModels[1] && SubModels[1].name && SubModels[1].name=="models/m_anm.mdl"
+function NPC:ZBWepSys_TransACT()
+    return ACT_IDLE
 end
+
+
+-- function NPC:ZBWepSys_HasPlayerModel()
+--     local SubModels = self:GetSubModels()
+--     return istable(SubModels) && SubModels[1] && SubModels[1].name && SubModels[1].name=="models/m_anm.mdl"
+-- end
 
 
 function NPC:ZBWepSys_Reload()
@@ -894,13 +899,6 @@ end
 
 
 function NPC:ZBWepSys_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFail )
-
-    -- Do simple setholdtype for player models
-    if self:ZBWepSys_HasPlayerModel() then
-        wep:SetHoldType(startHoldT)
-        return
-    end
-
 
 
     -- Set hold type, use fallbacks if npc does not have supporting anims
@@ -1169,7 +1167,7 @@ function NPC:ZBWepSys_CanFireWeapon()
     -- Ready to fire
     return self:ZBWepSys_WantsToShoot()
 
-    && self:ZBWepSys_HasShootAnim()
+    -- && self:ZBWepSys_HasShootAnim()
 
     && self.ZBWepSys_NextShoot < CurTime()
 
@@ -1180,38 +1178,6 @@ function NPC:ZBWepSys_CanFireWeapon()
 
 end
 
-
-local strNeedles = {
-    "RIFLE",
-    "PISTOL",
-    "SHOTGUN",
-    "RANGE_ATTACK",
-}
-function NPC:ZBWepSys_HasShootAnim()
-    local strMoveAct = self:GetSequenceActivityName(self:GetMovementSequence())
-    local strAct = self:GetSequenceActivityName(self:GetSequence())
-
-    for _, needle in ipairs(strNeedles) do
-        if string.find(strAct, needle) or string.find(strMoveAct, needle) then
-            return true
-        end
-    end
-
-    return false
-end
-
-
--- function NPC:ZBWepSys_ForceShootStance()
---     conv.overlay("Text", function()
---         return {self:GetShootPos(), "Force shoot stance", 0.13}
---     end)
-
---     if self:IsMoving() && !self.MovementOverrideActive then
---         self:SetMovementActivity(ACT_RUN_AIM)
---     else
---         self:SetActivity(ACT_RANGE_ATTACK1)
---     end
--- end
 
 local attackingResetDelay = 1 -- Time until a zbase npc is not considered to attack a player, after hurting them
 function NPC:InternalOnFireWeapon()
@@ -1324,31 +1290,11 @@ function NPC:ZBWepSys_FireWeaponThink()
             self:ZBWepSys_Shoot()
 
 
-            -- Force shoot stance if NPC doesn't do any
-            -- if !self:ZBWepSys_HasShootAnim() then
-            --     self:ZBWepSys_ForceShootStance()
-            -- end
-
-
-            -- Pose parameters for snpc
-            -- if self.IsZBase_SNPC && self:HasCapability(CAP_AIM_GUN) then
-
-            --     local aimAng = self:GetAimVector():Angle()
-            --     local ideal_poseparam_ang = self:WorldToLocalAngles(aimAng)
-            --     local x, y = ideal_poseparam_ang.x, ideal_poseparam_ang.y
-
-            --     self:SetPoseParameter("aim_pitch", x)
-            --     self:SetPoseParameter("aim_yaw", y)
-
-            -- end
-
 
             -- Make sure yaw is precise when standing and shooting
             if !self:IsMoving() then
                 self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
             end
-
-
 
 
             self:InternalOnFireWeapon()
@@ -1991,38 +1937,6 @@ end
 
 
 function NPC:NewSchedDetected( sched, schedName )
-
-    -- Has no reload animation, do workaround
-    local wep = self:GetActiveWeapon()
-    if sched == SCHED_RELOAD && self:SelectWeightedSequence(ACT_RELOAD) == -1 && wep.IsZBaseWeapon then
-        
-        self:ClearSchedule()
-        self:TaskComplete()
-
-        if !self.DoingReloadWorkaround then
-
-            self.DoingReloadWorkaround = true
-
-            self:ClearCondition(COND.LOW_PRIMARY_AMMO)
-            self:ClearCondition(COND.NO_PRIMARY_AMMO)
-
-            -- Weapon reload sound
-            if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
-                wep:EmitSound(wep.NPCReloadSound)
-            end
-
-
-            self:CONV_TimerSimple(1, function()
-                if !IsValid(wep) then return end
-
-                self.ZBWepSys_PrimaryAmmo = wep.Primary.DefaultClip
-
-                self.DoingReloadWorkaround = false
-            end)
-        end
-
-    end
-
 
     self:CustomNewSchedDetected(sched, self.ZBaseLastESched or -1)
 
