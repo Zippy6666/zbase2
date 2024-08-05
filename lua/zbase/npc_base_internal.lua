@@ -1970,35 +1970,35 @@ end
 function NPC:NewSchedDetected( sched, schedName )
 
     -- Has no reload animation, do workaround
-    local wep = self:GetActiveWeapon()
-    if sched == SCHED_RELOAD && self:SelectWeightedSequence(ACT_RELOAD) == -1 && wep.IsZBaseWeapon then
+    -- local wep = self:GetActiveWeapon()
+    -- if sched == SCHED_RELOAD && self:SelectWeightedSequence(ACT_RELOAD) == -1 && wep.IsZBaseWeapon then
         
-        self:ClearSchedule()
-        self:TaskComplete()
+    --     self:ClearSchedule()
+    --     self:TaskComplete()
 
-        if !self.DoingReloadWorkaround then
+    --     if !self.DoingReloadWorkaround then
 
-            self.DoingReloadWorkaround = true
+    --         self.DoingReloadWorkaround = true
 
-            self:ClearCondition(COND.LOW_PRIMARY_AMMO)
-            self:ClearCondition(COND.NO_PRIMARY_AMMO)
+    --         self:ClearCondition(COND.LOW_PRIMARY_AMMO)
+    --         self:ClearCondition(COND.NO_PRIMARY_AMMO)
 
-            -- Weapon reload sound
-            if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
-                wep:EmitSound(wep.NPCReloadSound)
-            end
+    --         -- Weapon reload sound
+    --         if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
+    --             wep:EmitSound(wep.NPCReloadSound)
+    --         end
 
 
-            self:CONV_TimerSimple(1, function()
-                if !IsValid(wep) then return end
+    --         self:CONV_TimerSimple(1, function()
+    --             if !IsValid(wep) then return end
 
-                self.ZBWepSys_PrimaryAmmo = wep.Primary.DefaultClip
+    --             self.ZBWepSys_PrimaryAmmo = wep.Primary.DefaultClip
 
-                self.DoingReloadWorkaround = false
-            end)
-        end
+    --             self.DoingReloadWorkaround = false
+    --         end)
+    --     end
 
-    end
+    -- end
 
 
     self:CustomNewSchedDetected(sched, self.ZBaseLastESched or -1)
@@ -2901,7 +2901,13 @@ end
 function NPC:OnEmitSound( data )
     local altered
     local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
-    local isVoiceSound = data.SoundName == "invalid.wav" or (data.Channel == CHAN_VOICE && data.SoundName != "common/null.wav")
+    local isVoiceSound = isnumber(data.SentenceIndex) or data.Channel == CHAN_VOICE
+
+
+    -- Sound is NULL
+    if data.SoundName == "common/null.wav" then
+        return false
+    end
 
 
     -- Mute default "engine" voice when we should
