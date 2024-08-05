@@ -22,7 +22,7 @@ NPC.SubMaterials = {} -- Submaterials {*number index* = *string name*}
 NPC.StartHealth = 50 -- Max health
 
 
-NPC.SightDistance = 7000 -- Sight distance
+NPC.SightDistance = 8192 -- Sight distance
 NPC.SightAngle = 90 -- Sight angle
 NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.CallForHelpDistance = 2000 -- Call for help distance
