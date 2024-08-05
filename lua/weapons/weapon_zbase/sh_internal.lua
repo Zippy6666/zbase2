@@ -502,6 +502,17 @@ function SWEP:TranslateActivity( act )
 			return override
 		end
 
+		-- Melee weapon activities
+		local holdType = self:GetHoldType()
+		if holdType=="passive" or holdType=="melee" or holdType=="melee2" then
+			if own:IsMoving() then
+				local state = own:GetNPCState()
+				return ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN ) or ACT_WALK
+			else
+				return ACT_IDLE
+			end
+		end
+
 	end
 
 

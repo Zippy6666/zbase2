@@ -1324,24 +1324,6 @@ function NPC:ZBWepSys_FireWeaponThink()
             self:ZBWepSys_Shoot()
 
 
-            -- Force shoot stance if NPC doesn't do any
-            -- if !self:ZBWepSys_HasShootAnim() then
-            --     self:ZBWepSys_ForceShootStance()
-            -- end
-
-
-            -- Pose parameters for snpc
-            -- if self.IsZBase_SNPC && self:HasCapability(CAP_AIM_GUN) then
-
-            --     local aimAng = self:GetAimVector():Angle()
-            --     local ideal_poseparam_ang = self:WorldToLocalAngles(aimAng)
-            --     local x, y = ideal_poseparam_ang.x, ideal_poseparam_ang.y
-
-            --     self:SetPoseParameter("aim_pitch", x)
-            --     self:SetPoseParameter("aim_yaw", y)
-
-            -- end
-
 
             -- Make sure yaw is precise when standing and shooting
             if !self:IsMoving() then
@@ -1556,11 +1538,6 @@ function NPC:FullReset()
         self:AerialResetNav()
         self:ScheduleFinished()
     end
-end
-
-
-function NPC:HasCapability( cap )
-    return bit.band(self:CapabilitiesGet(), cap)==cap
 end
 
 
