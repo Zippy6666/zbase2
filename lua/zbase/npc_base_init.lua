@@ -24,9 +24,9 @@ NPC.StartHealth = 50 -- Max health
 
 NPC.SightDistance = 8192 -- Sight distance
 NPC.SightAngle = 90 -- Sight angle
-NPC.CallForHelp = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
-NPC.CallForHelpDistance = 2000 -- Call for help distance
-NPC.CanBeCalledForHelp = true -- Can this NPC be called by other allies when they need help?
+NPC.AlertAllies = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
+NPC.AlertAlliesDistance = 2000 -- Call for help distance
+NPC.CanBeAlertedByAlly = true -- Can this NPC be called by other allies when they need help?
 NPC.HearDistMult = 1 -- Hearing distance multiplier when this addon is enabled: https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.TimeUntilLooseEnemy = 15 -- Time until it no longer knows where the enemy is
 NPC.TimeUntilExitAlert = 15 -- Time until it goes from an alert state, to an idle state
@@ -765,7 +765,7 @@ end
 
 
     -- Called when the NPC calls an ally outside their squad for help
-function NPC:OnCallForHelp( ally )
+function NPC:OnAlertAllies( ally )
 end
 
 

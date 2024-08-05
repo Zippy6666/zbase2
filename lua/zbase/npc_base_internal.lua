@@ -1182,9 +1182,7 @@ end
 
 
 local strNeedles = {
-    "RIFLE",
-    "PISTOL",
-    "SHOTGUN",
+    "_AIM",
     "RANGE_ATTACK",
 }
 function NPC:ZBWepSys_HasShootAnim()
@@ -2306,31 +2304,51 @@ NPCB.FactionCallForHelp = {
 
 
 function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
-    return self.CallForHelp && self.CallForHelpDistance > 0
-    && self.ZBaseFaction != "none" && self.ZBaseFaction != "neutral"
-    && ZBCVAR.CallForHelp:GetBool()
+
+    if !ZBCVAR.CallForHelp:GetBool() then
+        return false
+    end
+
+    local hasCallForHelp = self.AlertAllies or self.CallForHelp
+    local callForHelpDist = self.AlertAlliesDistance or self.CallForHelpDistance
+
+    if !hasCallForHelp then
+        return false
+    end
+
+    return self.ZBaseFaction != "none" && self.ZBaseFaction != "neutral"
+
 end
 
 
 function NPCB.FactionCallForHelp:Run( self )
-    local ally = self:GetNearestAlly(self.CallForHelpDistance)
-    local ene = self:GetEnemy()
+    local callForHelpDist = self.AlertAlliesDistance or self.CallForHelpDistance
+    local ally = self:GetNearestAlly(callForHelpDist)
 
-    if IsValid(ally) && ally:IsNPC() && ally.CanBeCalledForHelp && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene)
-    && self:GetSquad()!=ally:GetSquad() then
+    if IsValid(ally) then
+        local ene = self:GetEnemy()
+        local canBeCalledForHelp = ally.CanBeAlertedByAlly or ally.CanBeCalledForHelp
 
-        ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
-        ally:AlertSound()
+        if IsValid(ally) && ally:IsNPC() && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) && self:GetSquad()!=ally:GetSquad() then
 
-        conv.overlay("Text", function()
-            local pos = self:GetPos()+self:GetUp()*25
-            return {pos, "Was called by ally.", 2}
-        end)
+            ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
+            ally:AlertSound()
 
-        self:OnCallForHelp(ally)
 
+            if self.OnCallForHelp then
+                self:OnCallForHelp(ally) -- Backwards compatability
+            elseif self.OnAlertAllies then
+                self:OnAlertAllies(ally)
+            end
+            
+
+            conv.overlay("Text", function()
+                local pos = self:GetPos()+self:GetUp()*25
+                return {pos, "Was called by ally.", 2}
+            end)
+            
+        end
     end
-
 
     ZBaseDelayBehaviour(math.Rand(2, 3.5))
 end
