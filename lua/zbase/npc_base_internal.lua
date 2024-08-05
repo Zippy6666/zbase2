@@ -1122,7 +1122,6 @@ end
 function NPC:ZBWepSys_AIWantsToShoot()
     local ene = self:GetEnemy()
 
-
     -- Enemy valid and visible
     return self.EnemyVisible
 
@@ -1130,7 +1129,7 @@ function NPC:ZBWepSys_AIWantsToShoot()
     && self.ZBWepSys_InShootDist
 
     -- Weapon LOS COND
-    && self:HasCondition(COND.WEAPON_HAS_LOS)
+    -- && self:HasCondition(COND.WEAPON_HAS_LOS)
 
     -- Facing enemy
     && self:IsFacing(ene)
@@ -1154,12 +1153,11 @@ function NPC:ZBWepSys_WantsToShoot()
 
     return !self.DoingPlayAnim
 
-    && (self:ZBWepSys_AIWantsToShoot() or self:ZBWepSys_ControllerWantsToShoot())
+    && self:ZBWepSys_AIWantsToShoot()
 
-    -- Not in illegal sched
     && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
 
-    && self:ShouldFireWeapon()
+    && self:ShouldFireWeapon() -- Custom function
 
 end
 
@@ -1184,10 +1182,15 @@ end
 local strNeedles = {
     "_AIM",
     "RANGE_ATTACK",
+    "ANGRY_PISTOL",
+    "ANGRY_SMG1",
+    "ANGRY_AR2",
+    "ANGRY_RPG",
+    "ANGRY_SHOTGUN",
 }
 function NPC:ZBWepSys_HasShootAnim()
-    local strMoveAct = self:GetSequenceActivityName(self:GetMovementSequence())
-    local strAct = self:GetSequenceActivityName(self:GetSequence())
+    local seq, moveSeq = self:GetSequence(), self:GetMovementSequence()
+    local strMoveAct, strAct = self:GetSequenceActivityName(seq), self:GetSequenceActivityName(moveSeq)
 
     for _, needle in ipairs(strNeedles) do
         if string.find(strAct, needle) or string.find(strMoveAct, needle) then
@@ -1195,21 +1198,15 @@ function NPC:ZBWepSys_HasShootAnim()
         end
     end
 
+    local seqAct, moveSeqAct = self:GetSequenceActivity(seq), self:GetSequenceActivity(moveSeq)
+
+    if self.ExtraFireWeaponActivities[seqAct] or self.ExtraFireWeaponActivities[moveSeqAct] then
+        return true
+    end
+
     return false
 end
 
-
--- function NPC:ZBWepSys_ForceShootStance()
---     conv.overlay("Text", function()
---         return {self:GetShootPos(), "Force shoot stance", 0.13}
---     end)
-
---     if self:IsMoving() && !self.MovementOverrideActive then
---         self:SetMovementActivity(ACT_RUN_AIM)
---     else
---         self:SetActivity(ACT_RANGE_ATTACK1)
---     end
--- end
 
 local attackingResetDelay = 1 -- Time until a zbase npc is not considered to attack a player, after hurting them
 function NPC:InternalOnFireWeapon()

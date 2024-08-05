@@ -121,6 +121,10 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.MeleeWeaponAnimations = {ACT_MELEE_ATTACK1} -- Animations to use when attacking with a melee weapon
 NPC.MeleeWeaponAnimations_TimeUntilDamage = 0.5 -- Time until the damage from melee weapons hit
 
+
+NPC.ExtraFireWeaponActivities = {} -- NPCs will fire when they have these activities as well. Syntax: [ACT_SOMETHING] = true
+ 
+
 --[[
 ==================================================================================================
                                            BLOOD

@@ -29,6 +29,10 @@ NPC.BaseMeleeAttack = true -- Use ZBase melee attack system
 NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
 NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack animation
 
+NPC.ExtraFireWeaponActivities = {
+    [ACT_CROUCHIDLE] = true,
+}
+
 NPC.BaseGrenadeAttack = true -- Use ZBase grenade attack system
 NPC.ThrowGrenadeChance_Visible = 4 -- 1/x chance that it throws a grenade when the enemy is visible
 NPC.ThrowGrenadeChance_Occluded = 2 -- 1/x chance that it throws a grenade when the enemy is not visible
