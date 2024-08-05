@@ -504,13 +504,23 @@ function SWEP:TranslateActivity( act )
 
 		-- Melee weapon activities
 		local holdType = self:GetHoldType()
+		local state = own:GetNPCState()
+		local meleeActOverride
 		if holdType=="passive" or holdType=="melee" or holdType=="melee2" then
 			if own:IsMoving() then
-				local state = own:GetNPCState()
-				return ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN ) or ACT_WALK
+				meleeActOverride = ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN ) or ACT_WALK
 			else
 				return ACT_IDLE
 			end
+		end
+
+		-- No walk/run animations? Maybe it has weapon running animations
+		if own:IsMoving() && own:SelectWeightedSequence(meleeActOverride) == -1 then
+			meleeActOverride = ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN_RIFLE ) or ACT_WALK_RIFLE
+		end
+
+		if meleeActOverride then
+			return meleeActOverride
 		end
 
 	end
