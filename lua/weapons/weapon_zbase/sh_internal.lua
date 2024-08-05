@@ -515,7 +515,7 @@ function SWEP:TranslateActivity( act )
 		end
 
 		-- No walk/run animations? Maybe it has weapon running animations
-		if own:IsMoving() && own:SelectWeightedSequence(meleeActOverride) == -1 then
+		if meleeActOverride && own:IsMoving() && own:SelectWeightedSequence(meleeActOverride) == -1 then
 			meleeActOverride = ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN_RIFLE ) or ACT_WALK_RIFLE
 		end
 
