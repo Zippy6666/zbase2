@@ -10,6 +10,9 @@ local Developer = GetConVar("developer")
 
 
 function NPC:ZBASE_SetMutualRelationship( ent, rel )
+    if !IsValid(ent) then return end
+
+
     local myLastDispToEnt = self:Disposition(ent)
 
 
