@@ -42,8 +42,8 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Start Message", "zbase_start_msg")
         panel:ControlHelp("Allow warning/message boxes when joining the game.")
 
-        panel:CheckBox( "Precache NPCs", "zbase_precache")
-        panel:ControlHelp("Precache NPCs, will lead to a smoother experience at the expense of longer load times.")
+        -- panel:CheckBox( "Precache NPCs", "zbase_precache")
+        -- panel:ControlHelp("Precache NPCs, will lead to a smoother experience at the expense of longer load times.")
     
         panel:CheckBox("Glowing Eyes (Server)", "zbase_sv_glowing_eyes")
         panel:ControlHelp("Give NPCs glowing eyes on spawn if the NPC's model has any.")

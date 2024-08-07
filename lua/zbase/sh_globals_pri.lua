@@ -93,55 +93,55 @@ end
 
     -- Spawn all entities in the zbase/entities folder for a short duration
     -- Also spawn their weapons
-function ZBasePrecacheEnts()
+-- function ZBasePrecacheEnts()
 
-    if !SERVER then return end
+--     if !SERVER then return end
 
-    -- MsgN("ZBASE PRECACHE:")
-
-
-    local StartT = SysTime()
-    local spawnedwepclasses = {}
-
-    for zbasecls, npctbl in pairs(ZBaseNPCs) do
-
-        local weps = npctbl.Weapons
+--     -- MsgN("ZBASE PRECACHE:")
 
 
+--     local StartT = SysTime()
+--     local spawnedwepclasses = {}
 
-        if istable(weps) then
+--     for zbasecls, npctbl in pairs(ZBaseNPCs) do
 
-            for _, wepcls in ipairs(weps) do
-                if spawnedwepclasses[wepcls] then continue end
-
-                local wepent = ents.Create(wepcls)
-                if !IsValid(wepent) then continue end
-                wepent:Spawn()
-                spawnedwepclasses[wepcls] = true
-
-                SafeRemoveEntityDelayed(wepent, 0)
-
-                -- MsgN("precached weapon ", wepent)
-            end
-
-        end
+--         local weps = npctbl.Weapons
 
 
-        -- Spawn a ZBase NPC
-        -- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
-        -- 'pos' - The position to spawn it on
-        -- 'normal' - The normal to spawn it on (optional)
-        -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
-        local zbaseent = ZBaseSpawnZBaseNPC( zbasecls, vector_origin, nil, nil)
-        SafeRemoveEntityDelayed(zbaseent, 0)
-        -- MsgN("precached npc ", zbaseent, " (", zbasecls, ")")
 
-    end
+--         if istable(weps) then
+
+--             for _, wepcls in ipairs(weps) do
+--                 if spawnedwepclasses[wepcls] then continue end
+
+--                 local wepent = ents.Create(wepcls)
+--                 if !IsValid(wepent) then continue end
+--                 wepent:Spawn()
+--                 spawnedwepclasses[wepcls] = true
+
+--                 SafeRemoveEntityDelayed(wepent, 0)
+
+--                 -- MsgN("precached weapon ", wepent)
+--             end
+
+--         end
 
 
-    -- MsgN("Precache complete (", math.Round(SysTime()-StartT, 2), " seconds)")
+--         -- Spawn a ZBase NPC
+--         -- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
+--         -- 'pos' - The position to spawn it on
+--         -- 'normal' - The normal to spawn it on (optional)
+--         -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
+--         local zbaseent = ZBaseSpawnZBaseNPC( zbasecls, vector_origin, nil, nil)
+--         SafeRemoveEntityDelayed(zbaseent, 0)
+--         -- MsgN("precached npc ", zbaseent, " (", zbasecls, ")")
 
-end
+--     end
+
+
+--     -- MsgN("Precache complete (", math.Round(SysTime()-StartT, 2), " seconds)")
+
+-- end
 
 
 

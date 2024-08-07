@@ -32,9 +32,9 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
 
 
     -- Precache zbase ents
-    if SERVER && ZBCVAR.Precache:GetBool() then
-        ZBasePrecacheEnts()
-    end
+    -- if SERVER && ZBCVAR.Precache:GetBool() then
+    --     ZBasePrecacheEnts()
+    -- end
 
 end)
 
