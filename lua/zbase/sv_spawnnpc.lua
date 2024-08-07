@@ -1,4 +1,3 @@
-
 	// Mostly borrowed gmod source code!
 
 	
@@ -48,7 +47,14 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
     for k, v in pairs(ZBaseNPCs[Class]) do
         NPC[k] = v
     end
-    --------------------------------------------------------------=#
+    
+
+
+	-- "Patches"
+	local patchFunc = ZBasePatchTable[NPCData.Class]
+	if patchFunc then
+		patchFunc(NPC)
+	end
 
 
 
@@ -82,21 +88,16 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	--
 	-- Spawn Flags
 	--
-	local SpawnFlags = bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE )
-
+	local SpawnFlags = !NPC.Patch_DontApplyDefaultFlags && bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE ) or 0
 	if istable(NPCData.SpawnFlagTbl) then
 		for _, v in ipairs(NPCData.SpawnFlagTbl) do
 			SpawnFlags = bit.bor( SpawnFlags, v )
 		end
 	end
 
-	-- if ( NPCData.TotalSpawnFlags ) then SpawnFlags = NPCData.TotalSpawnFlags end
-	-- if ( SpawnFlagsSaved ) then SpawnFlags = SpawnFlagsSaved end
 
 	NPC:SetKeyValue( "spawnflags", SpawnFlags )
 	NPC.SpawnFlags = SpawnFlags
-
-
 
 
     -- Set skin
@@ -166,8 +167,14 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	end
 
 
-	-- Spawn and activate
+	-- Pre-spawn
+	if NPC.Patch_PreSpawn then
+		NPC:Patch_PreSpawn()
+	end
 	NPC:PreSpawn()
+
+
+	-- Spawn and activate
 	if !skipSpawnAndActivate then
 		NPC:Spawn()
 		NPC:Activate()
@@ -201,31 +208,25 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	NPC:CallOnRemove("ZBaseNPCInstancesRemove", function() table.RemoveByValue(ZBaseNPCInstances, NPC) end)
 
 
+	-- Register as non-scripted if npc is such
 	if !NPC.IsZBase_SNPC then
 		table.insert(ZBaseNPCInstances_NonScripted, NPC)
 		NPC:CallOnRemove("ZBaseNPCInstances_NonScripted_Remove", function() table.RemoveByValue(ZBaseNPCInstances_NonScripted, NPC) end)
 	end
 
 
-	-- "Patches"
-	local patchFunc = ZBasePatchTable[NPCData.Class]
-	if patchFunc then
-
-		patchFunc(NPC)
-
-		if NPC.Patch_Init then
-			NPC.Patch_Init( NPC )
-		end
-
+	-- Init
+	if NPC.Patch_Init then
+		NPC.Patch_Init( NPC )
 	end
-
-
     NPC:ZBaseInit()
 
 
+	-- Store my class for dupe data
 	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
 
 
+	-- Drop to floor
 	if ( bDropToFloor ) then
 		NPC:DropToFloor()
 	end

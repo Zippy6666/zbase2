@@ -17,6 +17,8 @@ local Developer = GetConVar("developer")
 function NPC:PreSpawn()
     if #self.Weapons >= 1 then
         self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Important! Or else some NPCs won't spawn with weapons.
+    else
+        self:SetKeyValue("additionalequipment", "")
     end
 end
 
