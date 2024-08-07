@@ -280,7 +280,13 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 
 	-- Create NPC
 	local NPC = ents.Create( NPCData.Class )
-	if ( !IsValid( NPC ) ) then return end
+
+
+	-- Not valid
+	if !IsValid( NPC ) or !NPC.SetSchedule or (NPC:IsScripted() && NPC:GetClass()!="npc_zbase_snpc") then
+		PrintMessage(HUD_PRINTTALK, "This ZBase NPC does not have a valid class!")
+		return
+	end
 
 
 	--

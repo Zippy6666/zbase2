@@ -36,6 +36,7 @@ NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits 
 NPC.HasArmor = {
     [HITGROUP_GENERIC] = true,
 }
+NPC.ArmorHitSpark = false
 NPC.ArmorAlwaysPenDamage = false -- Always penetrate the armor if the damage is more than this, set to false to disable
 
 
