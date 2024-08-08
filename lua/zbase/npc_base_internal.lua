@@ -1215,8 +1215,12 @@ end
 local attackingResetDelay = 1 -- Time until a zbase npc is not considered to attack a player, after hurting them
 function NPC:InternalOnFireWeapon()
 
-    self:CONV_TempVar("ZBWepSys_FiredWeapon", true, 0.1)
-    self:ResetIdealActivity(ACT_RANGE_ATTACK1)
+    if self:IsMoving() then
+        self:PlayAnimation(ACT_GESTURE_RANGE_ATTACK_SMG1, false, {isGesture=true})
+    else
+        self:CONV_TempVar("ZBWepSys_FiredWeapon", true, 0.1)
+        self:ResetIdealActivity(ACT_RANGE_ATTACK1)
+    end
 
     if ZBCVAR.MaxNPCsShootPly:GetBool() then
 
