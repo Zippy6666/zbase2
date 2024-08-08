@@ -3654,6 +3654,7 @@ end
 
 function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
+    if self.Patch_SkipDeathRoutine then return end
     if self.Dead then return end
     self.Dead = true
 
