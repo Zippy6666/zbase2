@@ -106,19 +106,6 @@ function NPC:OnInitCap()
 end
 
 
-function NPC:OnFireWeapon()
-
-    local wep = self:GetActiveWeapon()
-    if !IsValid(wep) then return end
-
-    -- Shotgunner gesture
-    -- if wep:GetHoldType()=="shotgun" then
-    --     self:PlayAnimation(ACT_GESTURE_RANGE_ATTACK_SHOTGUN, false, {isGesture=true})
-    -- end
-
-end
-
-
 function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
     if ShouldHaveRadioSound[sndVarName] then
         self:EmitSound("npc/combine_soldier/vo/on"..math.random(1, 2)..".wav")
