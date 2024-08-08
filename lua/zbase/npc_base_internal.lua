@@ -851,10 +851,10 @@ function NPC:ZBWepSys_Init()
 end
 
 
-function NPC:ZBWepSys_HasPlayerModel()
-    local SubModels = self:GetSubModels()
-    return istable(SubModels) && SubModels[1] && SubModels[1].name && SubModels[1].name=="models/m_anm.mdl"
-end
+-- function NPC:ZBWepSys_HasPlayerModel()
+--     local SubModels = self:GetSubModels()
+--     return istable(SubModels) && SubModels[1] && SubModels[1].name && SubModels[1].name=="models/m_anm.mdl"
+-- end
 
 
 function NPC:ZBWepSys_Reload()
@@ -901,15 +901,6 @@ end
 
 
 function NPC:ZBWepSys_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFail )
-
-    -- Do simple setholdtype for player models
-    if self:ZBWepSys_HasPlayerModel() then
-        wep:SetHoldType(startHoldT)
-        return
-    end
-
-
-
     -- Set hold type, use fallbacks if npc does not have supporting anims
     -- Priority:
     -- Original -> Fallback -> "smg" -> "normal"
@@ -1100,11 +1091,6 @@ function NPC:ZBWepSys_Shoot()
 end
 
 
-    -- WIP
-function NPC:ZBWepSys_ControllerWantsToShoot()
-    return false
-end
-
 
 function NPC:ZBWepSys_TooManyAttacking( ply )
     local attacking, max = 0, ZBCVAR.MaxNPCsShootPly:GetInt()
@@ -1135,9 +1121,6 @@ function NPC:ZBWepSys_AIWantsToShoot()
     -- Enemy is within shoot distance
     && self.ZBWepSys_InShootDist
 
-    -- Weapon LOS COND
-    -- && self:HasCondition(COND.WEAPON_HAS_LOS)
-
     -- Facing enemy
     && self:IsFacing(ene)
 
@@ -1156,7 +1139,6 @@ function NPC:ZBWepSys_WantsToShoot()
         [ZBaseESchedID("SCHED_METROPOLICE_WARN_AND_ARREST_ENEMY")] = true,
         [ZBaseESchedID("SCHED_METROPOLICE_ARREST_ENEMY")] = true,
     }
-
 
     return !self.DoingPlayAnim
 
@@ -1215,29 +1197,50 @@ function NPC:ZBWepSys_HasShootAnim()
 end
 
 
-local attackingResetDelay = 1 -- Time until a zbase npc is not considered to attack a player, after hurting them
-function NPC:InternalOnFireWeapon()
-    if !ZBCVAR.MaxNPCsShootPly:GetBool() then return end
+function NPC:ZBWepSys_TranslateAct(act, translateTbl)
+    local wantsToShoot = self:ZBWepSys_AIWantsToShoot()
 
-    local ene = self:GetEnemy()
+    if wantsToShoot then
 
-    -- Decide how many ZBase NPCs are attacking this player
-    if ene:IsPlayer() then
-        -- How many ZBase NPCs are attacking this player
-
-        local ply = ene
-        ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
-        ply.AttackingZBaseNPCs[self]=true
-
-
-        ply:ConvTimer("RemoveFromAttackingZBaseNPCs"..self:EntIndex(), attackingResetDelay, function()
-            -- No longer considered to be attacking
-            if ply.AttackingZBaseNPCs[self] then
-                ply.AttackingZBaseNPCs[self] = nil
-            end
-        end)
+        if self:IsMoving() then
+            return translateTbl[ACT_RUN_AIM]
+        else
+            return (self.ZBWepSys_FiredWeapon && translateTbl[ACT_RANGE_ATTACK1]) or translateTbl[ACT_IDLE_ANGRY]
+        end
 
     end
+end
+
+
+local attackingResetDelay = 1 -- Time until a zbase npc is not considered to attack a player, after hurting them
+function NPC:InternalOnFireWeapon()
+
+    self:CONV_TempVar("ZBWepSys_FiredWeapon", true, 0.1)
+    self:ResetIdealActivity(ACT_RANGE_ATTACK1)
+
+    if ZBCVAR.MaxNPCsShootPly:GetBool() then
+
+        local ene = self:GetEnemy()
+
+        -- Decide how many ZBase NPCs are attacking this player
+        if ene:IsPlayer() then
+            -- How many ZBase NPCs are attacking this player
+
+            local ply = ene
+            ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
+            ply.AttackingZBaseNPCs[self]=true
+
+
+            ply:ConvTimer("RemoveFromAttackingZBaseNPCs"..self:EntIndex(), attackingResetDelay, function()
+                -- No longer considered to be attacking
+                if ply.AttackingZBaseNPCs[self] then
+                    ply.AttackingZBaseNPCs[self] = nil
+                end
+            end)
+
+        end
+    end
+
 end
 
 

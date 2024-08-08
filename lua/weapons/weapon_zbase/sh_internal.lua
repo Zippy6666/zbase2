@@ -502,6 +502,13 @@ function SWEP:TranslateActivity( act )
 			return override
 		end
 
+
+		local returnValue = own:ZBWepSys_TranslateAct(act, self.ActivityTranslateAI)
+		if isnumber(returnValue) then
+			return returnValue
+		end
+
+
 		-- Melee weapon activities
 		local holdType = self:GetHoldType()
 		local state = own:GetNPCState()
@@ -514,12 +521,14 @@ function SWEP:TranslateActivity( act )
 			end
 		end
 
+
 		-- No walk/run animations? Maybe it has weapon running animations
 		if meleeActOverride && own:IsMoving() && own:SelectWeightedSequence(meleeActOverride) == -1 then
 			meleeActOverride = ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN_RIFLE ) or ACT_WALK_RIFLE
 		end
 
-		if meleeActOverride then
+
+		if isnumber(meleeActOverride) then
 			return meleeActOverride
 		end
 

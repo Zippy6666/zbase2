@@ -112,9 +112,9 @@ function NPC:OnFireWeapon()
     if !IsValid(wep) then return end
 
     -- Shotgunner gesture
-    if wep:GetHoldType()=="shotgun" then
-        self:PlayAnimation(ACT_GESTURE_RANGE_ATTACK_SHOTGUN, false, {isGesture=true})
-    end
+    -- if wep:GetHoldType()=="shotgun" then
+    --     self:PlayAnimation(ACT_GESTURE_RANGE_ATTACK_SHOTGUN, false, {isGesture=true})
+    -- end
 
 end
 
