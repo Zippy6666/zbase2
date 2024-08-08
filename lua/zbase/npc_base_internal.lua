@@ -45,6 +45,8 @@ function NPC:ZBaseInit()
     self.GuardSpot = self:GetPos()
     self.InternalCurrentSoundDuration = 0
     self.InternalCurrentVoiceSoundDuration = 0
+    self:InitGrenades()
+    self:InitSounds()
 
 
     self:InitModel()
@@ -58,8 +60,6 @@ function NPC:ZBaseInit()
     self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
     self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
 
-    self:InitGrenades()
-    self:InitSounds()
     self:ZBWepSys_Init()
 
 
@@ -3526,6 +3526,11 @@ local ShouldPreventGib = {
 
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
+    if self.Patch_OnTakeDamage then
+        self:Patch_OnTakeDamage(dmg)
+    end
+
+
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
 
