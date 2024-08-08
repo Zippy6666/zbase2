@@ -132,9 +132,13 @@ NPC.ExtraFireWeaponActivities = {} -- NPCs will fire when they have these activi
 --]]
 
 
--- Default engine blood color, set to DONT_BLEED if you want to use custom blood instead
-NPC.BloodColor = BLOOD_COLOR_RED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
--- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER
+-- Default engine blood color
+-- Set to DONT_BLEED if you want to use custom blood instead
+-- Set to false to use the default blood for the NPC class
+NPC.BloodColor = false -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
+-- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER || false
+
+
 NPC.CustomBloodParticles = false -- Table of custom particles
 NPC.CustomBloodDecals = false -- String name of custom decal
 
@@ -408,6 +412,12 @@ NPC.OnReloadSound_Chance = 2
     -- Called when the NPC is created --
 function NPC:CustomInitialize()
 end
+
+
+    -- Called BEFORE the NPC spawns --
+function NPC:CustomPreSpawn()
+end
+
 
     -- Called when the base gives the NPC capabilities, you can do self:CapabilitiesRemove(CAP_YOUR_CAP) here for example
 function NPC:OnInitCap()

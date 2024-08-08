@@ -20,6 +20,8 @@ function NPC:PreSpawn()
     else
         self:SetKeyValue("additionalequipment", "")
     end
+
+    self:CustomPreSpawn()
 end
 
 
@@ -48,25 +50,33 @@ function NPC:ZBaseInit()
     self:InitGrenades()
     self:InitSounds()
 
+    -- Set specified internal variables
+    for varname, var in pairs(self.EInternalVars or {}) do
+        self:SetSaveValue(varname, var)
+    end
+
+
 
     self:InitModel()
     self:InitBounds()
     self:AddEFlags(EFL_NO_DISSOLVE)
 
+
     if ZBCVAR.NPCNocollide:GetBool() then
         self:SetCollisionGroup(COLLISION_GROUP_NPC_SCRIPTED)
     end
 
+
     self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
     self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
 
-    self:ZBWepSys_Init()
 
-
-    -- Set specified internal variables
-    for varname, var in pairs(self.EInternalVars or {}) do
-        self:SetSaveValue(varname, var)
+    if self.BloodColor != false then
+        self:SetBloodColor(self.BloodColor)
     end
+
+
+    self:ZBWepSys_Init()
 
 
     -- Makes behaviour system function
@@ -88,6 +98,8 @@ function NPC:ZBaseInit()
 
 
     self:CustomInitialize()
+
+    
     self:CallNextTick("InitNextTick")
 
 
@@ -95,9 +107,6 @@ end
 
 
 function NPC:InitNextTick()
-    -- Blood color
-    self:SetBloodColor(self.BloodColor)
-
     -- Auto set npc class
     if self.IsZBase_SNPC && self:GetNPCClass() == -1 && ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)] then
         self:SetNPCClass(ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)])
@@ -124,10 +133,6 @@ local dontClearCap = {
     npc_antlion_grub = true,
 }
 function NPC:Init2Ticks()
-    -- Blood color (again?)
-    self:SetBloodColor(self.BloodColor)
-
-
     -- FOV and sight dist
     self.FieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
     self:SetSaveValue( "m_flFieldOfView", self.FieldOfView )

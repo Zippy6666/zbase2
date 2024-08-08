@@ -23,14 +23,15 @@ NPC.BloodColor = BLOOD_COLOR_ZOMBIE -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_CO
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
 
---]]==============================================================================================]]
-function NPC:CustomInitialize()
-    if ZBCVAR.ZombieHeadcrabs:GetBool() then
-        self:Zombie_GiveHeadCrabs()
-    end
-
+function NPC:CustomPreSpawn()
     if ZBCVAR.ZombieRedBlood:GetBool() then
         self.BloodColor = BLOOD_COLOR_RED
     end
 end
---]]==============================================================================================]]
+
+
+function NPC:CustomInitialize()
+    if ZBCVAR.ZombieHeadcrabs:GetBool() then
+        self:Zombie_GiveHeadCrabs()
+    end
+end
