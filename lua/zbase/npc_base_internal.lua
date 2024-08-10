@@ -597,20 +597,7 @@ end
 --]]
 
 
-local VJ_Translation = {
-    ["CLASS_COMBINE"] = "combine",
-    ["CLASS_ZOMBIE"] = "zombie",
-    ["CLASS_ANTLION"] = "antlion",
-    ["CLASS_PLAYER_ALLY"] = "ally",
-    ["CLASS_XEN"] = "xen",
-    ["CLASS_UNITED_STATES"] = "hecu",
-    ["CLASS_BLACKOPS"] = "blackops",
-    ["CLASS_RACE_X"] = "racex",
-    ["CLASS_AIDEN"] = "clonecop"
-}
-
-
-local VJ_Translation_Flipped = {
+local VJTranslation = {
     ["combine"] = "CLASS_COMBINE",
     ["zombie"] = "CLASS_ZOMBIE",
     ["antlion"] = "CLASS_ANTLION",
@@ -619,7 +606,8 @@ local VJ_Translation_Flipped = {
     ["hecu"] = "CLASS_UNITED_STATES",
     ["blackops"] = "CLASS_BLACKOPS",
     ["racex"] = "CLASS_RACE_X",
-    ["clonecop"] = "CLASS_AIDEN"
+    ["clonecop"] = "CLASS_AIDEN",
+    ["snark"] = "CLASS_SNARK",
 }
 
 
@@ -653,8 +641,8 @@ end
 
 function NPC:UpdateRelationships()
     -- Set my VJ class
-    if VJ_Translation_Flipped[self.ZBaseFaction] then
-        self.VJ_NPC_Class = {VJ_Translation_Flipped[self.ZBaseFaction]}
+    if VJTranslation[self.ZBaseFaction] then
+        self.VJ_NPC_Class = {VJTranslation[self.ZBaseFaction]}
     end
 
     -- Update relationships between all NPCs
@@ -717,15 +705,10 @@ end
 
 
 function NPC:Controller_ButtonDown(ply, btn)
-
-
-
 end
 
 
 function NPC:Controller_KeyPress(ply, key)
-
-
 end
 
 
@@ -3538,11 +3521,6 @@ local ShouldPreventGib = {
 
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
-    if self.Patch_OnTakeDamage then
-        self:Patch_OnTakeDamage(dmg)
-    end
-
-
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
 
@@ -3561,6 +3539,11 @@ function NPC:OnEntityTakeDamage( dmg )
     -- In "stationary mode" zbase npcs cannot hurt each other
     if ZBCVAR.Static:GetBool() && attacker.IsZBaseNPC then
         return true
+    end
+
+
+    if self.Patch_OnTakeDamage then
+        self:Patch_OnTakeDamage(dmg)
     end
 
 
@@ -3586,28 +3569,36 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
 
-    local boutaDie = self:Health()-dmg:GetDamage() <= 0
+    local goingToDie = self:Health()-dmg:GetDamage() <= 0
 
 
-    if boutaDie then
+    if goingToDie then
         self.IsSpeaking = false
     end
 
 
     -- Prevent engine gib
-    if boutaDie && ShouldPreventGib[self:GetClass()] then
+    if goingToDie && ShouldPreventGib[self:GetClass()] then
+
         if dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball") then
             dmg:SetDamageType(bit.bor(DMG_DISSOLVE, DMG_NEVERGIB))
         else
             dmg:SetDamageType(DMG_NEVERGIB)
         end
+
     end
 
 
     -- Death animation
-    if !table.IsEmpty(self.DeathAnimations) && boutaDie && math.random(1, self.DeathAnimationChance)==1 then
+    if !table.IsEmpty(self.DeathAnimations) && goingToDie && math.random(1, self.DeathAnimationChance)==1 then
         self:DeathAnimation(dmg)
         return
+    end
+
+
+    -- Patch
+    if goingToDie && self.Patch_PreDeath then
+        self:Patch_PreDeath( dmg )
     end
 end
 
