@@ -234,7 +234,8 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 
 	return NPC
 end
----------------------------------------------------------------------------------=#
+
+
 function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
 	local NPCList = ZBaseSpawnMenuNPCList
 	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
@@ -297,7 +298,7 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 		NPC:SetPos( Position + Normal * (NPCData.Offset or 32) )
 
 
-		if NPCData.Offset then
+		if isnumber(NPCData.Offset) then
 			bDropToFloor = false
 		end
 	

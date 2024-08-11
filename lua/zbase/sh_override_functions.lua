@@ -61,25 +61,25 @@ ZBase_EmitSoundCall = false
 
 
 -- Add ZBase NPCs to NPC list
-function list:Get()
-    if !ZBase_JustReloadedSpawnmenu && self == "NPC" then
+function list.Get( Type )
+    if !ZBase_JustReloadedSpawnmenu && Type == "NPC" then
 
         local ZBaseTableAdd = {}
         for k, v in pairs(ZBaseSpawnMenuNPCList) do
             local ZBaseNPC = table.Copy(v)
 
             ZBaseNPC.Name = ZBaseNPC.Name
-            ZBaseNPC.Category = "[ZBase] "..ZBaseNPC.Category
+            ZBaseNPC.Category = "[ZBase] "..(ZBaseNPC.Category or "Other")
             ZBaseNPC.KeyValues = {parentname=k}
             ZBaseTableAdd[k] = ZBaseNPC
         end
 
-        local t = table.Merge(listGet(self), ZBaseTableAdd)
+        local t = table.Merge(listGet(Type), ZBaseTableAdd)
 
         return t
     end
 
-    return listGet(self)
+    return listGet(Type)
 end
 
 

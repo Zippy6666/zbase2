@@ -205,14 +205,19 @@ NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
 NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
 NPC.DeathAnimation_StopAttackingMe = false -- Stop other NPCs from attacking this NPC when it is doing its death animation
 
-
 -- Duration of death animation, set to false to use the default duration (note that doing so may cause issues with some models/npcs so be careful)
 NPC.DeathAnimationDuration = 1
 
+
 NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
 NPC.RagdollApplyForce = true -- Should the ragdoll get force applied to it?
-NPC.RagdollUseAltPositioning = false -- Try setting this to true if the ragdoll positioning is buggy
 NPC.RagdollModel = "" -- Leave like this to use the default ragdoll
+
+
+-- Try messing with these if the ragdoll is buggy
+NPC.RagdollUseAltPositioning = false
+NPC.RagdollDontAnglePhysObjects = false
+
 
 --[[
 ==================================================================================================

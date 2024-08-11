@@ -3897,8 +3897,11 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		    physObj:SetPos( pos )
         end
 
-	    physObj:SetAngles( ang )
-
+        
+        if !self.RagdollDontAnglePhysObjects then
+	        physObj:SetAngles( ang )
+        end
+        
 
         if force then
             physObj:SetVelocity(force)
