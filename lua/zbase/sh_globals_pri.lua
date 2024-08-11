@@ -84,65 +84,6 @@ function ZBasePatchNPCClass(debuginfo)
 end
 
 
---[[
-======================================================================================================================================================
-                                           PRECACHE
-======================================================================================================================================================
---]]
-
-
-    -- Spawn all entities in the zbase/entities folder for a short duration
-    -- Also spawn their weapons
--- function ZBasePrecacheEnts()
-
---     if !SERVER then return end
-
---     -- MsgN("ZBASE PRECACHE:")
-
-
---     local StartT = SysTime()
---     local spawnedwepclasses = {}
-
---     for zbasecls, npctbl in pairs(ZBaseNPCs) do
-
---         local weps = npctbl.Weapons
-
-
-
---         if istable(weps) then
-
---             for _, wepcls in ipairs(weps) do
---                 if spawnedwepclasses[wepcls] then continue end
-
---                 local wepent = ents.Create(wepcls)
---                 if !IsValid(wepent) then continue end
---                 wepent:Spawn()
---                 spawnedwepclasses[wepcls] = true
-
---                 SafeRemoveEntityDelayed(wepent, 0)
-
---                 -- MsgN("precached weapon ", wepent)
---             end
-
---         end
-
-
---         -- Spawn a ZBase NPC
---         -- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
---         -- 'pos' - The position to spawn it on
---         -- 'normal' - The normal to spawn it on (optional)
---         -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
---         local zbaseent = ZBaseSpawnZBaseNPC( zbasecls, vector_origin, nil, nil)
---         SafeRemoveEntityDelayed(zbaseent, 0)
---         -- MsgN("precached npc ", zbaseent, " (", zbasecls, ")")
-
---     end
-
-
---     -- MsgN("Precache complete (", math.Round(SysTime()-StartT, 2), " seconds)")
-
--- end
-
 
 
 --[[
@@ -366,7 +307,6 @@ function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction )
         npcWep:Remove()
     end
 
-
     return ZBaseNPC
 
 end
@@ -386,4 +326,29 @@ end
 
 function ZBaseRndTblRange( tbl )
     return math.Rand(tbl[1], tbl[2])
+end
+
+function ZBaseShouldUseRelationshipSys(ent)
+
+    if !ent:IsNPC() then
+        return false
+    end
+
+    local npc = ent
+    local class =  string.lower( npc:GetClass() )
+    
+    if class=="bullseye_strider_focus" or class=="npc_bullseye" or class == "pill_puppet" then
+        return false
+    end
+
+    if npc.IsVJBaseSNPC then return false end
+    if npc.IsZBaseNavigator then return false end
+    if npc.ZBaseNPCCopy_DullState then return false end
+
+    -- Used by NPC suppression system
+    if npc.is_fake then return false end
+
+
+    return true
+    
 end

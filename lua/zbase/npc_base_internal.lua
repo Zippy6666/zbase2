@@ -1097,12 +1097,22 @@ end
 
 function NPC:ZBWepSys_AIWantsToShoot()
     local ene = self:GetEnemy()
+    local ShootSchedBlacklist = {
+        [SCHED_RELOAD] = true,
+        [SCHED_HIDE_AND_RELOAD] = true,
+        [SCHED_NPC_FREEZE] = true,
+        [ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")] = true,
+        [ZBaseESchedID("SCHED_METROPOLICE_WARN_AND_ARREST_ENEMY")] = true,
+        [ZBaseESchedID("SCHED_METROPOLICE_ARREST_ENEMY")] = true,
+    }
 
     -- Enemy valid and visible
     return self.EnemyVisible
 
     -- Enemy is within shoot distance
     && self.ZBWepSys_InShootDist
+
+    && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
 
     -- Facing enemy
     && self:IsFacing(ene)
@@ -1114,20 +1124,9 @@ end
 
 function NPC:ZBWepSys_WantsToShoot()
 
-    local ShootSchedBlacklist = {
-        [SCHED_RELOAD] = true,
-        [SCHED_HIDE_AND_RELOAD] = true,
-        [SCHED_NPC_FREEZE] = true,
-        [ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")] = true,
-        [ZBaseESchedID("SCHED_METROPOLICE_WARN_AND_ARREST_ENEMY")] = true,
-        [ZBaseESchedID("SCHED_METROPOLICE_ARREST_ENEMY")] = true,
-    }
-
     return !self.DoingPlayAnim
 
     && self:ZBWepSys_AIWantsToShoot()
-
-    && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
 
     && self:ShouldFireWeapon() -- Custom function
 
@@ -2045,8 +2044,9 @@ end
 
 
 function NPC:OnOwnedEntCreated( ent )
-    ent.LastOwnerZBaseFaction = self.ZBaseFaction
+
     self:CustomOnOwnedEntCreated( ent )
+
 end
 
 

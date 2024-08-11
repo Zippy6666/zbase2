@@ -46,32 +46,6 @@ end)
 
 if SERVER then
 
-    local function ShouldUseZBaseRelationshipSys(ent)
-
-        if !ent:IsNPC() then
-            return false
-        end
-
-        local npc = ent
-        local class =  string.lower( npc:GetClass() )
-        
-        if class=="bullseye_strider_focus" or class=="npc_bullseye" or class == "pill_puppet" then
-            return false
-        end
-
-        if npc.IsVJBaseSNPC then return false end
-        if npc.IsZBaseNavigator then return false end
-        if npc.ZBaseNPCCopy_DullState then return false end
-
-        -- Used by NPC suppression system
-        if npc.is_fake then return false end
-
-
-        return true
-        
-    end
-
-
     hook.Add("OnEntityCreated", "ZBASE", function( ent )
         conv.callNextTick(function()
             if !IsValid(ent) then return end
@@ -103,7 +77,7 @@ if SERVER then
             if !IsValid(ent) then return end
 
             -- Give ZBASE faction and start using
-            local shouldUseRelSys = ShouldUseZBaseRelationshipSys(ent)
+            local shouldUseRelSys = ZBaseShouldUseRelationshipSys(ent)
             if shouldUseRelSys then
 
                 if Developer:GetBool() then
@@ -115,7 +89,7 @@ if SERVER then
 
                 -- If a ZBASE NPC, apply the supplied start faction, or the override chosen by the player
                 -- If a different NPC, find a fitting ZBASE faction to apply
-                if ent.IsZBaseNPC then
+                if ent.IsZBaseNPC or ent.ForceSetZBaseFaction then
 
                     local PlayerFactionOverride = IsValid(ent.ZBase_PlayerWhoSpawnedMe) && ent.ZBase_PlayerWhoSpawnedMe.ZBaseNPCFactionOverride
                     ZBaseSetFaction(ent, PlayerFactionOverride or nil)

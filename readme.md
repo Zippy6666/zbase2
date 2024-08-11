@@ -28,6 +28,6 @@
 
 ## TODO
 - [ ] Use tree nodes or whatever they are called for HL2/BM/EZ2 etc
-- [ ] Add spawn with toolgun
+- [x] Add spawn with toolgun
 - [ ] Clientside ragdoll option
 - [ ] Enforce addon recommendations

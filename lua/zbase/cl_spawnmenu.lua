@@ -38,18 +38,6 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsClient", function()
 end)
 
 
-local function DoGenericSpawnmenuRightclickMenu( self )
-	local menu = DermaMenu()
-	
-	menu:AddOption( "#spawnmenu.menu.copy", function() SetClipboardText( self:GetSpawnName() ) end ):SetIcon( "icon16/page_copy.png" )
-	if ( isfunction( self.OpenMenuExtra ) ) then
-		self:OpenMenuExtra( menu )
-	end
-
-	menu:Open()
-end
-
-
 spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	if ( !obj.material ) then return end
 	if ( !obj.nicename ) then return end
@@ -71,7 +59,21 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	end
 
 
-	icon.OpenMenu = DoGenericSpawnmenuRightclickMenu
+	icon.OpenMenu = function( self )
+		local menu = DermaMenu()
+		
+		menu:AddOption( "#spawnmenu.menu.copy", function() SetClipboardText( self:GetSpawnName() ) end ):SetIcon( "icon16/page_copy.png" )
+		if ( isfunction( self.OpenMenuExtra ) ) then
+			self:OpenMenuExtra( menu )
+		end
+	
+		menu:AddOption( "#spawnmenu.menu.spawn_with_toolgun", function()
+			RunConsoleCommand( "gmod_tool", "creator" ) RunConsoleCommand( "creator_type", "2" )
+			RunConsoleCommand( "creator_name", obj.spawnname ) RunConsoleCommand( "creator_arg", weapon )
+		end ):SetIcon( "icon16/brick_add.png" )
+	
+		menu:Open()
+	end
 
 
 	if ( IsValid( container ) ) then
