@@ -85,104 +85,101 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 end)
 
 
-hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
 
-	-- Find all categories
-	local Categories = {}
-	for k, v in pairs( ZBaseSpawnMenuNPCList ) do
-		local Category = v.Category or "Other"
-		if ( !isstring( Category ) ) then Category = tostring( Category ) end
+local function GiveIconsToNode( pnlContent, tree, node, npcdata )
+	node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
+		-- If we've already populated it - forget it.
+		if ( self.PropPanel ) then return end
 
-		local Tab = Categories[ Category ] or {}
-		Tab[ k ] = v
-		Categories[ Category ] = Tab
-	end
+		-- Create the container panel
+		self.PropPanel = vgui.Create( "ContentContainer", pnlContent )
+		self.PropPanel:SetVisible( false )
+		self.PropPanel:SetTriggerSpawnlistChange( false )
 
-
-
-	-- THE ALL NODE
-	local AllPropPanel
-	if ZBCVAR.AllCat:GetBool() then
-		local all_node = tree:AddNode( "[ALL]", GenericIcon ) -- Add a node to the tree
-		all_node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
-			-- If we've already populated it - forget it.
-			if ( self.PropPanel ) then return end
-
-			self.PropPanel = vgui.Create( "ContentContainer", pnlContent )
-			self.PropPanel:SetVisible( false )
-			self.PropPanel:SetTriggerSpawnlistChange( false )
-			AllPropPanel = self.PropPanel
-		end
-		-- If we click on the node populate it and switch to it.
-		all_node.DoClick = function( self )
-			self:DoPopulate()
-			pnlContent:SwitchPanel( self.PropPanel )
-		end
-		all_node:InternalDoClick()
-	end
-
-	-- Create the categories
-	local npcs = {}
-	for CategoryName, v in SortedPairs( Categories ) do
-		local node = tree:AddNode( CategoryName, ZBaseCategoryImages[CategoryName] or GenericIcon ) -- Add a node to the tree
-		node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
-			-- If we've already populated it - forget it.
-			if ( self.PropPanel ) then return end
-
-			-- Create the container panel
-			self.PropPanel = vgui.Create( "ContentContainer", pnlContent )
-			self.PropPanel:SetVisible( false )
-			self.PropPanel:SetTriggerSpawnlistChange( false )
-
-			for name, ent in SortedPairsByMemberValue( v, "Name" ) do
-				local mat = ent.IconOverride or GenericIcon
-
-				if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
-					mat = "entities/" .. name .. ".png"
-				end
-
-				local icon = spawnmenu.CreateContentIcon( "zbase_npcs", self.PropPanel, {
-					nicename	= ent.Name or name,
-					spawnname	= name,
-					material	= mat,
-					weapon		= ent.Weapons,
-					admin		= ent.AdminOnly
-				} )
-			end
-		end
-
-
-		-- If we click on the node populate it and switch to it.
-		node.DoClick = function( self )
-			self:DoPopulate()
-			pnlContent:SwitchPanel( self.PropPanel )
-		end
-
-
-		table.Merge(npcs, v)
-	end
-
-
-	-- Populate "All" category with the npcs of this category
-	if ZBCVAR.AllCat:GetBool() then
-
-		for name, ent in SortedPairsByMemberValue( npcs, "Name" ) do
+		for name, ent in SortedPairsByMemberValue( npcdata, "Name" ) do
 			local mat = ent.IconOverride or GenericIcon
 
 			if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
 				mat = "entities/" .. name .. ".png"
 			end
 
-			local icon = spawnmenu.CreateContentIcon( "zbase_npcs", AllPropPanel, {
+			local icon = spawnmenu.CreateContentIcon( "zbase_npcs", self.PropPanel, {
 				nicename	= ent.Name or name,
 				spawnname	= name,
 				material	= mat,
 				weapon		= ent.Weapons,
-				admin		= ent.AdminOnly,
+				admin		= ent.AdminOnly
 			} )
 		end
-	
-	end 
+	end
+
+	node.DoClick = function( self )
+		self:DoPopulate()
+		pnlContent:SwitchPanel( self.PropPanel )
+	end
+end
+
+
+hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
+
+	local tbl = {}
+	for class, npcdata in pairs( ZBaseSpawnMenuNPCList ) do
+		if isstring(npcdata.Category) then
+			local split = string.Split(npcdata.Category, ": ")
+			local s1, s2 = split[1], split[2]
+			tbl[s1] = tbl[s1] or {}
+
+			if s2 then
+				tbl[s1][s2] = tbl[s1][s2] or {}
+				tbl[s1][s2][class] = npcdata
+			else
+				tbl[s1][class] = npcdata
+			end
+		end
+	end
+
+	local allNPCs = {}
+	local allNode = tree:AddNode( "ZBASE", GenericIcon )
+	for divisionName, division in SortedPairs( tbl ) do
+		local allCatIconsSame = true
+		local lastIconPath
+		for categoryName in pairs(division) do
+			local catIcon = ZBaseCategoryImages[divisionName..": "..categoryName]
+			if isstring(lastIconPath) && catIcon != lastIconPath then
+				allCatIconsSame=false
+			end
+			lastIconPath = catIcon
+		end
+
+		local divisionIcon = allCatIconsSame && lastIconPath or GenericIcon
+		local divisionNPCs = {}
+		local node = allNode:AddNode( divisionName, divisionIcon ) -- Add a node to the tree
+		for categoryName, category in SortedPairs(division) do
+
+			if ZBaseNPCs[categoryName] then
+				-- This is not a category, it is npc data
+				GiveIconsToNode( pnlContent, tree, node, division )
+				table.Merge(allNPCs, division)
+			else
+
+				local catNode = node:AddNode(categoryName, ZBaseCategoryImages[divisionName..": "..categoryName] or GenericIcon)
+				GiveIconsToNode( pnlContent, tree, catNode, category )
+				table.Merge(divisionNPCs, category)
+
+			end
+
+		end
+		if !table.IsEmpty(divisionNPCs) then
+			GiveIconsToNode( pnlContent, tree, node, divisionNPCs )
+			table.Merge(allNPCs, divisionNPCs)
+		end
+
+	end
+	if !table.IsEmpty(allNPCs) then
+		GiveIconsToNode( pnlContent, tree, allNode, allNPCs )
+	end
+
+
 end)
 
 
