@@ -565,7 +565,7 @@ hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
         end
 
         for k, v in ipairs(ent:GetMaterials()) do
-            rag:SetSubMaterial(k - 1, v)
+            rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))
         end
 
     end
