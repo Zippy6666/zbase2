@@ -110,7 +110,7 @@ function ENT:OnTakeDamage( dmginfo )
 
 
 	-- Die
-	if self:Health() <= 0 then
+	if self:Health() <= 0 && !self.Dead then
 		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
 	end
 end
