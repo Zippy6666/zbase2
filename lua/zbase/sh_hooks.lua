@@ -102,7 +102,7 @@ if SERVER then
 
                 end
             end
-        
+
         end)
     end)
 end
@@ -114,7 +114,7 @@ hook.Add("PlayerSpawnNPC", "ZBASE", function(ply, npc_type, wep_cls)
     if ZBase_PlayerSpawnNPCHookCall then
         return
     end
-    
+
     local replace_cls = ZBCVAR.Replace:GetBool() && ZBASE_MENU_REPLACEMENTS_FLIPPED[npc_type]
 
     npc_type = replace_cls or string.Right(npc_type, #npc_type-6)
@@ -569,18 +569,15 @@ hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
             return
         end
 
-        -- Set submaterials to ragdoll if any
-        if istable(ent.SubMaterials) then
-            for k, v in pairs(ent.SubMaterials) do
-                rag:SetSubMaterial(k, v)
-            end
+        for k, v in ipairs(ent:GetMaterials()) do
+            rag:SetSubMaterial(k - 1, v)
         end
 
     end
 
 end)
 net.Receive("ZBaseClientRagdoll", function(...)
-    ZBaseClientRagdoll(net.ReadEntity)
+    ZBaseClientRagdoll(net.ReadEntity())
 end)
 
 
@@ -652,7 +649,7 @@ end)
 
 
 -- Find nearest zbase ally to player
-local function FindNearestZBaseAllyToPly( ply ) 
+local function FindNearestZBaseAllyToPly( ply )
     local mindist
     local ally
 
@@ -682,17 +679,17 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
     local deathpos = ply:GetPos()
 
 
-    
+
     if IsValid(ally) && ally:Visible(ply) then
         if isfunction(ally.OnAllyDeath) then
             ally:OnAllyDeath(ply)
         end
-    
+
         if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
             timer.Simple(0.5, function()
                 if IsValid(ally) then
                     ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
-    
+
                     if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
                         ally:FullReset()
                         ally:Face(deathpos, ally.InternalCurrentVoiceSoundDuration)

@@ -1,6 +1,4 @@
 util.AddNetworkString("ZBaseGlowEyes")
-util.AddNetworkString("ZBaseNetworkSubmaterial")
-
 
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
@@ -101,7 +99,7 @@ function NPC:ZBaseInit()
 
     self:CustomInitialize()
 
-    
+
     self:CallNextTick("InitNextTick")
 
 
@@ -173,20 +171,6 @@ end
 
 function NPC:InitModel()
     self:SetRenderMode(self.RenderMode)
-
-
-    -- Set sub materials
-    for k, v in pairs(self.SubMaterials) do
-
-        net.Start("ZBaseNetworkSubmaterial")
-        net.WriteUInt(k-1, 5)
-        net.WriteString(v)
-        net.WriteEntity(self)
-        net.Broadcast()
-
-        self:SetSubMaterial(k-1, v)
-
-    end
 
     -- Set model
     if self.SpawnModel then
@@ -1973,7 +1957,7 @@ function NPC:NewSchedDetected( sched, schedName )
     -- Has no reload animation, do workaround
     -- local wep = self:GetActiveWeapon()
     -- if sched == SCHED_RELOAD && self:SelectWeightedSequence(ACT_RELOAD) == -1 && wep.IsZBaseWeapon then
-        
+
     --     self:ClearSchedule()
     --     self:TaskComplete()
 
@@ -2076,7 +2060,7 @@ function NPC:DoMoveSpeed()
     if !self.DoingPlayAnim then
         self:SetPlaybackRate(self.MoveSpeedMultiplier)
     end
-    
+
     self:SetSaveValue("m_flTimeLastMovement", -0.1*self.MoveSpeedMultiplier)
 end
 
@@ -2344,13 +2328,13 @@ function NPCB.FactionCallForHelp:Run( self )
             elseif self.OnAlertAllies then
                 self:OnAlertAllies(ally)
             end
-            
+
 
             conv.overlay("Text", function()
                 local pos = self:GetPos()+self:GetUp()*25
                 return {pos, "Was called by ally.", 2}
             end)
-            
+
         end
     end
 
@@ -3232,7 +3216,7 @@ function NPCB.Dialogue:Run( self )
                 -- Not sure if this does anything of value
                 ZBaseDelayBehaviour( ZBaseRndTblRange(ally.IdleSoundCooldown), ally, "Dialogue" )
 
- 
+
                 -- Reset from dialogue state
                 timer.Simple(sndDurAns, function()
                     if !IsValid(self) then return end
@@ -3758,9 +3742,9 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- Byebye
     if shouldCLRagdoll && self:SelectWeightedSequence(ACT_DIERAGDOLL)!=-1 && !Gibbed then
-        
+
         if IsValid(rag) then
-    
+
             -- This makes so that the client ragdoll has the desired bodygroups
             for k, v in pairs(rag:GetBodyGroups()) do
                 self:SetBodygroup(v.id, rag:GetBodygroup(v.id))
@@ -3968,11 +3952,11 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		    physObj:SetPos( pos )
         end
 
-        
+
         if !self.RagdollDontAnglePhysObjects then
 	        physObj:SetAngles( ang )
         end
-        
+
 
         if force then
             physObj:SetVelocity(force)
@@ -4156,7 +4140,7 @@ function NPC:InternalCreateGib( model, data )
             if LastDMGInfo then
                 local ForceDir = LastDMGInfo:GetDamageForce()/(math.Clamp(phys:GetMass(), 40, 10000))
                 phys:SetVelocity( (ForceDir) + VectorRand()*(ForceDir:Length()*0.33) )
-            end 
+            end
         end
     end
 
