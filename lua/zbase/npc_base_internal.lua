@@ -1,4 +1,5 @@
 util.AddNetworkString("ZBaseGlowEyes")
+util.AddNetworkString("ZBaseNetworkSubmaterial")
 
 
 local NPC = ZBaseNPCs["npc_zbase"]
@@ -176,7 +177,15 @@ function NPC:InitModel()
 
     -- Set sub materials
     for k, v in pairs(self.SubMaterials) do
+
+        net.Start("ZBaseNetworkSubmaterial")
+        net.WriteUInt(k-1, 5)
+        net.WriteString(v)
+        net.WriteEntity(self)
+        net.Broadcast()
+
         self:SetSubMaterial(k-1, v)
+
     end
 
     -- Set model
@@ -3749,6 +3758,22 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- Byebye
     if shouldCLRagdoll && self:SelectWeightedSequence(ACT_DIERAGDOLL)!=-1 && !Gibbed then
+        
+        if IsValid(rag) then
+    
+            -- This makes so that the client ragdoll has the desired bodygroups
+            for k, v in pairs(rag:GetBodyGroups()) do
+                self:SetBodygroup(v.id, rag:GetBodygroup(v.id))
+            end
+
+            -- And the desired skin
+            if rag:GetSkin() != self:GetSkin() then
+                self:SetSkin(rag:GetSkin())
+            end
+
+        end
+
+
 		self:SetNPCState(NPC_STATE_DEAD)
 
         self:FullReset()
@@ -3866,6 +3891,7 @@ function NPC:FakeRagdoll()
 	rag:SetModel(self.RagdollModel == "" && self:GetModel() or self.RagdollModel)
     rag:SetPos(self:GetPos())
     rag:SetAngles(self:GetAngles())
+    rag:SetSkin(self:GetSkin())
     rag.IsZBaseRag = true
 	rag:Spawn()
     rag:SetNoDraw(true)

@@ -556,13 +556,28 @@ end
 
 -- Client ragdolls
 hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
+
 	if ent:GetNWBool("ZBaseNPCCopy_DullState") then
 		rag:Remove()
+        return
 	end
 
-    if ent:GetNWBool("IsZBaseNPC") && (!ZBCVAR.ClientRagdolls:GetBool() or KeepCorpses:GetBool()) then
-		rag:Remove()
+    if ent:GetNWBool("IsZBaseNPC") then
+
+        if (!ZBCVAR.ClientRagdolls:GetBool() or KeepCorpses:GetBool()) then
+            rag:Remove()
+            return
+        end
+
+        -- Set submaterials to ragdoll if any
+        if istable(ent.SubMaterials) then
+            for k, v in pairs(ent.SubMaterials) do
+                rag:SetSubMaterial(k, v)
+            end
+        end
+
     end
+
 end)
 net.Receive("ZBaseClientRagdoll", function(...)
     ZBaseClientRagdoll(net.ReadEntity)
