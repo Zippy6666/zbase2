@@ -550,10 +550,6 @@ end
 ======================================================================================================================================================
 --]]
 
-if SERVER then
-    util.AddNetworkString("ZBaseClientRagdoll")
-end
-
 -- Client ragdolls
 hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
 
@@ -576,10 +572,6 @@ hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
     end
 
 end)
-net.Receive("ZBaseClientRagdoll", function(...)
-    ZBaseClientRagdoll(net.ReadEntity())
-end)
-
 
 -- Disable default server ragdolls
 hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)

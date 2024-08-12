@@ -172,6 +172,10 @@ end
 function NPC:InitModel()
     self:SetRenderMode(self.RenderMode)
 
+    for k, v in pairs(self.SubMaterials) do
+        self:SetSubMaterial(k - 1, v)
+    end
+
     -- Set model
     if self.SpawnModel then
 
@@ -3922,12 +3926,12 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	rag:Spawn()
 
 
-    for k, v in pairs(self:GetBodyGroups()) do
+    for k, v in ipairs(self:GetBodyGroups()) do
         rag:SetBodygroup(v.id, self:GetBodygroup(v.id))
     end
 
 
-    for k, v in pairs(self.SubMaterials) do
+    for k, v in ipairs(self:GetMaterials()) do
         rag:SetSubMaterial(k-1, v)
     end
 
