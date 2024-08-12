@@ -1,5 +1,4 @@
 local Developer = GetConVar("developer")
-local KeepCorpses = GetConVar("ai_serverragdolls")
 
 
 --[[
@@ -564,7 +563,7 @@ hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
 
     if ent:GetNWBool("IsZBaseNPC") then
 
-        if (!ZBCVAR.ClientRagdolls:GetBool() or KeepCorpses:GetBool()) then
+        if ent:GetShouldServerRagdoll() then
             rag:Remove()
             return
         end
