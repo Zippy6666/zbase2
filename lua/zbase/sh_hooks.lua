@@ -1,4 +1,6 @@
 local Developer = GetConVar("developer")
+local KeepCorpses = GetConVar("ai_serverragdolls")
+
 
 --[[
 ======================================================================================================================================================
@@ -542,6 +544,38 @@ if CLIENT then
     end)
 end
 
+--[[
+======================================================================================================================================================
+                                           Ragdolls
+======================================================================================================================================================
+--]]
+
+if SERVER then
+    util.AddNetworkString("ZBaseClientRagdoll")
+end
+
+-- Client ragdolls
+hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
+	if ent:GetNWBool("ZBaseNPCCopy_DullState") then
+		rag:Remove()
+	end
+
+    if ent:GetNWBool("IsZBaseNPC") && (!ZBCVAR.ClientRagdolls:GetBool() or KeepCorpses:GetBool()) then
+		rag:Remove()
+    end
+end)
+net.Receive("ZBaseClientRagdoll", function(...)
+    ZBaseClientRagdoll(net.ReadEntity)
+end)
+
+
+-- Disable default server ragdolls
+hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
+    if ent.IsZBaseNPC && !rag.IsZBaseRag then
+        rag:Remove()
+    end
+end)
+
 
 --[[
 ======================================================================================================================================================
@@ -733,21 +767,6 @@ hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
 
 end)
 
-
--- Disable client ragdolls
-hook.Add("CreateClientsideRagdoll", "ZBaseNoRag", function(ent, rag)
-	if ent:GetNWBool("IsZBaseNPC") or ent:GetNWBool("ZBaseNPCCopy_DullState") then
-		rag:Remove()
-	end
-end)
-
-
--- Disable default server ragdolls
-hook.Add("CreateEntityRagdoll", "ZBaseNoRag", function(ent, rag)
-    if ent.IsZBaseNPC && !rag.IsZBaseRag then
-        rag:Remove()
-    end
-end)
 
 
 -- Player trying to shoot NPC

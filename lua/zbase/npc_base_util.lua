@@ -1,4 +1,5 @@
 local NPC = ZBaseNPCs["npc_zbase"]
+local KeepCorpses = GetConVar("ai_serverragdolls")
 
 
     // These are functions that you can call, don't change them

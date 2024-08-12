@@ -524,6 +524,7 @@ end
 
 function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
 
+    if !IsValid(rag) then return end
 
     rag.DamagedSmoke = ents.Create("env_smoketrail")
     rag.DamagedSmoke:SetPos(rag:GetAttachment(rag:LookupAttachment("vent")).Pos)

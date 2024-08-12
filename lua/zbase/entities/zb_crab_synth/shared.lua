@@ -17,7 +17,8 @@ NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 ZBaseAddGlowingEye("CrabGlow", "models/zippy/synth.mdl", 0, "Box09", Vector(12,7,0), 65, Color(0, 75, 150))
 
 
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.Step",
 	channel = CHAN_AUTO,
@@ -30,7 +31,8 @@ sound.Add({
         "npc/crabsynth/cs_step03.wav",
     },
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.Idle",
 	channel = CHAN_VOICE,
@@ -43,7 +45,8 @@ sound.Add({
 		"npc/crabsynth/cs_idle03.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.Alert",
 	channel = CHAN_VOICE,
@@ -56,7 +59,8 @@ sound.Add({
 		"npc/crabsynth/cs_alert03.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.HearSound",
 	channel = CHAN_VOICE,
@@ -67,7 +71,8 @@ sound.Add({
         "npc/crabsynth/cs_distant01.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.LostEnemy",
 	channel = CHAN_VOICE,
@@ -78,7 +83,8 @@ sound.Add({
 		"npc/crabsynth/cs_distant02.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.Announce",
 	channel = CHAN_VOICE,
@@ -89,7 +95,8 @@ sound.Add({
         "npc/crabsynth/cs_pissed01.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.Pain",
 	channel = CHAN_VOICE,
@@ -100,7 +107,8 @@ sound.Add({
         "npc/crabsynth/cs_roar02.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.SeeDanger",
 	channel = CHAN_VOICE,
@@ -111,7 +119,8 @@ sound.Add({
         "npc/crabsynth/cs_roar01.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.Death",
 	channel = CHAN_VOICE,
@@ -122,7 +131,8 @@ sound.Add({
         "npc/crabsynth/cs_die.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.MeleeHit",
 	channel = CHAN_AUTO,
@@ -133,7 +143,8 @@ sound.Add({
         "npc/crabsynth/cs_skewer.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.MinigunLoop",
 	channel = CHAN_AUTO,
@@ -144,7 +155,8 @@ sound.Add({
 		"npc/crabsynth/minigun_loop.wav",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.MinigunStart",
 	channel = CHAN_AUTO,
@@ -155,7 +167,8 @@ sound.Add({
 		"npc/crabsynth/minigun_start.ogg",
     }
 })
---]]==============================================================================================]]
+
+
 sound.Add({
     name = "ZBaseCrabSynth.MinigunStop",
 	channel = CHAN_AUTO,
@@ -166,4 +179,5 @@ sound.Add({
 		"npc/crabsynth/minigun_stop.wav",
     }
 })
---]]==============================================================================================]]
+
+

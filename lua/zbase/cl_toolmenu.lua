@@ -130,6 +130,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     --]]
 
     ZBaseAddMenuCategory("D - Aftermath", function( panel )
+        panel:CheckBox( "Client Ragdolls", "zbase_cl_ragdolls")
+        panel:ControlHelp("Should ZBase ragdolls be clientside? This will ignore 'Ragdoll Remove Time' and 'Max Ragdolls'. Some NPC deaths may not work as intended.")
+
         panel:NumSlider( "Ragdoll Remove Time", "zbase_rag_remove_time", 0, 600, 1 )
         panel:ControlHelp("Time until ragdolls are removed, 0 = never. If keep corpses is enabled, this is ignored.")
         panel:NumSlider( "Max Ragdolls", "zbase_rag_max", 1, 200, 0 )

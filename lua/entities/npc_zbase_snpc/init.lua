@@ -13,6 +13,7 @@ function ENT:Initialize()
 	self:SetSolid(SOLID_BBOX)
 	self:SetMoveType(MOVETYPE_STEP)
 	self:SetCollisionGroup(COLLISION_GROUP_NPC)
+	self:SetBloodColor(BLOOD_COLOR_RED)
 	
 
 	self.Bullseye = ents.Create("npc_bullseye")

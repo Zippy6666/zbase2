@@ -352,3 +352,17 @@ function ZBaseShouldUseRelationshipSys(ent)
     return true
     
 end
+
+
+function ZBaseClientRagdoll( ent )
+    if !IsValid(ent) then return end
+
+    if SERVER then
+        net.Start("ZBaseClientRagdoll")
+        net.WriteEntity(ent)
+        net.SendPVS()
+    elseif CLIENT then
+        local rag = ent:BecomeRagdollOnClient()
+    end
+
+end
