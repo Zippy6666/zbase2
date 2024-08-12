@@ -23,15 +23,4 @@ NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 if CLIENT then
 
-    net.Receive("ZBaseNetworkSubmaterial", function()
-        
-        local idx, name, ent = net.ReadUInt(5), net.ReadString(), net.ReadEntity()
-        if !IsValid(ent) then return end
-        
-        ent.SubMaterials = ent.SubMaterials or {}
-        ent.SubMaterials[idx] = name
-
-    end)
-
-
 end
