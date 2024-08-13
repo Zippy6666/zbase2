@@ -18,8 +18,10 @@ end
 
 local function BehaviourTimer( ent )
 
-    -- Doing death anim, no behaviours then pls
+    -- Is dead, so don't do behaviour
     if ent.DoingDeathAnim then return end
+    if ent.Dead then return end
+    if ent:GetNPCState()==NPC_STATE_DEAD then return end
 
 
     -- No behaviour with EFL_NO_THINK_FUNCTION
