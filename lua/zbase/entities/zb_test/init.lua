@@ -1,23 +1,20 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-NPC.Models = {""}
+NPC.Models = {}
+
+NPC.ZBaseStartFaction = "combine"
+
 
 function NPC:CustomInitialize()
-    self:Zombie_GiveHeadCrabs(2)
+    self:SetSkin(2)
+    self.GonnaExplode = false
 end
 
 
-function NPC:CustomOnOwnedEntCreated( ent )
-    if ent:GetClass()=="npc_headcrab_poison" && !ent.IsZBaseNPC then
-
-        -- New crab
-        local customHeadcrab = ZBaseSpawnZBaseNPC("zb_antlion", ent:GetPos())
-        customHeadcrab:SetAngles(ent:GetAngles())
-        customHeadcrab:SetVelocity(ent:GetVelocity())
-        customHeadcrab.ZBaseStartFaction = ZBaseGetFaction(self) -- Crab starts with same faction as me
-
-        -- Remove old crab
-        ent:Remove()
-
+function NPC:CustomThink()
+    if !self.GonnaExplode && self:SeeEne() && self:ZBaseDist(self:GetEnemy(), {within=300}) then
+        self:SetSkin(2)
+        self:SetSaveValue("m_bPowerDown", true)
+        self.GonnaExplode = true
     end
 end

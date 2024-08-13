@@ -3753,6 +3753,11 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
                 self:SetBodygroup(v.id, rag:GetBodygroup(v.id))
             end
 
+            -- And the desired model
+            if rag:GetModel()!=self:GetModel() then
+                self:SetModel(rag:GetModel())
+            end
+
             -- And the desired skin
             if rag:GetSkin() != self:GetSkin() then
                 self:SetSkin(rag:GetSkin())
