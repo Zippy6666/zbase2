@@ -780,23 +780,23 @@ end
 
 -- https://wiki.facepunch.com/gmod/Hold_Types
 local HoldTypeFallback = {
-    ["pistol"] = "revolver",	-- One hand grasp used for pistols
-    ["smg"] = "ar2",	-- Used for two-handed weapons such as the SMG1 ( rifles with a grip )
-    ["grenade"] = "passive",	-- Used for grenade, similar to melee
-    ["ar2"] = "shotgun",	-- Used for two-handed weapons such as the AR2 ( rifles without a grip )
-    ["shotgun"] = "ar2",	-- Used for weapons such as shotguns
-    ["rpg"] = "ar2",	-- Used for weapons that rest on your shoulder, such as RPG
-    ["physgun"] = "shotgun",	-- Used for the gravity and physics guns
-    ["crossbow"] = "shotgun",	-- Used for weapons such as crossbows, very similar to shotgun
-    ["melee"] = "passive",	-- Hand raised above head, used for crowbar
-    ["slam"] = "passive",	-- Used for weapons such as SLAM/explosives/c4
-    ["fist"] = "passive",	-- Hands up punching hold type
-    ["melee2"] = "passive",	-- Two-handed sword
-    ["knife"] = "passive",	-- Bent over stabbing hold type
-    ["duel"] = "pistol",	-- Dual pistols hold type
-    ["camera"] = "revolver",	-- Holds the weapon in front of your face as a camera
-    ["magic"] = "passive", -- Use your power of will to move objects. One hand in front of you, one hand to your head
-    ["revolver"] = "pistol", -- wo hand pistol holdtype, revolver reload animation.
+    ["pistol"] = "revolver",
+    ["smg"] = "ar2",
+    ["grenade"] = "passive",
+    ["ar2"] = "shotgun",	
+    ["shotgun"] = "ar2",	
+    ["rpg"] = "ar2",	
+    ["physgun"] = "shotgun",	
+    ["crossbow"] = "shotgun",	
+    ["melee"] = "passive",	
+    ["slam"] = "passive",	
+    ["fist"] = "passive",	
+    ["melee2"] = "passive",	
+    ["knife"] = "passive",	
+    ["duel"] = "pistol",	
+    ["camera"] = "revolver",
+    ["magic"] = "passive", 
+    ["revolver"] = "pistol", 
     ["passive"] = "normal",
 }
 
@@ -1005,7 +1005,7 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
         self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
     else
 
-        self:Conv_STimer(0.1, function()
+        self:CONV_TimerSimple(0.1, function()
             local Weapon = self:Give( class )
 
             Weapon.FromZBaseInventory = true
@@ -1107,6 +1107,9 @@ function NPC:ZBWepSys_AIWantsToShoot()
     -- Enemy valid and visible
     return self.EnemyVisible
 
+    -- Must use on ground nav to shoot
+    && self:GetNavType()==NAV_GROUND
+
     -- Enemy is within shoot distance
     && self.ZBWepSys_InShootDist
 
@@ -1126,21 +1129,19 @@ function NPC:ZBWepSys_WantsToShoot()
 
     && self:ZBWepSys_AIWantsToShoot()
 
-    && self:ShouldFireWeapon() -- Custom function
+    && self:ShouldFireWeapon()
 
 end
 
 
 function NPC:ZBWepSys_CanFireWeapon()
 
-    -- Ready to fire
     return self:ZBWepSys_WantsToShoot()
 
     && self:ZBWepSys_HasShootAnim()
 
     && self.ZBWepSys_NextShoot < CurTime()
 
-    -- Volley has started
     && self.ZBWepSys_NextBurst < CurTime()
 
     && !self.ComballAttacking
@@ -1178,17 +1179,34 @@ end
 
 
 function NPC:ZBWepSys_TranslateAct(act, translateTbl)
-    local wantsToShoot = self:ZBWepSys_AIWantsToShoot()
+    local useLegacyAnimSys = ( (self.WeaponFire_Activities or self.WeaponFire_MoveActivities) && (true or false) )
+    local shouldForceShootStance = self.ForceShootStance && !useLegacyAnimSys
 
-    if wantsToShoot then
+    if !shouldForceShootStance then return end
+
+
+    local wantsToShoot = self:ZBWepSys_AIWantsToShoot()
+    local hasAmmo = !self:HasCondition(COND.NO_PRIMARY_AMMO)
+    local translatedAct
+    if wantsToShoot && hasAmmo then
 
         if self:IsMoving() then
-            return translateTbl[ACT_RUN_AIM]
+            translatedAct = translateTbl[ACT_RUN_AIM] -- Run shooting
         else
-            return (self.ZBWepSys_FiredWeapon && translateTbl[ACT_RANGE_ATTACK1]) or translateTbl[ACT_IDLE_ANGRY]
+            translatedAct = translateTbl[(self.ZBWepSys_FiredWeapon && ACT_RANGE_ATTACK1) or ACT_IDLE_ANGRY] -- Stand shooting
         end
 
     end
+
+
+    -- Don't put this activity if it has no animation for it
+    if translatedAct && self:SelectWeightedSequence(translatedAct) == -1 then
+        return
+    end
+
+
+    return translatedAct
+
 end
 
 
@@ -1754,6 +1772,9 @@ end
 
 
 function NPC:InternalStopAnimation(dontTransitionOut)
+    if !self.DoingPlayAnim then return end
+
+
     if !dontTransitionOut then
         -- Out transition --
         local goalSeq = self:SelectWeightedSequence(ACT_IDLE)
@@ -3768,7 +3789,9 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 		self:SetNPCState(NPC_STATE_DEAD)
 
+        self:InternalStopAnimation(true)
         self:FullReset()
+
 		self:SetSchedule(SCHED_DIE_RAGDOLL)
 
         SafeRemoveEntityDelayed(self, 1)

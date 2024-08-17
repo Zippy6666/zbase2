@@ -107,23 +107,23 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
 
--- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF --
--- NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK1_LOW} -- The NPC will randomly switch between these activities when firing their weapon
--- NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM, ACT_RUN_AIM} -- The NPC will randomly switch between these activities when firing their weapon
-
-
--- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF --
--- NPC.WeaponFire_DoGesture = true -- Should it play a gesture animation everytime it fires the weapon when standing still?
--- NPC.WeaponFire_DoGesture_Moving = true -- Should it play a gesture animation everytime it fires the weapon when moving?
--- NPC.WeaponFire_Gestures = {ACT_GESTURE_RANGE_ATTACK1} -- The gesture animations to play
-
-
 NPC.MeleeWeaponAnimations = {ACT_MELEE_ATTACK1} -- Animations to use when attacking with a melee weapon
 NPC.MeleeWeaponAnimations_TimeUntilDamage = 0.5 -- Time until the damage from melee weapons hit
 
 
-NPC.ExtraFireWeaponActivities = {} -- NPCs will fire when they have these activities as well. Syntax: [ACT_SOMETHING] = true
- 
+NPC.ExtraFireWeaponActivities = {} -- NPCs will fire when they have these activities. Syntax: [ACT_SOMETHING] = true
+NPC.ForceShootStance = true -- Set to false to not let the base force a shoot stance for the NPC
+
+
+-- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF, DON'T USE!! --
+-- NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK1_LOW} -- The NPC will randomly switch between these activities when firing their weapon
+-- NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM, ACT_RUN_AIM} -- The NPC will randomly switch between these activities when firing their weapon
+
+
+-- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF, DON'T USE!! --
+-- NPC.WeaponFire_DoGesture = true -- Should it play a gesture animation everytime it fires the weapon when standing still?
+-- NPC.WeaponFire_DoGesture_Moving = true -- Should it play a gesture animation everytime it fires the weapon when moving?
+-- NPC.WeaponFire_Gestures = {ACT_GESTURE_RANGE_ATTACK1} -- The gesture animations to play
 
 --[[
 ==================================================================================================
