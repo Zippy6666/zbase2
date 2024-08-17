@@ -1191,7 +1191,12 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
     if wantsToShoot && hasAmmo then
 
         if self:IsMoving() then
-            translatedAct = translateTbl[ACT_RUN_AIM] -- Run shooting
+
+            local translatedMoveAct = translateTbl[ACT_RUN_AIM] -- Run shooting
+            if !self.MovementOverrideActive && self:SelectWeightedSequence(translatedMoveAct) != -1 && self:GetMovementActivity() != translatedMoveAct then
+                self:SetMovementActivity(translatedMoveAct)
+            end
+            
         else
             translatedAct = translateTbl[(self.ZBWepSys_FiredWeapon && ACT_RANGE_ATTACK1) or ACT_IDLE_ANGRY] -- Stand shooting
         end

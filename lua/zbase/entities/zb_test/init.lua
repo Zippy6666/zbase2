@@ -1,20 +1,22 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-NPC.Models = {}
-
-NPC.ZBaseStartFaction = "combine"
 
 
 function NPC:CustomInitialize()
-    self:SetSkin(2)
-    self.GonnaExplode = false
+    local animations = {
+        self:GetSequenceActivity( self:LookupSequence("walk_all") ),
+        self:GetSequenceActivity( self:LookupSequence("crouch_walk_all") ),
+        self:GetSequenceActivity( self:LookupSequence("run_protected_all") ),
+        self:GetSequenceActivity( self:LookupSequence("run_panicked_all") ),
+    }
+    self.ZombieMoveAct = animations[math.random(1, #animations)]
+    print(self.ZombieMoveAct)
 end
 
 
-function NPC:CustomThink()
-    if !self.GonnaExplode && self:SeeEne() && self:ZBaseDist(self:GetEnemy(), {within=300}) then
-        self:SetSkin(2)
-        self:SetSaveValue("m_bPowerDown", true)
-        self.GonnaExplode = true
-    end
+    -- Tries to override the movement activity
+    -- Return any activity to override the movement activity with said activity
+    -- Return false to not override
+function NPC:OverrideMovementAct()
+    return self.ZombieMoveAct
 end
