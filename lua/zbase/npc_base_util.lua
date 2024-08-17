@@ -82,6 +82,11 @@ function NPC:GetCurrentSequenceName()
     return self:GetSequenceName(self:GetSequence())
 end
 
+    -- Return the name of the activity the NPC currently is playing
+function NPC:GetCurrentActivityName()
+    return self:GetSequenceActivityName(self:GetSequence())
+end
+
 
 --[[
 ==================================================================================================

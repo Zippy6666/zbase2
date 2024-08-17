@@ -979,8 +979,7 @@ function NPC:FootStepTimer()
 
 
     -- Set footstep cooldown
-    local act = self:GetMovementActivity()
-    if act == ACT_RUN then
+    if string.find(self:GetCurrentActivityName(), "ACT_RUN") then
 
         -- Run animation, do faster steps
         self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Run

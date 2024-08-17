@@ -778,39 +778,6 @@ end
 --]]
 
 
--- https://wiki.facepunch.com/gmod/Hold_Types
-local HoldTypeFallback = {
-    ["pistol"] = "revolver",
-    ["smg"] = "ar2",
-    ["grenade"] = "passive",
-    ["ar2"] = "shotgun",	
-    ["shotgun"] = "ar2",	
-    ["rpg"] = "ar2",	
-    ["physgun"] = "shotgun",	
-    ["crossbow"] = "shotgun",	
-    ["melee"] = "passive",	
-    ["slam"] = "passive",	
-    ["fist"] = "passive",	
-    ["melee2"] = "passive",	
-    ["knife"] = "passive",	
-    ["duel"] = "pistol",	
-    ["camera"] = "revolver",
-    ["magic"] = "passive", 
-    ["revolver"] = "pistol", 
-    ["passive"] = "normal",
-}
-
-
-
-local HoldTypeActCheck = {
-    ["pistol"] = ACT_RANGE_ATTACK_PISTOL,
-    ["smg"] = ACT_RANGE_ATTACK_SMG1,
-    ["ar2"] = ACT_RANGE_ATTACK_AR2,
-    ["shotgun"] =ACT_RANGE_ATTACK_SHOTGUN,
-    ["rpg"] = ACT_RANGE_ATTACK_RPG,
-    ["passive"] = ACT_IDLE,
-}
-
 
 function NPC:ZBWepSys_Init()
 
@@ -822,6 +789,9 @@ function NPC:ZBWepSys_Init()
 
 
     self.ZBWepSys_InShootDist = false
+
+
+    self.ZBWepSys_LastShootCooldown = 0
 
 
     local wep = self:GetActiveWeapon()
@@ -881,6 +851,35 @@ function NPC:ZBWepSys_Reload()
 end
 
 
+-- https://wiki.facepunch.com/gmod/Hold_Types
+local HoldTypeFallback = {
+    ["pistol"] = "revolver",
+    ["smg"] = "ar2",
+    ["grenade"] = "passive",
+    ["ar2"] = "shotgun",	
+    ["shotgun"] = "ar2",	
+    ["rpg"] = "ar2",	
+    ["physgun"] = "shotgun",	
+    ["crossbow"] = "shotgun",	
+    ["melee"] = "passive",	
+    ["slam"] = "passive",	
+    ["fist"] = "passive",	
+    ["melee2"] = "passive",	
+    ["knife"] = "passive",	
+    ["duel"] = "pistol",	
+    ["camera"] = "revolver",
+    ["magic"] = "passive", 
+    ["revolver"] = "pistol", 
+    ["passive"] = "normal",
+}
+local HoldTypeActCheck = {
+    ["pistol"] = ACT_RANGE_ATTACK_PISTOL,
+    ["smg"] = ACT_RANGE_ATTACK_SMG1,
+    ["ar2"] = ACT_RANGE_ATTACK_AR2,
+    ["shotgun"] =ACT_RANGE_ATTACK_SHOTGUN,
+    ["rpg"] = ACT_RANGE_ATTACK_RPG,
+    ["passive"] = ACT_IDLE,
+}
 function NPC:ZBWepSys_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFail )
     -- Set hold type, use fallbacks if npc does not have supporting anims
     -- Priority:
@@ -1049,6 +1048,7 @@ function NPC:ZBWepSys_Shoot()
 
 
     wep:PrimaryAttack()
+    local _, _, cooldown = wep:ZBaseGetNPCBurstSettings()
 
 
     self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
@@ -1063,11 +1063,18 @@ function NPC:ZBWepSys_Shoot()
         self.ZBWepSys_NextBurst = CurTime()+RndRest
         self.ZBWepSys_ShotsLeft = nil
 
+        self.ZBWepSys_LastShootCooldown = RndRest
+    
+    else
+        self.ZBWepSys_LastShootCooldown = cooldown
     end
 
 
-    local _, _, cooldown = wep:ZBaseGetNPCBurstSettings()
+    
     self.ZBWepSys_NextShoot = CurTime()+cooldown
+
+
+    
 
 end
 
@@ -1217,17 +1224,21 @@ end
 
 local attackingResetDelay = 1 -- Time until a zbase npc is not considered to attack a player, after hurting them
 function NPC:InternalOnFireWeapon()
+    local wep = self:GetActiveWeapon()
+    local ene = self:GetEnemy()
 
+
+    -- Trigger firing animations
     if self:IsMoving() then
         self:PlayAnimation(ACT_GESTURE_RANGE_ATTACK_SMG1, false, {isGesture=true})
     else
-        self:CONV_TempVar("ZBWepSys_FiredWeapon", true, 0.1)
         self:ResetIdealActivity(ACT_RANGE_ATTACK1)
+        self:CONV_TempVar("ZBWepSys_FiredWeapon", true, self.ZBWepSys_LastShootCooldown)
     end
 
-    if ZBCVAR.MaxNPCsShootPly:GetBool() then
 
-        local ene = self:GetEnemy()
+    -- AI when shooting at players
+    if ZBCVAR.MaxNPCsShootPly:GetBool() then
 
         -- Decide how many ZBase NPCs are attacking this player
         if ene:IsPlayer() then
@@ -1336,13 +1347,10 @@ function NPC:ZBWepSys_FireWeaponThink()
             self:ZBWepSys_Shoot()
 
 
-
             -- Make sure yaw is precise when standing and shooting
             if !self:IsMoving() then
                 self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
             end
-
-
 
 
             self:InternalOnFireWeapon()
