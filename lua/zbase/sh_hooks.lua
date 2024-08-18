@@ -1,6 +1,9 @@
 local Developer = GetConVar("developer")
 
 
+ReloadedSpawnmenuRecently = false
+
+
 --[[
 ======================================================================================================================================================
                                            INIT POST ENTITY
@@ -14,12 +17,11 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
     timer.Simple(0.5, function()
         include("zbase/sh_override_functions.lua")
     end)
-
-
-    -- Follow halo table
+    
+    
     if CLIENT then
 
-
+        -- Follow halo table
         LocalPlayer().ZBaseFollowHaloEnts = LocalPlayer().ZBaseFollowHaloEnts or {}
 
 
@@ -29,13 +31,18 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
             chat.AddText(wepCol, "ZBase is running on this server! Github link: https://github.com/Zippy6666/zbase2 (this message can be disabled in the ZBase options tab).")
         end
 
+
+        -- Add variable that checks if the spawn menu was recently reloaded
+        local spawnmenu_reload = concommand.GetTable()["spawnmenu_reload"]
+        concommand.Add("spawnmenu_reload", function(...)
+            ReloadedSpawnmenuRecently = true
+            spawnmenu_reload(...)
+            timer.Simple(0.5, function()
+                ReloadedSpawnmenuRecently = false 
+            end)
+        end)
+
     end
-
-
-    -- Precache zbase ents
-    -- if SERVER && ZBCVAR.Precache:GetBool() then
-    --     ZBasePrecacheEnts()
-    -- end
 
 end)
 
@@ -809,5 +816,12 @@ hook.Add( "KeyPress", "ZBASE", function( ply, key )
             ent:RangeThreatened(ply)
         end
 
+    end
+end)
+
+
+hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
+    if ent.IsZBaseNPC then
+        ent:CustomAcceptInput(input, activator, ent, value)
     end
 end)

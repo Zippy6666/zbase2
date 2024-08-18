@@ -1,10 +1,9 @@
 local ENT = FindMetaTable("Entity")
+local listGet = list.Get
+local emitSound = ENT.EmitSound
 
---[[
-======================================================================================================================================================
-                                           SERVER
-======================================================================================================================================================
---]]
+
+IsEmitSoundCall = false
 
 
 if SERVER then
@@ -46,23 +45,10 @@ if SERVER then
 end
 
 
---[[
-======================================================================================================================================================
-                                           SHARED
-======================================================================================================================================================
---]]
-
-
-local listGet = list.Get
-local emitSound = ENT.EmitSound
-
-
-IsEmitSoundCall = false
-
 
 -- Add ZBase NPCs to NPC list
 function list.Get( Type )
-    if !ZBase_JustReloadedSpawnmenu && Type == "NPC" then
+    if !ReloadedSpawnmenuRecently && Type == "NPC" then
 
         local ZBaseTableAdd = {}
         for k, v in pairs(ZBaseSpawnMenuNPCList) do
