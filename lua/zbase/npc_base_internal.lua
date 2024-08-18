@@ -1,5 +1,6 @@
 util.AddNetworkString("ZBaseGlowEyes")
 
+
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 local IsMultiplayer = !game.SinglePlayer()
@@ -49,6 +50,7 @@ function NPC:ZBaseInit()
     self.InternalCurrentVoiceSoundDuration = 0
     self:InitGrenades()
     self:InitSounds()
+
 
     -- Set specified internal variables
     for varname, var in pairs(self.EInternalVars or {}) do
@@ -1628,8 +1630,6 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
         return -- Stop here
 
     end
-    --------------------------------------=#
-
 
     -- Main function --
     local function playAnim()
@@ -1741,7 +1741,8 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
 
     end
-    ----------------------------------------------------------------=#
+    
+    
 
 
     -- Transition --
@@ -1757,7 +1758,8 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
         SCHED_NPC_FREEZE, forceFace, faceSpeed, false, playAnim, false, true )
         return -- Stop here
     end
-    -----------------------------------------------------------------=#
+
+    
 
     -- No transition, just play the animation
     playAnim()
@@ -1801,7 +1803,7 @@ function NPC:InternalStopAnimation(dontTransitionOut)
             SCHED_NPC_FREEZE, forceFace, faceSpeed, false, nil, false )
             return -- Stop here
         end
-        ---------------------------------------------------------------------------------=#
+        
     end
 
 
@@ -1861,7 +1863,7 @@ function NPC:AITick_Slow()
     else
         self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     end
-    ---------------------------------------------------------------=#
+    
 
 
     -- Update current danger
@@ -2932,10 +2934,6 @@ function NPC:RestartSoundCycle( sndTbl, data )
     local shuffle = table.Copy(sndTbl.sound)
     table.Shuffle(shuffle)
     ShuffledSoundTables[data.OriginalSoundName] = shuffle
-
-    -- MsgN("-----------------", data.OriginalSoundName, "-----------------")
-    -- MsgN(ShuffledSoundTables[data.OriginalSoundName])
-    -- MsgN("--------------------------------------------------")
 end
 
 
@@ -2954,50 +2952,38 @@ function NPC:OnEmitSound( data )
     end
 
 
-    -- Mute default "engine" voice when we should
-    if !ZBase_EmitSoundCall && self.MuteDefaultVoice && isVoiceSound then
-        return false
-    end
-
-
     -- Don't emit voice sounds on during these conditions
     if (self:NearbyAllySpeaking() or self.IsSpeaking or self.DoingDeathAnim) && isVoiceSound then
         return false
     end
 
 
-    -- Mute default sounds if we should
-    if !ZBase_EmitSoundCall && self.MuteAllDefaultSoundEmittions then
-        return false
-    end
+    -- Avoid voice line repetition
+    if sndVarName && isVoiceSound then
+        local sndTbl = sound.GetProperties(data.OriginalSoundName)
+        if sndTbl && istable(sndTbl.sound) && #sndTbl.sound > 1 then
 
-
-    -- Avoid sound repetition
-    local sndTbl = sound.GetProperties(data.OriginalSoundName)
-
-    if sndTbl && istable(sndTbl.sound) && table.Count(sndTbl.sound) > 1 && ZBase_EmitSoundCall then
-
-        if !SoundIndexes[data.OriginalSoundName] then
-            self:RestartSoundCycle(sndTbl, data)
-        else
-            if SoundIndexes[data.OriginalSoundName] == table.Count(sndTbl.sound) then
+            if !SoundIndexes[data.OriginalSoundName] then
                 self:RestartSoundCycle(sndTbl, data)
             else
-                SoundIndexes[data.OriginalSoundName] = SoundIndexes[data.OriginalSoundName] + 1
+                if SoundIndexes[data.OriginalSoundName] == table.Count(sndTbl.sound) then
+                    self:RestartSoundCycle(sndTbl, data)
+                else
+                    SoundIndexes[data.OriginalSoundName] = SoundIndexes[data.OriginalSoundName] + 1
+                end
             end
+
+            local snds = ShuffledSoundTables[data.OriginalSoundName]
+            data.SoundName = snds[SoundIndexes[data.OriginalSoundName]]
+            altered = true
+
         end
-
-        local snds = ShuffledSoundTables[data.OriginalSoundName]
-        data.SoundName = snds[SoundIndexes[data.OriginalSoundName]]
-        altered = true
-
-        -- MsgN(SoundIndexes[data.OriginalSoundName], data.SoundName)
     end
-    -----------------------------------------------=#
 
 
     -- Internal sound duration
     self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
+
 
 
     -- Custom on emit sound, allow the user to replace what sound to play

@@ -57,7 +57,7 @@ local listGet = list.Get
 local emitSound = ENT.EmitSound
 
 
-ZBase_EmitSoundCall = false
+IsEmitSoundCall = false
 
 
 -- Add ZBase NPCs to NPC list
@@ -84,15 +84,7 @@ end
 
 
 function ENT:EmitSound( snd, ... )
-    local IsZBaseNPC = self:GetNWBool("IsZBaseNPC")
-	if IsZBaseNPC && snd == "" then return end
-    if !IsValid(self) then return end
-
-
-	ZBase_EmitSoundCall = true
-	local v = emitSound(self, snd, ...)
-	ZBase_EmitSoundCall = false
-
-
-	return v
+	IsEmitSoundCall = true
+	emitSound(self, snd, ...)
+	IsEmitSoundCall = false
 end

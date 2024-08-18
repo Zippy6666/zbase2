@@ -22,5 +22,4 @@ NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 
 if CLIENT then
-
 end

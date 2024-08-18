@@ -337,17 +337,30 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
     end
 
 
-
     -- ZBase NPCs
     if data.Entity:GetNWBool("IsZBaseNPC") then
+
+
         -- Mute engine footsteps, and call EngineFootStep
         local StepSubStr = NPCFootstepSubStr[data.Entity:GetClass()]
-        local IsEngineFootStep = !ZBase_EmitSoundCall && ((StepSubStr && string.find(data.SoundName, StepSubStr)) or string.find(data.SoundName, "footstep"))
+        local IsEngineFootStep = !IsEmitSoundCall && ((StepSubStr && string.find(data.SoundName, StepSubStr)) or string.find(data.SoundName, "footstep"))
         if IsEngineFootStep then
             if SERVER then
                 data.Entity:EngineFootStep()
             end
 
+            return false
+        end
+
+        -- Mute default "engine" voice when we should
+        local isVoiceSound = isnumber(data.SentenceIndex) or data.Channel == CHAN_VOICE
+        if !IsEmitSoundCall && data.Entity.MuteDefaultVoice && isVoiceSound then
+            return false
+        end
+
+
+        -- Mute default sounds if we should
+        if !IsEmitSoundCall && data.Entity.MuteAllDefaultSoundEmittions then
             return false
         end
 
@@ -358,6 +371,7 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
                 return value
             end
         end
+    
     end
 
 end)
