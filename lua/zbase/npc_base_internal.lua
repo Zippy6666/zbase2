@@ -3958,7 +3958,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
 
     for k, v in ipairs(self:GetMaterials()) do
-        rag:SetSubMaterial(k-1, v)
+        rag:SetSubMaterial( k-1, self:GetSubMaterial(k-1) )
     end
 
 

@@ -25,5 +25,4 @@
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
 
 ## TODO
-- [ ] Clientside ragdoll option
-- [ ] Enforce addon recommendations
+- [ ] Client ragdoll fixes
