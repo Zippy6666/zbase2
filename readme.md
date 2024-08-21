@@ -25,4 +25,7 @@
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
 
 ## TODO
-- [ ] Client ragdoll fixes
+- [ ] New client ragdoll system that uses net message.
+- [ ] Make sure sound interruption can occur where applicable
+- [ ] Merge pull request
+- [ ] Lower shotgun firerate
