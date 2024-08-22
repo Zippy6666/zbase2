@@ -96,7 +96,7 @@ ZBase_EngineWeapon_Attributes = {
 
     --[[
     ======================================================================================================================================================
-                                            SMG
+                                            SHOTGUN
     ======================================================================================================================================================
     --]]
 
@@ -115,8 +115,8 @@ ZBase_EngineWeapon_Attributes = {
         NPCBurstMin = 1,
         NPCBurstMax = 1,
         NPCFireRate = 0,
-        NPCFireRestTimeMin = 0.5, 
-        NPCFireRestTimeMax = 1,
+        NPCFireRestTimeMin = 0.75, 
+        NPCFireRestTimeMax = 1.25,
         NPCBulletSpreadMult = 1.5, 
         NPCReloadSound = "Weapon_Shotgun.NPC_Reload", 
         NPCShootDistanceMult = 0.5,

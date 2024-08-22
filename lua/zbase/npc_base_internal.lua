@@ -3597,7 +3597,7 @@ function NPC:OnEntityTakeDamage( dmg )
 
     -- Prevent engine gib
     if goingToDie && ShouldPreventGib[self:GetClass()] then
-self.ZBasePreDeathDamageType = dmg:GetDamageType()
+        self.ZBasePreDeathDamageType = dmg:GetDamageType()
 		
         if dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball") then
             dmg:SetDamageType(bit.bor(DMG_DISSOLVE, DMG_NEVERGIB))
@@ -3685,10 +3685,12 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     if self.Dead then return end
     self.Dead = true
 
+    
     -- Return previous damage
-if self.ZBasePreDeathDamageType then
-dmg:SetDamageType(self.ZBasePreDeathDamageType)
-end
+    if self.ZBasePreDeathDamageType then
+        dmg:SetDamageType(self.ZBasePreDeathDamageType)
+    end
+
 
     -- Stop sounds
     self.IsSpeaking = false

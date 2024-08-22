@@ -27,5 +27,5 @@
 ## TODO
 - [ ] New client ragdoll system that uses net message.
 - [ ] Make sure sound interruption can occur where applicable
-- [ ] Merge pull request
-- [ ] Lower shotgun firerate
+- [x] Merge pull request
+- [x] Lower shotgun firerate
