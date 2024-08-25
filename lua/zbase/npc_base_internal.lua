@@ -1,4 +1,5 @@
 util.AddNetworkString("ZBaseGlowEyes")
+util.AddNetworkString("ZBaseClientRagdoll")
 
 
 local NPC = ZBaseNPCs["npc_zbase"]
@@ -1827,6 +1828,8 @@ end
 
 
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
+    if self.Dead then return end
+
     self:SNPCHandleAnimEvent(event, eventTime, cycle, type, options)
 end
 
@@ -2954,7 +2957,7 @@ function NPC:OnEmitSound( data )
     end
 
 
-    -- Don't play engine voice sounds during death anim
+    -- Don't play engine voice sounds when dying
     if self.DoingDeathAnim && isVoiceSound && !IsEmitSoundCall then
         return false
     end
@@ -3709,8 +3712,9 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     end
 
 
-    -- Stop sounds
+    -- Register as no longer speaking, this will fix death sounds not being played
     self.IsSpeaking = false
+    self.IsSpeaking_SoundVar = nil
 
 
     -- Death sound
@@ -3788,8 +3792,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     end
 
     -- Byebye
-    if shouldCLRagdoll && self:SelectWeightedSequence(ACT_DIERAGDOLL)!=-1 && !Gibbed then
-
+    if shouldCLRagdoll && !Gibbed then
         if IsValid(rag) then
 
             -- This makes so that the client ragdoll has the desired bodygroups
@@ -3809,15 +3812,21 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
         end
 
-
-		self:SetNPCState(NPC_STATE_DEAD)
-
-        self:InternalStopAnimation(true)
-        self:FullReset()
-
-		self:SetSchedule(SCHED_DIE_RAGDOLL)
-
+        self:StopMoving()
+        self:ClearGoal()
+        self:CapabilitiesClear()
+        self:SetCollisionBounds(vector_origin, vector_origin)
+        self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+        self:SetNPCState(NPC_STATE_DEAD)
         SafeRemoveEntityDelayed(self, 1)
+
+        if self.IsZBase_SNPC then
+            net.Start("ZBaseClientRagdoll")
+            net.WriteEntity(self)
+            net.SendPVS(self:GetPos())
+        elseif self.DoingDeathAnim then
+            self:FullReset()
+        end
     else
         self:Remove()
     end

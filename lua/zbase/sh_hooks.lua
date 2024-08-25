@@ -570,6 +570,16 @@ end
 ======================================================================================================================================================
 --]]
 
+
+if CLIENT then
+    net.Receive("ZBaseClientRagdoll", function()
+        local ent = net.ReadEntity() if !IsValid(ent) then return end
+        local rag = ent:BecomeRagdollOnClient()
+        print(ent, rag, "became rag")
+    end)
+end
+
+
 -- Client ragdolls
 hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
 
@@ -579,11 +589,6 @@ hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
 	end
 
     if ent:GetNWBool("IsZBaseNPC") then
-
-        if ent:GetShouldServerRagdoll() then
-            rag:Remove()
-            return
-        end
 
         for k, v in ipairs(ent:GetMaterials()) do
             rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))

@@ -49,6 +49,12 @@ end
 
 function ENT:Think()
 
+	if self.Dead && !self:GetNoDraw() then
+		self:SetNoDraw(true)
+	end
+
+
+
 	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
 		self:AerialThink()
 	end
@@ -65,6 +71,7 @@ function ENT:Think()
 		end
 
 	end
+
 
 
 	self:ZBaseThink()

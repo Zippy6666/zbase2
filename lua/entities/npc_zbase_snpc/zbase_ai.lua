@@ -265,9 +265,7 @@ end
 
 
 function ENT:RunAI( strExp )
-	
-	-- Don't do any run AI stuff if we should play an animation from PlayAnimation()
-	if self.DoingPlayAnim then
+	if self.Dead or self.DoingPlayAnim then
 		return
 	end
 
