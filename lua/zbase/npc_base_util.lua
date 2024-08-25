@@ -54,10 +54,11 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
 
     local isTransition = false
 
-
+    
+    local sched = SCHED_SCENE_GENERIC
     self:InternalPlayAnimation(
         anim, extraData.duration, extraData.speedMult,
-        SCHED_NPC_FREEZE, face, extraData.faceSpeed, loop, onFinishFunc, extraData.isGesture, isTransition, extraData.noTransitions, moreArgs
+        sched, face, extraData.faceSpeed, loop, onFinishFunc, extraData.isGesture, isTransition, extraData.noTransitions, moreArgs
     )
 
 

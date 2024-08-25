@@ -2944,6 +2944,8 @@ function NPC:OnEmitSound( data )
     local altered
     local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
     local isVoiceSound = isnumber(data.SentenceIndex) or data.Channel == CHAN_VOICE
+    local currentlySpeakingImportant = isstring(self.IsSpeaking_SoundVar)
+    local goingToZBaseSpeak = (sndVarName && isVoiceSound) or false
 
 
     -- Sound is NULL
@@ -2952,14 +2954,27 @@ function NPC:OnEmitSound( data )
     end
 
 
-    -- Don't emit voice sounds on during these conditions
-    if (self:NearbyAllySpeaking() or self.IsSpeaking or self.DoingDeathAnim) && isVoiceSound then
+    -- Don't play engine voice sounds during death anim
+    if self.DoingDeathAnim && isVoiceSound && !IsEmitSoundCall then
+        return false
+    end
+
+
+    -- Did not play sound because I was already playing important voice sound
+    if isVoiceSound && currentlySpeakingImportant then
+        return false
+    end
+
+
+    -- Don't speak over allies intentionally
+    if goingToZBaseSpeak && self:NearbyAllySpeaking() then
         return false
     end
 
 
     -- Avoid voice line repetition
-    if sndVarName && isVoiceSound then
+    if goingToZBaseSpeak then
+
         local sndTbl = sound.GetProperties(data.OriginalSoundName)
         if sndTbl && istable(sndTbl.sound) && #sndTbl.sound > 1 then
 
@@ -2978,6 +2993,7 @@ function NPC:OnEmitSound( data )
             altered = true
 
         end
+
     end
 
 
@@ -3015,6 +3031,7 @@ function NPC:OnEmitSound( data )
 
         timer.Create("ZBaseStopSpeaking"..self:EntIndex(), self.InternalCurrentSoundDuration+0.1, 1, function()
             self.IsSpeaking = false
+            self.IsSpeaking_SoundVar = nil
         end)
     end
 
