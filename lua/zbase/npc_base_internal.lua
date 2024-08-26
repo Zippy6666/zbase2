@@ -3340,7 +3340,7 @@ function NPC:DealDamage( dmg, ent )
     end
 
     -- Cannot suicide
-    if self==ent then
+    if self==ent && !(self.Patch_OnSelfDamage && self:Patch_OnSelfDamage(dmg)) then
         dmg:ScaleDamage(0)
         return true
     end

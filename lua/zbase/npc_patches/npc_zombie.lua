@@ -22,7 +22,19 @@ ZBasePatchTable[my_cls] = function( NPC )
 end
 
 
--- Same for all other zombies
 ZBasePatchTable["npc_fastzombie"] = ZBasePatchTable[my_cls]
 ZBasePatchTable["npc_poisonzombie"] = ZBasePatchTable[my_cls]
-ZBasePatchTable["npc_zombine"] = ZBasePatchTable[my_cls]
+
+
+ZBasePatchTable["npc_zombine"] = function( NPC )
+
+    ZBasePatchTable[my_cls](NPC)
+
+    function NPC:Patch_OnSelfDamage( dmg )
+        local infl = dmg:GetInflictor()
+        if IsValid(infl) && infl:GetClass()=="npc_grenade_frag" && !infl.IsZBaseGrenade then
+            return true
+        end
+    end
+
+end
