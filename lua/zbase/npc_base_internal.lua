@@ -103,7 +103,7 @@ function NPC:ZBaseInit()
     self:CustomInitialize()
 
 
-    self:CallNextTick("InitNextTick")
+    self:CONV_CallNextTick("InitNextTick")
 
 
 end
@@ -115,7 +115,7 @@ function NPC:InitNextTick()
         self:SetNPCClass(ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)])
     end
 
-    self:CallNextTick("Init2Ticks")
+    self:CONV_CallNextTick("Init2Ticks")
 end
 
 
@@ -153,9 +153,14 @@ function NPC:Init2Ticks()
     self:InitCap()
 
 
-    -- Set squad name to faction name
-    if !self.DontAutoSetSquad && self.ZBaseFaction != "none" then
-        self:SetSquad(self.ZBaseFaction)
+    -- Set squad
+    if !self.DontAutoSquad then
+        local function SetSquad()
+            if !IsValid(self) then return end
+            self:SetSquad(self.ZBaseFaction)
+        end
+
+        conv.callNextTick(SetSquad)
     end
 end
 
@@ -3329,7 +3334,7 @@ function NPC:DealDamage( dmg, ent )
     local disp = self:Disposition(ent)
 
     -- Friendly fire immune
-    if disp==D_LI or disp==D_NU && self:GetEnemy() != ent then
+    if disp==D_LI then
         dmg:ScaleDamage(0)
         return true
     end
