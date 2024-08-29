@@ -2661,7 +2661,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         end
 
         -- Push
-        if ((!self:IsAlly(ent)) or (self:IsAlly(ent) && self:Disposition(ent) == D_HT )) then
+        if ((!self:IsAlly(ent)) or (self:IsAlly(ent) && IsValid(self:GetEnemy()) && self:GetEnemy():GetClass() == "npc_bullseye" && self:GetEnemy():GetParent() == ent)) then
             local phys = ent:GetPhysicsObject()
 
             if IsValid(phys) then
@@ -2673,7 +2673,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
 
         -- Damage
-       if !undamagable && ((!self:IsAlly(ent)) or (self:IsAlly(ent) && self:GetEnemy() == ent)) then
+       if !undamagable && ((!self:IsAlly(ent)) or (self:IsAlly(ent) && IsValid(self:GetEnemy()) && self:GetEnemy():GetClass() == "npc_bullseye" && self:GetEnemy():GetParent() == ent)) then
             local dmg = DamageInfo()
             dmg:SetAttacker(self)
             dmg:SetInflictor(self)
