@@ -2625,18 +2625,19 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
 
     for _, ent in ipairs(ents.FindInSphere(mypos, dmgData.dist)) do
+        local disp = self:Disposition(ent)
+        local bullseyeDisp = ent.IsZBase_SNPC && IsValid(ent.Bullseye) && self:Disposition(ent.Bullseye)
+        local entpos = ent:WorldSpaceCenter()
+        local entIsUndamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
+        local forcevec = self:GetForward()*100
+        local isFriendlyTowardsEnt = (disp==D_LI or disp==D_NU) && bullseyeDisp!=D_HT && bullseyeDisp!=D_FR
+        local isProp = (disp == D_NU or entIsUndamagable)
+
+
         if ent == self then continue end
         if ent.GetNPCState && ent:GetNPCState() == NPC_STATE_DEAD then continue end
-
-        local disp = self:Disposition(ent)
-  if (!dmgData.affectProps && disp == D_NU && self:GetEnemy() != ent) then continue end
-
-        if !self:Visible(ent) then continue end
-
-
-        local entpos = ent:WorldSpaceCenter()
-        local undamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
-        local forcevec = self:GetForward()*100
+        if (!dmgData.affectProps && disp == D_NU && self:GetEnemy() != ent) then continue end -- Don't affect neutrals if we shouldn't affect props
+        if !self:CanBeMeleed(ent) then continue end
 
 
         -- Angle check
@@ -2646,22 +2647,22 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         end
 
 
-        if self:CanBeMeleed(ent) then
-            local tbl = self:MeleeDamageForce(dmgData)
+        -- Not visible
+        if !self:Visible(ent) then continue end
 
-            if tbl then
-                forcevec = self:GetForward()*(tbl.forward or 0) + self:GetUp()*(tbl.up or 0) + self:GetRight()*(tbl.right or 0)
 
-                if tbl.randomness then
-                    forcevec = forcevec + VectorRand()*tbl.randomness
-                end
+        -- Calculate force
+        local tbl = self:MeleeDamageForce(dmgData)
+        if tbl then
+            forcevec = self:GetForward()*(tbl.forward or 0) + self:GetUp()*(tbl.up or 0) + self:GetRight()*(tbl.right or 0)
+            if tbl.randomness then
+                forcevec = forcevec + VectorRand()*tbl.randomness
             end
-        else
-            continue
         end
 
+
         -- Push
-        if ((!self:IsAlly(ent)) or (self:IsAlly(ent) && IsValid(self:GetEnemy()) && self:GetEnemy():GetClass() == "npc_bullseye" && self:GetEnemy():GetParent() == ent)) then
+        if !isFriendlyTowardsEnt or isProp then
             local phys = ent:GetPhysicsObject()
 
             if IsValid(phys) then
@@ -2673,7 +2674,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
 
         -- Damage
-       if !undamagable && ((!self:IsAlly(ent)) or (self:IsAlly(ent) && IsValid(self:GetEnemy()) && self:GetEnemy():GetClass() == "npc_bullseye" && self:GetEnemy():GetParent() == ent)) then
+        if !entIsUndamagable && !isFriendlyTowardsEnt then
             local dmg = DamageInfo()
             dmg:SetAttacker(self)
             dmg:SetInflictor(self)
@@ -2686,7 +2687,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
 
 
         -- Sound
-        if disp == D_NU or undamagable && !soundPropEmitted then -- Prop probably
+        if isProp && !soundPropEmitted then
             sound.Play(dmgData.hitSoundProps, entpos)
             soundPropEmitted = true
         elseif !soundEmitted && disp != D_NU then
