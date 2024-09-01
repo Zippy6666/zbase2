@@ -54,6 +54,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Player Friendly Fire", "zbase_ply_hurt_ally" )
         panel:ControlHelp("Allow players to hurt their allies.")
 
+        panel:CheckBox( "NPC Friendly Fire", "zbase_friendly_fire" )
+        panel:ControlHelp("Allow NPCs to hurt their allies.")
+
         panel:CheckBox( "NPC Nocollide", "zbase_nocollide" )
         panel:ControlHelp("NPCs will not collide with eachother (COLLISION_GROUP_NPC_SCRIPTED).")
 

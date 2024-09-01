@@ -3335,7 +3335,7 @@ function NPC:DealDamage( dmg, ent )
     local disp = self:Disposition(ent)
 
     -- Friendly fire immune
-    if disp==D_LI then
+    if disp==D_LI && !ZBCVAR.FriendlyFire:GetBool() then
         dmg:ScaleDamage(0)
         return true
     end
