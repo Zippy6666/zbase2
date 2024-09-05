@@ -134,6 +134,7 @@ local dontClearCap = {
     npc_seagull = true,
     npc_rollermine = true,
     npc_antlion_grub = true,
+    npc_fastzombie = true,
 }
 function NPC:Init2Ticks()
     -- FOV and sight dist
