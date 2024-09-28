@@ -321,6 +321,21 @@ function NPC:ThrowGrenade()
     end)
 end
 
+--[[
+==================================================================================================
+                                           WEAPON STUFF
+==================================================================================================
+--]]
+
+
+function NPC:HasAmmo()
+
+    if !IsValid(self:GetActiveWeapon()) then return false end
+
+    return !self.ZBWepSys_PrimaryAmmo or self.ZBWepSys_PrimaryAmmo>0
+
+end
+
 
 --[[
 ==================================================================================================

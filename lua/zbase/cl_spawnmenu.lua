@@ -128,8 +128,9 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			end
 			lastIconPath = catIcon
 		end
+		if !lastIconPath then lastIconPath=ZBaseCategoryImages[divisionName] end
 
-		local divisionIcon = allCatIconsSame && lastIconPath or GenericIcon
+		local divisionIcon = (allCatIconsSame && lastIconPath ) or GenericIcon
 		local divisionNPCs = {}
 		local node = allNode:AddNode( divisionName, divisionIcon ) -- Add a node to the tree
 		for categoryName, category in SortedPairs(division) do

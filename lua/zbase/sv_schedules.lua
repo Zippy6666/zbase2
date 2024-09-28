@@ -91,4 +91,18 @@ function ZSched:BackAwayFromEnemy( sched )
 end
 
 
+function ZSched:RunRandom( sched )
+    sched:EngTask( "TASK_GET_PATH_TO_RANDOM_NODE",  128 )
+    sched:EngTask( "TASK_RUN_PATH",  1 )
+    sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  1 )
+end
+
+
+function ZSched:WalkRandom( sched )
+    sched:EngTask( "TASK_GET_PATH_TO_RANDOM_NODE",  128 )
+    sched:EngTask( "TASK_RUN_PATH",  1 )
+    sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  1 )
+end
+
+
 SetupScheds()
