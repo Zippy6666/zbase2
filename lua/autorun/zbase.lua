@@ -24,7 +24,7 @@ if CLIENT then
         label:SetContentAlignment(5)  -- 5 corresponds to center alignment
     end
 
-elseif SERVER && !file.Exists("convenience/adam.lua", "LUA") then
+elseif SERVER && !conv then
 
     -- Conv lib not on on server, send message to clients
     hook.Add("PlayerInitialSpawn", "convenienceerrormsg", function( ply )
@@ -41,7 +41,7 @@ elseif SERVER && !file.Exists("convenience/adam.lua", "LUA") then
 
 end
 
-if !file.Exists("convenience/adam.lua", "LUA") then
+if SERVER && !conv then // If this is false on the SERVER, it shouldn't TECHNICALLY send any ZBase files to be included on the client.
     return
 end
 

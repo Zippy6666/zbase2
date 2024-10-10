@@ -34,8 +34,6 @@ function NPC:CustomInitialize()
     if ZBCVAR.ZombieHeadcrabs:GetBool() then
         self:Zombie_GiveHeadCrabs()
     end
-
-    self:SetBodygroup(1, 1)
 end
 
 local chainSawHitboxes = {
