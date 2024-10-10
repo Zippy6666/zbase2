@@ -60,7 +60,7 @@ if SERVER then
     or MsgN("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
     or MsgN("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
     or MsgN("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
-    or MsgN("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --")
+    or MsgN("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --") 
     or MsgN("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
     or MsgN("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
     or MsgN("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
@@ -312,6 +312,7 @@ local function IncludeFiles()
     include("zbase/sh_cvars.lua")
     include("zbase/sh_controller.lua")
     include("zbase/sh_properties.lua")
+    include("zbase/sh_glowlib.lua")
 
 
     if SERVER then
@@ -323,7 +324,7 @@ local function IncludeFiles()
         include("zbase/sv_enginewep_translation.lua")
         include("zbase/sv_replacer.lua")
 
-
+        
         -- Include NPC enhancement files
         local files = file.Find("zbase/npc_patches/*","LUA")
         local enhPath = "zbase/npc_patches/"
@@ -350,6 +351,7 @@ local function AddCSLuaFiles()
     AddCSLuaFile("zbase/sh_hooks.lua")
     AddCSLuaFile("zbase/sh_controller.lua")
     AddCSLuaFile("zbase/sh_properties.lua")
+    AddCSLuaFile("zbase/sh_glowlib.lua")
 
     AddCSLuaFile("zbase/cl_spawnmenu.lua")
     AddCSLuaFile("zbase/cl_toolmenu.lua")
@@ -450,7 +452,7 @@ function ZBase_RegisterHandler:NPCReg( name )
         local sh = path.."shared.lua"
         local cl = path.."cl_init.lua"
         local sv = path.."init.lua"
-
+        
 
         if file.Exists(sh, "LUA") && (CLIENT or file.Exists(sv, "LUA")) then
 
@@ -465,7 +467,7 @@ function ZBase_RegisterHandler:NPCReg( name )
 
                 include(sv)
 
-
+    
                 local bh = path.."behaviour.lua"
                 if file.Exists(bh, "LUA") then
                     include(bh)
@@ -479,10 +481,10 @@ function ZBase_RegisterHandler:NPCReg( name )
                         ZBaseNPCs[name].EInternalVars[varname] = var
                     end
                 end
-
+                
 
             end
-
+        
 
             if file.Exists(cl, "LUA") && CLIENT then
                 include(cl)
@@ -571,7 +573,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
 
 
             local sFlags = RegularSpawnMenuTable.TotalSpawnFlags or SpawnFlagTblToBit()
-
+    
 
             RegularSpawnMenuTable.TotalSpawnFlags = sFlags
             RegularSpawnMenuTable.Category = newcat or cat
