@@ -39,6 +39,8 @@ elseif SERVER && !file.Exists("convenience/adam.lua", "LUA") then
         ply:SendLua(sendstr)
     end)
 
+    return -- CONV not on server so return...
+
 end
 
 
