@@ -24,7 +24,7 @@ if CLIENT then
         label:SetContentAlignment(5)  -- 5 corresponds to center alignment
     end
 
-elseif SERVER && !file.Exists("convenience/adam.lua", "LUA") then
+elseif SERVER && ( !file.Exists("convenience/adam.lua", "LUA") && !conv ) then
 
     -- Conv lib not on on server, send message to clients
     hook.Add("PlayerInitialSpawn", "convenienceerrormsg", function( ply )
