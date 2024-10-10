@@ -41,6 +41,8 @@ elseif SERVER && ( !file.Exists("convenience/adam.lua", "LUA") && !conv ) then
 
     return -- CONV not on server so return...
 
+if !file.Exists("convenience/adam.lua", "LUA") then
+    return
 end
 
 
