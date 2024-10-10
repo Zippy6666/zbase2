@@ -41,6 +41,10 @@ elseif SERVER && !file.Exists("convenience/adam.lua", "LUA") then
 
 end
 
+if !file.Exists("convenience/adam.lua", "LUA") then
+    return
+end
+
 
 --[[
 ======================================================================================================================================================
