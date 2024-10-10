@@ -34,24 +34,4 @@ function NPC:CustomInitialize()
     if ZBCVAR.ZombieHeadcrabs:GetBool() then
         self:Zombie_GiveHeadCrabs()
     end
-
-    self:SetBodygroup(1, 1)
-end
-
-local chainSawHitboxes = {
-    ["Valve"] = true,
-}
-
-function NPC:CustomOnDeath(dmgInfo, hGroup, rag)
-    if IsValid(dmgInfo:GetInflictor() ) then
-        if !tobool(dmgInfo:GetInflictor():GetModel():find("sawblade")) then return end
-
-        rag:Remove()
-
-        local torso = ents.Create("npc_zombie_torso")
-        torso:SetPos(self:GetPos() + self:GetUp() * 10)
-        torso:SetAngles(self:GetAngles())
-        torso:Spawn()
-        torso:Activate()
-    end
 end
