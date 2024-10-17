@@ -667,14 +667,24 @@ end)
 
 -- Find nearby zbase allies to player
 local function FindNearestZBaseAllyToPly( ply, returntable )
+    if returntable then -- Return the table of all nearby allies
+        local allies = {}
+        for _, v in ipairs(ents.FindInSphere(ply:GetPos(), 600)) do
+            if !v.IsZBaseNPC then continue end
+            if v.ZBaseFaction == "none" then continue end
+            if v.ZBaseFaction != ply.ZBaseFaction then continue end
+            table.insert(allies, v)
+        end
+
+        return allies
+    end
+
     local mindist
     local ally
-    local allies = {}
     for _, v in ipairs(ents.FindInSphere(ply:GetPos(), 600)) do
         if !v.IsZBaseNPC then continue end
         if v.ZBaseFaction == "none" then continue end
         if v.ZBaseFaction != ply.ZBaseFaction then continue end
-        table.insert(allies,v)
         local dist = ply:GetPos():DistToSqr(v:GetPos())
 
         if !mindist or dist < mindist then
@@ -682,10 +692,6 @@ local function FindNearestZBaseAllyToPly( ply, returntable )
             ally = v
         end
     end
-	
-if returntable then -- Return the table of all nearby allies
-    return allies 
-end
 
     return ally
 end
@@ -694,28 +700,22 @@ end
 hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
 
     if table.IsEmpty(ZBaseNPCInstances) then return end -- No ZBase NPCs, don't do any ZBase stuff on player death
-
-
-    local ally = FindNearestZBaseAllyToPly(ply) -- Find nearest zbase ally to player
-    local deathpos = ply:GetPos()
-
-local allies = FindNearestZBaseAllyToPly(ply, true)
-if #allies > 0 then
-for i=1, #allies do
-if IsValid(allies[i]) && allies[i]:Visible(ply) then
-        if isfunction(allies[i].OnAllyDeath) then
-            allies[i]:OnAllyDeath(ply)
+    
+    local allies = FindNearestZBaseAllyToPly(ply, true)
+    for _, ally in ipairs(allies) do
+        if IsValid(ally) && isfunction(ally.OnAllyDeath) && ally:Visible(ply) then
+            ally:OnAllyDeath(ply)
         end
-end end end
+    end
 
-
-
+    local ally = FindNearestZBaseAllyToPly(ply)
     if IsValid(ally) && ally:Visible(ply) then
         if isfunction(ally.OnAllyDeath) then
             ally:OnAllyDeath(ply)
         end
 
         if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+            local deathpos = ply:GetPos()
             timer.Simple(0.5, function()
                 if IsValid(ally) then
                     ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
