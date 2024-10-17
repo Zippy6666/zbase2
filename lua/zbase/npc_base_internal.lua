@@ -3844,14 +3844,18 @@ end
 
 
 function NPC:Death_AlliesReact()
-    local ally = self:GetNearestAlly(600)
-    local deathpos = self:GetPos()
+	
+local allies = self:GetNearbyAllies(600)
+if #allies > 0 then
+for i=1, #allies do
+if IsValid(allies[i]) && allies[i]:Visible(self) then
+        if isfunction(allies[i].OnAllyDeath) then
+            allies[i]:OnAllyDeath(self)
+        end
+end end end
 
     if IsValid(ally) && ally:Visible(self) then
-        if isfunction(ally.OnAllyDeath) then
-            ally:OnAllyDeath(self)
-        end
-
+   
         if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
             timer.Simple(0.5, function()
                 if IsValid(ally) then
