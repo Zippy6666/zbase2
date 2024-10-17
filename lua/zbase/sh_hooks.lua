@@ -665,16 +665,16 @@ hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
 end)
 
 
--- Find nearest zbase ally to player
-local function FindNearestZBaseAllyToPly( ply )
+-- Find nearby zbase allies to player
+local function FindNearestZBaseAllyToPly( ply, returntable )
     local mindist
     local ally
-
+    local allies = {}
     for _, v in ipairs(ents.FindInSphere(ply:GetPos(), 600)) do
         if !v.IsZBaseNPC then continue end
         if v.ZBaseFaction == "none" then continue end
         if v.ZBaseFaction != ply.ZBaseFaction then continue end
-
+        table.insert(allies,v)
         local dist = ply:GetPos():DistToSqr(v:GetPos())
 
         if !mindist or dist < mindist then
@@ -682,6 +682,10 @@ local function FindNearestZBaseAllyToPly( ply )
             ally = v
         end
     end
+	
+if returntable then -- Return the table of all nearby allies
+    return allies 
+end
 
     return ally
 end
@@ -694,6 +698,15 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
 
     local ally = FindNearestZBaseAllyToPly(ply) -- Find nearest zbase ally to player
     local deathpos = ply:GetPos()
+
+local allies = FindNearestZBaseAllyToPly(ply, true)
+if #allies > 0 then
+for i=1, #allies do
+if IsValid(allies[i]) && allies[i]:Visible(ply) then
+        if isfunction(allies[i].OnAllyDeath) then
+            allies[i]:OnAllyDeath(ply)
+        end
+end end end
 
 
 
