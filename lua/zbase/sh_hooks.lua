@@ -665,16 +665,26 @@ hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
 end)
 
 
--- Find nearest zbase ally to player
-local function FindNearestZBaseAllyToPly( ply )
+-- Find nearby zbase allies to player
+local function FindNearestZBaseAllyToPly( ply, returntable )
+    if returntable then -- Return the table of all nearby allies
+        local allies = {}
+        for _, v in ipairs(ents.FindInSphere(ply:GetPos(), 600)) do
+            if !v.IsZBaseNPC then continue end
+            if v.ZBaseFaction == "none" then continue end
+            if v.ZBaseFaction != ply.ZBaseFaction then continue end
+            table.insert(allies, v)
+        end
+
+        return allies
+    end
+
     local mindist
     local ally
-
     for _, v in ipairs(ents.FindInSphere(ply:GetPos(), 600)) do
         if !v.IsZBaseNPC then continue end
         if v.ZBaseFaction == "none" then continue end
         if v.ZBaseFaction != ply.ZBaseFaction then continue end
-
         local dist = ply:GetPos():DistToSqr(v:GetPos())
 
         if !mindist or dist < mindist then
@@ -690,19 +700,22 @@ end
 hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
 
     if table.IsEmpty(ZBaseNPCInstances) then return end -- No ZBase NPCs, don't do any ZBase stuff on player death
+    
+    local allies = FindNearestZBaseAllyToPly(ply, true)
+    for _, ally in ipairs(allies) do
+        if IsValid(ally) && isfunction(ally.OnAllyDeath) && ally:Visible(ply) then
+            ally:OnAllyDeath(ply)
+        end
+    end
 
-
-    local ally = FindNearestZBaseAllyToPly(ply) -- Find nearest zbase ally to player
-    local deathpos = ply:GetPos()
-
-
-
+    local ally = FindNearestZBaseAllyToPly(ply)
     if IsValid(ally) && ally:Visible(ply) then
         if isfunction(ally.OnAllyDeath) then
             ally:OnAllyDeath(ply)
         end
 
         if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
+            local deathpos = ply:GetPos()
             timer.Simple(0.5, function()
                 if IsValid(ally) then
                     ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
