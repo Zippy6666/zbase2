@@ -476,12 +476,10 @@ function NPC:GetNearestAlly( radius )
     return ally
 end
 
-
     -- Returns the name of the NPC's squad
 function NPC:SquadName()
-    return self:GetKeyValues().squadname
+    return self:GetInternalVariable("squadname")
 end
-
 
     -- Give zombie NPCs headcrabs
 function NPC:Zombie_GiveHeadCrabs()
