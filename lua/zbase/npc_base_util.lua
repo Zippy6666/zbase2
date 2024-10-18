@@ -54,7 +54,7 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
 
     local isTransition = false
 
-    
+
     local sched = SCHED_SCENE_GENERIC
     self:InternalPlayAnimation(
         anim, extraData.duration, extraData.speedMult,
@@ -301,7 +301,7 @@ function NPC:ThrowGrenade()
 
         local grencls = ( istable(self.GrenadeEntityClass) && self.GrenadeEntityClass[math.random(1, #self.GrenadeEntityClass)] )
         or self.GrenadeEntityClass
-        
+
         local grenade = ents.Create(grencls)
         grenade.IsZBaseGrenade = true
         grenade.IsZBaseDMGInfl = true
@@ -463,13 +463,14 @@ function NPC:GetNearestAlly( radius )
     local mindist
     local ally
 
-    for _, v in ipairs(self:GetNearbyAllies(radius)) do
-        local dist = self:GetPos():DistToSqr(v:GetPos())
+    local nearbyAllies = self:GetNearbyAllies(radius)
+    table.sort(nearbyAllies, function(a, b)
+        return self:GetPos():DistToSqr(a:GetPos()) < self:GetPos():DistToSqr(b:GetPos())
+    end)
 
-        if !mindist or dist < mindist then
-            mindist = dist
-            ally = v
-        end
+    for _, v in ipairs(nearbyAllies) do
+        ally = v
+        break
     end
 
     return ally
