@@ -325,24 +325,32 @@ if SERVER then
     local MoveConstant = 250
     local NextWayPointDistSq = (MoveConstant*0.6)^2
 
-    function ZBaseMove( npc, pos )
+    function ZBaseMove( npc, pos, identifier )
 
         local hookID = "ZBaseMove:"..tostring(npc)
         local NextMoveTick = CurTime()
 
-        npc.ZBaseMove_FollowTarget = npc.ZBaseMove_FollowTarget or ents.Create("base_gmodentity")
+        npc.ZBaseMove_FollowTarget = ( IsValid(npc.ZBaseMove_FollowTarget) && npc.ZBaseMove_FollowTarget ) or ents.Create("base_gmodentity")
         npc.ZBaseMove_FollowTarget:SetModel("models/props_c17/oildrum001.mdl")
         npc.ZBaseMove_FollowTarget:AddEFlags(EFL_DONTBLOCKLOS)
         npc.ZBaseMove_FollowTarget:Spawn()
         npc.ZBaseMove_FollowTarget:SetNoDraw(true)
+        npc.ZBaseMove_ID = identifier
         npc:DeleteOnRemove(npc.ZBaseMove_FollowTarget)
 
         debugoverlay.Axis(pos, angle_zero, 50)
+        debugoverlay.Text(npc:WorldSpaceCenter(), "Starting ZBaseMove '"..(identifier or "*any*").."'")
 
         
         hook.Add("Tick", hookID, function()
             if !IsValid(npc) or pos:DistToSqr(npc:GetPos()) <= 100 or !IsValid(npc.ZBaseMove_FollowTarget) then
                 hook.Remove("Tick", hookID)
+                
+                if IsValid(npc) then
+                    debugoverlay.Text(npc:WorldSpaceCenter(), "Ending ZBaseMove")
+                    npc.ZBaseMove_ID = nil
+                end
+
                 return
             end
 
@@ -370,8 +378,24 @@ if SERVER then
         end)
     end
 
-    function ZBaseMoveEnd( npc )
-        SafeRemoveEntity(npc.ZBaseMove_FollowTarget)
+    function ZBaseMoveEnd( npc, identifier )
+        if identifier && identifier != npc.ZBaseMove_ID then
+            return
+        end
+
+        local hookID = "ZBaseMove:"..tostring(npc)
+        debugoverlay.Text(npc:WorldSpaceCenter()+npc:GetUp()*25, "Ending ZBaseMove '"..(identifier or "*any*").."'")
+        hook.Remove("Tick", hookID)
+        npc.ZBaseMove_ID = nil
+    end
+
+    function ZBaseMoveIsActive( npc, identifier )
+        if identifier && identifier != npc.ZBaseMove_ID then
+            return
+        end
+
+        local hookID = "ZBaseMove:"..tostring(npc)
+        return hook.GetTable()["Tick"][hookID]!=nil
     end
 end
 

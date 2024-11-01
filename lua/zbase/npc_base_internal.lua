@@ -2030,7 +2030,7 @@ function NPC:OnDetectSchedFail()
     end
 
     if fallback_MovePos then
-        ZBaseMove(self, fallback_MovePos)
+        ZBaseMove(self, fallback_MovePos, "MoveFallback")
     end
 end
 
@@ -2048,6 +2048,8 @@ function NPC:DoNewEnemy()
     if IsValid(ene) then
         -- New enemy
         -- Do alert sound
+
+        ZBaseMoveEnd(self, "MoveFallback")
 
         if self.NextAlertSound < CurTime() then
 
@@ -3585,6 +3587,9 @@ function NPC:OnEntityTakeDamage( dmg )
     if self.Patch_OnTakeDamage then
         self:Patch_OnTakeDamage(dmg)
     end
+
+
+    ZBaseMoveEnd(self, "MoveFallback")
 
 
     -- Combine balls should have dissolve damage
