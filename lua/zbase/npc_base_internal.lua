@@ -476,9 +476,15 @@ function NPC:ZBaseThink()
 
             self:NewSchedDetected( sched, name )
 
+            -- These should be set after self.NewSchedDetected is called!!
             self.ZBaseLastESched = sched
             self.ZBaseLastESchedName = name
 
+        end
+
+
+        if !self:GetGoalPos():IsZero() then
+            self.ZBaseLastValidGoalPos = self:GetGoalPos()
         end
 
 
@@ -1882,11 +1888,7 @@ function NPC:AITick_Slow()
 
     -- Loose enemy
     if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
-
-
-
         self:MarkEnemyAsEluded()
-
     end
 
 
@@ -2003,40 +2005,33 @@ end
 
 function NPC:NewSchedDetected( sched, schedName )
 
-    -- Has no reload animation, do workaround
-    -- local wep = self:GetActiveWeapon()
-    -- if sched == SCHED_RELOAD && self:SelectWeightedSequence(ACT_RELOAD) == -1 && wep.IsZBaseWeapon then
-
-    --     self:ClearSchedule()
-    --     self:TaskComplete()
-
-    --     if !self.DoingReloadWorkaround then
-
-    --         self.DoingReloadWorkaround = true
-
-    --         self:ClearCondition(COND.LOW_PRIMARY_AMMO)
-    --         self:ClearCondition(COND.NO_PRIMARY_AMMO)
-
-    --         -- Weapon reload sound
-    --         if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
-    --             wep:EmitSound(wep.NPCReloadSound)
-    --         end
-
-
-    --         self:CONV_TimerSimple(1, function()
-    --             if !IsValid(wep) then return end
-
-    --             self.ZBWepSys_PrimaryAmmo = wep.Primary.DefaultClip
-
-    --             self.DoingReloadWorkaround = false
-    --         end)
-    --     end
-
-    -- end
-
+    if sched == SCHED_FAIL then
+        self:OnDetectSchedFail()
+    end
 
     self:CustomNewSchedDetected(sched, self.ZBaseLastESched or -1)
 
+end
+
+
+function NPC:OnDetectSchedFail()
+    print("schedule failed, last seen sched was: "..self.ZBaseLastESchedName)
+
+    -- If self.ZBaseLastESched == whatever then
+
+    local fallback_MovePos
+
+    if self.ZBaseLastValidGoalPos then
+        fallback_MovePos = self.ZBaseLastValidGoalPos
+    elseif IsValid(self:GetEnemy()) then
+        fallback_MovePos = self:GetEnemy():GetPos()
+    else
+        fallback_MovePos = self:WorldSpaceCenter() + Vector(math.random(-300, 300), math.random(-300, 300), 0)
+    end
+
+    if fallback_MovePos then
+        ZBaseMove(self, fallback_MovePos)
+    end
 end
 
 
