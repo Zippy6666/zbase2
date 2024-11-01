@@ -322,8 +322,9 @@ end
 
 
 if SERVER then
-    local MoveConstant = 250
+    local MoveConstant = 150
     local NextWayPointDistSq = (MoveConstant*0.6)^2
+    local MoveSched = SCHED_FORCED_GO
 
     function ZBaseMove( npc, pos, identifier )
 
@@ -331,23 +332,21 @@ if SERVER then
         local NextMoveTick = CurTime()
 
         npc.ZBaseMove_FollowTarget = ( IsValid(npc.ZBaseMove_FollowTarget) && npc.ZBaseMove_FollowTarget ) or ents.Create("base_gmodentity")
-        npc.ZBaseMove_FollowTarget:SetModel("models/props_c17/oildrum001.mdl")
         npc.ZBaseMove_FollowTarget:AddEFlags(EFL_DONTBLOCKLOS)
         npc.ZBaseMove_FollowTarget:Spawn()
-        npc.ZBaseMove_FollowTarget:SetNoDraw(true)
+        npc.ZBaseMove_FollowTarget:SetNoDraw(false)
         npc.ZBaseMove_ID = identifier
         npc:DeleteOnRemove(npc.ZBaseMove_FollowTarget)
 
-        debugoverlay.Axis(pos, angle_zero, 50)
         debugoverlay.Text(npc:WorldSpaceCenter(), "Starting ZBaseMove '"..(identifier or "*any*").."'")
 
         
         hook.Add("Tick", hookID, function()
-            if !IsValid(npc) or pos:DistToSqr(npc:GetPos()) <= 100 or !IsValid(npc.ZBaseMove_FollowTarget) then
+            if !IsValid(npc) or pos:DistToSqr(npc:GetPos()) <= 10000 or !IsValid(npc.ZBaseMove_FollowTarget) then
                 hook.Remove("Tick", hookID)
                 
                 if IsValid(npc) then
-                    debugoverlay.Text(npc:WorldSpaceCenter(), "Ending ZBaseMove")
+                    debugoverlay.Text(npc:WorldSpaceCenter(), "ZBaseMove finished")
                     npc.ZBaseMove_ID = nil
                 end
 
@@ -356,21 +355,22 @@ if SERVER then
 
             local npc_pos = npc:WorldSpaceCenter()
 
-            if !npc:IsCurrentSchedule(SCHED_TARGET_CHASE) or npc_pos:DistToSqr(npc.ZBaseMove_FollowTarget:GetPos()) < NextWayPointDistSq then
-                
+            if (npc:IsOnGround() && !npc:IsCurrentSchedule(MoveSched)) or npc_pos:DistToSqr(npc.ZBaseMove_FollowTarget:GetPos()) < NextWayPointDistSq then
+
+                local moveVec = (pos - npc_pos):GetNormalized()*MoveConstant
                 local tr = util.TraceLine({
                     start = npc_pos,
-                    endpos =  npc_pos + (pos - npc_pos):GetNormalized()*MoveConstant,
+                    endpos =  npc_pos + moveVec,
                     filter = {npc, npc.ZBaseMove_FollowTarget},
                     mask = MASK_NPCSOLID,
                 })
                 local follow_target_pos = tr.HitPos+tr.HitNormal*15
 
                 debugoverlay.Line(npc_pos, follow_target_pos, 0.3)
+                debugoverlay.Axis(pos, angle_zero, 50)
 
-                npc.ZBaseMove_FollowTarget:SetPos(follow_target_pos)
-                npc:SetTarget(npc.ZBaseMove_FollowTarget)
-                npc:SetSchedule(SCHED_TARGET_CHASE)
+                npc:SetLastPosition(follow_target_pos)
+                npc:SetSchedule(MoveSched)
 
             end
     

@@ -2005,7 +2005,9 @@ end
 
 function NPC:NewSchedDetected( sched, schedName )
 
-    if sched == SCHED_FAIL then
+    local assumedFailSched = string.find(schedName, "FAIL")
+    if assumedFailSched then
+        MsgN("Had schedule failure (", schedName, ")")
         self:OnDetectSchedFail()
     end
 
