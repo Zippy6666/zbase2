@@ -324,25 +324,18 @@ end
 if SERVER then
     local MoveConstant = 150
     local NextWayPointDistSq = (MoveConstant*0.6)^2
-    local MoveSched = SCHED_FORCED_GO
 
     function ZBaseMove( npc, pos, identifier )
 
         local hookID = "ZBaseMove:"..tostring(npc)
         local NextMoveTick = CurTime()
 
-        npc.ZBaseMove_FollowTarget = ( IsValid(npc.ZBaseMove_FollowTarget) && npc.ZBaseMove_FollowTarget ) or ents.Create("base_gmodentity")
-        npc.ZBaseMove_FollowTarget:AddEFlags(EFL_DONTBLOCKLOS)
-        npc.ZBaseMove_FollowTarget:Spawn()
-        npc.ZBaseMove_FollowTarget:SetNoDraw(false)
         npc.ZBaseMove_ID = identifier
-        npc:DeleteOnRemove(npc.ZBaseMove_FollowTarget)
 
         debugoverlay.Text(npc:WorldSpaceCenter(), "Starting ZBaseMove '"..(identifier or "*any*").."'")
 
-        
         hook.Add("Tick", hookID, function()
-            if !IsValid(npc) or pos:DistToSqr(npc:GetPos()) <= 10000 or !IsValid(npc.ZBaseMove_FollowTarget) then
+            if !IsValid(npc) or pos:DistToSqr(npc:GetPos()) <= 10000 then
                 hook.Remove("Tick", hookID)
                 
                 if IsValid(npc) then
@@ -355,7 +348,8 @@ if SERVER then
 
             local npc_pos = npc:WorldSpaceCenter()
 
-            if (npc:IsOnGround() && !npc:IsCurrentSchedule(MoveSched)) or npc_pos:DistToSqr(npc.ZBaseMove_FollowTarget:GetPos()) < NextWayPointDistSq then
+            if (!npc:IsCurrentSchedule(SCHED_FORCED_GO) && !npc:IsCurrentSchedule(SCHED_FORCED_GO_RUN))
+            or npc_pos:DistToSqr(pos) < NextWayPointDistSq then
 
                 local moveVec = (pos - npc_pos):GetNormalized()*MoveConstant
                 local tr = util.TraceLine({
@@ -370,7 +364,14 @@ if SERVER then
                 debugoverlay.Axis(pos, angle_zero, 50)
 
                 npc:SetLastPosition(follow_target_pos)
-                npc:SetSchedule(MoveSched)
+                
+
+                local npcState = npc:GetNPCState()
+                if npcState == NPC_STATE_ALERT or npcState == NPC_STATE_COMBAT then
+                    npc:SetSchedule(SCHED_FORCED_GO_RUN)
+                else
+                    npc:SetSchedule(SCHED_FORCED_GO)
+                end
 
             end
     

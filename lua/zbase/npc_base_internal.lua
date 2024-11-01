@@ -1573,6 +1573,8 @@ function NPC:FullReset()
         self:AerialResetNav()
         self:ScheduleFinished()
     end
+
+    ZBaseMoveEnd(self)
 end
 
 
@@ -2006,6 +2008,8 @@ end
 function NPC:NewSchedDetected( sched, schedName )
 
     local assumedFailSched = string.find(schedName, "FAIL")
+    assumedFailSched = assumedFailSched or sched == -1
+
     if assumedFailSched then
         MsgN("Had schedule failure (", schedName, ")")
         self:OnDetectSchedFail()
@@ -2017,7 +2021,11 @@ end
 
 
 function NPC:OnDetectSchedFail()
-    print("schedule failed, last seen sched was: "..self.ZBaseLastESchedName)
+    if ZBaseMoveIsActive(self) then
+        return
+    end
+
+    print("schedule failed, last seen sched was: "..(self.ZBaseLastESchedName or "none"))
 
     -- If self.ZBaseLastESched == whatever then
 
