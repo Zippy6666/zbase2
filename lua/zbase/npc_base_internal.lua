@@ -3742,7 +3742,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     local infl = dmg:GetInflictor()
     local Gibbed = self:ShouldGib(dmg, hit_gr)
     local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
-    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !KeepCorpses:GetBool() && !isDissolveDMG
+    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !KeepCorpses:GetBool() && !isDissolveDMG && self.HasDeathRagdoll
     local rag
 
     self:SetShouldServerRagdoll(!shouldCLRagdoll)
