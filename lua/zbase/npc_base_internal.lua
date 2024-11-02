@@ -135,6 +135,8 @@ local dontClearCap = {
     npc_rollermine = true,
     npc_antlion_grub = true,
     npc_fastzombie = true,
+    npc_antlion = true,
+    npc_antlionworker = true,
 }
 function NPC:Init2Ticks()
     -- FOV and sight dist
@@ -1057,17 +1059,13 @@ end
 
 
 function NPC:ZBWepSys_Shoot()
-
     local wep = self:GetActiveWeapon()
     if !IsValid(wep) then return end
-
 
     wep:PrimaryAttack()
     local _, _, cooldown = wep:ZBaseGetNPCBurstSettings()
 
-
     self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
-
 
     if self.ZBWepSys_ShotsLeft <= 0 then
 
@@ -1084,13 +1082,7 @@ function NPC:ZBWepSys_Shoot()
         self.ZBWepSys_LastShootCooldown = cooldown
     end
 
-
-    
     self.ZBWepSys_NextShoot = CurTime()+cooldown
-
-
-    
-
 end
 
 
@@ -1200,6 +1192,14 @@ function NPC:ZBWepSys_HasShootAnim()
 end
 
 
+function NPC:ZBWepSys_GetActTransTbl()
+    local wep = self:GetActiveWeapon()
+    if !IsValid(wep) then return end
+
+    return wep.ActivityTranslateAI
+end
+
+
 function NPC:ZBWepSys_TranslateAct(act, translateTbl)
     local useLegacyAnimSys = ( (self.WeaponFire_Activities or self.WeaponFire_MoveActivities) && (true or false) )
     local shouldForceShootStance = self.ForceShootStance && !useLegacyAnimSys
@@ -1220,7 +1220,9 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
             end
             
         else
-            translatedAct = translateTbl[(self.ZBWepSys_FiredWeapon && ACT_RANGE_ATTACK1) or ACT_IDLE_ANGRY] -- Stand shooting
+
+            translatedAct =  translateTbl[ ACT_IDLE_ANGRY ]
+
         end
 
     end
@@ -1244,12 +1246,7 @@ function NPC:InternalOnFireWeapon()
 
 
     -- Trigger firing animations
-    if self:IsMoving() then
-        self:PlayAnimation(ACT_GESTURE_RANGE_ATTACK_SMG1, false, {isGesture=true})
-    else
-        self:ResetIdealActivity(ACT_RANGE_ATTACK1)
-        self:CONV_TempVar("ZBWepSys_FiredWeapon", true, self.ZBWepSys_LastShootCooldown)
-    end
+    self:PlayAnimation(self:ZBWepSys_GetActTransTbl()[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
 
 
     -- AI when shooting at players
@@ -1389,10 +1386,10 @@ function NPC:ZBWepSys_MeleeThink()
 
     if IsValid(ene) then
 
-        if !self.DoingPlayAnim && self:ZBaseDist(ene, {within=ZBaseRoughRadius(ene)}) then
+        if !self.DoingPlayAnim && self:ZBaseDist(ene, {within=ZBaseRoughRadius(ene)})
+        && !( ene:IsPlayer() && !ene:Alive() ) then
 
             self:Weapon_MeleeAnim()
-
 
             timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
                 if IsValid(self) && IsValid(self:GetActiveWeapon()) then
@@ -1704,8 +1701,11 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
 
             if moreArgs.freezeForever != true then -- if freezeforever is enabled, never end the animation
+
                 self:InternalStopAnimation(isTransition or noTransitions)
                 self:OnAnimEnded( anim, forceFace==self:GetEnemy() && forceFace!=nil, extraData )
+                self:SetSchedule(SCHED_IDLE_STAND)
+
             end
 
 
@@ -2722,6 +2722,7 @@ function NPCB.MeleeAttack:ShouldDoBehaviour( self )
 
     local ene = self:GetEnemy()
     if !self.MeleeAttackFaceEnemy && !self:IsFacing(ene) then return false end
+    if ene:IsPlayer() && !ene:Alive() then return end
 
 
     if self:PreventMeleeAttack() then return false end
