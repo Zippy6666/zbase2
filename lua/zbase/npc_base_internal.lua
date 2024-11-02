@@ -1219,6 +1219,10 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
                 self:SetMovementActivity(translatedMoveAct)
             end
             
+        elseif IsMultiplayer then
+
+            translatedAct =  translateTbl[ act ]
+        
         else
 
             translatedAct =  translateTbl[ ACT_IDLE_ANGRY ]
@@ -1247,6 +1251,9 @@ function NPC:InternalOnFireWeapon()
 
     -- Trigger firing animations
     self:PlayAnimation(self:ZBWepSys_GetActTransTbl()[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
+    if IsMultiplayer then
+        self:ResetIdealActivity(ACT_RANGE_ATTACK1)
+    end
 
 
     -- AI when shooting at players
@@ -1704,7 +1711,6 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
                 self:InternalStopAnimation(isTransition or noTransitions)
                 self:OnAnimEnded( anim, forceFace==self:GetEnemy() && forceFace!=nil, extraData )
-                self:SetSchedule(SCHED_IDLE_STAND)
 
             end
 
@@ -1823,6 +1829,7 @@ function NPC:InternalStopAnimation(dontTransitionOut)
 
 
     self:SetActivity(ACT_IDLE)
+    self:ExitScriptedSequence()
     self:ClearSchedule()
     self:SetNPCState(self.PreAnimNPCState)
     self:SetMoveYawLocked(false)
@@ -2007,8 +2014,15 @@ end
 
 function NPC:NewSchedDetected( sched, schedName )
 
-    local assumedFailSched = string.find(schedName, "FAIL")
-    assumedFailSched = assumedFailSched or sched == -1 or (self.Patch_IsFailSched && self:Patch_IsFailSched(sched)) 
+    local assumedFailSched =
+
+    ( string.find(schedName, "FAIL")
+        or (sched==-1 && self.ZBaseLastESched!=SCHED_SCENE_GENERIC && !(self.IsZBase_SNPC && self.CurrentSchedule))
+        or (self.Patch_IsFailSched && self:Patch_IsFailSched(sched))
+    )
+
+    && !( self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY ) -- Don't detect failures for flying mfs
+
 
     if assumedFailSched then
         if Developer:GetBool() then
@@ -2024,7 +2038,6 @@ end
 
 
 function NPC:OnDetectSchedFail()
-    if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then return end
     if ZBaseMoveIsActive(self) then return end
 
     if Developer:GetBool() then
