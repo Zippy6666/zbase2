@@ -15,10 +15,15 @@ ZBasePatchTable[my_cls] = function( NPC )
 
         end
 
-
+        
         self.DoingHunterDamageFix = false
         
     end
-    
+
+    function NPC:Patch_IsFailSched(sched)
+
+        return ZBaseESchedID("SCHED_HUNTER_FAIL_IMMEDIATE") == sched or ZBaseESchedID("SCHED_ESTABLISH_LINE_OF_FIRE_FALLBACK") == sched
+
+    end
     
 end

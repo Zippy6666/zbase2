@@ -7,6 +7,7 @@ local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 local IsMultiplayer = !game.SinglePlayer()
 local Developer = GetConVar("developer")
 local KeepCorpses = GetConVar("ai_serverragdolls")
+local AIDisabled = GetConVar("ai_disabled")
 
 
 --[[
@@ -417,7 +418,6 @@ local StrNPCStates = {
 }
 
 
-local AIDisabled = GetConVar("ai_disabled")
 
 
 function NPC:ZBaseThink()
@@ -1123,6 +1123,9 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     -- Must use on ground nav to shoot
     && self:GetNavType()==NAV_GROUND
+
+    -- Must be on ground to shoot
+    && self:IsOnGround()
 
     -- Enemy is within shoot distance
     && self.ZBWepSys_InShootDist
@@ -2321,7 +2324,8 @@ local SchedsToReplaceWithPatrol = {
 
 
 function NPCB.Patrol:ShouldDoBehaviour( self )
-    return PatrolCvar:GetBool() && self.CanPatrol && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()] && self:GetMoveType() == MOVETYPE_STEP
+    return PatrolCvar:GetBool() && self.CanPatrol && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()]
+    && self:GetMoveType() == MOVETYPE_STEP
 end
 
 
@@ -3222,6 +3226,8 @@ function NPCB.Dialogue:ShouldDoBehaviour( self )
     if self.Dialogue_Question_Sounds == "" then return false end
     if self:GetNPCState() != NPC_STATE_IDLE then return false end
     if self.HavingConversation then return false end
+    if self:IsCurrentSchedule(SCHED_FORCED_GO) or self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
+    or self:IsCurrentSchedule(SCHED_SCENE_GENERIC) then return false end
 
     return true
 end
