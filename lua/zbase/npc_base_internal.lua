@@ -1120,7 +1120,7 @@ function NPC:ZBWepSys_AIWantsToShoot()
     local ShootSchedBlacklist = {
         [SCHED_RELOAD] = true,
         [SCHED_HIDE_AND_RELOAD] = true,
-        [SCHED_NPC_FREEZE] = true,
+        [SCHED_SCENE_GENERIC] = true,
         [ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")] = true,
         [ZBaseESchedID("SCHED_METROPOLICE_WARN_AND_ARREST_ENEMY")] = true,
         [ZBaseESchedID("SCHED_METROPOLICE_ARREST_ENEMY")] = true,
@@ -1770,7 +1770,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
     && transition != goalSeq then
         -- Recursion
         self:InternalPlayAnimation( transitionAct != -1 && transitionAct or self:GetSequenceName(transition), nil, playbackRate,
-        SCHED_NPC_FREEZE, forceFace, faceSpeed, false, playAnim, false, true )
+        SCHED_SCENE_GENERIC, forceFace, faceSpeed, false, playAnim, false, true )
         return -- Stop here
     end
 
@@ -1815,7 +1815,7 @@ function NPC:InternalStopAnimation(dontTransitionOut)
         && transition != goalSeq then
             -- Recursion
             self:InternalPlayAnimation( transitionAct != -1 && transitionAct or self:GetSequenceName(transition), nil, playbackRate,
-            SCHED_NPC_FREEZE, forceFace, faceSpeed, false, nil, false )
+            SCHED_SCENE_GENERIC, forceFace, faceSpeed, false, nil, false )
             return -- Stop here
         end
         
@@ -2008,10 +2008,13 @@ end
 function NPC:NewSchedDetected( sched, schedName )
 
     local assumedFailSched = string.find(schedName, "FAIL")
-    assumedFailSched = assumedFailSched or sched == -1
+    assumedFailSched = assumedFailSched or sched == -1 or (self.Patch_IsFailSched && self:Patch_IsFailSched(sched)) 
 
     if assumedFailSched then
-        MsgN("Had schedule failure (", schedName, ")")
+        if Developer:GetBool() then
+            MsgN("Had schedule failure (", schedName, ")")
+        end
+
         self:OnDetectSchedFail()
     end
 
@@ -2021,11 +2024,12 @@ end
 
 
 function NPC:OnDetectSchedFail()
-    if ZBaseMoveIsActive(self) then
-        return
-    end
+    if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then return end
+    if ZBaseMoveIsActive(self) then return end
 
-    print("schedule failed, last seen sched was: "..(self.ZBaseLastESchedName or "none"))
+    if Developer:GetBool() then
+        MsgN("Schedule failed, last seen sched was: "..(self.ZBaseLastESchedName or "none"))
+    end
 
     -- If self.ZBaseLastESched == whatever then
 
@@ -3675,15 +3679,6 @@ function NPC:OnPostEntityTakeDamage( dmg )
     self:StoreDMGINFO( dmg )
 
 
-    -- Fix NPCs being unkillable in SCHED_NPC_FREEZE
-    if self.IsZBaseNPC && self:IsCurrentSchedule(SCHED_NPC_FREEZE) && self:Health() <= 0
-    && !self.ZBaseDieFreezeFixDone then
-        self:ClearSchedule()
-        self:TakeDamageInfo(dmg)
-        self.ZBaseDieFreezeFixDone = true
-    end
-
-
     -- Pain sound
     if self.NextPainSound < CurTime() && dmg:GetDamage() > 0 then
         self:EmitSound_Uninterupted(self.PainSounds)
@@ -3755,7 +3750,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- Become ragdoll if we should
     if !shouldCLRagdoll && !Gibbed && !dmg:IsDamageType(DMG_REMOVENORAGDOLL) then
-        local Ragdoll = self:BecomeRagdoll(dmg, hit_gr, self:GetShouldServerRagdoll())
+        local Ragdoll = self:BecomeRagdoll(dmg, hit_gr, KeepCorpses:GetBool())
         if IsValid(Ragdoll) then
             rag = Ragdoll
         end
@@ -3990,7 +3985,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     if RagdollBlacklist[self:GetClass()] then return end
 
     local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
-    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !KeepCorpses:GetBool() && !isDissolveDMG
+    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !keep_corpse && !isDissolveDMG
     local infl = dmg:GetInflictor()
     local npc = IsValid(self.ActiveRagdoll) && self.ActiveRagdoll or self
 	local rag = ents.Create("prop_ragdoll")
@@ -4069,8 +4064,15 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	end
 
 
-    -- Handle corpse
-    if !keep_corpse or isDissolveDMG then
+    
+    if isDissolveDMG then
+        rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+		undo.ReplaceEntity( rag, NULL )
+		cleanup.ReplaceEntity( rag, NULL )
+    elseif !keep_corpse then
+        -- If we should not keep corpse, do this:
+
+
         -- Nocollide
         rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 
@@ -4100,6 +4102,8 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
             table.RemoveByValue(ZBaseRagdolls, rag)
         end)
 
+
+        -- Undo/cleanup replace entity
 		undo.ReplaceEntity( rag, NULL )
 		cleanup.ReplaceEntity( rag, NULL )
     end
