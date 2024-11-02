@@ -469,7 +469,7 @@ function NPC:HitArmor( dmginfo, HitGroup )
 
     if !self.ArmorPenChance or math.random(1, self.ArmorPenChance) != 1 then
     
-        if self.ArmorHitSpark then
+        if self.ArmorHitSpark && ZBCVAR.ArmorSparks:GetBool() then
             local spark = ents.Create("env_spark")
             spark:SetKeyValue("spawnflags", 256)
             spark:SetKeyValue("TrailLength", 1)

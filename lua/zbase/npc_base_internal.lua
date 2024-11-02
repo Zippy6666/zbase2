@@ -1200,6 +1200,20 @@ function NPC:ZBWepSys_GetActTransTbl()
 end
 
 
+local holdtypesDontGesture = {
+    shotgun = true,
+}
+function NPC:ZBWepSys_ShouldUseFireGesture()
+    local wep = self:GetActiveWeapon()
+
+    if IsValid(wep) && wep:IsWeapon() && holdtypesDontGesture[wep:GetHoldType()] then
+        return false
+    end
+
+    return self:IsMoving() or !IsMultiplayer 
+end
+
+
 function NPC:ZBWepSys_TranslateAct(act, translateTbl)
     local useLegacyAnimSys = ( (self.WeaponFire_Activities or self.WeaponFire_MoveActivities) && (true or false) )
     local shouldForceShootStance = self.ForceShootStance && !useLegacyAnimSys
@@ -1210,6 +1224,7 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
     local wantsToShoot = self:ZBWepSys_AIWantsToShoot()
     local hasAmmo = !self:HasCondition(COND.NO_PRIMARY_AMMO)
     local translatedAct
+    local wep = self:GetActiveWeapon()
     if wantsToShoot && hasAmmo then
 
         if self:IsMoving() then
@@ -1219,7 +1234,7 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
                 self:SetMovementActivity(translatedMoveAct)
             end
             
-        elseif IsMultiplayer then
+        elseif !self:ZBWepSys_ShouldUseFireGesture() then
 
             translatedAct =  translateTbl[ act ]
         
@@ -1250,8 +1265,9 @@ function NPC:InternalOnFireWeapon()
 
 
     -- Trigger firing animations
-    self:PlayAnimation(self:ZBWepSys_GetActTransTbl()[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
-    if IsMultiplayer then
+    if self:ZBWepSys_ShouldUseFireGesture() then
+        self:PlayAnimation(self:ZBWepSys_GetActTransTbl()[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
+    else
         self:ResetIdealActivity(ACT_RANGE_ATTACK1)
     end
 

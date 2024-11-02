@@ -322,15 +322,22 @@ end
 
 
 if SERVER then
-    local MoveConstant = 150
-    local NextWayPointDistSq = (MoveConstant*0.6)^2
+    local MoveConstant = 300
+    local DistUntilSwitchWayPointSq = (MoveConstant*0.5)^2
+    local DownVec = Vector(0, 0, -10000)
 
     function ZBaseMove( npc, pos, identifier )
 
         local hookID = "ZBaseMove:"..tostring(npc)
         local NextMoveTick = CurTime()
+        pos = util.TraceLine({
+            start = pos,
+            endpos =  pos + DownVec,
+            mask = MASK_NPCWORLDSTATIC,
+        }).HitPos
 
         npc.ZBaseMove_ID = identifier
+        npc.ZBaseMove_LastFollowTargetPos = pos -- Temporary
 
         debugoverlay.Text(npc:WorldSpaceCenter(), "Starting ZBaseMove '"..(identifier or "*any*").."'")
 
@@ -348,8 +355,10 @@ if SERVER then
 
             local npc_pos = npc:WorldSpaceCenter()
 
+            local InWayPointDist = npc_pos:DistToSqr(npc.ZBaseMove_LastFollowTargetPos) < DistUntilSwitchWayPointSq
+
             if (!npc:IsCurrentSchedule(SCHED_FORCED_GO) && !npc:IsCurrentSchedule(SCHED_FORCED_GO_RUN))
-            or npc_pos:DistToSqr(pos) < NextWayPointDistSq then
+            or InWayPointDist then
 
                 local moveVec = (pos - npc_pos):GetNormalized()*MoveConstant
                 local tr = util.TraceLine({
@@ -359,6 +368,7 @@ if SERVER then
                     mask = MASK_NPCSOLID,
                 })
                 local follow_target_pos = tr.HitPos+tr.HitNormal*15
+                npc.ZBaseMove_LastFollowTargetPos = follow_target_pos
 
                 debugoverlay.Line(npc_pos, follow_target_pos, 0.3)
                 debugoverlay.Axis(pos, angle_zero, 50)

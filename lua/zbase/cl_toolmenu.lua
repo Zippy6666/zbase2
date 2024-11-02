@@ -63,6 +63,8 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Client Ragdolls", "zbase_cl_ragdolls")
         panel:ControlHelp("Should ZBase ragdolls be clientside? This will ignore 'Ragdoll Remove Time' and 'Max Ragdolls' in the aftermath section.")
 
+        panel:CheckBox("Armor Sparks", "zbase_armor_sparks")
+        panel:ControlHelp("Should armor hits cause sparks?")
     end)
 
     --[[
