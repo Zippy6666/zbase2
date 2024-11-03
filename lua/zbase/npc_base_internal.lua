@@ -433,6 +433,7 @@ function NPC:ZBaseThink()
     local sched = self:GetCurrentSchedule()
     local seq = self:GetSequence()
     local act = self:GetActivity()
+    local GP = self:GetGoalPos()
 
 
 
@@ -485,8 +486,9 @@ function NPC:ZBaseThink()
         end
 
 
-        if !self:GetGoalPos():IsZero() then
-            self.ZBaseLastValidGoalPos = self:GetGoalPos()
+        if !GP:IsZero() && self.ZBaseLastValidGoalPos != GP then
+            self.ZBaseLastValidGoalPos = GP
+            self:CONV_TempVar("ZBaseLastGoalPos_ValidForFallBack", true, 3 )
         end
 
 
@@ -2057,7 +2059,7 @@ end
 
 
 function NPC:OnDetectSchedFail()
-    if ZBaseMoveIsActive(self) then return end
+    if ZBaseMoveIsActive(self, "MoveFallback") then return end
 
     if Developer:GetBool() then
         MsgN("Schedule failed, last seen sched was: "..(self.ZBaseLastESchedName or "none"))
@@ -2066,18 +2068,19 @@ function NPC:OnDetectSchedFail()
     -- If self.ZBaseLastESched == whatever then
 
     local fallback_MovePos
+    local npcState = self:GetNPCState()
 
-    if self.ZBaseLastValidGoalPos then
+    if self.ZBaseLastValidGoalPos && self.ZBaseLastGoalPos_ValidForFallBack then
         fallback_MovePos = self.ZBaseLastValidGoalPos
-    elseif IsValid(self:GetEnemy()) then
-        fallback_MovePos = self:GetEnemy():GetPos()
+    elseif npcState==NPC_STATE_ALERT or npcState==NPC_STATE_COMBAT then
+        local eneLastPos = self:GetEnemyLastSeenPos()
+        fallback_MovePos = ( eneLastPos && !eneLastPos:IsZero() && eneLastPos ) or self:GetEnemy():GetPos()
     else
+        -- Not combat or alert, move randomly
         fallback_MovePos = self:WorldSpaceCenter() + Vector(math.random(-300, 300), math.random(-300, 300), 0)
     end
 
-    if fallback_MovePos then
-        ZBaseMove(self, fallback_MovePos, "MoveFallback")
-    end
+    ZBaseMove(self, fallback_MovePos, "MoveFallback")
 end
 
 
