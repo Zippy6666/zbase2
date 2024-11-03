@@ -1673,11 +1673,10 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
     -- Main function --
     local function playAnim()
-        local lastEne = self:GetEnemy() -- Store enemy
-
-
         -- Reset stuff
-        self:FullReset()
+        if !moreArgs.skipReset then
+            self:FullReset()
+        end
 
 
         -- Set schedule
@@ -1753,11 +1752,6 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
             end
 
-
-            -- Update enemy memory, since the frozen state makes it forget
-            -- if IsValid(lastEne) then
-            --     self:UpdateEnemyMemory( lastEne, self:GetEnemyLastSeenPos() )
-            -- end
 
         end)
 
@@ -2069,15 +2063,18 @@ function NPC:OnDetectSchedFail()
 
     local fallback_MovePos
     local npcState = self:GetNPCState()
+    local ene = self:GetEnemy()
 
     if self.ZBaseLastValidGoalPos && self.ZBaseLastGoalPos_ValidForFallBack then
         fallback_MovePos = self.ZBaseLastValidGoalPos
-    elseif npcState==NPC_STATE_ALERT or npcState==NPC_STATE_COMBAT then
-        local eneLastPos = self:GetEnemyLastSeenPos()
-        fallback_MovePos = ( eneLastPos && !eneLastPos:IsZero() && eneLastPos ) or self:GetEnemy():GetPos()
     else
-        -- Not combat or alert, move randomly
-        fallback_MovePos = self:WorldSpaceCenter() + Vector(math.random(-300, 300), math.random(-300, 300), 0)
+        if IsValid(ene) then
+            local eneLastPos = self:GetEnemyLastSeenPos()
+            fallback_MovePos = ( eneLastPos && !eneLastPos:IsZero() && eneLastPos ) or (ene:GetPos())
+        else
+            -- Not combat or alert, move randomly
+            fallback_MovePos = self:WorldSpaceCenter() + Vector(math.random(-300, 300), math.random(-300, 300), 0)
+        end
     end
 
     ZBaseMove(self, fallback_MovePos, "MoveFallback")

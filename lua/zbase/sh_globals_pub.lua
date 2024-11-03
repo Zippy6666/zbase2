@@ -172,6 +172,7 @@ if SERVER then
     local DistUntilSwitchWayPointSq = (MoveConstant*0.5)^2
     local DownVec = Vector(0, 0, -10000)
     local shouldJump_DownVec = Vector(0, 0, -100) -- If we are this high up, try to jump
+    local jumpUpVec = Vector(0, 0, 300)
     local AIDisabled = GetConVar("ai_disabled")
 
 
@@ -192,7 +193,7 @@ if SERVER then
         pos = downtr.HitPos+downtr.HitNormal*15
 
         npc.ZBaseMove_ID = identifier
-        npc.ZBaseMove_LastFollowTargetPos = pos -- Temporary
+        npc.ZBaseMove_WaypointPos = pos -- Temporary
         npc.ZBaseMove_CanGroundMove = false
 
         debugoverlay.Text(npc:WorldSpaceCenter(), "Starting ZBaseMove '"..(identifier or "*any*").."'")
@@ -216,7 +217,7 @@ if SERVER then
             end
 
             local npc_pos = npc:WorldSpaceCenter()
-            local InWayPointDist = npc_pos:DistToSqr(npc.ZBaseMove_LastFollowTargetPos) < DistUntilSwitchWayPointSq
+            local InWayPointDist = npc_pos:DistToSqr(npc.ZBaseMove_WaypointPos) < DistUntilSwitchWayPointSq
 
             if FirstIter or InWayPointDist then
 
@@ -224,16 +225,16 @@ if SERVER then
                 local tr = util.TraceLine({
                     start = npc_pos,
                     endpos =  npc_pos + moveVec,
-                    filter = {npc, npc.ZBaseMove_FollowTarget},
+                    filter = {npc},
                     mask = MASK_VISIBLE,
                 })
-                local follow_target_pos = tr.HitPos+tr.HitNormal*15
-                npc.ZBaseMove_LastFollowTargetPos = follow_target_pos
+                local waypointPos = tr.HitPos+tr.HitNormal*15
+                npc.ZBaseMove_WaypointPos = waypointPos
 
-                debugoverlay.Line(npc_pos, follow_target_pos, 0.3)
+                debugoverlay.Line(npc_pos, waypointPos, 0.3)
                 debugoverlay.Axis(pos, angle_zero, 50)
 
-                npc:SetLastPosition(follow_target_pos)
+                npc:SetLastPosition(waypointPos)
 
                 local npcState = npc:GetNPCState()
                 if npcState == NPC_STATE_ALERT or npcState == NPC_STATE_COMBAT then
@@ -250,14 +251,33 @@ if SERVER then
             local onGround = npc:IsOnGround()
             if !npc.ZBaseMove_CanGroundMove && onGround && bit.band(npc:CapabilitiesGet(), CAP_MOVE_JUMP) == CAP_MOVE_JUMP then
 
-                local moveVec = (pos - npc_pos):GetNormalized()*MoveConstant
-                npc:MoveJumpStart(moveVec+Vector(0, 0, 500))
+                ZBaseMoveJump(npc, pos)
+                npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 3) -- Assume we can ground move after this jump
 
             end
 
 
             NextMoveTick = CurTime()+0.1
         end)
+    end
+
+
+    -- Make an NPC jump to the desired position
+    -- 'npc' - The NPC in question
+    -- 'pos' - The position to jump to
+    function ZBaseMoveJump( npc, pos )
+        local npc_pos = npc:WorldSpaceCenter()
+        local moveVec = (pos - npc_pos)
+        npc:MoveJumpStart(moveVec+jumpUpVec)
+
+        if npc.IsZBaseNPC then
+            local function onFinishFunc()
+                npc:SetLastPosition(pos)
+                npc:SetSchedule(SCHED_FORCED_GO_RUN)
+            end
+
+            npc:InternalPlayAnimation(ACT_GLIDE, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {skipReset=true, onFinishFunc=onFinishFunc})
+        end
     end
 
 
