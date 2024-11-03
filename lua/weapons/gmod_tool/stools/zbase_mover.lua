@@ -17,11 +17,6 @@ if CLIENT then
 end
 
 
-function TOOL:Deploy()
-    self.NPCsToMove = self.NPCsToMove or {}
-end
-
-
 function TOOL:LeftClick( trace )
 
     local ent = trace.Entity
@@ -32,6 +27,7 @@ function TOOL:LeftClick( trace )
 
         if SERVER then
 
+            self.NPCsToMove = self.NPCsToMove or {}
             if table.RemoveByValue(self.NPCsToMove, ent) == false then
                 ent:CONV_StoreInTable(self.NPCsToMove)
             end
