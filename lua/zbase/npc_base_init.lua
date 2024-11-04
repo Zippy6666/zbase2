@@ -45,6 +45,15 @@ NPC.CollisionBounds = false -- Example: NPC.CollisionBounds = {min=Vector(-50, -
 NPC.ZBaseStartFaction = "none"
 
 
+-- More factions this NPC should be allied towards, needs to follow this syntax:
+-- NPC.ZBaseFactionsExtra = {
+--     ["combine"] = true,
+--     ["zombie"] = true,
+-- }
+NPC.ZBaseFactionsExtra = {
+}
+
+
 NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
 NPC.SpawnFlagTbl = {} -- Ex. NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_FEMALE}, https://wiki.facepunch.com/gmod/Enums/SF
 

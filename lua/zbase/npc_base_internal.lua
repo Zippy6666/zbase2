@@ -628,8 +628,8 @@ local VJTranslation = {
 }
 
 
-function NPC:DecideRelationship( ent )
-    local myFaction = self.ZBaseFaction
+function NPC:DecideRelationship( myFaction, ent )
+    
     local theirFaction = ent.ZBaseFaction
 
 
@@ -647,8 +647,8 @@ function NPC:DecideRelationship( ent )
     end
 
 
-    -- Are their factions the same?
-    if myFaction == theirFaction then
+    if myFaction == theirFaction or self.ZBaseFactionsExtra[theirFaction]
+    or ( ent.IsZBaseNPC && ent.ZBaseFactionsExtra && ent.ZBaseFactionsExtra[myFaction] ) then
         self:ZBASE_SetMutualRelationship( ent, D_LI )
     else
         self:ZBASE_SetMutualRelationship( ent, D_HT )
@@ -664,12 +664,14 @@ function NPC:UpdateRelationships()
 
     -- Update relationships between all NPCs
     for _, v in ipairs(ZBaseRelationshipEnts) do
-        if v != self then self:DecideRelationship(v) end
+        if v != self then
+            self:DecideRelationship(self.ZBaseFaction, v)
+        end
     end
 
     -- Update relationships with players
     for _, v in player.Iterator() do
-        self:DecideRelationship(v)
+        self:DecideRelationship(self.ZBaseFaction, v)
     end
 end
 
@@ -1268,10 +1270,14 @@ function NPC:InternalOnFireWeapon()
     local wep = self:GetActiveWeapon()
     local ene = self:GetEnemy()
 
+    if !wep:IsValid() then return end
+
+    local actTranslateTbl = self:ZBWepSys_GetActTransTbl()
+
 
     -- Trigger firing animations
-    if self:ZBWepSys_ShouldUseFireGesture() then
-        self:PlayAnimation(self:ZBWepSys_GetActTransTbl()[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
+    if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture() then
+        self:PlayAnimation(actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
     else
         self:ResetIdealActivity(ACT_RANGE_ATTACK1)
     end
