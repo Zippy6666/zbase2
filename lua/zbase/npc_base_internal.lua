@@ -2255,6 +2255,9 @@ function NPC:StartFollowingPlayer( ply )
     if self:ZBaseDist(ply, {away=200}) then return end
 
 
+    self:FullReset()
+
+
     self.PlayerToFollow = ply
 
 
@@ -2263,8 +2266,8 @@ function NPC:StartFollowingPlayer( ply )
     net.WriteString(self.Name)
     net.Send(self.PlayerToFollow)
 
-    -- self:SetTarget(ply)
-    -- self:SetSchedule(SCHED_TARGET_FACE)
+    self:SetTarget(ply)
+    self:SetSchedule(SCHED_TARGET_FACE)
 
     self:EmitSound_Uninterupted(self.FollowPlayerSounds)
 
