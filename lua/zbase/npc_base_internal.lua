@@ -2046,7 +2046,7 @@ function NPC:NewSchedDetected( sched, schedName )
 
 
     if assumedFailSched then
-        if Developer:GetBool() then
+        if Developer:GetInt() >= 2 then
             MsgN("Had schedule failure (", schedName, ")")
         end
 
@@ -2061,7 +2061,7 @@ end
 function NPC:OnDetectSchedFail()
     if ZBaseMoveIsActive(self, "MoveFallback") then return end
 
-    if Developer:GetBool() then
+    if Developer:GetInt() >= 2 then
         MsgN("Schedule failed, last seen sched was: "..(self.ZBaseLastESchedName or "none"))
     end
 

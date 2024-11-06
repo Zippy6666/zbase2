@@ -172,8 +172,9 @@ if SERVER then
     local DistUntilSwitchWayPointSq = (MoveConstant*0.5)^2
     local DownVec = Vector(0, 0, -10000)
     local shouldJump_DownVec = Vector(0, 0, -100) -- If we are this high up, try to jump
-    local jumpUpVec = Vector(0, 0, 300)
+    local jumpUpVec = Vector(0, 0, 400)
     local AIDisabled = GetConVar("ai_disabled")
+    local MaxJumpDist = 500
 
 
     -- Move any NPC to the desired position, works even when there are no nodes!
@@ -218,13 +219,15 @@ if SERVER then
 
             local npc_pos = npc:WorldSpaceCenter()
             local InWayPointDist = npc_pos:DistToSqr(npc.ZBaseMove_WaypointPos) < DistUntilSwitchWayPointSq
+            local onGround = npc:IsOnGround()
+            local shouldJump = !npc.ZBaseMove_CanGroundMove && onGround && bit.band(npc:CapabilitiesGet(), CAP_MOVE_JUMP) == CAP_MOVE_JUMP
+            local moveNrm = (FirstIter or InWayPointDist or shouldJump) && (pos - npc_pos):GetNormalized()
 
             if FirstIter or InWayPointDist then
 
-                local moveVec = (pos - npc_pos):GetNormalized()*MoveConstant
                 local tr = util.TraceLine({
                     start = npc_pos,
-                    endpos =  npc_pos + moveVec,
+                    endpos =  npc_pos + moveNrm*MoveConstant,
                     filter = {npc},
                     mask = MASK_VISIBLE,
                 })
@@ -248,10 +251,17 @@ if SERVER then
 
             end
 
-            local onGround = npc:IsOnGround()
-            if !npc.ZBaseMove_CanGroundMove && onGround && bit.band(npc:CapabilitiesGet(), CAP_MOVE_JUMP) == CAP_MOVE_JUMP then
+            
+            if shouldJump then
 
-                ZBaseMoveJump(npc, pos)
+  
+                if npc_pos:DistToSqr(pos) <= MaxJumpDist then
+                    ZBaseMoveJump(npc, pos)
+                else
+                    ZBaseMoveJump(npc, npc_pos + moveNrm*MaxJumpDist)
+                end
+
+
                 npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 3) -- Assume we can ground move after this jump
 
             end
@@ -267,8 +277,8 @@ if SERVER then
     -- 'pos' - The position to jump to
     function ZBaseMoveJump( npc, pos )
         local npc_pos = npc:WorldSpaceCenter()
-        local moveVec = (pos - npc_pos)
-        npc:MoveJumpStart(moveVec+jumpUpVec)
+        local moveNrm = (pos - npc_pos)
+        npc:MoveJumpStart(moveNrm+jumpUpVec)
 
         if npc.IsZBaseNPC then
             local function onFinishFunc()
