@@ -2038,7 +2038,7 @@ function NPC:NewSchedDetected( sched, schedName )
     local assumedFailSched =
 
     ( string.find(schedName, "FAIL")
-        or (sched==-1 && self.ZBaseLastESched!=SCHED_SCENE_GENERIC && !(self.IsZBase_SNPC && self.CurrentSchedule))
+        -- or (sched==-1 && self.ZBaseLastESched!=SCHED_SCENE_GENERIC && !(self.IsZBase_SNPC && self.CurrentSchedule))
         or (self.Patch_IsFailSched && self:Patch_IsFailSched(sched))
     )
 

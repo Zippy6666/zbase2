@@ -172,9 +172,9 @@ if SERVER then
     local DistUntilSwitchWayPointSq = (MoveConstant*0.5)^2
     local DownVec = Vector(0, 0, -10000)
     local shouldJump_DownVec = Vector(0, 0, -100) -- If we are this high up, try to jump
-    local jumpUpVec = Vector(0, 0, 400)
+    local jumpUpVec = Vector(0, 0, 300)
     local AIDisabled = GetConVar("ai_disabled")
-    local MaxJumpDist = 500
+    local MaxJumpDist = 400
     local TimeOutTime = 5
 
 
@@ -193,18 +193,17 @@ if SERVER then
             endpos =  pos + DownVec,
             mask = MASK_NPCWORLDSTATIC,
         })
-        pos = downtr.HitPos+downtr.HitNormal*15
+        destination = downtr.HitPos+downtr.HitNormal*15
 
         npc.ZBaseMove_ID = identifier
-        npc.ZBaseMove_WaypointPos = pos -- Temporary
+        npc.ZBaseMove_WaypointPos = destination -- Temporary
         npc.ZBaseMove_CanGroundMove = false
 
         debugoverlay.Text(npc:WorldSpaceCenter(), "Starting ZBaseMove '"..(identifier or "*any*").."'")
 
         hook.Add("Tick", hookID, function()
             if NextMoveTick > CurTime() then return end
-
-            if !IsValid(npc) or pos:DistToSqr(npc:GetPos()) <= 10000 or ZBaseMoveTimeOut < CurTime() then
+            if !IsValid(npc) or destination:DistToSqr(npc:GetPos()) <= 10000 or ZBaseMoveTimeOut < CurTime() then
                 hook.Remove("Tick", hookID)
                 
                 if IsValid(npc) then
@@ -216,16 +215,22 @@ if SERVER then
                 return
             end
 
+            -- Thinking disabled, don't run this
             if AIDisabled:GetBool() or bit.band(npc:GetFlags(), EFL_NO_THINK_FUNCTION )==EFL_NO_THINK_FUNCTION then
                 return
             end
 
+            -- Vars
             local npc_pos = npc:WorldSpaceCenter()
             local InWayPointDist = npc_pos:DistToSqr(npc.ZBaseMove_WaypointPos) < DistUntilSwitchWayPointSq
             local onGround = npc:IsOnGround()
-            local shouldJump = !npc.ZBaseMove_CanGroundMove && onGround && bit.band(npc:CapabilitiesGet(), CAP_MOVE_JUMP) == CAP_MOVE_JUMP
-            local moveNrm = (FirstIter or InWayPointDist or shouldJump) && (pos - npc_pos):GetNormalized()
+            local shouldJump = ZBCVAR.MoreJumping:GetBool() && !npc.ZBaseMove_CanGroundMove && onGround && bit.band(npc:CapabilitiesGet(), CAP_MOVE_JUMP) == CAP_MOVE_JUMP
+            local moveNrm = (FirstIter or InWayPointDist or shouldJump) && (destination - npc_pos):GetNormalized()
+            local shouldRunToDest = npcState == NPC_STATE_ALERT or npcState == NPC_STATE_COMBAT
+            or IsValid(npc.PlayerToFollow) or npc:GetInternalVariable("m_bWasInPlayerSquad")
 
+
+            -- Force move to next waypoint on our path to the destination
             if FirstIter or InWayPointDist then
 
                 local tr = util.TraceLine({
@@ -238,27 +243,32 @@ if SERVER then
                 npc.ZBaseMove_WaypointPos = waypointPos
 
                 debugoverlay.Line(npc_pos, waypointPos, 0.3)
-                debugoverlay.Axis(pos, angle_zero, 50)
+                debugoverlay.Axis(destination, angle_zero, 50)
 
                 npc:SetLastPosition(waypointPos)
 
                 local npcState = npc:GetNPCState()
-                if npcState == NPC_STATE_ALERT or npcState == NPC_STATE_COMBAT then
+                if shouldRunToDest then
                     npc:SetSchedule(SCHED_FORCED_GO_RUN)
                 else
                     npc:SetSchedule(SCHED_FORCED_GO)
                 end
 
-                npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 1.8)
                 FirstIter = false
 
+            end
+
+
+            -- We are on the ground, and we are moving, so we should not need to jump...
+            if onGround && npc:IsMoving() then
+                npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 1.8)
             end
 
             
             if shouldJump then
 
-                if npc_pos:DistToSqr(pos) <= MaxJumpDist then
-                    ZBaseMoveJump(npc, pos)
+                if npc_pos:DistToSqr(destination) <= MaxJumpDist then
+                    ZBaseMoveJump(npc, destination)
                 else
                     ZBaseMoveJump(npc, npc_pos + moveNrm*MaxJumpDist)
                 end
