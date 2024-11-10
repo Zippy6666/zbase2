@@ -226,6 +226,7 @@ if SERVER then
             local onGround = npc:IsOnGround()
             local shouldJump = ZBCVAR.MoreJumping:GetBool() && !npc.ZBaseMove_CanGroundMove && onGround && bit.band(npc:CapabilitiesGet(), CAP_MOVE_JUMP) == CAP_MOVE_JUMP
             local moveNrm = (FirstIter or InWayPointDist or shouldJump) && (destination - npc_pos):GetNormalized()
+            local npcState = npc:GetNPCState()
             local shouldRunToDest = npcState == NPC_STATE_ALERT or npcState == NPC_STATE_COMBAT
             or IsValid(npc.PlayerToFollow) or npc:GetInternalVariable("m_bWasInPlayerSquad")
 
@@ -247,7 +248,6 @@ if SERVER then
 
                 npc:SetLastPosition(waypointPos)
 
-                local npcState = npc:GetNPCState()
                 if shouldRunToDest then
                     npc:SetSchedule(SCHED_FORCED_GO_RUN)
                 else

@@ -158,7 +158,7 @@ function ENT:GetBetterSchedule()
 
 	-- Still can't navigate while doing fall back, do move random
 	if self:DoingChaseFallbackSched() && self:IsNavStuck() then
-		return "CombatChase_CantReach_MoveRandom"
+		return SCHED_RUN_RANDOM
 	end
 
 

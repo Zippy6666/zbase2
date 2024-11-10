@@ -21,7 +21,7 @@ function NPC:PreSpawn()
     if #self.Weapons >= 1 then
         self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Important! Or else some NPCs won't spawn with weapons.
     else
-        self:SetKeyValue("additionalequipment", "")
+        self:SetKeyValue("additionalequipment", "") -- This NPC was not meant to have weapons, so remove them before spawn
     end
 
     self:CustomPreSpawn()
@@ -1713,7 +1713,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
         end
 
-
+ 
         -- Play the sequence
         self:ResetSequenceInfo()
         self:SetCycle(0)
@@ -1910,17 +1910,14 @@ function NPC:AITick_Slow()
     end
     
 
-
     -- Update current danger
     self:InternalDetectDanger()
-
 
 
     -- Loose enemy
     if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
         self:MarkEnemyAsEluded()
     end
-
 
 
     -- In combat
@@ -1936,7 +1933,6 @@ function NPC:AITick_Slow()
         end
 
     end
-
 
     -- Is alert, start timer
     if IsAlert && !self.NextStopAlert then
@@ -1959,6 +1955,7 @@ function NPC:AITick_Slow()
     if self:CanPursueFollowing() then
         self:PursueFollowing()
     end
+
 
     -- Stop following if no longer allied
     if IsValid(self.PlayerToFollow) && !self:IsAlly(self.PlayerToFollow) then
@@ -2985,7 +2982,6 @@ end
 
 
 ZBase_DontSpeakOverThisSound = false
-ZBaseSpeakingSquads = {}
 
 
 local SoundIndexes = {}
