@@ -194,7 +194,7 @@ function SWEP:NPCShootEffects()
 			local particle = (self.Primary.MuzzleFlashFlags == 1 && "hl2mmod_muzzleflash_npc_pistol")
 			or (self.Primary.MuzzleFlashFlags == 5 && "hl2mmod_muzzleflash_npc_ar2")
 			or (self.Primary.MuzzleFlashFlags == 7 && "hl2mmod_muzzleflash_npc_shotgun")
-			ParticleEffectAttach( particle, PATTACH_POINT_FOLLOW, EffectEnt, att_num )
+			if particle then ParticleEffectAttach( particle, PATTACH_POINT_FOLLOW, EffectEnt, att_num ) end
 		else
 			local effectdata = EffectData()
 			effectdata:SetFlags(self.Primary.MuzzleFlashFlags)
