@@ -180,6 +180,8 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Dynamic Light", "zbase_muzzle_light")
         panel:ControlHelp("Should weapons emit dynamic light?")
 
+        panel:CheckBox("Quality Flashes", "zbase_mmod_muzzle")
+        panel:ControlHelp("Use muzzle flash effects from HL2 MMOD?")
     end)
 
     --[[

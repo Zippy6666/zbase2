@@ -1,0 +1,11 @@
+unlitgeneric
+{
+$basetexture "effects/HL2MMod/HL2MMod_Tracer_Tile"
+$additive 1
+ 	$vertexalpha 1
+ 	$vertexcolor 1
+$OVERBRIGHTFACTOR 5
+//$BRIGHTNESSBIASFACTOR 3
+$DEPTHBLEND 1
+$DEPTHBLENDSCALE 0.5
+}

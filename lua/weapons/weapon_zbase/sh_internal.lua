@@ -100,7 +100,7 @@ function SWEP:PrimaryAttack()
 		end
 
 
-		self:ShootEffects()
+		self:NPCShootEffects()
 	
 
 		-- Sound
@@ -160,8 +160,7 @@ end
 --]]
 
 
--- A convenience function to create shoot effects.
-function SWEP:ShootEffects()
+function SWEP:NPCShootEffects()
 
 	-- Custom
 	local r = self:CustomShootEffects()
@@ -186,22 +185,24 @@ function SWEP:ShootEffects()
 		self:DeleteOnRemove(EffectEnt)
 	end
 
-
-	local rf = RecipientFilter()
-	rf:AddPVS(EffectEnt:GetPos())
-
-
+	
 	-- Muzzle flash
-	if IsValid(EffectEnt) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 then
+	local att_num = EffectEnt:LookupAttachment("muzzle")
+	if IsValid(EffectEnt) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
 
-		local effectdata = EffectData()
-		effectdata:SetFlags(self.Primary.MuzzleFlashFlags)
-		effectdata:SetEntity(EffectEnt)
-		util.Effect( "MuzzleFlash", effectdata, true, rf )
+		if ZBCVAR.MMODMuzzle:GetBool() then
+			local particle = (self.Primary.MuzzleFlashFlags == 1 && "hl2mmod_muzzleflash_npc_pistol")
+			or (self.Primary.MuzzleFlashFlags == 5 && "hl2mmod_muzzleflash_npc_ar2")
+			or (self.Primary.MuzzleFlashFlags == 7 && "hl2mmod_muzzleflash_npc_shotgun")
+			ParticleEffectAttach( particle, PATTACH_POINT_FOLLOW, EffectEnt, att_num )
+		else
+			local effectdata = EffectData()
+			effectdata:SetFlags(self.Primary.MuzzleFlashFlags)
+			effectdata:SetEntity(EffectEnt)
+			util.Effect( "MuzzleFlash", effectdata, true, true )
+		end
 
-		local att_num = EffectEnt:LookupAttachment("muzzle")
-		if ZBCVAR.MuzzleLight:GetBool() && att_num > 0 then
-
+		if ZBCVAR.MuzzleLight:GetBool() then
 			local att = EffectEnt:GetAttachment(att_num)
 			local col = self.Primary.MuzzleFlashFlags==5 && "25 125 255" or "255 125 25"
 			local muzzleLight = ents.Create("light_dynamic")
@@ -213,12 +214,10 @@ function SWEP:ShootEffects()
 			muzzleLight:Activate()
 			muzzleLight:Fire("TurnOn", "", 0)
 			SafeRemoveEntityDelayed(muzzleLight, 0.1)
-
 		end
 
 	end
 	
-
 	-- Shell eject
 	if self.Primary.ShellEject then
 

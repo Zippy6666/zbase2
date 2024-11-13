@@ -1,0 +1,8 @@
+"VertexLitGeneric"
+{
+	// Original shader: VertexLitMaskedEnvMappedTexture
+	"$basetexture" "models/synth_beta/2vents"
+	"$envmapmask" "models/synth_beta/2ventsmask"
+	$envmap env_cubemap
+	// "$envmapsphere" 1
+}

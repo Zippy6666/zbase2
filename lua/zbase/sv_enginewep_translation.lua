@@ -49,7 +49,7 @@ ZBase_EngineWeapon_Attributes = {
             ShellEject = "1", 
             ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Effects
             NumShots = 1,
-            MuzzleFlashChance = 2,
+            MuzzleFlashChance = 1,
         },
         NPCBurstMin = 1, 
         NPCBurstMax = 1, 
@@ -111,6 +111,7 @@ ZBase_EngineWeapon_Attributes = {
             ShellEject = "1", 
             ShellType = "ShotgunShellEject", -- https://wiki.facepunch.com/gmod/Effects
             NumShots = 7,
+            MuzzleFlashFlags = 7,
         },
         NPCBurstMin = 1,
         NPCBurstMax = 1,
