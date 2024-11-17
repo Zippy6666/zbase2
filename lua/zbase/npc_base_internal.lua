@@ -803,16 +803,14 @@ end
 function NPC:ZBWepSys_Init()
 
     self.ZBWepSys_Inventory = {}
-
-
     self.ZBWepSys_NextBurst = CurTime()
     self.ZBWepSys_NextShoot = CurTime()
-
-
     self.ZBWepSys_InShootDist = false
-
-
     self.ZBWepSys_LastShootCooldown = 0
+    self.ZBWepSys_Cache_AIWantsToShoot = false
+    self.ZBWepSys_Cache_FacingEne = false
+    self.ZBWepSys_NextCheckAIWantsToShoot = CurTime()
+    self.ZBWepSys_NextCheckIsFacingEne = CurTime()
 
 
     local wep = self:GetActiveWeapon()
@@ -1111,9 +1109,24 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
 end
 
 
+local AIWantsToShoot_ACT_Blacklist = {
+    [ACT_JUMP] = true,
+    [ACT_GLIDE] = true,
+    [ACT_LAND] = true,
+}
 function NPC:ZBWepSys_AIWantsToShoot()
+    if AIDisabled:GetBool() then
+        return false
+    end
+
     local ene = self:GetEnemy()
-    local ShootSchedBlacklist = {
+
+    if self.ZBWepSys_NextCheckIsFacingEne < CurTime() then
+        self.ZBWepSys_Cache_FacingEne = self:IsFacing(ene)
+        self.ZBWepSys_NextCheckIsFacingEne = CurTime()+1.5
+    end
+
+    self.ZBWepSys_ShootSchedBlacklist = self.ZBWepSys_ShootSchedBlacklist or {
         [SCHED_RELOAD] = true,
         [SCHED_HIDE_AND_RELOAD] = true,
         [SCHED_SCENE_GENERIC] = true,
@@ -1129,15 +1142,15 @@ function NPC:ZBWepSys_AIWantsToShoot()
     && self:GetNavType()==NAV_GROUND
 
     -- Must be on ground to shoot
-    && self:IsOnGround()
+    && !AIWantsToShoot_ACT_Blacklist[self:GetActivity()]
 
     -- Enemy is within shoot distance
     && self.ZBWepSys_InShootDist
 
-    && !ShootSchedBlacklist[ self:GetCurrentSchedule() ]
+    && !self.ZBWepSys_ShootSchedBlacklist[self:GetCurrentSchedule()]
 
     -- Facing enemy
-    && self:IsFacing(ene)
+    && self.ZBWepSys_Cache_FacingEne
 
     -- Take turns firing
     && !(  ZBCVAR.MaxNPCsShootPly:GetBool() && ene:IsPlayer() && istable(ene.AttackingZBaseNPCs) && self:ZBWepSys_TooManyAttacking(ene)  )
@@ -1146,9 +1159,14 @@ end
 
 function NPC:ZBWepSys_WantsToShoot()
 
+    if self.ZBWepSys_NextCheckAIWantsToShoot < CurTime() then
+        self.ZBWepSys_Cache_AIWantsToShoot = self:ZBWepSys_AIWantsToShoot()
+        self.ZBWepSys_NextCheckAIWantsToShoot = CurTime()+0.75
+    end
+
     return !self.DoingPlayAnim
 
-    && self:ZBWepSys_AIWantsToShoot()
+    && self.ZBWepSys_Cache_AIWantsToShoot
 
     && self:ShouldFireWeapon()
 
@@ -1222,17 +1240,16 @@ end
 
 
 function NPC:ZBWepSys_TranslateAct(act, translateTbl)
+    if AIDisabled:GetBool() then return end
+
     local useLegacyAnimSys = ( (self.WeaponFire_Activities or self.WeaponFire_MoveActivities) && (true or false) )
     local shouldForceShootStance = self.ForceShootStance && !useLegacyAnimSys
-
     if !shouldForceShootStance then return end
 
 
-    local wantsToShoot = self:ZBWepSys_AIWantsToShoot()
-    local hasAmmo = !self:HasCondition(COND.NO_PRIMARY_AMMO)
     local translatedAct
     local wep = self:GetActiveWeapon()
-    if wantsToShoot && hasAmmo then
+    if self.ZBWepSys_Cache_AIWantsToShoot && !self:HasCondition(COND.NO_PRIMARY_AMMO) then
 
         if self:IsMoving() then
 
@@ -1284,25 +1301,20 @@ function NPC:InternalOnFireWeapon()
 
 
     -- AI when shooting at players
-    if ZBCVAR.MaxNPCsShootPly:GetBool() then
+    if ZBCVAR.MaxNPCsShootPly:GetBool() && IsValid(ene) && ene:IsPlayer() then
 
-        -- Decide how many ZBase NPCs are attacking this player
-        if ene:IsPlayer() then
-            -- How many ZBase NPCs are attacking this player
-
-            local ply = ene
-            ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
-            ply.AttackingZBaseNPCs[self]=true
+        local ply = ene
+        ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
+        ply.AttackingZBaseNPCs[self]=true
 
 
-            ply:ConvTimer("RemoveFromAttackingZBaseNPCs"..self:EntIndex(), attackingResetDelay, function()
-                -- No longer considered to be attacking
-                if ply.AttackingZBaseNPCs[self] then
-                    ply.AttackingZBaseNPCs[self] = nil
-                end
-            end)
+        ply:ConvTimer("RemoveFromAttackingZBaseNPCs"..self:EntIndex(), attackingResetDelay, function()
+            -- No longer considered to be attacking
+            if ply.AttackingZBaseNPCs[self] then
+                ply.AttackingZBaseNPCs[self] = nil
+            end
+        end)
 
-        end
     end
 
 end
@@ -1394,7 +1406,7 @@ function NPC:ZBWepSys_FireWeaponThink()
 
 
             -- Make sure yaw is precise when standing and shooting
-            if !self:IsMoving() then
+            if !self:IsMoving() && IsValid(ene) then
                 self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
             end
 
