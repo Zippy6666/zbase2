@@ -576,7 +576,7 @@ function NPC:DoSlowThink()
     -- Config weapon proficiency
     if self:GetCurrentWeaponProficiency() != self.WeaponProficiency then
         self:SetCurrentWeaponProficiency(self.WeaponProficiency)
-        debugoverlay.Text(self:GetPos(), "ZBASE NPC's weapon proficiency set to its 'self.WeaponProficiency'")
+        debugoverlay.Text(self:GetPos(), "ZBASE NPC's weapon proficiency set to its 'self.WeaponProficiency'", 0.5)
     end
 
 
@@ -585,6 +585,7 @@ function NPC:DoSlowThink()
         self:SetSchedule(SCHED_RELOAD)
         debugoverlay.Text(self:GetPos(), "Switching to SCHED_RELOAD because enemy occluded")
     end
+
 
     self:AITick_Slow()
 
@@ -602,6 +603,14 @@ function NPC:FrameTick()
 
     if self.DoingPlayAnim && !self.IsZBase_SNPC then
         self:ExecuteWalkFrames(0.3)
+    end
+
+    if self.ZBWepSys_AllowShoot then
+        -- Shoot
+        self:ZBWepSys_Shoot()
+        self:InternalOnFireWeapon()
+        self:OnFireWeapon()
+        self.ZBWepSys_AllowShoot = false
     end
 
 end
@@ -1074,7 +1083,6 @@ function NPC:ZBWepSys_Shoot()
         local RestTimeMin, RestTimeMax = wep:GetNPCRestTimes()
         local RndRest = math.Rand(RestTimeMin, RestTimeMax)
 
-
         self.ZBWepSys_NextBurst = CurTime()+RndRest
         self.ZBWepSys_ShotsLeft = nil
 
@@ -1114,46 +1122,41 @@ local AIWantsToShoot_ACT_Blacklist = {
     [ACT_GLIDE] = true,
     [ACT_LAND] = true,
 }
+local AIWantsToShoot_SCHED_Blacklist = {
+    [SCHED_RELOAD] = true,
+    [SCHED_HIDE_AND_RELOAD] = true,
+    [SCHED_SCENE_GENERIC] = true,
+}
 function NPC:ZBWepSys_AIWantsToShoot()
-    if AIDisabled:GetBool() then
+    if AIDisabled:GetBool() then return false end
+    if !self.EnemyVisible or !self.ZBWepSys_InShootDist then return false end
+
+    if AIWantsToShoot_ACT_Blacklist[self:GetActivity()] then return false end
+
+    local sched = self:GetCurrentSchedule()
+    if AIWantsToShoot_SCHED_Blacklist[sched] or (self.Patch_AIWantsToShoot_SCHED_Blacklist && self.Patch_AIWantsToShoot_SCHED_Blacklist[sched]) then
         return false
     end
 
-    local ene = self:GetEnemy()
-
     if self.ZBWepSys_NextCheckIsFacingEne < CurTime() then
+        local ene = self:GetEnemy()
         self.ZBWepSys_Cache_FacingEne = self:IsFacing(ene)
         self.ZBWepSys_NextCheckIsFacingEne = CurTime()+1.5
     end
 
-    self.ZBWepSys_ShootSchedBlacklist = self.ZBWepSys_ShootSchedBlacklist or {
-        [SCHED_RELOAD] = true,
-        [SCHED_HIDE_AND_RELOAD] = true,
-        [SCHED_SCENE_GENERIC] = true,
-        [ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")] = true,
-        [ZBaseESchedID("SCHED_METROPOLICE_WARN_AND_ARREST_ENEMY")] = true,
-        [ZBaseESchedID("SCHED_METROPOLICE_ARREST_ENEMY")] = true,
-    }
+    if !self.ZBWepSys_Cache_FacingEne then
+        return false
+    end
 
-    -- Enemy valid and visible
-    return self.EnemyVisible
+    if ZBCVAR.MaxNPCsShootPly:GetBool() then
+        local ene = self:GetEnemy()
 
-    -- Must use on ground nav to shoot
-    && self:GetNavType()==NAV_GROUND
+        if ene:IsPlayer() && istable(ene.AttackingZBaseNPCs) && self:ZBWepSys_TooManyAttacking(ene) then
+            return false
+        end
+    end
 
-    -- Must be on ground to shoot
-    && !AIWantsToShoot_ACT_Blacklist[self:GetActivity()]
-
-    -- Enemy is within shoot distance
-    && self.ZBWepSys_InShootDist
-
-    && !self.ZBWepSys_ShootSchedBlacklist[self:GetCurrentSchedule()]
-
-    -- Facing enemy
-    && self.ZBWepSys_Cache_FacingEne
-
-    -- Take turns firing
-    && !(  ZBCVAR.MaxNPCsShootPly:GetBool() && ene:IsPlayer() && istable(ene.AttackingZBaseNPCs) && self:ZBWepSys_TooManyAttacking(ene)  )
+    return true
 end
 
 
@@ -1228,14 +1231,14 @@ end
 local holdtypesDontGesture = {
     shotgun = true,
 }
-function NPC:ZBWepSys_ShouldUseFireGesture()
+function NPC:ZBWepSys_ShouldUseFireGesture( isMoving )
     local wep = self:GetActiveWeapon()
 
     if IsValid(wep) && wep:IsWeapon() && holdtypesDontGesture[wep:GetHoldType()] then
         return false
     end
 
-    return self:IsMoving() or !IsMultiplayer 
+    return isMoving or !IsMultiplayer 
 end
 
 
@@ -1251,14 +1254,14 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
     local wep = self:GetActiveWeapon()
     if self.ZBWepSys_Cache_AIWantsToShoot && !self:HasCondition(COND.NO_PRIMARY_AMMO) then
 
-        if self:IsMoving() then
+        if self.ZBase_IsMoving then
 
             local translatedMoveAct = translateTbl[ACT_RUN_AIM] -- Run shooting
             if !self.MovementOverrideActive && self:SelectWeightedSequence(translatedMoveAct) != -1 && self:GetMovementActivity() != translatedMoveAct then
                 self:SetMovementActivity(translatedMoveAct)
             end
             
-        elseif !self:ZBWepSys_ShouldUseFireGesture() then
+        elseif !self:ZBWepSys_ShouldUseFireGesture(self.ZBase_IsMoving) then
 
             translatedAct =  translateTbl[ act ]
         
@@ -1293,7 +1296,7 @@ function NPC:InternalOnFireWeapon()
 
 
     -- Trigger firing animations
-    if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture() then
+    if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture(self:IsMoving()) then
         self:PlayAnimation(actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
     else
         self:ResetIdealActivity(ACT_RANGE_ATTACK1)
@@ -1345,15 +1348,6 @@ function NPC:ZBWepSys_FireWeaponThink()
         self:SetSchedule(OutOfShootRangeSched)
         self.NextOutOfShootRangeSched = CurTime()+3
 
-        conv.overlay("Text", function()
-            local pos = self:GetPos()
-            return {pos, "Doing base out of shoot range behaviour.", 2}
-        end)
-
-        conv.overlay("Cross", function()
-            return {lastpos, 30, 2, Color(0, 255, 0)}
-        end)
-
     end
 
 
@@ -1401,22 +1395,10 @@ function NPC:ZBWepSys_FireWeaponThink()
         -- Should shoot
         if self.ZBWepSys_AllowShoot then
 
-            -- Shoot
-            self:ZBWepSys_Shoot()
-
-
             -- Make sure yaw is precise when standing and shooting
             if !self:IsMoving() && IsValid(ene) then
                 self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
             end
-
-
-            self:InternalOnFireWeapon()
-            self:OnFireWeapon()
-
-
-            -- Reset var
-            self.ZBWepSys_AllowShoot = false
 
         end
 
@@ -1974,6 +1956,9 @@ function NPC:AITick_Slow()
         self:StopFollowingCurrentPlayer(true)
     end
 
+
+    self.ZBase_IsMoving = self:IsMoving() or nil
+
 end
 
 
@@ -2100,11 +2085,6 @@ function NPC:DoNewEnemy()
 
     local ene = self:GetEnemy()
 
-
-    conv.overlay("Text", function()
-        local pos = self:WorldSpaceCenter()
-        return {pos, "DoNewEnemy:  "..tostring(ene), 2}
-    end)
 
     if IsValid(ene) then
         -- New enemy
@@ -3300,11 +3280,6 @@ function NPCB.Dialogue:Run( self )
 
         local sndDurQuestion = self.InternalCurrentVoiceSoundDuration
 
-        conv.overlay("Text", function()
-            local pos = self:WorldSpaceCenter()
-            return {pos, "*Question*", sndDurQuestion}
-        end)
-
 
         timer.Create("DialogueAnswerTimer"..ally:EntIndex(), sndDurQuestion+0.4, 1, function()
 
@@ -3315,12 +3290,6 @@ function NPCB.Dialogue:Run( self )
 
 
                 local sndDurAns = ally.InternalCurrentVoiceSoundDuration
-
-                conv.overlay("Text", function()
-                    local pos = ally:WorldSpaceCenter()
-                    return {pos, "*Answer*", sndDurAns}
-                end)
-
 
                 -- Reset recipient from dialogue state
                 timer.Simple(sndDurAns, function()

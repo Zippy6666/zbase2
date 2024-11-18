@@ -68,11 +68,7 @@ function SWEP:PrimaryAttack()
 	if own.IsZBaseNPC && !own.ZBWepSys_AllowShoot then return end -- muy imporante
 
 
-	if own:IsPlayer() && self:OnPrimaryAttack()!=true && CanAttack then
-
-		-- idk xd
-
-	elseif own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack && !self.NPCIsMeleeWep then
+	if own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack && !self.NPCIsMeleeWep then
 
 
 		local bullet = {
@@ -81,7 +77,6 @@ function SWEP:PrimaryAttack()
 			Damage = self.PrimaryDamage,
 			AmmoType = self.Primary.Ammo,
 			Src = own:GetShootPos(),
-			-- Dir = (own.IsZBaseNPC && own:ZBWepSys_AimVector()) or own:GetAimVector(),
 			Dir = own:GetAimVector(),
 			Spread = self.BulletSpread,
 			Tracer = self.Primary.TracerChance,
@@ -91,12 +86,8 @@ function SWEP:PrimaryAttack()
 		self:FireBullets(bullet)
 
 
-		if self.Primary.TakeAmmoPerShot > 0 then
-
-			if !self.IsZBaseNPC then
-				self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
-			end
-
+		if !self.IsZBaseNPC && self.Primary.TakeAmmoPerShot > 0 then
+			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
 		end
 
 
@@ -105,6 +96,8 @@ function SWEP:PrimaryAttack()
 
 		-- Sound
 		self:EmitSound(self.PrimaryShootSound)
+
+	elseif own:IsPlayer() && self:OnPrimaryAttack()!=true && CanAttack then
 
 	end
 
