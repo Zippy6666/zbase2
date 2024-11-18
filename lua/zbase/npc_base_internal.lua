@@ -427,17 +427,17 @@ function NPC:ZBaseThink()
         return
     end
 
-
     local isAIEnabled = !AIDisabled:GetBool()
-    local ene = self:GetEnemy()
-    local sched = self:GetCurrentSchedule()
-    local seq = self:GetSequence()
-    local act = self:GetActivity()
-    local GP = self:GetGoalPos()
-
 
 
     if isAIEnabled then
+        local ene = self:GetEnemy()
+        local sched = self:GetCurrentSchedule()
+        local seq = self:GetSequence()
+        local act = self:GetActivity()
+        local GP = self:GetGoalPos()
+
+
         -- Enemy visible
         self.EnemyVisible = IsValid(ene) && (self:HasCondition(COND.SEE_ENEMY) or self:Visible(ene))
 
@@ -528,10 +528,10 @@ function NPC:ZBaseThink()
 
 
         -- Move anim override
-        self.LastMoveActOverride = self:OverrideMovementAct()
-        self.MovementOverrideActive = isnumber(self.LastMoveActOverride)
+        local moveact = self:OverrideMovementAct()
+        self.MovementOverrideActive = isnumber(moveact) or nil
         if self.MovementOverrideActive then
-            self:SetMovementActivity(self.LastMoveActOverride)
+            self:SetMovementActivity(moveact)
         end
 
 
@@ -552,10 +552,10 @@ function NPC:ZBaseThink()
     end
 
 
-    -- Controller
-    if self.IsZBPlyControlled then
-        self:ControllerThink()
-    end
+    -- -- Controller
+    -- if self.IsZBPlyControlled then
+    --     self:ControllerThink()
+    -- end
 
 
     -- Custom think
