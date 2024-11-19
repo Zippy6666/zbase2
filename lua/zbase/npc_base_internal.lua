@@ -3225,19 +3225,22 @@ function NPCB.Dialogue:Run( self )
         -- Question
         self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
 
-        -- Face the recipient
-        self:FullReset()
-        self:SetTarget(ally)
-        self:SetSchedule(SCHED_TARGET_FACE)
 
+        if !IsValid(self.PlayerToFollow) then
+            -- Face the recipient
+            self:FullReset()
+            self:SetTarget(ally)
+            self:SetSchedule(SCHED_TARGET_FACE)
+        
+            -- Recipient faces me
+            ally:FullReset()
+            ally:SetTarget(self)
+            ally:SetSchedule(SCHED_TARGET_FACE)
+        end
+        
         -- Set vars for me
         self.HavingConversation = true
         self.DialogueMate = ally
-
-        -- Recipient faces me
-        ally:FullReset()
-        ally:SetTarget(self)
-        ally:SetSchedule(SCHED_TARGET_FACE)
 
         -- Set vars for recipient
         ally.HavingConversation = true
