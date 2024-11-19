@@ -533,11 +533,6 @@ function NPC:ZBaseThink()
             self:SetMovementActivity(moveact)
         end
 
-
-        if self.ZBase_CurrentFace_Yaw then
-            self:SetIdealYawAndUpdate(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
-        end
-
     end
 
     -- Weapon system
@@ -597,10 +592,9 @@ end
 
 function NPC:FrameTick()
 
-    local isAIEnabled = !AIDisabled:GetBool()
+    if AIDisabled:GetBool() then return end
 
-    -- Move speed changer
-    if isAIEnabled && self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && self:IsMoving() then
+    if self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && self:IsMoving() then
         self:DoMoveSpeed()
     end
 
@@ -609,11 +603,14 @@ function NPC:FrameTick()
     end
 
     if self.ZBWepSys_AllowShoot then
-        -- Shoot
         self:ZBWepSys_Shoot()
         self:InternalOnFireWeapon()
         self:OnFireWeapon()
         self.ZBWepSys_AllowShoot = false
+    end
+
+    if self.ZBase_CurrentFace_Yaw then
+        self:SetIdealYawAndUpdate(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
     end
 
 end
@@ -1299,7 +1296,7 @@ function NPC:InternalOnFireWeapon()
 
 
     -- Trigger firing animations
-    if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture(self:IsMoving()) then
+    if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture(self.ZBase_IsMoving) then
         self:PlayAnimation(actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
     else
         self:ResetIdealActivity(ACT_RANGE_ATTACK1)
@@ -1399,7 +1396,7 @@ function NPC:ZBWepSys_FireWeaponThink()
         if self.ZBWepSys_AllowShoot then
 
             -- Make sure yaw is precise when standing and shooting
-            if !self:IsMoving() && IsValid(ene) then
+            if !self.ZBase_IsMoving && IsValid(ene) then
                 self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
             end
 
@@ -1432,7 +1429,6 @@ function NPC:ZBWepSys_MeleeThink()
 
 
         if !self:IsMoving() then
-
             self:SetTarget(ene)
             self:SetSchedule(SCHED_CHASE_ENEMY)
         end
@@ -2293,7 +2289,7 @@ end
 
 
 function NPCB.Patrol:Delay(self)
-    if self:IsMoving() or self.DoingPlayAnim then
+    if self.ZBase_IsMoving or self.DoingPlayAnim then
         return math.random(8, 15)
     end
 end
@@ -2303,7 +2299,7 @@ function NPCB.Patrol:Run( self )
     local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
 
 
-    if IsValid(self.PlayerToFollow) && !self:IsMoving() then
+    if IsValid(self.PlayerToFollow) then
 
         self:SetSchedule(SCHED_ALERT_SCAN)
 
