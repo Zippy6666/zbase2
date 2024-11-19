@@ -207,22 +207,9 @@ function NPC:RangeAttack()
     -- Special face code
     if !table.IsEmpty(self.RangeAttackAnimations) && self.RangeAttackFaceEnemy then
 
-        self.TimeUntilStopFace = CurTime() + (animData.duration or (self:SequenceDuration() + 0.25)) / (animData.speedMult or 1)
+        self.TimeUntilStopFace = (animData.duration or (self:SequenceDuration() + 0.25)) / (animData.speedMult or 1)
 
-
-        local TimerName = "ZBaseFace_Range"..self:EntIndex()
-        timer.Create(TimerName, 0, 0, function()
-            if !IsValid(self) or self.TimeUntilStopFace < CurTime() then
-                timer.Remove(TimerName)
-                return
-            end
-
-
-            if GetConVar("ai_disabled"):GetBool() then return end
-
-
-            self:Face(self:RangeAttack_IdealFacePos(), nil, self.RangeAttackTurnSpeed)
-        end)
+        self:Face(self:RangeAttack_IdealFacePos(), self.TimeUntilStopFace, self.RangeAttackTurnSpeed)
 
     end
     -----------------------------------------------------------------=#

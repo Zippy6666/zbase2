@@ -534,6 +534,10 @@ function NPC:ZBaseThink()
         end
 
 
+        if self.ZBase_CurrentFace_Yaw then
+            self:SetIdealYawAndUpdate(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
+        end
+
     end
 
     -- Weapon system
@@ -1501,70 +1505,34 @@ end
 --]]
 
 
-    -- OLD and should probably be rewritten...
-    -- Make the NPC face certain directions
-    -- 'face' - A position or an entity to face, or a  representing the yaw.
-    -- 'duration' - Face duration, if not set, you can run the function in think for example
-    -- 'speed' - Turn speed, if not set, it will be the default turn speed
+
 function NPC:Face( face, duration, speed )
+    if !face then return end
 
-    local function turn( yaw )
-        if self:IsMoving() then return end
+    local turnSpeed = speed or self:GetInternalVariable("m_fMaxYawSpeed") or 15
+    local yaw
 
-
-        local sched = self:GetCurrentSchedule()
-        if sched > 88 then return end
-
-
-        local ForbiddenScheds = {
-            [SCHED_ALERT_FACE]	= true,
-            [SCHED_ALERT_FACE_BESTSOUND]	= true,
-            [SCHED_COMBAT_FACE] 	= true,
-            [SCHED_FEAR_FACE] 	= true,
-            [SCHED_SCRIPTED_FACE] 	= true,
-            [SCHED_TARGET_FACE]	= true,
-            [SCHED_RANGE_ATTACK1] = true,
-        }
-
-
-        if ForbiddenScheds[sched] then return end
-
-
-        local turnSpeed = speed or self:GetInternalVariable("m_fMaxYawSpeed") or 15
-        self:SetIdealYawAndUpdate(yaw, turnSpeed)
-    end
-
-
-    local faceFunc
-    local faceIsEnt = false
-    if isnumber(face) then
-        faceFunc = function() turn(face) end
-    elseif IsValid(face) then
-        faceFunc = function() turn( (face:GetPos() - self:GetPos()):Angle().y ) end
-        faceIsEnt = true
-    elseif isvector(face) then
-        faceFunc = function() turn( (face - self:GetPos()):Angle().y ) end
-    end
-    if !faceFunc then return end
-
-
-    if duration then
-
-        self.TimeUntilStopFace = CurTime()+duration
-        timer.Create("ZBaseFace"..self:EntIndex(), 0, 0, function()
-            if !IsValid(self) or (faceIsEnt && !IsValid(face)) or self.TimeUntilStopFace < CurTime() then
-                timer.Remove("ZBaseFace"..self:EntIndex())
-                return
-            end
-            faceFunc()
-        end)
+    if !isnumber(face) then
+        
+        if IsValid(face) then
+            yaw = ( face:GetPos()-self:GetPos() ):Angle().yaw
+        elseif isvector(face) then
+            yaw = ( face-self:GetPos() ):Angle().yaw
+        end
 
     else
 
-        timer.Remove("ZBaseFace"..self:EntIndex())
-        faceFunc()
-
+        yaw = face
+        
     end
+
+    if duration && duration > 0 then
+        self:CONV_TempVar("ZBase_CurrentFace_Yaw", yaw, duration)
+        self:CONV_TempVar("ZBase_CurrentFace_Speed", turnSpeed, duration)
+    else
+        self:SetIdealYawAndUpdate(yaw, turnSpeed)
+    end
+
 end
 
 
@@ -1857,8 +1825,6 @@ function NPC:InternalStopAnimation(dontTransitionOut)
 
 
     timer.Remove("ZBasePlayAnim"..self:EntIndex())
-    timer.Remove("ZBaseFace"..self:EntIndex())
-    timer.Remove("ZBaseForceWalkFrames"..self:EntIndex())
 end
 
 
@@ -3340,7 +3306,6 @@ function NPC:CancelConversation()
         self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Answer_Sounds)
 
         timer.Remove("DialogueAnswerTimer"..self.DialogueMate:EntIndex())
-        timer.Remove("ZBaseFace"..self.DialogueMate:EntIndex())
     end
 
     self.HavingConversation = false
@@ -3351,7 +3316,6 @@ function NPC:CancelConversation()
     self:StopSound(self.Dialogue_Answer_Sounds)
 
     timer.Remove("DialogueAnswerTimer"..self:EntIndex())
-    timer.Remove("ZBaseFace"..self:EntIndex())
 end
 
 
