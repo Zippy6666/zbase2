@@ -3467,16 +3467,6 @@ function NPC:CustomBleed( pos, dir )
 end
 
 
-function NPC:ApplyZBaseDamageScale(dmg)
-    if self.HasZBScaledDamage then return end
-    self.HasZBScaledDamage = true
-
-    if ( self.DamageScaling[dmg:GetDamageType()] ) then
-        dmg:ScaleDamage(self.DamageScaling[dmg:GetDamageType()])
-    end
-end
-
-
 function NPC:StoreDMGINFO( dmg )
 
     local ammotype = dmg:GetAmmoType()
@@ -3501,43 +3491,30 @@ end
 
 
 function NPC:LastDMGINFO( dmg )
-
     if !self.LastDMGINFOTbl then return end
 
     local lastdmginfo = DamageInfo()
-
 
     if IsValid(self.LastDMGINFOTbl.infl) then
         lastdmginfo:SetInflictor(self.LastDMGINFOTbl.infl)
     end
 
-
     if IsValid(self.LastDMGINFOTbl.attacker) then
         lastdmginfo:SetAttacker(self.LastDMGINFOTbl.attacker)
     end
 
-
     lastdmginfo:SetAmmoType(self.LastDMGINFOTbl.ammotype)
-    lastdmginfo:SetBaseDamage(self.LastDMGINFOTbl.damage)
     lastdmginfo:SetDamage(self.LastDMGINFOTbl.damage)
-    lastdmginfo:SetDamageBonus(0)
-    lastdmginfo:SetDamageCustom(self.LastDMGINFOTbl.damage)
     lastdmginfo:SetDamageForce(self.LastDMGINFOTbl.dmgforce)
     lastdmginfo:SetDamageType(self.LastDMGINFOTbl.dmgtype)
     lastdmginfo:SetDamagePosition(self.LastDMGINFOTbl.dmgpos)
-    lastdmginfo:SetMaxDamage(self.LastDMGINFOTbl.damage)
-    lastdmginfo:SetReportedPosition(self.LastDMGINFOTbl.dmgpos)
-
 
     return lastdmginfo
-
 end
 
 
     -- Called first
-local isSinglePlayer = game.SinglePlayer()
 function NPC:OnScaleDamage( dmg, hit_gr )
-    local infl = dmg:GetInflictor()
     local attacker = dmg:GetAttacker()
 
     -- Players not hurting allies
@@ -3546,13 +3523,8 @@ function NPC:OnScaleDamage( dmg, hit_gr )
         return
     end
 
-
     -- Remember stuff
     self.ZBLastHitGr = hit_gr
-    self:StoreDMGINFO( dmg )
-
-    self:ApplyZBaseDamageScale(dmg)
-
 
     -- Armor
     if self.HasArmor[hit_gr] then
@@ -3566,7 +3538,7 @@ function NPC:OnScaleDamage( dmg, hit_gr )
 
 
     -- Bullet blood shit idk
-    if dmg:IsBulletDamage() then
+    if (self.CustomBloodParticles or self.CustomBloodDecals) && dmg:IsBulletDamage() then
         if !self.ZBase_BulletHits then
             self.ZBase_BulletHits = {}
         end
@@ -3599,13 +3571,12 @@ local ShouldPreventGib = {
 
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
-    local attacker = dmg:GetAttacker()
-    local infl = dmg:GetInflictor()
-
-
     if self.DoingDeathAnim && !self.DeathAnim_Finished then
         return true
     end
+
+
+    local attacker = dmg:GetAttacker()
 
 
     -- Players not hurting allies
@@ -3628,6 +3599,9 @@ function NPC:OnEntityTakeDamage( dmg )
     ZBaseMoveEnd(self, "MoveFallback")
 
 
+    local infl = dmg:GetInflictor()
+
+
     -- Combine balls should have dissolve damage
     if IsValid(infl) && infl:GetClass()=="prop_combine_ball" then
         dmg:SetDamageType(DMG_DISSOLVE)
@@ -3640,7 +3614,10 @@ function NPC:OnEntityTakeDamage( dmg )
 
 
     -- Damage scale
-    self:ApplyZBaseDamageScale(dmg)
+    local scale = self.DamageScaling[dmg:GetDamageType()]
+    if scale then
+        dmg:ScaleDamage(scale)
+    end
 
 
     -- Custom damage
@@ -3671,16 +3648,16 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
 
+    -- Patch
+    if goingToDie && self.Patch_PreDeath then
+        self:Patch_PreDeath( dmg )
+    end
+
+
     -- Death animation
     if !table.IsEmpty(self.DeathAnimations) && goingToDie && math.random(1, self.DeathAnimationChance)==1 then
         self:DeathAnimation(dmg)
         return
-    end
-
-
-    -- Patch
-    if goingToDie && self.Patch_PreDeath then
-        self:Patch_PreDeath( dmg )
     end
 end
 
@@ -3688,13 +3665,20 @@ end
     -- Called last
 function NPC:OnPostEntityTakeDamage( dmg )
 
+    local MoreThan0Damage = dmg:GetDamage() > 0
+
+
     -- Custom blood
-    if dmg:GetDamage() > 0 then
+    if (self.CustomBloodParticles or self.CustomBloodDecals) && MoreThan0Damage then
         self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
     end
 
 
-    if self.Dead then return end
+    -- Don't do anything if we are dead I guess?
+    -- Still bleed though
+    if self.Dead then
+        return
+    end
 
 
     -- Remember last dmginfo again for accuracy sake
@@ -3702,7 +3686,7 @@ function NPC:OnPostEntityTakeDamage( dmg )
 
 
     -- Pain sound
-    if self.NextPainSound < CurTime() && dmg:GetDamage() > 0 then
+    if self.NextPainSound < CurTime() && MoreThan0Damage then
         self:EmitSound_Uninterupted(self.PainSounds)
         self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
     end
@@ -3712,16 +3696,13 @@ function NPC:OnPostEntityTakeDamage( dmg )
     if !table.IsEmpty(self.FlinchAnimations) && math.random(1, self.FlinchChance) == 1 && self.NextFlinch < CurTime() then
         local anim = self:GetFlinchAnimation(dmg, self.ZBLastHitGr)
 
-
         if self:OnFlinch(dmg, self.ZBLastHitGr, anim) != false then
             self:FlinchAnimation(anim)
             self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
         end
     end
 
-
-    self.HasZBScaledDamage = false
-    self.CustomTakeDamageDone = false
+    self.CustomTakeDamageDone = nil
 end
 
 
