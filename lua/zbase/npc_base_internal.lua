@@ -48,7 +48,6 @@ function NPC:ZBaseInit()
     self.ZBLastHitGr = HITGROUP_GENERIC
     self.PlayerToFollow = NULL
     self.GuardSpot = self:GetPos()
-    self.InternalCurrentSoundDuration = 0
     self.InternalCurrentVoiceSoundDuration = 0
     self:InitGrenades()
     self:InitSounds()
@@ -3049,8 +3048,9 @@ function NPC:OnEmitSound( data )
     end
 
 
+
     -- Internal sound duration
-    self.InternalCurrentSoundDuration = SoundDuration(data.SoundName)
+    self.InternalCurrentSoundDuration = ZBaseSoundDuration(data.SoundName)
 
 
 
@@ -3079,9 +3079,9 @@ function NPC:OnEmitSound( data )
     if isVoiceSound then
         self.IsSpeaking = true
         self.IsSpeaking_SoundVar = sndVarName
-        self.InternalCurrentVoiceSoundDuration = SoundDuration(data.SoundName)
+        self.InternalCurrentVoiceSoundDuration = ZBaseSoundDuration(data.SoundName)
 
-        timer.Create("ZBaseStopSpeaking"..self:EntIndex(), self.InternalCurrentSoundDuration+0.1, 1, function()
+        timer.Create("ZBaseStopSpeaking"..self:EntIndex(), self.InternalCurrentVoiceSoundDuration+0.1, 1, function()
             self.IsSpeaking = false
             self.IsSpeaking_SoundVar = nil
         end)

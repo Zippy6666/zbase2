@@ -320,6 +320,19 @@ end
 --]]
 
 
+local SoundDurationCache = {}
+function ZBaseSoundDuration( soundname )
+
+    local dur = SoundDurationCache[soundname]
+    if dur then
+        return dur
+    end
+
+    SoundDurationCache[soundname] = SoundDuration(soundname)
+    return SoundDurationCache[soundname]
+end
+
+
 function ZBaseRoughRadius( ent )
     return math.abs(ent:GetRotatedAABB(ent:OBBMins(),ent:OBBMaxs()).x)*2
 end
