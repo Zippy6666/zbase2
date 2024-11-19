@@ -819,8 +819,8 @@ function NPC:ZBWepSys_Init()
     self.ZBWepSys_NextShoot = CurTime()
     self.ZBWepSys_InShootDist = false
     self.ZBWepSys_LastShootCooldown = 0
-    self.ZBWepSys_Cache_AIWantsToShoot = false
-    self.ZBWepSys_Cache_FacingEne = false
+    self.ZBWepSys_Stored_AIWantsToShoot = false
+    self.ZBWepSys_Stored_FacingEne = false
     self.ZBWepSys_NextCheckAIWantsToShoot = CurTime()
     self.ZBWepSys_NextCheckIsFacingEne = CurTime()
 
@@ -1143,11 +1143,11 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     if self.ZBWepSys_NextCheckIsFacingEne < CurTime() then
         local ene = self:GetEnemy()
-        self.ZBWepSys_Cache_FacingEne = self:IsFacing(ene)
+        self.ZBWepSys_Stored_FacingEne = self:IsFacing(ene)
         self.ZBWepSys_NextCheckIsFacingEne = CurTime()+1.5
     end
 
-    if !self.ZBWepSys_Cache_FacingEne then
+    if !self.ZBWepSys_Stored_FacingEne then
         return false
     end
 
@@ -1166,13 +1166,13 @@ end
 function NPC:ZBWepSys_WantsToShoot()
 
     if self.ZBWepSys_NextCheckAIWantsToShoot < CurTime() then
-        self.ZBWepSys_Cache_AIWantsToShoot = self:ZBWepSys_AIWantsToShoot()
+        self.ZBWepSys_Stored_AIWantsToShoot = self:ZBWepSys_AIWantsToShoot()
         self.ZBWepSys_NextCheckAIWantsToShoot = CurTime()+0.75
     end
 
     return !self.DoingPlayAnim
 
-    && self.ZBWepSys_Cache_AIWantsToShoot
+    && self.ZBWepSys_Stored_AIWantsToShoot
 
     && self:ShouldFireWeapon()
 
@@ -1255,7 +1255,7 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
 
     local translatedAct
     local wep = self:GetActiveWeapon()
-    if self.ZBWepSys_Cache_AIWantsToShoot && !self:HasCondition(COND.NO_PRIMARY_AMMO) then
+    if self.ZBWepSys_Stored_AIWantsToShoot && !self:HasCondition(COND.NO_PRIMARY_AMMO) then
 
         if self.ZBase_IsMoving then
 
@@ -3237,7 +3237,7 @@ function NPCB.Dialogue:Run( self )
             ally:SetTarget(self)
             ally:SetSchedule(SCHED_TARGET_FACE)
         end
-        
+
         -- Set vars for me
         self.HavingConversation = true
         self.DialogueMate = ally
