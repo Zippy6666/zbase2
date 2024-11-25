@@ -624,15 +624,18 @@ function ZBase_RegisterHandler:NetworkedReload()
 end
 
 
-concommand.Add("zbase_reload", function(ply)
+if SERVER then
+    concommand.Add("zbase_reload", function(ply)
 
-    ZBase_RegisterHandler:NetworkedReload()
+        ZBase_RegisterHandler:NetworkedReload()
+        conv.devPrint(Color(0, 255, 200), "ZBase reloaded!")
 
-end)
+    end)
+end
 
 
 ZBase_RegisterHandler:Load()
 
 if SERVER then
-    MsgN("ZBase autorun complete!")
+    conv.devPrint(Color(0, 255, 200), "ZBase autorun complete!")
 end

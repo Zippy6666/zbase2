@@ -1346,6 +1346,7 @@ function NPC:ZBWepSys_FireWeaponThink()
         local lastpos = ene:GetPos()+ene:GetForward()*ene:OBBMaxs().x*3
         self:SetLastPosition(lastpos)
         self:SetSchedule(OutOfShootRangeSched)
+        self.OutOfShootRange_LastPos = lastpos
         self.NextOutOfShootRangeSched = CurTime()+3
 
     end
@@ -1915,6 +1916,13 @@ function NPC:AITick_Slow()
     -- Stop following if no longer allied
     if IsValid(self.PlayerToFollow) && !self:IsAlly(self.PlayerToFollow) then
         self:StopFollowingCurrentPlayer(true)
+    end
+
+    if ( self:IsCurrentSchedule(SCHED_FORCED_GO) or self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) )
+    && (ZBaseMoveIsActive(self, "MoveFallback") or self.OutOfShootRange_LastPos == self:GetInternalVariable("m_vecLastPosition") )
+    && (self.EnemyVisible && self.ZBWepSys_InShootDist) then
+        self:FullReset()
+        conv.devPrint("Did fullreset cause was in force move and enemy visible and in dist")
     end
 
 
