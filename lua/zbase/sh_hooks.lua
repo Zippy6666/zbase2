@@ -88,9 +88,9 @@ if SERVER then
             local shouldUseRelSys = ZBaseShouldUseRelationshipSys(ent)
             if shouldUseRelSys then
 
-                if Developer:GetBool() then
-                    MsgN("adding ", ent, " to ZBASE relationship system...")
-                end
+                -- if Developer:GetBool() then
+                --     MsgN("adding ", ent, " to ZBASE relationship system...")
+                -- end
 
                 -- Very important!
                 table.InsertEntity(ZBaseRelationshipEnts, ent)
@@ -516,7 +516,8 @@ if CLIENT then
     local startoffset = Vector(0, 0, 50)
     local endoffset = Vector(0, 0, 400)
     local up = Vector(0, 0, 1)
-    hook.Add( "RenderScreenspaceEffects", "ZBaseEffects", function()
+    hook.Add( "RenderScreenspaceEffects", "ZBaseFollowHalo", function()
+        
         local tbl = LocalPlayer().ZBaseFollowHaloEnts
         if tbl then
             for _, v in ipairs(tbl) do

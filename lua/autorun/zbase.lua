@@ -114,6 +114,7 @@ end
 
 
 game.AddParticles("particles/zbase/zbase_blood_impact.pcf")
+game.AddParticles("particles/zbase/hl2mmod_muzzleflashes_npc.pcf")
 
 game.AddParticles("particles/striderbuster.pcf")
 game.AddParticles("particles/mortarsynth_fx.pcf")
@@ -123,6 +124,10 @@ PrecacheParticleSystem("blood_impact_zbase_black")
 PrecacheParticleSystem("blood_impact_zbase_blue")
 PrecacheParticleSystem("striderbuster_break")
 PrecacheParticleSystem("striderbuster_break_shell")
+
+PrecacheParticleSystem("hl2mmod_muzzleflash_npc_ar2")
+PrecacheParticleSystem("hl2mmod_muzzleflash_npc_pistol")
+PrecacheParticleSystem("hl2mmod_muzzleflash_npc_shotgun")
 
 
 --[[
@@ -621,15 +626,18 @@ function ZBase_RegisterHandler:NetworkedReload()
 end
 
 
-concommand.Add("zbase_reload", function(ply)
+if SERVER then
+    concommand.Add("zbase_reload", function(ply)
 
-    ZBase_RegisterHandler:NetworkedReload()
+        ZBase_RegisterHandler:NetworkedReload()
+        conv.devPrint(Color(0, 255, 200), "ZBase reloaded!")
 
-end)
+    end)
+end
 
 
 ZBase_RegisterHandler:Load()
 
 if SERVER then
-    MsgN("ZBase autorun complete!")
+    conv.devPrint(Color(0, 255, 200), "ZBase autorun complete!")
 end

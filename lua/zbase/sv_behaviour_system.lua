@@ -22,12 +22,14 @@ local function BehaviourTimer( ent )
     if ent.DoingDeathAnim then return end
     if ent.Dead then return end
     if ent:GetNPCState()==NPC_STATE_DEAD then return end
-
-
+    
     -- No behaviour with EFL_NO_THINK_FUNCTION
     if bit.band(ent:GetFlags(), EFL_NO_THINK_FUNCTION )==EFL_NO_THINK_FUNCTION then
         return
     end
+
+    -- Doing ZBaseMove, don't do behaviour
+    if ZBaseMoveIsActive(ent) then return end
 
 
     ZBaseDelayEnt = ent

@@ -208,107 +208,108 @@ end
 ======================================================================================================================================================
 --]]
 
+if SERVER then
+        -- "NPC copy" system, makes a zbase "NPC copy" of any type/class from any spawned NPC
+    local invisCol = Color(255,255,255,0)
+    local developer = GetConVar("developer")
+    function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction )
 
-    -- "NPC copy" system, makes a zbase "NPC copy" of any type/class from any spawned NPC
-local invisCol = Color(255,255,255,0)
-local developer = GetConVar("developer")
-function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction )
+        -- Store the old NPCs squad and name
+        local name = npc:GetName()
+        local squad = npc:GetSquad()
 
-    -- Store the old NPCs squad and name
-    local name = npc:GetName()
-    local squad = npc:GetSquad()
-
-    local npcWep = npc:GetActiveWeapon()
-    local wepCls = IsValid(npcWep) && !table.IsEmpty(ZBaseNPCs[zbase_cls].Weapons) && npcWep:GetClass()
-
-
-    -- New ZBase NPC
-    local ZBaseNPC = ZBaseSpawnZBaseNPC( zbase_cls, nil, nil, wepCls or nil )
-    ZBaseNPC.DontAutoSetSquad = true
-
-    if !dontAlterFaction then
-        ZBaseNPC.ZBaseStartFaction =  ZBaseFactionTranslation[npc:Classify()]
-    end
-
-    ZBaseNPC:SetPos(npc:GetPos())
-    ZBaseNPC:SetAngles(npc:GetAngles())
-    ZBaseNPC:SetName(name)
-    ZBaseNPC:SetSquad(squad)
-    undo.ReplaceEntity(npc, ZBaseNPC)
-    cleanup.ReplaceEntity(npc, ZBaseNPC)
-
-    -- Position aerial npc up if stuck in ground
-    local uppamt = ZBaseNPC:OBBMins().z*2
-    local tr_aerial_fixer = util.TraceLine({
-        start = npc:WorldSpaceCenter(),
-        endpos = npc:WorldSpaceCenter()+Vector(0,0,uppamt),
-    })
-    if tr_aerial_fixer.Hit then
-        -- MsgN("stuck, going", uppamt, "up")
-        ZBaseNPC:SetPos(tr_aerial_fixer.HitPos+tr_aerial_fixer.HitNormal*(uppamt))
-    end
+        local npcWep = npc:GetActiveWeapon()
+        local wepCls = IsValid(npcWep) && !table.IsEmpty(ZBaseNPCs[zbase_cls].Weapons) && npcWep:GetClass()
 
 
-    -- Set NPC into a "dull state"
-    npc:SetModel("models/props_lab/huladoll.mdl")
-    npc:SetName("")
-    npc:SetSquad("")
+        -- New ZBase NPC
+        local ZBaseNPC = ZBaseSpawnZBaseNPC( zbase_cls, nil, nil, wepCls or nil )
+        ZBaseNPC.DontAutoSetSquad = true
 
-    npc:AddEFlags(bit.bor(EFL_DONTBLOCKLOS, EFL_NO_THINK_FUNCTION))
-    npc:AddFlags(FL_NOTARGET)
-
-    npc:SetCollisionBounds(vector_origin, vector_origin)
-    npc:SetMoveType(MOVETYPE_NONE)
-    npc:SetSolid(SOLID_NONE)
-
-    npc:CapabilitiesClear()
-    npc:SetMaxLookDistance(1)
-
-    if developer:GetBool() then
-        npc:SetMaterial("models/wireframe")
-    else
-        npc:SetNoDraw(true)
-        npc:SetRenderMode(RENDERMODE_TRANSCOLOR)
-        npc:DrawShadow(false)
-        npc:SetColor(invisCol)
-    end
-
-    for _, child in ipairs(npc:GetChildren()) do
-        -- Remove manhack light, etc
-        child:Remove()
-    end
-
-    npc:SetNWBool("ZBaseNPCCopy_DullState", true)
-    npc.ZBaseNPCCopy_DullState = true
-
-
-    npc:CallOnRemove("RemoveZBaseNPC", function()
-        SafeRemoveEntityDelayed(ZBaseNPC, 0)
-    end)
-
-
-    ZBaseNPC:CallOnRemove("KillDullNPC", function()
-        if IsValid(npc) then
-            if !npc:GetNoDraw() then
-                npc:SetNoDraw(true)
-            end
-
-            npc:SetShouldServerRagdoll(false)
-            npc:SetHealth(0)
-            npc:SetNPCState(NPC_STATE_DEAD)
-            npc:SetSchedule(SCHED_DIE_RAGDOLL)
-
-            SafeRemoveEntityDelayed(npc, 2)
+        if !dontAlterFaction then
+            ZBaseNPC.ZBaseStartFaction =  ZBaseFactionTranslation[npc:Classify()]
         end
-    end)
 
-    -- Remove "dull state" NPC's weapon if any
-    if IsValid(npcWep) then
-        npcWep:Remove()
+        ZBaseNPC:SetPos(npc:GetPos())
+        ZBaseNPC:SetAngles(npc:GetAngles())
+        ZBaseNPC:SetName(name)
+        ZBaseNPC:SetSquad(squad)
+        undo.ReplaceEntity(npc, ZBaseNPC)
+        cleanup.ReplaceEntity(npc, ZBaseNPC)
+
+        -- Position aerial npc up if stuck in ground
+        local uppamt = ZBaseNPC:OBBMins().z*2
+        local tr_aerial_fixer = util.TraceLine({
+            start = npc:WorldSpaceCenter(),
+            endpos = npc:WorldSpaceCenter()+Vector(0,0,uppamt),
+        })
+        if tr_aerial_fixer.Hit then
+            -- MsgN("stuck, going", uppamt, "up")
+            ZBaseNPC:SetPos(tr_aerial_fixer.HitPos+tr_aerial_fixer.HitNormal*(uppamt))
+        end
+
+
+        -- Set NPC into a "dull state"
+        npc:SetModel("models/props_lab/huladoll.mdl")
+        npc:SetName("")
+        npc:SetSquad("")
+
+        npc:AddEFlags(bit.bor(EFL_DONTBLOCKLOS, EFL_NO_THINK_FUNCTION))
+        npc:AddFlags(FL_NOTARGET)
+
+        npc:SetCollisionBounds(vector_origin, vector_origin)
+        npc:SetMoveType(MOVETYPE_NONE)
+        npc:SetSolid(SOLID_NONE)
+
+        npc:CapabilitiesClear()
+        npc:SetMaxLookDistance(1)
+
+        if developer:GetBool() then
+            npc:SetMaterial("models/wireframe")
+        else
+            npc:SetNoDraw(true)
+            npc:SetRenderMode(RENDERMODE_TRANSCOLOR)
+            npc:DrawShadow(false)
+            npc:SetColor(invisCol)
+        end
+
+        for _, child in ipairs(npc:GetChildren()) do
+            -- Remove manhack light, etc
+            child:Remove()
+        end
+
+        npc:SetNWBool("ZBaseNPCCopy_DullState", true)
+        npc.ZBaseNPCCopy_DullState = true
+
+
+        npc:CallOnRemove("RemoveZBaseNPC", function()
+            SafeRemoveEntityDelayed(ZBaseNPC, 0)
+        end)
+
+
+        ZBaseNPC:CallOnRemove("KillDullNPC", function()
+            if IsValid(npc) then
+                if !npc:GetNoDraw() then
+                    npc:SetNoDraw(true)
+                end
+
+                npc:SetShouldServerRagdoll(false)
+                npc:SetHealth(0)
+                npc:SetNPCState(NPC_STATE_DEAD)
+                npc:SetSchedule(SCHED_DIE_RAGDOLL)
+
+                SafeRemoveEntityDelayed(npc, 2)
+            end
+        end)
+
+        -- Remove "dull state" NPC's weapon if any
+        if IsValid(npcWep) then
+            npcWep:Remove()
+        end
+
+        return ZBaseNPC
+
     end
-
-    return ZBaseNPC
-
 end
 
 
@@ -317,6 +318,19 @@ end
                                            OTHER
 ======================================================================================================================================================
 --]]
+
+
+local SoundDurationCache = {}
+function ZBaseSoundDuration( soundname )
+
+    local dur = SoundDurationCache[soundname]
+    if dur then
+        return dur
+    end
+
+    SoundDurationCache[soundname] = SoundDuration(soundname)
+    return SoundDurationCache[soundname]
+end
 
 
 function ZBaseRoughRadius( ent )
@@ -328,7 +342,7 @@ function ZBaseRndTblRange( tbl )
     return math.Rand(tbl[1], tbl[2])
 end
 
-function ZBaseShouldUseRelationshipSys(ent)
+function ZBaseShouldUseRelationshipSys( ent )
 
     if !ent:IsNPC() then
         return false
@@ -337,7 +351,7 @@ function ZBaseShouldUseRelationshipSys(ent)
     local npc = ent
     local class =  string.lower( npc:GetClass() )
 
-    if class=="bullseye_strider_focus" or class=="npc_bullseye" or class == "pill_puppet" then
+    if class=="bullseye_strider_focus" or class=="npc_bullseye" or class == "pill_puppet" or class == "generic_actor" then
         return false
     end
 

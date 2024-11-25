@@ -59,7 +59,12 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox( "NPC Nocollide", "zbase_nocollide" )
         panel:ControlHelp("NPCs will not collide with eachother (COLLISION_GROUP_NPC_SCRIPTED).")
+        
+        panel:CheckBox( "Client Ragdolls", "zbase_cl_ragdolls")
+        panel:ControlHelp("Should ZBase ragdolls be clientside? This will ignore 'Ragdoll Remove Time' and 'Max Ragdolls' in the aftermath section.")
 
+        panel:CheckBox("Armor Sparks", "zbase_armor_sparks")
+        panel:ControlHelp("Should armor hits cause sparks?")
     end)
 
     --[[
@@ -69,13 +74,11 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     --]]
 
     ZBaseAddMenuCategory("B - AI", function( panel )
-    
         panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' health by this number.")
         panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
         panel:ControlHelp("Multiply ZBase NPCs' damage by this number.")
     
-
         panel:NumSlider( "Grenades", "zbase_gren_count", -1, 20, 0 )
         panel:ControlHelp("How many grenades should they be able to carry? -1 = infinite.")
         panel:NumSlider( "Secondary Attacks", "zbase_alt_count", -1, 20, 0 )
@@ -83,21 +86,20 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Grenade/Secondary Random", "zbase_gren_alt_rand")
         panel:ControlHelp("If enabled, ZBase NPCs will spawn with anywhere from 0 to the max value of grenades and alt-fire attacks, where the sliders above act as the max value.")
     
-
         panel:CheckBox( "Patrol", "zbase_patrol" )
         panel:ControlHelp("Enable base patrol system.")
-
 
         panel:CheckBox( "Call for Help", "zbase_callforhelp" )
         panel:ControlHelp("Enable base call for help system. Lets NPCs call allies outside of its squad for help.")
 
-
         panel:CheckBox("Follow Players", "zbase_followplayers")
         panel:ControlHelp("If enabled, ZBase NPCs will follow allied players when the use key is pressed on them.")
 
-
         panel:CheckBox( "Static Mode", "zbase_static" )
         panel:ControlHelp("Makes NPCs hold down the spot they spawned on. Also makes so that NPCs cannot hurt each other. This can be better for a PVE campaign-like experience.")
+   
+        panel:CheckBox("More Jumping", "zbase_more_jumping")
+        panel:ControlHelp("NPCs will jump when they cannot reach a certain waypoint.")
     end)
 
     --[[
@@ -133,8 +135,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     --]]
 
     ZBaseAddMenuCategory("D - Aftermath", function( panel )
-        panel:CheckBox( "Client Ragdolls", "zbase_cl_ragdolls")
-        panel:ControlHelp("Should ZBase ragdolls be clientside? This will ignore 'Ragdoll Remove Time' and 'Max Ragdolls'. Some NPC deaths may not work as intended.")
 
         panel:NumSlider( "Ragdoll Remove Time", "zbase_rag_remove_time", 0, 600, 1 )
         panel:ControlHelp("Time until ragdolls are removed, 0 = never. If keep corpses is enabled, this is ignored.")
@@ -180,6 +180,8 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Dynamic Light", "zbase_muzzle_light")
         panel:ControlHelp("Should weapons emit dynamic light?")
 
+        panel:CheckBox("Quality Flashes", "zbase_mmod_muzzle")
+        panel:ControlHelp("Use muzzle flash effects from HL2 MMOD?")
     end)
 
     --[[

@@ -3,6 +3,7 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
+NPC.MinShootDistance = 100 -- Minimum distance the NPC will fire its weapon from
 
 
 NPC.StartHealth = 50 -- Max health
@@ -25,7 +26,7 @@ NPC.HasArmor = {
 NPC.m_nKickDamage = 15
 
 
-NPC.BaseMeleeAttack = true -- Use ZBase melee attack system
+NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
 NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
 NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack animation
 
@@ -102,7 +103,12 @@ local ShouldHaveRadioSound = {
 
 
 function NPC:OnInitCap()
-    self:CapabilitiesRemove(CAP_INNATE_MELEE_ATTACK1)
+    -- For NPCs that are derived from this NPC: 
+    -- Give ZBase melee instead if MinShootDistance is 0, otherwise melee won't work right
+    if self.MinShootDistance <= 0 then
+        self:CapabilitiesRemove(CAP_INNATE_MELEE_ATTACK1)
+        self.BaseMeleeAttack = true
+    end
 end
 
 

@@ -160,6 +160,197 @@ end
 
 --[[
 ======================================================================================================================================================
+                                           ZBaseMove
+======================================================================================================================================================
+--]]
+
+
+if SERVER then
+
+    -- ZBaseMove locals, ignore...
+    local MoveConstant = 300
+    local DistUntilSwitchWayPointSq = (MoveConstant*0.5)^2
+    local DownVec = Vector(0, 0, -10000)
+    local shouldJump_DownVec = Vector(0, 0, -100) -- If we are this high up, try to jump
+    local jumpUpVec = Vector(0, 0, 300)
+    local AIDisabled = GetConVar("ai_disabled")
+    local MaxJumpDist = 400
+    local TimeOutTime = 5
+
+
+    -- Move any NPC to the desired position, works even when there are no nodes!
+    -- 'npc' - The NPC in question
+    -- 'pos' - The position to move the NPC to
+    -- 'identifier' Optional, a way to identify this move
+    function ZBaseMove( npc, pos, identifier )
+
+        local hookID = "ZBaseMove:"..tostring(npc)
+        local ZBaseMoveTimeOut = CurTime()+TimeOutTime
+        local NextMoveTick = CurTime()
+        local FirstIter = true
+        local downtr = util.TraceLine({
+            start = pos,
+            endpos =  pos + DownVec,
+            mask = MASK_NPCWORLDSTATIC,
+        })
+        destination = downtr.HitPos+downtr.HitNormal*15
+
+        npc.ZBaseMove_ID = identifier
+        npc.ZBaseMove_WaypointPos = destination -- Temporary
+        npc.ZBaseMove_CanGroundMove = false
+
+        debugoverlay.Text(npc:WorldSpaceCenter(), "Starting ZBaseMove '"..(identifier or "*any*").."'")
+
+        hook.Add("Tick", hookID, function()
+            if NextMoveTick > CurTime() then return end
+            if !IsValid(npc) or destination:DistToSqr(npc:GetPos()) <= 10000 or ZBaseMoveTimeOut < CurTime() then
+                hook.Remove("Tick", hookID)
+                
+                if IsValid(npc) then
+                    debugoverlay.Text(npc:WorldSpaceCenter(), "ZBaseMove finished")
+                    npc.ZBaseMove_ID = nil
+                end
+
+
+                return
+            end
+
+            -- Thinking disabled, don't run this
+            if AIDisabled:GetBool() or bit.band(npc:GetFlags(), EFL_NO_THINK_FUNCTION )==EFL_NO_THINK_FUNCTION then
+                return
+            end
+
+            -- Vars
+            local npc_pos = npc:WorldSpaceCenter()
+            local InWayPointDist = npc_pos:DistToSqr(npc.ZBaseMove_WaypointPos) < DistUntilSwitchWayPointSq
+            local onGround = npc:IsOnGround()
+            local shouldJump = ZBCVAR.MoreJumping:GetBool() && !npc.ZBaseMove_CanGroundMove && onGround && bit.band(npc:CapabilitiesGet(), CAP_MOVE_JUMP) == CAP_MOVE_JUMP
+            local moveNrm = (FirstIter or InWayPointDist or shouldJump) && (destination - npc_pos):GetNormalized()
+            local npcState = npc:GetNPCState()
+            local shouldRunToDest = npcState == NPC_STATE_ALERT or npcState == NPC_STATE_COMBAT
+            or IsValid(npc.PlayerToFollow) or npc:GetInternalVariable("m_bWasInPlayerSquad")
+
+
+            -- Force move to next waypoint on our path to the destination
+            if FirstIter or InWayPointDist then
+
+                local tr = util.TraceLine({
+                    start = npc_pos,
+                    endpos =  npc_pos + moveNrm*MoveConstant,
+                    filter = {npc},
+                    mask = MASK_VISIBLE,
+                })
+                local waypointPos = tr.HitPos+tr.HitNormal*15
+                npc.ZBaseMove_WaypointPos = waypointPos
+
+                debugoverlay.Line(npc_pos, waypointPos, 0.3)
+                debugoverlay.Axis(destination, angle_zero, 50)
+
+                npc:SetLastPosition(waypointPos)
+
+                if shouldRunToDest then
+                    npc:SetSchedule(SCHED_FORCED_GO_RUN)
+                else
+                    npc:SetSchedule(SCHED_FORCED_GO)
+                end
+
+                FirstIter = false
+
+            end
+
+
+            -- We are on the ground, and we are moving, so we should not need to jump...
+            if onGround && npc:IsMoving() then
+                npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 1.8)
+            end
+
+            
+            if shouldJump then
+
+                if npc_pos:DistToSqr(destination) <= MaxJumpDist then
+                    ZBaseMoveJump(npc, destination)
+                else
+                    ZBaseMoveJump(npc, npc_pos + moveNrm*MaxJumpDist)
+                end
+
+                npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 3) -- Assume we can ground move after this jump
+
+            end
+
+            NextMoveTick = CurTime()+0.1
+        end)
+    end
+
+
+    -- Make an NPC jump to the desired position
+    -- 'npc' - The NPC in question
+    -- 'pos' - The position to jump to
+    function ZBaseMoveJump( npc, pos )
+        local npc_pos = npc:WorldSpaceCenter()
+        local moveNrm = (pos - npc_pos)
+
+        npc:MoveJumpStart(moveNrm+jumpUpVec)
+        npc:CONV_TempVar("ZBaseMove_JustJumped", true, 0.5)
+
+        if npc.IsZBaseNPC then
+            local hookID = "ZBaseMoveJump:"..tostring(npc)
+            local function afterLandFunc()
+                npc:SetLastPosition(pos)
+                npc:SetSchedule(SCHED_FORCED_GO_RUN)
+            end
+
+            hook.Add("Tick", hookID, function()
+
+                if !IsValid(npc) then
+                    hook.Remove("Tick", hookID)
+                    return
+                end
+
+                if !npc.ZBaseMove_JustJumped && npc.ZBaseMove_IsJumping && npc:OnGround() then
+                    npc:InternalPlayAnimation(ACT_LAND, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {skipReset=true, onFinishFunc=afterLandFunc})
+                    npc.ZBaseMove_IsJumping = false
+                end
+
+            end)
+
+            npc:InternalPlayAnimation(ACT_GLIDE, 5, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {skipReset=true, onFinishFunc=onFinishFunc})
+            npc.ZBaseMove_IsJumping = true
+        end
+    end
+
+
+    -- Stop ZBaseMove for this NPC
+    -- 'npc' - The NPC in question
+    -- 'identifier' Optional, only stop the move if it has this identifier
+    function ZBaseMoveEnd( npc, identifier )
+        if identifier && identifier != npc.ZBaseMove_ID then
+            return
+        end
+
+        local hookID = "ZBaseMove:"..tostring(npc)
+        debugoverlay.Text(npc:WorldSpaceCenter()+npc:GetUp()*25, "Ending ZBaseMove '"..(identifier or "*any*").."'")
+        hook.Remove("Tick", hookID)
+        npc.ZBaseMove_ID = nil
+    end
+
+
+    -- Checks if an NPC is doing ZBaseMove
+    -- 'npc' - The NPC in question
+    -- 'identifier' Optional, check if the current move has this identifier
+    function ZBaseMoveIsActive( npc, identifier )
+        if identifier && identifier != npc.ZBaseMove_ID then
+            return
+        end
+
+        local hookID = "ZBaseMove:"..tostring(npc)
+        return hook.GetTable()["Tick"][hookID]!=nil
+    end
+
+end
+
+
+--[[
+======================================================================================================================================================
                                            CONVINIENT FUNCTIONS
 ======================================================================================================================================================
 --]]

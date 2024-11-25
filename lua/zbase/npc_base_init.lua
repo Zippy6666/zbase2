@@ -45,6 +45,15 @@ NPC.CollisionBounds = false -- Example: NPC.CollisionBounds = {min=Vector(-50, -
 NPC.ZBaseStartFaction = "none"
 
 
+-- More factions this NPC should be allied towards, needs to follow this syntax:
+-- NPC.ZBaseFactionsExtra = {
+--     ["combine"] = true,
+--     ["zombie"] = true,
+-- }
+NPC.ZBaseFactionsExtra = {
+}
+
+
 NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
 NPC.SpawnFlagTbl = {} -- Ex. NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_FEMALE}, https://wiki.facepunch.com/gmod/Enums/SF
 
@@ -469,7 +478,7 @@ function NPC:HitArmor( dmginfo, HitGroup )
 
     if !self.ArmorPenChance or math.random(1, self.ArmorPenChance) != 1 then
     
-        if self.ArmorHitSpark then
+        if self.ArmorHitSpark && ZBCVAR.ArmorSparks:GetBool() then
             local spark = ents.Create("env_spark")
             spark:SetKeyValue("spawnflags", 256)
             spark:SetKeyValue("TrailLength", 1)
