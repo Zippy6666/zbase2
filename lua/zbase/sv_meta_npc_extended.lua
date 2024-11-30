@@ -26,12 +26,6 @@ function NPC:ZBASE_SetMutualRelationship( ent, rel )
     end
 
 
-    -- Recipient has notarget
-    if (bit.band(ent:GetFlags(), FL_NOTARGET)==FL_NOTARGET) then
-        relToEnt = D_NU
-    end
-
-
     -- Player using pill pack, don't do relationship operation, let parakeet's pill pack do that instead
     if ent:IsPlayer() && IsValid(ent.pk_pill_ent) then
         return

@@ -88,10 +88,6 @@ if SERVER then
             local shouldUseRelSys = ZBaseShouldUseRelationshipSys(ent)
             if shouldUseRelSys then
 
-                -- if Developer:GetBool() then
-                --     MsgN("adding ", ent, " to ZBASE relationship system...")
-                -- end
-
                 -- Very important!
                 table.InsertEntity(ZBaseRelationshipEnts, ent)
 

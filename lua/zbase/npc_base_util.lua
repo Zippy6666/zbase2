@@ -194,7 +194,7 @@ function NPC:RangeAttack()
         timer.Simple(self.RangeProjectile_Delay, function()
 
             if !IsValid(self) then return end
-            if self:GetNPCState()==NPC_STATE_DEAD then return end
+            if self.Dead or self:GetNPCState()==NPC_STATE_DEAD then return end
 
             self:RangeAttackProjectile()
 
