@@ -1550,7 +1550,7 @@ function NPC:CheckHasAimPoseParam()
 end
 
 
-function NPC:FullReset()
+function NPC:FullReset(dontStopZBaseMove)
     self:TaskComplete()
     self:ClearGoal()
     self:ClearSchedule()
@@ -1562,7 +1562,9 @@ function NPC:FullReset()
         self:ScheduleFinished()
     end
 
-    ZBaseMoveEnd(self)
+    if !dontStopZBaseMove then
+        ZBaseMoveEnd(self)
+    end
 end
 
 
@@ -1583,7 +1585,6 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
 
     moreArgs = moreArgs or {}
-    playbackRate = playbackRate
 
 
     local extraData = {}
@@ -1638,7 +1639,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
     local function playAnim()
         -- Reset stuff
         if !moreArgs.skipReset then
-            self:FullReset()
+            self:FullReset(moreArgs.dontStopZBaseMove)
         end
 
 
