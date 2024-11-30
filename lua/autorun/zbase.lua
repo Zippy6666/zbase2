@@ -273,6 +273,7 @@ if SERVER then
     ZBaseRelationshipEnts = ZBaseRelationshipEnts or {}
     ZBaseGibs = ZBaseGibs or {}
     ZBasePatchTable = {}
+    ZBaseLastSavedFileTimeRegistry = ZBaseLastSavedFileTimeRegistry or {} -- For autorefresh
 end
 
 
@@ -631,10 +632,58 @@ if SERVER then
         conv.devPrint(Color(0, 255, 200), "ZBase reloaded!")
 
     end)
+
+    
+    -- When these files are changed, reload 
+    local filenames = {
+        "zbase/npc_base_internal.lua",
+        "zbase/npc_base_init.lua",
+        "zbase/npc_base_shared.lua",
+        "zbase/npc_base_util.lua",
+    }
+
+
+    -- local function FetchFilenamesForAddonsInDevelopment()
+    --     local root = "addons/"
+    --     local _, dirs = file.Find(root.."*", "GAME")
+    --     for k, v in ipairs(dirs) do
+    --         local checkpath = root..v.."/lua/zbase/entities/"
+    --         if file.Exists(checkpath, "GAME") then
+    --             local _, zbase_folder_names = file.Find(checkpath.."*", "GAME")
+    --             for _, zbase_folder_name in ipairs(zbase_folder_names) do
+    --                 print(zbase_folder_name)
+    --             end
+    --         end
+    --     end        
+    -- end
+
+
+    local function AutoRefreshFunc()
+        for _, fname in ipairs(filenames) do
+            if !file.Exists(fname, "LUA") then continue end
+            local time = file.Time(fname, "LUA")
+
+            if ZBaseLastSavedFileTimeRegistry[fname] && ZBaseLastSavedFileTimeRegistry[fname] != time then
+                conv.devPrint(Color(0, 255, 200), "ZBase detected change in '", fname, "', doing autorefresh!")
+                RunConsoleCommand("zbase_reload")
+            end
+
+            ZBaseLastSavedFileTimeRegistry[fname] = time
+        end
+    end
+
+
+    local Developer = GetConVar("developer")
+    timer.Create("ZBaseAutoRefresh_Base (set developer to 0 if performance is impacted too much!)", 3, 0, function()
+        if !Developer:GetBool() then return end
+
+        pcall(AutoRefreshFunc)
+    end)
 end
 
 
 ZBase_RegisterHandler:Load()
+
 
 if SERVER then
     conv.devPrint(Color(0, 255, 200), "ZBase autorun complete!")

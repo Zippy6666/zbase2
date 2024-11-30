@@ -641,7 +641,6 @@ function NPC:DecideRelationship( myFaction, ent )
     
     local theirFaction = ent.ZBaseFaction
 
-
     -- Me or the ent has faction neutral, like
     if myFaction == "neutral" or theirFaction=="neutral" then
         self:ZBASE_SetMutualRelationship( ent, D_LI )
@@ -655,7 +654,7 @@ function NPC:DecideRelationship( myFaction, ent )
         return
     end
 
-
+  
     if myFaction == theirFaction or self.ZBaseFactionsExtra[theirFaction]
     or ( ent.IsZBaseNPC && ent.ZBaseFactionsExtra && ent.ZBaseFactionsExtra[myFaction] ) then
         self:ZBASE_SetMutualRelationship( ent, D_LI )
@@ -663,7 +662,7 @@ function NPC:DecideRelationship( myFaction, ent )
         self:ZBASE_SetMutualRelationship( ent, D_HT )
     end
 end
-
+ 
 
 function NPC:UpdateRelationships()
     -- Set my VJ class
@@ -3552,12 +3551,6 @@ function NPC:OnEntityTakeDamage( dmg )
 
     -- Players not hurting allies
     if !ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer() && self:IsAlly(attacker) then
-        return true
-    end
-
-
-    -- In "stationary mode" zbase npcs cannot hurt each other
-    if ZBCVAR.Static:GetBool() && attacker.IsZBaseNPC then
         return true
     end
 

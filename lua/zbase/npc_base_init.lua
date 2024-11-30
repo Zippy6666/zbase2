@@ -6,7 +6,7 @@ local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
                                            GENERAL
 ==================================================================================================
 --]]
-
+ 
 
 -- NOTE FOR ADVANCED USERS: You can change any internal variable by doing NPC.m_typeNameOfInternalVar here
 -- Combine soldier example:
