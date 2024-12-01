@@ -23,3 +23,7 @@
 
 ### Projectile base
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
+
+# TODO
+- [ ] NPC weapon suppressing
+- [ ] Autorefresh for ZBase legacy addons
