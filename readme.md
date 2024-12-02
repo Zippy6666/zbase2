@@ -27,3 +27,4 @@
 # TODO
 - [ ] NPC weapon suppressing
 - [ ] Autorefresh for ZBase legacy addons
+- [ ] Revamp static/stationary into more of a guard mode

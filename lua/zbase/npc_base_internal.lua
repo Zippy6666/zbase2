@@ -208,6 +208,7 @@ function NPC:InitModel()
 end
 
 
+
 function NPC:InitGrenades()
     if ZBCVAR.GrenAltRand:GetBool() then
 
@@ -1922,7 +1923,6 @@ function NPC:AITick_Slow()
     && (ZBaseMoveIsActive(self, "MoveFallback") or self.OutOfShootRange_LastPos == self:GetInternalVariable("m_vecLastPosition") )
     && (self.EnemyVisible && self.ZBWepSys_InShootDist) then
         self:FullReset()
-        conv.devPrint("Did fullreset cause was in force move and enemy visible and in dist")
     end
 
 
