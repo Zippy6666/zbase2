@@ -122,7 +122,7 @@ function NPC:MeleeAttack()
     if self.MeleeDamage_Delay then
         timer.Simple(self.MeleeDamage_Delay, function()
             if !IsValid(self) then return end
-            if self:GetNPCState()==NPC_STATE_DEAD then return end
+            if self:GetNPCState()==NPC_STATE_DEAD or self.Dead then return end
 
             self:InternalMeleeAttackDamage(dmgData)
         end)
@@ -284,7 +284,7 @@ function NPC:ThrowGrenade()
     end
 
     timer.Simple(self.GrenadeReleaseTime, function()
-        if !IsValid(self) then return end
+        if !IsValid(self) or self.Dead then return end
 
         local grencls = ( istable(self.GrenadeEntityClass) && self.GrenadeEntityClass[math.random(1, #self.GrenadeEntityClass)] )
         or self.GrenadeEntityClass
