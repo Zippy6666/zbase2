@@ -1421,7 +1421,7 @@ function NPC:ZBWepSys_MeleeThink()
             self:Weapon_MeleeAnim()
 
             timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
-                if IsValid(self) && IsValid(self:GetActiveWeapon()) then
+                if IsValid(self) && IsValid(self:GetActiveWeapon()) && !self.Dead then
                     self:GetActiveWeapon():NPCMeleeWeaponDamage()
                 end
             end)
@@ -2440,7 +2440,7 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
 
     timer.Simple(0.75, function()
         if !(IsValid(self) && IsValid(wep) && IsValid(enemy)) then return end
-        if self:GetNPCState() == NPC_STATE_DEAD then return end
+        if self.Dead or self:GetNPCState() == NPC_STATE_DEAD then return end
 
 
         local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
@@ -2459,7 +2459,7 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
         ball_launcher:Fire("kill","",0)
         timer.Simple(0.01, function()
             if IsValid(self)
-            && self:GetNPCState() != NPC_STATE_DEAD then
+            && self:GetNPCState() != NPC_STATE_DEAD && !self.Dead then
                 for _, ball in ipairs(ents.FindInSphere(self:GetPos(), 100)) do
                     if ball:GetClass() == "prop_combine_ball" then
 
