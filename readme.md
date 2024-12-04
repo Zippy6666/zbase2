@@ -35,4 +35,6 @@
     - [ ] More?
 - [ ] Make AI less retarded in any way possible
     - [ ] Stop metrocops from thowing grenades when they are in an arrest state (hell of an arrest to toss a frag at the suspect..)
+    - [ ] Look around more when seeking enemy
+    - [ ] Try to not loose track as easily, be more smart when seeking
 - [ ] SNPC:ify hunter and d0g

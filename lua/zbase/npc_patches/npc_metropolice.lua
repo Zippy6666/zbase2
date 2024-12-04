@@ -8,4 +8,8 @@ ZBasePatchTable[my_cls] = function( NPC )
         [ZBaseESchedID("SCHED_METROPOLICE_ARREST_ENEMY")] = true,
     }
 
+    function NPC:Patch_PreventGrenade()
+        return !self.Patch_AIWantsToShoot_SCHED_Blacklist[self:GetCurrentSchedule()]
+    end
+
 end

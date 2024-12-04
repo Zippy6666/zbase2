@@ -120,25 +120,6 @@ function NPC:InitNextTick()
 end
 
 
-local dontClearCap = {
-    npc_strider = true,
-    npc_cscanner = true,
-    npc_clawscanner = true,
-    npc_helicopter = true,
-    npc_combinegunship = true,
-    npc_turret_ceiling = true,
-    npc_manhack = true,
-    npc_combine_camera = true,
-    npc_barnacle = true,
-    npc_crow = true,
-    npc_pigeon = true,
-    npc_seagull = true,
-    npc_rollermine = true,
-    npc_antlion_grub = true,
-    npc_fastzombie = true,
-    npc_antlion = true,
-    npc_antlionworker = true,
-}
 function NPC:Init2Ticks()
     -- FOV and sight dist
     self.FieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
@@ -150,10 +131,6 @@ function NPC:Init2Ticks()
     self:Fire("physdamagescale", self.PhysDamageScale)
 
 
-    -- Capabilities
-    if !dontClearCap[self:GetClass()] then
-        self:CapabilitiesClear()
-    end
     self:InitCap()
 
 
@@ -273,19 +250,15 @@ function NPC:InitCap()
         self:CapabilitiesAdd(CAP_DUCK)
         self:CapabilitiesAdd(CAP_MOVE_SHOOT)
         self:CapabilitiesAdd(CAP_USE_SHOT_REGULATOR)
+    else
+        self:CapabilitiesRemove(CAP_USE_WEAPONS)
     end
 
 
     -- Door/button stuff
-    if self.CanOpenDoors then
-        self:CapabilitiesAdd(CAP_OPEN_DOORS)
-    end
-    if self.CanOpenAutoDoors then
-        self:CapabilitiesAdd(CAP_AUTO_DOORS)
-    end
-    if self.CanPushButtons then
-        self:CapabilitiesAdd(CAP_USE)
-    end
+    if self.CanOpenDoors then self:CapabilitiesAdd(CAP_OPEN_DOORS) end
+    if self.CanOpenAutoDoors then self:CapabilitiesAdd(CAP_AUTO_DOORS) end
+    if self.CanPushButtons then self:CapabilitiesAdd(CAP_USE) end
 
 
     -- Jump
@@ -331,13 +304,16 @@ function NPC:InitCap()
     end
 
 
-
     -- Movement
 	if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then
+
 		self:SetNavType(NAV_FLY)
+
     elseif self:GetMoveType()==MOVETYPE_STEP then
+
         self:CapabilitiesAdd(CAP_MOVE_GROUND)
         self:CapabilitiesAdd(CAP_SKIP_NAV_GROUND_CHECK)
+
 	end
 
 
@@ -2872,8 +2848,15 @@ function NPCB.Grenade:ShouldDoBehaviour( self )
 
     local lastSeenPos = self:GetEnemyLastSeenPos()
 
-    return self.BaseGrenadeAttack && !self.DoingPlayAnim && (self.GrenCount == -1 or self.GrenCount > 0) && !table.IsEmpty(self.GrenadeAttackAnimations)
-    && self:GetNPCState()==NPC_STATE_COMBAT && !lastSeenPos:IsZero() && self:ZBaseDist(lastSeenPos, {away=400, within=1500}) && self:VisibleVec(lastSeenPos)
+    return self.BaseGrenadeAttack
+    && !self.DoingPlayAnim
+    && (self.GrenCount == -1 or self.GrenCount > 0)
+    && !table.IsEmpty(self.GrenadeAttackAnimations)
+    && self:GetNPCState()==NPC_STATE_COMBAT
+    && !lastSeenPos:IsZero()
+    && self:ZBaseDist(lastSeenPos, {away=400, within=1500})
+    && self:VisibleVec(lastSeenPos)
+    && !(self.Patch_PreventGrenade && self:Patch_PreventGrenade())
 
 end
 
