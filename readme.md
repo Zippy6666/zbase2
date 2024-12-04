@@ -31,3 +31,5 @@
 - [ ] Make so that the NPC has time to try execute move before jump when doing ZBaseMove (to reduce amount of jumping and give the NPC a chance to traverse on foot)
 - [ ] Try improve AI when enemy is lost (so that they don't spam enemy lost sounds)
 - [ ] Revamp aerial AI?
+- [ ] Increase frequency of facing check when using weapons (so that they don't fire at enemies they aren't facing...)
+- [ ] Make AI less retarded in any way possible
