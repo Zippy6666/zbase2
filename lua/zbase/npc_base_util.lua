@@ -488,7 +488,8 @@ end
     -- Emit a foot step sound, should idealy be used instead of regular emit sound code
     -- Uses self.FootStepSounds
 function NPC:EmitFootStepSound()
-    local stepent = ents.Create("base_gmodentity")
+    local stepent = ents.Create("zb_temporary_ent")
+    stepent.ShouldRemain = true
 
     stepent:SetNoDraw(true)
     stepent:SetPos(self:GetPos())
@@ -496,7 +497,6 @@ function NPC:EmitFootStepSound()
     stepent:Spawn()
     stepent.IsZBaseStepEnt = true
 
-    local dur = SoundDuration(self.FootStepSounds)
     stepent:EmitSound(self.FootStepSounds)
-    SafeRemoveEntityDelayed(stepent, dur)
+    SafeRemoveEntityDelayed(stepent, 1)
 end

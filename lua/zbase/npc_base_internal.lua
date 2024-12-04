@@ -1141,7 +1141,7 @@ function NPC:ZBWepSys_AIWantsToShoot()
     if self.ZBWepSys_NextCheckIsFacingEne < CurTime() then
         local ene = self:GetEnemy()
         self.ZBWepSys_Stored_FacingEne = self:IsFacing(ene)
-        self.ZBWepSys_NextCheckIsFacingEne = CurTime()+1.5
+        self.ZBWepSys_NextCheckIsFacingEne = CurTime()+0.7
     end
 
     if !self.ZBWepSys_Stored_FacingEne then
@@ -4107,8 +4107,9 @@ function NPC:InternalCreateGib( model, data )
 
 
     -- Create
-    local entclass = !data.IsRagdoll && "base_gmodentity" or "prop_ragdoll"
+    local entclass = !data.IsRagdoll && "zb_temporary_ent" or "prop_ragdoll"
     local Gib = ents.Create(entclass)
+    Gib.ShouldRemain = true
     Gib:SetModel(model)
     Gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
     Gib.IsZBaseGib = true
