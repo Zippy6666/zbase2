@@ -122,7 +122,7 @@ function NPC:MeleeAttack()
     if self.MeleeDamage_Delay then
         timer.Simple(self.MeleeDamage_Delay, function()
             if !IsValid(self) then return end
-            if self:GetNPCState()==NPC_STATE_DEAD then return end
+            if self:GetNPCState()==NPC_STATE_DEAD or self.Dead then return end
 
             self:InternalMeleeAttackDamage(dmgData)
         end)
@@ -284,7 +284,7 @@ function NPC:ThrowGrenade()
     end
 
     timer.Simple(self.GrenadeReleaseTime, function()
-        if !IsValid(self) then return end
+        if !IsValid(self) or self.Dead then return end
 
         local grencls = ( istable(self.GrenadeEntityClass) && self.GrenadeEntityClass[math.random(1, #self.GrenadeEntityClass)] )
         or self.GrenadeEntityClass
@@ -487,7 +487,8 @@ end
     -- Emit a foot step sound, should idealy be used instead of regular emit sound code
     -- Uses self.FootStepSounds
 function NPC:EmitFootStepSound()
-    local stepent = ents.Create("base_gmodentity")
+    local stepent = ents.Create("zb_temporary_ent")
+    stepent.ShouldRemain = true
 
     stepent:SetNoDraw(true)
     stepent:SetPos(self:GetPos())
@@ -495,7 +496,6 @@ function NPC:EmitFootStepSound()
     stepent:Spawn()
     stepent.IsZBaseStepEnt = true
 
-    local dur = SoundDuration(self.FootStepSounds)
     stepent:EmitSound(self.FootStepSounds)
-    SafeRemoveEntityDelayed(stepent, dur)
+    SafeRemoveEntityDelayed(stepent, 1)
 end

@@ -208,6 +208,7 @@ function NPC:InitModel()
 end
 
 
+
 function NPC:InitGrenades()
     if ZBCVAR.GrenAltRand:GetBool() then
 
@@ -1140,7 +1141,7 @@ function NPC:ZBWepSys_AIWantsToShoot()
     if self.ZBWepSys_NextCheckIsFacingEne < CurTime() then
         local ene = self:GetEnemy()
         self.ZBWepSys_Stored_FacingEne = self:IsFacing(ene)
-        self.ZBWepSys_NextCheckIsFacingEne = CurTime()+1.5
+        self.ZBWepSys_NextCheckIsFacingEne = CurTime()+0.7
     end
 
     if !self.ZBWepSys_Stored_FacingEne then
@@ -1420,7 +1421,7 @@ function NPC:ZBWepSys_MeleeThink()
             self:Weapon_MeleeAnim()
 
             timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
-                if IsValid(self) && IsValid(self:GetActiveWeapon()) then
+                if IsValid(self) && IsValid(self:GetActiveWeapon()) && !self.Dead then
                     self:GetActiveWeapon():NPCMeleeWeaponDamage()
                 end
             end)
@@ -1529,6 +1530,17 @@ function NPC:Face( face, duration, speed )
         self:SetIdealYawAndUpdate(yaw, turnSpeed)
     end
 
+end
+
+
+-- Runs full reset and then applied SCHED_TARGET_FACE
+function NPC:Face_Simple( ent_or_pos )
+    if isvector(ent_or_pos) then
+
+    elseif IsValid(ent_or_pos) then
+        self:SetTarget(ent_or_pos)
+        self:SetSchedule(SCHED_TARGET_FACE)
+    end
 end
 
 
@@ -1885,7 +1897,6 @@ function NPC:AITick_Slow()
 
         if IsValid(ene) then
             self.DoEnemyLostSoundWhenLost = true
-            self.GotoEneLastKnownPosWhenEluded = true
         end
 
     end
@@ -1897,14 +1908,14 @@ function NPC:AITick_Slow()
 
 
     -- Stop alert timer out, back to idle
-    if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
-        self:SetNPCState(NPC_STATE_IDLE)
-        self.NextStopAlert = nil
-        conv.overlay("Text", function()
-            local pos = self:GetPos()
-            return {pos, "Alert time elapsed, switching to NPC_STATE_IDLE", 2}
-        end)
-    end
+    -- if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
+    --     self:SetNPCState(NPC_STATE_IDLE)
+    --     self.NextStopAlert = nil
+    --     conv.overlay("Text", function()
+    --         local pos = self:GetPos()
+    --         return {pos, "Alert time elapsed, switching to NPC_STATE_IDLE", 2}
+    --     end)
+    -- end
 
 
     -- Follow player that we should follow
@@ -1922,7 +1933,6 @@ function NPC:AITick_Slow()
     && (ZBaseMoveIsActive(self, "MoveFallback") or self.OutOfShootRange_LastPos == self:GetInternalVariable("m_vecLastPosition") )
     && (self.EnemyVisible && self.ZBWepSys_InShootDist) then
         self:FullReset()
-        conv.devPrint("Did fullreset cause was in force move and enemy visible and in dist")
     end
 
 
@@ -2001,7 +2011,6 @@ function NPC:NewSchedDetected( sched, schedName )
     local assumedFailSched =
 
     ( string.find(schedName, "FAIL")
-        -- or (sched==-1 && self.ZBaseLastESched!=SCHED_SCENE_GENERIC && !(self.IsZBase_SNPC && self.CurrentSchedule))
         or (self.Patch_IsFailSched && self:Patch_IsFailSched(sched))
     )
 
@@ -2078,7 +2087,10 @@ function NPC:DoNewEnemy()
 
 
     -- Lost enemy
-    if !IsValid(ene) && self.HadPreviousEnemy && !self.EnemyDied && !self:NearbyAllySpeaking({"LostEnemySounds"}) then
+    if !IsValid(ene)
+    && self.HadPreviousEnemy
+    && !self.EnemyDied
+    && !self:NearbyAllySpeaking({"LostEnemySounds"}) then
 
         self:LostEnemySound()
         self:EmitSound_Uninterupted(self.LostEnemySounds)
@@ -2094,21 +2106,12 @@ end
 
 
 function NPC:OnOwnedEntCreated( ent )
-
     self:CustomOnOwnedEntCreated( ent )
-
 end
 
 
 function NPC:MarkEnemyAsDead( ene, time )
-    if self:GetEnemy() == ene then
-        self.EnemyDied = true
-
-        timer.Create("ZBaseEnemyDied_False"..self:EntIndex(), time, 1, function()
-            if !IsValid(self) then return end
-            self.EnemyDied = false
-        end)
-    end
+    self:CONV_TempVar("EnemyDied", true, time)
 end
 
 
@@ -2440,7 +2443,7 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
 
     timer.Simple(0.75, function()
         if !(IsValid(self) && IsValid(wep) && IsValid(enemy)) then return end
-        if self:GetNPCState() == NPC_STATE_DEAD then return end
+        if self.Dead or self:GetNPCState() == NPC_STATE_DEAD then return end
 
 
         local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
@@ -2459,7 +2462,7 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
         ball_launcher:Fire("kill","",0)
         timer.Simple(0.01, function()
             if IsValid(self)
-            && self:GetNPCState() != NPC_STATE_DEAD then
+            && self:GetNPCState() != NPC_STATE_DEAD && !self.Dead then
                 for _, ball in ipairs(ents.FindInSphere(self:GetPos(), 100)) do
                     if ball:GetClass() == "prop_combine_ball" then
 
@@ -3815,30 +3818,43 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 end
 
 
+function NPC:InternalOnAllyDeath()
+    -- All nearby allies stop talking
+    self.StopSound(self.IdleSound)
+    self:CancelConversation()
+end
+
+
+function NPC:ImTheNearestAllyAndThisIsMyHonestReaction()
+    if self.AllyDeathSound_Chance && math.random(1, self.AllyDeathSound_Chance) == 1 then
+        timer.Simple(0.5, function()
+            if IsValid(self) then
+                self:EmitSound_Uninterupted(self.AllyDeathSounds)
+
+                if self.AllyDeathSounds != "" && self:GetNPCState()==NPC_STATE_IDLE then
+                    self:FullReset()
+                    self:Face(deathpos, self.InternalCurrentVoiceSoundDuration)
+                end
+            end
+        end)
+    end
+end
+
 
 function NPC:Death_AlliesReact()
 	
     local allies = self:GetNearbyAllies(600)
     for _, ally in ipairs(allies) do
         if IsValid(ally) && isfunction(ally.OnAllyDeath) && ally:Visible(self) then
+            ally:InternalOnAllyDeath()
             ally:OnAllyDeath(self)
         end
     end
 
     local ally = self:GetNearestAlly(600)
+    local deathpos = self:GetPos()
     if IsValid(ally) && ally:Visible(self) then
-        if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
-            timer.Simple(0.5, function()
-                if IsValid(ally) then
-                    ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
-
-                    if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
-                        ally:FullReset()
-                        ally:Face(deathpos, ally.InternalCurrentVoiceSoundDuration)
-                    end
-                end
-            end)
-        end
+        ally:ImTheNearestAllyAndThisIsMyHonestReaction()
     end
 end
 
@@ -4091,8 +4107,9 @@ function NPC:InternalCreateGib( model, data )
 
 
     -- Create
-    local entclass = !data.IsRagdoll && "base_gmodentity" or "prop_ragdoll"
+    local entclass = !data.IsRagdoll && "zb_temporary_ent" or "prop_ragdoll"
     local Gib = ents.Create(entclass)
+    Gib.ShouldRemain = true
     Gib:SetModel(model)
     Gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
     Gib.IsZBaseGib = true

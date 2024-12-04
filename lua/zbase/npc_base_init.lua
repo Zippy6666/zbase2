@@ -59,8 +59,8 @@ NPC.SpawnFlagTbl = {} -- Ex. NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_FEMALE},
 
 
 NPC.CanOpenDoors = true -- Can open regular doors
-NPC.CanOpenAutoDoors = false -- Can open auto doors
-NPC.CanUse = false -- Can push buttons, pull levers, etc
+NPC.CanOpenAutoDoors = true -- Can open auto doors
+NPC.CanUse = true -- Can push buttons, pull levers, etc
 
 
 -- Do "zbase_reload" followed by "spawnmenu_reload" to apply the changes, or restart map
