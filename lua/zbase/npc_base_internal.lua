@@ -1886,7 +1886,6 @@ function NPC:AITick_Slow()
 
         if IsValid(ene) then
             self.DoEnemyLostSoundWhenLost = true
-            self.GotoEneLastKnownPosWhenEluded = true
         end
 
     end
@@ -2083,6 +2082,8 @@ function NPC:DoNewEnemy()
         self:LostEnemySound()
         self:EmitSound_Uninterupted(self.LostEnemySounds)
         self.DoEnemyLostSoundWhenLost = false
+
+        conv.devPrint(self, "lost enemy")
 
     end
 

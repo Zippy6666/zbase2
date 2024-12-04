@@ -33,3 +33,4 @@
 - [ ] Revamp aerial AI?
 - [ ] Increase frequency of facing check when using weapons (so that they don't fire at enemies they aren't facing...)
 - [ ] Make AI less retarded in any way possible
+- [ ] SNPC:ify hunter and d0g
