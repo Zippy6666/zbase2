@@ -44,6 +44,7 @@ function NPC:ZBaseInit()
     self.NextOutOfShootRangeSched = CurTime()
     self.EnemyVisible = false
     self.HadPreviousEnemy = false
+    self.LastEnemy = NULL
     self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     self.ZBLastHitGr = HITGROUP_GENERIC
     self.PlayerToFollow = NULL
@@ -1536,7 +1537,14 @@ end
 -- Runs full reset and then applied SCHED_TARGET_FACE
 function NPC:Face_Simple( ent_or_pos )
     if isvector(ent_or_pos) then
-
+        local FaceEnt = ents.Create("zb_temporary_ent")
+        FaceEnt.ShouldRemain = true
+        FaceEnt:SetPos(ent_or_pos)
+        FaceEnt:SetNoDraw(true)
+        FaceEnt:Spawn()
+        SafeRemoveEntityDelayed(FaceEnt, 5)
+        self:SetTarget(FaceEnt)
+        self:SetSchedule(SCHED_TARGET_FACE)
     elseif IsValid(ent_or_pos) then
         self:SetTarget(ent_or_pos)
         self:SetSchedule(SCHED_TARGET_FACE)
@@ -1894,11 +1902,6 @@ function NPC:AITick_Slow()
         -- Reset stop alert if in combat
         self.NextStopAlert = nil
 
-
-        if IsValid(ene) then
-            self.DoEnemyLostSoundWhenLost = true
-        end
-
     end
 
     -- Is alert, start timer
@@ -2087,20 +2090,43 @@ function NPC:DoNewEnemy()
 
 
     -- Lost enemy
-    if !IsValid(ene)
+    if self.LostEnemySounds != ""
+    && !IsValid(ene)
     && self.HadPreviousEnemy
     && !self.EnemyDied
-    && !self:NearbyAllySpeaking({"LostEnemySounds"}) then
+    then
+ 
+        -- Check if other allies also lost track of the enemy before saying it out loud
+        local shouldDoLostEneSoundFinal = true
+        local hasAllies = false
+        for _, ally in ipairs(self:GetNearbyAlliesOptimized(1000)) do
 
-        self:LostEnemySound()
-        self:EmitSound_Uninterupted(self.LostEnemySounds)
-        self.DoEnemyLostSoundWhenLost = false
+            hasAllies = true
+
+            local allyEne = ally:GetEnemy()
+  
+            -- This ally still has this enemy, so it still isn't lost
+            if !ally.TooEarlyThoughtEnemyWasLost && IsValid(allyEne) && allyEne == self.LastEnemy then
+                conv.devPrint(self:EntIndex(), " thinks enemy is lost, "..ally:EntIndex().. " knows that it isn't.")
+                shouldDoLostEneSoundFinal = false 
+                break
+            end
+
+        end
+        shouldDoLostEneSoundFinal = shouldDoLostEneSoundFinal && hasAllies
+
+
+        if shouldDoLostEneSoundFinal then
+            conv.devPrint(self:EntIndex(), " concludes enemy is lost.")
+            self:EmitSound_Uninterupted(self.LostEnemySounds)
+        end
 
     end
 
 
     self:EnemyStatus(ene, self.HadPreviousEnemy)
     self.HadPreviousEnemy = ene && true or false
+    self.LastEnemy = ene or self.LastEnemy
 
 end
 
@@ -3060,7 +3086,7 @@ function NPC:OnEmitSound( data )
         end)
     end
 
-
+    
     -- Custom on sound emitted
     self:CustomOnSoundEmitted( data, self.InternalCurrentSoundDuration, sndVarName )
 
@@ -3813,27 +3839,29 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     else
         self:Remove()
     end
-
+  
 
 end
 
 
 function NPC:InternalOnAllyDeath()
     -- All nearby allies stop talking
-    self.StopSound(self.IdleSound)
+    self:StopSound(self.IdleSounds)
     self:CancelConversation()
 end
 
 
-function NPC:ImTheNearestAllyAndThisIsMyHonestReaction()
+function NPC:ImTheNearestAllyAndThisIsMyHonestReaction( deathpos )
     if self.AllyDeathSound_Chance && math.random(1, self.AllyDeathSound_Chance) == 1 then
         timer.Simple(0.5, function()
             if IsValid(self) then
                 self:EmitSound_Uninterupted(self.AllyDeathSounds)
 
-                if self.AllyDeathSounds != "" && self:GetNPCState()==NPC_STATE_IDLE then
+                local npcstate = self:GetNPCState()
+
+                if self.AllyDeathSounds != "" && ( npcstate==NPC_STATE_IDLE or npcstate==NPC_STATE_ALERT ) then
                     self:FullReset()
-                    self:Face(deathpos, self.InternalCurrentVoiceSoundDuration)
+                    self:Face_Simple(deathpos)
                 end
             end
         end)
@@ -3841,6 +3869,7 @@ function NPC:ImTheNearestAllyAndThisIsMyHonestReaction()
 end
 
 
+-- Called on death and makes nearby allies to me react to it
 function NPC:Death_AlliesReact()
 	
     local allies = self:GetNearbyAllies(600)
@@ -3853,8 +3882,8 @@ function NPC:Death_AlliesReact()
 
     local ally = self:GetNearestAlly(600)
     local deathpos = self:GetPos()
-    if IsValid(ally) && ally:Visible(self) then
-        ally:ImTheNearestAllyAndThisIsMyHonestReaction()
+    if IsValid(ally) && ally:Visible(self) && ally.ImTheNearestAllyAndThisIsMyHonestReaction then
+        ally:ImTheNearestAllyAndThisIsMyHonestReaction( deathpos )
     end
 end
 

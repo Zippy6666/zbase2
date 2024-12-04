@@ -424,7 +424,7 @@ function NPC:IsAlly( ent )
 
     return ent.ZBaseFaction == self.ZBaseFaction
 end
-
+ 
 
     -- Get nearby allies within a in a certain radius
     -- Returns an empty table if none was found
@@ -438,6 +438,39 @@ function NPC:GetNearbyAllies( radius )
         if self:IsAlly(v) then
             table.insert(allies, v)
         end
+    end
+
+    return allies
+end
+
+
+-- Same as above but uses a box and is probably more optimized
+-- Only detects ZBase NPCs
+local MinMaxCache = {}
+function NPC:GetNearbyAlliesOptimized( lenght )
+    local allies = {}
+
+    if !MinMaxCache[lenght] then
+        local halflenght = lenght*0.5
+        local vec = Vector(halflenght, halflenght, halflenght)
+        MinMaxCache[lenght] = vec
+    end
+
+    local vec_add = MinMaxCache[lenght]
+
+    local mypos = self:GetPos()
+    local amt = 0
+    for k, v in ipairs(ents.FindInBox(mypos-vec_add, mypos+vec_add)) do
+
+        amt = k
+        
+        if v == self then continue end
+        if !v.IsZBaseNPC then continue end
+
+        if self:IsAlly(v) then
+            table.insert(allies, v)
+        end
+
     end
 
     return allies

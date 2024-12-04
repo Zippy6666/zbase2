@@ -713,16 +713,7 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
 
         if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
             local deathpos = ply:GetPos()
-            timer.Simple(0.5, function()
-                if IsValid(ally) then
-                    ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
-
-                    if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
-                        ally:FullReset()
-                        ally:Face(deathpos, ally.InternalCurrentVoiceSoundDuration)
-                    end
-                end
-            end)
+            ally:ImTheNearestAllyAndThisIsMyHonestReaction(deathpos)
         end
     end
 

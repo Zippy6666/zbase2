@@ -44,6 +44,7 @@ NPC.SeeDangerSounds = "ZBaseHunter.SeeDanger" -- Sounds emitted when the NPC spo
 
 
 NPC.FootStepSounds = "ZBaseHunter.Step"
+NPC.LostEnemySound = "NPC_Hunter.FlankAnnounce"
 
 
 NPC.DodgeAnimations = {

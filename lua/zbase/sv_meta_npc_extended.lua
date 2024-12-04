@@ -60,9 +60,9 @@ function NPC:ZBASE_SetMutualRelationship( ent, rel )
         end
     end
 
-    if Developer:GetBool() then
-        MsgN(self, " ZBASE relationship change to ", ent)
-    end
+    -- if Developer:GetBool() then
+    --     MsgN(self, " ZBASE relationship change to ", ent)
+    -- end
 
 end
 

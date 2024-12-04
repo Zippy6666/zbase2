@@ -666,6 +666,8 @@ if SERVER then
             if ZBaseLastSavedFileTimeRegistry[fname] && ZBaseLastSavedFileTimeRegistry[fname] != time then
                 conv.devPrint(Color(0, 255, 200), "ZBase detected change in '", fname, "', doing autorefresh!")
                 RunConsoleCommand("zbase_reload")
+                table.Empty(ZBaseLastSavedFileTimeRegistry)
+                break
             end
 
             ZBaseLastSavedFileTimeRegistry[fname] = time
