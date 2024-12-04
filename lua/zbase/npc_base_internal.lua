@@ -1533,6 +1533,17 @@ function NPC:Face( face, duration, speed )
 end
 
 
+-- Runs full reset and then applied SCHED_TARGET_FACE
+function NPC:Face_Simple( ent_or_pos )
+    if isvector(ent_or_pos) then
+
+    elseif IsValid(ent_or_pos) then
+        self:SetTarget(ent_or_pos)
+        self:SetSchedule(SCHED_TARGET_FACE)
+    end
+end
+
+
 function NPC:CheckHasAimPoseParam()
 
     for i=0, self:GetNumPoseParameters() - 1 do
@@ -1897,14 +1908,14 @@ function NPC:AITick_Slow()
 
 
     -- Stop alert timer out, back to idle
-    if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
-        self:SetNPCState(NPC_STATE_IDLE)
-        self.NextStopAlert = nil
-        conv.overlay("Text", function()
-            local pos = self:GetPos()
-            return {pos, "Alert time elapsed, switching to NPC_STATE_IDLE", 2}
-        end)
-    end
+    -- if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
+    --     self:SetNPCState(NPC_STATE_IDLE)
+    --     self.NextStopAlert = nil
+    --     conv.overlay("Text", function()
+    --         local pos = self:GetPos()
+    --         return {pos, "Alert time elapsed, switching to NPC_STATE_IDLE", 2}
+    --     end)
+    -- end
 
 
     -- Follow player that we should follow
@@ -2000,7 +2011,6 @@ function NPC:NewSchedDetected( sched, schedName )
     local assumedFailSched =
 
     ( string.find(schedName, "FAIL")
-        -- or (sched==-1 && self.ZBaseLastESched!=SCHED_SCENE_GENERIC && !(self.IsZBase_SNPC && self.CurrentSchedule))
         or (self.Patch_IsFailSched && self:Patch_IsFailSched(sched))
     )
 
@@ -2077,13 +2087,14 @@ function NPC:DoNewEnemy()
 
 
     -- Lost enemy
-    if !IsValid(ene) && self.HadPreviousEnemy && !self.EnemyDied && !self:NearbyAllySpeaking({"LostEnemySounds"}) then
+    if !IsValid(ene)
+    && self.HadPreviousEnemy
+    && !self.EnemyDied
+    && !self:NearbyAllySpeaking({"LostEnemySounds"}) then
 
         self:LostEnemySound()
         self:EmitSound_Uninterupted(self.LostEnemySounds)
         self.DoEnemyLostSoundWhenLost = false
-
-        conv.devPrint(self, "lost enemy")
 
     end
 
@@ -2095,21 +2106,12 @@ end
 
 
 function NPC:OnOwnedEntCreated( ent )
-
     self:CustomOnOwnedEntCreated( ent )
-
 end
 
 
 function NPC:MarkEnemyAsDead( ene, time )
-    if self:GetEnemy() == ene then
-        self.EnemyDied = true
-
-        timer.Create("ZBaseEnemyDied_False"..self:EntIndex(), time, 1, function()
-            if !IsValid(self) then return end
-            self.EnemyDied = false
-        end)
-    end
+    self:CONV_TempVar("EnemyDied", true, time)
 end
 
 
@@ -3816,30 +3818,43 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 end
 
 
+function NPC:InternalOnAllyDeath()
+    -- All nearby allies stop talking
+    self.StopSound(self.IdleSound)
+    self:CancelConversation()
+end
+
+
+function NPC:ImTheNearestAllyAndThisIsMyHonestReaction()
+    if self.AllyDeathSound_Chance && math.random(1, self.AllyDeathSound_Chance) == 1 then
+        timer.Simple(0.5, function()
+            if IsValid(self) then
+                self:EmitSound_Uninterupted(self.AllyDeathSounds)
+
+                if self.AllyDeathSounds != "" && self:GetNPCState()==NPC_STATE_IDLE then
+                    self:FullReset()
+                    self:Face(deathpos, self.InternalCurrentVoiceSoundDuration)
+                end
+            end
+        end)
+    end
+end
+
 
 function NPC:Death_AlliesReact()
 	
     local allies = self:GetNearbyAllies(600)
     for _, ally in ipairs(allies) do
         if IsValid(ally) && isfunction(ally.OnAllyDeath) && ally:Visible(self) then
+            ally:InternalOnAllyDeath()
             ally:OnAllyDeath(self)
         end
     end
 
     local ally = self:GetNearestAlly(600)
+    local deathpos = self:GetPos()
     if IsValid(ally) && ally:Visible(self) then
-        if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
-            timer.Simple(0.5, function()
-                if IsValid(ally) then
-                    ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
-
-                    if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
-                        ally:FullReset()
-                        ally:Face(deathpos, ally.InternalCurrentVoiceSoundDuration)
-                    end
-                end
-            end)
-        end
+        ally:ImTheNearestAllyAndThisIsMyHonestReaction()
     end
 end
 

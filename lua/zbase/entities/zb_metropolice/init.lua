@@ -1,6 +1,4 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
-
-
 local Arrest = 2097152
 local ShouldHaveRadioSound = {
     ["LostEnemySounds"] = true,
