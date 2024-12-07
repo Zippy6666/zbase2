@@ -36,23 +36,26 @@ NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits 
 NPC.HasArmor = {
     [HITGROUP_GENERIC] = true,
 }
-NPC.ArmorHitSpark = false
-NPC.ArmorAlwaysPenDamage = false -- Always penetrate the armor if the damage is more than this, set to false to disable
+NPC.ArmorHitSpark = true
+NPC.ArmorPenChance = false
+NPC.ArmorPenDamageMult = 5
+NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is more than this, set to false to disable
 
+NPC.MoveSpeedMultiplier = 1.35
 
 -- Scale damage against certain damage types:
 -- https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.DamageScaling = {
     [DMG_GENERIC] = 0.01,
-    [DMG_NEVERGIB] = 0.01,
+    [DMG_NEVERGIB] = 0.5,
     [DMG_SLASH] = 0.01,
     [DMG_BURN] = 0.01,
     [DMG_CLUB] = 0.01,
+    [DMG_BLAST] = 0.5,
 }
 NPC.PhysDamageScale = 0.01 -- Damage scale from props
 
 
-NPC.SquadGiveSpace = 256
 NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_FACE -- ZBASE_CANTREACHENEMY_HIDE || ZBASE_CANTREACHENEMY_FACE
 
 
@@ -147,7 +150,7 @@ function NPC:FootStepTimer()
 
 
     self:EmitSound(self.FootStepSounds)
-    util.ScreenShake(self:GetPos(), 7, 200, 0.5, 1000)
+    util.ScreenShake(self:GetPos(), 4, 200, 0.4, 800)
 
 
     if seqName == "charge_loop" then
@@ -366,7 +369,7 @@ function NPC:OnRangeAttack()
     self.RangeAttackDuration = math.Rand(3, 6)
 
 
-    self:PlayAnimation(ACT_RANGE_ATTACK1, false, {duration=self.RangeAttackDuration})
+    self:PlayAnimation(ACT_RANGE_ATTACK1, false, {duration=self.RangeAttackDuration, speedMult=1.2})
     self.CurTargetPos = nil -- Reset
     self.CurTrackSpeed = 0.01
 
@@ -448,7 +451,7 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
             self:EmitSound("ZBaseCrabSynth.MinigunStart")
             -- self:EnableFlashlight(self.RangeAttackDuration)
         
-            timer.Simple(1.7, function()
+            timer.Simple(1.3, function()
                 if !(IsValid(self) && self:GetSequenceName(self:GetSequence())=="range_loop") then return end
                 self.MinigunCanFire = true
                 self.MinigunShootSound:Play()
@@ -464,7 +467,7 @@ end
 
 
 function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
-    if dmginfo:GetDamage() < 80 then return false end
+    if dmginfo:GetDamage() < 90 then return false end
     if !dmginfo:IsExplosionDamage() && !dmginfo:IsDamageType(DMG_DISSOLVE) then return false end
 
 
