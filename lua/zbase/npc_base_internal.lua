@@ -1135,7 +1135,7 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     return true
 end
-
+ 
 
 function NPC:ZBWepSys_WantsToShoot()
 
@@ -1147,6 +1147,8 @@ function NPC:ZBWepSys_WantsToShoot()
     return !self.DoingPlayAnim
 
     && self.ZBWepSys_Stored_AIWantsToShoot
+
+    && !self:IsCurrentSchedule(SCHED_RELOAD)
 
     && self:ShouldFireWeapon()
 
