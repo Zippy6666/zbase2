@@ -58,6 +58,7 @@ function NPC:ZBaseInit()
     for varname, var in pairs(self.EInternalVars or {}) do
         self:SetSaveValue(varname, var)
     end
+    self.EInternalVars = nil
 
 
 
@@ -105,7 +106,6 @@ function NPC:ZBaseInit()
 
 
     self:CONV_CallNextTick("InitNextTick")
-
 
 end
 
@@ -1098,6 +1098,16 @@ local AIWantsToShoot_ACT_Blacklist = {
     [ACT_JUMP] = true,
     [ACT_GLIDE] = true,
     [ACT_LAND] = true,
+    [ACT_SIGNAL1] = true,	
+    [ACT_SIGNAL2] = true,
+    [ACT_SIGNAL3] = true,
+    [ACT_SIGNAL_ADVANCE] = true,
+    [ACT_SIGNAL_FORWARD] = true,
+    [ACT_SIGNAL_GROUP] = true,
+    [ACT_SIGNAL_HALT] = true,
+    [ACT_SIGNAL_LEFT] = true,
+    [ACT_SIGNAL_RIGHT] = true,
+    [ACT_SIGNAL_TAKECOVER] = true,
 }
 local AIWantsToShoot_SCHED_Blacklist = {
     [SCHED_RELOAD] = true,
@@ -2105,6 +2115,50 @@ function NPC:DoNewEnemy()
     self:EnemyStatus(ene, self.HadPreviousEnemy)
     self.HadPreviousEnemy = ene && true or false
     self.LastEnemy = ene or self.LastEnemy
+
+end
+
+
+function NPC:AI_OnHurt( dmg, MoreThan0Damage )
+    local attacker = dmg:GetAttacker()
+
+
+    -- Pain sound
+    if self.NextPainSound < CurTime() && MoreThan0Damage then
+        self:EmitSound_Uninterupted(self.PainSounds)
+        self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
+    end
+
+
+    -- Flinch
+    if !table.IsEmpty(self.FlinchAnimations) && math.random(1, self.FlinchChance) == 1 && self.NextFlinch < CurTime() then
+        local anim = self:GetFlinchAnimation(dmg, self.ZBLastHitGr)
+
+        if self:OnFlinch(dmg, self.ZBLastHitGr, anim) != false then
+            self:FlinchAnimation(anim)
+            self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
+        end
+    end
+
+    
+    if !self.DontChangeSchedOnHurt then
+        local hasEne = IsValid(self:GetEnemy())
+
+        if !hasEne && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
+        && self:Disposition(attacker) != D_LI then
+
+            -- Become alert and try to hide when hurt by unknown source
+            self:SetNPCState(NPC_STATE_ALERT)
+            self:SetSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
+            self:CONV_TempVar("DontChangeSchedOnHurt", true, math.Rand(6, 8))
+
+        elseif hasEne && IsValid(self:GetActiveWeapon()) then
+
+            self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
+            self:CONV_TempVar("DontChangeSchedOnHurt", true, math.Rand(6, 8))
+
+        end
+    end
 
 end
 
@@ -3664,22 +3718,8 @@ function NPC:OnPostEntityTakeDamage( dmg )
     self:StoreDMGINFO( dmg )
 
 
-    -- Pain sound
-    if self.NextPainSound < CurTime() && MoreThan0Damage then
-        self:EmitSound_Uninterupted(self.PainSounds)
-        self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
-    end
+    self:AI_OnHurt(dmg, MoreThan0Damage)
 
-
-    -- Flinch
-    if !table.IsEmpty(self.FlinchAnimations) && math.random(1, self.FlinchChance) == 1 && self.NextFlinch < CurTime() then
-        local anim = self:GetFlinchAnimation(dmg, self.ZBLastHitGr)
-
-        if self:OnFlinch(dmg, self.ZBLastHitGr, anim) != false then
-            self:FlinchAnimation(anim)
-            self.NextFlinch = CurTime()+ZBaseRndTblRange(self.FlinchCooldown)
-        end
-    end
 
     self.CustomTakeDamageDone = nil
 end
