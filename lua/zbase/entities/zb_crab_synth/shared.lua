@@ -23,8 +23,8 @@ sound.Add({
     name = "ZBaseCrabSynth.Step",
 	channel = CHAN_AUTO,
 	volume = 0.7,
-	level = 90,
-	pitch = {140, 150},
+	level = 80,
+	pitch = {150, 160},
 	sound = {
         "npc/crabsynth/cs_step01.wav",
         "npc/crabsynth/cs_step02.wav",

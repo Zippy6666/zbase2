@@ -556,13 +556,6 @@ function NPC:DoSlowThink()
     end
 
 
-    -- Switch to SCHED_RELOAD if in SCHED_HIDE_AND_RELOAD and enemy is not visible
-    if self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) && !self.EnemyVisible then
-        self:SetSchedule(SCHED_RELOAD)
-        debugoverlay.Text(self:GetPos(), "Switching to SCHED_RELOAD because enemy occluded")
-    end
-
-
     self:AITick_Slow()
 
 end
@@ -1332,7 +1325,7 @@ function NPC:ZBWepSys_FireWeaponThink()
     if !ZBCVAR.Static:GetBool() && IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
     && !self:IsMoving() && !self:IsCurrentSchedule(OutOfShootRangeSched) && self.NextOutOfShootRangeSched < CurTime() then
 
-        local lastpos = ene:GetPos()+ene:GetForward()*ene:OBBMaxs().x*3
+        local lastpos = ene:GetPos()
         self:SetLastPosition(lastpos)
         self:SetSchedule(OutOfShootRangeSched)
         self.OutOfShootRange_LastPos = lastpos
@@ -1898,15 +1891,12 @@ function NPC:AITick_Slow()
     end
 
 
-    -- Stop alert timer out, back to idle
-    -- if IsAlert && self.NextStopAlert && self.NextStopAlert < CurTime() then
-    --     self:SetNPCState(NPC_STATE_IDLE)
-    --     self.NextStopAlert = nil
-    --     conv.overlay("Text", function()
-    --         local pos = self:GetPos()
-    --         return {pos, "Alert time elapsed, switching to NPC_STATE_IDLE", 2}
-    --     end)
-    -- end
+    -- Switch to SCHED_RELOAD if in SCHED_HIDE_AND_RELOAD and enemy is not visible
+    if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) or (self.Patch_InHideAndReloadSched && self:Patch_InHideAndReloadSched()))
+    && !self.EnemyVisible then
+        self:SetSchedule(SCHED_RELOAD)
+        debugoverlay.Text(self:GetPos(), "Switching to SCHED_RELOAD because enemy occluded")
+    end
 
 
     -- Follow player that we should follow
@@ -1958,9 +1948,10 @@ end
 function NPC:RangeThreatened( threat )
     if !self:HasEnemyMemory(threat) then return end
     if self.NextRangeThreatened > CurTime() then return end
+    if self.Dead or self.DoingDeathAnim then return end
 
 
-    self:OnRangeThreatened(threat)
+    self:CONV_CallNextTick("OnRangeThreatened", threat)
 
 
     self.NextRangeThreatened = CurTime()+3
@@ -2158,6 +2149,13 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
             self:CONV_TempVar("DontChangeSchedOnHurt", true, math.Rand(6, 8))
 
         end
+    end
+
+
+    -- Switch to SCHED_RELOAD if in SCHED_HIDE_AND_RELOAD
+    if ( self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) or (self.Patch_InHideAndReloadSched && self:Patch_InHideAndReloadSched()) ) then
+        self:SetSchedule(SCHED_RELOAD)
+        debugoverlay.Text(self:GetPos(), "Switching to SCHED_RELOAD because enemy attacking")
     end
 
 end

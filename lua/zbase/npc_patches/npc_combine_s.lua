@@ -25,6 +25,12 @@ ZBasePatchTable[my_cls] = function( NPC )
     end
 
 
+    function NPC:Patch_InHideAndReloadSched()
+        local num = ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")
+        return self:IsCurrentSchedule(num)
+    end
+
+
     function NPC:Patch_IsFailSched(sched)
 
         if ZBaseESchedID("SCHED_COMBINE_COMBAT_FAIL") == sched or ZBaseESchedID("SCHED_COMBINE_TAKECOVER_FAILED") == sched then

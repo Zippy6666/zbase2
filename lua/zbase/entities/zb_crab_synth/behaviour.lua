@@ -39,7 +39,7 @@ end
 -- Call ZBaseDelayBehaviour( seconds ) to out the behaviour on a cooldown
 function BEHAVIOUR.ChargeAttack:Run( self )
     self:EmitSound_Uninterupted("ZBaseCrabSynth.Announce")
-    self:PlayAnimation(ACT_SPECIAL_ATTACK1, true, {faceSpeed=5, duration=math.Rand(5, 7), speedMult=1.5})
+    self:PlayAnimation(ACT_SPECIAL_ATTACK1, true, {faceSpeed=5, duration=math.Rand(5, 7), speedMult=1.2})
     ZBaseDelayBehaviour(math.Rand(18, 22))
 end
 

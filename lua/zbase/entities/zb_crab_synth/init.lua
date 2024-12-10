@@ -61,7 +61,8 @@ NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_FACE -- ZBASE_CANTREACHENEMY_
 
         -- BASE RANGE ATTACK --
 NPC.BaseRangeAttack = true -- Use ZBase range attack system
-NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
+NPC.RangeAttackFaceEnemy = false
+NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
 NPC.RangeProjectile_Inaccuracy = 0.07
 NPC.RangeAttackCooldown = {10, 15} -- Range attack cooldown {min, max}
 NPC.RangeAttackDistance = {300, 2000} -- Distance that it initiates the range attack {min, max}
@@ -118,17 +119,9 @@ NPC.OnReloadSound_Chance = 2
 NPC.FootStepSounds = "ZBaseCrabSynth.Step"
 
 -- Footstep timer (if active)
-NPC.FootStepSoundDelay_Walk = 1 -- Step cooldown when walking
+NPC.FootStepSoundDelay_Walk = 0.8 -- Step cooldown when walking
 NPC.FootStepSoundDelay_Run = 0.3 -- Step cooldown when running
 NPC.FootStepSoundDelay_Charge = 0.3
-
-
-local CrabFootStepActs = {
-    [ACT_WALK] = true,
-    [ACT_RUN] = true,
-}
-
-
 
 
 function NPC:CustomInitialize()
@@ -137,21 +130,25 @@ function NPC:CustomInitialize()
 end
 
 
+function NPC:OverrideMovementAct()
+    local ene = self:GetEnemy()
+
+    if IsValid(ene) && self:ZBaseDist(ene, {within=600}) then
+        return ACT_WALK
+    end
+
+    return false
+end
+
+
 function NPC:FootStepTimer()
-    -- if !self:IsMoving() then return end -- Comment this out or charge anim won't have steps
-    if self.HasEngineFootSteps then return end
-
-
-    local moveact = self:GetMovementActivity()
     local seqName = self:GetSequenceName(self:GetSequence())
+    local moveact = self:GetMovementActivity()
 
+    if !self:IsMoving() && seqName != "charge_loop" then return end -- Comment this out or charge anim won't have steps
 
-    if !CrabFootStepActs[moveact] && seqName != "charge_loop" then return end
-
-
-    self:EmitSound(self.FootStepSounds)
+    self:EmitFootStepSound()
     util.ScreenShake(self:GetPos(), 4, 200, 0.4, 800)
-
 
     if seqName == "charge_loop" then
         self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Charge
@@ -207,12 +204,10 @@ end
 function NPC:CustomThink()
     local seqName = self:GetSequenceName(self:GetSequence())
 
-
-    -- Range attack face code
-    if seqName == "range_loop" or seqName == "range_start" then
-        self:Face(self:RangeAttack_IdealFacePos(), nil, self.RangeAttackTurnSpeed)
+    -- Range face code
+    if self:GetActivity()==ACT_RANGE_ATTACK1 then
+        self:SetIdealYawAndUpdate((self:GetEnemyLastSeenPos()-self:GetPos()):Angle().Yaw)
     end
-
 
     -- Not range attacking currently
     if seqName != "range_loop" then
@@ -220,11 +215,6 @@ function NPC:CustomThink()
         if self.MinigunShootSound:IsPlaying() then
             self.MinigunShootSound:Stop()
             self:EmitSound("ZBaseCrabSynth.MinigunStop")
-        end
-
-        -- Disable flashlight
-        if IsValid(self.FlashLight) then
-            -- self:DisableFlashlight()
         end
     end
 
@@ -307,73 +297,14 @@ function NPC:CustomThink()
 end
 
 
-function NPC:EnableFlashlight(duration)
-    self:DisableFlashlight()
-
-
-    local projtexture = ents.Create("env_projectedtexture")
-    projtexture:SetPos( self:GetPos() )
-    projtexture:SetAngles( self:GetAngles() )
-    projtexture:SetKeyValue('lightcolor', "175 175 255")
-    projtexture:SetKeyValue('lightfov', '60')
-    projtexture:SetKeyValue('shadowquality', '0')
-    projtexture:Fire( "SpotlightTexture", "effects/flashlight001" )
-    projtexture:SetParent(self)
-    projtexture:Spawn()
-    projtexture:Activate()
-    projtexture:Fire("setparentattachment", "flashlight")
-    self:DeleteOnRemove(projtexture)
-
-
-    local spotlight = ents.Create("point_spotlight")
-    spotlight:SetPos( self:GetPos() )
-    spotlight:SetAngles( projtexture:GetAngles() )
-    spotlight:SetKeyValue( "spawnflags", "1" + "2" )
-    spotlight:SetKeyValue( "spotlightlength", "50" )
-    spotlight:SetKeyValue( "spotlightwidth", "20" )
-    spotlight:SetKeyValue( "HaloScale", "0.1" )
-    spotlight:SetColor(Color(175,175,255))
-    spotlight:SetParent(self)
-    spotlight:Spawn()
-    spotlight:Activate()
-    spotlight:Fire("SetParentAttachment", "flashlight")
-    projtexture:CallOnRemove("RemoveSpotlight", function()
-
-        if IsValid(spotlight) then
-            spotlight:SetParent()
-            spotlight:Fire("lightoff")
-            spotlight:Fire("kill", spotlight, 0.5)
-        end
-
-    end)
-
-
-    SafeRemoveEntityDelayed(spotlight, duration)
-    SafeRemoveEntityDelayed(projtexture, duration)
-
-
-    self.FlashLight = spotlight
-    self.FlashLightProj = projtexture
-end
-
-
-function NPC:DisableFlashlight() 
-    if IsValid(self.FlashLight) then
-        self.FlashLight:Remove()
-        self.FlashLightProj:Remove()
-    end
+function NPC:RangeAttackAnimation()
+    return self:PlayAnimation(self.RangeAttackAnimations[1], false, {duration=math.Rand(4,6)})
 end
 
 
 function NPC:OnRangeAttack()
-    self.RangeAttackDuration = math.Rand(3, 6)
-
-
-    self:PlayAnimation(ACT_RANGE_ATTACK1, false, {duration=self.RangeAttackDuration, speedMult=1.2})
     self.CurTargetPos = nil -- Reset
     self.CurTrackSpeed = 0.01
-
-
     self.MinigunCanFire = false -- Cannot fire right now, will be able to fire after windup
     self.MinigunStartDone = false -- Has not started to wind up yet
 end
@@ -437,11 +368,10 @@ function NPC:MeleeDamageForce( dmgData )
 end
 
 
-function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option) 
+function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
     if event == 5 then
         self:MeleeAttackDamage()
     end
-
 
     -- Minigun code
     if event == 2042 then
@@ -449,15 +379,13 @@ function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
             -- Winds up first
             self.MinigunStartDone = true
             self:EmitSound("ZBaseCrabSynth.MinigunStart")
-            -- self:EnableFlashlight(self.RangeAttackDuration)
-        
+
             timer.Simple(1.3, function()
                 if !(IsValid(self) && self:GetSequenceName(self:GetSequence())=="range_loop") then return end
                 self.MinigunCanFire = true
                 self.MinigunShootSound:Play()
             end)
         end
-
 
         if self.MinigunCanFire then
             self:RangeAttackProjectile()

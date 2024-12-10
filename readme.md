@@ -28,7 +28,7 @@
 - [ ] NPC weapon suppressing
 - [ ] Autorefresh for ZBase legacy addons
 - [ ] Revamp static/stationary into more of a guard mode
-- [ ] Try improve AI when enemy is lost (so that they don't spam enemy lost sounds)
+- [x] Try improve AI when enemy is lost (so that they don't spam enemy lost sounds)
 - [ ] Revamp aerial AI?
 - [x] Make AI less retarded in any way possible
     - [x] Stop metrocops from thowing grenades when they are in an arrest state (hell of an arrest to toss a frag at the suspect..)
