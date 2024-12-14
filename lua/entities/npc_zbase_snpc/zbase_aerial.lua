@@ -1,3 +1,4 @@
+local AIDisabled = GetConVar("ai_disabled")
 
 
 function ENT:AerialNavigatorPos()
@@ -150,5 +151,19 @@ function ENT:AerialThink()
     if self.LastAerialGoalPos then
         debugoverlay.Sphere(self.LastAerialGoalPos, 25, 0.13, Color( 0, 0, 255 ))
     end
+
+
+    -- Flying SNPCs should get closer to the ground during melee --
+
+	local ene = self:GetEnemy()
+
+    if !AIDisabled:GetBool() && self.BaseMeleeAttack
+    && self.Fly_DistanceFromGround_IgnoreWhenMelee && IsValid(ene)
+    && self:ZBaseDist(ene, {within=self.MeleeAttackDistance*1.75}) then
+        self.InternalDistanceFromGround = ene:WorldSpaceCenter():Distance(ene:GetPos())
+    else
+        self.InternalDistanceFromGround = self.Fly_DistanceFromGround
+    end
+
 end
 

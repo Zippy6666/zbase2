@@ -118,6 +118,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 
 	local allNPCs = {}
 	local allNode = tree:AddNode( "ZBASE", GenericIcon )
+	allNode:SetExpanded(true)
 	for divisionName, division in SortedPairs( tbl ) do
 		local allCatIconsSame = true
 		local lastIconPath
@@ -140,6 +141,8 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 				GiveIconsToNode( pnlContent, tree, node, division )
 				table.Merge(allNPCs, division)
 			else
+
+				node:SetExpanded(true)
 
 				local catNode = node:AddNode(categoryName, ZBaseCategoryImages[divisionName..": "..categoryName] or GenericIcon)
 				GiveIconsToNode( pnlContent, tree, catNode, category )

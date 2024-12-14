@@ -1852,19 +1852,6 @@ function NPC:AITick_Slow()
     local ene = self:GetEnemy()
     local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
     local IsCombat = self:GetNPCState() == NPC_STATE_COMBAT
-
-
-    -- Flying SNPCs should get closer to the ground during melee --
-    if self.IsZBase_SNPC
-    && self.BaseMeleeAttack
-    && self.SNPCType == ZBASE_SNPCTYPE_FLY
-    && self.Fly_DistanceFromGround_IgnoreWhenMelee
-    && IsValid(ene)
-    && self:ZBaseDist(ene, {within=self.MeleeAttackDistance*1.75}) then
-        self.InternalDistanceFromGround = ene:WorldSpaceCenter():Distance(ene:GetPos())
-    else
-        self.InternalDistanceFromGround = self.Fly_DistanceFromGround
-    end
     
 
     -- Update current danger

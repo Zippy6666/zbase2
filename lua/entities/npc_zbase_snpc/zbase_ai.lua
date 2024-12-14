@@ -1,3 +1,5 @@
+local AIDisabled = GetConVar("ai_disabled")
+
 function ENT:StartSchedule( sched )
     if self.SNPCType == ZBASE_SNPCTYPE_FLY then
         self:AerialSetSchedule(table.Copy(sched))
@@ -339,4 +341,3 @@ function ENT:FaceHurtPos(dmginfo)
 
 	end
 end
-
