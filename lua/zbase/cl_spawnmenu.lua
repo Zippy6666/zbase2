@@ -64,7 +64,7 @@ end)
 
 
 
-local function GiveIconsToNode( pnlContent, tree, node, npcdata )
+local function GiveIconsToNode( pnlContent, tree, node, categories )
 	node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
 		-- If we've already populated it - forget it.
 		if ( self.PropPanel ) then return end
@@ -74,20 +74,29 @@ local function GiveIconsToNode( pnlContent, tree, node, npcdata )
 		self.PropPanel:SetVisible( false )
 		self.PropPanel:SetTriggerSpawnlistChange( false )
 
-		for name, ent in SortedPairsByMemberValue( npcdata, "Name" ) do
-			local mat = ent.IconOverride or GenericIcon
+		for category, npcdata in pairs(categories) do
 
-			if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
-				mat = "entities/" .. name .. ".png"
+			local header = vgui.Create("ContentHeader", self.PropPanel )
+			header:SetText(category)
+			self.PropPanel:Add( header )
+			
+
+			for name, ent in SortedPairsByMemberValue( npcdata, "Name" ) do
+				local mat = ent.IconOverride or GenericIcon
+
+				if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
+					mat = "entities/" .. name .. ".png"
+				end
+
+				local icon = spawnmenu.CreateContentIcon( "zbase_npcs", self.PropPanel, {
+					nicename	= ent.Name or name,
+					spawnname	= name,
+					material	= mat,
+					weapon		= ent.Weapons,
+					admin		= ent.AdminOnly
+				} )
 			end
-
-			local icon = spawnmenu.CreateContentIcon( "zbase_npcs", self.PropPanel, {
-				nicename	= ent.Name or name,
-				spawnname	= name,
-				material	= mat,
-				weapon		= ent.Weapons,
-				admin		= ent.AdminOnly
-			} )
+		
 		end
 	end
 
@@ -138,29 +147,33 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 
 			if ZBaseNPCs[categoryName] then
 				-- This is not a category, it is npc data
-				GiveIconsToNode( pnlContent, tree, node, division )
-				table.Merge(allNPCs, division)
+				GiveIconsToNode( pnlContent, tree, node, {Other=division} )
+				table.Merge(allNPCs, {Other=division})
 			else
 
 				node:SetExpanded(true)
 
 				local catNode = node:AddNode(categoryName, ZBaseCategoryImages[divisionName..": "..categoryName] or GenericIcon)
-				GiveIconsToNode( pnlContent, tree, catNode, category )
-				table.Merge(divisionNPCs, category)
+				GiveIconsToNode( pnlContent, tree, catNode, {[divisionName..": "..categoryName]=category} )
+				divisionNPCs[categoryName] = category
 
 			end
 
 		end
 		if !table.IsEmpty(divisionNPCs) then
 			GiveIconsToNode( pnlContent, tree, node, divisionNPCs )
-			table.Merge(allNPCs, divisionNPCs)
+			for k, v in pairs(divisionNPCs) do
+				allNPCs[k] = allNPCs[k] or {}
+				table.Merge(allNPCs[k], v)
+			end
 		end
 
 	end
 	if !table.IsEmpty(allNPCs) then
 		GiveIconsToNode( pnlContent, tree, allNode, allNPCs )
 	end
-
+	allNode:DoClick()
+	allNode:SetSelected()
 
 end)
 
