@@ -2000,6 +2000,7 @@ end
 
 
 function NPC:OnDetectSchedFail()
+    if !ZBCVAR.FallbackNav:GetBool() then return end
     if ZBaseMoveIsActive(self, "MoveFallback") then return end
 
     if Developer:GetInt() >= 2 then

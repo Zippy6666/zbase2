@@ -96,10 +96,13 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:ControlHelp("If enabled, ZBase NPCs will follow allied players when the use key is pressed on them.")
 
         panel:CheckBox( "Static Mode", "zbase_static" )
-        panel:ControlHelp("Makes NPCs hold down the spot they spawned on. Also makes so that NPCs cannot hurt each other. This can be better for a PVE campaign-like experience.")
+        panel:ControlHelp("Makes NPCs hold down the spot they spawned on. WIP.")
    
+        panel:CheckBox("Fallback Navigation", "zbase_fallback_nav")
+        panel:ControlHelp("Should the NPC use a custom lua way of moving whenever it can't move by normal means? It's best to leave this off if the map you are on is well noded.")
+        
         panel:CheckBox("More Jumping", "zbase_more_jumping")
-        panel:ControlHelp("NPCs will jump when they cannot reach a certain waypoint.")
+        panel:ControlHelp("NPCs will jump when they cannot reach a certain waypoint. Requires 'Fallback Navigation' to be on.")
     end)
 
     --[[

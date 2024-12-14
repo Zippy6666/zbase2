@@ -9,7 +9,10 @@ ZBCVAR.MaxNPCsShootPly = CreateConVar("zbase_max_npcs_shoot_ply", "2", Flags)
 ZBCVAR.GrenCount = CreateConVar("zbase_gren_count", "-1", Flags)
 ZBCVAR.AltCount = CreateConVar("zbase_alt_count", "-1", Flags)
 ZBCVAR.GrenAltRand = CreateConVar("zbase_gren_alt_rand", "0", Flags)
+
+ZBCVAR.FallbackNav = CreateConVar("zbase_fallback_nav", "0", flags)
 ZBCVAR.MoreJumping = CreateConVar("zbase_more_jumping", "1", flags)
+
 ZBCVAR.PlayerHurtAllies = CreateConVar("zbase_ply_hurt_ally", "0", Flags)
 ZBCVAR.FriendlyFire = CreateConVar("zbase_friendly_fire", "0", Flags)
 ZBCVAR.ArmorSparks = CreateConVar("zbase_armor_sparks", "1", Flags)
