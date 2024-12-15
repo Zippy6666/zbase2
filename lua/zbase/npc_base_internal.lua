@@ -788,7 +788,6 @@ function NPC:ZBWepSys_Init()
     self.ZBWepSys_LastShootCooldown = 0
     self.ZBWepSys_Stored_AIWantsToShoot = false
     self.ZBWepSys_Stored_FacingEne = false
-    self.ZBWepSys_NextCheckAIWantsToShoot = CurTime()
     self.ZBWepSys_NextCheckIsFacingEne = CurTime()
 
 
@@ -827,22 +826,18 @@ function NPC:ZBWepSys_Reload()
 
 
     -- Refill ammo
-    timer.Create("ZBaseReloadWeapon"..self:EntIndex(), self:SequenceDuration()*0.7 / self:GetPlaybackRate(), 1, function()
+    timer.Create("ZBaseReloadWeapon"..self:EntIndex(), self:SequenceDuration()*0.8 / self:GetPlaybackRate(), 1, function()
 
         if !IsValid(self) or !IsValid(self:GetActiveWeapon()) then return end
 
         local CurrentStrAct = self:GetSequenceActivityName( self:GetSequence() )
-        local StillReloading = string.find(CurrentStrAct, "RELOAD") != nil
 
+        self.ZBWepSys_PrimaryAmmo = self:GetActiveWeapon().Primary.DefaultClip
 
-        if StillReloading then
+        self:ClearCondition(COND.LOW_PRIMARY_AMMO)
+        self:ClearCondition(COND.NO_PRIMARY_AMMO)
 
-            self.ZBWepSys_PrimaryAmmo = self:GetActiveWeapon().Primary.DefaultClip
-
-            self:ClearCondition(COND.LOW_PRIMARY_AMMO)
-            self:ClearCondition(COND.NO_PRIMARY_AMMO)
-
-        end
+        print("fully reloaded")
 
     end)
 
@@ -1138,22 +1133,15 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     return true
 end
- 
+
 
 function NPC:ZBWepSys_WantsToShoot()
 
-    if self.ZBWepSys_NextCheckAIWantsToShoot < CurTime() then
-        self.ZBWepSys_Stored_AIWantsToShoot = self:ZBWepSys_AIWantsToShoot()
-        self.ZBWepSys_NextCheckAIWantsToShoot = CurTime()+0.75
-    end
-
     return !self.DoingPlayAnim
 
-    && self.ZBWepSys_Stored_AIWantsToShoot
-
-    && !self:IsCurrentSchedule(SCHED_RELOAD)
-
     && self:ShouldFireWeapon()
+
+    && self:ZBWepSys_AIWantsToShoot()
 
 end
 
@@ -2119,8 +2107,15 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
         end
     end
 
-    
-    if !self.DontChangeSchedOnHurt then
+    -- Panicked reload if out of ammo
+    if ( self:HasCondition(COND.NO_PRIMARY_AMMO) ) then
+        
+        self:SetSchedule(SCHED_RELOAD)
+
+    elseif !self.DontTakeCoverOnHurt then
+
+        -- Take cover stuff
+
         local hasEne = IsValid(self:GetEnemy())
 
         if !hasEne && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
@@ -2129,22 +2124,19 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
             -- Become alert and try to hide when hurt by unknown source
             self:SetNPCState(NPC_STATE_ALERT)
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
-            self:CONV_TempVar("DontChangeSchedOnHurt", true, math.Rand(6, 8))
+            self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
 
         elseif hasEne && IsValid(self:GetActiveWeapon()) then
 
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
-            self:CONV_TempVar("DontChangeSchedOnHurt", true, math.Rand(6, 8))
+            self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
 
         end
+
     end
 
 
-    -- Switch to SCHED_RELOAD if in SCHED_HIDE_AND_RELOAD
-    if ( self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) or (self.Patch_InHideAndReloadSched && self:Patch_InHideAndReloadSched()) ) then
-        self:SetSchedule(SCHED_RELOAD)
-        debugoverlay.Text(self:GetPos(), "Switching to SCHED_RELOAD because enemy attacking")
-    end
+
 
 end
 
