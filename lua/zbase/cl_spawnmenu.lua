@@ -147,8 +147,8 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 
 			if ZBaseNPCs[categoryName] then
 				-- This is not a category, it is npc data
-				GiveIconsToNode( pnlContent, tree, node, {Other=division} )
-				table.Merge(allNPCs, {Other=division})
+				GiveIconsToNode( pnlContent, tree, node, {[divisionName]=division} )
+				table.Merge(allNPCs, {[divisionName]=division})
 			else
 
 				node:SetExpanded(true)

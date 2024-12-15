@@ -16,7 +16,7 @@ ZBasePatchTable[my_cls] = function( NPC )
         end
 
         
-        self.DoingHunterDamageFix = false
+        self.DoingHunterDamageFix = nil
         
     end
 
