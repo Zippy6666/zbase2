@@ -837,8 +837,6 @@ function NPC:ZBWepSys_Reload()
         self:ClearCondition(COND.LOW_PRIMARY_AMMO)
         self:ClearCondition(COND.NO_PRIMARY_AMMO)
 
-        print("fully reloaded")
-
     end)
 
 end
@@ -1055,6 +1053,10 @@ function NPC:ZBWepSys_Shoot()
     
     else
         self.ZBWepSys_LastShootCooldown = cooldown
+    end
+
+    if self.ZBWepSys_PrimaryAmmo <= 0 then
+        self:SetCondition(COND.NO_PRIMARY_AMMO)
     end
 
     self.ZBWepSys_NextShoot = CurTime()+cooldown
@@ -1313,6 +1315,7 @@ function NPC:ZBWepSys_FireWeaponThink()
     if !ZBCVAR.Static:GetBool() && IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
     && !self:IsMoving() && !self:IsCurrentSchedule(OutOfShootRangeSched) && self.NextOutOfShootRangeSched < CurTime() then
 
+        print("trying to goto this mf")
         local lastpos = ene:GetPos()
         self:SetLastPosition(lastpos)
         self:SetSchedule(OutOfShootRangeSched)
@@ -1325,42 +1328,7 @@ function NPC:ZBWepSys_FireWeaponThink()
     -- Here is where the fun begins
     if self:ZBWepSys_CanFireWeapon() then
 
-        -- Check ammo, and apply COND_
-        if self.ZBWepSys_PrimaryAmmo <= 0 then
-
-            -- No ammo
-
-            self.ZBWepSys_AllowShoot = false
-
-            if !self:HasCondition(COND.NO_PRIMARY_AMMO) then
-                self:SetCondition(COND.NO_PRIMARY_AMMO)
-            end
-
-        elseif self.ZBWepSys_PrimaryAmmo <= wep.Primary.DefaultClip*0.25 then
-
-            -- Low ammo
-
-            self.ZBWepSys_AllowShoot = true
-
-            if !self:HasCondition(COND.LOW_PRIMARY_AMMO) then
-                self:SetCondition(COND.LOW_PRIMARY_AMMO)
-            end
-
-        else
-
-            -- Reset COND_
-            if self:HasCondition(COND.NO_PRIMARY_AMMO) then
-                self:ClearCondition(COND.NO_PRIMARY_AMMO)
-            end
-            if self:HasCondition(COND.LOW_PRIMARY_AMMO) then
-                self:ClearCondition(COND.LOW_PRIMARY_AMMO)
-            end
-
-
-            -- Has ammo
-            self.ZBWepSys_AllowShoot = true
-
-        end
+        self.ZBWepSys_AllowShoot = self.ZBWepSys_PrimaryAmmo > 0
 
 
         -- Should shoot
@@ -1952,7 +1920,9 @@ end
 
 function NPC:NewSequenceDetected( seq, seqName )
 
-    if self:GetActiveWeapon().IsZBaseWeapon && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil then
+    if self:GetActiveWeapon().IsZBaseWeapon
+    && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil
+    && self:IsCurrentSchedule(SCHED_RELOAD) then
 
         self:ZBWepSys_Reload()
 
@@ -2108,7 +2078,7 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     end
 
     -- Panicked reload if out of ammo
-    if ( self:HasCondition(COND.NO_PRIMARY_AMMO) ) then
+    if ( IsValid(self:GetActiveWeapon()) && self.ZBWepSys_PrimaryAmmo <= 0 ) then
         
         self:SetSchedule(SCHED_RELOAD)
 
