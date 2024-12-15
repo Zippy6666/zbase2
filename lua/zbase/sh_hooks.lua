@@ -25,13 +25,6 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
         LocalPlayer().ZBaseFollowHaloEnts = LocalPlayer().ZBaseFollowHaloEnts or {}
 
 
-        -- Cool message
-        if ZBCVAR.StartMsg:GetBool() then
-            local wepCol = LocalPlayer():GetWeaponColor():ToColor()
-            chat.AddText(wepCol, "ZBase is running on this server! Github link: https://github.com/Zippy6666/zbase2 (this message can be disabled in the ZBase options tab).")
-        end
-
-
         -- Add variable that checks if the spawn menu was recently reloaded
         local spawnmenu_reload = concommand.GetTable()["spawnmenu_reload"]
         concommand.Add("spawnmenu_reload", function(...)

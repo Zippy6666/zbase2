@@ -324,6 +324,16 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 end
 
 
+util.AddNetworkString("ZBaseOnNPCSpawnInfo")
+local function OnNPCSpawn_Info(ply, npc)
+
+	-- net.Start("ZBaseOnNPCSpawnInfo")
+	-- net.WriteEntity(npc)
+	-- net.Send(ply)
+
+end
+
+
 function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 
 	-- We don't support this command from dedicated server console
@@ -380,6 +390,10 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 	ply:AddCleanup( "npcs", SpawnedNPC )
 
 	ply:SendLua( "achievements.SpawnedNPC()" )
+
+	if IsValid(ply) && IsValid(SpawnedNPC) then
+		OnNPCSpawn_Info(ply, SpawnedNPC)
+	end
 
 end
 

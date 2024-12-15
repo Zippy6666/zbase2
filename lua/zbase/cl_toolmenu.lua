@@ -39,9 +39,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Logo", "zbase_enable_logo")
         panel:ControlHelp("Enable the ASCII-style ZBase logo in the tool menu. Requires the spawnmenu to be reloaded.")
 
-        panel:CheckBox( "Start Message", "zbase_start_msg")
-        panel:ControlHelp("Allow warning/message boxes when joining the game.")
-
         panel:CheckBox("Glowing Eyes (Server)", "zbase_sv_glowing_eyes")
         panel:ControlHelp("Give NPCs glowing eyes on spawn if the NPC's model has any.")
 
