@@ -573,13 +573,6 @@ function NPC:FrameTick()
         self:ExecuteWalkFrames(0.3)
     end
 
-    if self.ZBWepSys_AllowShoot then
-        self:ZBWepSys_Shoot()
-        self:InternalOnFireWeapon()
-        self:OnFireWeapon()
-        self.ZBWepSys_AllowShoot = false
-    end
-
     if self.ZBase_CurrentFace_Yaw then
         self:SetIdealYawAndUpdate(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
     end
@@ -1074,7 +1067,6 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
         attacking = attacking+1
 
         if attacking >= max then
-            ply.TooManyZBaseAttackers = true
             return true
         end
 
@@ -1257,7 +1249,6 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
 end
 
 
-local attackingResetDelay = 1 -- Time until a zbase npc is not considered to attack a player, after hurting them
 function NPC:InternalOnFireWeapon()
     local wep = self:GetActiveWeapon()
     local ene = self:GetEnemy()
@@ -1283,7 +1274,7 @@ function NPC:InternalOnFireWeapon()
         ply.AttackingZBaseNPCs[self]=true
 
 
-        ply:ConvTimer("RemoveFromAttackingZBaseNPCs"..self:EntIndex(), attackingResetDelay, function()
+        ply:CONV_TimerCreate("RemoveFromAttackingZBaseNPCs_"..self:EntIndex().."_", 0.5, 1, function()
             -- No longer considered to be attacking
             if ply.AttackingZBaseNPCs[self] then
                 ply.AttackingZBaseNPCs[self] = nil
@@ -1329,7 +1320,6 @@ function NPC:ZBWepSys_FireWeaponThink()
 
         self.ZBWepSys_AllowShoot = self.ZBWepSys_PrimaryAmmo > 0
 
-
         -- Should shoot
         if self.ZBWepSys_AllowShoot then
 
@@ -1337,6 +1327,11 @@ function NPC:ZBWepSys_FireWeaponThink()
             if !self.ZBase_IsMoving && IsValid(ene) then
                 self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
             end
+
+            self:ZBWepSys_Shoot()
+            self:InternalOnFireWeapon()
+            self:OnFireWeapon()
+            self.ZBWepSys_AllowShoot = nil
 
         end
 
@@ -1809,10 +1804,8 @@ function NPC:AITick_Slow()
         self:MarkEnemyAsEluded()
     end
 
-
     -- Update current danger
     self:InternalDetectDanger()
-
 
     -- Reload if we cannot see enemy and we have no ammo
     if self.ZBWepSys_PrimaryAmmo && IsValid(self:GetActiveWeapon()) && self.ZBWepSys_PrimaryAmmo <= 0
@@ -1821,24 +1814,32 @@ function NPC:AITick_Slow()
         debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end
 
-
     -- Follow player that we should follow
     if self:CanPursueFollowing() then
         self:PursueFollowing()
     end
-
 
     -- Stop following if no longer allied
     if IsValid(self.PlayerToFollow) && !self:IsAlly(self.PlayerToFollow) then
         self:StopFollowingCurrentPlayer(true)
     end
 
+    -- Stop doing forced go when we really shouldn't
     if ( self:IsCurrentSchedule(SCHED_FORCED_GO) or self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) )
-    && (ZBaseMoveIsActive(self, "MoveFallback") or self.OutOfShootRange_LastPos == self:GetInternalVariable("m_vecLastPosition") )
     && (self.EnemyVisible && self.ZBWepSys_InShootDist) then
-        self:FullReset()
-    end
 
+        -- Doing move fallback
+        if ZBaseMoveIsActive(self, "MoveFallback") then
+            self:FullReset()
+        else
+            -- Doing out of shoot range move or doing cover ally move
+            local lastpos = self:GetInternalVariable("m_vecLastPosition")
+            if lastpos == self.LastCoverHurtAllyPos or lastpos==self.OutOfShootRange_LastPos then
+                self:FullReset()
+            end       
+        end
+
+    end
 
     self.ZBase_IsMoving = self:IsMoving() or nil
 
@@ -2075,6 +2076,17 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
             self:SetNPCState(NPC_STATE_ALERT)
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
+
+            -- Call nearby allies to location
+            -- for _, ally in ipairs( self:GetNearbyAlliesOptimized(660) ) do
+            --     if !ally.EnemyVisible then
+            --         ally:FullReset()
+            --         self.LastCoverHurtAllyPos = self:GetPos()
+            --         ally:SetLastPosition(self.LastCoverHurtAllyPos)
+            --         ally:SetNPCState(NPC_STATE_ALERT)
+            --         ally:SetSchedule(SCHED_FORCED_GO_RUN)
+            --     end
+            -- end
 
         elseif hasEne && IsValid(self:GetActiveWeapon()) then
 

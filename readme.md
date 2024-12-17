@@ -30,7 +30,7 @@
 - [ ] Revamp static/stationary into more of a guard mode
 - [ ] Improve Aerial AI movement
 - [ ] Make following better
-- [ ] Fix issues with multiple NPCs firing acting weird
+- [x] Fix issues with multiple NPCs firing acting weird
 - [ ] Fix issues with NPCs getting stuck and doing nothing when they should should/attack
 - [ ] Fix melee damage being half??
 - [ ] Replace sys broke??
