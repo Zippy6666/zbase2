@@ -444,8 +444,8 @@ function NPC:GetNearbyAllies( radius )
 end
 
 
--- Same as above but uses a box and is probably more optimized
--- Only detects ZBase NPCs
+    -- Same as above but uses a box and is probably more optimized
+    -- Only detects ZBase NPCs
 local MinMaxCache = {}
 function NPC:GetNearbyAlliesOptimized( lenght )
     local allies = {}
@@ -484,6 +484,25 @@ function NPC:GetNearestAlly( radius )
     local ally
 
     for _, v in ipairs(self:GetNearbyAllies(radius)) do
+        local dist = self:GetPos():DistToSqr(v:GetPos())
+
+        if !mindist or dist < mindist then
+            mindist = dist
+            ally = v
+        end
+    end
+
+    return ally
+end
+
+
+    -- Same as above but uses a box and should be more optimized
+    -- Only returns ZBase NPCs
+function NPC:GetNearestAllyOptimized( lenght )
+    local mindist
+    local ally
+
+    for _, v in ipairs(self:GetNearbyAlliesOptimized(lenght)) do
         local dist = self:GetPos():DistToSqr(v:GetPos())
 
         if !mindist or dist < mindist then

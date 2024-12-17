@@ -34,3 +34,4 @@
 - [ ] Fix issues with NPCs getting stuck and doing nothing when they should attack
 - [ ] Fix melee damage being half??
 - [ ] Replace sys broke??
+- [ ] More tools (faction, guard)
