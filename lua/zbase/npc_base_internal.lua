@@ -1315,7 +1315,6 @@ function NPC:ZBWepSys_FireWeaponThink()
     if !ZBCVAR.Static:GetBool() && IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
     && !self:IsMoving() && !self:IsCurrentSchedule(OutOfShootRangeSched) && self.NextOutOfShootRangeSched < CurTime() then
 
-        print("trying to goto this mf")
         local lastpos = ene:GetPos()
         self:SetLastPosition(lastpos)
         self:SetSchedule(OutOfShootRangeSched)
