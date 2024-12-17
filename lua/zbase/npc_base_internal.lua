@@ -1804,40 +1804,15 @@ local RangeAttackActs = {
 
 
 function NPC:AITick_Slow()
-    local ene = self:GetEnemy()
-    local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
-    local IsCombat = self:GetNPCState() == NPC_STATE_COMBAT
-    
-
     -- Update current danger
     self:InternalDetectDanger()
 
 
-    -- Loose enemy
-    if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
-        self:MarkEnemyAsEluded()
-    end
-
-
-    -- In combat
-    if IsCombat then
-
-        -- Reset stop alert if in combat
-        self.NextStopAlert = nil
-
-    end
-
-    -- Is alert, start timer
-    if IsAlert && !self.NextStopAlert then
-        self.NextStopAlert = CurTime()+self.TimeUntilExitAlert
-    end
-
-
-    -- Switch to SCHED_RELOAD if in SCHED_HIDE_AND_RELOAD and enemy is not visible
-    if (self:IsCurrentSchedule(SCHED_HIDE_AND_RELOAD) or (self.Patch_InHideAndReloadSched && self:Patch_InHideAndReloadSched()))
+    -- Reload if we cannot see enemy and we have no ammo
+    if self.ZBWepSys_PrimaryAmmo && IsValid(self:GetActiveWeapon()) && self.ZBWepSys_PrimaryAmmo <= 0
     && !self.EnemyVisible then
         self:SetSchedule(SCHED_RELOAD)
-        debugoverlay.Text(self:GetPos(), "Switching to SCHED_RELOAD because enemy occluded")
+        debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end
 
 
@@ -2058,7 +2033,6 @@ end
 function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     local attacker = dmg:GetAttacker()
 
-
     if self.HavingConversation then
         self:CancelConversation()
     end
@@ -2068,7 +2042,6 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
         self:EmitSound(self.PainSounds)
         self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
     end
-
 
     -- Flinch
     if !table.IsEmpty(self.FlinchAnimations) && math.random(1, self.FlinchChance) == 1 && self.NextFlinch < CurTime() then
@@ -2107,10 +2080,6 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
         end
 
     end
-
-
-
-
 end
 
 

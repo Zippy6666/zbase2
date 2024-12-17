@@ -28,5 +28,5 @@
 - [ ] NPC weapon suppressing
 - [ ] Autorefresh for ZBase legacy addons
 - [ ] Revamp static/stationary into more of a guard mode
-- [ ] Revamp aerial AI?
-- [ ] SNPC:ify hunter and d0g
+- [ ] Improve Aerial AI movement
+- [ ] Make following better

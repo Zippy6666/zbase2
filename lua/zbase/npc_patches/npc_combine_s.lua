@@ -7,6 +7,7 @@ ZBasePatchTable[my_cls] = function( NPC )
         [ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")] = true,
     }
 
+    
     function NPC:Patch_Init()
     
         self:SetSaveValue("m_fIsElite", false) -- No elites, should be handled by the user instead
@@ -22,12 +23,6 @@ ZBasePatchTable[my_cls] = function( NPC )
             ent:Remove()
         end
     
-    end
-
-
-    function NPC:Patch_InHideAndReloadSched()
-        local num = ZBaseESchedID("SCHED_COMBINE_HIDE_AND_RELOAD")
-        return self:IsCurrentSchedule(num)
     end
 
 
