@@ -15,7 +15,8 @@ NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 
 
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Alert", {
     "vo/npc/male01/headsup01.wav",
     "vo/npc/male01/headsup02.wav",
@@ -41,7 +42,8 @@ ZBaseCreateVoiceSounds("ZBaseMale.Alert", {
     "npc/vo/zbase/npc/male01/cit_alert_antlions06.wav",
     "npc/vo/zbase/npc/male01/cit_alert_antlions08.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Question", {
     "vo/npc/male01/question01.wav", 
     "vo/npc/male01/question02.wav", 
@@ -98,7 +100,8 @@ ZBaseCreateVoiceSounds("ZBaseMale.Question", {
     "npc/vo/zbase/npc/male01/cit_remarks22.wav",
     "npc/vo/zbase/npc/male01/cit_remarks23.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Answer", {
     "vo/npc/male01/answer01.wav",
     "vo/npc/male01/answer02.wav",
@@ -140,7 +143,8 @@ ZBaseCreateVoiceSounds("ZBaseMale.Answer", {
     "vo/npc/male01/answer39.wav",
     "vo/npc/male01/answer40.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.KillEnemy", {
     "vo/npc/male01/gotone01.wav",
     "vo/npc/male01/gotone02.wav",
@@ -149,20 +153,23 @@ ZBaseCreateVoiceSounds("ZBaseMale.KillEnemy", {
     "npc/vo/zbase/npc/male01/reb2_killshots22.wav",
     "npc/vo/zbase/npc/male01/cit_alert_head05.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.HearSound", {
     "vo/npc/male01/startle01.wav",
     "vo/npc/male01/startle02.wav",
     "npc/vo/zbase/npc/male01/cit_alert_antlions09.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Melee", {
     "vo/npc/male01/gethellout.wav",
     "vo/npc/male01/getdown02.wav",
     "npc/vo/zbase/npc/male01/reb2_antlions05.wav",
     "npc/vo/zbase/npc/male01/reb2_buddykilled13.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Follow", {
     "vo/npc/male01/leadtheway01.wav",
     "vo/npc/male01/leadtheway02.wav",
@@ -173,7 +180,8 @@ ZBaseCreateVoiceSounds("ZBaseMale.Follow", {
     "vo/npc/male01/readywhenyouare02.wav",
     "vo/npc/male01/squad_follow03.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Unfollow", {
     "vo/npc/male01/littlecorner01.wav",
     "vo/npc/male01/squad_affirm01.wav",
@@ -181,4 +189,15 @@ ZBaseCreateVoiceSounds("ZBaseMale.Unfollow", {
     "vo/npc/male01/squad_affirm03.wav",
     "vo/npc/male01/squad_affirm04.wav",
 })
---]]==============================================================================================]]
+
+
+ZBaseCreateVoiceSounds("ZBaseMale.AllyDeath", {
+    "vo/npc/male01/gordead_ans01.wav",
+    "vo/npc/male01/gordead_ans02.wav",
+    "vo/npc/male01/gordead_ans03.wav",
+    "vo/npc/male01/gordead_ans04.wav",
+    "vo/npc/male01/gordead_ans05.wav",
+    "vo/npc/male01/gordead_ans06.wav",
+    "vo/npc/male01/gordead_ans07.wav",
+    "vo/npc/male01/gordead_ques02.wav",
+})

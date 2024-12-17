@@ -212,7 +212,7 @@ if SERVER then
         -- "NPC copy" system, makes a zbase "NPC copy" of any type/class from any spawned NPC
     local invisCol = Color(255,255,255,0)
     local developer = GetConVar("developer")
-    function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction )
+    function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction, faction, spawnflags )
 
         -- Store the old NPCs squad and name
         local name = npc:GetName()
@@ -223,11 +223,11 @@ if SERVER then
 
 
         -- New ZBase NPC
-        local ZBaseNPC = ZBaseSpawnZBaseNPC( zbase_cls, nil, nil, wepCls or nil )
+        local ZBaseNPC = ZBaseSpawnZBaseNPC( zbase_cls, nil, nil, wepCls or nil, spawnflags )
         ZBaseNPC.DontAutoSetSquad = true
 
         if !dontAlterFaction then
-            ZBaseNPC.ZBaseStartFaction =  ZBaseFactionTranslation[npc:Classify()]
+            ZBaseNPC.ZBaseStartFaction =  faction or ZBaseFactionTranslation[npc:Classify()]
         end
 
         ZBaseNPC:SetPos(npc:GetPos())

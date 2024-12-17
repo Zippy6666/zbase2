@@ -1804,6 +1804,12 @@ local RangeAttackActs = {
 
 
 function NPC:AITick_Slow()
+    -- Loose enemy
+    if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
+        self:MarkEnemyAsEluded()
+    end
+
+
     -- Update current danger
     self:InternalDetectDanger()
 
@@ -1997,10 +2003,7 @@ function NPC:DoNewEnemy()
  
         -- Check if other allies also lost track of the enemy before saying it out loud
         local shouldDoLostEneSoundFinal = true
-        local hasAllies = false
         for _, ally in ipairs(self:GetNearbyAlliesOptimized(1000)) do
-
-            hasAllies = true
 
             local allyEne = ally:GetEnemy()
   
@@ -2012,11 +2015,12 @@ function NPC:DoNewEnemy()
             end
 
         end
-        shouldDoLostEneSoundFinal = shouldDoLostEneSoundFinal && hasAllies
+
+
+        conv.devPrint(self:EntIndex(), " concludes enemy is lost.")
 
 
         if shouldDoLostEneSoundFinal then
-            conv.devPrint(self:EntIndex(), " concludes enemy is lost.")
             self:EmitSound_Uninterupted(self.LostEnemySounds)
         end
 
@@ -2088,6 +2092,11 @@ function NPC:OnOwnedEntCreated( ent )
 end
 
 
+function NPC:OnParentedEntCreated( ent )
+    self:CustomOnParentedEntCreated( ent )
+end
+
+
 function NPC:MarkEnemyAsDead( ene, time )
     self:CONV_TempVar("EnemyDied", true, time)
 end
@@ -2108,6 +2117,7 @@ function NPC:InternalOnReactToSound(ent, pos, loudness)
         self:CancelConversation()
 
         if !self:NearbyAllySpeaking({"HearDangerSounds"}) && self.NextEmitHearDangerSound < CurTime() then
+            self:StopTalking()
             self:EmitSound_Uninterupted(self.HearDangerSounds)
             self.NextEmitHearDangerSound = CurTime()+math.Rand(3, 6)
         end
@@ -3083,7 +3093,10 @@ end
 
 
 function NPC:StopTalking( talkCvar )
-    self:StopSound(talkCvar)
+    if talkCvar then
+        self:StopSound(talkCvar)
+    end
+
     self.IsSpeaking = nil
     self.IsSpeaking_SoundVar = nil
 end
@@ -3948,7 +3961,7 @@ end
 
 function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     if !self.HasDeathRagdoll then return end
-    if RagdollBlacklist[self:GetClass()] then return end
+    if RagdollBlacklist[self:GetClass()] && !self.RagdollModel then return end
 
     local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
     local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !keep_corpse && !isDissolveDMG

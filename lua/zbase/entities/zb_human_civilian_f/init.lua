@@ -11,6 +11,8 @@ NPC.OnRangeSounds = "ZBaseFemale.Melee"
 NPC.OnGrenadeSounds = "ZBaseFemale.Grenade" -- Sounds emitted when the NPC throws a grenade
 
 
+NPC.AllyDeathSounds = "ZBaseFemale.AllyDeath"
+
 -- Dialogue sounds
 -- The NPCs will face each other as if they are talking
 NPC.Dialogue_Question_Sounds = "ZBaseFemale.Question" -- Dialogue questions, emitted when the NPC starts talking to another NPC

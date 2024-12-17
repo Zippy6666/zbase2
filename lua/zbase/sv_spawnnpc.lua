@@ -37,7 +37,7 @@ local function TryFixPropPosition( ply, ent, hitpos )
 end
 
 
-function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate )
+function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate, SpawnFlagsSaved )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
 
@@ -84,11 +84,11 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	
 	end
 
-
+	
 	--
 	-- Spawn Flags
 	--
-	local SpawnFlags = !NPC.Patch_DontApplyDefaultFlags && bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE ) or 0
+	local SpawnFlags = !NPC.Patch_DontApplyDefaultFlags && bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE ) or SpawnFlagsSaved or 0
 	if istable(NPCData.SpawnFlagTbl) then
 		for _, v in ipairs(NPCData.SpawnFlagTbl) do
 			SpawnFlags = bit.bor( SpawnFlags, v )
@@ -320,7 +320,7 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 	NPC.ZBase_PlayerWhoSpawnedMe = ply
 
 
-	return ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate )
+	return ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate, SpawnFlagsSaved )
 end
 
 

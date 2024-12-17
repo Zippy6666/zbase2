@@ -71,6 +71,11 @@ if SERVER then
                     own:Patch_CreateEnt( ent )
                 end
             end
+        
+            local parent = ent:GetParent()
+            if IsValid(parent) && parent.IsZBaseNPC then
+                parent:OnParentedEntCreated( ent )
+            end
         end)
 
         conv.callAfterTicks(2, function()
@@ -565,7 +570,6 @@ if CLIENT then
     net.Receive("ZBaseClientRagdoll", function()
         local ent = net.ReadEntity() if !IsValid(ent) then return end
         local rag = ent:BecomeRagdollOnClient()
-        print(ent, rag, "became rag")
     end)
 end
 

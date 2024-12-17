@@ -32,3 +32,5 @@
 - [ ] Make following better
 - [ ] Fix issues with multiple NPCs firing acting weird
 - [ ] Fix issues with NPCs getting stuck and doing nothing when they should should/attack
+- [ ] Fix melee damage being half??
+- [ ] Replace sys broke??

@@ -127,8 +127,9 @@ end
     -- 'pos' - The position to spawn it on (optional, will be Vector(0,0,0) otherwise)
     -- 'normal' - The normal to spawn it on (optional)
     -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
+    -- 'spawn_flags' - (optional) The spawnflags to start with instead of the default SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, and SF_NPC_LONG_RANGE
 local up = Vector(0, 0, 1)
-function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
+function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class, spawn_flags)
 
     if !SERVER then return NULL end
 
@@ -147,7 +148,7 @@ function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
     end
 
 
-    local NPC = ZBaseInternalSpawnNPC( nil, pos, normal or up, class, weapon_class, nil, true )
+    local NPC = ZBaseInternalSpawnNPC( nil, pos, normal or up, class, weapon_class, spawn_flags, true, false )
     if !IsValid(NPC) then
         ErrorNoHaltWithStack("No such NPC found: '", class, "'\n")
     else

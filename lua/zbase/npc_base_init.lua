@@ -29,7 +29,6 @@ NPC.AlertAlliesDistance = 2000 -- Call for help distance
 NPC.CanBeAlertedByAlly = true -- Can this NPC be called by other allies when they need help?
 NPC.HearDistMult = 1 -- Hearing distance multiplier when this addon is enabled: https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.TimeUntilLooseEnemy = 15 -- Time until it no longer knows where the enemy is
-NPC.TimeUntilExitAlert = 15 -- Time until it goes from an alert state, to an idle state
 
 
 NPC.HullType = false -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
@@ -841,6 +840,12 @@ end
     -- Called a tick after an entity owned by this NPC is created
     -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
 function NPC:CustomOnOwnedEntCreated( ent )
+end
+
+
+    -- Called a tick after child entity of this NPC is spawned
+    -- Similiar to the function above
+function NPC:CustomOnParentedEntCreated( ent )
 end
 
 

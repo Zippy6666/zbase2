@@ -1,5 +1,6 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
-local Arrest = 2097152
+local SF_METROPOLICE_ARREST_ENEMY = 2097152
+local SF_MANHACK_PACKED_UP, SF_MANHACK_CARRIED = 65536, 524288
 local ShouldHaveRadioSound = {
     ["LostEnemySounds"] = true,
     ["OnReloadSounds"] = true,
@@ -45,7 +46,7 @@ NPC.ItemDrops = {
 
 
 NPC.KeyValues = {weapondrawn="1"}
-NPC.SpawnFlagTbl = {Arrest}
+NPC.SpawnFlagTbl = {SF_METROPOLICE_ARREST_ENEMY}
 
 
 NPC.AlertSounds = "ZBaseMetrocop.Alert" -- Sounds emitted when an enemy is seen for the first time
@@ -68,6 +69,9 @@ NPC.FootStepSounds = "ZBaseMetrocop.Step" -- Footstep sound
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
+
+NPC.HasZBaseManhackThrow = true
+
 function NPC:CustomInitialize()
 
     local Manhacks = math.random(0, 1)
@@ -75,6 +79,26 @@ function NPC:CustomInitialize()
     self:SetBodygroup(1, Manhacks)
 
 end
+
+
+function NPC:CustomOnParentedEntCreated( ent )
+    if ent:GetClass() != "npc_manhack" then return end
+    if ent.IsZBaseNPC then return end -- Don't do this for the replacing manhack...
+
+    if IsValid(self) && self.HasZBaseManhackThrow then
+        local spawnflags = bit.bor(SF_NPC_WAIT_FOR_SCRIPT, SF_MANHACK_PACKED_UP, SF_MANHACK_CARRIED)
+        local zbasehack = ZBaseNPCCopy( ent, "zb_manhack", false, ZBaseGetFaction(self), spawnflags )
+        local att = self:LookupAttachment("LHand")
+
+        if IsValid(zbasehack) && att && att > 0 then
+            zbasehack:SetParent(self, att)
+            zbasehack:SetOwner(self)
+            self:PlayAnimation("deploy") -- Force play deploy animation
+            self:SetSaveValue("m_hManhack", zbasehack)
+        end
+    end
+end
+
 
 
 function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
