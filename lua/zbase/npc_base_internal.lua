@@ -1974,7 +1974,7 @@ function NPC:DoNewEnemy()
 
         if self.NextAlertSound < CurTime() then
 
-            self:StopSound(self.IdleSounds)
+            self:StopTalking(self.IdleSounds)
             self:CancelConversation()
 
 
@@ -2971,6 +2971,7 @@ function NPC:OnEmitSound( data )
 
     -- Did not play sound because I was already playing important voice sound
     if (isVoiceSound && sndVarName!="PainSounds" && sndVarName!="DeathSounds") && currentlySpeakingImportant then
+        conv.devPrint(self.Name, " did not play ", sndVarName or "*unknown voice sound*", ", self.IsSpeaking_SoundVar was ", self.IsSpeaking_SoundVar)
         return false
     end
 
@@ -3040,7 +3041,7 @@ function NPC:OnEmitSound( data )
         self.InternalCurrentVoiceSoundDuration = ZBaseSoundDuration(data.SoundName)
 
         timer.Create("ZBaseStopSpeaking"..self:EntIndex(), self.InternalCurrentVoiceSoundDuration+0.1, 1, function()
-            self.IsSpeaking = false
+            self.IsSpeaking = nil
             self.IsSpeaking_SoundVar = nil
         end)
     end
@@ -3078,6 +3079,13 @@ function NPC:NearbyAllySpeaking( soundList )
 
 
     return false
+end
+
+
+function NPC:StopTalking( talkCvar )
+    self:StopSound(talkCvar)
+    self.IsSpeaking = nil
+    self.IsSpeaking_SoundVar = nil
 end
 
 
@@ -3297,8 +3305,8 @@ function NPC:CancelConversation()
         self.DialogueMate.DialogueMate = nil
         self.DialogueMate:FullReset()
 
-        self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Question_Sounds)
-        self.DialogueMate:StopSound(self.DialogueMate.Dialogue_Answer_Sounds)
+        self.DialogueMate:StopTalking(self.DialogueMate.Dialogue_Question_Sounds)
+        self.DialogueMate:StopTalking(self.DialogueMate.Dialogue_Answer_Sounds)
 
         timer.Remove("DialogueAnswerTimer"..self.DialogueMate:EntIndex())
     end
@@ -3307,8 +3315,8 @@ function NPC:CancelConversation()
     self.DialogueMate = nil
     self:FullReset()
 
-    self:StopSound(self.Dialogue_Question_Sounds)
-    self:StopSound(self.Dialogue_Answer_Sounds)
+    self:StopTalking(self.Dialogue_Question_Sounds)
+    self:StopTalking(self.Dialogue_Answer_Sounds)
 
     timer.Remove("DialogueAnswerTimer"..self:EntIndex())
 end
@@ -3584,7 +3592,7 @@ function NPC:OnEntityTakeDamage( dmg )
 
 
     if goingToDie then
-        self.IsSpeaking = false
+        self.IsSpeaking = nil
     end
 
 
@@ -3667,7 +3675,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
 
     -- Register as no longer speaking, this will fix death sounds not being played
-    self.IsSpeaking = false
+    self.IsSpeaking = nil
     self.IsSpeaking_SoundVar = nil
 
 
@@ -3791,7 +3799,7 @@ end
 
 function NPC:InternalOnAllyDeath()
     -- All nearby allies stop talking
-    self:StopSound(self.IdleSounds)
+    self:StopTalking(self.IdleSounds)
     self:CancelConversation()
 end
 
