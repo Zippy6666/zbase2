@@ -238,7 +238,7 @@ NPC.RagdollDontAnglePhysObjects = false
 NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
 NPC.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
 NPC.MeleeAttackTurnSpeed = 15 -- Speed that it turns while trying to face the enemy when melee attacking
-NPC.MeleeAttackDistance = 75 -- Distance that it initiates the melee attack from
+NPC.MeleeAttackDistance = 50 -- Distance that it initiates the melee attack from
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever you want
 
@@ -248,7 +248,7 @@ NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack anima
 
 
 NPC.MeleeDamage = {10, 10} -- Melee damage {min, max}
-NPC.MeleeDamage_Distance = 100 -- Damage reach distance
+NPC.MeleeDamage_Distance = 70 -- Damage reach distance
 NPC.MeleeDamage_Angle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
 NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead for example)
 NPC.MeleeDamage_Type = DMG_GENERIC -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
