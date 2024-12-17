@@ -2060,9 +2060,13 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     local attacker = dmg:GetAttacker()
 
 
+    if self.HavingConversation then
+        self:CancelConversation()
+    end
+
     -- Pain sound
     if self.NextPainSound < CurTime() && MoreThan0Damage then
-        self:EmitSound_Uninterupted(self.PainSounds)
+        self:EmitSound(self.PainSounds)
         self.NextPainSound = CurTime()+ZBaseRndTblRange( self.PainSoundCooldown )
     end
 
@@ -2998,7 +3002,7 @@ function NPC:OnEmitSound( data )
 
 
     -- Did not play sound because I was already playing important voice sound
-    if isVoiceSound && currentlySpeakingImportant then
+    if (isVoiceSound && sndVarName!="PainSounds" && sndVarName!="DeathSounds") && currentlySpeakingImportant then
         return false
     end
 
@@ -3321,7 +3325,7 @@ function NPC:CancelConversation()
     if !self.HavingConversation then return end
 
     if IsValid(self.DialogueMate) then
-        self.DialogueMate.HavingConversation = false
+        self.DialogueMate.HavingConversation = nil
         self.DialogueMate.DialogueMate = nil
         self.DialogueMate:FullReset()
 
@@ -3331,7 +3335,7 @@ function NPC:CancelConversation()
         timer.Remove("DialogueAnswerTimer"..self.DialogueMate:EntIndex())
     end
 
-    self.HavingConversation = false
+    self.HavingConversation = nil
     self.DialogueMate = nil
     self:FullReset()
 
@@ -3921,7 +3925,7 @@ end
 --]]
 
 
-ZBaseRagdolls = {}
+ZBaseRagdolls = ZBaseRagdolls or {}
 
 
 local RagdollBlacklist = {
