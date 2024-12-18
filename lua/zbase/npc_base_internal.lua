@@ -4213,11 +4213,17 @@ function NPC:InternalCreateGib( model, data )
     -- Phys stuff
 	for i = 0, Gib:GetPhysicsObjectCount() - 1 do
         local phys = Gib:GetPhysicsObjectNum(i)
+
         if IsValid(phys) then
             phys:Wake()
             if LastDMGInfo then
                 local ForceDir = LastDMGInfo:GetDamageForce()/(math.Clamp(phys:GetMass(), 40, 10000))
                 phys:SetVelocity( (ForceDir) + VectorRand()*(ForceDir:Length()*0.33) )
+            end
+
+            if data.IsRagdoll && data.SmartPositionRagdoll then
+                local bonepos = self:GetBonePosition( self:TranslatePhysBoneToBone(i) )
+                phys:SetPos( bonepos )
             end
         end
     end

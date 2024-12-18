@@ -403,6 +403,8 @@ end
     -- 'data' (table)
         -- 'data.offset' - Vector position offset relative to itself
         -- 'data.DontBleed' - If true, the gib will not have blood effects
+        -- 'IsRagdoll' - If true, spawn gib as ragdoll
+        -- 'SmartPositionRagdoll' - If true, position the ragdoll like the NPC
 function NPC:CreateGib( model, data )
     return self:InternalCreateGib( model, data )
 end

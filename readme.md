@@ -35,3 +35,5 @@
 - [ ] Fix melee damage being half??
 - [ ] Replace sys broke??
 - [ ] More tools (faction, guard)
+- [ ] Fix issues with facing when playing animations (facing for too long or too short?)
+- [ ] Fix hunter death anim issue
