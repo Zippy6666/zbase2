@@ -1809,7 +1809,7 @@ function NPC:AITick_Slow()
 
     -- Reload if we cannot see enemy and we have no ammo
     if self.ZBWepSys_PrimaryAmmo && IsValid(self:GetActiveWeapon()) && self.ZBWepSys_PrimaryAmmo <= 0
-    && !self.EnemyVisible then
+    && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) then
         self:SetSchedule(SCHED_RELOAD)
         debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end
