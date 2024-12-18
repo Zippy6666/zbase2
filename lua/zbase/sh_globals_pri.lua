@@ -212,7 +212,7 @@ if SERVER then
         -- "NPC copy" system, makes a zbase "NPC copy" of any type/class from any spawned NPC
     local invisCol = Color(255,255,255,0)
     local developer = GetConVar("developer")
-    function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction, faction, spawnflags )
+    function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction, faction, spawnflags, removeCopyOnRemoved )
 
         -- Store the old NPCs squad and name
         local name = npc:GetName()
@@ -282,10 +282,12 @@ if SERVER then
         npc.ZBaseNPCCopy_DullState = true
 
 
-        npc:CallOnRemove("RemoveZBaseNPC", function()
-            SafeRemoveEntityDelayed(ZBaseNPC, 0)
-        end)
-
+        if removeCopyOnRemoved then
+            npc:CallOnRemove("RemoveZBaseNPC", function()
+                SafeRemoveEntityDelayed(ZBaseNPC, 0)
+            end)
+        end
+        
 
         ZBaseNPC:CallOnRemove("KillDullNPC", function()
             if IsValid(npc) then

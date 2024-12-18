@@ -87,7 +87,7 @@ function NPC:CustomOnParentedEntCreated( ent )
 
     if IsValid(self) && self.HasZBaseManhackThrow then
         local spawnflags = bit.bor(SF_NPC_WAIT_FOR_SCRIPT, SF_MANHACK_PACKED_UP, SF_MANHACK_CARRIED)
-        local zbasehack = ZBaseNPCCopy( ent, "zb_manhack", false, ZBaseGetFaction(self), spawnflags )
+        local zbasehack = ZBaseNPCCopy( ent, "zb_manhack", false, ZBaseGetFaction(self), spawnflags, false )
         local att = self:LookupAttachment("LHand")
 
         if IsValid(zbasehack) && att && att > 0 then
