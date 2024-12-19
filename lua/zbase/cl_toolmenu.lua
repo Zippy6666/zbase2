@@ -17,8 +17,8 @@ local function ZBaseAddMenuCategory( name, func, cat )
             panel:ControlHelp("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
         end
 
-        panel:ControlHelp("")
-        panel:ControlHelp("-- "..string.upper(name).." --")
+        panel:Help("")
+        panel:Help("-- "..string.upper(name).." --")
         func(panel)
     end)
 
@@ -37,31 +37,31 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ZBaseAddMenuCategory("A - General", function( panel )
 
         panel:CheckBox( "Logo", "zbase_enable_logo")
-        panel:ControlHelp("Enable the ASCII-style ZBase logo in the tool menu. Requires the spawnmenu to be reloaded.")
+        panel:Help("Enable the ASCII-style ZBase logo in the tool menu. Requires the spawnmenu to be reloaded.")
 
         panel:CheckBox("Glowing Eyes (Server)", "zbase_sv_glowing_eyes")
-        panel:ControlHelp("Give NPCs glowing eyes on spawn if the NPC's model has any.")
+        panel:Help("Give NPCs glowing eyes on spawn if the NPC's model has any.")
 
         panel:CheckBox("Glowing Eyes (Client)", "zbase_glowing_eyes")
-        panel:ControlHelp("Render glowing eyes if any are available.")
+        panel:Help("Render glowing eyes if any are available.")
 
         panel:CheckBox("Default Spawn Menu", "zbase_defmenu")
-        panel:ControlHelp("Should ZBase NPCs be added to the regular NPC menu too?")
+        panel:Help("Should ZBase NPCs be added to the regular NPC menu too?")
 
         panel:CheckBox( "Player Friendly Fire", "zbase_ply_hurt_ally" )
-        panel:ControlHelp("Allow players to hurt their allies.")
+        panel:Help("Allow players to hurt their allies.")
 
         panel:CheckBox( "NPC Friendly Fire", "zbase_friendly_fire" )
-        panel:ControlHelp("Allow NPCs to hurt their allies.")
+        panel:Help("Allow NPCs to hurt their allies.")
 
         panel:CheckBox( "NPC Nocollide", "zbase_nocollide" )
-        panel:ControlHelp("NPCs will not collide with eachother (COLLISION_GROUP_NPC_SCRIPTED).")
+        panel:Help("NPCs will not collide with eachother (COLLISION_GROUP_NPC_SCRIPTED).")
         
         panel:CheckBox( "Client Ragdolls", "zbase_cl_ragdolls")
-        panel:ControlHelp("Should ZBase ragdolls be clientside? This will ignore 'Ragdoll Remove Time' and 'Max Ragdolls' in the aftermath section.")
+        panel:Help("Should ZBase ragdolls be clientside? This will ignore 'Ragdoll Remove Time' and 'Max Ragdolls' in the aftermath section.")
 
         panel:CheckBox("Armor Sparks", "zbase_armor_sparks")
-        panel:ControlHelp("Should armor hits cause sparks?")
+        panel:Help("Should armor hits cause sparks?")
     end)
 
     --[[
@@ -72,34 +72,34 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
     ZBaseAddMenuCategory("B - AI", function( panel )
         panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
-        panel:ControlHelp("Multiply ZBase NPCs' health by this number.")
+        panel:Help("Multiply ZBase NPCs' health by this number.")
         panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
-        panel:ControlHelp("Multiply ZBase NPCs' damage by this number.")
+        panel:Help("Multiply ZBase NPCs' damage by this number.")
     
         panel:NumSlider( "Grenades", "zbase_gren_count", -1, 20, 0 )
-        panel:ControlHelp("How many grenades should they be able to carry? -1 = infinite.")
+        panel:Help("How many grenades should they be able to carry? -1 = infinite.")
         panel:NumSlider( "Secondary Attacks", "zbase_alt_count", -1, 20, 0 )
-        panel:ControlHelp("How many alt-fire attacks should they be able to do? -1 = infinite.")
+        panel:Help("How many alt-fire attacks should they be able to do? -1 = infinite.")
         panel:CheckBox("Grenade/Secondary Random", "zbase_gren_alt_rand")
-        panel:ControlHelp("If enabled, ZBase NPCs will spawn with anywhere from 0 to the max value of grenades and alt-fire attacks, where the sliders above act as the max value.")
+        panel:Help("If enabled, ZBase NPCs will spawn with anywhere from 0 to the max value of grenades and alt-fire attacks, where the sliders above act as the max value.")
     
         panel:CheckBox( "Patrol", "zbase_patrol" )
-        panel:ControlHelp("Enable base patrol system.")
+        panel:Help("Enable base patrol system.")
 
         panel:CheckBox( "Call for Help", "zbase_callforhelp" )
-        panel:ControlHelp("Enable base call for help system. Lets NPCs call allies outside of its squad for help.")
+        panel:Help("Enable base call for help system. Lets NPCs call allies outside of its squad for help.")
 
         panel:CheckBox("Follow Players", "zbase_followplayers")
-        panel:ControlHelp("If enabled, ZBase NPCs will follow allied players when the use key is pressed on them.")
+        panel:Help("If enabled, ZBase NPCs will follow allied players when the use key is pressed on them.")
 
         panel:CheckBox( "Static Mode", "zbase_static" )
-        panel:ControlHelp("Makes NPCs hold down the spot they spawned on. WIP.")
+        panel:Help("Makes NPCs hold down the spot they spawned on. WIP.")
    
         panel:CheckBox("Fallback Navigation", "zbase_fallback_nav")
-        panel:ControlHelp("Should the NPC use a custom lua way of moving whenever it can't move by normal means? It's best to leave this off if the map you are on is well noded.")
+        panel:Help("Should the NPC use a custom lua way of moving whenever it can't move by normal means? It's best to leave this off if the map you are on is well noded.")
         
         panel:CheckBox("More Jumping", "zbase_more_jumping")
-        panel:ControlHelp("NPCs will jump when they cannot reach a certain waypoint. Requires 'Fallback Navigation' to be on.")
+        panel:Help("NPCs will jump when they cannot reach a certain waypoint. Requires 'Fallback Navigation' to be on.")
     end)
 
     --[[
@@ -110,10 +110,10 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
     ZBaseAddMenuCategory("C - Replacer", function( panel )
         panel:CheckBox("Replace in NPC Menu", "zbase_replace")
-        panel:ControlHelp("Should the default HL2 NPCs be replaced by their ZBase equivalents in the spawn menu?")
+        panel:Help("Should the default HL2 NPCs be replaced by their ZBase equivalents in the spawn menu?")
 
         panel:CheckBox("Campaign Replace", "zbase_camp_replace")
-        panel:ControlHelp("Enable the zbase campaign replace system. Replaces retail HL2 NPCs with any desired ZBase NPC.")
+        panel:Help("Enable the zbase campaign replace system. Replaces retail HL2 NPCs with any desired ZBase NPC.")
     
         local ReloadButton = vgui.Create("DButton", panel)
         ReloadButton:Dock(TOP)
@@ -123,7 +123,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
             net.Start("zbase_camp_replace_reload")
             net.SendToServer()
         end
-        panel:ControlHelp("Loads the 'zbase_campaign_replace.json' file in your data directory with your supplied changes.")
+        panel:Help("Loads the 'zbase_campaign_replace.json' file in your data directory with your supplied changes.")
 
     end)
 
@@ -137,20 +137,20 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ZBaseAddMenuCategory("D - Aftermath", function( panel )
 
         panel:NumSlider( "Ragdoll Remove Time", "zbase_rag_remove_time", 0, 600, 1 )
-        panel:ControlHelp("Time until ragdolls are removed, 0 = never. If keep corpses is enabled, this is ignored.")
+        panel:Help("Time until ragdolls are removed, 0 = never. If keep corpses is enabled, this is ignored.")
         panel:NumSlider( "Max Ragdolls", "zbase_rag_max", 1, 200, 0 )
-        panel:ControlHelp("Max ragdolls, if there is one too many, the oldest ragdoll will be removed. If keep corpses is enabled, this is ignored.")
+        panel:Help("Max ragdolls, if there is one too many, the oldest ragdoll will be removed. If keep corpses is enabled, this is ignored.")
 
         panel:NumSlider( "Gib Remove Time", "zbase_gib_remove_time", 0, 600, 1 )
-        panel:ControlHelp("Time until gibs are removed, 0 = never. Not affected by keep corpses.")
+        panel:Help("Time until gibs are removed, 0 = never. Not affected by keep corpses.")
         panel:NumSlider( "Max Gibs", "zbase_gib_max", 1, 200, 0 )
-        panel:ControlHelp("Max gibs, if there is one too many, the oldest gib will be removed. Not affected by keep corpses.")
+        panel:Help("Max gibs, if there is one too many, the oldest gib will be removed. Not affected by keep corpses.")
 
         panel:CheckBox( "Item Drops", "zbase_item_drops")
-        panel:ControlHelp("Should NPCs drop items?")
+        panel:Help("Should NPCs drop items?")
 
         panel:CheckBox( "Dissolve Weapons", "zbase_dissolve_wep")
-        panel:ControlHelp("Should the NPC's weapons dissolve?")
+        panel:Help("Should the NPC's weapons dissolve?")
         
     end)
 
@@ -163,25 +163,25 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ZBaseAddMenuCategory("E - Weapons", function( panel )
 
         panel:CheckBox("Random Weapon", "zbase_randwep")
-        panel:ControlHelp("Should ZBase NPCs spawn with a random zbase weapon?")
+        panel:Help("Should ZBase NPCs spawn with a random zbase weapon?")
 
         panel:TextEntry("Rand Wep NPC Blacklist", "zbase_randwep_blacklist_npc")
-        panel:ControlHelp("ZBase NPCs that should not have their weapons randomized, separate with spaces.")
+        panel:Help("ZBase NPCs that should not have their weapons randomized, separate with spaces.")
     
         panel:TextEntry("Rand Wep Blacklist", "zbase_randwep_blacklist_wep")
-        panel:ControlHelp("ZBase weapons that should be blacklisted, separate with spaces.")
+        panel:Help("ZBase weapons that should be blacklisted, separate with spaces.")
         
         panel:NumSlider("Max NPCs Firing", "zbase_max_npcs_shoot_ply", 0, 10, 0)
-        panel:ControlHelp("Maximum amount of NPCs that can shoot at a single player at once. 0 = infinite.")
+        panel:Help("Maximum amount of NPCs that can shoot at a single player at once. 0 = infinite.")
 
         panel:CheckBox("Nerf Powerful Weapons", "zbase_nerf")
-        panel:ControlHelp("Powerful weapons like ar2 energy balls and rpgs will have a more reasonable amount of damage towards players.")
+        panel:Help("Powerful weapons like ar2 energy balls and rpgs will have a more reasonable amount of damage towards players.")
 
         panel:CheckBox("Dynamic Light", "zbase_muzzle_light")
-        panel:ControlHelp("Should weapons emit dynamic light?")
+        panel:Help("Should weapons emit dynamic light?")
 
         panel:CheckBox("Quality Flashes", "zbase_mmod_muzzle")
-        panel:ControlHelp("Use muzzle flash effects from HL2 MMOD?")
+        panel:Help("Use muzzle flash effects from HL2 MMOD?")
     end)
 
     --[[
@@ -197,15 +197,15 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
 
         panel:CheckBox( "Show Aerial Navigator", "zbase_show_navigator")
-        panel:ControlHelp("Show the 'ghost NPC' that ControlHelps the aerial NPCs navigate.")
+        panel:Help("Show the 'ghost NPC' that Helps the aerial NPCs navigate.")
 
 
         panel:CheckBox( "Show NPC Schedule", "zbase_show_sched")
-        panel:ControlHelp("Show what schedule the NPC is currently doing.")
+        panel:Help("Show what schedule the NPC is currently doing.")
 
 
         panel:CheckBox( "ZBase Reload Spawnmenu", "zbase_reload_spawnmenu")
-        panel:ControlHelp("Should 'zbase_reload' also reload the spawn menu?")
+        panel:Help("Should 'zbase_reload' also reload the spawn menu?")
 
 
         local ReloadButton = vgui.Create("DButton", panel)
@@ -216,7 +216,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
             net.Start("ZBaseReload")
             net.SendToServer()
         end
-        panel:ControlHelp("Runs 'zbase_reload' which can be necessary if your NPCs aren't updating properly on save.")
+        panel:Help("Runs 'zbase_reload' which can be necessary if your NPCs aren't updating properly on save.")
 
     end)
 
@@ -229,10 +229,10 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ZBaseAddMenuCategory("Zombies", function( panel )
 
         panel:CheckBox("Zombie Headcrabs", "zbase_zombie_headcrabs")
-        panel:ControlHelp("Should the zombies spawn with headcrabs?")
+        panel:Help("Should the zombies spawn with headcrabs?")
     
         panel:CheckBox("Zombie Red Blood", "zbase_zombie_red_blood")
-        panel:ControlHelp("Should the zombies spawn with red blood?")
+        panel:Help("Should the zombies spawn with red blood?")
 
     end, "Default NPCs")
 
@@ -245,7 +245,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ZBaseAddMenuCategory("Combine", function( panel )
 
         panel:CheckBox("Metro Cop Glowing Eyes", "zbase_metrocop_glow_eyes")
-        panel:ControlHelp("Should metrocops eyes glow?")
+        panel:Help("Should metrocops eyes glow?")
 
     end, "Default NPCs")
 end)

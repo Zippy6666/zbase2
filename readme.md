@@ -36,4 +36,5 @@
 - [ ] Replace sys broke??
 - [ ] More tools (faction, guard)
 - [ ] Fix issues with facing when playing animations (facing for too long or too short?)
-- [ ] Fix hunter death anim issue
+- [ ] Prevent common NPC improvement addons from interfering with ZBase
+- [ ] Encourage mfs to install hearing system and dynamic squads on boot
