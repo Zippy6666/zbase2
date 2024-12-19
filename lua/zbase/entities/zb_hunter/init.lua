@@ -55,28 +55,29 @@ function NPC:OnRangeThreatened( ent )
     local Center = self:WorldSpaceCenter()
 
     local TraceRight = util.TraceLine({
-        start = self:GetPos(),
-        endpos = self:GetPos()+self:GetRight()*200,
+        start = self:WorldSpaceCenter(),
+        endpos = self:WorldSpaceCenter()+self:GetRight()*200,
         mask = MASK_NPCSOLID,
         filter = self,
     })
 
     local TraceLeft = util.TraceLine({
-        start = self:GetPos(),
-        endpos = self:GetPos()-self:GetRight()*200,
+        start = self:WorldSpaceCenter(),
+        endpos = self:WorldSpaceCenter()-self:GetRight()*200,
         mask = MASK_NPCSOLID,
         filter = self,
     })
 
     if math.random(1, 2) == 1 && !TraceRight.Hit then
 
-        self:PlayAnimation(self.DodgeAnimations.Right, false, {face=ent, speedMult=1.3})
+        self:PlayAnimation(self.DodgeAnimations.Right, false, {face=ent, speedMult=1.2, duration=1})
+        self:EmitSound(self.SeeDangerSounds)
 
     elseif !TraceLeft.Hit then
 
-        self:PlayAnimation(self.DodgeAnimations.Left, false, {face=ent, speedMult=1.3})
-    end
+        self:PlayAnimation(self.DodgeAnimations.Left, false, {face=ent, speedMult=1.2, duration=1})
+        self:EmitSound(self.SeeDangerSounds)
 
-    self:EmitSound(self.SeeDangerSounds)
+    end
 end
 

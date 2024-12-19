@@ -6,6 +6,7 @@ ZBasePatchTable[my_cls] = function( NPC )
     NPC.Patch_AIWantsToShoot_SCHED_Blacklist = {
         [ZBaseESchedID("SCHED_METROPOLICE_WARN_AND_ARREST_ENEMY")] = true,
         [ZBaseESchedID("SCHED_METROPOLICE_ARREST_ENEMY")] = true,
+        [ZBaseESchedID("SCHED_METROPOLICE_DRAW_PISTOL")] = true,
     }
 
     function NPC:Patch_PreventGrenade()
