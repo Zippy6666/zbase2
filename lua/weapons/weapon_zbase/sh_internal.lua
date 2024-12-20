@@ -183,10 +183,10 @@ function SWEP:NPCShootEffects()
 	local att_num = EffectEnt:LookupAttachment("muzzle")
 	if IsValid(EffectEnt) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
 
-		if ZBCVAR.MMODMuzzle:GetBool() then
-			local particle = (self.Primary.MuzzleFlashFlags == 1 && "hl2mmod_muzzleflash_npc_pistol")
+		if ZBCVAR.QualityMuzzle:GetBool() then
+			local particle = (self.Primary.MuzzleFlashFlags == 1 && "world_weapon_glock_muzzleflash")
 			or (self.Primary.MuzzleFlashFlags == 5 && "hl2mmod_muzzleflash_npc_ar2")
-			or (self.Primary.MuzzleFlashFlags == 7 && "hl2mmod_muzzleflash_npc_shotgun")
+			or (self.Primary.MuzzleFlashFlags == 7 && "world_weapon_shotgun_muzzleflash")
 			if particle then ParticleEffectAttach( particle, PATTACH_POINT_FOLLOW, EffectEnt, att_num ) end
 		else
 			local effectdata = EffectData()
