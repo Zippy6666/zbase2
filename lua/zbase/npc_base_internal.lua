@@ -2035,7 +2035,6 @@ function NPC:DoNewEnemy()
 end
 
 
-local UNKNOWN_DAMAGE_DIST = 1000^2
 function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     local attacker = dmg:GetAttacker()
 
@@ -2071,12 +2070,11 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
         local hasEne = IsValid(self:GetEnemy())
 
         if !hasEne && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
-        && self:Disposition(attacker) != D_LI && self:GetPos():DistToSqr(attacker:GetPos()) >= UNKNOWN_DAMAGE_DIST then
+        && self:Disposition(attacker) != D_LI then
 
             -- Become alert and try to hide when hurt by unknown source
             self:SetNPCState(NPC_STATE_ALERT)
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
-
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
 
             -- Call nearby allies to location
