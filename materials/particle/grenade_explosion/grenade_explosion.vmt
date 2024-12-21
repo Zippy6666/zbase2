@@ -1,0 +1,8 @@
+SpriteCard
+{
+$basetexture "particle/grenade_explosion/grenade_explosion"
+$additive 1
+$addself 5.0
+$overbrightfactor 1.5
+$DEPTHBLEND 1
+}

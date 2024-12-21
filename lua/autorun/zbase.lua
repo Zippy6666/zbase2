@@ -113,6 +113,7 @@ end
 
 game.AddParticles("particles/zbase/zbase_blood_impact.pcf")
 game.AddParticles("particles/zbase/hl2mmod_muzzleflashes_npc.pcf")
+game.AddParticles("particles/zbase/weapon_glock.pcf")
 
 game.AddParticles("particles/striderbuster.pcf")
 game.AddParticles("particles/mortarsynth_fx.pcf")
@@ -126,7 +127,6 @@ PrecacheParticleSystem("striderbuster_break_shell")
 PrecacheParticleSystem("hl2mmod_muzzleflash_npc_ar2")
 PrecacheParticleSystem("hl2mmod_muzzleflash_npc_pistol")
 PrecacheParticleSystem("hl2mmod_muzzleflash_npc_shotgun")
-
 
 --[[
 ======================================================================================================================================================
