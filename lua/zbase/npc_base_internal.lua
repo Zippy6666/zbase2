@@ -2262,15 +2262,20 @@ end
 
 
 function NPC:CanPursueFollowing()
-    return IsValid(self.PlayerToFollow) && self:ZBaseDist(self.PlayerToFollow, {away=200}) && !self:ZBWepSys_CanFireWeapon()
-    && !self:IsCurrentSchedule(SCHED_TARGET_CHASE)
-    && !self:IsCurrentSchedule(SCHED_FORCED_GO)
-    && !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
+    return IsValid(self.PlayerToFollow)
+    && !self.DontUpdatePlayerFollowing
+    && self:ZBaseDist(self.PlayerToFollow, {away=200})
+    && !self:ZBWepSys_CanFireWeapon()
 end
 
 function NPC:PursueFollowing()
-    self:SetTarget(self.PlayerToFollow)
-    self:SetSchedule(SCHED_TARGET_CHASE)
+    if !self:IsCurrentSchedule(SCHED_TARGET_CHASE) then
+        self:SetTarget(self.PlayerToFollow)
+        self:SetSchedule(SCHED_TARGET_CHASE)
+    end
+
+    self:NavSetGoalTarget( self.PlayerToFollow, vector_origin )
+    self:CONV_TempVar("DontUpdatePlayerFollowing", true, 0.5)
 end
 
 
