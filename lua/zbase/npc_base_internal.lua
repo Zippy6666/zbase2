@@ -587,18 +587,7 @@ end
 --]]
 
 
-local VJTranslation = {
-    ["combine"] = "CLASS_COMBINE",
-    ["zombie"] = "CLASS_ZOMBIE",
-    ["antlion"] = "CLASS_ANTLION",
-    ["ally"] = "CLASS_PLAYER_ALLY",
-    ["xen"] = "CLASS_XEN",
-    ["hecu"] = "CLASS_UNITED_STATES",
-    ["blackops"] = "CLASS_BLACKOPS",
-    ["racex"] = "CLASS_RACE_X",
-    ["clonecop"] = "CLASS_AIDEN",
-    ["snark"] = "CLASS_SNARK",
-}
+
 
 
 function NPC:DecideRelationship( myFaction, ent )
@@ -618,9 +607,21 @@ function NPC:DecideRelationship( myFaction, ent )
         return
     end
 
+    if ent.IsVJBaseSNPC then
+        ent.VJ_ZBaseFactions = {}
+
+        for _, vjclass in pairs(ent.VJ_NPC_Class) do
+            if !isstring(vjclass) then continue end
+            local vj_to_zbase_trans_faction = ZBaseVJFactionTranslation_Flipped[vjclass]
+            if !vj_to_zbase_trans_faction then continue end
+            ent.VJ_ZBaseFactions[vj_to_zbase_trans_faction] = true
+        end
+    end
   
-    if myFaction == theirFaction or self.ZBaseFactionsExtra[theirFaction]
-    or ( ent.IsZBaseNPC && ent.ZBaseFactionsExtra && ent.ZBaseFactionsExtra[myFaction] ) then
+    if myFaction == theirFaction
+    or self.ZBaseFactionsExtra[theirFaction]
+    or ( ent.IsZBaseNPC && ent.ZBaseFactionsExtra && ent.ZBaseFactionsExtra[myFaction] )
+    or ( ent.IsVJBaseSNPC && ent.VJ_ZBaseFactions[myFaction] ) then
         self:ZBASE_SetMutualRelationship( ent, D_LI )
     else
         self:ZBASE_SetMutualRelationship( ent, D_HT )
@@ -630,8 +631,8 @@ end
 
 function NPC:UpdateRelationships()
     -- Set my VJ class
-    if VJTranslation[self.ZBaseFaction] then
-        self.VJ_NPC_Class = {VJTranslation[self.ZBaseFaction]}
+    if ZBaseVJFactionTranslation[self.ZBaseFaction] then
+        self.VJ_NPC_Class = {ZBaseVJFactionTranslation[self.ZBaseFaction]}
     end
 
     -- Update relationships between all NPCs
@@ -3637,6 +3638,7 @@ function NPC:OnEntityTakeDamage( dmg )
             dmg:SetDamageType(bit.bor(DMG_DISSOLVE, DMG_NEVERGIB))
         else
             dmg:SetDamageType(DMG_NEVERGIB)
+            print("dmg never gib", dmg:GetDamageType())
         end
 
     end

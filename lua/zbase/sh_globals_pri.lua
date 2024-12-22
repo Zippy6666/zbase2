@@ -42,6 +42,22 @@ ZBaseFactionTranslation_Flipped = SERVER and {
     neutral = CLASS_EARTH_FAUNA,
 } or nil
 
+
+ZBaseVJFactionTranslation = {
+    ["combine"] = "CLASS_COMBINE",
+    ["zombie"] = "CLASS_ZOMBIE",
+    ["antlion"] = "CLASS_ANTLION",
+    ["ally"] = "CLASS_PLAYER_ALLY",
+    ["xen"] = "CLASS_XEN",
+    ["hecu"] = "CLASS_UNITED_STATES",
+    ["blackops"] = "CLASS_BLACKOPS",
+    ["racex"] = "CLASS_RACE_X",
+    ["clonecop"] = "CLASS_AIDEN",
+    ["snark"] = "CLASS_SNARK",
+}
+ZBaseVJFactionTranslation_Flipped = table.Flip(ZBaseVJFactionTranslation)
+
+
 ZBASE_MENU_REPLACEMENTS = {
     ["zb_human_civilian"] = "npc_citizen",
     ["zb_antlion"] = "npc_antlion",
@@ -357,7 +373,6 @@ function ZBaseShouldUseRelationshipSys( ent )
         return false
     end
 
-    if npc.IsVJBaseSNPC then return false end
     if npc.IsZBaseNavigator then return false end
     if npc.ZBaseNPCCopy_DullState then return false end
 

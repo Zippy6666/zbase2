@@ -98,7 +98,9 @@ if SERVER then
 
                 else
 
-                    ZBaseSetFaction(ent, ZBaseFactionTranslation[ent.m_iClass or ent:Classify()])
+                    ZBaseSetFaction(ent,
+                        ZBaseFactionTranslation[ent.m_iClass or ent:Classify()]
+                    )
 
                 end
             end
