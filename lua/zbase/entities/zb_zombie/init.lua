@@ -62,6 +62,8 @@ function NPC:ShouldGib( dmginfo, hit_gr )
         -- Headcrab for gib
         Gib1:SetBodygroup(1, self:GetBodygroup(1))
         
+        Gib1:SetSkin(self:GetSkin())
+        
         if bloodColor==BLOOD_COLOR_RED then
             ParticleEffectAttach("blood_advisor_puncture_withdraw", PATTACH_POINT_FOLLOW, Gib1, 0)
         elseif bloodColor == BLOOD_COLOR_ZOMBIE then
@@ -70,6 +72,8 @@ function NPC:ShouldGib( dmginfo, hit_gr )
     end
 
     if IsValid(Gib2) then
+        Gib2:SetSkin(self:GetSkin())
+
         if bloodColor==BLOOD_COLOR_RED then
             ParticleEffectAttach("blood_advisor_puncture_withdraw", PATTACH_POINT_FOLLOW, Gib2, 0)
         elseif bloodColor == BLOOD_COLOR_ZOMBIE then
