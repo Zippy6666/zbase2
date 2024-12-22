@@ -29,13 +29,12 @@
 - [ ] Autorefresh for ZBase legacy addons
 - [ ] Revamp static/stationary into more of a guard mode
 - [ ] Improve Aerial AI movement
-- [ ] Make following better
+- [x] Make following better
 - [x] Fix issues with multiple NPCs firing acting weird
 - [ ] Fix issues with NPCs getting stuck and doing nothing when they should attack
 - [ ] Fix melee damage being half??
-- [ ] Replace sys broke??
-- [ ] More tools (faction, guard)
+- [ ] More tools (faction, guard, bullseye)
 - [ ] Fix issues with facing when playing animations (facing for too long or too short?)
 - [ ] Prevent common NPC improvement addons from interfering with ZBase
 - [ ] Encourage mfs to install hearing system and dynamic squads on boot
-- [ ] Shrink filesize
+- [x] Shrink filesize

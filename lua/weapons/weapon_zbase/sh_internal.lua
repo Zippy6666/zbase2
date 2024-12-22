@@ -19,15 +19,9 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 --]]
 
 
-local barely_visible = Color(5,5,5,5)
 function SWEP:Initialize()
-
 	self:Init()
-
-
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
-
-
 end
 
 
