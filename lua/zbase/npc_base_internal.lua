@@ -3001,7 +3001,8 @@ function NPC:OnEmitSound( data )
 
 
     -- Did not play sound because I was already playing important voice sound
-    if (isVoiceSound && sndVarName!="PainSounds" && sndVarName!="DeathSounds") && currentlySpeakingImportant then
+    if (isVoiceSound && sndVarName!="PainSounds" && sndVarName!="DeathSounds" && sndVarName!="SeeDangerSounds")
+    && currentlySpeakingImportant then
         conv.devPrint(self.Name, " did not play ", sndVarName or "*unknown voice sound*", ", self.IsSpeaking_SoundVar was ", self.IsSpeaking_SoundVar)
         return false
     end

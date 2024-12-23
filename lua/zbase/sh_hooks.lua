@@ -59,8 +59,7 @@ if SERVER then
             local zbaseClass = ent:GetKeyValues().parentname
             if ZBaseNPCs[zbaseClass] && !ent.IsDupeSpawnedZBaseNPC then
                 ZBaseNPCCopy( ent, zbaseClass, true )
-            end
-
+            end    
 
             -- When a entity owned by a ZBase NPC is created
             local own = ent:GetOwner()
@@ -298,6 +297,33 @@ hook.Add("ScaleNPCDamage", "ZBASE", function ( npc, hit_gr, dmg )
 
     if npc.IsZBaseNPC then
         npc:OnScaleDamage( dmg, hit_gr )
+    end
+end)
+
+
+hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
+    if SERVER && !ZBCVAR.PlayerHurtAllies:GetBool() && ZBaseNPCCount > 0 then
+
+        local own = ent:GetOwner()
+        local shooterPly = (own:IsPlayer() && own) or (ent:IsPlayer() && ent)
+
+        if shooterPly then
+            local tr = util.TraceLine({
+                start = data.Src,
+                endpos = data.Src+data.Dir*10000,
+                mask = MASK_SHOT,
+                filter = shooterPly,
+            })
+
+            if IsValid(tr.Entity) && tr.Entity.IsZBaseNPC && tr.Entity:Disposition(shooterPly) == D_LI then
+                data.IgnoreEntity = tr.Entity
+                data.Num = 0
+                data.Distance = 0
+                data.Dir = vector_origin
+                return true
+            end
+        end
+    
     end
 end)
 

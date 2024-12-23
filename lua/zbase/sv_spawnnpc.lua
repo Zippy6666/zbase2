@@ -37,6 +37,7 @@ local function TryFixPropPosition( ply, ent, hitpos )
 end
 
 
+ZBaseNPCCount = 0
 function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate, SpawnFlagsSaved )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
@@ -205,7 +206,11 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 
     -- "Register"
     table.insert(ZBaseNPCInstances, NPC)
-	NPC:CallOnRemove("ZBaseNPCInstancesRemove", function() table.RemoveByValue(ZBaseNPCInstances, NPC) end)
+	ZBaseNPCCount = ZBaseNPCCount + 1
+	NPC:CallOnRemove("ZBaseNPCInstancesRemove", function()
+		table.RemoveByValue(ZBaseNPCInstances, NPC)
+		ZBaseNPCCount = ZBaseNPCCount - 1
+	end)
 
 
 	-- Register as non-scripted if npc is such
