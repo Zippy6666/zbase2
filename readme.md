@@ -25,14 +25,13 @@
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
 
 # TODO
-- [ ] NPC weapon suppressing
 - [x] Autorefresh for ZBase legacy addons
-- [ ] Revamp static/stationary into more of a guard mode
-- [ ] Improve Aerial AI movement
+- [x] Shrink filesize
 - [x] Make following better
 - [x] Fix issues with multiple NPCs firing acting weird
-- [ ] Fix issues with NPCs getting stuck and doing nothing when they should attack
+- [x] Encourage mfs to install hearing system and dynamic squads on boot
+- [ ] Improve Aerial AI movement
+- [ ] Revamp static/stationary into more of a guard mode
 - [ ] More tools (faction, guard, bullseye, smart debugger (show cond, profficiency, etc))
 - [ ] Fix issues with facing when playing animations (facing for too long or too short?)
-- [ ] Encourage mfs to install hearing system and dynamic squads on boot
-- [x] Shrink filesize
+- [ ] NPC weapon suppressing

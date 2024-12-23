@@ -35,6 +35,8 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     --]]
 
     ZBaseAddMenuCategory("A - General", function( panel )
+        panel:CheckBox("Pop-Up", "zbase_popup")
+        panel:Help("Show the pop-up when joining the game.")
 
         panel:CheckBox( "Logo", "zbase_enable_logo")
         panel:Help("Enable the ASCII-style ZBase logo in the tool menu. Requires the spawnmenu to be reloaded.")

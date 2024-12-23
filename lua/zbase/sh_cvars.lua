@@ -48,6 +48,7 @@ ZBCVAR.NPCNocollide = CreateConVar("zbase_nocollide", "0", Flags)
 
 if CLIENT then
     ZBCVAR.GlowingEyes = CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)
+    ZBCVAR.PopUp = CreateConVar("zbase_popup", "1", FCVAR_ARCHIVE)
 end
 
 

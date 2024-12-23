@@ -11,14 +11,14 @@ ReloadedSpawnmenuRecently = false
 --]]
 
 
-hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
+hook.Add("InitPostEntity", "ZBASE", function()
 
     -- Override functions
     timer.Simple(0.5, function()
         include("zbase/sh_override_functions.lua")
     end)
     
-    
+
     if CLIENT then
 
         -- Follow halo table
@@ -34,6 +34,34 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
                 ReloadedSpawnmenuRecently = false 
             end)
         end)
+
+
+        -- Welcome screen
+        if ZBCVAR.PopUp:GetBool() then
+            local frame = vgui.Create("DFrame")
+            frame:SetTitle("ZBASE")
+            frame:SetSize(1400, 700)
+            frame:Center()
+            frame:MakePopup()
+            frame:SetBackgroundBlur(true)
+
+            local html = vgui.Create("DHTML", frame)
+            html:Dock(TOP)
+            html:SetHeight(600)
+
+            -- Replace "YOUR_COLLECTION_ID" with your actual Workshop collection ID
+            local workshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=3390418473"
+            html:OpenURL(workshopLink)
+
+            local closeButton = vgui.Create("DButton", frame)
+            closeButton:SetText("Close")
+            closeButton:Dock(BOTTOM)
+            closeButton:SetHeight(30)
+            closeButton.DoClick = function()
+                notification.AddLegacy("You can disable the ZBase pop-up in the ZBase settings tab.", NOTIFY_HINT, 5)
+                frame:Close()
+            end
+        end
 
     end
 
