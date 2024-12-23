@@ -2062,7 +2062,7 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
 
     -- Panicked reload if out of ammo
     local wep = self:GetActiveWeapon()
-    if ( IsValid(wep) && wep.IsZBaseWeapon && self.ZBWepSys_PrimaryAmmo <= 0 ) then
+    if ( IsValid(wep) && wep.IsZBaseWeapon && self.ZBWepSys_PrimaryAmmo <= 0 ) && !self:IsCurrentSchedule(SCHED_RELOAD) then
         
         self:SetSchedule(SCHED_RELOAD)
 
