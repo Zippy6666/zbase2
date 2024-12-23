@@ -3639,7 +3639,6 @@ function NPC:OnEntityTakeDamage( dmg )
             dmg:SetDamageType(bit.bor(DMG_DISSOLVE, DMG_NEVERGIB))
         else
             dmg:SetDamageType(DMG_NEVERGIB)
-            print("dmg never gib", dmg:GetDamageType())
         end
 
     end
@@ -3664,7 +3663,7 @@ function NPC:OnPostEntityTakeDamage( dmg )
 
     local MoreThan0Damage = dmg:GetDamage() > 0
 
-
+ 
     -- Custom blood
     if (self.CustomBloodParticles or self.CustomBloodDecals) && MoreThan0Damage then
         self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
