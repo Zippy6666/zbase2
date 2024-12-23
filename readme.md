@@ -34,6 +34,5 @@
 - [ ] Fix issues with NPCs getting stuck and doing nothing when they should attack
 - [ ] More tools (faction, guard, bullseye, smart debugger (show cond, profficiency, etc))
 - [ ] Fix issues with facing when playing animations (facing for too long or too short?)
-- [ ] Prevent common NPC improvement addons from interfering with ZBase
 - [ ] Encourage mfs to install hearing system and dynamic squads on boot
 - [x] Shrink filesize

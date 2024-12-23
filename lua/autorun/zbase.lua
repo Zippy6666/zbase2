@@ -647,7 +647,7 @@ if SERVER then
             table.insert(filenames, "zbase/npc_base_shared.lua")
             table.insert(filenames, "zbase/npc_base_util.lua")
 
-            local files = file.Find("zbase/npc_patches", "LUA")
+            local files = file.Find("zbase/npc_patches/*", "LUA")
             for _, f in ipairs(files) do
                 table.insert(filenames, "zbase/npc_patches/"..f)
             end

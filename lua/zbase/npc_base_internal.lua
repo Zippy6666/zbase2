@@ -1362,7 +1362,7 @@ function NPC:ZBWepSys_MeleeThink()
         end
 
 
-        if !self:IsMoving() then
+        if !self:IsMoving() && !(self.Patch_DontMeleeChase && self:Patch_DontMeleeChase()) then
             self:SetTarget(ene)
             self:SetSchedule(SCHED_CHASE_ENEMY)
         end

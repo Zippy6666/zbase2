@@ -10,7 +10,12 @@ ZBasePatchTable[my_cls] = function( NPC )
     }
 
     function NPC:Patch_PreventGrenade()
-        return !self.Patch_AIWantsToShoot_SCHED_Blacklist[self:GetCurrentSchedule()]
+        return self.Patch_AIWantsToShoot_SCHED_Blacklist[self:GetCurrentSchedule()]
+    end
+ 
+    function NPC:Patch_DontMeleeChase()
+        local val = self.Patch_AIWantsToShoot_SCHED_Blacklist[self:GetCurrentSchedule()]
+        return self.Patch_AIWantsToShoot_SCHED_Blacklist[self:GetCurrentSchedule()]
     end
 
 end
