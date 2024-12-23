@@ -347,7 +347,6 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
                 data.IgnoreEntity = tr.Entity
                 data.Num = 0
                 data.Distance = 0
-                data.Dir = vector_origin
                 return true
             end
         end
