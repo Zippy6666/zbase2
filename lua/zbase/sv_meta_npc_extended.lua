@@ -70,11 +70,6 @@ function NPC:SetSchedule( sched, ... )
         return
     end
 
-    -- Aerial ZBase NPC
-    if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then
-        self:AerialSetSchedule(sched, ...)
-    end
-
     -- Usual drop weapon
     return ZBase_OldSetSchedule(self, sched, ...)
 end

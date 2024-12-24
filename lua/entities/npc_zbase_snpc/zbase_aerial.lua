@@ -24,39 +24,57 @@ end
 
 
 function ENT:AerialSetSchedule(sched)
+    -- Called when NewSched is called
+    -- Set up a navigator that can use ground nodes to navigate for us
 
     self:AerialResetNav()
- 
-    local lastpos = self:GetInternalVariable("m_vecLastPosition")
 
-    -- Navigator --
-    if istable(sched) then
+    local Navigator = ents.Create("zbase_navigator")
+    Navigator:SetPos(self:AerialNavigatorPos())
+    Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
+    Navigator.Sched = sched
+    Navigator.ForceEnemy = self:GetEnemy()
+    Navigator.ForcedLastPos = self:GetInternalVariable("m_vecLastPosition")
+    Navigator:SetOwner(self)
+    Navigator:Spawn()
+    self:DeleteOnRemove(Navigator)
+    self.Navigator = Navigator
+end
 
-        local Navigator = ents.Create("zbase_navigator")
-        Navigator:SetPos(self:AerialNavigatorPos())
-        Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
-        Navigator.Sched = sched
-        Navigator.ForceEnemy = self:GetEnemy()
-        Navigator.ForcedLastPos = lastpos
-        Navigator:SetOwner(self)
-        Navigator:Spawn()
-        self:DeleteOnRemove(Navigator)
-        self.Navigator = Navigator
 
-    end
+local function RandomXYVector()
+    -- Random angle in radians
+    local angle = math.random() * math.pi * 2
 
+    -- Random length between 200 and 400
+    local length = math.Rand(300, 720)
+
+    -- Calculate the X and Y components
+    local x = math.cos(angle) * length
+    local y = math.sin(angle) * length
+
+    -- Return the vector
+    return Vector(x, y, 0)
+end
+
+
+function ENT:SetPursueAerialGoalSched()
+    self.CurrentSchedule = ZSched.PursueAerialGoal
+    self.CurrentTaskID = 1
+    self:SetTask( ZSched.PursueAerialGoal:GetTask( 1 ) )
 end
 
 
 function ENT:AerialTranslateSched( sched )
     local lastpos = self:GetInternalVariable("m_vecLastPosition")
     local npcstate = self:GetNPCState()
+    local hasAerialGoal = false
 
     if sched == SCHED_FORCED_GO or sched == SCHED_FORCED_GO_RUN then
 
         -- Forced go: calculate goal to last position
         self:AerialCalcGoal(lastpos)
-        return SCHED_IDLE_STAND
+        hasAerialGoal = true
 
     elseif sched == SCHED_TARGET_CHASE then
 
@@ -65,41 +83,29 @@ function ENT:AerialTranslateSched( sched )
         local targetpos = IsValid(target) && target:GetPos()
 
         self:AerialCalcGoal(targetpos)
-
-        return SCHED_IDLE_STAND
+        hasAerialGoal = true
 
     elseif sched == SCHED_PATROL_WALK or sched == SCHED_PATROL_RUN then
 
-        local function RandomXYVector()
-            -- Random angle in radians
-            local angle = math.random() * math.pi * 2
-        
-            -- Random length between 200 and 400
-            local length = math.Rand(200, 400)
-        
-            -- Calculate the X and Y components
-            local x = math.cos(angle) * length
-            local y = math.sin(angle) * length
-        
-            -- Return the vector
-            return Vector(x, y, 0)
-        end
+
         local patrolPos = self:GetPos() + RandomXYVector()
 
         self:AerialCalcGoal(patrolPos)
+        hasAerialGoal = true
+        
+    end
 
+    if hasAerialGoal then
+        self:CONV_CallNextTick("SetPursueAerialGoalSched")
         return SCHED_IDLE_STAND
+    end
 
-    end 
 end
 
 
 function ENT:AerialResetNav()
     self.AerialGoal = nil
-
-    if IsValid(self.Navigator) then
-        self.Navigator:Remove()
-    end
+    SafeRemoveEntity(self.Navigator)
 end
 
 

@@ -40,7 +40,7 @@ function ENT:SelectSchedule( iNPCState )
 	-- Fixes enemy not being registered as visible after some bs happends idk
 	-- Plz don't remove future zippy :(
 	if !self.EnemyVisible then
-    	self.EnemyVisible = self.EnemyVisible or (IsValid(ene) && self:Visible(ene))
+    	self.EnemyVisible = IsValid(ene) && self:Visible(ene)
 	end
 
 

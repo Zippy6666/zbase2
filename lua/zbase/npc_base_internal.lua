@@ -1510,6 +1510,8 @@ function NPC:FullReset(dontStopZBaseMove)
     self:SetMoveVelocity(vector_origin)
 
     if self.IsZBase_SNPC then
+        print("-------- full reset ----------")
+        print(debug.getinfo(2).name)
         self:AerialResetNav()
         self:ScheduleFinished()
     end

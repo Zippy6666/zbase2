@@ -211,8 +211,9 @@ end
 
 
 function ZBaseSchedDebug( ent )
-    return ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched()) or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
-    or (ent.AllowedCustomEScheds && ent.AllowedCustomEScheds[ent:GetCurrentSchedule()]) or "schedule "..tostring(ent:GetCurrentSchedule())
+    return ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched() )
+    or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
+    or "schedule " ..tostring(ent:GetCurrentSchedule())
 end
 
 
