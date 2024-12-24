@@ -330,6 +330,15 @@ function ENT:RunAI( strExp )
 end
 
 
+function ENT:TranslateSchedule(sched)
+
+	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
+		return self:AerialTranslateSched(sched)
+	end
+
+end
+
+
 function ENT:FaceHurtPos(dmginfo)
 	if !IsValid(self:GetEnemy()) && self.NextFaceHurtPos < CurTime() && !self.DoingPlayAnim && IsValid(dmginfo:GetInflictor()) then
 

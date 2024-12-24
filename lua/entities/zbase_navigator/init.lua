@@ -6,7 +6,8 @@ ENT.ZBaseFaction = "neutral"
 ENT.IsZBaseNavigator = true
 
 
---]]======================================================================================================]]
+
+
 function ENT:Initialize()
 	self:SetModel( "models/breen.mdl" )
 	self:SetHullType( HULL_HUMAN )
@@ -20,7 +21,8 @@ function ENT:Initialize()
     self:SetNoDraw(!GetConVar("developer"):GetBool() or !ZBCVAR.ShowNavigator:GetBool())
 	self:SetNPCState(NPC_STATE_IDLE)
 end
---]]======================================================================================================]]
+
+
 function ENT:SelectSchedule()
 	if IsValid(self.ForceEnemy) then
 		self:AddEntityRelationship(self.ForceEnemy, D_HT, 0)
@@ -52,7 +54,8 @@ function ENT:SelectSchedule()
 		end
 	end)
 end
---]]======================================================================================================]]
+
+
 function ENT:Think()
 	if self.MoveConfirmed then
 		local own = self:GetOwner()
@@ -77,14 +80,16 @@ function ENT:Think()
 		end
 	end
 end
---]]======================================================================================================]]
+
+
 function ENT:GetCurrentCustomSched()
 	return self.CurrentSchedule && self.CurrentSchedule.DebugName
 end
---]]======================================================================================================]]
+
+
 function ENT:IsCurrentZSched( sched )
 
 	return "ZSched"..sched == self:GetCurrentCustomSched()
 
 end
---]]======================================================================================================]]
+

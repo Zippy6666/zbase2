@@ -24,20 +24,73 @@ end
 
 
 function ENT:AerialSetSchedule(sched)
+
     self:AerialResetNav()
  
+    local lastpos = self:GetInternalVariable("m_vecLastPosition")
+
     -- Navigator --
-    local Navigator = ents.Create("zbase_navigator")
-    Navigator:SetPos(self:AerialNavigatorPos())
-    Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
-    Navigator.Sched = sched
-    Navigator.ForceEnemy = self:GetEnemy()
-    Navigator.ForcedLastPos = self:GetInternalVariable("m_vecLastPosition")
-    Navigator:SetOwner(self)
-    Navigator:Spawn()
-    
-    self:DeleteOnRemove(Navigator)
-    self.Navigator = Navigator
+    if istable(sched) then
+
+        local Navigator = ents.Create("zbase_navigator")
+        Navigator:SetPos(self:AerialNavigatorPos())
+        Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
+        Navigator.Sched = sched
+        Navigator.ForceEnemy = self:GetEnemy()
+        Navigator.ForcedLastPos = lastpos
+        Navigator:SetOwner(self)
+        Navigator:Spawn()
+        self:DeleteOnRemove(Navigator)
+        self.Navigator = Navigator
+
+    end
+
+end
+
+
+function ENT:AerialTranslateSched( sched )
+    local lastpos = self:GetInternalVariable("m_vecLastPosition")
+    local npcstate = self:GetNPCState()
+
+    if sched == SCHED_FORCED_GO or sched == SCHED_FORCED_GO_RUN then
+
+        -- Forced go: calculate goal to last position
+        self:AerialCalcGoal(lastpos)
+        return SCHED_IDLE_STAND
+
+    elseif sched == SCHED_TARGET_CHASE then
+
+        -- Target chase: calculate goal to targets position
+        local target = self:GetTarget()
+        local targetpos = IsValid(target) && target:GetPos()
+
+        self:AerialCalcGoal(targetpos)
+
+        return SCHED_IDLE_STAND
+
+    elseif sched == SCHED_PATROL_WALK or sched == SCHED_PATROL_RUN then
+
+        local function RandomXYVector()
+            -- Random angle in radians
+            local angle = math.random() * math.pi * 2
+        
+            -- Random length between 200 and 400
+            local length = math.Rand(200, 400)
+        
+            -- Calculate the X and Y components
+            local x = math.cos(angle) * length
+            local y = math.sin(angle) * length
+        
+            -- Return the vector
+            return Vector(x, y, 0)
+        end
+        local patrolPos = self:GetPos() + RandomXYVector()
+
+        self:AerialCalcGoal(patrolPos)
+
+        return SCHED_IDLE_STAND
+
+    end 
 end
 
 
@@ -129,7 +182,7 @@ function ENT:AerialThink()
     local ene = self:GetEnemy()
 
 
-    if self.Aerial_CurSpeed > 0 && !timer.Exists("ZBaseFace"..self:EntIndex()) && !timer.Exists("ZBaseFace_Range"..self:EntIndex()) then
+    if self.Aerial_CurSpeed > 0 && !self.ZBase_CurrentFace_Yaw then
         self:Face( (self.Fly_FaceEnemy && self.EnemyVisible && ene) or self.Aerial_CurrentDestination )
     end
 

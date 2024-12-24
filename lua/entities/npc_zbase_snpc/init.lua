@@ -6,8 +6,6 @@ include("zbase_aerial.lua")
 ENT.IsZBase_SNPC = true
 
 
-
-
 function ENT:Initialize()
 
 	self:SetSolid(SOLID_BBOX)
@@ -15,7 +13,6 @@ function ENT:Initialize()
 	self:SetCollisionGroup(COLLISION_GROUP_NPC)
 	self:SetBloodColor(BLOOD_COLOR_RED)
 	
-
 	self.Bullseye = ents.Create("npc_bullseye")
 	self.Bullseye:SetPos(self:GetPos())
 	self.Bullseye:SetAngles(self:GetAngles())
@@ -25,7 +22,6 @@ function ENT:Initialize()
 	self.Bullseye:AddEFlags(EFL_DONTBLOCKLOS)
 	self.Bullseye:Spawn()
 	self.Bullseye:Activate()
-
 
 	self:SNPCInitVars()
 
@@ -44,21 +40,20 @@ function ENT:SNPCInitVars()
 	self.NextFaceHurtPos = CurTime()
 	self.NextGetBetterSchedule = CurTime()
 	self.NextSelectSchedule = CurTime()
+	self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 end
 
 
 function ENT:Think()
 
+	-- Make sure we stay invisible when we are dead
 	if self.Dead && !self:GetNoDraw() then
 		self:SetNoDraw(true)
 	end
 
-
-
 	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
 		self:AerialThink()
 	end
-
 
 	-- Apply notarget to its bullseye
 	if IsValid(self.Bullseye) then
@@ -72,16 +67,14 @@ function ENT:Think()
 
 	end
 
-
-
 	self:ZBaseThink()
 
 end
 
 
+-- I don't dare removing this...
 local NPCMETA = FindMetaTable("NPC")
 ZBase_OldGetNearestSquadMember = ZBase_OldGetNearestSquadMember or NPCMETA.GetNearestSquadMember
-
 function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )
 	if !self.IsZBase_SNPC then return ZBase_OldGetNearestSquadMember(self) end
 

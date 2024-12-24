@@ -211,8 +211,6 @@ end
 
 
 function ZBaseSchedDebug( ent )
-    local ent = (IsValid(ent.Navigator) && !ZBCVAR.ShowNavigator:GetBool() && ent.Navigator.MoveConfirmed && ent.Navigator) or ent
-
     return ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched()) or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
     or (ent.AllowedCustomEScheds && ent.AllowedCustomEScheds[ent:GetCurrentSchedule()]) or "schedule "..tostring(ent:GetCurrentSchedule())
 end
