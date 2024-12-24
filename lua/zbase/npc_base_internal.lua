@@ -2260,9 +2260,9 @@ function NPC:CanPursueFollowing()
 end
 
 function NPC:PursueFollowing()
-    if !self:IsCurrentSchedule(SCHED_TARGET_CHASE) then
-        self:SetTarget(self.PlayerToFollow)
-        self:SetSchedule(SCHED_TARGET_CHASE)
+    if !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
+        self:SetLastPosition(self.PlayerToFollow:GetPos())
+        self:SetSchedule(SCHED_FORCED_GO_RUN)
     end
 
     self:NavSetGoalTarget( self.PlayerToFollow, vector_origin )
