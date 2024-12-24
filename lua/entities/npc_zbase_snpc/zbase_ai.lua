@@ -1,6 +1,9 @@
 local AIDisabled = GetConVar("ai_disabled")
 
+
 function ENT:StartSchedule( sched )
+
+	-- Start sched for aerial mfs, set up navigator and shid
     if self.SNPCType == ZBASE_SNPCTYPE_FLY then
         self:AerialSetSchedule(table.Copy(sched))
     end
@@ -9,6 +12,7 @@ function ENT:StartSchedule( sched )
 	self.CurrentSchedule = sched
 	self.CurrentTaskID = 1
 	self:SetTask( sched:GetTask( 1 ) )
+
 end
 
 
@@ -52,30 +56,18 @@ function ENT:SelectSchedule( iNPCState )
 
 	-- Start/set the schedule
 	self:NewSched( sched )
-
-
-	-- Tell aerial base to follow the player directly instead of navigating if the enemy is visible
-	if self.SNPCType==ZBASE_SNPCTYPE_FLY && self.AerialShouldFollowPlayerDirectly then
-		local ene = self:GetEnemy()
-
-		if IsValid(ene) then
-			self.AerialGoal = ene:GetPos()
-		end
-	end
 end
 
 
+-- Get the name of the current custom schedule
 function ENT:GetCurrentCustomSched()
-
 	return self.CurrentSchedule && self.CurrentSchedule.DebugName
-
 end
 
 
+-- Check if we are doing a certain ZSched, by name
 function ENT:IsCurrentZSched( sched )
-
 	return "ZSched"..sched == self:GetCurrentCustomSched()
-
 end
 
 
@@ -94,12 +86,11 @@ end
 
 
 function ENT:TooCloseForCombatChase()
-
 	return self.ChaseMinDistance > 0 && self.EnemyVisible && self:ZBaseDist(self:GetEnemy(), {within=self.ChaseMinDistance})
-
 end
 
 
+-- TODO: ENT.IsUnreachable and ENT.IsNavStuck, what is the difference?
 function ENT:GetBetterSchedule()
 	if self.NextGetBetterSchedule > CurTime() then return end
 
@@ -174,25 +165,6 @@ function ENT:GetBetterSchedule()
 end
 
 
-function ENT:GetAerialTranslatedSched()
-
-	-- Return better schedule and goal for aerial NPCs
-
-	if IsValid(self.Navigator) && IsValid(self:GetEnemy()) then
-
-		if self.Navigator:IsCurrentZSched("CombatChase") && self.EnemyVisible then
-			return "AerialChase_NoNav", self:GetEnemy():GetPos()
-		end
-
-		if self.Navigator:IsCurrentZSched("BackAwayFromEnemy") && self.EnemyVisible then
-			return "AerialBackAway_NoNav", self:GetPos()+( self:GetPos() - self:GetEnemy():GetPos() ):GetNormalized()*300
-		end
-
-	end
-
-end
-
-
 function ENT:IsNavStuck()
 
 	if self.SNPCType != ZBASE_SNPCTYPE_WALK then return false end
@@ -221,6 +193,7 @@ end
 function ENT:DoSchedule( schedule )
 
 	-- Stop schedule if current task makes it move and SNPC does not have movement
+	-- TODO: Is this used?
 	if self.SNPCType != ZBASE_SNPCTYPE_WALK && self.CurrentTask && self.CurrentTask.TaskName=="TASK_WAIT_FOR_MOVEMENT" then
 		self:ScheduleFinished()
 		self:ClearGoal()
@@ -291,7 +264,7 @@ function ENT:RunAI( strExp )
 
 	-- Aerial mfs should get scheds more optimized for them
 	if self.SNPCType==ZBASE_SNPCTYPE_FLY then
-		local newsched, aerialGoal = self:GetAerialTranslatedSched()
+		local newsched, aerialGoal = self:GetAerialOptimizedSched()
 
 
 		if newsched then
@@ -306,7 +279,7 @@ function ENT:RunAI( strExp )
 
 
 	-- Do engine schedule
-	if self:DoingEngineSchedule() or (IsValid(self.Navigator) && self.Navigator:DoingEngineSchedule()) then
+	if self:DoingEngineSchedule() then
 
 		return true
 

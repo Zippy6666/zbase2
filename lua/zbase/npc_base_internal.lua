@@ -1510,8 +1510,6 @@ function NPC:FullReset(dontStopZBaseMove)
     self:SetMoveVelocity(vector_origin)
 
     if self.IsZBase_SNPC then
-        print("-------- full reset ----------")
-        print(debug.getinfo(2).name)
         self:AerialResetNav()
         self:ScheduleFinished()
     end
@@ -2083,18 +2081,7 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
 
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
 
-            -- Call nearby allies to location
-            -- for _, ally in ipairs( self:GetNearbyAlliesOptimized(660) ) do
-            --     if !ally.EnemyVisible then
-            --         ally:FullReset()
-            --         self.LastCoverHurtAllyPos = self:GetPos()
-            --         ally:SetLastPosition(self.LastCoverHurtAllyPos)
-            --         ally:SetNPCState(NPC_STATE_ALERT)
-            --         ally:SetSchedule(SCHED_FORCED_GO_RUN)
-            --     end
-            -- end
-
-        elseif hasEne && IsValid(self:GetActiveWeapon()) then
+        elseif hasEne && IsValid(wep) then
 
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
