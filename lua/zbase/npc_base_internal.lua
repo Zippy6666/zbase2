@@ -2375,6 +2375,7 @@ local SchedsToReplaceWithPatrol = {
 function NPCB.Patrol:ShouldDoBehaviour( self )
     return PatrolCvar:GetBool() && self.CanPatrol && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()]
     && self:GetMoveType() == MOVETYPE_STEP
+    && !self.CurrentSchedule -- Not doing any custom SNPC schedule at the moment
 end
 
 
