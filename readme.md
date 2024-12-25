@@ -31,7 +31,7 @@
 - [x] Fix issues with multiple NPCs firing acting weird
 - [x] Encourage mfs to install hearing system and dynamic squads on boot
 - [x] Improve Aerial AI movement
+- [x] NPC weapon suppressing
+- [ ] Fix issues with facing when playing animations (facing for too long or too short?)
 - [ ] Revamp static/stationary into more of a guard mode
 - [ ] More tools (faction, guard, bullseye, smart debugger (show cond, profficiency, etc))
-- [ ] Fix issues with facing when playing animations (facing for too long or too short?)
-- [ ] NPC weapon suppressing

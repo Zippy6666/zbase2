@@ -1077,6 +1077,45 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
 end
 
 
+function NPC:ZBWepSys_TrySuppress( target )
+    self:AddEntityRelationship(target.ZBase_SuppressionBullseye, D_HT, 0)
+    self:UpdateEnemyMemory(target.ZBase_SuppressionBullseye, target:GetPos())
+end
+
+
+function NPC:ZBWepSys_RemoveSuppressionPoint( target )
+    SafeRemoveEntity(target.ZBase_SuppressionBullseye)
+end
+
+
+local PlayerHeightVec = Vector(0, 0, 60)
+function NPC:ZBWepSys_CreateSuppressionPoint( target )
+    local pos
+    if target:IsPlayer() && target:Crouching() then
+        -- Crappy workaround that should work most of the time
+        pos = self:GetEnemyLastSeenPos(target)+PlayerHeightVec
+    else
+        pos = self:GetEnemyLastSeenPos(target)+target:OBBCenter()
+    end
+
+    SafeRemoveEntity(target.ZBase_SuppressionBullseye)
+
+    target.ZBase_SuppressionBullseye = ents.Create("npc_bullseye")
+    target.ZBase_SuppressionBullseye.Is_ZBase_SuppressionBullseye = true
+    target.ZBase_SuppressionBullseye.EntityToSuppress = target
+    target.ZBase_SuppressionBullseye:SetPos( pos )
+    target.ZBase_SuppressionBullseye:Spawn()
+    target.ZBase_SuppressionBullseye:SetModel("models/props_lab/huladoll.mdl")
+    
+    if Developer:GetBool() then
+        target.ZBase_SuppressionBullseye:SetNoDraw(false)
+        target.ZBase_SuppressionBullseye:SetMaterial("models/wireframe")
+    end
+    
+    target.ZBase_SuppressionBullseye:SetNotSolid(true)
+end
+
+
 local AIWantsToShoot_ACT_Blacklist = {
     [ACT_JUMP] = true,
     [ACT_GLIDE] = true,
@@ -1099,17 +1138,61 @@ local AIWantsToShoot_SCHED_Blacklist = {
 }
 function NPC:ZBWepSys_AIWantsToShoot()
     if AIDisabled:GetBool() then return false end
-    if !self.EnemyVisible or !self.ZBWepSys_InShootDist then return false end
+    if !self.ZBWepSys_InShootDist then return false end
+
+    local ene = self:GetEnemy()
+
+    if !self.EnemyVisible then
+
+        if !IsValid(ene.ZBase_SuppressionBullseye)
+        && !ene.Is_ZBase_SuppressionBullseye then -- Don't create a suppression point for a suppression point...
+
+            -- Create a new suppression point for this enemy if there is none
+            self:ZBWepSys_CreateSuppressionPoint( ene )
+
+        end
+
+        -- Can see enemy's current suppression point, suppress it next time we are asked if we want to shoot
+        if IsValid(ene.ZBase_SuppressionBullseye) then
+
+            self:ZBWepSys_TrySuppress(ene)
+
+        end
+
+        -- Don't shoot since enemy is not visible
+        return false
+
+    elseif IsValid(ene) then
+
+        -- Enemy is visible...
+
+        -- Remove their suppression point since we know they are no longer there
+        self:ZBWepSys_RemoveSuppressionPoint( ene )
+
+    end
+
+    -- Enemy is a suppression point and its NPC/player (the actual enemy) is in visible
+    -- stop attacking this point and attack the NPC/player instead
+    -- TODO: Change to in view cone instead of visible
+    if ene.Is_ZBase_SuppressionBullseye
+    && IsValid(ene.EntityToSuppress)
+    && self:Visible(ene.EntityToSuppress) then
+        self:ZBWepSys_RemoveSuppressionPoint( ene.EntityToSuppress )
+
+        self:UpdateEnemyMemory(ene.EntityToSuppress, ene.EntityToSuppress:GetPos())
+
+        return false -- Don't shoot this time, shoot at the actual enemy next time instead
+    end
 
     if AIWantsToShoot_ACT_Blacklist[self:GetActivity()] then return false end
 
     local sched = self:GetCurrentSchedule()
-    if AIWantsToShoot_SCHED_Blacklist[sched] or (self.Patch_AIWantsToShoot_SCHED_Blacklist && self.Patch_AIWantsToShoot_SCHED_Blacklist[sched]) then
+    if AIWantsToShoot_SCHED_Blacklist[sched]
+    or (self.Patch_AIWantsToShoot_SCHED_Blacklist && self.Patch_AIWantsToShoot_SCHED_Blacklist[sched]) then
         return false
     end
 
     if self.ZBWepSys_NextCheckIsFacingEne < CurTime() then
-        local ene = self:GetEnemy()
         self.ZBWepSys_Stored_FacingEne = self:IsFacing(ene)
         self.ZBWepSys_NextCheckIsFacingEne = CurTime()+0.7
     end
@@ -1119,8 +1202,6 @@ function NPC:ZBWepSys_AIWantsToShoot()
     end
 
     if ZBCVAR.MaxNPCsShootPly:GetBool() then
-        local ene = self:GetEnemy()
-
         if ene:IsPlayer() && istable(ene.AttackingZBaseNPCs) && self:ZBWepSys_TooManyAttacking(ene) then
             return false
         end
