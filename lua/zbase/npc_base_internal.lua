@@ -1106,6 +1106,7 @@ function NPC:ZBWepSys_CreateSuppressionPoint( target )
     target.ZBase_SuppressionBullseye:SetPos( pos )
     target.ZBase_SuppressionBullseye:Spawn()
     target.ZBase_SuppressionBullseye:SetModel("models/props_lab/huladoll.mdl")
+    target:DeleteOnRemove(target.ZBase_SuppressionBullseye) -- Remove suppression point when target does not exist anymore
     
     if Developer:GetBool() then
         target.ZBase_SuppressionBullseye:SetNoDraw(false)
