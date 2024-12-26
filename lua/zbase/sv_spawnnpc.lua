@@ -38,6 +38,7 @@ end
 
 
 ZBaseNPCCount = 0
+local wep_override = GetConVar("gmod_npcweapon")
 function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate, SpawnFlagsSaved )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
@@ -121,38 +122,36 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	for _, v in pairs( NPCData.Weapons or {} ) do
 		if ( v == Equipment ) then valid = true break end
 	end
-	if Equipment && Equipment != "none" && valid then
+	if Equipment == "zbase_random_weapon" then
+		local randTBL = table.Copy(ZBaseNPCWeps)
+		table.Add(randTBL,
+		{"weapon_pistol", "weapon_357", "weapon_crossbow",
+		"weapon_crowbar", "weapon_ar2", "weapon_rpg",
+		"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
 
-		if ZBCVAR.RandWep:GetBool() && !string.find(ZBCVAR.RandWepNPCBlackList:GetString(), Class) then
-
-			local randTBL = table.Copy(ZBaseNPCWeps)
-			table.Add(randTBL,
-			{"weapon_pistol", "weapon_357", "weapon_crossbow",
-			"weapon_crowbar", "weapon_ar2", "weapon_rpg",
-			"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
-
-			for i, wclass in ipairs( table.Copy(randTBL) ) do
-				if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
-					table.RemoveByValue(randTBL, wclass)
-				end
+		for i, wclass in ipairs( table.Copy(randTBL) ) do
+			if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
+				table.RemoveByValue(randTBL, wclass)
 			end
-
-			local randWep = randTBL[math.random(1, #randTBL)]
-
-			if randWep then
-				Equipment = randWep
-			else
-				PrintMessage(HUD_PRINTTALK, "Unable to randomize weapons...")
-			end
-
 		end
 
+		local randWep = randTBL[math.random(1, #randTBL)]
+
+		if randWep then
+			Equipment = randWep
+		else
+			PrintMessage(HUD_PRINTTALK, "Unable to randomize weapons...")
+		end
+
+		NPC:SetKeyValue( "additionalequipment", Equipment )
+		NPC.Equipment = Equipment
+
+	elseif Equipment && Equipment != "none" && valid then
 
 		NPC:SetKeyValue( "additionalequipment", Equipment )
 		NPC.Equipment = Equipment
 
 	end
-
 
     -- Ceiling and floor functions
 	if ( wasSpawnedOnCeiling && isfunction( NPCData.OnCeiling ) ) then

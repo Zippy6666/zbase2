@@ -14,11 +14,20 @@ ZBasePatchTable[my_cls] = function( NPC )
             return
 
         end
-
         
         self.DoingHunterDamageFix = nil
         
     end
+
+    function NPC:Patch_TakeDamage( dmg )
+        local infl = dmg:GetInflictor()
+
+        if infl:IsValid() && infl:GetClass() == "prop_combine_ball" then
+            self.RagdollApplyForce = false -- Don't fly a fkin mile
+            self:InduceDeath(dmg)
+        end
+    end
+
 
     function NPC:Patch_IsFailSched(sched)
 

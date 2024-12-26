@@ -31,7 +31,8 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	icon:SetAdminOnly( obj.admin )
 	icon:SetColor( Color( 205, 92, 92, 255 ) )
 	icon.DoClick = function()
-		local override = GetConVar("gmod_npcweapon"):GetString()
+		local override = (ZBCVAR.RandWep:GetBool() && "zbase_random_weapon") or GetConVar("gmod_npcweapon"):GetString()
+
 		RunConsoleCommand( "zbase_spawnnpc", obj.spawnname, override == "" && table.Random(obj.weapon) or override )
 		surface.PlaySound( "buttons/button16.wav" )
 	end
@@ -233,10 +234,23 @@ function PANEL:AddHelp( text )
 end
 
 
+function PANEL:AddCheckbox( text, cvar )
+	local DermaCheckbox = self:Add( "DCheckBoxLabel", self )
+	DermaCheckbox:Dock( TOP )
+	DermaCheckbox:SetText( text )
+	DermaCheckbox:SetDark( true )
+	DermaCheckbox:SetConVar( cvar)
+	DermaCheckbox:SizeToContents()
+	DermaCheckbox:DockMargin( 0, 5, 0, 0 )
+end
+
+
 function PANEL:Init()
 
 	self:DockPadding( 15, 10, 15, 10 )
-	self:SetOpenSize(135)
+	self:SetOpenSize(150)
+
+	self:AddCheckbox( "Random Weapons", "zbase_randwep" )
 
 	self:AddHelp("Faction Settings")
 

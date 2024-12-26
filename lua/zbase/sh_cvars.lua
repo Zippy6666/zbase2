@@ -23,7 +23,6 @@ ZBCVAR.CampaignReplace = CreateConVar("zbase_camp_replace", "0", Flags)
 ZBCVAR.ItemDrop = CreateConVar("zbase_item_drops", "1", Flags)
 ZBCVAR.DissolveWep = CreateConVar("zbase_dissolve_wep", "0", Flags)
 ZBCVAR.Static = CreateConVar("zbase_static", "0", Flags)
-ZBCVAR.RandWep = CreateConVar("zbase_randwep", "0", Flags)
 ZBCVAR.RandWepNPCBlackList = CreateConVar("zbase_randwep_blacklist_npc", "beta_unit_combine_assassin", Flags)
 ZBCVAR.RandWepBlackList = CreateConVar("zbase_randwep_blacklist_wep", "", Flags)
 ZBCVAR.MuzzleLight = CreateConVar("zbase_muzzle_light", "1", Flags)
@@ -49,6 +48,7 @@ ZBCVAR.NPCNocollide = CreateConVar("zbase_nocollide", "0", Flags)
 if CLIENT then
     ZBCVAR.GlowingEyes = CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)
     ZBCVAR.PopUp = CreateConVar("zbase_popup", "1", FCVAR_ARCHIVE)
+    ZBCVAR.RandWep = CreateConVar("zbase_randwep", "0", FCVAR_ARCHIVE)
 end
 
 

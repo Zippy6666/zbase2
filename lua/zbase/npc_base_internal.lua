@@ -1957,9 +1957,7 @@ function NPC:RangeThreatened( threat )
     if self.NextRangeThreatened > CurTime() then return end
     if self.Dead or self.DoingDeathAnim then return end
 
-
-    self:CONV_CallNextTick("OnRangeThreatened", threat)
-
+    self:OnRangeThreatened( threat )
 
     self.NextRangeThreatened = CurTime()+3
 end
@@ -3685,6 +3683,11 @@ function NPC:OnEntityTakeDamage( dmg )
     local scale = self.DamageScaling[dmg:GetDamageType()]
     if scale then
         dmg:ScaleDamage(scale)
+    end
+
+
+    if self.Patch_TakeDamage then
+        self:Patch_TakeDamage( dmg )
     end
 
 
