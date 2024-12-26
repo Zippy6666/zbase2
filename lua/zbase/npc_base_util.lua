@@ -340,17 +340,21 @@ end
 
     -- Kills the NPC (no death animation)
     -- 'dmginfo' - Damage info, not required
-function NPC:InduceDeath( dmginfo )
+    -- 'no_kill_feed_msg' - Set to true to not use kill feed message
+function NPC:InduceDeath( dmginfo, no_kill_feed_msg )
 
     dmginfo = dmginfo or self:LastDMGINFO()
 
     self.DeathAnim_Finished = true
 
-
     local att = dmginfo:GetAttacker()
     local infl = dmginfo:GetInflictor()
 
-    hook.Run("OnNPCKilled", self, IsValid(att) && att or self, IsValid(infl) && infl or self )
+    if no_kill_feed_msg then
+        self:OnDeath(IsValid(att) && att or self, IsValid(infl) && infl or self, dmginfo, HITGROUP_GENERIC)
+    else
+        hook.Run("OnNPCKilled", self, IsValid(att) && att or self, IsValid(infl) && infl or self )
+    end
 
 end
 

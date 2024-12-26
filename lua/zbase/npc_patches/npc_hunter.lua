@@ -24,7 +24,7 @@ ZBasePatchTable[my_cls] = function( NPC )
 
         if infl:IsValid() && infl:GetClass() == "prop_combine_ball" then
             self.RagdollApplyForce = false -- Don't fly a fkin mile
-            self:InduceDeath(dmg)
+            self:InduceDeath(dmg, true)
         end
     end
 

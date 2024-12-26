@@ -252,8 +252,6 @@ function PANEL:Init()
 
 	self:AddCheckbox( "Random Weapons", "zbase_randwep" )
 
-	self:AddHelp("Faction Settings")
-
 	self.PlyFactionDropDown = self:AddDropdown("Your Faction", function( v )
 		if v != "" then
 			net.Start("ZBasePlayerFactionSwitch")

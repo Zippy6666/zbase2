@@ -164,9 +164,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
     ZBaseAddMenuCategory("E - Weapons", function( panel )
 
-        panel:CheckBox("Random Weapon", "zbase_randwep")
-        panel:Help("Should ZBase NPCs spawn with a random zbase weapon?")
-
         panel:TextEntry("Rand Wep NPC Blacklist", "zbase_randwep_blacklist_npc")
         panel:Help("ZBase NPCs that should not have their weapons randomized, separate with spaces.")
     
