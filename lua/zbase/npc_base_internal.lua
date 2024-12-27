@@ -61,7 +61,6 @@ function NPC:ZBaseInit()
     self.EInternalVars = nil
 
 
-
     self:InitModel()
     self:InitBounds()
     self:AddEFlags(EFL_NO_DISSOLVE)
@@ -221,7 +220,13 @@ function NPC:InitBounds()
 
     if self.CollisionBounds then
 
-        self:SetCollisionBounds( self.CollisionBounds.min, self.CollisionBounds.max )
+        if self.IsZBase_SNPC then
+            -- Workaround: Needs to be called next tick on SNPCs for some reason...
+            self:CONV_CallNextTick("SetCollisionBounds", self.CollisionBounds.min, self.CollisionBounds.max)
+        else
+            self:SetCollisionBounds( self.CollisionBounds.min, self.CollisionBounds.max )
+        end
+
         self:SetSurroundingBounds(self.CollisionBounds.min*1.3, self.CollisionBounds.max*1.3)
 
     end
