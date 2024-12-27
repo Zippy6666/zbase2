@@ -58,8 +58,12 @@ hook.Add("InitPostEntity", "ZBASE", function()
             closeButton:Dock(BOTTOM)
             closeButton:SetHeight(30)
             closeButton.DoClick = function()
-                notification.AddLegacy("You can disable the ZBase pop-up in the ZBase settings tab.", NOTIFY_HINT, 5)
                 frame:Close()
+            end
+
+            frame.OnClose = function()
+                notification.AddLegacy("You can disable the ZBase pop-up in the ZBase settings tab.", NOTIFY_HINT, 5)
+                chat.AddText(Color(0, 200, 255), "You can disable the ZBase pop-up in the ZBase settings tab.")
             end
         end
 
