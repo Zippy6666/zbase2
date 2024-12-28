@@ -32,6 +32,10 @@
 - [x] Encourage mfs to install hearing system and dynamic squads on boot
 - [x] Improve Aerial AI movement
 - [x] NPC weapon suppressing
-- [ ] Fix issues with facing when playing animations (facing for too long or too short?)
-- [ ] Revamp static/stationary into more of a guard mode
+    - [ ] Same system for base range attack
+- [ ] Divide base into smaller files
+- [ ] Is it possible to change jump distances for NPCs?
+- [ ] NPCs use ladders?
+- [ ] Emit alert and lost enemy sounds more logically
+- [ ] NPCs push props away
 - [ ] More tools (faction, guard, bullseye, smart debugger (show cond, profficiency, etc))

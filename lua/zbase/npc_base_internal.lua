@@ -387,21 +387,6 @@ end
 --]]
 
 
-local StrNPCStates = {
-    [NPC_STATE_NONE] = "NPC_STATE_NONE",
-    [NPC_STATE_IDLE] = "NPC_STATE_IDLE",
-    [NPC_STATE_SCRIPT] = "NPC_STATE_SCRIPT",
-    [NPC_STATE_ALERT] = "NPC_STATE_ALERT",
-    [NPC_STATE_COMBAT] = "NPC_STATE_COMBAT",
-    [NPC_STATE_INVALID] = "NPC_STATE_INVALID",
-    [NPC_STATE_DEAD] = "NPC_STATE_DEAD",
-    [NPC_STATE_PLAYDEAD] = "NPC_STATE_PLAYDEAD",
-    [NPC_STATE_PRONE] = "NPC_STATE_PRONE",
-}
-
-
-
-
 function NPC:ZBaseThink()
 
     -- Don't think if has EFL_NO_THINK_FUNCTION
@@ -487,7 +472,7 @@ function NPC:ZBaseThink()
 
                 return {
                     self:WorldSpaceCenter()+self:GetUp()*50,
-                    "sched: "..tostring(ZBaseSchedDebug(self)), --..", state: "..StrNPCStates[self:GetNPCState()],
+                    "sched: "..tostring(ZBaseSchedDebug(self)),
                     0.13,
                 }
 
@@ -1112,13 +1097,27 @@ function NPC:ZBWepSys_CreateSuppressionPoint( target )
     target.ZBase_SuppressionBullseye:Spawn()
     target.ZBase_SuppressionBullseye:SetModel("models/props_lab/huladoll.mdl")
     target:DeleteOnRemove(target.ZBase_SuppressionBullseye) -- Remove suppression point when target does not exist anymore
-    
+    SafeRemoveEntityDelayed(target.ZBase_SuppressionBullseye, 8) -- Remove suppression point after some time
+
     if Developer:GetBool() then
         target.ZBase_SuppressionBullseye:SetNoDraw(false)
         target.ZBase_SuppressionBullseye:SetMaterial("models/wireframe")
     end
     
     target.ZBase_SuppressionBullseye:SetNotSolid(true)
+end
+
+
+function NPC:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
+    if !ene.ZBase_DontCreateSuppressionPoint then
+        return true
+    end
+
+    if ene.ZBase_DontCreateSuppressionPoint[self] then
+        return false
+    end
+
+    return true
 end
 
 
@@ -1148,36 +1147,44 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     local ene = self:GetEnemy()
 
-    if !self.EnemyVisible then
+    if !self.EnemyVisible
+    && self:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
+    && !ene.Is_ZBase_SuppressionBullseye -- Don't create a suppression point for a suppression point...
+    then
 
-        if !IsValid(ene.ZBase_SuppressionBullseye)
-        && !ene.Is_ZBase_SuppressionBullseye then -- Don't create a suppression point for a suppression point...
-
+        if !IsValid(ene.ZBase_SuppressionBullseye) then 
             -- Create a new suppression point for this enemy if there is none
             self:ZBWepSys_CreateSuppressionPoint( ene )
-
         end
 
-        -- Can see enemy's current suppression point, suppress it next time we are asked if we want to shoot
+        -- Can see enemy's current suppression point, start hating it and make it enemy to us
         if IsValid(ene.ZBase_SuppressionBullseye) then
-
             self:ZBWepSys_TrySuppress(ene)
-
         end
+
+        -- Don't allow new suppression points for this enemy until it is seen again
+        ene.ZBase_DontCreateSuppressionPoint = ene.ZBase_DontCreateSuppressionPoint or {}
+        self:CONV_MapInTable( ene.ZBase_DontCreateSuppressionPoint )
 
         -- Don't shoot since enemy is not visible
         return false
 
-    elseif IsValid(ene) then
+    end
+
+    if IsValid(ene) && self.EnemyVisible then
 
         -- Enemy is visible...
+
+        if ene.ZBase_DontCreateSuppressionPoint then
+            ene.ZBase_DontCreateSuppressionPoint[self] = nil -- Allow new suppression points to be created
+        end
 
         -- Remove their suppression point since we know they are no longer there
         self:ZBWepSys_RemoveSuppressionPoint( ene )
 
     end
 
-    -- Enemy is a suppression point and its NPC/player (the actual enemy) is in visible
+    -- Enemy is a suppression point and its NPC/player (the actual enemy) is visible
     -- stop attacking this point and attack the NPC/player instead
     -- TODO: Change to in view cone instead of visible
     if ene.Is_ZBase_SuppressionBullseye
@@ -1888,9 +1895,9 @@ local RangeAttackActs = {
 
 function NPC:AITick_Slow()
     -- Loose enemy
-    if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
-        self:MarkEnemyAsEluded()
-    end
+    -- if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
+    --     self:MarkEnemyAsEluded()
+    -- end
 
     -- Update current danger
     self:InternalDetectDanger()
