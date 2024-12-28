@@ -29,7 +29,6 @@ NPC.AlertAlliesDistance = 2000 -- Call for help distance
 NPC.CanBeAlertedByAlly = true -- Can this NPC be called by other allies when they need help?
 NPC.HearDistMult = 1 -- Hearing distance multiplier when this addon is enabled: https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.TimeUntilLooseEnemy = 15 -- Time until it no longer knows where the enemy is
-NPC.TimeUntilExitAlert = 15 -- Time until it goes from an alert state, to an idle state
 
 
 NPC.HullType = false -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
@@ -238,7 +237,7 @@ NPC.RagdollDontAnglePhysObjects = false
 NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
 NPC.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
 NPC.MeleeAttackTurnSpeed = 15 -- Speed that it turns while trying to face the enemy when melee attacking
-NPC.MeleeAttackDistance = 75 -- Distance that it initiates the melee attack from
+NPC.MeleeAttackDistance = 50 -- Distance that it initiates the melee attack from
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever you want
 
@@ -248,7 +247,7 @@ NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack anima
 
 
 NPC.MeleeDamage = {10, 10} -- Melee damage {min, max}
-NPC.MeleeDamage_Distance = 100 -- Damage reach distance
+NPC.MeleeDamage_Distance = 70 -- Damage reach distance
 NPC.MeleeDamage_Angle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
 NPC.MeleeDamage_Delay = 1 -- Time until the damage strikes, set to false to disable the timer (if you want to use animation events instead for example)
 NPC.MeleeDamage_Type = DMG_GENERIC -- The damage type, https://wiki.facepunch.com/gmod/Enums/DMG
@@ -841,6 +840,12 @@ end
     -- Called a tick after an entity owned by this NPC is created
     -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
 function NPC:CustomOnOwnedEntCreated( ent )
+end
+
+
+    -- Called a tick after child entity of this NPC is spawned
+    -- Similiar to the function above
+function NPC:CustomOnParentedEntCreated( ent )
 end
 
 

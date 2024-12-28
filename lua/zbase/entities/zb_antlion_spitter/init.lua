@@ -57,18 +57,21 @@ NPC.OnRangeSound_Chance = 1
 NPC.GibMaterial = "models/antlionspitter/antlionhigh_sheet2"
 NPC.GibParticle = "blood_impact_zbase_blue"
 
---]]==============================================================================================]]
+
+
 function NPC:CustomDealDamage( victimEnt, dmginfo )
     if dmginfo:IsDamageType(DMG_SLASH) then
         dmginfo:SetDamageType(bit.bor(DMG_POISON, DMG_ACID, DMG_SLASH))
         dmginfo:ScaleDamage(5)
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:CustomInitialize()
     self:SetSkin(1)
 end
---]]==============================================================================================]]
+
+
 function NPC:RangeAttackProjectile()
     local projStartPos = self:Projectile_SpawnPos()
 
@@ -85,4 +88,4 @@ function NPC:RangeAttackProjectile()
 
     self:EmitSound("NPC_Antlion.RunOverByVehicle")
 end
---]]==============================================================================================]]
+

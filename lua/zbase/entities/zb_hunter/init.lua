@@ -20,15 +20,6 @@ NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 NPC.ZBaseStartFaction = "combine"
 
 
-    -- Death animations to use, leave empty to disable the base death animation
-NPC.DeathAnimations = {
-    "death_stagger_e",
-    "death_stagger_s",
-    "death_stagger_w",
-}
-NPC.DeathAnimationSpeed = 1.25 -- Speed of the death animation
-NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
-NPC.DeathAnimationDuration = false -- Duration of death animation
 NPC.RagdollUseAltPositioning = true -- Try setting this to true if the ragdoll positioning is buggy
 
 
@@ -46,6 +37,8 @@ NPC.SeeDangerSounds = "ZBaseHunter.SeeDanger" -- Sounds emitted when the NPC spo
 NPC.FootStepSounds = "ZBaseHunter.Step"
 NPC.LostEnemySound = "NPC_Hunter.FlankAnnounce"
 
+NPC.DeathSounds = "NPC_Hunter.Death"
+
 
 NPC.DodgeAnimations = {
     Left = "dodge_w",
@@ -61,35 +54,30 @@ local HUNTER_DODGE_RIGHT = 2
 function NPC:OnRangeThreatened( ent )
     local Center = self:WorldSpaceCenter()
 
-
     local TraceRight = util.TraceLine({
-        start = self:GetPos(),
-        endpos = self:GetPos()+self:GetRight()*200,
+        start = self:WorldSpaceCenter(),
+        endpos = self:WorldSpaceCenter()+self:GetRight()*200,
         mask = MASK_NPCSOLID,
         filter = self,
     })
-
 
     local TraceLeft = util.TraceLine({
-        start = self:GetPos(),
-        endpos = self:GetPos()-self:GetRight()*200,
+        start = self:WorldSpaceCenter(),
+        endpos = self:WorldSpaceCenter()-self:GetRight()*200,
         mask = MASK_NPCSOLID,
         filter = self,
     })
-
 
     if math.random(1, 2) == 1 && !TraceRight.Hit then
 
-        self:PlayAnimation(self.DodgeAnimations.Right, false, {face=ent, speedMult=1.3})
+        self:PlayAnimation(self.DodgeAnimations.Right, false, {face=ent, speedMult=1.2, duration=1})
+        self:EmitSound(self.SeeDangerSounds)
 
     elseif !TraceLeft.Hit then
 
-        self:PlayAnimation(self.DodgeAnimations.Left, false, {face=ent, speedMult=1.3})
+        self:PlayAnimation(self.DodgeAnimations.Left, false, {face=ent, speedMult=1.2, duration=1})
+        self:EmitSound(self.SeeDangerSounds)
+
     end
-
-
-    self:EmitSound(self.SeeDangerSounds)
-
-
 end
 

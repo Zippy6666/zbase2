@@ -19,15 +19,9 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 --]]
 
 
-local barely_visible = Color(5,5,5,5)
 function SWEP:Initialize()
-
 	self:Init()
-
-
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
-
-
 end
 
 
@@ -102,7 +96,7 @@ function SWEP:PrimaryAttack()
 	end
 
 end
-
+ 
 
 function SWEP:TakePrimaryAmmo( num )
 	
@@ -455,30 +449,6 @@ end
                             NPC Stuff: Activity Translate
 ==================================================================================================
 --]]
-
-	-- When translated act is a gesture for players, play this activity instead (and apply the gesture on top of that)
-local PlyMdlAct_GestTranslate = {
-
-	-- AR2
-	[ACT_HL2MP_GESTURE_RELOAD_AR2] = ACT_HL2MP_IDLE_AR2,
-	[ACT_HL2MP_GESTURE_RANGE_ATTACK_AR2] = ACT_HL2MP_IDLE_AR2,
-
-}
-
-
-	-- Test for now...
-local PlyMdlActTrans = {
-	["ar2"] = {
-		[ACT_IDLE] = ACT_HL2MP_IDLE_AR2,
-		[ACT_WALK] = ACT_HL2MP_WALK_PASSIVE,
-		[ACT_RUN] = ACT_HL2MP_RUN_PASSIVE,
-		[ACT_RANGE_ATTACK1] = ACT_HL2MP_GESTURE_RANGE_ATTACK_AR2,
-		[ACT_RANGE_ATTACK1_LOW] = ACT_HL2MP_IDLE_CROUCH_AR2,
-		[ACT_RELOAD_SMG1] = ACT_HL2MP_GESTURE_RELOAD_AR2,
-	}
-}
-
-
 
 
 function SWEP:TranslateActivity( act )

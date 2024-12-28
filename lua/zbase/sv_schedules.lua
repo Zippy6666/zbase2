@@ -67,6 +67,10 @@ function ZSched:AerialBackAway_NoNav( sched )
     sched:EngTask( "TASK_WAIT",  3 )
 end
 
+function ZSched:PursueAerialGoal( sched )
+    sched:EngTask("TASK_WAIT_INDEFINITE", 0)
+end
+
 --[[
 ======================================================================================================================================================
                                            OTHER SCHEDULES

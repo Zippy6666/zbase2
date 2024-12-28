@@ -340,17 +340,21 @@ end
 
     -- Kills the NPC (no death animation)
     -- 'dmginfo' - Damage info, not required
-function NPC:InduceDeath( dmginfo )
+    -- 'no_kill_feed_msg' - Set to true to not use kill feed message
+function NPC:InduceDeath( dmginfo, no_kill_feed_msg )
 
     dmginfo = dmginfo or self:LastDMGINFO()
 
     self.DeathAnim_Finished = true
 
-
     local att = dmginfo:GetAttacker()
     local infl = dmginfo:GetInflictor()
 
-    hook.Run("OnNPCKilled", self, IsValid(att) && att or self, IsValid(infl) && infl or self )
+    if no_kill_feed_msg then
+        self:OnDeath(IsValid(att) && att or self, IsValid(infl) && infl or self, dmginfo, HITGROUP_GENERIC)
+    else
+        hook.Run("OnNPCKilled", self, IsValid(att) && att or self, IsValid(infl) && infl or self )
+    end
 
 end
 
@@ -403,6 +407,8 @@ end
     -- 'data' (table)
         -- 'data.offset' - Vector position offset relative to itself
         -- 'data.DontBleed' - If true, the gib will not have blood effects
+        -- 'IsRagdoll' - If true, spawn gib as ragdoll
+        -- 'SmartPositionRagdoll' - If true, position the ragdoll like the NPC
 function NPC:CreateGib( model, data )
     return self:InternalCreateGib( model, data )
 end
@@ -444,8 +450,8 @@ function NPC:GetNearbyAllies( radius )
 end
 
 
--- Same as above but uses a box and is probably more optimized
--- Only detects ZBase NPCs
+    -- Same as above but uses a box and is probably more optimized
+    -- Only detects ZBase NPCs
 local MinMaxCache = {}
 function NPC:GetNearbyAlliesOptimized( lenght )
     local allies = {}
@@ -484,6 +490,25 @@ function NPC:GetNearestAlly( radius )
     local ally
 
     for _, v in ipairs(self:GetNearbyAllies(radius)) do
+        local dist = self:GetPos():DistToSqr(v:GetPos())
+
+        if !mindist or dist < mindist then
+            mindist = dist
+            ally = v
+        end
+    end
+
+    return ally
+end
+
+
+    -- Same as above but uses a box and should be more optimized
+    -- Only returns ZBase NPCs
+function NPC:GetNearestAllyOptimized( lenght )
+    local mindist
+    local ally
+
+    for _, v in ipairs(self:GetNearbyAlliesOptimized(lenght)) do
         local dist = self:GetPos():DistToSqr(v:GetPos())
 
         if !mindist or dist < mindist then

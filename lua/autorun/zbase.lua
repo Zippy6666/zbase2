@@ -341,6 +341,7 @@ local function IncludeFiles()
     if CLIENT then
         include("zbase/cl_spawnmenu.lua")
         include("zbase/cl_toolmenu.lua")
+        include("zbase/cl_npcspawninfo.lua")
     end
 
 end
@@ -357,6 +358,7 @@ local function AddCSLuaFiles()
 
     AddCSLuaFile("zbase/cl_spawnmenu.lua")
     AddCSLuaFile("zbase/cl_toolmenu.lua")
+    AddCSLuaFile("zbase/cl_npcspawninfo.lua")
 
     AddCSLuaFile("zbase/npc_base_shared.lua")
 
@@ -633,34 +635,61 @@ if SERVER then
 
     end)
 
-    
-    -- When these files are changed, reload 
-    local filenames = {
-        "zbase/npc_base_internal.lua",
-        "zbase/npc_base_init.lua",
-        "zbase/npc_base_shared.lua",
-        "zbase/npc_base_util.lua",
-    }
+
+    local function FetchFilenamesForAddonsInDevelopment()
+        local root = "addons/"
+        local filenames = {}
+
+        -- ZBase installed as legacy addon
+        if file.Find("zbase/npc_base_internal.lua", "GAME") then
+            table.insert(filenames, "zbase/npc_base_internal.lua")
+            table.insert(filenames, "zbase/npc_base_init.lua")
+            table.insert(filenames, "zbase/npc_base_shared.lua")
+            table.insert(filenames, "zbase/npc_base_util.lua")
+
+            local files = file.Find("zbase/npc_patches/*", "LUA")
+            for _, f in ipairs(files) do
+                table.insert(filenames, "zbase/npc_patches/"..f)
+            end
+        end
+
+        local _, dirs = file.Find(root.."*", "GAME")
+
+        for k, v in ipairs(dirs) do
+            local checkpath = root..v.."/lua/zbase/entities/"
+
+            if file.Exists(checkpath, "GAME") then
+                local _, zbase_folder_names = file.Find(checkpath.."*", "GAME")
+
+                for _, zbase_folder_name in ipairs(zbase_folder_names) do
+                    if file.Exists( "zbase/entities/"..zbase_folder_name.."/init.lua", "LUA" ) then
+                        table.insert(filenames, "zbase/entities/"..zbase_folder_name.."/init.lua")
+                    end
+
+                    if file.Exists("zbase/entities/"..zbase_folder_name.."/shared.lua", "LUA") then
+                        table.insert(filenames, "zbase/entities/"..zbase_folder_name.."/shared.lua")
+                    end
+
+                    if file.Exists("zbase/entities/"..zbase_folder_name.."/behaviour.lua", "LUA") then
+                        table.insert(filenames, "zbase/entities/"..zbase_folder_name.."/behaviour.lua")
+                    end
+                end
+            end
+        end
+
+        return filenames
+    end
 
 
-    -- local function FetchFilenamesForAddonsInDevelopment()
-    --     local root = "addons/"
-    --     local _, dirs = file.Find(root.."*", "GAME")
-    --     for k, v in ipairs(dirs) do
-    --         local checkpath = root..v.."/lua/zbase/entities/"
-    --         if file.Exists(checkpath, "GAME") then
-    --             local _, zbase_folder_names = file.Find(checkpath.."*", "GAME")
-    --             for _, zbase_folder_name in ipairs(zbase_folder_names) do
-    --                 print(zbase_folder_name)
-    --             end
-    --         end
-    --     end        
-    -- end
+    concommand.Add("zbase_update_autorefresh", function()
+        ZBaseFilesToAutorefresh = FetchFilenamesForAddonsInDevelopment()
+    end)
 
 
     local function AutoRefreshFunc()
-        for _, fname in ipairs(filenames) do
-            if !file.Exists(fname, "LUA") then continue end
+        ZBaseFilesToAutorefresh = ZBaseFilesToAutorefresh or FetchFilenamesForAddonsInDevelopment()
+
+        for _, fname in ipairs(ZBaseFilesToAutorefresh) do
             local time = file.Time(fname, "LUA")
 
             if ZBaseLastSavedFileTimeRegistry[fname] && ZBaseLastSavedFileTimeRegistry[fname] != time then
@@ -676,7 +705,7 @@ if SERVER then
 
 
     local Developer = GetConVar("developer")
-    timer.Create("ZBaseAutoRefresh_Base (set developer to 0 if performance is impacted too much!)", 3, 0, function()
+    timer.Create("ZBaseAutoRefresh_Base (set developer to 0 if performance is impacted too much!)", 4, 0, function()
         if !Developer:GetBool() then return end
 
         pcall(AutoRefreshFunc)

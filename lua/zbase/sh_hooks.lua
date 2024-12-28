@@ -11,25 +11,18 @@ ReloadedSpawnmenuRecently = false
 --]]
 
 
-hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
+hook.Add("InitPostEntity", "ZBASE", function()
 
     -- Override functions
     timer.Simple(0.5, function()
         include("zbase/sh_override_functions.lua")
     end)
     
-    
+
     if CLIENT then
 
         -- Follow halo table
         LocalPlayer().ZBaseFollowHaloEnts = LocalPlayer().ZBaseFollowHaloEnts or {}
-
-
-        -- Cool message
-        if ZBCVAR.StartMsg:GetBool() then
-            local wepCol = LocalPlayer():GetWeaponColor():ToColor()
-            chat.AddText(wepCol, "ZBase is running on this server! Github link: https://github.com/Zippy6666/zbase2 (this message can be disabled in the ZBase options tab).")
-        end
 
 
         -- Add variable that checks if the spawn menu was recently reloaded
@@ -41,6 +34,38 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
                 ReloadedSpawnmenuRecently = false 
             end)
         end)
+
+
+        -- Welcome screen
+        if ZBCVAR.PopUp:GetBool() then
+            local frame = vgui.Create("DFrame")
+            frame:SetTitle("ZBASE")
+            frame:SetSize(1400, 700)
+            frame:Center()
+            frame:MakePopup()
+            frame:SetBackgroundBlur(true)
+
+            local html = vgui.Create("DHTML", frame)
+            html:Dock(TOP)
+            html:SetHeight(600)
+
+            -- Replace "YOUR_COLLECTION_ID" with your actual Workshop collection ID
+            local workshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=3390418473"
+            html:OpenURL(workshopLink)
+
+            local closeButton = vgui.Create("DButton", frame)
+            closeButton:SetText("Close")
+            closeButton:Dock(BOTTOM)
+            closeButton:SetHeight(30)
+            closeButton.DoClick = function()
+                frame:Close()
+            end
+
+            frame.OnClose = function()
+                notification.AddLegacy("You can disable the ZBase pop-up in the ZBase settings tab.", NOTIFY_HINT, 5)
+                chat.AddText(Color(0, 200, 255), "You can disable the ZBase pop-up in the ZBase settings tab.")
+            end
+        end
 
     end
 
@@ -66,8 +91,7 @@ if SERVER then
             local zbaseClass = ent:GetKeyValues().parentname
             if ZBaseNPCs[zbaseClass] && !ent.IsDupeSpawnedZBaseNPC then
                 ZBaseNPCCopy( ent, zbaseClass, true )
-            end
-
+            end    
 
             -- When a entity owned by a ZBase NPC is created
             local own = ent:GetOwner()
@@ -77,6 +101,11 @@ if SERVER then
                 if own.Patch_CreateEnt then
                     own:Patch_CreateEnt( ent )
                 end
+            end
+        
+            local parent = ent:GetParent()
+            if IsValid(parent) && parent.IsZBaseNPC then
+                parent:OnParentedEntCreated( ent )
             end
         end)
 
@@ -100,7 +129,9 @@ if SERVER then
 
                 else
 
-                    ZBaseSetFaction(ent, ZBaseFactionTranslation[ent.m_iClass or ent:Classify()])
+                    ZBaseSetFaction(ent,
+                        ZBaseFactionTranslation[ent.m_iClass or ent:Classify()]
+                    )
 
                 end
             end
@@ -298,6 +329,32 @@ hook.Add("ScaleNPCDamage", "ZBASE", function ( npc, hit_gr, dmg )
 
     if npc.IsZBaseNPC then
         npc:OnScaleDamage( dmg, hit_gr )
+    end
+end)
+
+
+hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
+    if SERVER && !ZBCVAR.PlayerHurtAllies:GetBool() && ZBaseNPCCount > 0 then
+
+        local own = ent:GetOwner()
+        local shooterPly = (own:IsPlayer() && own) or (ent:IsPlayer() && ent)
+
+        if shooterPly then
+            local tr = util.TraceLine({
+                start = data.Src,
+                endpos = data.Src+data.Dir*10000,
+                mask = MASK_SHOT,
+                filter = shooterPly,
+            })
+
+            if IsValid(tr.Entity) && tr.Entity.IsZBaseNPC && tr.Entity:Disposition(shooterPly) == D_LI then
+                data.IgnoreEntity = tr.Entity
+                data.Num = 0
+                data.Distance = 0
+                return true
+            end
+        end
+    
     end
 end)
 
@@ -572,7 +629,6 @@ if CLIENT then
     net.Receive("ZBaseClientRagdoll", function()
         local ent = net.ReadEntity() if !IsValid(ent) then return end
         local rag = ent:BecomeRagdollOnClient()
-        print(ent, rag, "became rag")
     end)
 end
 

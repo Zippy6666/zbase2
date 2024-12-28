@@ -25,16 +25,17 @@
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
 
 # TODO
-- [ ] NPC weapon suppressing
-- [ ] Autorefresh for ZBase legacy addons
-- [ ] Revamp static/stationary into more of a guard mode
-- [ ] Make so that the NPC has time to try execute move before jump when doing ZBaseMove (to reduce amount of jumping and give the NPC a chance to traverse on foot)
-- [ ] Try improve AI when enemy is lost (so that they don't spam enemy lost sounds)
-- [ ] Revamp aerial AI?
-- [x] Increase frequency of facing check when using weapons (so that they don't fire at enemies they aren't facing...)
-    - [ ] More?
-- [ ] Make AI less retarded in any way possible
-    - [ ] Stop metrocops from thowing grenades when they are in an arrest state (hell of an arrest to toss a frag at the suspect..)
-    - [ ] Look around more when seeking enemy
-    - [ ] Try to not loose track as easily, be more smart when seeking
-- [ ] SNPC:ify hunter and d0g
+- [x] Autorefresh for ZBase legacy addons
+- [x] Shrink filesize
+- [x] Make following better
+- [x] Fix issues with multiple NPCs firing acting weird
+- [x] Encourage mfs to install hearing system and dynamic squads on boot
+- [x] Improve Aerial AI movement
+- [x] NPC weapon suppressing
+    - [ ] Same system for base range attack
+- [ ] Divide base into smaller files
+- [ ] Is it possible to change jump distances for NPCs?
+- [ ] NPCs use ladders?
+- [ ] Emit alert and lost enemy sounds more logically
+- [ ] NPCs push props away
+- [ ] More tools (faction, guard, bullseye, smart debugger (show cond, profficiency, etc))

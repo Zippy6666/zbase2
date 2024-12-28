@@ -15,7 +15,8 @@ NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 
 
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Alert", {
     "vo/npc/male01/headsup01.wav",
     "vo/npc/male01/headsup02.wav",
@@ -23,25 +24,26 @@ ZBaseCreateVoiceSounds("ZBaseMale.Alert", {
     "vo/npc/male01/heretheycome01.wav",
     "vo/npc/male01/overthere01.wav",
     "vo/npc/male01/overthere02.wav",
-    "npc/vo/zbase/npc/male01/cit_shock01.wav",
-    "npc/vo/zbase/npc/male01/cit_shock02.wav",
-    "npc/vo/zbase/npc/male01/cit_shock03.wav",
-    "npc/vo/zbase/npc/male01/cit_shock04.wav",
-    "npc/vo/zbase/npc/male01/cit_shock05.wav",
-    "npc/vo/zbase/npc/male01/cit_shock06.wav",
-    "npc/vo/zbase/npc/male01/cit_shock07.wav",
-    "npc/vo/zbase/npc/male01/cit_shock08.wav",
-    "npc/vo/zbase/npc/male01/cit_shock09.wav",
-    "npc/vo/zbase/npc/male01/cit_shock10.wav",
-    "npc/vo/zbase/npc/male01/cit_shock11.wav",
-    "npc/vo/zbase/npc/male01/cit_alert_head06.wav",
-    "npc/vo/zbase/npc/male01/cit_alert_rollers04.wav",
-    "npc/vo/zbase/npc/male01/cit_alert_zombie09.wav",
-    "npc/vo/zbase/npc/male01/cit_alert_zombie06.wav",
-    "npc/vo/zbase/npc/male01/cit_alert_antlions06.wav",
-    "npc/vo/zbase/npc/male01/cit_alert_antlions08.wav",
+    "vo/episode_1/npc/male01/cit_shock01.wav",
+    "vo/episode_1/npc/male01/cit_shock02.wav",
+    "vo/episode_1/npc/male01/cit_shock03.wav",
+    "vo/episode_1/npc/male01/cit_shock04.wav",
+    "vo/episode_1/npc/male01/cit_shock05.wav",
+    "vo/episode_1/npc/male01/cit_shock06.wav",
+    "vo/episode_1/npc/male01/cit_shock07.wav",
+    "vo/episode_1/npc/male01/cit_shock08.wav",
+    "vo/episode_1/npc/male01/cit_shock09.wav",
+    "vo/episode_1/npc/male01/cit_shock10.wav",
+    "vo/episode_1/npc/male01/cit_shock11.wav",
+    "vo/episode_1/npc/male01/cit_alert_head06.wav",
+    "vo/episode_1/npc/male01/cit_alert_rollers04.wav",
+    "vo/episode_1/npc/male01/cit_alert_zombie09.wav",
+    "vo/episode_1/npc/male01/cit_alert_zombie06.wav",
+    "vo/episode_1/npc/male01/cit_alert_antlions06.wav",
+    "vo/episode_1/npc/male01/cit_alert_antlions08.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Question", {
     "vo/npc/male01/question01.wav", 
     "vo/npc/male01/question02.wav", 
@@ -74,31 +76,32 @@ ZBaseCreateVoiceSounds("ZBaseMale.Question", {
     "vo/npc/male01/question29.wav",
     "vo/npc/male01/question30.wav",
     "vo/npc/male01/question31.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks01.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks02.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks03.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks04.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks05.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks06.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks07.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks08.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks09.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks10.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks11.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks12.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks13.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks14.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks15.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks16.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks17.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks18.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks19.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks20.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks21.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks22.wav",
-    "npc/vo/zbase/npc/male01/cit_remarks23.wav",
+    "vo/episode_1/npc/male01/cit_remarks01.wav",
+    "vo/episode_1/npc/male01/cit_remarks02.wav",
+    "vo/episode_1/npc/male01/cit_remarks03.wav",
+    "vo/episode_1/npc/male01/cit_remarks04.wav",
+    "vo/episode_1/npc/male01/cit_remarks05.wav",
+    "vo/episode_1/npc/male01/cit_remarks06.wav",
+    "vo/episode_1/npc/male01/cit_remarks07.wav",
+    "vo/episode_1/npc/male01/cit_remarks08.wav",
+    "vo/episode_1/npc/male01/cit_remarks09.wav",
+    "vo/episode_1/npc/male01/cit_remarks10.wav",
+    "vo/episode_1/npc/male01/cit_remarks11.wav",
+    "vo/episode_1/npc/male01/cit_remarks12.wav",
+    "vo/episode_1/npc/male01/cit_remarks13.wav",
+    "vo/episode_1/npc/male01/cit_remarks14.wav",
+    "vo/episode_1/npc/male01/cit_remarks15.wav",
+    "vo/episode_1/npc/male01/cit_remarks16.wav",
+    "vo/episode_1/npc/male01/cit_remarks17.wav",
+    "vo/episode_1/npc/male01/cit_remarks18.wav",
+    "vo/episode_1/npc/male01/cit_remarks19.wav",
+    "vo/episode_1/npc/male01/cit_remarks20.wav",
+    "vo/episode_1/npc/male01/cit_remarks21.wav",
+    "vo/episode_1/npc/male01/cit_remarks22.wav",
+    "vo/episode_1/npc/male01/cit_remarks23.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Answer", {
     "vo/npc/male01/answer01.wav",
     "vo/npc/male01/answer02.wav",
@@ -140,29 +143,33 @@ ZBaseCreateVoiceSounds("ZBaseMale.Answer", {
     "vo/npc/male01/answer39.wav",
     "vo/npc/male01/answer40.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.KillEnemy", {
     "vo/npc/male01/gotone01.wav",
     "vo/npc/male01/gotone02.wav",
     "vo/npc/male01/likethat.wav",
-    "npc/vo/zbase/npc/male01/reb2_killshots01.wav",
-    "npc/vo/zbase/npc/male01/reb2_killshots22.wav",
-    "npc/vo/zbase/npc/male01/cit_alert_head05.wav",
+    "vo/episode_1/npc/male01/reb2_killshots01.wav",
+    "vo/episode_1/npc/male01/reb2_killshots22.wav",
+    "vo/episode_1/npc/male01/cit_alert_head05.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.HearSound", {
     "vo/npc/male01/startle01.wav",
     "vo/npc/male01/startle02.wav",
-    "npc/vo/zbase/npc/male01/cit_alert_antlions09.wav",
+    "vo/episode_1/npc/male01/cit_alert_antlions09.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Melee", {
     "vo/npc/male01/gethellout.wav",
     "vo/npc/male01/getdown02.wav",
-    "npc/vo/zbase/npc/male01/reb2_antlions05.wav",
-    "npc/vo/zbase/npc/male01/reb2_buddykilled13.wav",
+    "vo/episode_1/npc/male01/reb2_antlions05.wav",
+    "vo/episode_1/npc/male01/reb2_buddykilled13.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Follow", {
     "vo/npc/male01/leadtheway01.wav",
     "vo/npc/male01/leadtheway02.wav",
@@ -173,7 +180,8 @@ ZBaseCreateVoiceSounds("ZBaseMale.Follow", {
     "vo/npc/male01/readywhenyouare02.wav",
     "vo/npc/male01/squad_follow03.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseMale.Unfollow", {
     "vo/npc/male01/littlecorner01.wav",
     "vo/npc/male01/squad_affirm01.wav",
@@ -181,4 +189,15 @@ ZBaseCreateVoiceSounds("ZBaseMale.Unfollow", {
     "vo/npc/male01/squad_affirm03.wav",
     "vo/npc/male01/squad_affirm04.wav",
 })
---]]==============================================================================================]]
+
+
+ZBaseCreateVoiceSounds("ZBaseMale.AllyDeath", {
+    "vo/npc/male01/gordead_ans01.wav",
+    "vo/npc/male01/gordead_ans02.wav",
+    "vo/npc/male01/gordead_ans03.wav",
+    "vo/npc/male01/gordead_ans04.wav",
+    "vo/npc/male01/gordead_ans05.wav",
+    "vo/npc/male01/gordead_ans06.wav",
+    "vo/npc/male01/gordead_ans07.wav",
+    "vo/npc/male01/gordead_ques02.wav",
+})

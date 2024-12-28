@@ -6,8 +6,6 @@ include("zbase_aerial.lua")
 ENT.IsZBase_SNPC = true
 
 
-
-
 function ENT:Initialize()
 
 	self:SetSolid(SOLID_BBOX)
@@ -15,7 +13,6 @@ function ENT:Initialize()
 	self:SetCollisionGroup(COLLISION_GROUP_NPC)
 	self:SetBloodColor(BLOOD_COLOR_RED)
 	
-
 	self.Bullseye = ents.Create("npc_bullseye")
 	self.Bullseye:SetPos(self:GetPos())
 	self.Bullseye:SetAngles(self:GetAngles())
@@ -26,13 +23,6 @@ function ENT:Initialize()
 	self.Bullseye:Spawn()
 	self.Bullseye:Activate()
 
-
-	self:SNPCInitVars()
-
-end
-
-
-function ENT:SNPCInitVars()
 	self.NextDetermineNewSched = CurTime()
 	self.Move_AvoidSquadMembers = CurTime()
 	self.Aerial_NextMoveFromGroundCheck = CurTime()
@@ -44,21 +34,21 @@ function ENT:SNPCInitVars()
 	self.NextFaceHurtPos = CurTime()
 	self.NextGetBetterSchedule = CurTime()
 	self.NextSelectSchedule = CurTime()
+	self.InternalDistanceFromGround = self.Fly_DistanceFromGround
+
 end
 
 
 function ENT:Think()
 
+	-- Make sure we stay invisible when we are dead
 	if self.Dead && !self:GetNoDraw() then
 		self:SetNoDraw(true)
 	end
 
-
-
 	if self.SNPCType == ZBASE_SNPCTYPE_FLY then
 		self:AerialThink()
 	end
-
 
 	-- Apply notarget to its bullseye
 	if IsValid(self.Bullseye) then
@@ -72,38 +62,8 @@ function ENT:Think()
 
 	end
 
-
-
 	self:ZBaseThink()
 
-end
-
-
-local NPCMETA = FindMetaTable("NPC")
-ZBase_OldGetNearestSquadMember = ZBase_OldGetNearestSquadMember or NPCMETA.GetNearestSquadMember
-
-function NPCMETA:GetNearestSquadMember( radius, zbaseSNPCOnly )
-	if !self.IsZBase_SNPC then return ZBase_OldGetNearestSquadMember(self) end
-
-	local mindist
-	local squadmember
-
-	for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius or 256)) do
-		if v == self then continue end
-		if !v:IsNPC() then continue end
-		if zbaseSNPCOnly && !v.IsZBase_SNPC then continue end
-
-		if self:GetKeyValues().squadname == v:GetKeyValues().squadname then
-			local dist = self:GetPos():DistToSqr(v:GetPos())
-
-			if !mindist or dist < mindist then
-				mindist = dist
-				squadmember = v
-			end
-		end
-	end
-
-	return squadmember
 end
 
 
