@@ -34,6 +34,7 @@
 - [x] NPC weapon suppressing
     - [ ] Same system for base range attack
 - [ ] Divide base into smaller files
+- [ ] Better sorting in hooks and util files
 - [ ] Is it possible to change jump distances for NPCs?
 - [ ] NPCs use ladders?
 - [ ] Emit alert and lost enemy sounds more logically

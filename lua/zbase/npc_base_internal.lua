@@ -98,6 +98,28 @@ function NPC:ZBaseInit()
     end
 
 
+	-- Stuff for LUA based animation events
+	
+	if self:GetSequenceList() then
+	
+		self.m_tbAnimationFrames = {}
+		
+		for _, v in pairs( self:GetSequenceList() ) do
+		
+			local seqID = self:LookupSequence( v )
+			local seqFrames = self:SequenceGetFrames( seqID, 1 )
+			
+			self.m_tbAnimationFrames[v] = seqFrames
+			
+		end
+		
+		self.m_tbAnimEvents = {}
+		self.m_fFrameLast = -1
+		self.m_fSeqLast = -1		
+		
+	end
+
+
     self:Fire("wake")
 
 
@@ -516,6 +538,9 @@ function NPC:ZBaseThink()
     if self.DoingPlayAnim && self.IsZBase_SNPC then
         self:ExecuteWalkFrames()
     end
+
+
+    self:AnimationEventInternal()
 
 
     -- -- Controller
@@ -1875,6 +1900,70 @@ function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
     if self.Dead then return end
 
     self:SNPCHandleAnimEvent(event, eventTime, cycle, type, options)
+end
+
+
+function NPC:SequenceGetFrames(seqID, anim)
+	local animID = anim && self:GetSequenceInfo( seqID ).anims[ anim ]
+	return animID && self:GetAnimInfo( animID ).numframes || -1
+end
+
+
+function NPC:GetGestureSequence()
+	local gest
+	local lay
+	for i = 0, 5 do
+		if self:GetLayerSequence( i ) && self:GetLayerSequence( i ) > 0 then
+			gest = self:GetLayerSequence( i )
+			lay = i
+			break
+		end
+	end
+	return gest, lay || false
+end
+
+
+function NPC:AnimationEventInternal()
+	
+	if self.m_tbAnimEvents then
+
+		local seq = self:GetSequenceName( self:GetSequence() ) 
+		if ( self.m_tbAnimEvents[ seq ] ) then		
+			
+			if ( self.m_fSeqLast != seq ) then self.m_fSeqLast = seq; self.m_fFrameLast = -1 end				
+			local frameNew = math.floor( self:GetCycle() * self.m_tbAnimationFrames[ seq ] )	-- Despite what the wiki says, GetCycle doesn't return the frame, but a float between 0 and 1
+			for frame = self.m_fFrameLast + 1, frameNew do	-- a loop, just in case the think function is too slow to catch all frame changes					
+				if ( self.m_tbAnimEvents[ seq ][ frame ] ) then								
+					for _, ev in ipairs( self.m_tbAnimEvents[ seq ][ frame ] ) do
+						self:HandleLUAAnimationEvent( seq, ev )
+					end
+				end
+			end
+			self.m_fFrameLast = frameNew
+
+		end
+
+		local gest, layer = self:GetGestureSequence()
+
+		if !gest then return end
+
+		gest = self:GetSequenceName( gest ) 
+		if ( self.m_tbAnimEvents[ gest ] ) then		
+			
+			if ( self.m_gestSeqLast != gest ) then self.m_gestSeqLast = gest; self.m_gestFrameLast = -1 end				
+			local gestFrameNew = math.floor( self:GetLayerCycle( layer ) * self.m_tbAnimationFrames[ gest ] )	-- Despite what the wiki says, GetCycle doesn't return the frame, but a float between 0 and 1
+			for gFrame = self.m_gestFrameLast + 1, gestFrameNew do	-- a loop, just in case the think function is too slow to catch all frame changes					
+				if ( self.m_tbAnimEvents[ gest ][ gFrame ] ) then								
+					for _, ev in ipairs( self.m_tbAnimEvents[ gest ][ gFrame ] ) do
+						self:HandleAnimationEvent( gest, ev )
+					end
+				end
+			end
+			self.m_gestFrameLast = gestFrameNew
+		end
+
+	end
+
 end
 
 

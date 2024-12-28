@@ -883,6 +883,15 @@ end
 function NPC:OnAllyDeath(ally)
 end
 
+
+    -- Your hook for handling custom defined LUA animation events
+    -- Add new animation events by calling:
+    -- self:AddAnimationEvent("your_animation", your_frame, your_event_id),
+    -- in CustomInitialize
+function NPC:HandleLUAAnimationEvent(seq, ev) 
+end
+
+
 --[[
 ==================================================================================================
                                            SNPC ONLY FUNCTIONS
