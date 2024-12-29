@@ -120,6 +120,12 @@ function NPC:ZBaseInit()
 	end
 
 
+    -- Add footsteps when landing after a jump
+    self.JumpLandSequence = self:GetSequenceName( self:SelectWeightedSequence(ACT_LAND) )
+    self:AddAnimationEvent(self.JumpLandSequence, 1, 100)
+    self:AddAnimationEvent(self.JumpLandSequence, 3, 100)
+
+
     self:Fire("wake")
 
 
@@ -540,7 +546,7 @@ function NPC:ZBaseThink()
     end
 
 
-    self:AnimationEventInternal()
+    self:LUAAnimEventThink()
 
 
     -- -- Controller
@@ -1912,13 +1918,6 @@ function NPC:InternalStopAnimation(dontTransitionOut)
 end
 
 
-function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
-    if self.Dead then return end
-
-    self:SNPCHandleAnimEvent(event, eventTime, cycle, type, options)
-end
-
-
 function NPC:SequenceGetFrames(seqID, anim)
 	local animID = anim && self:GetSequenceInfo( seqID ).anims[ anim ]
 	return animID && self:GetAnimInfo( animID ).numframes || -1
@@ -1939,7 +1938,28 @@ function NPC:GetGestureSequence()
 end
 
 
-function NPC:AnimationEventInternal()
+-- For SNPCs and SNPCs only
+function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
+    if self.Dead then return end
+
+    self:SNPCHandleAnimEvent(event, eventTime, cycle, type, options)
+end
+
+
+-- LUA anim events, that is
+function NPC:InternalHandleAnimationEvent( seq, ev )
+
+    -- Jump landing footsteps
+    if seq == self.JumpLandSequence && ev == 100 then
+        self:EmitFootStepSound()
+    end
+
+    self:HandleLUAAnimationEvent( seq, ev )
+
+end
+
+
+function NPC:LUAAnimEventThink()
 	
 	if self.m_tbAnimEvents then
 
@@ -1951,7 +1971,7 @@ function NPC:AnimationEventInternal()
 			for frame = self.m_fFrameLast + 1, frameNew do	-- a loop, just in case the think function is too slow to catch all frame changes					
 				if ( self.m_tbAnimEvents[ seq ][ frame ] ) then								
 					for _, ev in ipairs( self.m_tbAnimEvents[ seq ][ frame ] ) do
-						self:HandleLUAAnimationEvent( seq, ev )
+                        self:InternalHandleAnimationEvent( seq, ev )
 					end
 				end
 			end
@@ -1971,7 +1991,7 @@ function NPC:AnimationEventInternal()
 			for gFrame = self.m_gestFrameLast + 1, gestFrameNew do	-- a loop, just in case the think function is too slow to catch all frame changes					
 				if ( self.m_tbAnimEvents[ gest ][ gFrame ] ) then								
 					for _, ev in ipairs( self.m_tbAnimEvents[ gest ][ gFrame ] ) do
-						self:HandleAnimationEvent( gest, ev )
+                        self:InternalHandleAnimationEvent( gest, ev )
 					end
 				end
 			end

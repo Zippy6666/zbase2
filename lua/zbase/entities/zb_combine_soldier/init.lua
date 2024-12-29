@@ -101,7 +101,6 @@ local ShouldHaveRadioSound = {
 }
 
 
-
 function NPC:OnInitCap()
     -- For NPCs that are derived from this NPC: 
     -- Give ZBase melee instead if MinShootDistance is 0, otherwise melee won't work right
@@ -123,4 +122,3 @@ function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
         end)
     end
 end
-
