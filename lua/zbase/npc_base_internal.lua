@@ -1095,6 +1095,11 @@ end
 function NPC:ZBWepSys_TrySuppress( target )
     self:AddEntityRelationship(target.ZBase_SuppressionBullseye, D_HT, 0)
     self:UpdateEnemyMemory(target.ZBase_SuppressionBullseye, target:GetPos())
+
+    if !target.ZBase_SuppressionBullseye.PastAttackers_Map[self] then
+        self:CONV_StoreInTable(target.ZBase_SuppressionBullseye.PastAttackers)
+        self:CONV_MapInTable(target.ZBase_SuppressionBullseye.PastAttackers_Map)
+    end
 end
 
 
@@ -1121,6 +1126,17 @@ function NPC:ZBWepSys_CreateSuppressionPoint( target )
     target.ZBase_SuppressionBullseye:SetPos( pos )
     target.ZBase_SuppressionBullseye:Spawn()
     target.ZBase_SuppressionBullseye:SetModel("models/props_lab/huladoll.mdl")
+    target.ZBase_SuppressionBullseye.PastAttackers_Map = {}
+    target.ZBase_SuppressionBullseye.PastAttackers = {}
+    target.ZBase_SuppressionBullseye:CallOnRemove("EludeEnemyAfterSuppressing", function()
+        if IsValid(target) then
+
+            for _, attacker in ipairs(target.ZBase_SuppressionBullseye.PastAttackers) do
+                attacker:MarkEnemyAsEluded(target)
+            end
+
+        end
+    end)
     target:DeleteOnRemove(target.ZBase_SuppressionBullseye) -- Remove suppression point when target does not exist anymore
     SafeRemoveEntityDelayed(target.ZBase_SuppressionBullseye, 8) -- Remove suppression point after some time
 
@@ -3148,9 +3164,6 @@ function NPC:RestartSoundCycle( sndTbl, data )
 end
 
 
-
-
-
 function NPC:OnEmitSound( data )
     local altered
     local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
@@ -3158,32 +3171,30 @@ function NPC:OnEmitSound( data )
     local currentlySpeakingImportant = isstring(self.IsSpeaking_SoundVar)
     local goingToZBaseSpeak = (sndVarName && isVoiceSound) or false
 
-
-    -- Sound is NULL
+    -- What does this do?
     if data.SoundName == "common/null.wav" then
         return false
     end
-
 
     -- Don't play engine voice sounds when dying
     if self.DoingDeathAnim && isVoiceSound && !IsEmitSoundCall then
         return false
     end
 
+    local sndCanInterruptImportantSnd =
+    (sndVarName=="PainSounds" or sndVarName=="DeathSounds" or sndVarName=="SeeDangerSounds")
+    or (self.Patch_CanInterruptImportantVoiceSound && data.OriginalSoundName && self.Patch_CanInterruptImportantVoiceSound[data.OriginalSoundName])
 
     -- Did not play sound because I was already playing important voice sound
-    if (isVoiceSound && sndVarName!="PainSounds" && sndVarName!="DeathSounds" && sndVarName!="SeeDangerSounds")
-    && currentlySpeakingImportant then
-        conv.devPrint(self.Name, " did not play ", sndVarName or "*unknown voice sound*", ", self.IsSpeaking_SoundVar was ", self.IsSpeaking_SoundVar)
+    if isVoiceSound && !sndCanInterruptImportantSnd && currentlySpeakingImportant then
+        conv.devPrint(self.Name, " did not play ", sndVarName or data.OriginalSoundName or data.SoundName, ", IsSpeaking_SoundVar was ", self.IsSpeaking_SoundVar)
         return false
     end
-
 
     -- Don't speak over allies intentionally
     if goingToZBaseSpeak && self:NearbyAllySpeaking() then
         return false
     end
-
 
     -- Avoid voice line repetition
     if goingToZBaseSpeak then
@@ -3209,12 +3220,8 @@ function NPC:OnEmitSound( data )
 
     end
 
-
-
     -- Internal sound duration
     self.InternalCurrentSoundDuration = ZBaseSoundDuration(data.SoundName)
-
-
 
     -- Custom on emit sound, allow the user to replace what sound to play
     local value = self:BeforeEmitSound( data, sndVarName )
@@ -3237,7 +3244,6 @@ function NPC:OnEmitSound( data )
 
     end
 
-
     if isVoiceSound then
         self.IsSpeaking = true
         self.IsSpeaking_SoundVar = sndVarName
@@ -3249,10 +3255,8 @@ function NPC:OnEmitSound( data )
         end)
     end
 
-    
     -- Custom on sound emitted
     self:CustomOnSoundEmitted( data, self.InternalCurrentSoundDuration, sndVarName )
-
 
     return altered
 end
