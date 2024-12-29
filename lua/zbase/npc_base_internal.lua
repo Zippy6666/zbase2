@@ -98,26 +98,27 @@ function NPC:ZBaseInit()
     end
 
 
-	-- Stuff for LUA based animation events
-	
-	if self:GetSequenceList() then
-	
-		self.m_tbAnimationFrames = {}
-		
-		for _, v in pairs( self:GetSequenceList() ) do
-		
-			local seqID = self:LookupSequence( v )
-			local seqFrames = self:SequenceGetFrames( seqID, 1 )
-			
-			self.m_tbAnimationFrames[v] = seqFrames
-			
-		end
-		
-		self.m_tbAnimEvents = {}
-		self.m_fFrameLast = -1
-		self.m_fSeqLast = -1		
-		
-	end
+    -- For LUA animation events
+    if self.EnableLUAAnimationEvents then
+        local seqlist = self:GetSequenceList()
+
+        if seqlist then
+            self.ZBaseLuaAnimationFrames = {}
+
+            for _, v in pairs( seqlist ) do
+
+                local seqID = self:LookupSequence( v )
+                local seqFrames = self:SequenceGetFrames( seqID, 1 )
+
+                self.ZBaseLuaAnimationFrames[v] = seqFrames
+                
+            end
+
+            self.ZBaseLuaAnimEvents = {}
+            self.ZBaseFrameLast = -1
+            self.ZBaseSeqLast = -1		
+        end
+    end
 
 
     -- Add footsteps when landing after a jump
@@ -546,9 +547,12 @@ function NPC:ZBaseThink()
     end
 
 
-    self:LUAAnimEventThink()
+    -- TODO: Should this really be ran here and not in FrameTick?
+    if self.EnableLUAAnimationEvents then
+        self:LUAAnimEventThink()
+    end
 
-
+    
     -- -- Controller
     -- if self.IsZBPlyControlled then
     --     self:ControllerThink()
@@ -1961,21 +1965,21 @@ end
 
 function NPC:LUAAnimEventThink()
 	
-	if self.m_tbAnimEvents then
+	if self.ZBaseLuaAnimEvents then
 
 		local seq = self:GetSequenceName( self:GetSequence() ) 
-		if ( self.m_tbAnimEvents[ seq ] ) then		
+		if ( self.ZBaseLuaAnimEvents[ seq ] ) then		
 			
-			if ( self.m_fSeqLast != seq ) then self.m_fSeqLast = seq; self.m_fFrameLast = -1 end				
-			local frameNew = math.floor( self:GetCycle() * self.m_tbAnimationFrames[ seq ] )	-- Despite what the wiki says, GetCycle doesn't return the frame, but a float between 0 and 1
-			for frame = self.m_fFrameLast + 1, frameNew do	-- a loop, just in case the think function is too slow to catch all frame changes					
-				if ( self.m_tbAnimEvents[ seq ][ frame ] ) then								
-					for _, ev in ipairs( self.m_tbAnimEvents[ seq ][ frame ] ) do
+			if ( self.ZBaseSeqLast != seq ) then self.ZBaseSeqLast = seq; self.ZBaseFrameLast = -1 end				
+			local frameNew = math.floor( self:GetCycle() * self.ZBaseLuaAnimationFrames[ seq ] )	-- Despite what the wiki says, GetCycle doesn't return the frame, but a float between 0 and 1
+			for frame = self.ZBaseFrameLast + 1, frameNew do	-- a loop, just in case the think function is too slow to catch all frame changes					
+				if ( self.ZBaseLuaAnimEvents[ seq ][ frame ] ) then								
+					for _, ev in ipairs( self.ZBaseLuaAnimEvents[ seq ][ frame ] ) do
                         self:InternalHandleAnimationEvent( seq, ev )
 					end
 				end
 			end
-			self.m_fFrameLast = frameNew
+			self.ZBaseFrameLast = frameNew
 
 		end
 
@@ -1984,13 +1988,13 @@ function NPC:LUAAnimEventThink()
 		if !gest then return end
 
 		gest = self:GetSequenceName( gest ) 
-		if ( self.m_tbAnimEvents[ gest ] ) then		
+		if ( self.ZBaseLuaAnimEvents[ gest ] ) then		
 			
 			if ( self.m_gestSeqLast != gest ) then self.m_gestSeqLast = gest; self.m_gestFrameLast = -1 end				
-			local gestFrameNew = math.floor( self:GetLayerCycle( layer ) * self.m_tbAnimationFrames[ gest ] )	-- Despite what the wiki says, GetCycle doesn't return the frame, but a float between 0 and 1
+			local gestFrameNew = math.floor( self:GetLayerCycle( layer ) * self.ZBaseLuaAnimationFrames[ gest ] )	-- Despite what the wiki says, GetCycle doesn't return the frame, but a float between 0 and 1
 			for gFrame = self.m_gestFrameLast + 1, gestFrameNew do	-- a loop, just in case the think function is too slow to catch all frame changes					
-				if ( self.m_tbAnimEvents[ gest ][ gFrame ] ) then								
-					for _, ev in ipairs( self.m_tbAnimEvents[ gest ][ gFrame ] ) do
+				if ( self.ZBaseLuaAnimEvents[ gest ][ gFrame ] ) then								
+					for _, ev in ipairs( self.ZBaseLuaAnimEvents[ gest ][ gFrame ] ) do
                         self:InternalHandleAnimationEvent( gest, ev )
 					end
 				end

@@ -93,19 +93,20 @@ end
     -- Add a new animation event for this sequence at the desired frame
     -- Use in CustomInitialize
 function NPC:AddAnimationEvent(seq, frame, ev)
-    if(!self.m_tbAnimationFrames[seq]) then return end
+    if !self.EnableLUAAnimationEvents then return end
+    if(!self.ZBaseLuaAnimationFrames[seq]) then return end
 
-    if frame <= self.m_tbAnimationFrames[seq] then
-        conv.devPrint( "LUA animation event created: ", "[ SEQUENCE: " .. seq .. " FRAMES: " .. self.m_tbAnimationFrames[seq] .. " ] AT" .. " [ FRAME: " .. frame, " EVENT_ID: " .. ev .. " ]" )
+    if frame <= self.ZBaseLuaAnimationFrames[seq] then
+        conv.devPrint( "LUA animation event created: ", "[ SEQUENCE: " .. seq .. " FRAMES: " .. self.ZBaseLuaAnimationFrames[seq] .. " ] AT" .. " [ FRAME: " .. frame, " EVENT_ID: " .. ev .. " ]" )
     else
-        conv.devPrint( Color( 255, 0, 0, 255 ), "LUA animation event ERROR! ", "You've tried to create an animation event at frame [" .. frame .. "] while sequence [" .. seq .. "] has only [" .. self.m_tbAnimationFrames[seq] .. "] frame/s." )
+        conv.devPrint( Color( 255, 0, 0, 255 ), "LUA animation event ERROR! ", "You've tried to create an animation event at frame [" .. frame .. "] while sequence [" .. seq .. "] has only [" .. self.ZBaseLuaAnimationFrames[seq] .. "] frame/s." )
         return false
     end
 
-    self.m_tbAnimEvents[seq] = self.m_tbAnimEvents[seq] || {}
-    self.m_tbAnimEvents[seq][frame] = self.m_tbAnimEvents[seq][frame] || {}
+    self.ZBaseLuaAnimEvents[seq] = self.ZBaseLuaAnimEvents[seq] || {}
+    self.ZBaseLuaAnimEvents[seq][frame] = self.ZBaseLuaAnimEvents[seq][frame] || {}
 
-    table.insert( self.m_tbAnimEvents[seq][frame], ev )	
+    table.insert( self.ZBaseLuaAnimEvents[seq][frame], ev )	
 end
 
 

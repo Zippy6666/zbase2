@@ -19,6 +19,12 @@ NPC.Models = {}
 NPC.RenderMode = RENDERMODE_NORMAL -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
 NPC.SubMaterials = {} -- Submaterials {*number index* = *string name*}
 
+
+-- Set to false if your game crashes when you spawn the NPC
+-- This obviously needs to be true if you want to use LUA animation events
+NPC.EnableLUAAnimationEvents = true
+
+
 NPC.StartHealth = 50 -- Max health
 
 
