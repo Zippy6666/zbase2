@@ -94,7 +94,16 @@ end
     -- Use in CustomInitialize
 function NPC:AddAnimationEvent(seq, frame, ev)
     if !self.EnableLUAAnimationEvents then return end
-    if(!self.ZBaseLuaAnimationFrames[seq]) then return end
+    if(!self.ZBaseLuaAnimationFrames[seq]) then
+        local seqID = self:LookupSequence( seq )
+        if seqID && seqID != -1 then
+            local seqFrames = self:SequenceGetFrames( seqID, 1 )
+            self.ZBaseLuaAnimationFrames[seq] = seqFrames
+        else
+            conv.devPrint( Color( 255, 0, 0, 255 ), "LUA animation event ERROR! ", "The sequence '"..seq.."' does not exist!" )
+            return
+        end
+    end
 
     if frame <= self.ZBaseLuaAnimationFrames[seq] then
         conv.devPrint( "LUA animation event created: ", "[ SEQUENCE: " .. seq .. " FRAMES: " .. self.ZBaseLuaAnimationFrames[seq] .. " ] AT" .. " [ FRAME: " .. frame, " EVENT_ID: " .. ev .. " ]" )
@@ -102,7 +111,7 @@ function NPC:AddAnimationEvent(seq, frame, ev)
         conv.devPrint( Color( 255, 0, 0, 255 ), "LUA animation event ERROR! ", "You've tried to create an animation event at frame [" .. frame .. "] while sequence [" .. seq .. "] has only [" .. self.ZBaseLuaAnimationFrames[seq] .. "] frame/s." )
         return false
     end
-
+ 
     self.ZBaseLuaAnimEvents[seq] = self.ZBaseLuaAnimEvents[seq] || {}
     self.ZBaseLuaAnimEvents[seq][frame] = self.ZBaseLuaAnimEvents[seq][frame] || {}
 

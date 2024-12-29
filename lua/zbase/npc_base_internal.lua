@@ -100,24 +100,10 @@ function NPC:ZBaseInit()
 
     -- For LUA animation events
     if self.EnableLUAAnimationEvents then
-        local seqlist = self:GetSequenceList()
-
-        if seqlist then
-            self.ZBaseLuaAnimationFrames = {}
-
-            for _, v in pairs( seqlist ) do
-
-                local seqID = self:LookupSequence( v )
-                local seqFrames = self:SequenceGetFrames( seqID, 1 )
-
-                self.ZBaseLuaAnimationFrames[v] = seqFrames
-                
-            end
-
-            self.ZBaseLuaAnimEvents = {}
-            self.ZBaseFrameLast = -1
-            self.ZBaseSeqLast = -1		
-        end
+        self.ZBaseLuaAnimationFrames = {}
+        self.ZBaseLuaAnimEvents = {}
+        self.ZBaseFrameLast = -1
+        self.ZBaseSeqLast = -1		
     end
 
 
