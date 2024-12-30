@@ -131,6 +131,15 @@ ZBaseCreateVoiceSounds("ZBaseCombine.Answer", {
 })
 
 
+ZBaseCreateVoiceSounds("ZBaseCombine.Follow", {
+    "npc/combine_soldier/vo/copythat.wav",
+})
+
+ZBaseCreateVoiceSounds("ZBaseCombine.Unfollow", {
+    "npc/combine_soldier/vo/copy.wav",
+})
+
+
 ZBaseCreateVoiceSounds("ZBaseCombine.Alert", {
     "ZB_Combine_Alert1.SS",
 })

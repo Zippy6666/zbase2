@@ -69,8 +69,8 @@ NPC.HearDangerSounds = "ZBaseCombine.HearSound"
 NPC.FootStepSounds = "ZBaseCombine.Step" -- Footstep sound
 
 
-NPC.FollowPlayerSounds = "ZBaseCombine.Answer" -- Sounds emitted when the NPC starts following a player
-NPC.UnfollowPlayerSounds = "ZBaseCombine.Answer" -- Sounds emitted when the NPC stops following a player
+NPC.FollowPlayerSounds = "ZBaseCombine.Follow" -- Sounds emitted when the NPC starts following a player
+NPC.UnfollowPlayerSounds = "ZBaseCombine.Unfollow" -- Sounds emitted when the NPC stops following a player
 
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC

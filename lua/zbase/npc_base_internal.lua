@@ -1184,7 +1184,7 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     local ene = self:GetEnemy()
 
-    if !self.EnemyVisible
+    if ene && !self.EnemyVisible
     && self:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
     && !ene.Is_ZBase_SuppressionBullseye -- Don't create a suppression point for a suppression point...
     then
