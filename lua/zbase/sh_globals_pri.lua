@@ -337,16 +337,23 @@ end
 --]]
 
 
+
 local SoundDurationCache = {}
 function ZBaseSoundDuration( soundname )
-
     local dur = SoundDurationCache[soundname]
     if dur then
         return dur
     end
 
-    SoundDurationCache[soundname] = SoundDuration(soundname)
-    return SoundDurationCache[soundname]
+    local sounddur = SoundDuration( soundname )
+    if sounddur then
+        sounddur = math.Round( sounddur * 1000 ) / 1000
+        SoundDurationCache[soundname] = sounddur
+        return sounddur
+    end		
+
+    conv.devPrint(Color(255, 0, 0), "ZBaseSoundDuration: failed to get sound duration for '"..soundname.."'")
+    return 0
 end
 
 

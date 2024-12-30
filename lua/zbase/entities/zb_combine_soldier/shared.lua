@@ -14,6 +14,7 @@ NPC.Weapons = {"weapon_smg1", "weapon_smg1", "weapon_ar2", "weapon_shotgun"} -- 
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
 
+-- EYES --
 
 ZBaseAddGlowingEye("CombineEye1", "models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(0, 50, 255))
 ZBaseAddGlowingEye("CombineEye2", "models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(0, 50, 255))
@@ -23,6 +24,52 @@ ZBaseAddGlowingEye("CombineShottyEye1", "models/combine_soldier.mdl", 1, "ValveB
 ZBaseAddGlowingEye("CombineShottyEye2", "models/combine_soldier.mdl", 1, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(155, 20, 0))
 
 
+-- SENTENCES --
+
+
+ZBaseAddScriptedSentence({
+    name 	= "ZB_Combine_Alert1.SS",
+    channel = CHAN_VOICE,
+    volume 	= 1,
+    level 	= 75,
+    caption	= { "<clr:0,100,255>[Combine Soldier: ", 2 },
+    sound 	= { 
+        "radio_on.wav",
+        { "npc/combine_soldier/vo/callhotpoint.wav", "npc/combine_soldier/vo/containmentproceeding.wav" }, -- Will choose random random option.
+        { dps = 55, caption = { "Call hot point, ", "Containment proceeding, " } }, -- If present, it will detect settings for the previous table. You can put anything here to override the sound or add captions.
+        {"npc/combine_soldier/vo/targetcontactat.wav", "npc/combine_soldier/vo/targetisat.wav"},
+        { dps = 55, caption = { "target contact at ", "target is at " } },
+        {"npc/combine_soldier/vo/sector.wav", "npc/combine_soldier/vo/apex.wav", "npc/combine_soldier/vo/dagger.wav","npc/combine_soldier/vo/grid.wav"},
+        { dps = 55, caption = { "sector ", "apex ", "dagger ", "grid " } },
+        {"npc/combine_soldier/vo/eighteen.wav", "npc/combine_soldier/vo/fourteen.wav", "npc/combine_soldier/vo/one.wav", "npc/combine_soldier/vo/sixty.wav"},
+        { dps = 55, caption = { "eighteen. ", "fourteen. ", "one. ", "sixty. " } },
+        "radio_off.wav",
+    }
+})
+
+
+
+ZBaseAddScriptedSentence({
+    name 	= "ZB_Combine_LostEnemy1.SS",
+    channel = CHAN_VOICE,
+    volume 	= 1,
+    level 	= 75,
+    caption	= { "<clr:0,100,255>[Combine Soldier: ", 2 },
+    sound 	= { 
+        "radio_on.wav",
+        { "npc/combine_soldier/vo/lostcontact.wav", "npc/combine_soldier/vo/skyshieldreportslostcontact.wav" },
+        { dps = 55, caption = { "Lost contact, ", "Skyshield reports lost contact, " } },
+        { "npc/combine_soldier/vo/scar.wav", "npc/combine_soldier/vo/striker.wav", "npc/combine_soldier/vo/ranger.wav", "npc/combine_soldier/vo/reaper.wav", "npc/combine_soldier/vo/phantom.wav" },
+        { dps = 55, caption = { "Scar, ", "Striker, ", "Ranger, ", "Reaper, ", "Phantom, " } }, 
+        { "npc/combine_soldier/vo/reportallpositionsclear.wav", "npc/combine_soldier/vo/reportingclear.wav", "npc/combine_soldier/vo/reportallradialsfree.wav", "npc/combine_soldier/vo/stayalertreportsightlines.wav", "npc/combine_soldier/vo/stayalert.wav" }, 
+        { dps = 55, caption = { "Report all positions clear. ", "Reporting clear. ", "Report all radials free. ", "Stay alert, report sightlines. ", "Stay alert. " } },
+        "radio_off.wav",
+    }
+})
+
+
+
+-- SOUND SCRIPTS --
 
 
 sound.Add({
@@ -85,13 +132,7 @@ ZBaseCreateVoiceSounds("ZBaseCombine.Answer", {
 
 
 ZBaseCreateVoiceSounds("ZBaseCombine.Alert", {
-    "npc/combine_soldier/vo/contact.wav",
-    "npc/combine_soldier/vo/viscon.wav",
-    "npc/combine_soldier/vo/alert1.wav",
-    "npc/combine_soldier/vo/contactconfirmprosecuting.wav",
-    "npc/combine_soldier/vo/contactconfim.wav",
-    "npc/combine_soldier/vo/outbreak.wav",
-    "npc/combine_soldier/vo/fixsightlinesmovein.wav",
+    "ZB_Combine_Alert1.SS",
 })
 
 
@@ -129,8 +170,7 @@ ZBaseCreateVoiceSounds("ZBaseCombine.HearSound", {
 
 
 ZBaseCreateVoiceSounds("ZBaseCombine.LostEnemy", {
-    "npc/combine_soldier/vo/skyshieldreportslostcontact.wav",
-    "npc/combine_soldier/vo/lostcontact.wav",
+    "ZB_Combine_LostEnemy1.SS",
 })
 
 

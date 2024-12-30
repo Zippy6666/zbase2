@@ -3177,11 +3177,14 @@ end
 function NPC:OnEmitSound( data )
     local altered
     local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
-    local isVoiceSound = isnumber(data.SentenceIndex) or data.Channel == CHAN_VOICE
+
+    local isVoiceSound = ( isnumber(data.SentenceIndex) or data.Channel == CHAN_VOICE )
+    && !self.EmittedSoundFromSentence -- Do not count as voice sound if emitted from sentence
+
     local currentlySpeakingImportant = isstring(self.IsSpeaking_SoundVar)
     local goingToZBaseSpeak = (sndVarName && isVoiceSound) or false
 
-    -- What does this do?
+    -- TODO: What does this do?
     if data.SoundName == "common/null.wav" then
         return false
     end
@@ -3191,6 +3194,7 @@ function NPC:OnEmitSound( data )
         return false
     end
 
+    -- Check if sound can interrupt important sounds
     local sndCanInterruptImportantSnd =
     (sndVarName=="PainSounds" or sndVarName=="DeathSounds" or sndVarName=="SeeDangerSounds")
     or (self.Patch_CanInterruptImportantVoiceSound && data.OriginalSoundName && self.Patch_CanInterruptImportantVoiceSound[data.OriginalSoundName])
@@ -3230,6 +3234,25 @@ function NPC:OnEmitSound( data )
 
     end
 
+    -- LUA sentences
+    local isSentence = string.EndsWith(data.SoundName, ".SS")
+    if isSentence then
+        local callback = function()
+            if !IsValid(self) then return end
+            self.IsSpeaking = nil
+            self.IsSpeaking_SoundVar = nil
+        end
+
+        self:ZBaseEmitScriptedSentence(data.SoundName, self:WorldSpaceCenter(), nil, nil, callback)
+
+        self.IsSpeaking = true
+        self.IsSpeaking_SoundVar = sndVarName
+
+        conv.devPrint(self, " emitting sentence: ", data.SoundName)
+
+        return false
+    end
+
     -- Internal sound duration
     self.InternalCurrentSoundDuration = ZBaseSoundDuration(data.SoundName)
 
@@ -3254,11 +3277,20 @@ function NPC:OnEmitSound( data )
 
     end
 
+    
     if isVoiceSound then
+        if !self.EmittedSoundFromSentence then
+            -- Some new voice sound wants to interrupt our sentence
+            -- Let it do that
+            self:ZBaseStopScriptedSentence(true)
+        end
+
+        -- Register as speaking
         self.IsSpeaking = true
         self.IsSpeaking_SoundVar = sndVarName
-        self.InternalCurrentVoiceSoundDuration = ZBaseSoundDuration(data.SoundName)
 
+        -- No longer speaking after sound duration
+        self.InternalCurrentVoiceSoundDuration = ZBaseSoundDuration(data.SoundName)
         timer.Create("ZBaseStopSpeaking"..self:EntIndex(), self.InternalCurrentVoiceSoundDuration+0.1, 1, function()
             self.IsSpeaking = nil
             self.IsSpeaking_SoundVar = nil

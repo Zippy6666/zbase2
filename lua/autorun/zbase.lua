@@ -360,9 +360,6 @@ local function AddCSLuaFiles()
     AddCSLuaFile("zbase/cl_toolmenu.lua")
     AddCSLuaFile("zbase/cl_npcspawninfo.lua")
 
-    AddCSLuaFile("zbase/npc_base_shared.lua")
-
-
     -- Add zbase entity files
     local _, dirs = file.Find("zbase/entities/*","LUA")
     for _, v in ipairs(dirs) do
@@ -431,12 +428,16 @@ function ZBase_RegisterHandler:RegBase()
     ZBaseNPCs["npc_zbase"].Behaviours = {}
     ZBaseNPCs["npc_zbase"].IsZBaseNPC = true
 
-
     local NPCBasePrefix = "zbase/npc_base_"
 
+    if SERVER && !ZBase_AddedBaseLuaFilesToClient then
+        AddCSLuaFile(NPCBasePrefix.."sentence.lua")
+        AddCSLuaFile(NPCBasePrefix.."shared.lua")
+        ZBase_AddedBaseLuaFilesToClient = true
+    end
 
+    include(NPCBasePrefix.."sentence.lua")
     include(NPCBasePrefix.."shared.lua")
-
 
     if SERVER then
         include(NPCBasePrefix.."internal.lua")
@@ -445,7 +446,6 @@ function ZBase_RegisterHandler:RegBase()
     end
 
 end
-
 
 
 function ZBase_RegisterHandler:NPCReg( name )
@@ -646,6 +646,7 @@ if SERVER then
             table.insert(filenames, "zbase/npc_base_init.lua")
             table.insert(filenames, "zbase/npc_base_shared.lua")
             table.insert(filenames, "zbase/npc_base_util.lua")
+            table.insert(filenames, "zbase/npc_base_sentence.lua")
 
             local files = file.Find("zbase/npc_patches/*", "LUA")
             for _, f in ipairs(files) do

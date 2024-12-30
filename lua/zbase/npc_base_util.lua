@@ -588,3 +588,9 @@ function NPC:EmitFootStepSound()
     stepent:EmitSound(self.FootStepSounds)
     SafeRemoveEntityDelayed(stepent, 1)
 end
+
+
+    -- Is this NPC even alive at all?
+function NPC:IsAlive()
+    return !(self.Dead or self.DoingDeathAnim or self:GetNPCState() == NPC_STATE_DEAD)
+end

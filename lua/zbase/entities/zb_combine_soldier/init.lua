@@ -115,7 +115,6 @@ function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
     if ShouldHaveRadioSound[sndVarName] then
         self:EmitSound("npc/combine_soldier/vo/on"..math.random(1, 2)..".wav")
 
-
         timer.Simple(duration, function()
             if !IsValid(self) then return end
             self:EmitSound("npc/combine_soldier/vo/off"..math.random(1, 3)..".wav")

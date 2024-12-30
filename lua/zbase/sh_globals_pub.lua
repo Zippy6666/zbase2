@@ -352,9 +352,48 @@ end
 
 --[[
 ======================================================================================================================================================
-                                           CONVINIENT FUNCTIONS
+                                           SOUNDS/SENTENCES
 ======================================================================================================================================================
 --]]
+
+--[[
+    -- ADD A SENTENCE - CODE EXAMPLE (RUN IN SHARED) --
+    -- Sentences need to end with .SS as provided in the example! --
+
+    ZBaseAddScriptedSentence({
+        name 	= "SomeCoolSSName.SS",
+        channel = CHAN_VOICE,
+        volume 	= 1,
+        level 	= 75,
+        pitch 	= 100,
+        flags 	= nil,
+        dsp		= 0,
+        caption	= { "<clr:0,100,255>[Combine Soldier: ", 2 }, -- https://developer.valvesoftware.com/wiki/Closed_Captions
+        sound 	= { 
+
+            "radio_on.wav",
+
+            { "npc/combine_soldier/vo/callhotpoint.wav", "npc/combine_soldier/vo/affirmativewegothimnow.wav", "npc/combine_soldier/vo/containmentproceeding.wav" }, -- Will choose random random option.
+
+            { dps = 55, caption = { "Call hot point, ", "Affirmative we got him now, ", "Containment proceeding, " } }, -- If present, it will detect settings for the previous table. You can put anything here to override the sound or add captions.
+
+            "npc/combine_soldier/vo/eighteen.wav",
+
+            { dps = 55, caption = { "eighteen " } },
+
+            "npc/combine_soldier/vo/meters.wav",
+
+            { dps = 55, caption = { "meters." } },
+
+            "radio_off.wav",
+
+        }
+    })
+]]
+function ZBaseAddScriptedSentence(ssTab)
+    if !istable(ssTab) || !ssTab['name'] then return end
+    ZBaseScriptedSentences[ ssTab['name'] ] = ssTab 
+end
 
 
     -- A quick way to add sounds that have attributes appropriate for a human voice
@@ -363,8 +402,10 @@ function ZBaseCreateVoiceSounds( name, tbl )
         name = name,
         channel = CHAN_VOICE,
         volume = 0.5,
-        level = 90,
+        level = 75,
         pitch = {95, 105},
         sound = tbl,
     } )
 end
+
+
