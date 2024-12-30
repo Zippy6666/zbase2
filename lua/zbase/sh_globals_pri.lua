@@ -42,6 +42,22 @@ ZBaseFactionTranslation_Flipped = SERVER and {
     neutral = CLASS_EARTH_FAUNA,
 } or nil
 
+
+ZBaseVJFactionTranslation = {
+    ["combine"] = "CLASS_COMBINE",
+    ["zombie"] = "CLASS_ZOMBIE",
+    ["antlion"] = "CLASS_ANTLION",
+    ["ally"] = "CLASS_PLAYER_ALLY",
+    ["xen"] = "CLASS_XEN",
+    ["hecu"] = "CLASS_UNITED_STATES",
+    ["blackops"] = "CLASS_BLACKOPS",
+    ["racex"] = "CLASS_RACE_X",
+    ["clonecop"] = "CLASS_AIDEN",
+    ["snark"] = "CLASS_SNARK",
+}
+ZBaseVJFactionTranslation_Flipped = table.Flip(ZBaseVJFactionTranslation)
+
+
 ZBASE_MENU_REPLACEMENTS = {
     ["zb_human_civilian"] = "npc_citizen",
     ["zb_antlion"] = "npc_antlion",
@@ -195,10 +211,9 @@ end
 
 
 function ZBaseSchedDebug( ent )
-    local ent = (IsValid(ent.Navigator) && !ZBCVAR.ShowNavigator:GetBool() && ent.Navigator.MoveConfirmed && ent.Navigator) or ent
-
-    return ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched()) or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
-    or (ent.AllowedCustomEScheds && ent.AllowedCustomEScheds[ent:GetCurrentSchedule()]) or "schedule "..tostring(ent:GetCurrentSchedule())
+    return ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched() )
+    or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
+    or "schedule " ..tostring(ent:GetCurrentSchedule())
 end
 
 
@@ -212,7 +227,7 @@ if SERVER then
         -- "NPC copy" system, makes a zbase "NPC copy" of any type/class from any spawned NPC
     local invisCol = Color(255,255,255,0)
     local developer = GetConVar("developer")
-    function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction )
+    function ZBaseNPCCopy( npc, zbase_cls, dontAlterFaction, faction, spawnflags, removeCopyOnRemoved )
 
         -- Store the old NPCs squad and name
         local name = npc:GetName()
@@ -223,11 +238,11 @@ if SERVER then
 
 
         -- New ZBase NPC
-        local ZBaseNPC = ZBaseSpawnZBaseNPC( zbase_cls, nil, nil, wepCls or nil )
+        local ZBaseNPC = ZBaseSpawnZBaseNPC( zbase_cls, nil, nil, wepCls or nil, spawnflags )
         ZBaseNPC.DontAutoSetSquad = true
 
         if !dontAlterFaction then
-            ZBaseNPC.ZBaseStartFaction =  ZBaseFactionTranslation[npc:Classify()]
+            ZBaseNPC.ZBaseStartFaction =  faction or ZBaseFactionTranslation[npc:Classify()]
         end
 
         ZBaseNPC:SetPos(npc:GetPos())
@@ -282,10 +297,12 @@ if SERVER then
         npc.ZBaseNPCCopy_DullState = true
 
 
-        npc:CallOnRemove("RemoveZBaseNPC", function()
-            SafeRemoveEntityDelayed(ZBaseNPC, 0)
-        end)
-
+        if removeCopyOnRemoved then
+            npc:CallOnRemove("RemoveZBaseNPC", function()
+                SafeRemoveEntityDelayed(ZBaseNPC, 0)
+            end)
+        end
+        
 
         ZBaseNPC:CallOnRemove("KillDullNPC", function()
             if IsValid(npc) then
@@ -320,16 +337,23 @@ end
 --]]
 
 
+
 local SoundDurationCache = {}
 function ZBaseSoundDuration( soundname )
-
     local dur = SoundDurationCache[soundname]
     if dur then
         return dur
     end
 
-    SoundDurationCache[soundname] = SoundDuration(soundname)
-    return SoundDurationCache[soundname]
+    local sounddur = SoundDuration( soundname )
+    if sounddur then
+        sounddur = math.Round( sounddur * 1000 ) / 1000
+        SoundDurationCache[soundname] = sounddur
+        return sounddur
+    end		
+
+    conv.devPrint(Color(255, 0, 0), "ZBaseSoundDuration: failed to get sound duration for '"..soundname.."'")
+    return 0
 end
 
 
@@ -355,7 +379,6 @@ function ZBaseShouldUseRelationshipSys( ent )
         return false
     end
 
-    if npc.IsVJBaseSNPC then return false end
     if npc.IsZBaseNavigator then return false end
     if npc.ZBaseNPCCopy_DullState then return false end
 

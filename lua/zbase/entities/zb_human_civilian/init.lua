@@ -62,6 +62,7 @@ NPC.OnGrenadeSounds = "ZBaseMale.Grenade" -- Sounds emitted when the NPC throws 
 NPC.Dialogue_Question_Sounds = "ZBaseMale.Question" -- Dialogue questions, emitted when the NPC starts talking to another NPC
 NPC.Dialogue_Answer_Sounds = "ZBaseMale.Answer" -- Dialogue answers, emitted when the NPC is spoken to
 
+NPC.AllyDeathSounds = "ZBaseMale.AllyDeath"
 
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765

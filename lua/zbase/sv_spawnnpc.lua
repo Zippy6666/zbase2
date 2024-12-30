@@ -37,7 +37,9 @@ local function TryFixPropPosition( ply, ent, hitpos )
 end
 
 
-function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate )
+ZBaseNPCCount = 0
+local wep_override = GetConVar("gmod_npcweapon")
+function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate, SpawnFlagsSaved )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
 
@@ -84,11 +86,11 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	
 	end
 
-
+	
 	--
 	-- Spawn Flags
 	--
-	local SpawnFlags = !NPC.Patch_DontApplyDefaultFlags && bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE ) or 0
+	local SpawnFlags = !NPC.Patch_DontApplyDefaultFlags && bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE ) or SpawnFlagsSaved or 0
 	if istable(NPCData.SpawnFlagTbl) then
 		for _, v in ipairs(NPCData.SpawnFlagTbl) do
 			SpawnFlags = bit.bor( SpawnFlags, v )
@@ -120,38 +122,36 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	for _, v in pairs( NPCData.Weapons or {} ) do
 		if ( v == Equipment ) then valid = true break end
 	end
-	if Equipment && Equipment != "none" && valid then
+	if Equipment == "zbase_random_weapon" then
+		local randTBL = table.Copy(ZBaseNPCWeps)
+		table.Add(randTBL,
+		{"weapon_pistol", "weapon_357", "weapon_crossbow",
+		"weapon_crowbar", "weapon_ar2", "weapon_rpg",
+		"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
 
-		if ZBCVAR.RandWep:GetBool() && !string.find(ZBCVAR.RandWepNPCBlackList:GetString(), Class) then
-
-			local randTBL = table.Copy(ZBaseNPCWeps)
-			table.Add(randTBL,
-			{"weapon_pistol", "weapon_357", "weapon_crossbow",
-			"weapon_crowbar", "weapon_ar2", "weapon_rpg",
-			"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
-
-			for i, wclass in ipairs( table.Copy(randTBL) ) do
-				if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
-					table.RemoveByValue(randTBL, wclass)
-				end
+		for i, wclass in ipairs( table.Copy(randTBL) ) do
+			if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
+				table.RemoveByValue(randTBL, wclass)
 			end
-
-			local randWep = randTBL[math.random(1, #randTBL)]
-
-			if randWep then
-				Equipment = randWep
-			else
-				PrintMessage(HUD_PRINTTALK, "Unable to randomize weapons...")
-			end
-
 		end
 
+		local randWep = randTBL[math.random(1, #randTBL)]
+
+		if randWep then
+			Equipment = randWep
+		else
+			PrintMessage(HUD_PRINTTALK, "Unable to randomize weapons...")
+		end
+
+		NPC:SetKeyValue( "additionalequipment", Equipment )
+		NPC.Equipment = Equipment
+
+	elseif Equipment && Equipment != "none" && valid then
 
 		NPC:SetKeyValue( "additionalequipment", Equipment )
 		NPC.Equipment = Equipment
 
 	end
-
 
     -- Ceiling and floor functions
 	if ( wasSpawnedOnCeiling && isfunction( NPCData.OnCeiling ) ) then
@@ -205,7 +205,11 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 
     -- "Register"
     table.insert(ZBaseNPCInstances, NPC)
-	NPC:CallOnRemove("ZBaseNPCInstancesRemove", function() table.RemoveByValue(ZBaseNPCInstances, NPC) end)
+	ZBaseNPCCount = ZBaseNPCCount + 1
+	NPC:CallOnRemove("ZBaseNPCInstancesRemove", function()
+		table.RemoveByValue(ZBaseNPCInstances, NPC)
+		ZBaseNPCCount = ZBaseNPCCount - 1
+	end)
 
 
 	-- Register as non-scripted if npc is such
@@ -234,6 +238,23 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 
 	return NPC
 end
+duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
+
+    local zbaseClass = data[1]
+    local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
+
+    if ZBaseNPCTable then
+
+        ent.ZBaseInitialized = false -- So that it can be initialized again
+        ent.IsDupeSpawnedZBaseNPC = true
+
+        local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
+        ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
+
+    end
+
+end)
+
 
 
 function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
@@ -320,7 +341,17 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 	NPC.ZBase_PlayerWhoSpawnedMe = ply
 
 
-	return ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate )
+	return ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate, SpawnFlagsSaved )
+end
+
+
+util.AddNetworkString("ZBaseOnNPCSpawnInfo")
+local function OnNPCSpawn_Info(ply, npc)
+
+	-- net.Start("ZBaseOnNPCSpawnInfo")
+	-- net.WriteEntity(npc)
+	-- net.Send(ply)
+
 end
 
 
@@ -380,6 +411,10 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 	ply:AddCleanup( "npcs", SpawnedNPC )
 
 	ply:SendLua( "achievements.SpawnedNPC()" )
+
+	if IsValid(ply) && IsValid(SpawnedNPC) then
+		OnNPCSpawn_Info(ply, SpawnedNPC)
+	end
 
 end
 

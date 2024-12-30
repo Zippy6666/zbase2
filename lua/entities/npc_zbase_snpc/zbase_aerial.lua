@@ -1,5 +1,43 @@
+local AIDisabled = GetConVar("ai_disabled")
 
 
+function ENT:GetAerialOptimizedSched()
+	-- Return better schedule and goal for aerial NPCs
+
+	if IsValid(self.Navigator) && IsValid(self:GetEnemy()) then
+
+		if self.Navigator:IsCurrentZSched("CombatChase") && self.EnemyVisible then
+			return "AerialChase_NoNav", self:GetEnemy():GetPos()
+		end
+
+		if self.Navigator:IsCurrentZSched("BackAwayFromEnemy") && self.EnemyVisible then
+			return "AerialBackAway_NoNav", self:GetPos()+( self:GetPos() - self:GetEnemy():GetPos() ):GetNormalized()*300
+		end
+
+	end
+end
+
+
+function ENT:AerialSetSchedule(sched)
+    -- Called when NewSched is called
+    -- Set up a navigator that can use ground nodes to navigate for us (assuming we should move in this schedule)
+
+    self:AerialResetNav()
+
+    local Navigator = ents.Create("zbase_navigator")
+    Navigator:SetPos(self:AerialNavigatorPos())
+    Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
+    Navigator.Sched = sched
+    Navigator.ForceEnemy = self:GetEnemy()
+    Navigator.ForcedLastPos = self:GetInternalVariable("m_vecLastPosition")
+    Navigator:SetOwner(self)
+    Navigator:Spawn()
+    self:DeleteOnRemove(Navigator)
+    self.Navigator = Navigator
+end
+
+
+-- The navigators start position
 function ENT:AerialNavigatorPos()
     local start = self:GetPos() + self:GetForward()*self:OBBMaxs().x*2.5
 
@@ -22,30 +60,67 @@ function ENT:AerialNavigatorPos()
 end
 
 
-function ENT:AerialSetSchedule(sched)
-    self:AerialResetNav()
- 
-    -- Navigator --
-    local Navigator = ents.Create("zbase_navigator")
-    Navigator:SetPos(self:AerialNavigatorPos())
-    Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
-    Navigator.Sched = sched
-    Navigator.ForceEnemy = self:GetEnemy()
-    Navigator.ForcedLastPos = self:GetInternalVariable("m_vecLastPosition")
-    Navigator:SetOwner(self)
-    Navigator:Spawn()
-    
-    self:DeleteOnRemove(Navigator)
-    self.Navigator = Navigator
+-- For deciding a position the aerial SNPC should patrol to
+local function RandomXYVector()
+    local angle = math.random() * math.pi * 2
+
+    local length = math.Rand(300, 720)
+
+    local x = math.cos(angle) * length
+    local y = math.sin(angle) * length
+
+    return Vector(x, y, 0)
+end
+
+
+function ENT:SetPursueAerialGoalSched()
+    self.CurrentSchedule = ZSched.PursueAerialGoal
+    self.CurrentTaskID = 1
+    self:SetTask( ZSched.PursueAerialGoal:GetTask( 1 ) )
+end
+
+
+-- A real translate schedule function for aerial NPCs
+function ENT:AerialTranslateSched( sched )
+    local lastpos = self:GetInternalVariable("m_vecLastPosition")
+    local npcstate = self:GetNPCState()
+    local hasAerialGoal = false
+
+    if sched == SCHED_FORCED_GO or sched == SCHED_FORCED_GO_RUN then
+
+        -- Forced go: calculate goal to last position
+        self:AerialCalcGoal(lastpos)
+        hasAerialGoal = true
+
+    elseif sched == SCHED_TARGET_CHASE then
+
+        -- Target chase: calculate goal to targets position
+        local target = self:GetTarget()
+        local targetpos = IsValid(target) && target:GetPos()
+
+        self:AerialCalcGoal(targetpos)
+        hasAerialGoal = true
+
+    elseif sched == SCHED_PATROL_WALK or sched == SCHED_PATROL_RUN then
+
+        local patrolPos = self:GetPos() + RandomXYVector()
+
+        self:AerialCalcGoal(patrolPos)
+        hasAerialGoal = true
+        
+    end
+
+    if hasAerialGoal then
+        self:CONV_CallNextTick("SetPursueAerialGoalSched")
+        return SCHED_IDLE_STAND
+    end
+
 end
 
 
 function ENT:AerialResetNav()
     self.AerialGoal = nil
-
-    if IsValid(self.Navigator) then
-        self.Navigator:Remove()
-    end
+    SafeRemoveEntity(self.Navigator)
 end
 
 
@@ -121,34 +196,45 @@ function ENT:Aerial_CalcVel()
 end
 
 
+local upVec, stationaryVec = Vector(0,0,35), Vector(0,0,30)
 function ENT:AerialThink()
+    -- Calculate velocity
     self:Aerial_CalcVel()
-
 
     local ene = self:GetEnemy()
 
-
-    if self.Aerial_CurSpeed > 0 && !timer.Exists("ZBaseFace"..self:EntIndex()) && !timer.Exists("ZBaseFace_Range"..self:EntIndex()) then
+    -- Face where we should go
+    if self.Aerial_CurSpeed > 0 && !self.ZBase_CurrentFace_Yaw then
         self:Face( (self.Fly_FaceEnemy && self.EnemyVisible && ene) or self.Aerial_CurrentDestination )
     end
 
+    local vec = !AIDisabled:GetBool()
+    && self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed) or vector_origin
 
-    local vec = !GetConVar("ai_disabled"):GetBool() && self:SNPCFlyVelocity(self.Aerial_LastMoveDir, self.Aerial_CurSpeed) or vector_origin
     if self.ShouldMoveFromGround then
-        vec = vec+Vector(0,0,35)
+        vec = vec+upVec
     else
-        vec = vec+Vector(0,0,30)
+        vec = vec+stationaryVec
     end
     self:SetLocalVelocity(vec)
 
-
+    -- DEBUG
     if self.AerialGoal then
         self.LastAerialGoalPos = self.AerialGoal
     end
-
-
     if self.LastAerialGoalPos then
         debugoverlay.Sphere(self.LastAerialGoalPos, 25, 0.13, Color( 0, 0, 255 ))
     end
+
+    -- Flying SNPCs should get closer to the ground during melee --
+	local ene = self:GetEnemy()
+    if !AIDisabled:GetBool() && self.BaseMeleeAttack
+    && self.Fly_DistanceFromGround_IgnoreWhenMelee && IsValid(ene)
+    && self:ZBaseDist(ene, {within=self.MeleeAttackDistance*1.75}) then
+        self.InternalDistanceFromGround = ene:WorldSpaceCenter():Distance(ene:GetPos())
+    else
+        self.InternalDistanceFromGround = self.Fly_DistanceFromGround
+    end
+
 end
 

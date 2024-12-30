@@ -14,7 +14,8 @@ NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_human_civilian" -- Inherit features from any existing zbase npc
 
 
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseFemale.Alert", {
     "vo/npc/female01/headsup01.wav",
     "vo/npc/female01/headsup02.wav",
@@ -22,16 +23,17 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Alert", {
     "vo/npc/female01/heretheycome01.wav",
     "vo/npc/female01/overthere01.wav",
     "vo/npc/female01/overthere02.wav",
-    "npc/vo/zbase/npc/female01/cit_shock01.wav",
-    "npc/vo/zbase/npc/female01/cit_shock02.wav",
-    "npc/vo/zbase/npc/female01/cit_shock03.wav",
-    "npc/vo/zbase/npc/female01/cit_shock04.wav",
-    "npc/vo/zbase/npc/female01/cit_shock05.wav",
-    "npc/vo/zbase/npc/female01/cit_shock06.wav",
-    "npc/vo/zbase/npc/female01/cit_alert_antlions06.wav",
-    "npc/vo/zbase/npc/female01/cit_alert_antlions08.wav",
+    "vo/episode_1/npc/female01/cit_shock01.wav",
+    "vo/episode_1/npc/female01/cit_shock02.wav",
+    "vo/episode_1/npc/female01/cit_shock03.wav",
+    "vo/episode_1/npc/female01/cit_shock04.wav",
+    "vo/episode_1/npc/female01/cit_shock05.wav",
+    "vo/episode_1/npc/female01/cit_shock06.wav",
+    "vo/episode_1/npc/female01/cit_alert_antlions06.wav",
+    "vo/episode_1/npc/female01/cit_alert_antlions08.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseFemale.Question", {
     "vo/npc/female01/question01.wav", 
     "vo/npc/female01/question02.wav", 
@@ -64,31 +66,32 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Question", {
     "vo/npc/female01/question29.wav",
     "vo/npc/female01/question30.wav",
     "vo/npc/female01/question31.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks01.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks02.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks03.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks04.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks05.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks06.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks07.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks08.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks09.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks10.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks11.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks12.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks13.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks14.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks15.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks16.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks17.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks18.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks19.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks20.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks21.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks22.wav",
-    "npc/vo/zbase/npc/female01/cit_remarks23.wav",
+    "vo/episode_1/npc/female01/cit_remarks01.wav",
+    "vo/episode_1/npc/female01/cit_remarks02.wav",
+    "vo/episode_1/npc/female01/cit_remarks03.wav",
+    "vo/episode_1/npc/female01/cit_remarks04.wav",
+    "vo/episode_1/npc/female01/cit_remarks05.wav",
+    "vo/episode_1/npc/female01/cit_remarks06.wav",
+    "vo/episode_1/npc/female01/cit_remarks07.wav",
+    "vo/episode_1/npc/female01/cit_remarks08.wav",
+    "vo/episode_1/npc/female01/cit_remarks09.wav",
+    "vo/episode_1/npc/female01/cit_remarks10.wav",
+    "vo/episode_1/npc/female01/cit_remarks11.wav",
+    "vo/episode_1/npc/female01/cit_remarks12.wav",
+    "vo/episode_1/npc/female01/cit_remarks13.wav",
+    "vo/episode_1/npc/female01/cit_remarks14.wav",
+    "vo/episode_1/npc/female01/cit_remarks15.wav",
+    "vo/episode_1/npc/female01/cit_remarks16.wav",
+    "vo/episode_1/npc/female01/cit_remarks17.wav",
+    "vo/episode_1/npc/female01/cit_remarks18.wav",
+    "vo/episode_1/npc/female01/cit_remarks19.wav",
+    "vo/episode_1/npc/female01/cit_remarks20.wav",
+    "vo/episode_1/npc/female01/cit_remarks21.wav",
+    "vo/episode_1/npc/female01/cit_remarks22.wav",
+    "vo/episode_1/npc/female01/cit_remarks23.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseFemale.Answer", {
     "vo/npc/female01/answer01.wav",
     "vo/npc/female01/answer02.wav",
@@ -131,24 +134,28 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Answer", {
     "vo/npc/female01/answer39.wav",
     "vo/npc/female01/answer40.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseFemale.KillEnemy", {
     "vo/npc/female01/gotone01.wav",
     "vo/npc/female01/gotone02.wav",
     "vo/npc/female01/likethat.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseFemale.HearSound", {
     "vo/npc/female01/startle01.wav",
     "vo/npc/female01/startle02.wav",
-    "npc/vo/zbase/npc/female01/cit_alert_antlions09.wav",
+    "vo/episode_1/npc/female01/cit_alert_antlions09.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseFemale.Melee", {
     "vo/npc/female01/gethellout.wav",
     "vo/npc/female01/getdown02.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseFemale.Follow", {
     "vo/npc/female01/leadtheway01.wav",
     "vo/npc/female01/leadtheway02.wav",
@@ -159,7 +166,8 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Follow", {
     "vo/npc/female01/readywhenyouare02.wav",
     "vo/npc/female01/squad_follow03.wav",
 })
---]]==============================================================================================]]
+
+
 ZBaseCreateVoiceSounds("ZBaseFemale.Unfollow", {
     "vo/npc/female01/littlecorner01.wav",
     "vo/npc/female01/squad_affirm01.wav",
@@ -167,4 +175,15 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Unfollow", {
     "vo/npc/female01/squad_affirm03.wav",
     "vo/npc/female01/squad_affirm04.wav",
 })
---]]==============================================================================================]]
+
+
+ZBaseCreateVoiceSounds("ZBaseFemale.AllyDeath", {
+    "vo/npc/female01/gordead_ans01.wav",
+    "vo/npc/female01/gordead_ans02.wav",
+    "vo/npc/female01/gordead_ans03.wav",
+    "vo/npc/female01/gordead_ans04.wav",
+    "vo/npc/female01/gordead_ans05.wav",
+    "vo/npc/female01/gordead_ans06.wav",
+    "vo/npc/female01/gordead_ans07.wav",
+    "vo/npc/female01/gordead_ques02.wav",
+})

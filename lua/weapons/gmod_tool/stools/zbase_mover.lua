@@ -84,12 +84,6 @@ end
 
 
 if CLIENT then
-    local mat = Material("effects/blueflare1")
-    local startoffset = Vector(0, 0, 50)
-    local endoffset = Vector(0, 0, 400)
-    local up = Vector(0, 0, 1)
-
-
     local function ToggleMoveNPCClient( npc )
 
         LocalPlayer().ZBaseMoveToolEnts = LocalPlayer().ZBaseMoveToolEnts or {}
@@ -101,8 +95,8 @@ if CLIENT then
             notification.AddLegacy( "NPC Deselected" , NOTIFY_UNDO, 2 )
         end
     end
-    
 
+    
     hook.Add( "PreDrawHalos", "ZBaseMoverHalos", function()
         local wep = LocalPlayer():GetActiveWeapon()
 
@@ -116,9 +110,11 @@ if CLIENT then
         end
     end)
 
+
     function TOOL.BuildCPanel(panel)
         panel:Help(help)
     end
+
 
     net.Receive("ZBaseMoverHalo", function()
         local ent = net.ReadEntity()

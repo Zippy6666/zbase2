@@ -29,6 +29,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCBulletSpreadMult = 1.5,
         NPCReloadSound = "Weapon_Pistol.Reload", 
         NPCShootDistanceMult = 0.75,
+        Weight = 2,
         NPCHoldType =  "pistol" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
@@ -59,6 +60,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCBulletSpreadMult = 1.5, 
         NPCReloadSound = "Weapon_SMG1.NPC_Reload", 
         NPCShootDistanceMult = 0.75,
+        Weight = 3,
         NPCHoldType =  "smg" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
@@ -90,6 +92,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCBulletSpreadMult = 0.25, 
         NPCReloadSound = "Weapon_AR2.NPC_Reload", 
         NPCShootDistanceMult = 1,
+        Weight = 5,
         NPCHoldType =  "ar2" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
@@ -121,6 +124,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCBulletSpreadMult = 1.5, 
         NPCReloadSound = "Weapon_Shotgun.NPC_Reload", 
         NPCShootDistanceMult = 0.5,
+        Weight = 4,
         NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
@@ -146,6 +150,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCBulletSpreadMult = 0.5, 
         NPCReloadSound = "Weapon_Crossbow.BoltElectrify", 
         NPCShootDistanceMult = 2,
+        Weight = 6,
         NPCHoldType =  "shotgun", -- https://wiki.facepunch.com/gmod/Hold_Types
         NPCPrimaryAttack = function( self )
             local own = self:GetOwner()
@@ -187,6 +192,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCReloadSound = "Weapon_357.RemoveLoader", 
         NPCFireRestTimeMin = 0.5, 
         NPCFireRestTimeMax = 1,
+        Weight = 7,
         NPCHoldType =  "revolver", -- https://wiki.facepunch.com/gmod/Hold_Types
         NPCBulletSpreadMult = 1.5, 
         NPCShootDistanceMult = 0.75,
@@ -208,6 +214,8 @@ ZBase_EngineWeapon_Attributes = {
 
     ["weapon_crowbar"] = {
         NPCIsMeleeWep = true,
+        Weight = 0,
+        NPCMeleeWep_Damage = {10, 20}, -- Melee weapon damage {min, max}
         NPCHoldType =  "melee", -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
@@ -220,6 +228,7 @@ ZBase_EngineWeapon_Attributes = {
 
 
     ["weapon_rpg"] = {
+        Weight = 0,
         NPCHoldType =  "rpg", -- https://wiki.facepunch.com/gmod/Hold_Types
         NPCBulletSpreadMult = 1.5, 
         NPCShootDistanceMult = 0.75,
@@ -271,8 +280,9 @@ ZBase_EngineWeapon_Attributes = {
 
     ["weapon_stunstick"] = {
         NPCIsMeleeWep = true,
+        Weight = 0,
         NPCHoldType =  "melee", -- https://wiki.facepunch.com/gmod/Hold_Types
-        NPCMeleeWep_Damage = {10, 20}, -- Melee weapon damage {min, max}
+        NPCMeleeWep_Damage = {5, 10}, -- Melee weapon damage {min, max}
         NPCMeleeWep_DamageType = DMG_SHOCK, -- Melee weapon damage type
         NPCMeleeWep_HitSound = "Weapon_StunStick.Melee_Hit", -- Sound when the melee weapon hits an entity
         NPCMeleeWep_DamageAngle = 90, -- Damage angle (180 = everything in front of the NPC is damaged)
@@ -306,6 +316,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCFireRestTimeMax = 1,
         NPCBulletSpreadMult = 1.5, 
         NPCShootDistanceMult = 0.5,
+        Weight = 4,
         NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
 
@@ -322,6 +333,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCReloadSound = "HL1Weapon_357.Reload", 
         NPCFireRestTimeMin = 0.5, 
         NPCFireRestTimeMax = 1,
+        Weight = 5,
         NPCHoldType =  "revolver", -- https://wiki.facepunch.com/gmod/Hold_Types
         NPCBulletSpreadMult = 1.5, 
         NPCShootDistanceMult = 0.75,
@@ -357,6 +369,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCFireRestTimeMax = 1,
         NPCBulletSpreadMult = 1.5,
         NPCShootDistanceMult = 0.75,
+        Weight = 2,
         NPCHoldType =  "pistol",  -- https://wiki.facepunch.com/gmod/Hold_Types
         PrimaryShootSound = "HL1Weapon_Glock.Single",
         NPCReloadSound = "Weapon_Pistol.Reload", 

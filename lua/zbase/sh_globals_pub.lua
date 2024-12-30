@@ -127,8 +127,9 @@ end
     -- 'pos' - The position to spawn it on (optional, will be Vector(0,0,0) otherwise)
     -- 'normal' - The normal to spawn it on (optional)
     -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
+    -- 'spawn_flags' - (optional) The spawnflags to start with instead of the default SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, and SF_NPC_LONG_RANGE
 local up = Vector(0, 0, 1)
-function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
+function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class, spawn_flags)
 
     if !SERVER then return NULL end
 
@@ -147,7 +148,7 @@ function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class)
     end
 
 
-    local NPC = ZBaseInternalSpawnNPC( nil, pos, normal or up, class, weapon_class, nil, true )
+    local NPC = ZBaseInternalSpawnNPC( nil, pos, normal or up, class, weapon_class, spawn_flags, true, false )
     if !IsValid(NPC) then
         ErrorNoHaltWithStack("No such NPC found: '", class, "'\n")
     else
@@ -351,9 +352,78 @@ end
 
 --[[
 ======================================================================================================================================================
-                                           CONVINIENT FUNCTIONS
+                                           SOUNDS/SENTENCES
 ======================================================================================================================================================
 --]]
+
+--[[
+    -- ADD A SENTENCE - CODE EXAMPLE (RUN IN SHARED) --
+    -- Sentences need to end with .SS as provided in the example! --
+
+    ZBaseAddScriptedSentence({
+        name 	= "SomeCoolSSName.SS",
+        channel = CHAN_VOICE,
+        volume 	= 1,
+        level 	= 75,
+        pitch 	= 100,
+        flags 	= nil,
+        dsp		= 0,
+        caption	= { "<clr:0,100,255>[Combine Soldier: ", 2 }, -- https://developer.valvesoftware.com/wiki/Closed_Captions
+        sound 	= { 
+
+            "radio_on.wav",
+
+            { "npc/combine_soldier/vo/callhotpoint.wav", "npc/combine_soldier/vo/affirmativewegothimnow.wav", "npc/combine_soldier/vo/containmentproceeding.wav" }, -- Will choose random random option.
+
+            { dps = 55, caption = { "Call hot point, ", "Affirmative we got him now, ", "Containment proceeding, " } }, -- If present, it will detect settings for the previous table. You can put anything here to override the sound or add captions.
+
+            "npc/combine_soldier/vo/eighteen.wav",
+
+            { dps = 55, caption = { "eighteen " } },
+
+            "npc/combine_soldier/vo/meters.wav",
+
+            { dps = 55, caption = { "meters." } },
+
+            "radio_off.wav",
+
+        }
+    })
+]]
+function ZBaseAddScriptedSentence(ssTab)
+    if !istable(ssTab) || !ssTab['name'] then return end
+    ZBaseScriptedSentences[ ssTab['name'] ] = ssTab 
+end
+
+
+-- Show a caption text for the player
+-- If the player (ply) is 'false', it will show to every player in the range
+-- 'range' should be about equal to the sound level
+function ZBaseAddCaption(ply, text, dur, range, pos)
+	if (!CLIENT) then
+		net.Start( "ZBaseAddCaption" )
+		net.WriteString( text || "" )
+		net.WriteFloat( dur || 1 )		
+		net.WriteFloat( range || 75 )
+		net.WriteVector( pos || Vector( 0, 0, 0 ) )
+
+		if isbool( ply ) then
+
+			net.SendPVS( pos )
+
+		elseif ply:IsPlayer() then
+		
+			net.Send( ply )
+			
+		end	
+	elseif (!SERVER) then	
+		if range && pos && LocalPlayer():GetPos():DistToSqr( pos ) > ( range * 40 )^2 then
+			return
+		end
+	
+		gui.AddCaption( text, dur, false )
+	end
+end
 
 
     -- A quick way to add sounds that have attributes appropriate for a human voice
@@ -362,8 +432,10 @@ function ZBaseCreateVoiceSounds( name, tbl )
         name = name,
         channel = CHAN_VOICE,
         volume = 0.5,
-        level = 90,
+        level = 75,
         pitch = {95, 105},
         sound = tbl,
     } )
 end
+
+

@@ -23,8 +23,8 @@ sound.Add({
     name = "ZBaseCrabSynth.Step",
 	channel = CHAN_AUTO,
 	volume = 0.7,
-	level = 90,
-	pitch = {120, 125},
+	level = 80,
+	pitch = {150, 160},
 	sound = {
         "npc/crabsynth/cs_step01.wav",
         "npc/crabsynth/cs_step02.wav",
@@ -162,7 +162,7 @@ sound.Add({
 	channel = CHAN_AUTO,
 	volume = 0.8,
 	level = 105,
-	pitch = {95, 105},
+	pitch = {110, 115},
 	sound = {
 		"npc/crabsynth/minigun_start.ogg",
     }

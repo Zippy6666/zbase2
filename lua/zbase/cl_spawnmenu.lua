@@ -31,7 +31,8 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	icon:SetAdminOnly( obj.admin )
 	icon:SetColor( Color( 205, 92, 92, 255 ) )
 	icon.DoClick = function()
-		local override = GetConVar("gmod_npcweapon"):GetString()
+		local override = (ZBCVAR.RandWep:GetBool() && "zbase_random_weapon") or GetConVar("gmod_npcweapon"):GetString()
+
 		RunConsoleCommand( "zbase_spawnnpc", obj.spawnname, override == "" && table.Random(obj.weapon) or override )
 		surface.PlaySound( "buttons/button16.wav" )
 	end
@@ -64,7 +65,7 @@ end)
 
 
 
-local function GiveIconsToNode( pnlContent, tree, node, npcdata )
+local function GiveIconsToNode( pnlContent, tree, node, categories )
 	node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
 		-- If we've already populated it - forget it.
 		if ( self.PropPanel ) then return end
@@ -74,20 +75,29 @@ local function GiveIconsToNode( pnlContent, tree, node, npcdata )
 		self.PropPanel:SetVisible( false )
 		self.PropPanel:SetTriggerSpawnlistChange( false )
 
-		for name, ent in SortedPairsByMemberValue( npcdata, "Name" ) do
-			local mat = ent.IconOverride or GenericIcon
+		for category, npcdata in pairs(categories) do
 
-			if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
-				mat = "entities/" .. name .. ".png"
+			local header = vgui.Create("ContentHeader", self.PropPanel )
+			header:SetText(category)
+			self.PropPanel:Add( header )
+			
+
+			for name, ent in SortedPairsByMemberValue( npcdata, "Name" ) do
+				local mat = ent.IconOverride or GenericIcon
+
+				if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
+					mat = "entities/" .. name .. ".png"
+				end
+
+				local icon = spawnmenu.CreateContentIcon( "zbase_npcs", self.PropPanel, {
+					nicename	= ent.Name or name,
+					spawnname	= name,
+					material	= mat,
+					weapon		= ent.Weapons,
+					admin		= ent.AdminOnly
+				} )
 			end
-
-			local icon = spawnmenu.CreateContentIcon( "zbase_npcs", self.PropPanel, {
-				nicename	= ent.Name or name,
-				spawnname	= name,
-				material	= mat,
-				weapon		= ent.Weapons,
-				admin		= ent.AdminOnly
-			} )
+		
 		end
 	end
 
@@ -118,6 +128,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 
 	local allNPCs = {}
 	local allNode = tree:AddNode( "ZBASE", GenericIcon )
+	allNode:SetExpanded(true)
 	for divisionName, division in SortedPairs( tbl ) do
 		local allCatIconsSame = true
 		local lastIconPath
@@ -137,27 +148,33 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 
 			if ZBaseNPCs[categoryName] then
 				-- This is not a category, it is npc data
-				GiveIconsToNode( pnlContent, tree, node, division )
-				table.Merge(allNPCs, division)
+				GiveIconsToNode( pnlContent, tree, node, {[divisionName]=division} )
+				table.Merge(allNPCs, {[divisionName]=division})
 			else
 
+				node:SetExpanded(true)
+
 				local catNode = node:AddNode(categoryName, ZBaseCategoryImages[divisionName..": "..categoryName] or GenericIcon)
-				GiveIconsToNode( pnlContent, tree, catNode, category )
-				table.Merge(divisionNPCs, category)
+				GiveIconsToNode( pnlContent, tree, catNode, {[divisionName..": "..categoryName]=category} )
+				divisionNPCs[categoryName] = category
 
 			end
 
 		end
 		if !table.IsEmpty(divisionNPCs) then
 			GiveIconsToNode( pnlContent, tree, node, divisionNPCs )
-			table.Merge(allNPCs, divisionNPCs)
+			for k, v in pairs(divisionNPCs) do
+				allNPCs[k] = allNPCs[k] or {}
+				table.Merge(allNPCs[k], v)
+			end
 		end
 
 	end
 	if !table.IsEmpty(allNPCs) then
 		GiveIconsToNode( pnlContent, tree, allNode, allNPCs )
 	end
-
+	allNode:DoClick()
+	allNode:SetSelected()
 
 end)
 
@@ -217,12 +234,23 @@ function PANEL:AddHelp( text )
 end
 
 
+function PANEL:AddCheckbox( text, cvar )
+	local DermaCheckbox = self:Add( "DCheckBoxLabel", self )
+	DermaCheckbox:Dock( TOP )
+	DermaCheckbox:SetText( text )
+	DermaCheckbox:SetDark( true )
+	DermaCheckbox:SetConVar( cvar)
+	DermaCheckbox:SizeToContents()
+	DermaCheckbox:DockMargin( 0, 5, 0, 0 )
+end
+
+
 function PANEL:Init()
 
 	self:DockPadding( 15, 10, 15, 10 )
-	self:SetOpenSize(135)
+	self:SetOpenSize(150)
 
-	self:AddHelp("Faction Settings")
+	self:AddCheckbox( "Random Weapons", "zbase_randwep" )
 
 	self.PlyFactionDropDown = self:AddDropdown("Your Faction", function( v )
 		if v != "" then

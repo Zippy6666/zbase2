@@ -11,25 +11,18 @@ ReloadedSpawnmenuRecently = false
 --]]
 
 
-hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
+hook.Add("InitPostEntity", "ZBASE", function()
 
     -- Override functions
     timer.Simple(0.5, function()
         include("zbase/sh_override_functions.lua")
     end)
     
-    
+
     if CLIENT then
 
         -- Follow halo table
         LocalPlayer().ZBaseFollowHaloEnts = LocalPlayer().ZBaseFollowHaloEnts or {}
-
-
-        -- Cool message
-        if ZBCVAR.StartMsg:GetBool() then
-            local wepCol = LocalPlayer():GetWeaponColor():ToColor()
-            chat.AddText(wepCol, "ZBase is running on this server! Github link: https://github.com/Zippy6666/zbase2 (this message can be disabled in the ZBase options tab).")
-        end
 
 
         -- Add variable that checks if the spawn menu was recently reloaded
@@ -41,6 +34,38 @@ hook.Add("InitPostEntity", "ZBaseReplaceFuncsServer", function()
                 ReloadedSpawnmenuRecently = false 
             end)
         end)
+
+
+        -- Welcome screen
+        if ZBCVAR.PopUp:GetBool() then
+            local frame = vgui.Create("DFrame")
+            frame:SetTitle("ZBASE")
+            frame:SetSize(1400, 700)
+            frame:Center()
+            frame:MakePopup()
+            frame:SetBackgroundBlur(true)
+
+            local html = vgui.Create("DHTML", frame)
+            html:Dock(TOP)
+            html:SetHeight(600)
+
+            -- Replace "YOUR_COLLECTION_ID" with your actual Workshop collection ID
+            local workshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=3390418473"
+            html:OpenURL(workshopLink)
+
+            local closeButton = vgui.Create("DButton", frame)
+            closeButton:SetText("Close")
+            closeButton:Dock(BOTTOM)
+            closeButton:SetHeight(30)
+            closeButton.DoClick = function()
+                frame:Close()
+            end
+
+            frame.OnClose = function()
+                notification.AddLegacy("You can disable the ZBase pop-up in the ZBase settings tab.", NOTIFY_HINT, 5)
+                chat.AddText(Color(0, 200, 255), "You can disable the ZBase pop-up in the ZBase settings tab.")
+            end
+        end
 
     end
 
@@ -66,8 +91,7 @@ if SERVER then
             local zbaseClass = ent:GetKeyValues().parentname
             if ZBaseNPCs[zbaseClass] && !ent.IsDupeSpawnedZBaseNPC then
                 ZBaseNPCCopy( ent, zbaseClass, true )
-            end
-
+            end    
 
             -- When a entity owned by a ZBase NPC is created
             local own = ent:GetOwner()
@@ -77,6 +101,11 @@ if SERVER then
                 if own.Patch_CreateEnt then
                     own:Patch_CreateEnt( ent )
                 end
+            end
+        
+            local parent = ent:GetParent()
+            if IsValid(parent) && parent.IsZBaseNPC then
+                parent:OnParentedEntCreated( ent )
             end
         end)
 
@@ -100,7 +129,9 @@ if SERVER then
 
                 else
 
-                    ZBaseSetFaction(ent, ZBaseFactionTranslation[ent.m_iClass or ent:Classify()])
+                    ZBaseSetFaction(ent,
+                        ZBaseFactionTranslation[ent.m_iClass or ent:Classify()]
+                    )
 
                 end
             end
@@ -299,6 +330,44 @@ hook.Add("ScaleNPCDamage", "ZBASE", function ( npc, hit_gr, dmg )
     if npc.IsZBaseNPC then
         npc:OnScaleDamage( dmg, hit_gr )
     end
+end)
+
+
+hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
+    if SERVER && ent.IsZBaseNPC then
+        local return_value = ent:OnFireBullet( data )
+        if return_value == false then
+            data.Num = 0
+            data.Distance = 0
+            return true
+        elseif return_value == true then
+            return true
+        end
+    end
+
+    if SERVER && !ZBCVAR.PlayerHurtAllies:GetBool() && ZBaseNPCCount > 0 then
+
+        local own = ent:GetOwner()
+        local shooterPly = (own:IsPlayer() && own) or (ent:IsPlayer() && ent)
+
+        if shooterPly then
+            local tr = util.TraceLine({
+                start = data.Src,
+                endpos = data.Src+data.Dir*10000,
+                mask = MASK_SHOT,
+                filter = shooterPly,
+            })
+
+            if IsValid(tr.Entity) && tr.Entity.IsZBaseNPC && tr.Entity:Disposition(shooterPly) == D_LI then
+                data.IgnoreEntity = tr.Entity
+                data.Num = 0
+                data.Distance = 0
+                return true
+            end
+        end
+    
+    end
+
 end)
 
 
@@ -572,7 +641,6 @@ if CLIENT then
     net.Receive("ZBaseClientRagdoll", function()
         local ent = net.ReadEntity() if !IsValid(ent) then return end
         local rag = ent:BecomeRagdollOnClient()
-        print(ent, rag, "became rag")
     end)
 end
 
@@ -605,7 +673,7 @@ end)
 
 --[[
 ======================================================================================================================================================
-                                           OTHER
+                                           EVENTS
 ======================================================================================================================================================
 --]]
 
@@ -635,6 +703,83 @@ hook.Add( "KeyPress", "ZBaseUse", function( ply, key )
     end
 end)
 
+
+-- Gravity gun punt for aerial ZBASE NPCs
+hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
+    if ent.IsZBaseNPC && ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_GravGunPuntForceMult > 0 then
+        local timerName = "ZBaseNPCPuntVel"..ent:EntIndex()
+        local totalReps = 10
+        local speed = 500*ent.Fly_GravGunPuntForceMult
+
+        timer.Create(timerName, 0.1, totalReps, function()
+            if !IsValid(ent) then return end
+
+            local mult = ( speed - ((totalReps-timer.RepsLeft(timerName))/totalReps)*speed )
+            ent:SetVelocity(ply:GetAimVector() * mult)
+        end)
+
+        return true
+    end
+end)
+
+
+-- Don't pickup some zbase weapons
+hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
+
+	if wep.IsZBaseWeapon && wep.NPCOnly then
+
+        if !wep.Pickup_GaveAmmo then
+		    ply:GiveAmmo(wep.Primary.DefaultClip, wep:GetPrimaryAmmoType())
+            wep.Pickup_GaveAmmo = true
+        end
+
+		wep:Remove()
+
+		return false
+	end
+
+end)
+
+
+-- Player trying to shoot NPC
+hook.Add( "KeyPress", "ZBASE", function( ply, key )
+    if !SERVER then return end
+
+
+
+    local wep = ply:GetActiveWeapon()
+
+
+    if IsValid(wep) &&
+    ( (wep:Clip1() > 0 && key == IN_ATTACK) or (wep:Clip2() > 0 && key == IN_ATTACK2)
+    or (wep:GetClass()=="weapon_smg1" && ply:GetAmmoCount("SMG1_Grenade")>0 && key == IN_ATTACK2)
+    or (wep:GetClass()=="weapon_ar2" && ply:GetAmmoCount("AR2AltFire")>0 && key == IN_ATTACK2)
+    or (wep:GetClass()=="weapon_rpg" && ply:GetAmmoCount("RPG_Round")>0 && key == IN_ATTACK) ) then
+
+        local tr = ply:GetEyeTrace()
+        local ent = (tr.Entity.IsZBaseNPC && tr.Entity)
+
+
+        if IsValid(ent) then
+            ent:RangeThreatened(ply)
+        end
+
+    end
+end)
+
+
+hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
+    if ent.IsZBaseNPC then
+        ent:CustomAcceptInput(input, activator, ent, value)
+    end
+end)
+
+
+--[[
+======================================================================================================================================================
+                                           DEATH STUFF
+======================================================================================================================================================
+--]]
 
 
 hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
@@ -713,16 +858,7 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
 
         if ally.AllyDeathSound_Chance && math.random(1, ally.AllyDeathSound_Chance) == 1 then
             local deathpos = ply:GetPos()
-            timer.Simple(0.5, function()
-                if IsValid(ally) then
-                    ally:EmitSound_Uninterupted(ally.AllyDeathSounds)
-
-                    if ally.AllyDeathSounds != "" && ally:GetNPCState()==NPC_STATE_IDLE then
-                        ally:FullReset()
-                        ally:Face(deathpos, ally.InternalCurrentVoiceSoundDuration)
-                    end
-                end
-            end)
+            ally:ImTheNearestAllyAndThisIsMyHonestReaction(deathpos)
         end
     end
 
@@ -736,107 +872,4 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
         zbaseNPC:MarkEnemyAsDead(ply, 2)
     end
 
-end)
-
-
-
--- Gravity gun punt for aerial ZBASE NPCs
-hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
-    if ent.IsZBaseNPC && ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_GravGunPuntForceMult > 0 then
-        local timerName = "ZBaseNPCPuntVel"..ent:EntIndex()
-        local totalReps = 10
-        local speed = 500*ent.Fly_GravGunPuntForceMult
-
-        timer.Create(timerName, 0.1, totalReps, function()
-            if !IsValid(ent) then return end
-
-            local mult = ( speed - ((totalReps-timer.RepsLeft(timerName))/totalReps)*speed )
-            ent:SetVelocity(ply:GetAimVector() * mult)
-        end)
-
-        return true
-    end
-end)
-
-
--- ZBase init stuff when spawned from dupe
-duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
-
-    local zbaseClass = data[1]
-    local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
-
-    if ZBaseNPCTable then
-
-        ent.ZBaseInitialized = false -- So that it can be initialized again
-        ent.IsDupeSpawnedZBaseNPC = true
-
-        local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
-        ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
-
-    end
-
-end)
-
-
--- Add zbase sweps to npc weapon menu if we should
-hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
-
-	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
-		list.Add( "NPCUsableWeapons", { class = class, title = "ZBASE: "..swep.PrintName.." ("..class..")" } )
-        table.insert(ZBaseNPCWeps, class)
-	end
-
-end)
-
-
--- Don't pickup some zbase weapons
-hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
-
-	if wep.IsZBaseWeapon && wep.NPCOnly then
-
-        if !wep.Pickup_GaveAmmo then
-		    ply:GiveAmmo(wep.Primary.DefaultClip, wep:GetPrimaryAmmoType())
-            wep.Pickup_GaveAmmo = true
-        end
-
-		wep:Remove()
-
-		return false
-	end
-
-end)
-
-
-
--- Player trying to shoot NPC
-hook.Add( "KeyPress", "ZBASE", function( ply, key )
-    if !SERVER then return end
-
-
-
-    local wep = ply:GetActiveWeapon()
-
-
-    if IsValid(wep) &&
-    ( (wep:Clip1() > 0 && key == IN_ATTACK) or (wep:Clip2() > 0 && key == IN_ATTACK2)
-    or (wep:GetClass()=="weapon_smg1" && ply:GetAmmoCount("SMG1_Grenade")>0 && key == IN_ATTACK2)
-    or (wep:GetClass()=="weapon_ar2" && ply:GetAmmoCount("AR2AltFire")>0 && key == IN_ATTACK2)
-    or (wep:GetClass()=="weapon_rpg" && ply:GetAmmoCount("RPG_Round")>0 && key == IN_ATTACK) ) then
-
-        local tr = ply:GetEyeTrace()
-        local ent = (tr.Entity.IsZBaseNPC && tr.Entity)
-
-
-        if IsValid(ent) then
-            ent:RangeThreatened(ply)
-        end
-
-    end
-end)
-
-
-hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
-    if ent.IsZBaseNPC then
-        ent:CustomAcceptInput(input, activator, ent, value)
-    end
 end)

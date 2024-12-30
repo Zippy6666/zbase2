@@ -12,43 +12,34 @@ local Developer = GetConVar("developer")
 function NPC:ZBASE_SetMutualRelationship( ent, rel )
     if !IsValid(ent) then return end
 
-
     local myLastDispToEnt = self:Disposition(ent)
-
 
     local relToEnt = rel
     local allowAddRelationship = !(self.IsZBaseNPC && !self:OnBaseSetRel(ent, relToEnt, 0))
-
 
     -- Neutral to all else if controlled
     if self.IsZBPlyControlled then
         relToEnt = D_NU
     end
 
-
     -- Player using pill pack, don't do relationship operation, let parakeet's pill pack do that instead
     if ent:IsPlayer() && IsValid(ent.pk_pill_ent) then
         return
     end
 
-
-
     if myLastDispToEnt == relToEnt then return end -- Relationship unchanged, don't do any relationship operations
-
-
     
     -- Set relationship to recipient
     if allowAddRelationship then
 
         self:AddEntityRelationship(ent, relToEnt, 0)
-    
+
         -- Recipient's bullseye relationship, allows snpcs of the same class to hate each other
         if ent.IsZBase_SNPC && ent:GetClass()==self:GetClass() && IsValid(ent.Bullseye) then
             self:AddEntityRelationship(ent.Bullseye, relToEnt, 0)
         end
 
     end
-
 
     -- If recipient is not a ZBase npc, make the recipient feel the same way about us (Unless we have notarget)
     local isRegularNPC = !ent.IsZBaseNPC && ent:IsNPC()
@@ -58,10 +49,6 @@ function NPC:ZBASE_SetMutualRelationship( ent, rel )
         if !hasNoTarget then
             ent:AddEntityRelationship(self, entRelToMe, 0)
         end
-    end
-
-    if Developer:GetBool() then
-        MsgN(self, " ZBASE relationship change to ", ent)
     end
 
 end
@@ -81,11 +68,6 @@ function NPC:SetSchedule( sched, ... )
     -- Prevent LUA from setting schedules to ZBase NPCs if we should
     if self.IsZBaseNPC && self:ShouldPreventSetSched( sched ) then
         return
-    end
-
-    -- Aerial ZBase NPC
-    if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then
-        self:AerialSetSchedule(sched, ...)
     end
 
     -- Usual drop weapon

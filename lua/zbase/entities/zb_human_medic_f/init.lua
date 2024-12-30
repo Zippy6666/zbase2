@@ -3,7 +3,7 @@ local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_FEMALE, SF_CITIZEN_MEDIC}
 
-
+ 
 NPC.AlertSounds = "ZBaseFemale.Alert" -- Sounds emitted when an enemy is seen for the first time
 NPC.KilledEnemySounds = "ZBaseFemale.KillEnemy" -- Sounds emitted when the NPC kills an enemy
 NPC.OnMeleeSounds = "ZBaseFemale.Melee" -- Sounds emitted when the NPC does its melee attack
