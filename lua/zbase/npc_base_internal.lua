@@ -3900,7 +3900,7 @@ function NPC:OnEntityTakeDamage( dmg )
     -- Death animation
     if !table.IsEmpty(self.DeathAnimations) && goingToDie && math.random(1, self.DeathAnimationChance)==1 then
         self:DeathAnimation(dmg)
-        return
+        return true
     end
 end
 
@@ -4497,34 +4497,25 @@ end
 
 
 function NPC:DeathAnimation( dmg )
-
     if self.DeathAnimStarted then return end
     self.DeathAnimStarted = true
-
 
     self:DeathAnimation_Animation()
     self.DoingDeathAnim = true
 
-
-
     self:EmitSound(self.DeathSounds)
-
 
     dmg:SetDamageForce(vector_origin)
     self:StoreDMGINFO(dmg)
 
-
     dmg:ScaleDamage(0)
-
 
     self:SetHealth(1)
     self:CapabilitiesClear()
 
-
     if self.DeathAnimation_StopAttackingMe then
         self:AddFlags(FL_NOTARGET)
     end
-
 end
 
 
