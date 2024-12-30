@@ -396,6 +396,36 @@ function ZBaseAddScriptedSentence(ssTab)
 end
 
 
+-- Show a caption text for the player
+-- If the player (ply) is 'false', it will show to every player in the range
+-- 'range' should be about equal to the sound level
+function ZBaseAddCaption(ply, text, dur, range, pos)
+	if (!CLIENT) then
+		net.Start( "ZBaseAddCaption" )
+		net.WriteString( text || "" )
+		net.WriteFloat( dur || 1 )		
+		net.WriteFloat( range || 75 )
+		net.WriteVector( pos || Vector( 0, 0, 0 ) )
+
+		if isbool( ply ) then
+
+			net.SendPVS( pos )
+
+		elseif ply:IsPlayer() then
+		
+			net.Send( ply )
+			
+		end	
+	elseif (!SERVER) then	
+		if range && pos && LocalPlayer():GetPos():DistToSqr( pos ) > ( range * 40 )^2 then
+			return
+		end
+	
+		gui.AddCaption( text, dur, false )
+	end
+end
+
+
     -- A quick way to add sounds that have attributes appropriate for a human voice
 function ZBaseCreateVoiceSounds( name, tbl )
     sound.Add( {

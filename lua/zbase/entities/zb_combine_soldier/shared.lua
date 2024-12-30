@@ -32,7 +32,7 @@ ZBaseAddScriptedSentence({
     channel = CHAN_VOICE,
     volume 	= 1,
     level 	= 75,
-    caption	= { "<clr:0,100,255>[Combine Soldier: ", 2 },
+    caption	= { "<clr:0,100,255>Combine Radio: ", 2 },
     sound 	= { 
         "radio_on.wav",
         { "npc/combine_soldier/vo/callhotpoint.wav", "npc/combine_soldier/vo/containmentproceeding.wav" }, -- Will choose random random option.
@@ -54,7 +54,7 @@ ZBaseAddScriptedSentence({
     channel = CHAN_VOICE,
     volume 	= 1,
     level 	= 75,
-    caption	= { "<clr:0,100,255>[Combine Soldier: ", 2 },
+    caption	= { "<clr:0,100,255>Combine Radio: ", 2 },
     sound 	= { 
         "radio_on.wav",
         { "npc/combine_soldier/vo/lostcontact.wav", "npc/combine_soldier/vo/skyshieldreportslostcontact.wav" },

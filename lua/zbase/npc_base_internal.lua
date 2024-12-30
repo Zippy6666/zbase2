@@ -3174,6 +3174,25 @@ function NPC:RestartSoundCycle( sndTbl, data )
 end
 
 
+local sndVarToCapTrans = {
+    AlertSounds = "[ Alert! ]",
+    IdleSounds = "[ Chatter. ]",
+    Idle_HasEnemy_Sounds = "[ Chatter. ]",
+    DeathSounds = "[ Death! ]",
+    PainSounds = "[ Pain! ]",
+    KilledEnemySounds = "[ Killed enemy. ]",
+    LostEnemySounds = "[ Lost enemy. ]",
+    SeeDangerSounds = "[ Danger! ]",
+    SeeGrenadeSounds = "[ Grenade! ]",
+    AllyDeathSounds = "[ Ally dead. ]",
+    OnReloadSounds = "[ Reloading. ]",
+    OnGrenadeSounds = "[ Throwing grenade! ]",
+    FollowPlayerSounds = "[ Following ally. ]",
+    UnfollowPlayerSounds = "[ Stopped following ally. ]",
+    Dialogue_Question_Sounds = "[ Conversating. ]",
+    Dialogue_Answer_Sounds = "[ Conversating. ]",
+    HearDangerSounds = "[ Hear sound. ]",
+}
 function NPC:OnEmitSound( data )
     local altered
     local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
@@ -3295,6 +3314,12 @@ function NPC:OnEmitSound( data )
             self.IsSpeaking = nil
             self.IsSpeaking_SoundVar = nil
         end)
+
+        -- Misc caption
+        local caption = sndVarToCapTrans[sndVarName]
+        if sndVarName && caption then
+            ZBaseAddCaption(false,self.Name..": "..caption, 2, data.SoundLevel or 75, self:GetPos())
+        end
     end
 
     -- Custom on sound emitted

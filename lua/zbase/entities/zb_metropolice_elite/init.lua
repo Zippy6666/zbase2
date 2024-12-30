@@ -49,6 +49,7 @@ NPC.Dialogue_Answer_Sounds = "ZBaseElitePolice.Answer"
 
 function NPC:BeforeEmitSound( sndData, sndVarName )
     if sndVarName == "DeathSounds" && self:IsOnFire() then
+        ZBaseAddCaption(false, "<clr:255,100,0>"..self.Name..": [ Agony. ]", 2, 75, self:GetPos())
         return "ZBaseElitePolice.FireDeath"
     end
 
@@ -61,12 +62,14 @@ function NPC:BeforeEmitSound( sndData, sndVarName )
     && self.EnemyVisible
     && self:ZBaseDist(ene, {within=1500})
     && IsValid(ene:GetActiveWeapon()) then
+        ZBaseAddCaption(false, "<clr:255,100,0>"..self.Name..": [ Enemy armed! ]", 2, 75, self:GetPos())
         return "ZBaseElitePolice.AlertArmed"
     end
 
 
     if sndVarName == "Idle_HasEnemy_Sounds" && IsValid(ene)
     && !self.EnemyVisible && math.random(1, 2) == 1 then
+        ZBaseAddCaption(false, "<clr:255,100,0>"..self.Name..": [ Cannot see enemy. ]", 2, 75, self:GetPos())
         return "ZBaseElitePolice.IdleEnemyOccluded"
     end
 end

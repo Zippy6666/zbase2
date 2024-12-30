@@ -165,32 +165,3 @@ elseif (SERVER) then
 	util.AddNetworkString("ZBaseAddCaption")
 	
 end
-
-
-function ZBaseAddCaption(ply, text, dur, range, pos)
-
-	if (!CLIENT) then
-		net.Start( "ZBaseAddCaption" )
-		net.WriteString( text || "" )
-		net.WriteFloat( dur || 1 )		
-		net.WriteFloat( range || 75 )
-		net.WriteVector( pos || Vector( 0, 0, 0 ) )
-		
-		if isbool( ply ) then
-		
-			net.Broadcast()
-			
-		elseif ply:IsPlayer() then
-		
-			net.Send( ply )
-			
-		end	
-	elseif (!SERVER) then	
-		if range && pos && LocalPlayer():GetPos():DistToSqr( pos ) > ( range * 40 )^2 then
-			return
-		end
-	
-		gui.AddCaption( text, dur, false )
-	end
-	
-end
