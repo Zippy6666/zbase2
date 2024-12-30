@@ -1,5 +1,6 @@
 local NPC = ZBaseNPCs["npc_zbase"]
 local KeepCorpses = GetConVar("ai_serverragdolls")
+local MinMaxCache = {}
 
 
     // These are functions that you can call, don't change them
@@ -356,7 +357,66 @@ end
 
 --[[
 ==================================================================================================
-                                           OTHER
+                                    UTILITIES / CONVENIENCE
+==================================================================================================
+--]]
+
+
+    -- Give zombie NPCs headcrabs
+function NPC:Zombie_GiveHeadCrabs()
+    self:SetSaveValue("m_fIsHeadless", false)
+    self:SetBodygroup(1, 1)
+
+    if self:GetClass()=="npc_poisonzombie" then
+        self:SetSaveValue("m_nCrabCount", 3)
+        self:SetSaveValue("m_bCrabs", {true, true, true})
+
+        for i = 2, 4 do
+            self:SetBodygroup(i, 1)
+        end
+    end
+end
+
+
+    -- Emit a foot step sound, should idealy be used instead of regular emit sound code
+    -- Uses self.FootStepSounds
+function NPC:EmitFootStepSound()
+    local stepent = ents.Create("zb_temporary_ent")
+    stepent.ShouldRemain = true
+
+    stepent:SetNoDraw(true)
+    stepent:SetPos(self:GetPos())
+    stepent:SetOwner(self)
+    stepent:Spawn()
+    stepent.IsZBaseStepEnt = true
+
+    stepent:EmitSound(self.FootStepSounds)
+    SafeRemoveEntityDelayed(stepent, 1)
+end
+
+
+    -- Just like Entity:EmitSound(), except it will prevent certain sounds from playing over it
+function NPC:EmitSound_Uninterupted( ... )
+    ZBase_DontSpeakOverThisSound = true
+    self:EmitSound(...)
+    ZBase_DontSpeakOverThisSound = false
+end
+
+    -- Returns the name of the NPC's squad
+function NPC:SquadName()
+    return self:GetKeyValues().squadname
+end
+
+
+    -- Is this NPC even alive at all?
+function NPC:IsAlive()
+    return !(self.Dead or self.DoingDeathAnim or self:GetNPCState() == NPC_STATE_DEAD)
+end
+
+
+--[[
+==================================================================================================
+                                    AI / CALCULATIONS / CHECKS
 ==================================================================================================
 --]]
 
@@ -366,28 +426,6 @@ end
 function NPC:SeeEne()
     return self.EnemyVisible
 end
-
-
-    -- Kills the NPC (no death animation)
-    -- 'dmginfo' - Damage info, not required
-    -- 'no_kill_feed_msg' - Set to true to not use kill feed message
-function NPC:InduceDeath( dmginfo, no_kill_feed_msg )
-
-    dmginfo = dmginfo or self:LastDMGINFO()
-
-    self.DeathAnim_Finished = true
-
-    local att = dmginfo:GetAttacker()
-    local infl = dmginfo:GetInflictor()
-
-    if no_kill_feed_msg then
-        self:OnDeath(IsValid(att) && att or self, IsValid(infl) && infl or self, dmginfo, HITGROUP_GENERIC)
-    else
-        hook.Run("OnNPCKilled", self, IsValid(att) && att or self, IsValid(infl) && infl or self )
-    end
-
-end
-
 
 
     -- Check if the NPC is facing a position or entity
@@ -430,28 +468,6 @@ function NPC:ZBaseDist( ent_or_pos, tbl )
 end
 
 
-
-    -- Creates a gib entity with the given model
-    -- Returns the gib so that you can do whatever you want with it after creation
-    -- 'model' - The model to use
-    -- 'data' (table)
-        -- 'data.offset' - Vector position offset relative to itself
-        -- 'data.DontBleed' - If true, the gib will not have blood effects
-        -- 'IsRagdoll' - If true, spawn gib as ragdoll
-        -- 'SmartPositionRagdoll' - If true, position the ragdoll like the NPC
-function NPC:CreateGib( model, data )
-    return self:InternalCreateGib( model, data )
-end
-
-
-    -- Just like Entity:EmitSound(), except it will prevent certain sounds from playing over it
-function NPC:EmitSound_Uninterupted( ... )
-    ZBase_DontSpeakOverThisSound = true
-    self:EmitSound(...)
-    ZBase_DontSpeakOverThisSound = false
-end
-
-
     -- Check if an entity is allied with the NPC
 function NPC:IsAlly( ent )
     if !IsValid(ent) then return false end
@@ -460,29 +476,10 @@ function NPC:IsAlly( ent )
 
     return ent.ZBaseFaction == self.ZBaseFaction
 end
- 
-
-    -- Get nearby allies within a in a certain radius
-    -- Returns an empty table if none was found
-function NPC:GetNearbyAllies( radius )
-    local allies = {}
-
-    for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius)) do
-        if v == self then continue end
-        if !v:IsNPC() && !v:IsPlayer() then continue end
-
-        if self:IsAlly(v) then
-            table.insert(allies, v)
-        end
-    end
-
-    return allies
-end
 
 
-    -- Same as above but uses a box and is probably more optimized
+    -- Same as below but uses a box and is probably more optimized
     -- Only detects ZBase NPCs
-local MinMaxCache = {}
 function NPC:GetNearbyAlliesOptimized( lenght )
     local allies = {}
 
@@ -511,6 +508,43 @@ function NPC:GetNearbyAlliesOptimized( lenght )
 
     return allies
 end
+ 
+
+    -- Get nearby allies within a in a certain radius
+    -- Returns an empty table if none was found
+function NPC:GetNearbyAllies( radius )
+    local allies = {}
+
+    for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius)) do
+        if v == self then continue end
+        if !v:IsNPC() && !v:IsPlayer() then continue end
+
+        if self:IsAlly(v) then
+            table.insert(allies, v)
+        end
+    end
+
+    return allies
+end
+
+
+    -- Same as below but uses a box and should be more optimized
+    -- Only returns ZBase NPCs
+function NPC:GetNearestAllyOptimized( lenght )
+    local mindist
+    local ally
+
+    for _, v in ipairs(self:GetNearbyAlliesOptimized(lenght)) do
+        local dist = self:GetPos():DistToSqr(v:GetPos())
+
+        if !mindist or dist < mindist then
+            mindist = dist
+            ally = v
+        end
+    end
+
+    return ally
+end
 
 
     -- Get the nearest allied within a in a certain radius
@@ -532,65 +566,42 @@ function NPC:GetNearestAlly( radius )
 end
 
 
-    -- Same as above but uses a box and should be more optimized
-    -- Only returns ZBase NPCs
-function NPC:GetNearestAllyOptimized( lenght )
-    local mindist
-    local ally
+--[[
+==================================================================================================
+                                           DEATH / GIB STUFF
+==================================================================================================
+--]]
 
-    for _, v in ipairs(self:GetNearbyAlliesOptimized(lenght)) do
-        local dist = self:GetPos():DistToSqr(v:GetPos())
 
-        if !mindist or dist < mindist then
-            mindist = dist
-            ally = v
-        end
+-- Kills the NPC (no death animation)
+-- 'dmginfo' - Damage info, not required
+-- 'no_kill_feed_msg' - Set to true to not use kill feed message
+function NPC:InduceDeath( dmginfo, no_kill_feed_msg )
+
+    dmginfo = dmginfo or self:LastDMGINFO()
+
+    self.DeathAnim_Finished = true
+
+    local att = dmginfo:GetAttacker()
+    local infl = dmginfo:GetInflictor()
+
+    if no_kill_feed_msg then
+        self:OnDeath(IsValid(att) && att or self, IsValid(infl) && infl or self, dmginfo, HITGROUP_GENERIC)
+    else
+        hook.Run("OnNPCKilled", self, IsValid(att) && att or self, IsValid(infl) && infl or self )
     end
 
-    return ally
 end
 
 
-    -- Returns the name of the NPC's squad
-function NPC:SquadName()
-    return self:GetKeyValues().squadname
-end
-
-
-    -- Give zombie NPCs headcrabs
-function NPC:Zombie_GiveHeadCrabs()
-    self:SetSaveValue("m_fIsHeadless", false)
-    self:SetBodygroup(1, 1)
-
-    if self:GetClass()=="npc_poisonzombie" then
-        self:SetSaveValue("m_nCrabCount", 3)
-        self:SetSaveValue("m_bCrabs", {true, true, true})
-
-        for i = 2, 4 do
-            self:SetBodygroup(i, 1)
-        end
-    end
-end
-
-
-    -- Emit a foot step sound, should idealy be used instead of regular emit sound code
-    -- Uses self.FootStepSounds
-function NPC:EmitFootStepSound()
-    local stepent = ents.Create("zb_temporary_ent")
-    stepent.ShouldRemain = true
-
-    stepent:SetNoDraw(true)
-    stepent:SetPos(self:GetPos())
-    stepent:SetOwner(self)
-    stepent:Spawn()
-    stepent.IsZBaseStepEnt = true
-
-    stepent:EmitSound(self.FootStepSounds)
-    SafeRemoveEntityDelayed(stepent, 1)
-end
-
-
-    -- Is this NPC even alive at all?
-function NPC:IsAlive()
-    return !(self.Dead or self.DoingDeathAnim or self:GetNPCState() == NPC_STATE_DEAD)
+    -- Creates a gib entity with the given model
+    -- Returns the gib so that you can do whatever you want with it after creation
+    -- 'model' - The model to use
+    -- 'data' (table)
+        -- 'data.offset' - Vector position offset relative to itself
+        -- 'data.DontBleed' - If true, the gib will not have blood effects
+        -- 'IsRagdoll' - If true, spawn gib as ragdoll
+        -- 'SmartPositionRagdoll' - If true, position the ragdoll like the NPC
+function NPC:CreateGib( model, data )
+    return self:InternalCreateGib( model, data )
 end

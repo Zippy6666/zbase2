@@ -334,6 +334,17 @@ end)
 
 
 hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
+    if SERVER && ent.IsZBaseNPC then
+        local return_value = ent:OnFireBullet( data )
+        if return_value == false then
+            data.Num = 0
+            data.Distance = 0
+            return true
+        elseif return_value == true then
+            return true
+        end
+    end
+
     if SERVER && !ZBCVAR.PlayerHurtAllies:GetBool() && ZBaseNPCCount > 0 then
 
         local own = ent:GetOwner()
@@ -356,6 +367,7 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
         end
     
     end
+
 end)
 
 
@@ -661,7 +673,7 @@ end)
 
 --[[
 ======================================================================================================================================================
-                                           OTHER
+                                           EVENTS
 ======================================================================================================================================================
 --]]
 
@@ -691,6 +703,83 @@ hook.Add( "KeyPress", "ZBaseUse", function( ply, key )
     end
 end)
 
+
+-- Gravity gun punt for aerial ZBASE NPCs
+hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
+    if ent.IsZBaseNPC && ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_GravGunPuntForceMult > 0 then
+        local timerName = "ZBaseNPCPuntVel"..ent:EntIndex()
+        local totalReps = 10
+        local speed = 500*ent.Fly_GravGunPuntForceMult
+
+        timer.Create(timerName, 0.1, totalReps, function()
+            if !IsValid(ent) then return end
+
+            local mult = ( speed - ((totalReps-timer.RepsLeft(timerName))/totalReps)*speed )
+            ent:SetVelocity(ply:GetAimVector() * mult)
+        end)
+
+        return true
+    end
+end)
+
+
+-- Don't pickup some zbase weapons
+hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
+
+	if wep.IsZBaseWeapon && wep.NPCOnly then
+
+        if !wep.Pickup_GaveAmmo then
+		    ply:GiveAmmo(wep.Primary.DefaultClip, wep:GetPrimaryAmmoType())
+            wep.Pickup_GaveAmmo = true
+        end
+
+		wep:Remove()
+
+		return false
+	end
+
+end)
+
+
+-- Player trying to shoot NPC
+hook.Add( "KeyPress", "ZBASE", function( ply, key )
+    if !SERVER then return end
+
+
+
+    local wep = ply:GetActiveWeapon()
+
+
+    if IsValid(wep) &&
+    ( (wep:Clip1() > 0 && key == IN_ATTACK) or (wep:Clip2() > 0 && key == IN_ATTACK2)
+    or (wep:GetClass()=="weapon_smg1" && ply:GetAmmoCount("SMG1_Grenade")>0 && key == IN_ATTACK2)
+    or (wep:GetClass()=="weapon_ar2" && ply:GetAmmoCount("AR2AltFire")>0 && key == IN_ATTACK2)
+    or (wep:GetClass()=="weapon_rpg" && ply:GetAmmoCount("RPG_Round")>0 && key == IN_ATTACK) ) then
+
+        local tr = ply:GetEyeTrace()
+        local ent = (tr.Entity.IsZBaseNPC && tr.Entity)
+
+
+        if IsValid(ent) then
+            ent:RangeThreatened(ply)
+        end
+
+    end
+end)
+
+
+hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
+    if ent.IsZBaseNPC then
+        ent:CustomAcceptInput(input, activator, ent, value)
+    end
+end)
+
+
+--[[
+======================================================================================================================================================
+                                           DEATH STUFF
+======================================================================================================================================================
+--]]
 
 
 hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
@@ -783,107 +872,4 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
         zbaseNPC:MarkEnemyAsDead(ply, 2)
     end
 
-end)
-
-
-
--- Gravity gun punt for aerial ZBASE NPCs
-hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
-    if ent.IsZBaseNPC && ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_GravGunPuntForceMult > 0 then
-        local timerName = "ZBaseNPCPuntVel"..ent:EntIndex()
-        local totalReps = 10
-        local speed = 500*ent.Fly_GravGunPuntForceMult
-
-        timer.Create(timerName, 0.1, totalReps, function()
-            if !IsValid(ent) then return end
-
-            local mult = ( speed - ((totalReps-timer.RepsLeft(timerName))/totalReps)*speed )
-            ent:SetVelocity(ply:GetAimVector() * mult)
-        end)
-
-        return true
-    end
-end)
-
-
--- ZBase init stuff when spawned from dupe
-duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
-
-    local zbaseClass = data[1]
-    local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
-
-    if ZBaseNPCTable then
-
-        ent.ZBaseInitialized = false -- So that it can be initialized again
-        ent.IsDupeSpawnedZBaseNPC = true
-
-        local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
-        ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
-
-    end
-
-end)
-
-
--- Add zbase sweps to npc weapon menu if we should
-hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
-
-	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
-		list.Add( "NPCUsableWeapons", { class = class, title = "ZBASE: "..swep.PrintName.." ("..class..")" } )
-        table.insert(ZBaseNPCWeps, class)
-	end
-
-end)
-
-
--- Don't pickup some zbase weapons
-hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
-
-	if wep.IsZBaseWeapon && wep.NPCOnly then
-
-        if !wep.Pickup_GaveAmmo then
-		    ply:GiveAmmo(wep.Primary.DefaultClip, wep:GetPrimaryAmmoType())
-            wep.Pickup_GaveAmmo = true
-        end
-
-		wep:Remove()
-
-		return false
-	end
-
-end)
-
-
-
--- Player trying to shoot NPC
-hook.Add( "KeyPress", "ZBASE", function( ply, key )
-    if !SERVER then return end
-
-
-
-    local wep = ply:GetActiveWeapon()
-
-
-    if IsValid(wep) &&
-    ( (wep:Clip1() > 0 && key == IN_ATTACK) or (wep:Clip2() > 0 && key == IN_ATTACK2)
-    or (wep:GetClass()=="weapon_smg1" && ply:GetAmmoCount("SMG1_Grenade")>0 && key == IN_ATTACK2)
-    or (wep:GetClass()=="weapon_ar2" && ply:GetAmmoCount("AR2AltFire")>0 && key == IN_ATTACK2)
-    or (wep:GetClass()=="weapon_rpg" && ply:GetAmmoCount("RPG_Round")>0 && key == IN_ATTACK) ) then
-
-        local tr = ply:GetEyeTrace()
-        local ent = (tr.Entity.IsZBaseNPC && tr.Entity)
-
-
-        if IsValid(ent) then
-            ent:RangeThreatened(ply)
-        end
-
-    end
-end)
-
-
-hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
-    if ent.IsZBaseNPC then
-        ent:CustomAcceptInput(input, activator, ent, value)
-    end
 end)

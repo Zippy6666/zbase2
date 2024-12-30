@@ -238,6 +238,23 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 
 	return NPC
 end
+duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
+
+    local zbaseClass = data[1]
+    local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
+
+    if ZBaseNPCTable then
+
+        ent.ZBaseInitialized = false -- So that it can be initialized again
+        ent.IsDupeSpawnedZBaseNPC = true
+
+        local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
+        ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
+
+    end
+
+end)
+
 
 
 function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )

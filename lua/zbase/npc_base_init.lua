@@ -767,6 +767,14 @@ function NPC:ShouldFireWeapon()
     return true
 end
 
+
+    -- Called when the NPC fires a bullet
+    -- return true to apply changes to the bulletData table
+    -- return false to disallow the bullet
+function NPC:OnFireBullet( bulletData )
+end
+
+
 --[[
 ==================================================================================================
                                            AI GENERAL
