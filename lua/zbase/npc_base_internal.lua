@@ -1065,11 +1065,6 @@ end
 function NPC:ZBWepSys_TrySuppress( target )
     self:AddEntityRelationship(target.ZBase_SuppressionBullseye, D_HT, 0)
     self:UpdateEnemyMemory(target.ZBase_SuppressionBullseye, target:GetPos())
-
-    if !target.ZBase_SuppressionBullseye.PastAttackers_Map[self] then
-        self:CONV_StoreInTable(target.ZBase_SuppressionBullseye.PastAttackers)
-        self:CONV_MapInTable(target.ZBase_SuppressionBullseye.PastAttackers_Map)
-    end
 end
 
 
@@ -1096,17 +1091,6 @@ function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
     target.ZBase_SuppressionBullseye:SetPos( pos )
     target.ZBase_SuppressionBullseye:Spawn()
     target.ZBase_SuppressionBullseye:SetModel("models/props_lab/huladoll.mdl")
-    target.ZBase_SuppressionBullseye.PastAttackers_Map = {}
-    target.ZBase_SuppressionBullseye.PastAttackers = {}
-    target.ZBase_SuppressionBullseye:CallOnRemove("EludeEnemyAfterSuppressing", function()
-        if IsValid(target) then
-
-            for _, attacker in ipairs(target.ZBase_SuppressionBullseye.PastAttackers) do
-                attacker:MarkEnemyAsEluded(target)
-            end
-
-        end
-    end)
     target:DeleteOnRemove(target.ZBase_SuppressionBullseye) -- Remove suppression point when target does not exist anymore
     SafeRemoveEntityDelayed(target.ZBase_SuppressionBullseye, 8) -- Remove suppression point after some time
 
@@ -1577,7 +1561,6 @@ function NPC:Face( face, duration, speed )
 end
 
 
--- Runs full reset and then applied SCHED_TARGET_FACE
 function NPC:Face_Simple( ent_or_pos )
     if isvector(ent_or_pos) then
         local FaceEnt = ents.Create("zb_temporary_ent")
