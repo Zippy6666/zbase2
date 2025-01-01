@@ -24,16 +24,29 @@ function ENT:AerialSetSchedule(sched)
 
     self:AerialResetNav()
 
+    local lastpos = self:GetInternalVariable("m_vecLastPosition")
+
     local Navigator = ents.Create("zbase_navigator")
     Navigator:SetPos(self:AerialNavigatorPos())
     Navigator:SetAngles(Angle(0, self:GetAngles().yaw, 0))
     Navigator.Sched = sched
     Navigator.ForceEnemy = self:GetEnemy()
-    Navigator.ForcedLastPos = self:GetInternalVariable("m_vecLastPosition")
+    Navigator.ForcedLastPos = lastpos
     Navigator:SetOwner(self)
     Navigator:Spawn()
     self:DeleteOnRemove(Navigator)
     self.Navigator = Navigator
+
+    -- SafeRemoveEntity(self.ScannerNavigator)
+    -- self.ScannerNavigator = ents.Create("npc_cscanner")
+    -- self.ScannerNavigator:AddFlags(FL_NOTARGET)
+    -- self.ScannerNavigator:AddFlags(EFL_DONTBLOCKLOS)
+	-- self.ScannerNavigator:SetMaterial("models/wireframe")
+    -- self.ScannerNavigator:SetPos(self:GetPos())
+    -- self.ScannerNavigator:SetMaxLookDistance(1)
+    -- self.ScannerNavigator:Spawn()
+    -- self.ScannerNavigator:SetLastPosition(lastpos)
+    -- self.ScannerNavigator:SetSchedule(SCHED_FORCED_GO_RUN)
 end
 
 
