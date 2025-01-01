@@ -243,7 +243,7 @@ duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, 
     local zbaseClass = data[1]
     local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
 
-	if ent:GetClass() != ZBaseNPCTable.Class then print("aids") return end
+	if ent:GetClass() != ZBaseNPCTable.Class then return end
 
     if ZBaseNPCTable then
 
