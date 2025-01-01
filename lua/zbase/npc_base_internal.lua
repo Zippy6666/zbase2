@@ -404,14 +404,12 @@ end
 
 
 function NPC:ZBaseThink()
-
     -- Don't think if has EFL_NO_THINK_FUNCTION
     if bit.band(self:GetFlags(), EFL_NO_THINK_FUNCTION )==EFL_NO_THINK_FUNCTION then
         return
     end
 
     local isAIEnabled = !AIDisabled:GetBool()
-
 
     if isAIEnabled then
         local ene = self:GetEnemy()
@@ -420,10 +418,8 @@ function NPC:ZBaseThink()
         local act = self:GetActivity()
         local GP = self:GetGoalPos()
 
-
         -- Enemy visible
         self.EnemyVisible = IsValid(ene) && (self:HasCondition(COND.SEE_ENEMY) or self:Visible(ene))
-
 
         -- Slow think, for performance
         if self.NPCNextSlowThink < CurTime() then
@@ -431,13 +427,11 @@ function NPC:ZBaseThink()
             self.NPCNextSlowThink = CurTime()+0.4
         end
 
-
         -- Enemy updated
         if ene != self.ZBase_LastEnemy then
             self:DoNewEnemy()
             self.ZBase_LastEnemy = ene
         end
-
 
         -- Activity change detection
         if act != self.ZBaseLastACT then
@@ -445,15 +439,11 @@ function NPC:ZBaseThink()
             self.ZBaseLastACT = act
         end
 
-
-
         -- Sequence change detection
         if seq != self.ZBaseLastSequence then
             self:NewSequenceDetected( seq, self:GetSequenceName(seq) )
             self.ZBaseLastSequence = seq
         end
-
-
 
         -- Engine schedule change detection
         if sched != self.ZBaseLastESched then
@@ -468,18 +458,15 @@ function NPC:ZBaseThink()
 
         end
 
-
         if !GP:IsZero() && self.ZBaseLastValidGoalPos != GP then
             self.ZBaseLastValidGoalPos = GP
             self:CONV_TempVar("ZBaseLastGoalPos_ValidForFallBack", true, 3 )
         end
 
-
         -- Handle danger
         if self.LastLoudestSoundHint then
             self:HandleDanger()
         end
-
 
         -- Sched and state debug
         if ZBCVAR.ShowSched:GetBool() then
@@ -496,19 +483,16 @@ function NPC:ZBaseThink()
 
         end
 
-
         -- Base regen
         if self.HealthRegenAmount > 0 && self:Health() < self:GetMaxHealth() && self.NextHealthRegen < CurTime() then
             self:SetHealth(math.Clamp(self:Health()+self.HealthRegenAmount, 0, self:GetMaxHealth()))
             self.NextHealthRegen = CurTime()+self.HealthCooldown
         end
 
-
         -- Foot steps
         if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND && !self.HavingConversation then
             self:FootStepTimer()
         end
-
 
         -- Move anim override
         local moveact = self:OverrideMovementAct()
@@ -522,33 +506,22 @@ function NPC:ZBaseThink()
     -- Weapon system
     self:ZBWepSys_Think()
 
-
     -- Stuff to make play anim work as intended
     if self.DoingPlayAnim then
         self:DoPlayAnim()
     end
 
-
     if self.DoingPlayAnim && self.IsZBase_SNPC then
         self:ExecuteWalkFrames()
     end
-
 
     -- TODO: Should this really be ran here and not in FrameTick?
     if self.EnableLUAAnimationEvents then
         self:LUAAnimEventThink()
     end
 
-    
-    -- -- Controller
-    -- if self.IsZBPlyControlled then
-    --     self:ControllerThink()
-    -- end
-
-
     -- Custom think
     self:CustomThink()
-
 
 end
 
@@ -585,10 +558,10 @@ function NPC:FrameTick()
         self:ExecuteWalkFrames(0.3)
     end
 
+    -- For NPC:Face()
     if self.ZBase_CurrentFace_Yaw then
         self:SetIdealYawAndUpdate(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
     end
-
 end
 
 
@@ -1622,6 +1595,16 @@ function NPC:Face_Simple( ent_or_pos )
 end
 
 
+function NPC:StopFace()
+    if self:IsCurrentSchedule(SCHED_TARGET_FACE) then
+        self:ClearSchedule()
+    end
+
+    self:CONV_RemoveTempVar("ZBase_CurrentFace_Yaw")
+    self:CONV_RemoveTempVar("ZBase_CurrentFace_Speed")
+end
+
+
 function NPC:CheckHasAimPoseParam()
 
     for i=0, self:GetNumPoseParameters() - 1 do
@@ -1669,13 +1652,9 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
     if self.Dead or self.DoingDeathAnim then return end
     if !anim then return end
 
-
-
     if isGest && !self.IsZBase_SNPC && IsMultiplayer then return end -- Don't do gestures on non-scripted NPCs in multiplayer, it seems to be broken
 
-
     moreArgs = moreArgs or {}
-
 
     local extraData = {}
     extraData.isGesture = isGest -- If true, it will play the animation as a gesture
@@ -1686,32 +1665,25 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
     extraData.noTransitions = moreArgs.freezeForever or noTransitions -- If true, it won't do any transition animations, will be true if this is a "freezeForver animation"
     self:OnPlayAnimation( anim, forceFace==self:GetEnemy() && forceFace!=nil, extraData )
 
-
-
     -- Do anim as gesture if it is one --
     -- Don't do the rest of the code after that --
     if isGest then
-
         -- Make sure gest is act
         local gest = isstring(anim) &&
         self:GetSequenceActivity(self:LookupSequence(anim)) or
         isnumber(anim) && anim
-
 
         -- Don't play the same gesture again, remove the old one first
         if self:IsPlayingGesture(gest) then
             self:RemoveGesture(gest)
         end
 
-
         -- Play gesture and get ID
         local id = self:AddGesture(gest)
-
 
         -- Gest options
         self:SetLayerBlendIn(id, 0.2)
         self:SetLayerBlendOut(id, 0.2)
-
 
         -- Playback rate
         if self.IsZBase_SNPC then
@@ -1720,9 +1692,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
             self:SetLayerPlaybackRate(id, (playbackRate or 1) )
         end
 
-
         return -- Stop here
-
     end
 
     -- Main function --
@@ -1732,41 +1702,31 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
             self:FullReset(moreArgs.dontStopZBaseMove)
         end
 
-
         -- Set schedule
         if sched then self:SetSchedule(sched) end
-
 
         -- Set state to scripted
         self.PreAnimNPCState = self:GetNPCState()
         self:SetNPCState(NPC_STATE_SCRIPT)
 
-
         if isnumber(anim) then
-
             -- Anim is activity
             -- Play as activity first, fixes shit
             self:ResetIdealActivity(anim)
             self:SetActivity(anim)
 
-
              -- Convert activity to sequence
             anim = self:SelectWeightedSequence(anim)
-
         else
-
             -- Fixes jankyness for some NPCs
             self:ResetIdealActivity(ACT_IDLE)
             self:SetActivity(ACT_IDLE)
-
         end
-
  
         -- Play the sequence
         self:ResetSequenceInfo()
         self:SetCycle(0)
         self:ResetSequence(anim)
-
 
         -- Decide duration
         if !duration then
@@ -1775,11 +1735,9 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
             duration = duration/(playbackRate or 1)
         end
 
-
         -- Anim stop timer --
         timer.Create("ZBasePlayAnim"..self:EntIndex(), duration, 1, function()
             if !IsValid(self) then return end
-
 
             if moreArgs.freezeForever != true then -- if freezeforever is enabled, never end the animation
 
@@ -1788,13 +1746,11 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
             end
 
-
             -- Old
             -- Used by transition animations
             if onFinishFunc then
                 onFinishFunc()
             end
-
 
             if moreArgs.onFinishFunc then
 
@@ -1805,36 +1761,26 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
                 end
 
             end
-
-
         end)
-
-
 
         -- Face
         if forceFace!=nil then
-            self.PlayAnim_Face = forceFace
-            self.PlayAnim_FaceSpeed = faceSpeed
-
             if forceFace == false then
                 self:SetMoveYawLocked(true)
             else
-                self:Face(self.PlayAnim_Face, duration, self.PlayAnim_FaceSpeed)
+                self:Face(forceFace, duration, faceSpeed)
             end
         end
 
-
         -- Vars
         self.PlayAnim_PlayBackRate = playbackRate
-        self.PlayAnim_Seq = anim
+        self.PlayAnim_Seq = ( isnumber(anim) && self:GetSequenceName(anim) ) or string.lower( anim )
+        self.PlayAnim_OnFinishFunc = moreArgs.onFinishFunc
+        self.PlayAnim_OnFinishArgs = moreArgs.onFinishFuncArgs
         self.DoingPlayAnim = true
-
 
     end
     
-    
-
-
     -- Transition --
     local goalSeq = isstring(anim) && self:LookupSequence(anim) or self:SelectWeightedSequence(anim)
     local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
@@ -1848,8 +1794,6 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
         SCHED_SCENE_GENERIC, forceFace, faceSpeed, false, playAnim, false, true )
         return -- Stop here
     end
-
-    
 
     -- No transition, just play the animation
     playAnim()
@@ -1873,12 +1817,18 @@ function NPC:DoPlayAnim()
     -- Stop movement
     self:SetSaveValue("m_flTimeLastMovement", 2)
 
+    -- Failure, stop so we don't do some weird shit when the NPC is still playing an animation
+    if string.lower( self:GetCurrentSequenceName() ) != self.PlayAnim_Seq then
+        conv.devPrint(Color(255,0,0), "Play anim failure, should bail.", " seq is '", self:GetCurrentSequenceName(), "' but should be '", self.PlayAnim_Seq, "'")
+        self:InternalStopAnimation(true)
+        self:OnPlayAnimationFailed( self.PlayAnim_Seq )
+    end
+
 end
 
 
 function NPC:InternalStopAnimation(dontTransitionOut)
     if !self.DoingPlayAnim then return end
-
 
     if !dontTransitionOut then
         -- Out transition --
@@ -1896,20 +1846,23 @@ function NPC:InternalStopAnimation(dontTransitionOut)
         
     end
 
-
     self:SetActivity(ACT_IDLE)
-    self:ExitScriptedSequence()
+    self:ExitScriptedSequence() -- what? when did i put this here. probably does something cool.
     self:ClearSchedule()
     self:SetNPCState(self.PreAnimNPCState)
     self:SetMoveYawLocked(false)
+    self:StopFace()
 
+    if isfunction(self.PlayAnim_OnFinishFunc) then
+        if istable(self.PlayAnim_OnFinishArgs) then self.PlayAnim_OnFinishFunc( self.PlayAnim_OnFinishArgs )
+        else self.PlayAnim_OnFinishFunc() end
+    end
 
-    self.DoingPlayAnim = false
-    self.PlayAnim_Face = nil
-    self.PlayAnim_FaceSpeed = nil
+    self.DoingPlayAnim = nil
     self.PlayAnim_PlayBackRate = nil
     self.PlayAnim_Seq = nil
-
+    self.PlayAnim_OnFinishFunc = nil
+    self.PlayAnim_OnFinishArgs = nil
 
     timer.Remove("ZBasePlayAnim"..self:EntIndex())
 end
@@ -1935,7 +1888,7 @@ function NPC:GetGestureSequence()
 end
 
 
--- For SNPCs and SNPCs only
+-- For SNPCs and SNPCs ONLY
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
     if self.Dead then return end
 

@@ -79,6 +79,12 @@ function NPC:BusyPlayingAnimation()
 end
 
 
+    -- Check if the NPC is currently doing the death animation
+function NPC:DoingDeathAnimation()
+    return self.DoingDeathAnim
+end
+
+
     -- Return the name of the sequence the NPC currently is playing
 function NPC:GetCurrentSequenceName()
     return self:GetSequenceName(self:GetSequence())

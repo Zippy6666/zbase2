@@ -10,6 +10,14 @@ NPC.BloodColor = DONT_BLEED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELL
 NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
 NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
+NPC.DeathAnimations = {"death_stagger_e", "death_stagger_s", "death_stagger_se", "death_stagger_sw", "death_stagger_e"} -- Death animations to use, leave empty to disable the base death animation
+NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
+NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
+NPC.DeathAnimation_StopAttackingMe = false -- Stop other NPCs from attacking this NPC when it is doing its death animation
+
+-- Duration of death animation, set to false to use the default duration (note that doing so may cause issues with some models/npcs so be careful)
+NPC.DeathAnimationDuration = false
+
 
 -- ZBase faction
 -- Can be any string, all ZBase NPCs with the same faction will be allied
@@ -42,7 +50,7 @@ NPC.DodgeAnimations = {
     Left = "dodge_w",
     Right = "dodge_e",
 }
-
+ 
 
 local HUNTER_DODGE_LEFT = 1
 local HUNTER_DODGE_RIGHT = 2
@@ -76,6 +84,14 @@ function NPC:OnRangeThreatened( ent )
         self:PlayAnimation(self.DodgeAnimations.Left, false, {face=ent, speedMult=1.2, duration=1})
         self:EmitSound(self.SeeDangerSounds)
 
+    end
+end
+
+
+function NPC:OnPlayAnimationFailed( seq )
+    -- Death animation failed so do a death sound manually
+    if self:DoingDeathAnimation() then
+        self:EmitSound("NPC_Hunter.Death")
     end
 end
 

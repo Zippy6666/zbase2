@@ -853,6 +853,13 @@ function NPC:OnAnimEnded( anim, faceEnemy, extraData )
 end
 
 
+    -- Called when the base plays an animation (from NPC:PlayAnimation() that is),
+    -- but the animation fails at some point
+    -- 'seq' - The sequence that failed
+function NPC:OnPlayAnimationFailed( seq )
+end
+
+
     -- Called a tick after an entity owned by this NPC is created
     -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
 function NPC:CustomOnOwnedEntCreated( ent )
