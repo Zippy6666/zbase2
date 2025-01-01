@@ -35,14 +35,14 @@ ZBaseAddScriptedSentence({
     caption	= { "<clr:0,100,255>Combine Radio: ", 2 },
     sound 	= { 
         "radio_on.wav",
-        { "npc/combine_soldier/vo/callhotpoint.wav", "npc/combine_soldier/vo/containmentproceeding.wav" }, -- Will choose random random option.
-        { dps = 55, caption = { "Call hot point, ", "Containment proceeding, " } }, -- If present, it will detect settings for the previous table. You can put anything here to override the sound or add captions.
+        { "npc/combine_soldier/vo/callhotpoint.wav", "npc/combine_soldier/vo/containmentproceeding.wav", "npc/combine_soldier/vo/contactconfim.wav", "npc/combine_soldier/vo/contactconfirmprosecuting.wav", "npc/combine_soldier/vo/contact.wav" }, -- Will choose random random option.
+        { dps = 55, caption = { "Call hot point, ", "Containment proceeding, ", "Contact confirm, ", "Contact confirm, prosecuting, ", "Contact, " } }, -- If present, it will detect settings for the previous table. You can put anything here to override the sound or add captions.
         {"npc/combine_soldier/vo/targetcontactat.wav", "npc/combine_soldier/vo/targetisat.wav"},
         { dps = 55, caption = { "target contact at ", "target is at " } },
         {"npc/combine_soldier/vo/sector.wav", "npc/combine_soldier/vo/apex.wav", "npc/combine_soldier/vo/dagger.wav","npc/combine_soldier/vo/grid.wav"},
         { dps = 55, caption = { "sector ", "apex ", "dagger ", "grid " } },
         {"npc/combine_soldier/vo/eighteen.wav", "npc/combine_soldier/vo/fourteen.wav", "npc/combine_soldier/vo/one.wav", "npc/combine_soldier/vo/sixty.wav"},
-        { dps = 55, caption = { "eighteen. ", "fourteen. ", "one. ", "sixty. " } },
+        { dps = 55, caption = { "eighteen! ", "fourteen! ", "one! ", "sixty! " } },
         "radio_off.wav",
     }
 })
