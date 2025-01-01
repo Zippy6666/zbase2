@@ -50,7 +50,7 @@ function TOOL:RightClick( trace )
     local own = self:GetOwner()
     if !IsValid(own) then return end
 
-    if SERVER then
+    if SERVER && istable(self.NPCsToMove) && #self.NPCsToMove > 0 then
         for _, npc in ipairs(self.NPCsToMove) do
             if npc.IsZBaseNPC then
                 npc:FullReset()
@@ -71,9 +71,9 @@ function TOOL:RightClick( trace )
             'notification.AddLegacy( "Moving NPCs to ('..math.floor(trace.HitPos.x)..", "..math.floor(trace.HitPos.y)..", "
             ..math.floor(trace.HitPos.z).." "..')" , NOTIFY_GENERIC, 2 )'
         )
-    end
 
-    return true
+        return true
+    end
 
 end
 
