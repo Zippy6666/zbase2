@@ -37,6 +37,18 @@ function NPC:CustomPreSpawn()
     local v, k = table.Random(AmmoSupplyTbl)
     self:SetKeyValue("ammosupply", k)
     self:SetKeyValue("ammoamount", v)
+end
 
-    print(k, v)
+
+function NPC:CustomThink()
+    local ene = self:GetEnemy()
+    local eneIsPly = IsValid(ene) && ene:IsPlayer()
+
+    if eneIsPly && self.CanGiveAmmo then
+        self:Fire("SetAmmoResupplierOff")
+        self.CanGiveAmmo = nil
+    elseif !eneIsPly && !self.CanGiveAmmo then
+        self:Fire("SetAmmoResupplierOn")
+        self.CanGiveAmmo = true
+    end
 end
