@@ -109,9 +109,10 @@ function NPC:ZBaseInit()
 
     -- Add footsteps when landing after a jump
     self.JumpLandSequence = self:GetSequenceName( self:SelectWeightedSequence(ACT_LAND) )
-    self:AddAnimationEvent(self.JumpLandSequence, 1, 100)
-    self:AddAnimationEvent(self.JumpLandSequence, 3, 100)
-
+    if self.JumpLandSequence != "Not Found!" then
+        self:AddAnimationEvent(self.JumpLandSequence, 1, 100)
+        self:AddAnimationEvent(self.JumpLandSequence, 3, 100)
+    end
 
     self:Fire("wake")
 
@@ -1105,13 +1106,13 @@ end
 
 
 local PlayerHeightVec = Vector(0, 0, 60)
-function NPC:ZBWepSys_CreateSuppressionPoint( target )
+function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
     local pos
     if target:IsPlayer() && target:Crouching() then
         -- Crappy workaround that should work most of the time
-        pos = self:GetEnemyLastSeenPos(target)+PlayerHeightVec
+        pos = lastseenpos+PlayerHeightVec
     else
-        pos = self:GetEnemyLastSeenPos(target)+target:OBBCenter()
+        pos = lastseenpos+target:OBBCenter()
     end
 
     SafeRemoveEntity(target.ZBase_SuppressionBullseye)
@@ -1184,6 +1185,11 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     local ene = self:GetEnemy()
 
+    -- Don't suppress bullseye that is not visible
+    if ene && ene.Is_ZBase_SuppressionBullseye && !self.EnemyVisible then
+        return false
+    end
+
     if ene && !self.EnemyVisible
     && self:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
     && !ene.Is_ZBase_SuppressionBullseye -- Don't create a suppression point for a suppression point...
@@ -1191,7 +1197,8 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
         if !IsValid(ene.ZBase_SuppressionBullseye) then 
             -- Create a new suppression point for this enemy if there is none
-            self:ZBWepSys_CreateSuppressionPoint( ene )
+            local lastseenpos = self:GetEnemyLastSeenPos(ene)
+            self:ZBWepSys_CreateSuppressionPoint( lastseenpos, ene ) 
         end
 
         -- Can see enemy's current suppression point, start hating it and make it enemy to us
@@ -1208,7 +1215,7 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
     end
 
-    if IsValid(ene) && self.EnemyVisible then
+    if IsValid(ene) && self.EnemyVisible && !ene.Is_ZBase_SuppressionBullseye then
 
         -- Enemy is visible...
 

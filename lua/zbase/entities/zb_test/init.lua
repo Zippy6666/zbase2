@@ -1,9 +1,5 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-
-NPC.ZBaseStartFaction = "combine"
-
-
 NPC.DeathAnimations = {"doddgeright"} -- Death animations to use, leave empty to disable the base death animation
 NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
 NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
@@ -11,6 +7,11 @@ NPC.DeathAnimation_StopAttackingMe = false -- Stop other NPCs from attacking thi
 
 -- Duration of death animation, set to false to use the default duration (note that doing so may cause issues with some models/npcs so be careful)
 NPC.DeathAnimationDuration = false
+
+
+function NPC:CustomInitialize()
+
+end
 
 
 function NPC:CustomThink()

@@ -7,7 +7,7 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.StartHealth = 50 -- Max health
 
 
-NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_MALE}
+NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_MALE, SF_CITIZEN_AMMORESUPPLIER}
 
 
 NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
@@ -39,11 +39,13 @@ NPC.HasArmor = {
 NPC.MeleeAttackAnimations = {"meleeattack01"}
 
 
---]]==============================================================================================]]
+
+
 function NPC:CustomInitialize()
 end
---]]==============================================================================================]]
+
+
 function NPC:GrenadeAnimation()
     self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true, {speedMult=1.5})
 end
---]]==============================================================================================]]
+

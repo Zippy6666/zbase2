@@ -8,7 +8,7 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_GOOD -- WEAPON_PROFICIENCY_POOR || WE
 NPC.StartHealth = 40 -- Max health
 
 
-NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_MALE}
+NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_MALE, SF_CITIZEN_AMMORESUPPLIER}
 
 
 NPC.ZBaseStartFaction = "ally" -- Any string, all ZBase NPCs with this faction will be allied, it set to "none", they won't be allied to anybody
@@ -23,8 +23,8 @@ NPC.KeyValues = {citizentype = CT_REFUGEE} -- Keyvalues
 NPC.MeleeAttackAnimations = {"meleeattack01"}
 
 
---]]==============================================================================================]]
+
 function NPC:CustomInitialize()
 
 end
---]]==============================================================================================]]
+
