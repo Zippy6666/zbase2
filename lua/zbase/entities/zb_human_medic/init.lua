@@ -20,7 +20,5 @@ function NPC:CustomThink()
         self:Fire("SetMedicOn")
         self.CanHeal = true
     end
-
-
 end
 

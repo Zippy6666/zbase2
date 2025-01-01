@@ -23,8 +23,20 @@ NPC.KeyValues = {citizentype = CT_REFUGEE} -- Keyvalues
 NPC.MeleeAttackAnimations = {"meleeattack01"}
 
 
+function NPC:CustomPreSpawn()
+    local AmmoSupplyTbl = {
+        AR2 = 60,
+        SMG1_Grenade = 1,
+        SMG1 = 100,
+        Pistol = 100,
+        XBowBolt = 12,
+        Buckshot = 15,
+        RPG_Round = 3,
+        Grenade = 5,
+    }
+    local v, k = table.Random(AmmoSupplyTbl)
+    self:SetKeyValue("ammosupply", k)
+    self:SetKeyValue("ammoamount", v)
 
-function NPC:CustomInitialize()
-
+    print(k, v)
 end
-

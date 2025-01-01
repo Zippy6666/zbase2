@@ -39,12 +39,6 @@ NPC.HasArmor = {
 NPC.MeleeAttackAnimations = {"meleeattack01"}
 
 
-
-
-function NPC:CustomInitialize()
-end
-
-
 function NPC:GrenadeAnimation()
     self:PlayAnimation(table.Random(self.GrenadeAttackAnimations), true, {speedMult=1.5})
 end
