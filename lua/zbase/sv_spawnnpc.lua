@@ -243,6 +243,8 @@ duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, 
     local zbaseClass = data[1]
     local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
 
+	if ent:GetClass() != ZBaseNPCTable.Class then return end
+
     if ZBaseNPCTable then
 
         ent.ZBaseInitialized = false -- So that it can be initialized again
@@ -254,7 +256,6 @@ duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, 
     end
 
 end)
-
 
 
 function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )

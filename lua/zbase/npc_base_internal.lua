@@ -2510,9 +2510,11 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
     if !self:ZBaseDist(trgtPos, {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end -- Not in distance
     if !self.RangeAttackSuppressEnemy && !seeEnemy then return false end -- Suppress disabled, and enemy not visible
 
-    local result = self:ZBWepSys_SuppressionThink()
-    if result == false then
-        return false
+    if self.RangeAttackSuppressEnemy then
+        local result = self:ZBWepSys_SuppressionThink()
+        if result == false then
+            return false
+        end
     end
 
     if self:PreventRangeAttack() then return false end
