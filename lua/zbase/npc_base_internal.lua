@@ -875,30 +875,7 @@ function NPC:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
 end
 
 
-local AIWantsToShoot_ACT_Blacklist = {
-    [ACT_JUMP] = true,
-    [ACT_GLIDE] = true,
-    [ACT_LAND] = true,
-    [ACT_SIGNAL1] = true,	
-    [ACT_SIGNAL2] = true,
-    [ACT_SIGNAL3] = true,
-    [ACT_SIGNAL_ADVANCE] = true,
-    [ACT_SIGNAL_FORWARD] = true,
-    [ACT_SIGNAL_GROUP] = true,
-    [ACT_SIGNAL_HALT] = true,
-    [ACT_SIGNAL_LEFT] = true,
-    [ACT_SIGNAL_RIGHT] = true,
-    [ACT_SIGNAL_TAKECOVER] = true,
-}
-local AIWantsToShoot_SCHED_Blacklist = {
-    [SCHED_RELOAD] = true,
-    [SCHED_HIDE_AND_RELOAD] = true,
-    [SCHED_SCENE_GENERIC] = true,
-}
-function NPC:ZBWepSys_AIWantsToShoot()
-    if AIDisabled:GetBool() then return false end
-    if !self.ZBWepSys_InShootDist then return false end
-
+function NPC:ZBWepSys_SuppressionThink()
     local ene = self:GetEnemy()
 
     -- Don't suppress bullseye that is not visible
@@ -932,7 +909,6 @@ function NPC:ZBWepSys_AIWantsToShoot()
     end
 
     if IsValid(ene) && self.EnemyVisible && !ene.Is_ZBase_SuppressionBullseye then
-
         -- Enemy is visible...
 
         if ene.ZBase_DontCreateSuppressionPoint then
@@ -941,7 +917,6 @@ function NPC:ZBWepSys_AIWantsToShoot()
 
         -- Remove their suppression point since we know they are no longer there
         self:ZBWepSys_RemoveSuppressionPoint( ene )
-
     end
 
     -- Enemy is a suppression point and its NPC/player (the actual enemy) is visible
@@ -955,6 +930,41 @@ function NPC:ZBWepSys_AIWantsToShoot()
         self:UpdateEnemyMemory(ene.EntityToSuppress, ene.EntityToSuppress:GetPos())
 
         return false -- Don't shoot this time, shoot at the actual enemy next time instead
+    end
+
+    return true
+end
+
+
+local AIWantsToShoot_ACT_Blacklist = {
+    [ACT_JUMP] = true,
+    [ACT_GLIDE] = true,
+    [ACT_LAND] = true,
+    [ACT_SIGNAL1] = true,	
+    [ACT_SIGNAL2] = true,
+    [ACT_SIGNAL3] = true,
+    [ACT_SIGNAL_ADVANCE] = true,
+    [ACT_SIGNAL_FORWARD] = true,
+    [ACT_SIGNAL_GROUP] = true,
+    [ACT_SIGNAL_HALT] = true,
+    [ACT_SIGNAL_LEFT] = true,
+    [ACT_SIGNAL_RIGHT] = true,
+    [ACT_SIGNAL_TAKECOVER] = true,
+}
+local AIWantsToShoot_SCHED_Blacklist = {
+    [SCHED_RELOAD] = true,
+    [SCHED_HIDE_AND_RELOAD] = true,
+    [SCHED_SCENE_GENERIC] = true,
+}
+function NPC:ZBWepSys_AIWantsToShoot()
+    if AIDisabled:GetBool() then return false end
+    if !self.ZBWepSys_InShootDist then return false end
+
+    local ene = self:GetEnemy()
+
+    local result = self:ZBWepSys_SuppressionThink()
+    if result == false then
+        return false
     end
 
     if AIWantsToShoot_ACT_Blacklist[self:GetActivity()] then return false end
@@ -1471,7 +1481,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
         -- Vars
         self.PlayAnim_PlayBackRate = playbackRate
-        self.PlayAnim_Seq = ( isnumber(anim) && self:GetSequenceName(anim) ) or string.lower( anim )
+        self.PlayAnim_SeqName = ( isnumber(anim) && string.lower( self:GetSequenceName(anim) ) ) or string.lower( anim )
         self.PlayAnim_OnFinishFunc = moreArgs.onFinishFunc
         self.PlayAnim_OnFinishArgs = moreArgs.onFinishFuncArgs
         self.DoingPlayAnim = true
@@ -1515,10 +1525,11 @@ function NPC:DoPlayAnim()
     self:SetSaveValue("m_flTimeLastMovement", 2)
 
     -- Failure, stop so we don't do some weird shit when the NPC is still playing an animation
-    if string.lower( self:GetCurrentSequenceName() ) != self.PlayAnim_Seq then
-        conv.devPrint(Color(255,0,0), "Play anim failure, should bail.", " seq is '", self:GetCurrentSequenceName(), "' but should be '", self.PlayAnim_Seq, "'")
+    local curSeq = string.lower( self:GetCurrentSequenceName() )
+    if curSeq != self.PlayAnim_SeqName then
+        conv.devPrint(Color(255,0,0), "Play anim failure, seq is '", curSeq, "' but should be '", self.PlayAnim_SeqName, "'")
         self:InternalStopAnimation(true)
-        self:OnPlayAnimationFailed( self.PlayAnim_Seq )
+        self:OnPlayAnimationFailed( self.PlayAnim_SeqName )
     end
 
 end
@@ -1557,7 +1568,7 @@ function NPC:InternalStopAnimation(dontTransitionOut)
 
     self.DoingPlayAnim = nil
     self.PlayAnim_PlayBackRate = nil
-    self.PlayAnim_Seq = nil
+    self.PlayAnim_SeqName = nil
     self.PlayAnim_OnFinishFunc = nil
     self.PlayAnim_OnFinishArgs = nil
 
@@ -2499,10 +2510,8 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
     if !self:ZBaseDist(trgtPos, {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end -- Not in distance
     if !self.RangeAttackSuppressEnemy && !seeEnemy then return false end -- Suppress disabled, and enemy not visible
 
-    -- Don't suppress enemy with these conditions
-    if (self.RangeAttackSuppressEnemy && !seeEnemy)
-    && (!self.RangeAttack_LastEnemyPos
-    or !ene:VisibleVec(trgtPos)) then
+    local result = self:ZBWepSys_SuppressionThink()
+    if result == false then
         return false
     end
 
