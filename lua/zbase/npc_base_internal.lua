@@ -29,7 +29,6 @@ end
 
 
 function NPC:ZBaseInit()
-
     -- Vars
     self:SetNWBool("IsZBaseNPC", true)
     self.NextPainSound = CurTime()
@@ -53,50 +52,40 @@ function NPC:ZBaseInit()
     self:InitGrenades()
     self:InitSounds()
 
-
     -- Set specified internal variables
     for varname, var in pairs(self.EInternalVars or {}) do
         self:SetSaveValue(varname, var)
     end
     self.EInternalVars = nil
 
-
     self:InitModel()
     self:InitBounds()
     self:AddEFlags(EFL_NO_DISSOLVE)
-
 
     if ZBCVAR.NPCNocollide:GetBool() then
         self:SetCollisionGroup(COLLISION_GROUP_NPC_SCRIPTED)
     end
 
-
     self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
     self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
-
 
     if self.BloodColor != false then
         self:SetBloodColor(self.BloodColor)
     end
 
-
     self:ZBWepSys_Init()
-
 
     -- Makes behaviour system function
     ZBaseBehaviourInit( self )
-
 
     self:CallOnRemove("ZBaseOnRemove"..self:EntIndex(), function()
         self:InternalOnRemove()
         self:OnRemove()
     end)
 
-
     if !self.DontAutoSetSquad then
         self:SetSquad("zbase")
     end
-
 
     -- For LUA animation events
     if self.EnableLUAAnimationEvents then
@@ -105,7 +94,6 @@ function NPC:ZBaseInit()
         self.ZBaseFrameLast = -1
         self.ZBaseSeqLast = -1		
     end
-
 
     -- Add footsteps when landing after a jump
     self.JumpLandSequence = self:GetSequenceName( self:SelectWeightedSequence(ACT_LAND) )
@@ -116,12 +104,9 @@ function NPC:ZBaseInit()
 
     self:Fire("wake")
 
-
     self:CustomInitialize()
 
-
     self:CONV_CallNextTick("InitNextTick")
-
 end
 
 
@@ -141,13 +126,10 @@ function NPC:Init2Ticks()
     self:SetSaveValue( "m_flFieldOfView", self.FieldOfView )
     self:SetMaxLookDistance(self.SightDistance)
 
-
     -- Phys damage scale
     self:Fire("physdamagescale", self.PhysDamageScale)
 
-
     self:InitCap()
-
 
     -- Set squad
     if !self.DontAutoSquad then
@@ -193,7 +175,6 @@ function NPC:InitModel()
 
     end
 
-
     -- Glowing eyes
     if self:ShouldGlowEyes() then
         self:GlowEyeInit()
@@ -201,10 +182,8 @@ function NPC:InitModel()
 end
 
 
-
 function NPC:InitGrenades()
     if ZBCVAR.GrenAltRand:GetBool() then
-
         -- Random grenades and alts
 
         if ZBCVAR.GrenCount:GetInt() == -1 then
@@ -218,24 +197,17 @@ function NPC:InitGrenades()
         else
             self.AltCount = math.random(0, ZBCVAR.AltCount:GetInt())
         end
-
     else
-
         -- Fixed number or grenades and alts
 
         self.GrenCount = ZBCVAR.GrenCount:GetInt()
         self.AltCount = ZBCVAR.AltCount:GetInt()
-
     end
 end
 
 
-
 function NPC:InitBounds()
-
-
     if self.CollisionBounds then
-
         if self.IsZBase_SNPC then
             -- Workaround: Needs to be called next tick on SNPCs for some reason...
             self:CONV_CallNextTick("SetCollisionBounds", self.CollisionBounds.min, self.CollisionBounds.max)
@@ -244,26 +216,20 @@ function NPC:InitBounds()
         end
 
         self:SetSurroundingBounds(self.CollisionBounds.min*1.3, self.CollisionBounds.max*1.3)
-
     end
-
 
     if self.HullType then
         self:SetHullType(self.HullType)
         self:SetHullSizeNormal()
     end
-
 end
 
 
 function NPC:InitCap()
-
     -- https://wiki.facepunch.com/gmod/Enums/CAP
-
 
     -- Squad
     self:CapabilitiesAdd(CAP_SQUAD)
-
 
     -- Weapon
     if istable(self.Weapons) && #self.Weapons >= 1 then
@@ -275,48 +241,40 @@ function NPC:InitCap()
         self:CapabilitiesRemove(CAP_USE_WEAPONS)
     end
 
-
     -- Door/button stuff
     if self.CanOpenDoors then self:CapabilitiesAdd(CAP_OPEN_DOORS) end
     if self.CanOpenAutoDoors then self:CapabilitiesAdd(CAP_AUTO_DOORS) end
     if self.CanPushButtons then self:CapabilitiesAdd(CAP_USE) end
-
 
     -- Jump
     if self.CanJump && self:SelectWeightedSequence(ACT_JUMP) != -1 then
         self:CapabilitiesAdd(CAP_MOVE_JUMP)
     end
 
-
     -- Melee1
     if self:SelectWeightedSequence(ACT_MELEE_ATTACK1) != -1 then
         self:CapabilitiesAdd(CAP_INNATE_MELEE_ATTACK1)
     end
-
 
     -- Melee2
     if self:SelectWeightedSequence(ACT_MELEE_ATTACK2) != -1 then
         self:CapabilitiesAdd(CAP_INNATE_MELEE_ATTACK2)
     end
 
-
     -- Range1
     if self:SelectWeightedSequence(ACT_RANGE_ATTACK1) != -1 then
         self:CapabilitiesAdd(CAP_INNATE_RANGE_ATTACK1)
     end
-
 
     -- Range2
     if self:SelectWeightedSequence(ACT_RANGE_ATTACK2) != -1 then
         self:CapabilitiesAdd(CAP_INNATE_RANGE_ATTACK2)
     end
 
-
     -- Aim pose parameters
     if self:CheckHasAimPoseParam() && !self.IsZBase_SNPC then
         self:CapabilitiesAdd(CAP_AIM_GUN)
     end
-
 
     -- Has face
     if self:GetFlexNum() > 0 then
@@ -324,41 +282,29 @@ function NPC:InitCap()
         self:CapabilitiesAdd(CAP_ANIMATEDFACE)
     end
 
-
     -- Movement
 	if self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then
-
 		self:SetNavType(NAV_FLY)
-
     elseif self:GetMoveType()==MOVETYPE_STEP then
-
         self:CapabilitiesAdd(CAP_MOVE_GROUND)
         self:CapabilitiesAdd(CAP_SKIP_NAV_GROUND_CHECK)
-
 	end
 
-
     self:OnInitCap()
-
 end
 
 
 function NPC:GlowEyeInit()
-
     if !ZBCVAR.SvGlowingEyes:GetBool() then return end
-
 
     local Eyes = ZBaseGlowingEyes[self:GetModel()]
     if !Eyes then return end
 
-
     Eyes = table.Copy(Eyes)
-
 
     for _, eye in pairs(Eyes) do
         eye.bone = self:LookupBone(eye.bone)
     end
-
 
     -- Try applying eyes right away to players that can see it
     timer.Simple(0.5, function()
@@ -370,19 +316,15 @@ function NPC:GlowEyeInit()
         end
     end)
 
-
     -- Make sure all clients see the NPCs glowing eyes
     timer.Create("ApplyGlowEyes"..self:EntIndex(), 3, 0, function()
-
         if !IsValid(self) then
             timer.Remove("ApplyGlowEyes"..self:EntIndex())
             return
         end
 
-
         for _, ply in player.Iterator() do
             if !ply.NPCsWithGlowEyes then ply.NPCsWithGlowEyes = {} end
-
 
             if !ply.NPCsWithGlowEyes[self:EntIndex()] then
                 net.Start("ZBaseAddGlowEyes")
@@ -391,7 +333,6 @@ function NPC:GlowEyeInit()
                 net.Send(ply)
             end
         end
-
     end)
 end
 
@@ -447,7 +388,6 @@ function NPC:ZBaseThink()
 
         -- Engine schedule change detection
         if sched != self.ZBaseLastESched then
-
             local name = ZBaseSchedDebug(self)
 
             self:NewSchedDetected( sched, name )
@@ -455,7 +395,6 @@ function NPC:ZBaseThink()
             -- These should be set after self.NewSchedDetected is called!!
             self.ZBaseLastESched = sched
             self.ZBaseLastESchedName = name
-
         end
 
         if !GP:IsZero() && self.ZBaseLastValidGoalPos != GP then
@@ -470,17 +409,13 @@ function NPC:ZBaseThink()
 
         -- Sched and state debug
         if ZBCVAR.ShowSched:GetBool() then
-
             conv.overlay( "Text", function()
-
                 return {
                     self:WorldSpaceCenter()+self:GetUp()*50,
                     "sched: "..tostring(ZBaseSchedDebug(self)),
                     0.13,
                 }
-
             end)
-
         end
 
         -- Base regen
@@ -500,7 +435,6 @@ function NPC:ZBaseThink()
         if self.MovementOverrideActive then
             self:SetMovementActivity(moveact)
         end
-
     end
 
     -- Weapon system
@@ -522,17 +456,14 @@ function NPC:ZBaseThink()
 
     -- Custom think
     self:CustomThink()
-
 end
 
 
 function NPC:DoSlowThink()
-
     -- Remove squad if faction is 'none'
     if self.ZBaseFaction == "none" && self:SquadName()!="" then
         self:SetSquad("")
     end
-
 
     -- Config weapon proficiency
     if self:GetCurrentWeaponProficiency() != self.WeaponProficiency then
@@ -540,14 +471,11 @@ function NPC:DoSlowThink()
         debugoverlay.Text(self:GetPos(), "ZBASE NPC's weapon proficiency set to its 'self.WeaponProficiency'", 0.5)
     end
 
-
     self:AITick_Slow()
-
 end
 
 
 function NPC:FrameTick()
-
     if AIDisabled:GetBool() then return end
 
     if self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && self:IsMoving() then
@@ -572,11 +500,7 @@ end
 --]]
 
 
-
-
-
 function NPC:DecideRelationship( myFaction, ent )
-    
     local theirFaction = ent.ZBaseFaction
 
     -- Me or the ent has faction neutral, like
@@ -633,122 +557,6 @@ function NPC:UpdateRelationships()
     end
 end
 
---[[
-==================================================================================================
-                                    PLAYER CONTROL SYSTEM
-
-    >> TODO <<
-    - Space -> fly up, otherwise jump
-    - Ctrl -> fly down
-    - Control priority system
-    - Some way to get control help, with hints i guess
-    - Just make it feel good
-
-
-    >> Control Priority Sys <<
-    First two controls are left and right click, the rest are gonna be 1, 2, 3, 4, 5, and so on.
-    1. Use weapon
-    2. Fire secondary
-    3. Range attack
-    4. Melee attack
-    5. Grenade attack
-    6. User defined attacks
-    7. "Free attack"
-
-==================================================================================================
---]]
-
-
-function NPC:Controller_Move( pos )
-
-    -- Move to pos
-    local tr = util.TraceLine({
-        start = self:WorldSpaceCenter(),
-        endpos = pos,
-        mask = MASK_SOLID,
-        filter = self,
-    })
-    dest = tr.HitPos+tr.HitNormal*15
-    self.CurrentControlDest = (self.CurrentControlDest && Lerp(0.33, self.CurrentControlDest, dest)) or dest
-    self:SetLastPosition( self.CurrentControlDest )
-    self:SetSchedule(SCHED_FORCED_GO)
-
-    -- Decide movement act
-    if !self.MovementOverrideActive then
-        self:SetMovementActivity(self.ZBPlyController:KeyDown(IN_SPEED) && ACT_RUN or ACT_WALK)
-    end
-
-end
-
-
-function NPC:Controller_ButtonDown(ply, btn)
-end
-
-
-function NPC:Controller_KeyPress(ply, key)
-end
-
-
-function NPC:ControllerThink()
-    local ply = self.ZBPlyController
-
-
-    local camEnt = ply:GetNWEntity("ZBCtrlSysCamEnt", NULL)
-    if !IsValid(camEnt) then return end
-
-
-    -- Camera tracer
-    local eyeangs = ply:EyeAngles()
-    local forward = eyeangs:Forward()
-    local right = eyeangs:Right()
-    local camViewPos = camEnt:GetPos()
-    local camTrace = util.TraceLine({
-        start = camViewPos,
-        endpos = camViewPos+forward*100000,
-        mask = MASK_VISIBLE_AND_NPCS,
-        filter = self,
-    })
-
-
-    -- The controller "target"
-    if IsValid(self.ZBControlTarget) then
-
-        -- Position target at cursor
-        self.ZBControlTarget:SetPos(camTrace.HitPos+camTrace.HitNormal*5)
-
-        -- Be enemy to target
-        if !IsValid(self:GetEnemy()) then
-            self:AddEntityRelationship(self.ZBControlTarget, D_HT, 0)
-            self:UpdateEnemyMemory(self.ZBControlTarget, camTrace.HitPos+camTrace.HitNormal*5)
-            self:SetEnemy(self.ZBControlTarget)
-            self:SetUnforgettable( self.ZBControlTarget )
-        end
-
-    end
-
-
-    -- Decide move direction
-    local moveDir = Vector(0, 0, 0)
-    if ply:KeyDown(IN_FORWARD) then
-        moveDir = moveDir + Vector(forward.x, forward.y, 0):GetNormalized()
-    end
-    if ply:KeyDown(IN_BACK) then
-        moveDir = moveDir - Vector(forward.x, forward.y, 0):GetNormalized()
-    end
-    if ply:KeyDown(IN_MOVELEFT) then
-        moveDir = moveDir - Vector(right.x, right.y, 0):GetNormalized()
-    end
-    if ply:KeyDown(IN_MOVERIGHT) then
-        moveDir = moveDir + Vector(right.x, right.y, 0):GetNormalized()
-    end
-    moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
-
-
-    -- Move
-    self:Controller_Move(self:WorldSpaceCenter() + moveDir * self:OBBMaxs().x*20)
-
-end
-
 
 --[[
 ==================================================================================================
@@ -757,9 +565,7 @@ end
 --]]
 
 
-
 function NPC:ZBWepSys_Init()
-
     self.ZBWepSys_Inventory = {}
     self.ZBWepSys_NextBurst = CurTime()
     self.ZBWepSys_NextShoot = CurTime()
@@ -769,44 +575,30 @@ function NPC:ZBWepSys_Init()
     self.ZBWepSys_Stored_FacingEne = false
     self.ZBWepSys_NextCheckIsFacingEne = CurTime()
 
-
     local wep = self:GetActiveWeapon()
     if IsValid(wep) && !wep:IsScripted() then
         wep:SetNoDraw(true)
     end
-
 end
 
 
--- function NPC:ZBWepSys_HasPlayerModel()
---     local SubModels = self:GetSubModels()
---     return istable(SubModels) && SubModels[1] && SubModels[1].name && SubModels[1].name=="models/m_anm.mdl"
--- end
-
-
 function NPC:ZBWepSys_Reload()
-
     -- On reload weapon
 
-
     local wep = self:GetActiveWeapon()
-
 
     -- Reload announce sound
     if math.random(1, self.OnReloadSound_Chance) == 1 then
         self:EmitSound_Uninterupted(self.OnReloadSounds)
     end
 
-
     -- Weapon reload sound
     if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
         wep:EmitSound(wep.NPCReloadSound)
     end
 
-
     -- Refill ammo
     timer.Create("ZBaseReloadWeapon"..self:EntIndex(), self:SequenceDuration()*0.8 / self:GetPlaybackRate(), 1, function()
-
         if !IsValid(self) or !IsValid(self:GetActiveWeapon()) then return end
 
         local CurrentStrAct = self:GetSequenceActivityName( self:GetSequence() )
@@ -815,9 +607,7 @@ function NPC:ZBWepSys_Reload()
 
         self:ClearCondition(COND.LOW_PRIMARY_AMMO)
         self:ClearCondition(COND.NO_PRIMARY_AMMO)
-
     end)
-
 end
 
 
@@ -855,42 +645,29 @@ function NPC:ZBWepSys_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, is
     -- Priority:
     -- Original -> Fallback -> "smg" -> "normal"
 
-
     if !isFail && (!HoldTypeActCheck[startHoldT] or self:SelectWeightedSequence(HoldTypeActCheck[startHoldT]) == -1) then
-
         -- Doesn't support this hold type
 
         if lastFallBack then
-
             -- "normal"
             self:ZBWepSys_SetHoldType( wep, "normal", false, false, true )
             return
-
         elseif isFallBack then
-
             -- "smg"
             self:ZBWepSys_SetHoldType( wep, "smg", false, true )
             return
-
         else
-
             -- Fallback
             self:ZBWepSys_SetHoldType( wep, HoldTypeFallback[startHoldT], true )
             return
-
         end
-
-
     end
 
-
     wep:SetHoldType(startHoldT)
-
 end
 
 
 function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
-
     -- Some defaults
     zbasewep.IsZBaseWeapon = true
     zbasewep.PrimaryShootSound = "common/null.wav"
@@ -906,7 +683,6 @@ function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
     zbasewep.NPCShootDistanceMult = 0.75
     zbasewep.NPCHoldType =  "smg" -- https://wiki.facepunch.com/gmod/Hold_Types
 
-
     table.Merge( zbasewep.Primary, {
         DefaultClip = 30,
         Ammo = "SMG1", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
@@ -915,26 +691,19 @@ function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
         NumShots = 1,
     } )
 
-
     if ZBase_EngineWeapon_Attributes[ engineClass ] then
-
         for varname, var in pairs( ZBase_EngineWeapon_Attributes[ engineClass ] ) do
-
             if istable(var) then
                 table.Merge( zbasewep[varname], var )
             else
                 zbasewep[varname] = var
             end
-
         end
-
     end
-
 
     zbasewep.IsEngineClone = true
     zbasewep.EngineCloneMaxClip = zbasewep.Primary.DefaultClip
     zbasewep.EngineCloneClass = engineClass
-
 end
 
 local barely_visible = Color(5,5,5,5)
@@ -954,9 +723,7 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
     local WepData = self.ZBWepSys_Inventory[class]
 
-
     if !WepData.isScripted then
-
         local zbwepclass = "weapon_zb_" .. string.Right(class, #class - 7)
         local Weapon
         if engineWeapon_HasReservedReplacement[zbwepclass] then
@@ -973,7 +740,6 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
         self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
         self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
     else
-
         self:CONV_TimerSimple(0.1, function()
             local Weapon = self:Give( class )
 
@@ -984,16 +750,13 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
                 self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
             end
         end)
-
     end
 end
 
 
 function NPC:ZBWepSys_StoreInInventory( wep )
-
     self.ZBWepSys_Inventory[wep:GetClass()] = {model=wep:GetModel(), isScripted=wep:IsScripted()}
     wep:Remove()
-
 end
 
 
@@ -1021,7 +784,6 @@ function NPC:ZBWepSys_Shoot()
     self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
 
     if self.ZBWepSys_ShotsLeft <= 0 then
-
         local RestTimeMin, RestTimeMax = wep:GetNPCRestTimes()
         local RndRest = math.Rand(RestTimeMin, RestTimeMax)
 
@@ -1029,7 +791,6 @@ function NPC:ZBWepSys_Shoot()
         self.ZBWepSys_ShotsLeft = nil
 
         self.ZBWepSys_LastShootCooldown = RndRest
-    
     else
         self.ZBWepSys_LastShootCooldown = cooldown
     end
@@ -1047,7 +808,6 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
     local attacking, max = 0, ZBCVAR.MaxNPCsShootPly:GetInt()
 
     for k in pairs(ply.AttackingZBaseNPCs) do
-
         if k == self then continue end
 
         attacking = attacking+1
@@ -1055,7 +815,6 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
         if attacking >= max then
             return true
         end
-
     end
 
     return false
@@ -1226,18 +985,15 @@ end
 
 
 function NPC:ZBWepSys_WantsToShoot()
-
     return !self.DoingPlayAnim
 
     && self:ShouldFireWeapon()
 
     && self:ZBWepSys_AIWantsToShoot()
-
 end
 
 
 function NPC:ZBWepSys_CanFireWeapon()
-
     return self:ZBWepSys_WantsToShoot()
 
     && self:ZBWepSys_HasShootAnim()
@@ -1247,7 +1003,6 @@ function NPC:ZBWepSys_CanFireWeapon()
     && self.ZBWepSys_NextBurst < CurTime()
 
     && !self.ComballAttacking
-
 end
 
 
@@ -1309,39 +1064,28 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
     local shouldForceShootStance = self.ForceShootStance && !useLegacyAnimSys
     if !shouldForceShootStance then return end
 
-
     local translatedAct
     local wep = self:GetActiveWeapon()
     if self.ZBWepSys_Stored_AIWantsToShoot && !self:HasCondition(COND.NO_PRIMARY_AMMO) then
-
         if self.ZBase_IsMoving then
-
             local translatedMoveAct = translateTbl[ACT_RUN_AIM] -- Run shooting
+
             if !self.MovementOverrideActive && self:SelectWeightedSequence(translatedMoveAct) != -1 && self:GetMovementActivity() != translatedMoveAct then
                 self:SetMovementActivity(translatedMoveAct)
             end
-            
         elseif !self:ZBWepSys_ShouldUseFireGesture(self.ZBase_IsMoving) then
-
             translatedAct =  translateTbl[ act ]
-        
         else
-
             translatedAct =  translateTbl[ ACT_IDLE_ANGRY ]
-
         end
-
     end
-
 
     -- Don't put this activity if it has no animation for it
     if translatedAct && self:SelectWeightedSequence(translatedAct) == -1 then
         return
     end
 
-
     return translatedAct
-
 end
 
 
@@ -1353,7 +1097,6 @@ function NPC:InternalOnFireWeapon()
 
     local actTranslateTbl = self:ZBWepSys_GetActTransTbl()
 
-
     -- Trigger firing animations
     if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture(self.ZBase_IsMoving) then
         self:PlayAnimation(actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
@@ -1361,14 +1104,11 @@ function NPC:InternalOnFireWeapon()
         self:ResetIdealActivity(ACT_RANGE_ATTACK1)
     end
 
-
     -- AI when shooting at players
     if ZBCVAR.MaxNPCsShootPly:GetBool() && IsValid(ene) && ene:IsPlayer() then
-
         local ply = ene
         ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
         ply.AttackingZBaseNPCs[self]=true
-
 
         ply:CONV_TimerCreate("RemoveFromAttackingZBaseNPCs_"..self:EntIndex().."_", 0.5, 1, function()
             -- No longer considered to be attacking
@@ -1376,24 +1116,18 @@ function NPC:InternalOnFireWeapon()
                 ply.AttackingZBaseNPCs[self] = nil
             end
         end)
-
     end
-
 end
 
 
 local OutOfShootRangeSched = SCHED_FORCED_GO_RUN
 function NPC:ZBWepSys_FireWeaponThink()
-
     local ene = self:GetEnemy()
     local wep = self:GetActiveWeapon()
     self.ZBWepSys_CheckDist = {within=self.MaxShootDistance*wep.NPCShootDistanceMult, away=self.MinShootDistance}
 
-
     -- In shoot dist check
     self.ZBWepSys_InShootDist = IsValid(ene) && self:ZBaseDist(ene, self.ZBWepSys_CheckDist)
-
-
 
     -- Force move to enemy, do so if:
     -- > Enemy is outside of the shooting range
@@ -1410,15 +1144,12 @@ function NPC:ZBWepSys_FireWeaponThink()
 
     end
 
-
     -- Here is where the fun begins
     if self:ZBWepSys_CanFireWeapon() then
-
         self.ZBWepSys_AllowShoot = self.ZBWepSys_PrimaryAmmo > 0
 
         -- Should shoot
         if self.ZBWepSys_AllowShoot then
-
             -- Make sure yaw is precise when standing and shooting
             if !self.ZBase_IsMoving && IsValid(ene) then
                 self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
@@ -1428,17 +1159,13 @@ function NPC:ZBWepSys_FireWeaponThink()
             self:InternalOnFireWeapon()
             self:OnFireWeapon()
             self.ZBWepSys_AllowShoot = nil
-
         end
-
     end
-
 end
 
 
 
 function NPC:ZBWepSys_MeleeThink()
-
     local ene = self:GetEnemy()
 
     if IsValid(ene) then
@@ -1456,21 +1183,17 @@ function NPC:ZBWepSys_MeleeThink()
 
         end
 
-
         if !self:IsMoving() && !(self.Patch_DontMeleeChase && self:Patch_DontMeleeChase()) then
             self:SetTarget(ene)
             self:SetSchedule(SCHED_CHASE_ENEMY)
         end
-
     end
-
 end
 
 
 function NPC:ZBWepSys_Think()
     local Weapon = self:GetActiveWeapon()
     local ene = self:GetEnemy()
-
 
     -- No weapon, don't do anything
     if !IsValid(Weapon) then
@@ -1483,7 +1206,6 @@ function NPC:ZBWepSys_Think()
         return -- Stop here
     end
 
-
     -- Store in inventory
     local WeaponCls = Weapon:GetClass()
     if !Weapon.FromZBaseInventory then
@@ -1492,9 +1214,7 @@ function NPC:ZBWepSys_Think()
         return -- Stop here
     end
 
-
     if !AIDisabled:GetBool() then
-
 
         -- Weapon think
         if Weapon.IsZBaseWeapon then
@@ -1504,7 +1224,6 @@ function NPC:ZBWepSys_Think()
                 self:ZBWepSys_FireWeaponThink()
             end
         end
-
 
         -- Adjust sight distance to match shoot distance when the enemy is valid
         -- Adjust sight distance back to normal when enemy is not valid
@@ -1519,7 +1238,6 @@ function NPC:ZBWepSys_Think()
         end
 
     end
-
 end
 
 
@@ -1557,7 +1275,6 @@ function NPC:Face( face, duration, speed )
     else
         self:SetIdealYawAndUpdate(yaw, turnSpeed)
     end
-
 end
 
 
@@ -1589,7 +1306,6 @@ end
 
 
 function NPC:CheckHasAimPoseParam()
-
     for i=0, self:GetNumPoseParameters() - 1 do
 
         local name, min, max = self:GetPoseParameterName(i), self:GetPoseParameterRange( i )
@@ -1600,9 +1316,7 @@ function NPC:CheckHasAimPoseParam()
 
     end
 
-
     return false
-
 end
 
 
@@ -1874,28 +1588,23 @@ end
 -- For SNPCs and SNPCs ONLY
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
     if self.Dead then return end
-
     self:SNPCHandleAnimEvent(event, eventTime, cycle, type, options)
 end
 
 
 -- LUA anim events, that is
 function NPC:InternalHandleAnimationEvent( seq, ev )
-
     -- Jump landing footsteps
     if seq == self.JumpLandSequence && ev == 100 then
         self:EmitFootStepSound()
     end
 
     self:HandleLUAAnimationEvent( seq, ev )
-
 end
 
 
 function NPC:LUAAnimEventThink()
-	
 	if self.ZBaseLuaAnimEvents then
-
 		local seq = self:GetSequenceName( self:GetSequence() ) 
 		if ( self.ZBaseLuaAnimEvents[ seq ] ) then		
 			
@@ -1930,9 +1639,7 @@ function NPC:LUAAnimEventThink()
 			end
 			self.m_gestFrameLast = gestFrameNew
 		end
-
 	end
-
 end
 
 
@@ -1952,11 +1659,6 @@ local RangeAttackActs = {
 
 
 function NPC:AITick_Slow()
-    -- Loose enemy
-    -- if IsValid(ene) && !self.EnemyVisible && CurTime()-self:GetEnemyLastTimeSeen() >= self.TimeUntilLooseEnemy then
-    --     self:MarkEnemyAsEluded()
-    -- end
-
     -- Update current danger
     self:InternalDetectDanger()
 
@@ -1995,21 +1697,17 @@ function NPC:AITick_Slow()
     end
 
     self.ZBase_IsMoving = self:IsMoving() or nil
-
 end
 
 
 function NPC:ShouldPreventSetSched( sched )
-
     -- Forced go will run no matter what
     if sched==SCHED_FORCED_GO then return false end
     if sched==SCHED_FORCED_GO_RUN then return false end
 
-
     -- Prevent SetSchedule from being ran if these conditions apply:
     return self.HavingConversation
     or self.DoingPlayAnim
-
 end
 
 
@@ -2034,24 +1732,17 @@ end
 
 
 function NPC:NewActivityDetected( act )
-
     local ene = self:GetEnemy()
-
-
 
     if IsValid(ene) && RangeAttackActs[act] && ene.IsZBaseNPC then
         ene:RangeThreatened(self)
     end
 
-
-
     self:CustomNewActivityDetected( act )
-
 end
 
 
 function NPC:NewSequenceDetected( seq, seqName )
-
     if self:GetActiveWeapon().IsZBaseWeapon
     && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil
     && self:IsCurrentSchedule(SCHED_RELOAD) then
@@ -2061,12 +1752,10 @@ function NPC:NewSequenceDetected( seq, seqName )
     end
 
     self:CustomNewSequenceDetected( seq, seqName )
-
 end
 
 
 function NPC:NewSchedDetected( sched, schedName )
-
     local assumedFailSched =
 
     ( string.find(schedName, "FAIL")
@@ -2074,7 +1763,6 @@ function NPC:NewSchedDetected( sched, schedName )
     )
 
     && !( self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY ) -- Don't detect failures for flying mfs
-
 
     if assumedFailSched then
         if Developer:GetInt() >= 2 then
@@ -2085,7 +1773,6 @@ function NPC:NewSchedDetected( sched, schedName )
     end
 
     self:CustomNewSchedDetected(sched, self.ZBaseLastESched or -1)
-
 end
 
 
@@ -2096,8 +1783,6 @@ function NPC:OnDetectSchedFail()
     if Developer:GetInt() >= 2 then
         MsgN("Schedule failed, last seen sched was: "..(self.ZBaseLastESchedName or "none"))
     end
-
-    -- If self.ZBaseLastESched == whatever then
 
     local fallback_MovePos
     local npcState = self:GetNPCState()
@@ -2120,31 +1805,24 @@ end
 
 
 function NPC:DoNewEnemy()
-
     local ene = self:GetEnemy()
-
 
     if IsValid(ene) then
         -- New enemy
         -- Do alert sound
-
         ZBaseMoveEnd(self, "MoveFallback")
 
         if self.NextAlertSound < CurTime() then
-
             self:StopTalking(self.IdleSounds)
             self:CancelConversation()
-
 
             if !self:NearbyAllySpeaking({"AlertSounds"}) then
                 self:EmitSound_Uninterupted(self.AlertSounds)
                 self.NextAlertSound = CurTime() + ZBaseRndTblRange(self.AlertSoundCooldown)
                 ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
             end
-
         end
     end
-
 
     -- Lost enemy
     if self.LostEnemySounds != ""
@@ -2152,11 +1830,9 @@ function NPC:DoNewEnemy()
     && self.HadPreviousEnemy
     && !self.EnemyDied
     then
- 
         -- Check if other allies also lost track of the enemy before saying it out loud
         local shouldDoLostEneSoundFinal = true
         for _, ally in ipairs(self:GetNearbyAlliesOptimized(1000)) do
-
             local allyEne = ally:GetEnemy()
   
             -- This ally still has this enemy, so it still isn't lost
@@ -2165,24 +1841,18 @@ function NPC:DoNewEnemy()
                 shouldDoLostEneSoundFinal = false 
                 break
             end
-
         end
 
-
         conv.devPrint(self:EntIndex(), " concludes enemy is lost.")
-
 
         if shouldDoLostEneSoundFinal then
             self:EmitSound_Uninterupted(self.LostEnemySounds)
         end
-
     end
-
 
     self:EnemyStatus(ene, self.HadPreviousEnemy)
     self.HadPreviousEnemy = ene && true or false
     self.LastEnemy = ene or self.LastEnemy
-
 end
 
 
@@ -2213,31 +1883,21 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     -- Panicked reload if out of ammo
     local wep = self:GetActiveWeapon()
     if ( IsValid(wep) && wep.IsZBaseWeapon && self.ZBWepSys_PrimaryAmmo <= 0 ) && !self:IsCurrentSchedule(SCHED_RELOAD) then
-        
         self:SetSchedule(SCHED_RELOAD)
-
     elseif !self.DontTakeCoverOnHurt then
-
         -- Take cover stuff
 
         local hasEne = IsValid(self:GetEnemy())
-
         if !hasEne && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
         && self:Disposition(attacker) != D_LI && self:GetPos():DistToSqr(attacker:GetPos()) >= UNKNOWN_DAMAGE_DIST then
-
             -- Become alert and try to hide when hurt by unknown source
             self:SetNPCState(NPC_STATE_ALERT)
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
-
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
-
         elseif hasEne && IsValid(wep) then
-
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
-
         end
-
     end
 end
 
@@ -2268,7 +1928,6 @@ end
 
 function NPC:InternalOnReactToSound(ent, pos, loudness)
     if self:GetNPCState()==NPC_STATE_ALERT then
-
         self:CancelConversation()
 
         if !self:NearbyAllySpeaking({"HearDangerSounds"}) && self.NextEmitHearDangerSound < CurTime() then
@@ -2276,9 +1935,7 @@ function NPC:InternalOnReactToSound(ent, pos, loudness)
             self:EmitSound_Uninterupted(self.HearDangerSounds)
             self.NextEmitHearDangerSound = CurTime()+math.Rand(3, 6)
         end
-
     end
-
 
     self:OnReactToSound(ent, pos, loudness)
 end
@@ -2296,10 +1953,9 @@ end
 --]]
 
 
-local ThorElg = 500
+local GuardDist = 500
+NPCB.Static = {}
 
-NPCB.Static = {
-}
 
 function NPCB.Static:ShouldDoBehaviour( self )
     return ZBCVAR.Static:GetBool()
@@ -2309,11 +1965,9 @@ function NPCB.Static:Delay(self)
 end
 
 function NPCB.Static:Run( self )
-
     -- Guard spot too far away, go back
-    if self:ZBaseDist(self.GuardSpot, {away=ThorElg}) then
-
-        local newDest = self.GuardSpot+Vector(math.random(-ThorElg*0.5, ThorElg*0.5), math.random(-ThorElg*0.5, ThorElg*0.5))
+    if self:ZBaseDist(self.GuardSpot, {away=GuardDist}) then
+        local newDest = self.GuardSpot+Vector(math.random(-GuardDist*0.5, GuardDist*0.5), math.random(-GuardDist*0.5, GuardDist*0.5))
 
         self:FullReset()
         self:SetLastPosition(newDest)
@@ -2326,9 +1980,7 @@ function NPCB.Static:Run( self )
         conv.overlay("Text", function()
             return {self:WorldSpaceCenter(), "Returning to guard pos.", 3}
         end)
-
     end
-
 
     ZBaseDelayBehaviour(2)
 end
@@ -2409,6 +2061,7 @@ function NPC:CanPursueFollowing()
     && !self:ZBWepSys_CanFireWeapon()
 end
 
+
 function NPC:PursueFollowing()
     if !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
         self:SetLastPosition(self.PlayerToFollow:GetPos())
@@ -2427,9 +2080,7 @@ end
 --]]
 
 
-NPCB.Patrol = {
-    MustNotHaveEnemy = true,
-}
+NPCB.Patrol = {MustNotHaveEnemy = true}
 
 
 local PatrolCvar = GetConVar("zbase_patrol")
@@ -2458,33 +2109,25 @@ end
 function NPCB.Patrol:Run( self )
     local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
 
-
     if IsValid(self.PlayerToFollow) then
-
         self:SetSchedule(SCHED_ALERT_SCAN)
 
         conv.overlay("Text", function()
             return {self:GetPos(), "SCHED_ALERT_SCAN as patrol.", 2}
         end)
-
     elseif IsAlert then
-
         self:SetSchedule(SCHED_PATROL_RUN)
 
         conv.overlay("Text", function()
             return {self:GetPos(), "Alert patrol.", 2}
         end)
-
     else
-
         self:SetSchedule(SCHED_PATROL_WALK)
 
         conv.overlay("Text", function()
             return {self:GetPos(), "Patrol.", 2}
         end)
-
     end
-
 
     ZBaseDelayBehaviour(IsAlert && math.random(3, 6) or math.random(8, 15))
 end
@@ -2498,13 +2141,10 @@ end
 
     // Call allies outside of squad for help
 
-NPCB.FactionCallForHelp = {
-    MustHaveEnemy = true,
-}
+NPCB.FactionCallForHelp = {MustHaveEnemy = true}
 
 
 function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
-
     if !ZBCVAR.CallForHelp:GetBool() then
         return false
     end
@@ -2517,7 +2157,6 @@ function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
     end
 
     return self.ZBaseFaction != "none" && self.ZBaseFaction != "neutral"
-
 end
 
 
@@ -2530,17 +2169,14 @@ function NPCB.FactionCallForHelp:Run( self )
         local canBeCalledForHelp = ally.CanBeAlertedByAlly or ally.CanBeCalledForHelp
 
         if IsValid(ally) && ally:IsNPC() && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) && self:GetSquad()!=ally:GetSquad() then
-
             ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
             ally:AlertSound()
-
 
             if self.OnCallForHelp then
                 self:OnCallForHelp(ally) -- Backwards compatability
             elseif self.OnAlertAllies then
                 self:OnAlertAllies(ally)
             end
-
 
             conv.overlay("Text", function()
                 local pos = self:GetPos()+self:GetUp()*25
@@ -2564,10 +2200,7 @@ end
 ZBaseComballOwner = NULL
 
 
-NPCB.SecondaryFire = {
-    MustHaveVisibleEnemy = true, -- Only run the behaviour if the NPC can see its enemy
-    MustFaceEnemy = true, -- Only run the behaviour if the NPC is facing its enemy
-}
+NPCB.SecondaryFire = {MustHaveVisibleEnemy = true, MustFaceEnemy = true}
 
 
 local SecondaryFireWeapons = {
@@ -2586,17 +2219,13 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
         wep:EmitSound("Weapon_CombineGuard.Special1")
     end
 
-
     self.ComballAttacking = true
-
 
     timer.Simple(0.75, function()
         if !(IsValid(self) && IsValid(wep) && IsValid(enemy)) then return end
         if self.Dead or self:GetNPCState() == NPC_STATE_DEAD then return end
 
-
         local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
-
         local ball_launcher = ents.Create( "point_combine_ball_launcher" )
         ball_launcher:SetAngles( (enemy:WorldSpaceCenter() - startPos):Angle() )
         ball_launcher:SetPos( startPos )
@@ -2629,31 +2258,23 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
             end
         end)
 
-
         local effectdata = EffectData()
         effectdata:SetFlags(5)
         effectdata:SetEntity(wep)
         util.Effect( "MuzzleFlash", effectdata, true, true )
 
-
         sound.Play("Weapon_IRifle.Single", self:GetPos())
 
-
         self.ComballAttacking = false
-
     end)
-
 
     if IsValid(enemy) && enemy.IsZBaseNPC then
         enemy:RangeThreatened( self )
     end
-
-
 end
 
 
 function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
-
     local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
     local grenade = ents.Create("grenade_ar2")
     grenade:SetOwner(self)
@@ -2673,43 +2294,33 @@ function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
     if IsValid(enemy) && enemy.IsZBaseNPC then
         enemy:RangeThreatened( self )
     end
-
 end
 
 
 function NPCB.SecondaryFire:ShouldDoBehaviour( self )
-
     if !self.CanSecondaryAttack then return false end
     if self.DoingPlayAnim then return false end
 
-
     local wep = self:GetActiveWeapon()
-
 
     local wepTbl = wep.EngineCloneClass && SecondaryFireWeapons[ wep.EngineCloneClass ]
     if !wepTbl then return false end
 
-
     if !self:ZBWepSys_WantsToShoot() then return end
-
 
     return (self.AltCount > 0 or self.AltCount == -1)
     && self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
-
 end
 
 
 function NPCB.SecondaryFire:Delay( self )
-
     if math.random(1, 2) == 1 then
         return math.Rand(4, 6)
     end
-
 end
 
 
 function NPCB.SecondaryFire:Run( self )
-
     local enemy = self:GetEnemy()
     local wep = self:GetActiveWeapon()
 
@@ -2720,7 +2331,6 @@ function NPCB.SecondaryFire:Run( self )
     end
 
     ZBaseDelayBehaviour(math.Rand(4, 8))
-
 end
 
 
@@ -2731,44 +2341,12 @@ end
 --]]
 
 
-NPCB.MeleeAttack = {
-    MustHaveEnemy = true,
-}
-
-
-NPCB.PreMeleeAttack = {
-    MustHaveEnemy = true,
-}
-
-
-local BusyScheds = {
-    [SCHED_MELEE_ATTACK1] = true,
-    [SCHED_MELEE_ATTACK2] = true,
-    [SCHED_RANGE_ATTACK1] = true,
-    [SCHED_RANGE_ATTACK2] = true,
-    [SCHED_RELOAD] = true,
-}
-
-
-local MeleeWeapons = {
-    ["weapon_crowbar"] = true,
-    ["weapon_stunstick"] = true,
-}
-
-
-function NPC:HasMeleeWeapon()
-    local wep = self:GetActiveWeapon()
-
-
-    if !IsValid(wep) then return false end
-
-
-    return MeleeWeapons[wep:GetClass()] or false
-end
+NPCB.MeleeAttack = {MustHaveEnemy = true}
+NPCB.PreMeleeAttack = {MustHaveEnemy = true}
 
 
 function NPC:TooBusyForMelee()
-    return self.DoingPlayAnim or self:HasMeleeWeapon()
+    return self.DoingPlayAnim
 end
 
 
@@ -2777,7 +2355,7 @@ function NPC:CanBeMeleed( ent )
     return mtype == MOVETYPE_STEP -- NPC
     or mtype == MOVETYPE_VPHYSICS -- Prop
     or mtype == MOVETYPE_WALK -- Player
-    or ent:IsNextBot() -- Bextbit
+    or ent:IsNextBot()
 end
 
 
@@ -2786,7 +2364,6 @@ function NPC:InternalMeleeAttackDamage(dmgData)
     local soundEmitted = false
     local soundPropEmitted = false
     local hurtEnts = {}
-
 
     for _, ent in ipairs(ents.FindInSphere(mypos, dmgData.dist)) do
         local disp = self:Disposition(ent)
@@ -2797,12 +2374,10 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         local isFriendlyTowardsEnt = (disp==D_LI or disp==D_NU) && bullseyeDisp!=D_HT && bullseyeDisp!=D_FR
         local isProp = (disp == D_NU or entIsUndamagable)
 
-
         if ent == self then continue end
         if ent.GetNPCState && ent:GetNPCState() == NPC_STATE_DEAD then continue end
         if (!dmgData.affectProps && disp == D_NU && self:GetEnemy() != ent) then continue end -- Don't affect neutrals if we shouldn't affect props
         if !self:CanBeMeleed(ent) then continue end
-
 
         -- Angle check
         if dmgData.ang != 360 then
@@ -2810,10 +2385,8 @@ function NPC:InternalMeleeAttackDamage(dmgData)
             if dmgData.ang < yawDiff then continue end
         end
 
-
         -- Not visible
         if !self:Visible(ent) then continue end
-
 
         -- Calculate force
         local tbl = self:MeleeDamageForce(dmgData)
@@ -2823,7 +2396,6 @@ function NPC:InternalMeleeAttackDamage(dmgData)
                 forcevec = forcevec + VectorRand()*tbl.randomness
             end
         end
-
 
         -- Push
         if !isFriendlyTowardsEnt or isProp then
@@ -2836,7 +2408,6 @@ function NPC:InternalMeleeAttackDamage(dmgData)
             ent:SetVelocity(forcevec)
         end
 
-
         -- Damage
         if !entIsUndamagable && !isFriendlyTowardsEnt then
             local dmg = DamageInfo()
@@ -2848,7 +2419,6 @@ function NPC:InternalMeleeAttackDamage(dmgData)
             dmg:SetDamagePosition(ent:WorldSpaceAABB())
             ent:TakeDamageInfo(dmg)
         end
-
 
         -- Sound
         if isProp && !soundPropEmitted then
@@ -2871,14 +2441,11 @@ function NPCB.MeleeAttack:ShouldDoBehaviour( self )
     if !self.BaseMeleeAttack then return false end
     if self:GetActiveWeapon().NPCIsMeleeWep then return false end
 
-
     local ene = self:GetEnemy()
     if !self.MeleeAttackFaceEnemy && !self:IsFacing(ene) then return false end
     if ene:IsPlayer() && !ene:Alive() then return end
 
-
     if self:PreventMeleeAttack() then return false end
-
 
     return !self:TooBusyForMelee()
     && self:ZBaseDist(ene, {within=self.MeleeAttackDistance})
@@ -2894,7 +2461,6 @@ end
 function NPCB.PreMeleeAttack:ShouldDoBehaviour( self )
     if !self.BaseMeleeAttack then return false end
     if self:TooBusyForMelee() then return false end
-
     return true
 end
 
@@ -2911,53 +2477,36 @@ end
 --]]
 
 
-NPCB.RangeAttack = {
-    MustHaveEnemy = true,
-}
+NPCB.RangeAttack = {MustHaveEnemy = true}
 
 
 function NPCB.RangeAttack:ShouldDoBehaviour( self )
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
     if self.DoingPlayAnim then return false end
 
-
     -- Don't range attack in mid-air
     if self:GetNavType() == 0
     && self:GetClass() != "npc_manhack"
     && !self:IsOnGround() then return false end
 
-
     self:MultipleRangeAttacks()
-
 
     local ene = self:GetEnemy()
     local seeEnemy = self.EnemyVisible -- IsValid(ene) && self:Visible(ene)
     local trgtPos = self:Projectile_TargetPos()
-
-
-    -- Can't see target position
-    if !self:VisibleVec(trgtPos) then return false end
-
-
-    -- Not in distance
-    if !self:ZBaseDist(trgtPos, {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end
-
-
-    -- Suppress disabled, and enemy not visible
-    if !self.RangeAttackSuppressEnemy && !seeEnemy then return false end
-
+    
+    if !self:VisibleVec(trgtPos) then return false end -- Can't see target position
+    if !self:ZBaseDist(trgtPos, {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end -- Not in distance
+    if !self.RangeAttackSuppressEnemy && !seeEnemy then return false end -- Suppress disabled, and enemy not visible
 
     -- Don't suppress enemy with these conditions
     if (self.RangeAttackSuppressEnemy && !seeEnemy)
     && (!self.RangeAttack_LastEnemyPos
-    -- or ene:GetPos():DistToSqr(trgtPos) > 400^2
     or !ene:VisibleVec(trgtPos)) then
         return false
     end
 
-
     if self:PreventRangeAttack() then return false end
-
 
     return true
 end
@@ -2966,14 +2515,11 @@ end
 function NPCB.RangeAttack:Run( self )
     local ene = self:GetEnemy()
 
-
     if IsValid(ene) && ene.IsZBaseNPC then
         ene:RangeThreatened( self )
     end
 
-
     self:RangeAttack()
-
 
     ZBaseDelayBehaviour(self:SequenceDuration() + 0.25 + ZBaseRndTblRange(self.RangeAttackCooldown))
 end
@@ -2986,13 +2532,10 @@ end
 --]]
 
 
-NPCB.Grenade = {
-    MustHaveEnemy = true,
-}
+NPCB.Grenade = {MustHaveEnemy = true}
 
 
 function NPCB.Grenade:ShouldDoBehaviour( self )
-
     local lastSeenPos = self:GetEnemyLastSeenPos()
 
     return self.BaseGrenadeAttack
@@ -3004,12 +2547,10 @@ function NPCB.Grenade:ShouldDoBehaviour( self )
     && self:ZBaseDist(lastSeenPos, {away=400, within=1500})
     && self:VisibleVec(lastSeenPos)
     && !(self.Patch_PreventGrenade && self:Patch_PreventGrenade())
-
 end
 
 
 function NPCB.Grenade:Delay( self )
-
     local should_throw_visible = self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Visible)==1
     local should_throw_occluded = !self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Occluded)==1
 
@@ -3021,15 +2562,12 @@ function NPCB.Grenade:Delay( self )
     if !self:IsFacing(lastSeenPos, 45) then
         return ZBaseRndTblRange(self.GrenadeCoolDown)*0.5
     end
-
 end
 
 
 function NPCB.Grenade:Run( self )
-
     self:ThrowGrenade()
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.GrenadeCoolDown))
-
 end
 
 
@@ -3052,10 +2590,8 @@ function NPC:HandleDanger()
     if self:BusyPlayingAnimation() then return end
     if self.LastLoudestSoundHint.type != SOUND_DANGER then return end
 
-
     local dangerOwn = self.LastLoudestSoundHint.owner
     local isGrenade = IsValid(dangerOwn) && (dangerOwn.IsZBaseGrenade or dangerOwn:GetClass() == "npc_grenade_frag")
-
 
     -- Sound
     if self.NPCNextDangerSound < CurTime() then
@@ -3063,16 +2599,13 @@ function NPC:HandleDanger()
         self.NPCNextDangerSound = CurTime()+math.Rand(2, 4)
     end
 
-
     if isGrenade && self:GetNPCState()==NPC_STATE_IDLE then
         self:SetNPCState(NPC_STATE_ALERT)
     end
 
-
     if (Class_ShouldRunRandomOnDanger[self:Classify()] or self.ForceAvoidDanger) && self:GetCurrentSchedule() <= 88 && !self:IsCurrentSchedule(SCHED_RUN_RANDOM) then
         self:SetSchedule(SCHED_RUN_RANDOM)
     end
-
 
     self:CancelConversation()
 end
@@ -3221,25 +2754,18 @@ function NPC:OnEmitSound( data )
     -- Custom on emit sound, allow the user to replace what sound to play
     local value = self:BeforeEmitSound( data, sndVarName )
     if isstring(value) then
-
         -- Emit new sound
         if ZBase_DontSpeakOverThisSound then
             self:EmitSound_Uninterupted(value)
         else
             self:EmitSound(value)
         end
-
-        -- Stop this sound
-        return false
-
+        
+        return false -- Stop this sound
     elseif value == false then
-
-        -- Prevent sound
-        return false
-
+        return false -- Prevent sound
     end
 
-    
     if isVoiceSound then
         if !self.EmittedSoundFromSentence then
             -- Some new voice sound wants to interrupt our sentence
@@ -3275,16 +2801,12 @@ end
 function NPC:NearbyAllySpeaking( soundList )
     if self.Dead or self.DoingDeathAnim then return false end -- Otherwise they might not do their death sounds
 
-
     for _, ally in ipairs(self:GetNearbyAllies(850)) do
         if ally:IsPlayer() then continue end
         if !ally.IsSpeaking then continue end
 
-
         if !istable(soundList) then
-
             return true
-
         elseif istable(soundList) then
             for _, v in ipairs(soundList) do
                 if v == ally.IsSpeaking_SoundVar then
@@ -3293,7 +2815,6 @@ function NPC:NearbyAllySpeaking( soundList )
             end
         end
     end
-
 
     return false
 end
@@ -3328,9 +2849,7 @@ end
 --]]
 
 
-NPCB.DoIdleSound = {
-    MustNotHaveEnemy = true,
-}
+NPCB.DoIdleSound = {MustNotHaveEnemy = true}
 
 
 function NPCB.DoIdleSound:ShouldDoBehaviour( self )
@@ -3362,9 +2881,7 @@ end
 --]]
 
 
-NPCB.DoIdleEnemySound = {
-    MustHaveEnemy = true,
-}
+NPCB.DoIdleEnemySound = {MustHaveEnemy = true}
 
 
 function NPCB.DoIdleEnemySound:ShouldDoBehaviour( self )
@@ -3383,13 +2900,11 @@ end
 
 
 function NPCB.DoIdleEnemySound:Run( self )
-
     local snd = self.Idle_HasEnemy_Sounds
     local enemy = self:GetEnemy()
 
     self:EmitSound_Uninterupted(snd)
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown))
-
 end
 
 
@@ -3400,9 +2915,7 @@ end
 --]]
 
 
-NPCB.Dialogue = {
-    MustNotHaveEnemy = true,
-}
+NPCB.Dialogue = {MustNotHaveEnemy = true}
 
 
 function NPCB.Dialogue:ShouldDoBehaviour( self )
@@ -3411,7 +2924,6 @@ function NPCB.Dialogue:ShouldDoBehaviour( self )
     if self.HavingConversation then return false end
     if self:IsCurrentSchedule(SCHED_FORCED_GO) or self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
     or self:IsCurrentSchedule(SCHED_SCENE_GENERIC) then return false end
-
     return true
 end
 
@@ -3424,27 +2936,20 @@ end
 
 
 function NPCB.Dialogue:Run( self )
-
     -- Nearest ally
     local ally = self:GetNearestAlly(350)
     if !IsValid(ally) then return end
 
-
     local DialogueExtraCoolDown = 0
-
-
 
     if ally.IsZBaseNPC -- Ally is a ZBase NPC
     && !IsValid(ally:GetEnemy()) -- Ally has no enemy
     && !ally.HavingConversation -- Ally is not having conversation currently
     && self:Visible(ally) -- Ally visible from self
     && ally.Dialogue_Answer_Sounds != "" -- Ally can respond
-
     then
-
         -- Question
         self:EmitSound_Uninterupted(self.Dialogue_Question_Sounds)
-
 
         if !IsValid(self.PlayerToFollow) then
             -- Face the recipient
@@ -3466,14 +2971,10 @@ function NPCB.Dialogue:Run( self )
         ally.HavingConversation = true
         ally.DialogueMate = self
 
-
         local sndDurQuestion = self.InternalCurrentVoiceSoundDuration
 
-
         timer.Create("DialogueAnswerTimer"..ally:EntIndex(), sndDurQuestion+0.4, 1, function()
-
             if IsValid(ally) then
-
                 -- Recipient answers me
                 ally:EmitSound(ally.Dialogue_Answer_Sounds)
 
@@ -3489,20 +2990,15 @@ function NPCB.Dialogue:Run( self )
                 -- Not sure if this does anything of value
                 ZBaseDelayBehaviour( ZBaseRndTblRange(ally.IdleSoundCooldown), ally, "Dialogue" )
 
-
                 -- Reset from dialogue state
                 timer.Simple(sndDurAns, function()
                     if !IsValid(self) then return end
                     self:CancelConversation()
                 end)
-
             end
-
         end)
 
-
         DialogueExtraCoolDown = sndDurQuestion+0.2
-
 
     -- Ally is player:
     elseif ally:IsPlayer() && !ignorePly:GetBool() then
@@ -3511,9 +3007,7 @@ function NPCB.Dialogue:Run( self )
         self:SetSchedule(SCHED_TARGET_FACE)
     end
 
-
     ZBaseDelayBehaviour( ZBaseRndTblRange(self.IdleSoundCooldown)+DialogueExtraCoolDown )
-
 end
 
 
@@ -3542,7 +3036,6 @@ function NPC:CancelConversation()
 end
 
 
-
 --[[
 ==================================================================================================
                                            DEAL DAMAGE
@@ -3551,7 +3044,6 @@ end
 
 
 function NPC:DealDamage( dmg, ent )
-
     local infl = dmg:GetInflictor()
     local disp = self:Disposition(ent)
 
@@ -3573,41 +3065,25 @@ function NPC:DealDamage( dmg, ent )
         return value
     end
 
-
-
     -- Crossbow base damage
     if infl.IsZBaseCrossbowFiredBolt then
         dmg:SetDamage(100)
     end
 
-
-
     -- Nerf smg nades/ energy balls etc
     if ZBCVAR.Nerf:GetBool() && IsValid(infl) && infl.IsZBaseDMGInfl && ent:IsPlayer() then
-
         if infl:GetClass()=="rpg_missile" or infl:GetClass()=="grenade_ar2" then
-
             -- RPG rocket ~ 50 dmg
             -- SMG Nade ~ 33 dmg
             dmg:ScaleDamage(0.33)
-
         elseif infl:GetClass() == "crossbow_bolt" then
-
-            -- Crossbow bolt 50 dmg
-            dmg:ScaleDamage(0.5)
-
+            dmg:ScaleDamage(0.5) -- Crossbow bolt 50 dmg
         elseif infl:GetClass() == "prop_combine_ball" then
-
             dmg:SetDamage(15)
-
         end
-
     end
 
-
-
     dmg:ScaleDamage(ZBCVAR.DMGMult:GetFloat())
-
 end
 
 
@@ -3621,24 +3097,20 @@ end
 function NPC:CustomBleed( pos, dir )
     if !self.CustomBloodParticles && !self.CustomBloodDecals then return end
 
-
     local function Bleed(posfinal, dirfinal, IsBulletDamage)
         local dmgPos = posfinal
         if !IsBulletDamage && !self:ZBaseDist( dmgPos, { within=math.max(self:OBBMaxs().x, self:OBBMaxs().z)*1.5 } ) then
             dmgPos = self:WorldSpaceCenter()+VectorRand()*15
         end
 
-
         if self.CustomBloodParticles then
             ParticleEffect(table.Random(self.CustomBloodParticles), dmgPos, -dirfinal:Angle())
         end
-
 
         if self.CustomBloodDecals then
             util.Decal(self.CustomBloodDecals, dmgPos, dmgPos+dirfinal*250+VectorRand()*50, self)
         end
     end
-
 
     if self.ZBase_BulletHits then
 
@@ -3655,7 +3127,6 @@ end
 
 
 function NPC:StoreDMGINFO( dmg )
-
     local ammotype = dmg:GetAmmoType()
     local attacker = dmg:GetAttacker()
     local damage = dmg:GetDamage()
@@ -3673,7 +3144,6 @@ function NPC:StoreDMGINFO( dmg )
         dmgpos = dmgpos,
         infl = infl,
     }
-
 end
 
 
@@ -3718,11 +3188,9 @@ function NPC:OnScaleDamage( dmg, hit_gr )
         self:HitArmor(dmg, hit_gr)
     end
 
-
     -- Custom damage
     self:CustomTakeDamage( dmg, hit_gr )
     self.CustomTakeDamageDone = true
-
 
     -- Bullet blood shit idk
     if (self.CustomBloodParticles or self.CustomBloodDecals) && dmg:IsBulletDamage() then
@@ -3730,17 +3198,13 @@ function NPC:OnScaleDamage( dmg, hit_gr )
             self.ZBase_BulletHits = {}
         end
 
-
         table.insert(self.ZBase_BulletHits, {pos=dmg:GetDamagePosition(), dir=dmg:GetDamageForce():GetNormalized()})
-
 
         timer.Simple(0, function()
             if !IsValid(self) then return end
-
             self.ZBase_BulletHits = nil
         end)
     end
-
 end
 
 
@@ -3762,37 +3226,29 @@ function NPC:OnEntityTakeDamage( dmg )
         return true
     end
 
-
     local attacker = dmg:GetAttacker()
-
 
     -- Players not hurting allies
     if !ZBCVAR.PlayerHurtAllies:GetBool() && attacker:IsPlayer() && self:IsAlly(attacker) then
         return true
     end
 
-
     if self.Patch_OnTakeDamage then
         self:Patch_OnTakeDamage(dmg)
     end
 
-
     ZBaseMoveEnd(self, "MoveFallback")
 
-
     local infl = dmg:GetInflictor()
-
 
     -- Combine balls should have dissolve damage
     if IsValid(infl) && infl:GetClass()=="prop_combine_ball" then
         dmg:SetDamageType(DMG_DISSOLVE)
     end
 
-
     -- Remember last dmginfo
     self:StoreDMGINFO( dmg )
     self.LastDamageWasBullet = dmg:IsBulletDamage()
-
 
     -- Damage scale
     local scale = self.DamageScaling[dmg:GetDamageType()]
@@ -3800,11 +3256,9 @@ function NPC:OnEntityTakeDamage( dmg )
         dmg:ScaleDamage(scale)
     end
 
-
     if self.Patch_TakeDamage then
         self:Patch_TakeDamage( dmg )
     end
-
 
     -- Custom damage
     if !self.CustomTakeDamageDone then
@@ -3812,14 +3266,11 @@ function NPC:OnEntityTakeDamage( dmg )
         self.CustomTakeDamageDone = true
     end
 
-
     local goingToDie = self:Health()-dmg:GetDamage() <= 0
-
 
     if goingToDie then
         self.IsSpeaking = nil
     end
-
 
     -- Prevent engine gib
     if goingToDie && ShouldPreventGib[self:GetClass()] then
@@ -3833,12 +3284,10 @@ function NPC:OnEntityTakeDamage( dmg )
 
     end
 
-
     -- Patch
     if goingToDie && self.Patch_PreDeath then
         self:Patch_PreDeath( dmg )
     end
-
 
     -- Death animation
     if !table.IsEmpty(self.DeathAnimations) && goingToDie && math.random(1, self.DeathAnimationChance)==1 then
@@ -3850,15 +3299,12 @@ end
 
     -- Called last
 function NPC:OnPostEntityTakeDamage( dmg )
-
     local MoreThan0Damage = dmg:GetDamage() > 0
 
- 
     -- Custom blood
     if (self.CustomBloodParticles or self.CustomBloodDecals) && MoreThan0Damage then
         self:CustomBleed(dmg:GetDamagePosition(), dmg:GetDamageForce():GetNormalized())
     end
-
 
     -- Don't do anything if we are dead I guess?
     -- Still bleed though
@@ -3866,17 +3312,12 @@ function NPC:OnPostEntityTakeDamage( dmg )
         return
     end
 
-
-    -- Remember last dmginfo again for accuracy sake
-    self:StoreDMGINFO( dmg )
-
+    self:StoreDMGINFO( dmg ) -- Remember last dmginfo again for accuracy sake
 
     self:AI_OnHurt(dmg, MoreThan0Damage)
 
-
     self.CustomTakeDamageDone = nil
 end
-
 
 
 --[[
@@ -3887,32 +3328,26 @@ end
 
 
 function NPC:OnDeath( attacker, infl, dmg, hit_gr )
-
     if self.Patch_SkipDeathRoutine then return end
     if self.Dead then return end
     self.Dead = true
 
-    
     -- Return previous damage
     if self.ZBasePreDeathDamageType then
         dmg:SetDamageType(self.ZBasePreDeathDamageType)
     end
 
-
     -- Register as no longer speaking, this will fix death sounds not being played
     self.IsSpeaking = nil
     self.IsSpeaking_SoundVar = nil
-
 
     -- Death sound
     if !self.DoingDeathAnim then
         self:EmitSound(self.DeathSounds)
     end
 
-
     -- My honest reaction
     self:Death_AlliesReact()
-
 
     local infl = dmg:GetInflictor()
     local Gibbed = self:ShouldGib(dmg, hit_gr)
@@ -3921,7 +3356,6 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     local rag
 
     self:SetShouldServerRagdoll(!shouldCLRagdoll)
-
 
     -- Become ragdoll if we should
     if !shouldCLRagdoll && !Gibbed && !dmg:IsDamageType(DMG_REMOVENORAGDOLL) then
@@ -3936,29 +3370,20 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
         end
     end
 
-
     -- Drop engine weapon, not stoopid vegetable zbase weapon
     local wep = self:GetActiveWeapon()
-    if IsValid(wep) && wep.EngineCloneClass then
-
-        self:Give(wep.EngineCloneClass)
-
-    end
-
+    if IsValid(wep) && wep.EngineCloneClass then self:Give(wep.EngineCloneClass) end
 
     -- Item drop
     if ZBCVAR.ItemDrop:GetBool() then
         self:Death_ItemDrop(dmg)
     end
 
-
     -- Custom on death
     self:CustomOnDeath( dmg, hit_gr, rag )
 
-
     -- Weapon dissolve
     if ZBCVAR.DissolveWep:GetBool() then
-
         local myWep = self:GetActiveWeapon()
 
         conv.callNextTick(function()
@@ -3975,7 +3400,6 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
             end
         end)
-
     end
 
     -- Byebye
@@ -4017,8 +3441,6 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     else
         self:Remove()
     end
-  
-
 end
 
 
@@ -4049,7 +3471,6 @@ end
 
 -- Called on death and makes nearby allies to me react to it
 function NPC:Death_AlliesReact()
-	
     local allies = self:GetNearbyAllies(600)
     for _, ally in ipairs(allies) do
         if IsValid(ally) && isfunction(ally.OnAllyDeath) && ally:Visible(self) then
@@ -4067,25 +3488,19 @@ end
 
 
 function NPC:Death_ItemDrop(dmg)
-
     -- Item drops
-
     local ItemArray = {}
     local DropsDone = 0
-
 
     for cls, opt in pairs(self.ItemDrops) do
         table.insert(ItemArray, {cls=cls, max=opt.max, chance=opt.chance})
     end
 
-
     table.Shuffle(ItemArray)
-
 
     for _, dropData in ipairs(ItemArray) do
 
         if DropsDone >= self.ItemDrops_TotalMax then break end
-
 
         for i = 1, dropData.max do
             if DropsDone >= self.ItemDrops_TotalMax then break end
@@ -4117,7 +3532,6 @@ function NPC:Death_ItemDrop(dmg)
 
 
 end
-
 
 --[[
 ==================================================================================================
@@ -4159,13 +3573,11 @@ function NPC:FakeRagdoll()
 		return
 	end
 
-
 	local physcount = rag:GetPhysicsObjectCount()
 	for i = 0, physcount - 1 do
 		local physObj = rag:GetPhysicsObjectNum(i)
         physObj:EnableMotion(false)
 	end
-
 
     return rag
 end
@@ -4189,16 +3601,13 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     rag.IsZBaseRag = true
 	rag:Spawn()
 
-
     for k, v in ipairs(self:GetBodyGroups()) do
         rag:SetBodygroup(v.id, self:GetBodygroup(v.id))
     end
 
-
     for k, v in ipairs(self:GetMaterials()) do
         rag:SetSubMaterial( k-1, self:GetSubMaterial(k-1) )
     end
-
 
 	local ragPhys = rag:GetPhysicsObject()
 	if !IsValid(ragPhys) then
@@ -4206,12 +3615,10 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		return
 	end
 
-
 	local physcount = rag:GetPhysicsObjectCount()
     local dmgpos = dmg:GetDamagePosition()
     local force = self.RagdollApplyForce && dmg:GetDamageForce()*0.02
 	for i = 0, physcount - 1 do
-
 		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
 		local pos, ang = npc:GetBonePosition(npc:TranslatePhysBoneToBone(i))
@@ -4220,21 +3627,17 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		    physObj:SetPos( pos )
         end
 
-
         if !self.RagdollDontAnglePhysObjects then
 	        physObj:SetAngles( ang )
         end
 
-
         if force then
             physObj:SetVelocity(force)
         end
-
 	end
 
 	-- Hook
 	hook.Run("CreateEntityRagdoll", self, rag)
-
 
 	-- Dissolve
 	if isDissolveDMG then
@@ -4248,14 +3651,11 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		rag:DeleteOnRemove(dissolve)
 	end
 
-
 	-- Ignite
 	if self:IsOnFire() then
 		rag:Ignite(math.Rand(4,8))
 	end
 
-
-    
     if isDissolveDMG then
         rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 		undo.ReplaceEntity( rag, NULL )
@@ -4263,14 +3663,11 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     elseif !keep_corpse then
         -- If we should not keep corpse, do this:
 
-
         -- Nocollide
         rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 
-
         -- Put in ragdoll table
         table.insert(ZBaseRagdolls, rag)
-
 
         -- Remove one ragdoll if there are too many
         if #ZBaseRagdolls > ZBCVAR.MaxRagdolls:GetInt() then
@@ -4281,18 +3678,15 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
         end
 
-
         -- Remove ragdoll after delay if that is active
         if ZBCVAR.RemoveRagdollTime:GetBool() then
             SafeRemoveEntityDelayed(rag, ZBCVAR.RemoveRagdollTime:GetInt())
         end
 
-
         -- Remove from table on ragdoll removed
         rag:CallOnRemove("ZBase_RemoveFromRagdollTable", function()
             table.RemoveByValue(ZBaseRagdolls, rag)
         end)
-
 
         -- Undo/cleanup replace entity
 		undo.ReplaceEntity( rag, NULL )
@@ -4301,6 +3695,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
     return rag
 end
+
 
 --[[
 ==================================================================================================
@@ -4312,7 +3707,6 @@ end
 function NPC:InternalCreateGib( model, data )
     data = data or {}
 
-
     -- Create
     local entclass = !data.IsRagdoll && "zb_temporary_ent" or "prop_ragdoll"
     local Gib = ents.Create(entclass)
@@ -4321,29 +3715,23 @@ function NPC:InternalCreateGib( model, data )
     Gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
     Gib.IsZBaseGib = true
 
-
     -- Blood
     if ZBaseDynSplatterInstalled && !data.DontBleed then
         Gib:SetBloodColor(self:GetBloodColor())
         Gib:SetNWBool("DynSplatter", true)
 
-
         local CustomDecal = self.CustomBloodDecals
         local CustomParticle = self.CustomBloodParticles && self.CustomBloodParticles[1]
-
 
         if CustomDecal then
             Gib:SetNWString( "DynamicBloodSplatter_CustomBlood_Decal", CustomDecal )
         end
 
-
         if CustomParticle then
             Gib:SetNWString( "DynamicBloodSplatter_CustomBlood_Particle", CustomParticle )
         end
 
-
         Gib.PhysicsCollide = function(_, colData, collider)
-
             if colData.Speed > 200 then
                 local effectdata = EffectData()
                 effectdata:SetOrigin( colData.HitPos )
@@ -4353,10 +3741,8 @@ function NPC:InternalCreateGib( model, data )
                 effectdata:SetEntity( Gib )
                 util.Effect("dynamic_blood_splatter_effect", effectdata, true, true )
             end
-
         end
     end
-
 
     -- Position
     local pos = self:WorldSpaceCenter()
@@ -4366,15 +3752,12 @@ function NPC:InternalCreateGib( model, data )
     Gib:SetPos(pos)
     Gib:SetAngles(self:GetAngles())
 
-
     -- Initialize
     Gib:Spawn()
     Gib:PhysicsInit(SOLID_VPHYSICS)
 
-
     -- Put in gib table
     table.insert(ZBaseGibs, Gib)
-
 
     -- Remove one gib if there are too many
     if #ZBaseGibs > ZBCVAR.MaxGibs:GetInt() then
@@ -4383,18 +3766,15 @@ function NPC:InternalCreateGib( model, data )
         gibToRemove:Remove()
     end
 
-
     -- Remove gib after delay if that is active
     if ZBCVAR.RemoveGibTime:GetBool() then
         SafeRemoveEntityDelayed(Gib, ZBCVAR.RemoveGibTime:GetInt())
     end
 
-
     -- Remove from table on gib removed
     Gib:CallOnRemove("ZBase_RemoveFromGibTable", function()
         table.RemoveByValue(ZBaseGibs, Gib)
     end)
-
 
     -- Dissolve if should
     local LastDMGInfo = self:LastDMGINFO()
@@ -4462,14 +3842,11 @@ function NPC:DeathAnimation( dmg )
 end
 
 
-
 function NPC:InternalOnRemove()
-
     -- Unregister me as a NPC that is attacking players
     for _, ply in player.Iterator() do
         if IsValid(ply) && istable(ply.AttackingZBaseNPCs) then
             ply.AttackingZBaseNPCs[self]=nil
         end
     end
-
 end
