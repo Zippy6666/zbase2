@@ -1,7 +1,7 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
 
-NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_FEMALE}
+NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_FEMALE, SF_CITIZEN_AMMORESUPPLIER}
 
 
 NPC.AlertSounds = "ZBaseFemale.Alert" -- Sounds emitted when an enemy is seen for the first time

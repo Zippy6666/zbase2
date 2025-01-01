@@ -400,27 +400,29 @@ end
 -- If the player (ply) is 'false', it will show to every player in the range
 -- 'range' should be about equal to the sound level
 function ZBaseAddCaption(ply, text, dur, range, pos)
-	if (!CLIENT) then
-		net.Start( "ZBaseAddCaption" )
-		net.WriteString( text || "" )
-		net.WriteFloat( dur || 1 )		
-		net.WriteFloat( range || 75 )
-		net.WriteVector( pos || Vector( 0, 0, 0 ) )
+	if (SERVER) then
+        range = range || 75
 
-		if isbool( ply ) then
+		if isbool(ply) then
 
-			net.SendPVS( pos )
+            for _, plyIter in player.Iterator() do
+                if plyIter:GetPos():DistToSqr( pos ) <= ( range * 40 )^2 then
+                    net.Start( "ZBaseAddCaption" )
+                    net.WriteString( text || "" )
+                    net.WriteFloat( dur || 1 )		
+                    net.Send(plyIter)
+                end
+            end
 
 		elseif ply:IsPlayer() then
-		
+            
+            net.Start( "ZBaseAddCaption" )
+            net.WriteString( text || "" )
+            net.WriteFloat( dur || 1 )	
 			net.Send( ply )
 			
 		end	
-	elseif (!SERVER) then	
-		if range && pos && LocalPlayer():GetPos():DistToSqr( pos ) > ( range * 40 )^2 then
-			return
-		end
-	
+	elseif (CLIENT) then	
 		gui.AddCaption( text, dur, false )
 	end
 end

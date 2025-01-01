@@ -367,6 +367,8 @@ NPC.MuteAllDefaultSoundEmittions = false -- Mute all default sounds emitted by t
 
 
 -- Sounds (Use sound scripts to alter pitch and level and such!)
+-- It's recommended to uses different soundscripts for each sound or else captions might not work right
+
 NPC.AlertSounds = "" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
 NPC.Idle_HasEnemy_Sounds = "" -- Sounds emitted while there is an enemy
