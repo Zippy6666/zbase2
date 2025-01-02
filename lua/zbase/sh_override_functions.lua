@@ -10,7 +10,6 @@ if SERVER then
 
     local SpawnNPC = Spawn_NPC
 
-
     function Spawn_NPC( ply, NPCClassName, WeaponName, tr, ... )
         if ZBaseNPCs[NPCClassName] then
             return Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr, ... )
@@ -19,15 +18,9 @@ if SERVER then
         end
     end
 
-
     -- Workaround when trying to spawn zbase npcs from ents.Create...
-    ents.Create = conv.wrapFunc( "ZBaseEntsCreateWrapper", ents.Create, nil, function( returnValues, entClass, ... )
-        local CreatedEntity = returnValues[1]
-
-        if !IsValid(CreatedEntity) && ZBaseNPCs[entClass] then
-
-            MsgN(entClass, " is a ZBase NPC, not an entity!")
-
+    ents.Create = conv.wrapFunc( "ZBaseEntsCreateWrapper", ents.Create, function( entClass )
+        if !scripted_ents.GetStored(entClass) && ZBaseNPCs[entClass] then
             local ply = NULL
             local Position
             local Normal
@@ -37,9 +30,22 @@ if SERVER then
             local NoDropToFloor
             local skipSpawnAndActivate = true
 
-            return ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
+            local zbnpc = ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
 
+            return zbnpc
         end
+    end)
+
+    ENT.Spawn = conv.wrapFunc( "ZBaseSpawnWrapper", ENT.Spawn, nil, function( _, self )
+        if !self.IsZBaseNPC then
+            return
+        end
+
+        if self.ZBase_Spawned then
+            return
+        end
+
+        ZBaseAfterSpawn( self, self.NPCName, false )
     end)
 
 end
