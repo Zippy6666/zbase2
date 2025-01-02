@@ -43,23 +43,16 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
 
-
-
         -- This npc's table
     for k, v in pairs(ZBaseNPCs[Class]) do
         NPC[k] = v
     end
     
-
-
 	-- "Patches"
 	local patchFunc = ZBasePatchTable[NPCData.Class]
 	if patchFunc then
 		patchFunc(NPC)
 	end
-
-
-
 
     -- Decide model
     local model = istable(NPCData.Models) && table.Random(NPCData.Models)
@@ -67,15 +60,12 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		NPC.SpawnModel = model
     end
 
-
 	--
 	-- Does this NPC have a specified material? If so, use it.
 	--
 	if ( NPCData.Material ) then
 		NPC:SetMaterial( NPCData.Material )
 	end
-
-
 
 	-- Keyvalues
 	if istable(NPCData.KeyValues) then
@@ -85,7 +75,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		end
 	
 	end
-
 	
 	--
 	-- Spawn Flags
@@ -97,10 +86,8 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		end
 	end
 
-
 	NPC:SetKeyValue( "spawnflags", SpawnFlags )
 	NPC.SpawnFlags = SpawnFlags
-
 
     -- Set skin
     if NPCData.Skins then
@@ -160,12 +147,10 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		NPCData.OnFloor( NPC )
 	end
 
-
 	-- Allow special case for duplicator stuff
 	if ( isfunction( NPCData.OnDuplicated ) ) then
 		NPC.OnDuplicated = NPCData.OnDuplicated
 	end
-
 
 	-- Pre-spawn
 	if NPC.Patch_PreSpawn then
@@ -173,27 +158,22 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	end
 	NPC:PreSpawn()
 
-
 	-- Spawn and activate
 	if !skipSpawnAndActivate then
+		NPC.ZBase_Spawned = true
 		NPC:Spawn()
 		NPC:Activate()
-	end
 
-
-	-- Spawn effect
-	if !skipSpawnAndActivate then
+		-- Spawn effect
 		local ed = EffectData()
 		ed:SetEntity( NPC )
 		util.Effect( "zbasespawn", ed, true, true )
 	end
 
-
 	-- Store name and table like the usual spawn menu spawn system in GMOD
 	NPC.NPCName = Class
 	NPC.NPCTable = NPCData
 	NPC._wasSpawnedOnCeiling = wasSpawnedOnCeiling
-
 
 	-- Body groups
 	if ( NPCData.BodyGroups ) then
@@ -202,7 +182,16 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		end
 	end
 
+	-- Init
+	if !skipSpawnAndActivate then
+		ZBaseAfterSpawn(NPC, Class, bDropToFloor)
+	end
 
+	return NPC
+end
+
+
+function ZBaseAfterSpawn( NPC, Class, bDropToFloor )
     -- "Register"
     table.insert(ZBaseNPCInstances, NPC)
 	ZBaseNPCCount = ZBaseNPCCount + 1
@@ -211,33 +200,29 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		ZBaseNPCCount = ZBaseNPCCount - 1
 	end)
 
-
 	-- Register as non-scripted if npc is such
 	if !NPC.IsZBase_SNPC then
 		table.insert(ZBaseNPCInstances_NonScripted, NPC)
 		NPC:CallOnRemove("ZBaseNPCInstances_NonScripted_Remove", function() table.RemoveByValue(ZBaseNPCInstances_NonScripted, NPC) end)
 	end
 
-
-	-- Init
 	if NPC.Patch_Init then
 		NPC.Patch_Init( NPC )
 	end
-    NPC:ZBaseInit()
-
+	NPC:ZBaseInit()
 
 	-- Store my class for dupe data
 	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
-
 
 	-- Drop to floor
 	if ( bDropToFloor ) then
 		NPC:DropToFloor()
 	end
 
-
-	return NPC
+	NPC.ZBase_Spawned = true
 end
+
+
 duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
 
     local zbaseClass = data[1]
@@ -262,6 +247,7 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 	local NPCList = ZBaseSpawnMenuNPCList
 	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
 
+	
 
 	-- Don't let them spawn this entity if it isn't in our NPC Spawn list.
 	-- We don't want them spawning any entity they like!

@@ -429,6 +429,8 @@ function NPC:CustomTakeDamage( dmginfo, HitGroup )
         self:DeleteOnRemove(self.DamagedSmoke)
 
     end
+
+    print(dmginfo)
 end
 
 

@@ -1577,7 +1577,8 @@ end
 
 
 function NPC:SequenceGetFrames(seqID, anim)
-	local animID = anim && self:GetSequenceInfo( seqID ).anims[ anim ]
+    local seqInf = self:GetSequenceInfo( seqID )
+	local animID = anim && seqInf.anims[ anim ]
 	return animID && self:GetAnimInfo( animID ).numframes || -1
 end
 
