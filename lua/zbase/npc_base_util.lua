@@ -584,6 +584,8 @@ end
 -- 'no_kill_feed_msg' - Set to true to not use kill feed message
 function NPC:InduceDeath( dmginfo, no_kill_feed_msg )
 
+    if self.Dead then return end
+
     dmginfo = dmginfo or self:LastDMGINFO()
 
     self.DeathAnim_Finished = true
