@@ -216,12 +216,21 @@ function NPC:InitBounds()
         end
 
         self:SetSurroundingBounds(self.CollisionBounds.min*1.3, self.CollisionBounds.max*1.3)
+        self:CONV_CallNextTick("InitBlockingBounds")
     end
 
     if self.HullType then
         self:SetHullType(self.HullType)
         self:SetHullSizeNormal()
     end
+end
+
+
+function NPC:InitBlockingBounds()
+    -- Set up blocking bounds
+    local mins, maxs = self:OBBMins(), self:OBBMaxs()
+    mins, maxs = Vector(mins.x*1.5, mins.y*1.5, mins.z), Vector(maxs.x*1.5, maxs.y*1.5, maxs.z)
+    self.ZBase_BlockingBounds = {mins, maxs}
 end
 
 
@@ -850,6 +859,7 @@ function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
     target.ZBase_SuppressionBullseye:SetPos( pos )
     target.ZBase_SuppressionBullseye:Spawn()
     target.ZBase_SuppressionBullseye:SetModel("models/props_lab/huladoll.mdl")
+    target.ZBase_SuppressionBullseye:SetHealth(math.huge)
     target:DeleteOnRemove(target.ZBase_SuppressionBullseye) -- Remove suppression point when target does not exist anymore
     SafeRemoveEntityDelayed(target.ZBase_SuppressionBullseye, 8) -- Remove suppression point after some time
 
@@ -875,6 +885,7 @@ function NPC:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
 end
 
 
+local minSuppressDist = 350
 function NPC:ZBWepSys_SuppressionThink()
     local ene = self:GetEnemy()
 
@@ -887,7 +898,6 @@ function NPC:ZBWepSys_SuppressionThink()
     && self:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
     && !ene.Is_ZBase_SuppressionBullseye -- Don't create a suppression point for a suppression point...
     then
-
         if !IsValid(ene.ZBase_SuppressionBullseye) then 
             -- Create a new suppression point for this enemy if there is none
             local lastseenpos = self:GetEnemyLastSeenPos(ene)
@@ -905,7 +915,6 @@ function NPC:ZBWepSys_SuppressionThink()
 
         -- Don't shoot since enemy is not visible
         return false
-
     end
 
     if IsValid(ene) && self.EnemyVisible && !ene.Is_ZBase_SuppressionBullseye then
@@ -923,8 +932,8 @@ function NPC:ZBWepSys_SuppressionThink()
     -- stop attacking this point and attack the NPC/player instead
     -- TODO: Change to in view cone instead of visible
     if ene.Is_ZBase_SuppressionBullseye
-    && IsValid(ene.EntityToSuppress)
-    && self:Visible(ene.EntityToSuppress) then
+    && ( (IsValid(ene.EntityToSuppress) && self:Visible(ene.EntityToSuppress))
+    or self:ZBaseDist(ene, {within=minSuppressDist}) ) then
         self:ZBWepSys_RemoveSuppressionPoint( ene.EntityToSuppress )
 
         self:UpdateEnemyMemory(ene.EntityToSuppress, ene.EntityToSuppress:GetPos())
@@ -1709,6 +1718,38 @@ function NPC:AITick_Slow()
     end
 
     self.ZBase_IsMoving = self:IsMoving() or nil
+
+    -- Push blocking entities away
+    if self.ZBase_IsMoving && self.BaseMeleeAttack && self.MeleeDamage_AffectProps then
+
+        -- Find blocking entities manually since the engine is a bit dumb (my copilot said this lol, based)
+        if !self.ShouldNotManualCheckBlockingEnt && self.ZBase_BlockingBounds then
+            local mins, maxs = self.ZBase_BlockingBounds[1], self.ZBase_BlockingBounds[2]
+            local mypos = self:GetPos()
+
+            for _, ent in ipairs( ents.FindInBox(mypos+mins, mypos+maxs) ) do
+                if ent == self then continue end
+
+                if ent:IsSolid() && ent:GetMoveType() == MOVETYPE_VPHYSICS then
+                    conv.devPrint("Manually found blocking ent", ent)
+                    self.ZBase_LastBlockingEnt = ent
+                    break
+                end
+            end
+
+            debugoverlay.Box(mypos, mins, maxs, 2, Color(0,0,0,75))
+            
+            self:CONV_TempVar("ShouldNotManualCheckBlockingEnt", true, 2)
+        end
+
+        local blockingEnt = self.ZBase_LastBlockingEnt or self:GetBlockingEntity()
+
+        if IsValid(blockingEnt) then
+            self:MeleeAttack(blockingEnt)
+            self.ZBase_LastBlockingEnt = nil
+        end
+
+    end
 end
 
 
@@ -1822,9 +1863,8 @@ function NPC:DoNewEnemy()
     if IsValid(ene) then
         -- New enemy
         -- Do alert sound
-        ZBaseMoveEnd(self, "MoveFallback")
 
-        if self.NextAlertSound < CurTime() then
+        if !self.LostEnemyForShortDuration && self.NextAlertSound < CurTime() then
             self:StopTalking(self.IdleSounds)
             self:CancelConversation()
 
@@ -1834,6 +1874,10 @@ function NPC:DoNewEnemy()
                 ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown), self, "DoIdleEnemySound")
             end
         end
+
+        self:CONV_TimerRemove("LostEnemySound")
+
+        ZBaseMoveEnd(self, "MoveFallback")
     end
 
     -- Lost enemy
@@ -1842,24 +1886,11 @@ function NPC:DoNewEnemy()
     && self.HadPreviousEnemy
     && !self.EnemyDied
     then
-        -- Check if other allies also lost track of the enemy before saying it out loud
-        local shouldDoLostEneSoundFinal = true
-        for _, ally in ipairs(self:GetNearbyAlliesOptimized(1000)) do
-            local allyEne = ally:GetEnemy()
-  
-            -- This ally still has this enemy, so it still isn't lost
-            if !ally.TooEarlyThoughtEnemyWasLost && IsValid(allyEne) && allyEne == self.LastEnemy then
-                conv.devPrint(self:EntIndex(), " thinks enemy is lost, "..ally:EntIndex().. " knows that it isn't.")
-                shouldDoLostEneSoundFinal = false 
-                break
-            end
-        end
-
-        conv.devPrint(self:EntIndex(), " concludes enemy is lost.")
-
-        if shouldDoLostEneSoundFinal then
+        self.LostEnemyForShortDuration = true
+        self:CONV_TimerCreate("LostEnemySound", 3, 1, function()
             self:EmitSound_Uninterupted(self.LostEnemySounds)
-        end
+            self.LostEnemyForShortDuration = nil
+        end)
     end
 
     self:EnemyStatus(ene, self.HadPreviousEnemy)

@@ -206,7 +206,7 @@ function NPC:CustomThink()
 
     -- Range face code
     if self:GetActivity()==ACT_RANGE_ATTACK1 then
-        self:SetIdealYawAndUpdate((self:GetEnemyLastSeenPos()-self:GetPos()):Angle().Yaw)
+        self:SetIdealYawAndUpdate((self:Projectile_TargetPos()-self:GetPos()):Angle().Yaw)
     end
 
     -- Not range attacking currently

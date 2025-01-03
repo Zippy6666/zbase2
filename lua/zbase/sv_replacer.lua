@@ -14,6 +14,8 @@ local defaultReplace = {
     npc_zombine = {zb_zombine=1},
     npc_fastzombie = {zb_fastzombie=1},
     npc_antlion = { zb_antlion=1, zb_antlion_spitter=2 },
+    npc_manhack = { zb_manhack=1 },
+    npc_hunter = { zb_hunter=1 },
     npc_citizen = {
         zb_human_civilian=2,
         zb_human_refugee=1,
@@ -25,14 +27,12 @@ local defaultReplace = {
 }
 
 
-
 local function CreateFile()
     -- No file exists, create a new basic one
     if !file.Exists(filename, "DATA") then
         file.Write( filename, util.TableToJSON(defaultReplace, true) )
     end
 end
-
 
 
 local function zbase_camp_replace_reload(domsg)
@@ -63,8 +63,6 @@ local function zbase_camp_replace_reload(domsg)
 end
 
 
-
-
 net.Receive("zbase_camp_replace_reload", function()
     
     local success = zbase_camp_replace_reload(true)
@@ -75,8 +73,6 @@ net.Receive("zbase_camp_replace_reload", function()
     end
 
 end)
-
-
 
     -- Tick delayed OnEntityCreated
 local ep2Mounted = IsMounted('ep2')
@@ -124,6 +120,4 @@ hook.Add("OnEntityCreated", "ZBaseReplaceSys", function( ent ) conv.callNextTick
 end) end)
 
 
-
 zbase_camp_replace_reload()
-
