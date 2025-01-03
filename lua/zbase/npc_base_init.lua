@@ -412,7 +412,7 @@ NPC.FootStepSoundDelay_Run = 0.3 -- Step cooldown when running
 NPC.IdleSoundCooldown = {8, 16}
 NPC.IdleSounds_HasEnemyCooldown = {5, 10}
 NPC.PainSoundCooldown = {1, 2.5}
-NPC.AlertSoundCooldown = {4, 8}
+NPC.AlertSoundCooldown = {8, 12}
 
 
 -- Sound chance 1/X
