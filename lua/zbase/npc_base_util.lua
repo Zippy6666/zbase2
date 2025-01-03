@@ -134,12 +134,16 @@ end
 
 
     -- Triggers the base melee attack
-function NPC:MeleeAttack()
+    -- 'forceFaceEnt' - Force the NPC to face this entity while attacking
+function NPC:MeleeAttack( forceFaceEnt )
+    self.MeleeEntToFace = forceFaceEnt
+
         -- Animation --
     if !table.IsEmpty(self.MeleeAttackAnimations) then
         self:MeleeAnimation()
     end
-    -----------------------------------------------------------------=#
+    
+    self.MeleeEntToFace = nil
 
 
         -- Damage --
@@ -265,7 +269,6 @@ end
 function NPC:RangeAttack_IdealFacePos()
     local ene = self:GetEnemy()
     local pos = IsValid(ene) && self.EnemyVisible && ene:WorldSpaceCenter() or self:Projectile_TargetPos()
-    -- debugoverlay.Cross(pos, 20)
     return pos
 end
 
@@ -296,12 +299,7 @@ end
     -- Returns the target position for the NPC's projectile
 function NPC:Projectile_TargetPos()
     local ene = self:GetEnemy()
-
-    if IsValid(ene) && self.EnemyVisible then
-        self.RangeAttack_LastEnemyPos = ene:WorldSpaceCenter()
-    end
-
-    return self.RangeAttack_LastEnemyPos or self:Projectile_SpawnPos()+self:GetForward()*400
+    return ( ene && self.EnemyVisible && ene:WorldSpaceCenter() ) or self:Projectile_SpawnPos()+self:GetForward()*400
 end
 
 --[[

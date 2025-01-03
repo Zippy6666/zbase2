@@ -600,6 +600,7 @@ function NPC:MeleeAnimation()
     return self:PlayAnimation(table.Random(self.MeleeAttackAnimations), self.MeleeAttackFaceEnemy, {
         speedMult=self.MeleeAttackAnimationSpeed,
         turnSpeed=self.MeleeAttackTurnSpeed,
+        face=self.MeleeEntToFace,
         noTransitions = true,
     })
 end
