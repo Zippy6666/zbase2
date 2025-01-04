@@ -434,7 +434,7 @@ function NPC:ZBaseThink()
         end
 
         -- Foot steps
-        if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND && !self.HavingConversation then
+        if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND && self:CONV_HasCapability(CAP_MOVE_GROUND) then
             self:FootStepTimer()
         end
 
@@ -1152,7 +1152,7 @@ function NPC:ZBWepSys_FireWeaponThink()
     -- > Enemy is outside of the shooting range
     -- > Enemy is visible
     -- > We are not currently doing any schedule that causes the NPC to move
-    if !ZBCVAR.Static:GetBool() && IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
+    if IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
     && !self:IsMoving() && !self:IsCurrentSchedule(OutOfShootRangeSched) && self.NextOutOfShootRangeSched < CurTime() then
 
         local lastpos = ene:GetPos()
@@ -1986,46 +1986,6 @@ end
 
 function NPC:OnBaseSetRel( ent, rel )
     return self:CustomOnBaseSetRel(ent, rel, priority)
-end
-
-
---[[
-==================================================================================================
-                                           STATIC/STATIONARY MODE
-==================================================================================================
---]]
-
-
-local GuardDist = 500
-NPCB.Static = {}
-
-
-function NPCB.Static:ShouldDoBehaviour( self )
-    return ZBCVAR.Static:GetBool()
-end
-
-function NPCB.Static:Delay(self)
-end
-
-function NPCB.Static:Run( self )
-    -- Guard spot too far away, go back
-    if self:ZBaseDist(self.GuardSpot, {away=GuardDist}) then
-        local newDest = self.GuardSpot+Vector(math.random(-GuardDist*0.5, GuardDist*0.5), math.random(-GuardDist*0.5, GuardDist*0.5))
-
-        self:FullReset()
-        self:SetLastPosition(newDest)
-        self:SetSchedule( (self:GetNPCState()==NPC_STATE_COMBAT && SCHED_FORCED_GO_RUN) or SCHED_FORCED_GO )
-
-        conv.overlay("Sphere", function()
-            return {newDest, 25, 3, Color(0, 0, 255)}
-        end)
-
-        conv.overlay("Text", function()
-            return {self:WorldSpaceCenter(), "Returning to guard pos.", 3}
-        end)
-    end
-
-    ZBaseDelayBehaviour(2)
 end
 
 
