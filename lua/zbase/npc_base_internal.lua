@@ -1778,6 +1778,8 @@ function NPC:RangeThreatened( threat )
     if self.NextRangeThreatened > CurTime() then return end
     if self.Dead or self.DoingDeathAnim then return end
 
+    self:CONV_TempVar("ZBase_InDanger", true, 3)
+
     self:OnRangeThreatened( threat )
 
     self.NextRangeThreatened = CurTime()+3
@@ -2062,6 +2064,7 @@ function NPC:CanPursueFollowing()
     && !self.DontUpdatePlayerFollowing
     && self:ZBaseDist(self.PlayerToFollow, {away=200})
     && !self:ZBWepSys_CanFireWeapon()
+    && !self.ZBase_Guard
 end
 
 

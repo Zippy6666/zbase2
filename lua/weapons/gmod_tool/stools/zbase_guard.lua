@@ -22,8 +22,8 @@ if SERVER then
     ZBase_Guards = ZBase_Guards or {}
 
     local function SetHasMovement(ent, bool)
+        -- ENABLE MOVEMENT
         if !ent.ZBase_Guard_HasMovementSet && bool == true then
-
             if ent.ZBase_Guard_HadGroundMovement then
                 ent:CapabilitiesAdd(CAP_MOVE_GROUND)
                 ent.ZBase_Guard_HadGroundMovement = nil
@@ -31,22 +31,53 @@ if SERVER then
 
             ent.ZBase_Guard_HasMovementSet = true
 
-        elseif ent.ZBase_Guard_HasMovementSet && bool == false then
+            ent:RemoveIgnoreConditions({COND.PLAYER_PUSHING})
 
-            if ent:CONV_HasCapabiltity(CAP_MOVE_GROUND) then
+        -- DISABLE MOVEMENT
+        elseif ent.ZBase_Guard_HasMovementSet && bool == false then
+            if ent:CONV_HasCapability(CAP_MOVE_GROUND) then
+                conv.devPrint("Removing ground movement from " .. tostring(ent))
                 ent:CapabilitiesRemove(CAP_MOVE_GROUND)
                 ent.ZBase_Guard_HadGroundMovement = true
             end
 
-            ent.ZBase_Guard_HasMovementSet = nil
+            ent:SetIgnoreConditions({COND.PLAYER_PUSHING}, 1)
 
+            ent.ZBase_Guard_HasMovementSet = nil
         end
+    end
+
+    local function InDanger(ent)
+        local hint = sound.GetLoudestSoundHint(SOUND_DANGER, ent:GetPos())
+        local IsDangerHint = (istable(hint) && hint.type==SOUND_DANGER)
+
+        if IsDangerHint then
+            return true
+        end
+
+        if ent.ZBase_InDanger then
+            return true
+        end
+
+        return false
     end
 
     local function GuardThink(ent)
         local shouldHaveMovement = false
 
-        if ent:DistToSqr(ent.ZBase_GuardPosition) > GuardPosSlack then
+        if ent:GetPos():DistToSqr(ent.ZBase_GuardPosition) > GuardPosSlack then
+            if !ent:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
+                ent:SetLastPosition(ent.ZBase_GuardPosition)
+                ent:SetSchedule(SCHED_FORCED_GO_RUN)
+            end
+
+            shouldHaveMovement = true
+        end
+
+        if !shouldHaveMovement && InDanger(ent) && !ent.ZBase_Guard_InDangerDontClearSched then
+            ent:CONV_CallNextTick("ClearSchedule")
+            ent:CONV_TempVar("ZBase_Guard_InDangerDontClearSched", true, 2)
+            conv.devPrint("Clearing schedule for " .. tostring(ent))
             shouldHaveMovement = true
         end
 
@@ -59,11 +90,13 @@ if SERVER then
 
         for k, v in ipairs(ZBase_Guards) do GuardThink(v) end
 
-        NextGuardThink = CurTime() + 2
+        NextGuardThink = CurTime() + 0.8
     end)
 
     local function SetGuard(ent, bool)
         if bool == true then
+            ent.ZBase_Guard = true
+
             -- Stop moving essentially
             ent:ClearSchedule()
             ent:ClearGoal()
@@ -71,6 +104,12 @@ if SERVER then
             ent.ZBase_GuardPosition = ent:GetPos()
 
             ent:CONV_StoreInTable(ZBase_Guards)
+
+            SetHasMovement(ent, true)
+        elseif bool == false then
+            ent.ZBase_Guard = nil
+
+            table.RemoveByValue(ZBase_Guards, ent)
 
             SetHasMovement(ent, true)
         end
