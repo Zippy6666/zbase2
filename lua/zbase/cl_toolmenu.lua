@@ -94,9 +94,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Follow Players", "zbase_followplayers")
         panel:Help("If enabled, ZBase NPCs will follow allied players when the use key is pressed on them.")
 
-        panel:CheckBox( "Static Mode", "zbase_static" )
-        panel:Help("Makes NPCs hold down the spot they spawned on. WIP.")
-   
         panel:CheckBox("Fallback Navigation", "zbase_fallback_nav")
         panel:Help("Should the NPC use a custom lua way of moving whenever it can't move by normal means? It's best to leave this off if the map you are on is well noded.")
         

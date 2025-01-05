@@ -451,7 +451,7 @@ function NPC:ZBaseThink()
 
     -- Stuff to make play anim work as intended
     if self.DoingPlayAnim then
-        self:DoPlayAnim()
+        self:InternalDoPlayAnim()
     end
 
     if self.DoingPlayAnim && self.IsZBase_SNPC then
@@ -1524,7 +1524,7 @@ function NPC:ExecuteWalkFrames(mult)
 end
 
 
-function NPC:DoPlayAnim()
+function NPC:InternalDoPlayAnim()
 
     -- Playback rate for the animation
     self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
@@ -1534,7 +1534,7 @@ function NPC:DoPlayAnim()
 
     -- Failure, stop so we don't do some weird shit when the NPC is still playing an animation
     local curSeq = string.lower( self:GetCurrentSequenceName() )
-    if curSeq != self.PlayAnim_SeqName then
+    if isstring(self.PlayAnim_SeqName) && curSeq != self.PlayAnim_SeqName then
         conv.devPrint(Color(255,0,0), "Play anim failure, seq is '", curSeq, "' but should be '", self.PlayAnim_SeqName, "'")
         self:InternalStopAnimation(true)
         self:OnPlayAnimationFailed( self.PlayAnim_SeqName )

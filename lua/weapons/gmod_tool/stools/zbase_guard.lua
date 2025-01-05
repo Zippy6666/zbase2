@@ -132,18 +132,29 @@ if SERVER then
             self:CONV_StoreInTable(ZBase_Guards)
 
             SetHasMovement(self, true)
+
+            duplicator.StoreEntityModifier( self, "ZBaseGuard", {true} )
         elseif bool == false then
             self.ZBase_Guard = nil
 
             table.RemoveByValue(ZBase_Guards, self)
 
             SetHasMovement(self, true)
+
+            duplicator.StoreEntityModifier( self, "ZBaseGuard", {false} )
         end
     end
 
+    duplicator.RegisterEntityModifier( "ZBaseGuard", function(ply, ent, data)
+        if ent:IsNPC() && data[1] == true then
+            ent.ZBase_Guard = false -- Reset this var
+            ply:ConCommand("zbase_guard " .. ent:EntIndex())
+        end
+    end)
+
     concommand.Add("zbase_guard", function(ply, cmd, args)
         local ent = Entity(tonumber(args[1]))
-        
+
         if IsValid(ent) and ent:IsNPC() then
             net.Start("ZBaseToolHalo")
             net.WriteEntity(ent)
