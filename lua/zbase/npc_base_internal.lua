@@ -1346,8 +1346,7 @@ function NPC:FullReset(dontStopZBaseMove)
     self:StopMoving()
     self:SetMoveVelocity(vector_origin)
 
-    if self.IsZBase_SNPC then
-        self:AerialResetNav()
+    if self:IsScripted() then
         self:ScheduleFinished()
     end
 
@@ -1904,6 +1903,9 @@ end
 local UNKNOWN_DAMAGE_DIST = 1000^2
 function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     local attacker = dmg:GetAttacker()
+
+    self:CONV_TempVar("ZBase_InDanger", true, 5)
+    ZBaseUpdateGuard(self)
 
     if self.HavingConversation then
         self:CancelConversation()

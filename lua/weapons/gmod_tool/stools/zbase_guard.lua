@@ -17,101 +17,127 @@ end
 if SERVER then
     local AIDisabled = GetConVar("ai_disabled")
     local NextGuardThink = CurTime()
-    local GuardPosSlack = 50^2
+    local GuardPosDistTolerance = 50^2
 
     ZBase_Guards = ZBase_Guards or {}
 
-    local function SetHasMovement(ent, bool)
+    local function SetHasMovement(self, bool)
         -- ENABLE MOVEMENT
-        if !ent.ZBase_Guard_HasMovementSet && bool == true then
-            if ent.ZBase_Guard_HadGroundMovement then
-                ent:CapabilitiesAdd(CAP_MOVE_GROUND)
-                ent.ZBase_Guard_HadGroundMovement = nil
+        if !self.ZBase_Guard_HasMovementSet && bool == true then
+            -- Regular ground NPC/SNPCs
+            if self.ZBase_Guard_HadGroundMovement then
+                self:CapabilitiesAdd(CAP_MOVE_GROUND)
+                self.ZBase_Guard_HadGroundMovement = nil
             end
 
-            ent.ZBase_Guard_HasMovementSet = true
-
-            ent:RemoveIgnoreConditions({COND.PLAYER_PUSHING})
+            -- Flying SNPCs
+            if self.ZBase_HasLUAFlyCapability == false then
+                self.ZBase_HasLUAFlyCapability = true
+                conv.devPrint("Enabling fly capability for " .. tostring(self))
+            end
+ 
+            self.ZBase_Guard_HasMovementSet = true
 
         -- DISABLE MOVEMENT
-        elseif ent.ZBase_Guard_HasMovementSet && bool == false then
-            if ent:CONV_HasCapability(CAP_MOVE_GROUND) then
-                conv.devPrint("Removing ground movement from " .. tostring(ent))
-                ent:CapabilitiesRemove(CAP_MOVE_GROUND)
-                ent.ZBase_Guard_HadGroundMovement = true
+        elseif self.ZBase_Guard_HasMovementSet && bool == false then
+            -- Regular ground NPC/SNPCs
+            if self:CONV_HasCapability(CAP_MOVE_GROUND) then
+                self:CapabilitiesRemove(CAP_MOVE_GROUND)
+                self.ZBase_Guard_HadGroundMovement = true
             end
 
-            ent:SetIgnoreConditions({COND.PLAYER_PUSHING}, 1)
+            -- Flying SNPCs
+            if self.ZBase_HasLUAFlyCapability == true then
+                self.ZBase_HasLUAFlyCapability = false
+                conv.devPrint("Disabling fly capability for " .. tostring(self))
+            end
 
-            ent.ZBase_Guard_HasMovementSet = nil
+            self.ZBase_Guard_HasMovementSet = nil
         end
     end
 
-    local function InDanger(ent)
-        local hint = sound.GetLoudestSoundHint(SOUND_DANGER, ent:GetPos())
+    local function InDanger(self)
+        local hint = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
         local IsDangerHint = (istable(hint) && hint.type==SOUND_DANGER)
 
         if IsDangerHint then
             return true
         end
 
-        if ent.ZBase_InDanger then
+        if self.ZBase_InDanger then
             return true
         end
 
         return false
     end
 
-    local function GuardThink(ent)
+    local function GuardThink(self)
         local shouldHaveMovement = false
+        local inDanger = InDanger(self)
 
-        if ent:GetPos():DistToSqr(ent.ZBase_GuardPosition) > GuardPosSlack then
-            if !ent:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
-                ent:SetLastPosition(ent.ZBase_GuardPosition)
-                ent:SetSchedule(SCHED_FORCED_GO_RUN)
+        if self:GetPos():DistToSqr(self.ZBase_GuardPosition) > GuardPosDistTolerance then
+            if !inDanger && !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
+                self:SetLastPosition(self.ZBase_GuardPosition)
+                self:SetSchedule(SCHED_FORCED_GO_RUN)
             end
 
             shouldHaveMovement = true
         end
 
-        if !shouldHaveMovement && InDanger(ent) && !ent.ZBase_Guard_InDangerDontClearSched then
-            ent:CONV_CallNextTick("ClearSchedule")
-            ent:CONV_TempVar("ZBase_Guard_InDangerDontClearSched", true, 2)
-            conv.devPrint("Clearing schedule for " .. tostring(ent))
+        if !shouldHaveMovement && inDanger then
+            if !self.ZBase_Guard_InDangerDontClearSched then
+                self:CONV_CallNextTick("ClearSchedule")
+                self:CONV_TempVar("ZBase_Guard_InDangerDontClearSched", true, 2)
+            end
+
             shouldHaveMovement = true
         end
 
-        SetHasMovement(ent, shouldHaveMovement)
+        SetHasMovement(self, shouldHaveMovement)
+    end
+
+    function ZBaseUpdateGuard( self )
+        if !self.ZBase_Guard then return end
+        GuardThink(self)
     end
 
     hook.Add("Think", "ZBase_GuardThink", function()
         if AIDisabled:GetBool() then return end
         if NextGuardThink > CurTime() then return end
 
-        for k, v in ipairs(ZBase_Guards) do GuardThink(v) end
+        for _, npc in ipairs(ZBase_Guards) do ZBaseUpdateGuard(npc) end
 
         NextGuardThink = CurTime() + 0.8
     end)
 
-    local function SetGuard(ent, bool)
+    local function SetGuard(self, bool)
         if bool == true then
-            ent.ZBase_Guard = true
+            self.ZBase_Guard = true
 
             -- Stop moving essentially
-            ent:ClearSchedule()
-            ent:ClearGoal()
+            if self.IsZBaseNPC then
+                -- More convenient for ZBase NPCs
+                self:FullReset()
+            else
+                -- Other SNPCs/NPCs, would technically work for ZBase NPCs too
+                self:ClearSchedule()
+                self:ClearGoal()
+                if self:IsScripted() then
+                    self:ScheduleFinished()
+                end
+            end
 
-            ent.ZBase_GuardPosition = ent:GetPos()
+            self.ZBase_GuardPosition = self:GetPos()
 
-            ent:CONV_StoreInTable(ZBase_Guards)
+            self:CONV_StoreInTable(ZBase_Guards)
 
-            SetHasMovement(ent, true)
+            SetHasMovement(self, true)
         elseif bool == false then
-            ent.ZBase_Guard = nil
+            self.ZBase_Guard = nil
 
-            table.RemoveByValue(ZBase_Guards, ent)
+            table.RemoveByValue(ZBase_Guards, self)
 
-            SetHasMovement(ent, true)
+            SetHasMovement(self, true)
         end
     end
 
@@ -119,24 +145,29 @@ if SERVER then
         local ent = Entity(tonumber(args[1]))
         
         if IsValid(ent) and ent:IsNPC() then
-            SetGuard(ent, true)
+            net.Start("ZBaseToolHalo")
+            net.WriteEntity(ent)
+            net.WriteString("ZBase_Guards")
+            net.WriteBool(!ent.ZBase_Guard)
+            net.Send(ply)
+
+            SetGuard(ent, !ent.ZBase_Guard)
         end
     end)
 end
 
 
 function TOOL:LeftClick( trace )
-    if SERVER then
-        local own = self:GetOwner()
-
-        local ent = trace.Entity
-        if IsValid(ent) and ent:IsNPC() then
-            own:ConCommand("zbase_guard " .. ent:EntIndex())
-
-            return true
-        end
-    end
+    local own = self:GetOwner()
     local ent = trace.Entity
+
+    if IsValid(ent) and ent:IsNPC() && !ent.IsVJBaseSNPC then
+        if SERVER then
+            own:ConCommand("zbase_guard " .. ent:EntIndex())
+        end
+
+        return true
+    end
 end
 
 
@@ -149,10 +180,8 @@ end
 
 
 if CLIENT then
-
     function TOOL.BuildCPanel(panel)
         panel:Help(help)
     end
-
 end
 
