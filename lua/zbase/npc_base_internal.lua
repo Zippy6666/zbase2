@@ -976,6 +976,8 @@ function NPC:ZBWepSys_AIWantsToShoot()
         return false
     end
 
+    if !self.EnemyVisible then return false end
+
     if AIWantsToShoot_ACT_Blacklist[self:GetActivity()] then return false end
 
     local sched = self:GetCurrentSchedule()
