@@ -889,12 +889,14 @@ local minSuppressDist = 350
 function NPC:ZBWepSys_SuppressionThink()
     local ene = self:GetEnemy()
 
+    if !IsValid(ene) then return false end
+
     -- Don't suppress bullseye that is not visible
-    if ene && ene.Is_ZBase_SuppressionBullseye && !self.EnemyVisible then
+    if ene.Is_ZBase_SuppressionBullseye && !self.EnemyVisible then
         return false
     end
 
-    if ene && !self.EnemyVisible
+    if !self.EnemyVisible
     && self:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
     && !ene.Is_ZBase_SuppressionBullseye -- Don't create a suppression point for a suppression point...
     then
@@ -917,7 +919,7 @@ function NPC:ZBWepSys_SuppressionThink()
         return false
     end
 
-    if IsValid(ene) && self.EnemyVisible && !ene.Is_ZBase_SuppressionBullseye then
+    if self.EnemyVisible && !ene.Is_ZBase_SuppressionBullseye then
         -- Enemy is visible...
 
         if ene.ZBase_DontCreateSuppressionPoint then
