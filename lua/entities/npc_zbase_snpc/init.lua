@@ -12,7 +12,7 @@ function ENT:Initialize()
 	self:SetMoveType(MOVETYPE_STEP)
 	self:SetCollisionGroup(COLLISION_GROUP_NPC)
 	self:SetBloodColor(BLOOD_COLOR_RED)
-	
+
 	self.Bullseye = ents.Create("npc_bullseye")
 	self.Bullseye:SetPos(self:GetPos())
 	self.Bullseye:SetAngles(self:GetAngles())
@@ -36,11 +36,12 @@ function ENT:Initialize()
 	self.NextSelectSchedule = CurTime()
 	self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 
+	self.ZBase_HasLUAFlyCapability = true -- Set to false whenever flying SNPCs should not be able to make new goals.
+
 end
 
 
 function ENT:Think()
-
 	-- Make sure we stay invisible when we are dead
 	if self.Dead && !self:GetNoDraw() then
 		self:SetNoDraw(true)
@@ -63,7 +64,6 @@ function ENT:Think()
 	end
 
 	self:ZBaseThink()
-
 end
 
 
@@ -71,10 +71,8 @@ function ENT:OnTakeDamage( dmginfo )
 	-- On hurt behaviour
 	self:SNPCOnHurt(dmginfo)
 
-
 	-- Decrease health
 	self:SetHealth( self:Health() - dmginfo:GetDamage() )
-
 
 	-- Die
 	if self:Health() <= 0 && !self.Dead then

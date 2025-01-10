@@ -138,6 +138,8 @@ end
 
 
 function ENT:AerialCalcGoal( pos )
+    if !self.ZBase_HasLUAFlyCapability then return end
+    
     local tr = util.TraceLine({
         start = pos,
         endpos = pos - Vector(0, 0, self.InternalDistanceFromGround),

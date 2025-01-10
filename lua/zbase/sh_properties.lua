@@ -64,6 +64,15 @@ end
 --]]
 
 
+AddZBaseNPCProperty("Guard", "icon16/anchor.png", function( self, npc, length, ply )
+
+    if SERVER then
+        ply:ConCommand("zbase_guard " .. npc:EntIndex())
+    end
+
+end)
+
+
 AddZBaseNPCProperty("Join Faction", "icon16/connect.png", function( self, npc, length, ply )
 
     if npc.ZBaseFaction == ply.ZBaseFaction then
@@ -92,17 +101,15 @@ AddZBaseNPCProperty("Add to My Faction", "icon16/add.png", function( self, npc, 
 
 end)
 
-
--- AddZBaseNPCProperty("Control", "icon16/controller.png", function( self, npc, length, ply )
-
---     ZBCtrlSys:StartControlling( ply, npc )
-
--- end)
-
-
 AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )
 
-    npc:TakeDamage(0, game.GetWorld(), game.GetWorld())
-    npc:InduceDeath()
+    local dmginfo = DamageInfo()
+    dmginfo:SetDamage(math.huge)
+    dmginfo:SetAttacker(ply)
+    dmginfo:SetInflictor(ply)
+    dmginfo:SetDamageForce(vector_origin)
+    dmginfo:SetDamagePosition(npc:WorldSpaceCenter())
+    dmginfo:SetDamageType(DMG_DIRECT)
+    npc:TakeDamageInfo(dmginfo)
 
 end)

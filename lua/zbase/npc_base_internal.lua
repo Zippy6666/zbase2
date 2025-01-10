@@ -434,7 +434,7 @@ function NPC:ZBaseThink()
         end
 
         -- Foot steps
-        if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND && !self.HavingConversation then
+        if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND && self:CONV_HasCapability(CAP_MOVE_GROUND) then
             self:FootStepTimer()
         end
 
@@ -451,7 +451,7 @@ function NPC:ZBaseThink()
 
     -- Stuff to make play anim work as intended
     if self.DoingPlayAnim then
-        self:DoPlayAnim()
+        self:InternalDoPlayAnim()
     end
 
     if self.DoingPlayAnim && self.IsZBase_SNPC then
@@ -889,12 +889,14 @@ local minSuppressDist = 350
 function NPC:ZBWepSys_SuppressionThink()
     local ene = self:GetEnemy()
 
+    if !IsValid(ene) then return false end
+
     -- Don't suppress bullseye that is not visible
-    if ene && ene.Is_ZBase_SuppressionBullseye && !self.EnemyVisible then
+    if ene.Is_ZBase_SuppressionBullseye && !self.EnemyVisible then
         return false
     end
 
-    if ene && !self.EnemyVisible
+    if !self.EnemyVisible
     && self:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
     && !ene.Is_ZBase_SuppressionBullseye -- Don't create a suppression point for a suppression point...
     then
@@ -917,7 +919,7 @@ function NPC:ZBWepSys_SuppressionThink()
         return false
     end
 
-    if IsValid(ene) && self.EnemyVisible && !ene.Is_ZBase_SuppressionBullseye then
+    if self.EnemyVisible && !ene.Is_ZBase_SuppressionBullseye then
         -- Enemy is visible...
 
         if ene.ZBase_DontCreateSuppressionPoint then
@@ -975,6 +977,8 @@ function NPC:ZBWepSys_AIWantsToShoot()
     if result == false then
         return false
     end
+
+    if !self.EnemyVisible then return false end
 
     if AIWantsToShoot_ACT_Blacklist[self:GetActivity()] then return false end
 
@@ -1152,7 +1156,7 @@ function NPC:ZBWepSys_FireWeaponThink()
     -- > Enemy is outside of the shooting range
     -- > Enemy is visible
     -- > We are not currently doing any schedule that causes the NPC to move
-    if !ZBCVAR.Static:GetBool() && IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
+    if IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
     && !self:IsMoving() && !self:IsCurrentSchedule(OutOfShootRangeSched) && self.NextOutOfShootRangeSched < CurTime() then
 
         local lastpos = ene:GetPos()
@@ -1346,8 +1350,7 @@ function NPC:FullReset(dontStopZBaseMove)
     self:StopMoving()
     self:SetMoveVelocity(vector_origin)
 
-    if self.IsZBase_SNPC then
-        self:AerialResetNav()
+    if self:IsScripted() then
         self:ScheduleFinished()
     end
 
@@ -1525,7 +1528,7 @@ function NPC:ExecuteWalkFrames(mult)
 end
 
 
-function NPC:DoPlayAnim()
+function NPC:InternalDoPlayAnim()
 
     -- Playback rate for the animation
     self:SetPlaybackRate(self.PlayAnim_PlayBackRate or 1)
@@ -1535,7 +1538,7 @@ function NPC:DoPlayAnim()
 
     -- Failure, stop so we don't do some weird shit when the NPC is still playing an animation
     local curSeq = string.lower( self:GetCurrentSequenceName() )
-    if curSeq != self.PlayAnim_SeqName then
+    if isstring(self.PlayAnim_SeqName) && curSeq != self.PlayAnim_SeqName then
         conv.devPrint(Color(255,0,0), "Play anim failure, seq is '", curSeq, "' but should be '", self.PlayAnim_SeqName, "'")
         self:InternalStopAnimation(true)
         self:OnPlayAnimationFailed( self.PlayAnim_SeqName )
@@ -1778,6 +1781,8 @@ function NPC:RangeThreatened( threat )
     if self.NextRangeThreatened > CurTime() then return end
     if self.Dead or self.DoingDeathAnim then return end
 
+    self:CONV_TempVar("ZBase_InDanger", true, 3)
+
     self:OnRangeThreatened( threat )
 
     self.NextRangeThreatened = CurTime()+3
@@ -1903,6 +1908,9 @@ local UNKNOWN_DAMAGE_DIST = 1000^2
 function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     local attacker = dmg:GetAttacker()
 
+    self:CONV_TempVar("ZBase_InDanger", true, 5)
+    ZBaseUpdateGuard(self)
+
     if self.HavingConversation then
         self:CancelConversation()
     end
@@ -1991,46 +1999,6 @@ end
 
 --[[
 ==================================================================================================
-                                           STATIC/STATIONARY MODE
-==================================================================================================
---]]
-
-
-local GuardDist = 500
-NPCB.Static = {}
-
-
-function NPCB.Static:ShouldDoBehaviour( self )
-    return ZBCVAR.Static:GetBool()
-end
-
-function NPCB.Static:Delay(self)
-end
-
-function NPCB.Static:Run( self )
-    -- Guard spot too far away, go back
-    if self:ZBaseDist(self.GuardSpot, {away=GuardDist}) then
-        local newDest = self.GuardSpot+Vector(math.random(-GuardDist*0.5, GuardDist*0.5), math.random(-GuardDist*0.5, GuardDist*0.5))
-
-        self:FullReset()
-        self:SetLastPosition(newDest)
-        self:SetSchedule( (self:GetNPCState()==NPC_STATE_COMBAT && SCHED_FORCED_GO_RUN) or SCHED_FORCED_GO )
-
-        conv.overlay("Sphere", function()
-            return {newDest, 25, 3, Color(0, 0, 255)}
-        end)
-
-        conv.overlay("Text", function()
-            return {self:WorldSpaceCenter(), "Returning to guard pos.", 3}
-        end)
-    end
-
-    ZBaseDelayBehaviour(2)
-end
-
-
---[[
-==================================================================================================
                                            AI FOLLOW PLAYER
 ==================================================================================================
 --]]
@@ -2102,6 +2070,7 @@ function NPC:CanPursueFollowing()
     && !self.DontUpdatePlayerFollowing
     && self:ZBaseDist(self.PlayerToFollow, {away=200})
     && !self:ZBWepSys_CanFireWeapon()
+    && !self.ZBase_Guard
 end
 
 
