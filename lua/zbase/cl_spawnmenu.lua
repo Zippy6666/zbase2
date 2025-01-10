@@ -47,8 +47,10 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 		end
 	
 		menu:AddOption( "#spawnmenu.menu.spawn_with_toolgun", function()
+			local override = (ZBCVAR.RandWep:GetBool() && "zbase_random_weapon") or GetConVar("gmod_npcweapon"):GetString()
+
 			RunConsoleCommand( "gmod_tool", "creator" ) RunConsoleCommand( "creator_type", "2" )
-			RunConsoleCommand( "creator_name", obj.spawnname ) RunConsoleCommand( "creator_arg", weapon )
+			RunConsoleCommand( "creator_name", obj.spawnname ) RunConsoleCommand( "creator_arg", override == "" && table.Random(obj.weapon) or override )
 		end ):SetIcon( "icon16/brick_add.png" )
 	
 		menu:Open()
