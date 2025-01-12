@@ -20,7 +20,6 @@ NPC.RenderMode = RENDERMODE_NORMAL -- https://wiki.facepunch.com/gmod/Enums/REND
 NPC.SubMaterials = {} -- Submaterials {*number index* = *string name*}
 
 
--- Set to false if your game crashes when you spawn the NPC
 -- This obviously needs to be true if you want to use LUA animation events
 NPC.EnableLUAAnimationEvents = true
 
@@ -28,7 +27,7 @@ NPC.EnableLUAAnimationEvents = true
 NPC.StartHealth = 50 -- Max health
 
 
-NPC.SightDistance = 8192 -- Sight distance
+NPC.SightDistance = ZBASE_DEFAULT_SIGHT_DIST -- Sight distance, set to any number
 NPC.SightAngle = 90 -- Sight angle
 NPC.AlertAllies = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.AlertAlliesDistance = 2000 -- Call for help distance

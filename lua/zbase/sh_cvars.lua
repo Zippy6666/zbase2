@@ -1,6 +1,5 @@
 local Flags = bit.bor(FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY)
 
- 
 ZBCVAR = {}
 ZBCVAR.HPMult = CreateConVar("zbase_hp_mult", "1", Flags)
 ZBCVAR.DMGMult = CreateConVar("zbase_dmg_mult", "1", Flags)
@@ -44,6 +43,8 @@ ZBCVAR.ShowNavigator = CreateConVar("zbase_show_navigator", "0", Flags)
 ZBCVAR.ShowSched = CreateConVar("zbase_show_sched", "0", Flags)
 ZBCVAR.FollowingEnabled = CreateConVar("zbase_followplayers", "1", Flags)
 ZBCVAR.NPCNocollide = CreateConVar("zbase_nocollide", "0", Flags)
+ZBCVAR.SightDist = CreateConVar("zbase_sightdist", "4096", Flags)
+ZBCVAR.SightDistOverride = CreateConVar("zbase_sightdist_override", "0", Flags)
 
 if CLIENT then
     ZBCVAR.GlowingEyes = CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)

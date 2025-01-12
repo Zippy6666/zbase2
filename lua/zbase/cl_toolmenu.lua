@@ -99,6 +99,12 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         
         panel:CheckBox("More Jumping", "zbase_more_jumping")
         panel:Help("NPCs will jump when they cannot reach a certain waypoint. Requires 'Fallback Navigation' to be on.")
+
+        panel:NumSlider( "Sight Distance", "zbase_sightdist", 1, 30000, 0 )
+        panel:Help("Default ZBase NPC sight distance.")
+
+        panel:CheckBox("Override Sight Distance", "zbase_sightdist_override")
+        panel:Help("Should the sight distance slider apply to all ZBase NPCs regardless of unique sight distance?")
     end)
 
     --[[

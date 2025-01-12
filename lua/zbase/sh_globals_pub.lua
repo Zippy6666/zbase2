@@ -24,6 +24,9 @@ ZBASE_TOOCLOSEBEHAVIOUR_FACE = 1
 ZBASE_TOOCLOSEBEHAVIOUR_BACK = 2
 
 
+ZBASE_DEFAULT_SIGHT_DIST = 4096
+
+
 --[[
 ======================================================================================================================================================
                                            "ESSENTIAL" FUNCTIONS
