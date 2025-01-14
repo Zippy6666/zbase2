@@ -16,6 +16,6 @@ function ENT:Initialize()
         self:Remove()
     end
 
-    self:SetModelScale(0, 0)
+    -- self:SetModelScale(0, 0)
 
 end
