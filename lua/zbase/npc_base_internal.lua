@@ -2025,12 +2025,9 @@ function NPC:StartFollowingPlayer( ply )
     if !self:IsAlly(ply) then return end
     if self:ZBaseDist(ply, {away=200}) then return end
 
-
     self:FullReset()
 
-
     self.PlayerToFollow = ply
-
 
     net.Start("ZBaseSetFollowHalo")
     net.WriteEntity(self)
@@ -2041,7 +2038,6 @@ function NPC:StartFollowingPlayer( ply )
     self:SetSchedule(SCHED_TARGET_FACE)
 
     self:EmitSound_Uninterupted(self.FollowPlayerSounds)
-
 
     self:FollowPlayerStatus(self.PlayerToFollow)
 end
