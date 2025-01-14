@@ -124,7 +124,11 @@ function NPC:Init2Ticks()
     -- FOV and sight dist
     self.FieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
     self:SetSaveValue( "m_flFieldOfView", self.FieldOfView )
-    self:SetMaxLookDistance(self.SightDistance)
+    self:SetMaxLookDistance(
+        (self.SightDistance == ZBASE_DEFAULT_SIGHT_DIST or ZBCVAR.SightDistOverride:GetBool())
+        && ZBCVAR.SightDist:GetInt()
+        or self.SightDistance
+    )
 
     -- Phys damage scale
     self:Fire("physdamagescale", self.PhysDamageScale)
