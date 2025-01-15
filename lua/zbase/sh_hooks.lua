@@ -610,10 +610,14 @@ if CLIENT then
         local name = net.ReadString()
         if !IsValid(ent) then return end
 
+        local hadhalo = table.RemoveByValue(LocalPlayer().ZBaseFollowHaloEnts, ent)!=false
+
         table.InsertEntity(LocalPlayer().ZBaseFollowHaloEnts, ent)
 
-        chat.AddText(wepCol, name.." started following you.")
-        surface.PlaySound( "buttons/button16.wav" )
+        if !hadhalo then
+            chat.AddText(wepCol, name.." started following you.")
+            surface.PlaySound( "buttons/button16.wav" )
+        end
     end)
 
 
@@ -688,11 +692,13 @@ hook.Add( "KeyPress", "ZBaseUse", function( ply, key )
 
     if key == IN_USE && IsValid(ent) && ent.IsZBaseNPC && ent:ZBaseDist(ply, {within=200}) then
 
-        -- Start/stop following
-        if !IsValid(ent.PlayerToFollow) && ent:CanStartFollowPlayers() then
-            ent:StartFollowingPlayer(ply)
-        elseif ent.PlayerToFollow == ply then
-            ent:StopFollowingCurrentPlayer()
+        if !ent.Patch_UseEngineFollow or ( ent.Patch_UseEngineFollow && !ent:Patch_UseEngineFollow() ) then
+            -- Start/stop following
+            if !IsValid(ent.PlayerToFollow) && ent:CanStartFollowPlayers() then
+                ent:StartFollowingPlayer(ply)
+            elseif ent.PlayerToFollow == ply then
+                ent:StopFollowingCurrentPlayer()
+            end
         end
 
         -- On NPC used
@@ -769,6 +775,27 @@ end)
 
 
 hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
+    -- Engine follow
+    if game.SinglePlayer() && ZBaseNPCCount > 0 && ent==Entity(1) && input == "Use" then
+        
+        for _, v in ipairs( ents.FindInSphere( ent:GetShootPos(), 125 ) ) do
+            if v.Patch_UseEngineFollow && v:Patch_UseEngineFollow() then
+                v:CONV_CallNextTick(function()
+                    local squad = v:GetSquad()
+
+                    if squad == "player_squad" then
+                        v:StartFollowingPlayer(Entity(1), true, true)
+                    else
+                        v:StopFollowingCurrentPlayer(false, true)
+                    end
+
+                    conv.devPrint(v, " squad is '", (squad == "" && "empty string") or squad or "nothing", "'")
+                end)
+            end
+        end
+
+    end
+
     if ent.IsZBaseNPC then
         ent:CustomAcceptInput(input, activator, ent, value)
     end

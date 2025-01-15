@@ -24,6 +24,10 @@ function NPC:PreSpawn()
         self:SetKeyValue("additionalequipment", "") -- This NPC was not meant to have weapons, so remove them before spawn
     end
 
+    if self.Patch_PreSpawn then
+        self:Patch_PreSpawn()
+    end
+
     self:CustomPreSpawn()
 end
 
@@ -155,7 +159,6 @@ function NPC:InitSounds()
             self.SoundVarNames[v] = k
         end
     end
-
 end
 
 
@@ -1671,21 +1674,6 @@ function NPC:LUAAnimEventThink()
 end
 
 
---[[
-==================================================================================================
-                                           AI GENERAL
-==================================================================================================
---]]
-
-
-local RangeAttackActs = {
-    [ACT_RANGE_ATTACK1] = true,
-    [ACT_RANGE_ATTACK2] = true,
-    [ACT_SPECIAL_ATTACK1] = true,
-    [ACT_SPECIAL_ATTACK2] = true,
-}
-
-
 function NPC:AITick_Slow()
     -- Update current danger
     self:InternalDetectDanger()
@@ -1793,6 +1781,12 @@ function NPC:RangeThreatened( threat )
 end
 
 
+local RangeAttackActs = {
+    [ACT_RANGE_ATTACK1] = true,
+    [ACT_RANGE_ATTACK2] = true,
+    [ACT_SPECIAL_ATTACK1] = true,
+    [ACT_SPECIAL_ATTACK2] = true,
+}
 function NPC:NewActivityDetected( act )
     local ene = self:GetEnemy()
 
@@ -2021,13 +2015,16 @@ function NPC:CurrentlyFollowingPlayer()
 end
 
 
-function NPC:StartFollowingPlayer( ply )
-    if !self:IsAlly(ply) then return end
-    if self:ZBaseDist(ply, {away=200}) then return end
+function NPC:StartFollowingPlayer( ply, dontSched, skipChecks )
+    if !skipChecks then
+        if !self:IsAlly(ply) then return end
+        if self:ZBaseDist(ply, {away=200}) then return end
+    end
 
     self:FullReset()
 
     self.PlayerToFollow = ply
+    self.ZBaseFollow_DontSchedule = dontSched
 
     net.Start("ZBaseSetFollowHalo")
     net.WriteEntity(self)
@@ -2043,19 +2040,22 @@ function NPC:StartFollowingPlayer( ply )
 end
 
 
-function NPC:StopFollowingCurrentPlayer( noSound )
+function NPC:StopFollowingCurrentPlayer( noSound, skipDistCheck )
     local ply = self.PlayerToFollow
 
-    if IsValid(ply) && self:ZBaseDist(ply, {away=200}) then
+    if !skipDistCheck && IsValid(ply) && self:ZBaseDist(ply, {away=200}) then
         return
     end
 
-    net.Start("ZBaseRemoveFollowHalo")
-    net.WriteEntity(self)
-    net.WriteString(self.Name)
-    net.Send(ply)
+    if IsValid(ply) then
+        net.Start("ZBaseRemoveFollowHalo")
+        net.WriteEntity(self)
+        net.WriteString(self.Name)
+        net.Send(ply)
+    end
 
     self.PlayerToFollow = NULL
+    self.ZBaseFollow_DontSchedule = nil
 
     if !noSound then
         self:EmitSound_Uninterupted(self.UnfollowPlayerSounds)
@@ -2067,6 +2067,7 @@ end
 
 function NPC:CanPursueFollowing()
     return IsValid(self.PlayerToFollow)
+    && !self.ZBaseFollow_DontSchedule
     && !self.DontUpdatePlayerFollowing
     && self:ZBaseDist(self.PlayerToFollow, {away=200})
     && !self:ZBWepSys_CanFireWeapon()
