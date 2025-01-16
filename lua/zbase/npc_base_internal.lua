@@ -1712,6 +1712,7 @@ function NPC:AITick_Slow()
 
     end
 
+    -- Cheap detection for moving
     self.ZBase_IsMoving = self:IsMoving() or nil
 
     -- Push blocking entities away
@@ -1742,6 +1743,20 @@ function NPC:AITick_Slow()
         if IsValid(blockingEnt) then
             self:MeleeAttack(blockingEnt)
             self.ZBase_LastBlockingEnt = nil
+        end
+
+    end
+
+    -- Make follow if in player squad
+    local engineFollow = self.Patch_UseEngineFollow && self:Patch_UseEngineFollow()
+    if engineFollow then
+
+        local squad = self:GetSquad()
+
+        if squad == "player_squad" then
+            self:StartFollowingPlayer(Entity(1), true, true, true)
+        else
+            self:StopFollowingCurrentPlayer(true, true)
         end
 
     end
@@ -2015,13 +2030,13 @@ function NPC:CurrentlyFollowingPlayer()
 end
 
 
-function NPC:StartFollowingPlayer( ply, dontSched, skipChecks )
+function NPC:StartFollowingPlayer( ply, dontSched, skipChecks, dontReset )
+    if self.PlayerToFollow == ply then return end
+
     if !skipChecks then
         if !self:IsAlly(ply) then return end
         if self:ZBaseDist(ply, {away=200}) then return end
     end
-
-    self:FullReset()
 
     self.PlayerToFollow = ply
     self.ZBaseFollow_DontSchedule = dontSched
@@ -2031,8 +2046,11 @@ function NPC:StartFollowingPlayer( ply, dontSched, skipChecks )
     net.WriteString(self.Name)
     net.Send(self.PlayerToFollow)
 
-    self:SetTarget(ply)
-    self:SetSchedule(SCHED_TARGET_FACE)
+    if !dontReset then
+        self:FullReset()
+        self:SetTarget(ply)
+        self:SetSchedule(SCHED_TARGET_FACE)
+    end
 
     self:EmitSound_Uninterupted(self.FollowPlayerSounds)
 
@@ -2041,17 +2059,17 @@ end
 
 
 function NPC:StopFollowingCurrentPlayer( noSound, skipDistCheck )
-    local ply = self.PlayerToFollow
-
-    if !skipDistCheck && IsValid(ply) && self:ZBaseDist(ply, {away=200}) then
+    if !IsValid(self.PlayerToFollow) then return end
+    
+    if !skipDistCheck && self:ZBaseDist(self.PlayerToFollow, {away=200}) then
         return
     end
 
-    if IsValid(ply) then
+    if IsValid(self.PlayerToFollow) then
         net.Start("ZBaseRemoveFollowHalo")
         net.WriteEntity(self)
         net.WriteString(self.Name)
-        net.Send(ply)
+        net.Send(self.PlayerToFollow)
     end
 
     self.PlayerToFollow = NULL

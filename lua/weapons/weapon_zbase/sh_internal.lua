@@ -477,7 +477,8 @@ function SWEP:TranslateActivity( act )
 		local meleeActOverride
 		if ( holdType=="passive" or holdType=="melee" or holdType=="melee2" ) then
 			if own:IsMoving() && own:GetNavType() == NAV_GROUND then
-				meleeActOverride = ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN ) or ACT_WALK
+				local shouldMeleeRun = (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT or IsValid(own.PlayerToFollow))
+				meleeActOverride = ( shouldMeleeRun && ACT_RUN ) or ACT_WALK
 			elseif act == ACT_IDLE_PISTOL or act == ACT_IDLE_RELAXED then
 				return ACT_IDLE
 			elseif act == ACT_IDLE_ANGRY_PISTOL or act == ACT_IDLE_ANGRY then

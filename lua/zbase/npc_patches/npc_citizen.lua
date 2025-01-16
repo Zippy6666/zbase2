@@ -10,9 +10,5 @@ ZBasePatchTable[my_cls] = function( NPC )
     function NPC:Patch_UseEngineFollow()
         return game.SinglePlayer() && CitFollowWithUse:GetBool()
     end
-    
-    function NPC:Patch_PreSpawn()
-        self:Fire("RemoveFromPlayerSquad")
-    end
-    
+
 end
