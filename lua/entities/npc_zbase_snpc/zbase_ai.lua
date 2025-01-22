@@ -1,4 +1,18 @@
 local AIDisabled = GetConVar("ai_disabled")
+local DeprecatedScheduleTranslation = {
+	CombatChase = "COMBAT_CHASE",
+	CombatChase_CantReach_CoverOrigin = "COMBAT_CHASE_FAIL_COVER_ORIGIN",
+	CombatChase_CantReach_CoverEnemy = "COMBAT_CHASE_FAIL_COVER_ENE",
+	CombatChase_CantReach_MoveRandom = "COMBAT_CHASE_FAIL_MOVE_RANDOM",
+	AerialChase_NoNav = "FLY_CHASE_NO_NAV",
+	AerialBackAway_NoNav = "FLY_AWAY_NO_NAV",
+	PursueAerialGoal = "FLY_TO_GOAL",
+	CombatFace = "COMBAT_FACE",
+	FaceLastPos = "FACE_LASTPOS",
+	BackAwayFromEnemy = "BACK_AWAY",
+	RunRandom = "RUN_RANDOM",
+	WalkRandom = "WALK_RANDOM"
+}
 
 
 function ENT:StartSchedule( sched )
@@ -25,8 +39,17 @@ function ENT:NewSched( newsched )
 	if isnumber(newsched) then
 		self:SetSchedule(newsched)
 	elseif isstring(newsched) then
+		newsched = DeprecatedScheduleTranslation[newsched] or newsched
 		self:StartSchedule(ZSched[newsched])
 	elseif istable(newsched) then
+		if isstring( newsched.DebugName ) then
+			local schedName = string.Replace(newsched.DebugName, "ZSched", "")
+			local deprecatedSchedTrans = DeprecatedScheduleTranslation[schedName]
+			if deprecatedSchedTrans then
+				newsched = ZSched[deprecatedSchedTrans]
+			end
+		end
+
 		self:StartSchedule(newsched)
 	end
 
@@ -49,7 +72,7 @@ function ENT:SelectSchedule( iNPCState )
 
 
 	-- Don't start chase if we are too close
-	if sched==ZSched.CombatChase && self:TooCloseForCombatChase() then
+	if (sched==ZSched.CombatChase or sched==ZSched.COMBAT_CHASE) && self:TooCloseForCombatChase() then
 		sched = self:SNPCChase_TooClose()
 	end
 
@@ -67,7 +90,12 @@ end
 
 -- Check if we are doing a certain ZSched, by name
 function ENT:IsCurrentZSched( sched )
-	return "ZSched"..sched == self:GetCurrentCustomSched()
+	local curCusSchd = self:GetCurrentCustomSched()
+	if "ZSched"..sched == curCusSchd
+	or "SCHED_ZBASE_"..(DeprecatedScheduleTranslation[sched] or "") == curCusSchd
+	or "SCHED_ZBASE_"..sched == curCusSchd then
+		return true
+	end
 end
 
 
@@ -216,35 +244,10 @@ function ENT:DoSchedule( schedule )
 end
 
 
-function ENT:DoNPCState()
-	local state = self:GetNPCState()
-	local ene = self:GetEnemy()
-
-
-	-- Aerial SNPCs are weird and need this, idfk what i did to cause this
-	if self.SNPCType==ZBASE_SNPCTYPE_FLY && state==NPC_STATE_NONE then
-		self:SetNPCState(NPC_STATE_IDLE)
-	end
-
-
-	-- When exiting combat, enter alert like all the other boies
-	if !IsValid(ene) && self.LastNPCState==NPC_STATE_COMBAT then
-		self:SetNPCState(NPC_STATE_ALERT)
-	end
-
-
-	self.LastNPCState = state
-end
-
-
 function ENT:RunAI( strExp )
 	if self.Dead or self.DoingPlayAnim then
 		return
 	end
-
-
-	-- Some essential stuff regarding NPC_STATE
-	self:DoNPCState()
 
 
 	-- Check if waypoint has been 0,0,0 for some time

@@ -14,7 +14,7 @@ ZSched = ZSched or {}
 local function SetupScheds()
     for k, func in pairs(ZSched) do
         if !isfunction(func) then continue end
-        local sched = ai_schedule.New( "SCHED_ZBASE_"..k )
+        local sched = ai_schedule.New( "ZSched"..k )
         
         func( ZSched, sched )
         ZSched[k] = sched
@@ -28,27 +28,27 @@ end
 ======================================================================================================================================================
 --]]
 
- 
-function ZSched:COMBAT_CHASE( sched )
+
+function ZSched:CombatChase( sched )
     sched:EngTask( "TASK_GET_PATH_TO_ENEMY",  0 )
     sched:EngTask( "TASK_RUN_PATH",  0 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
 end
 
 
-function ZSched:COMBAT_CHASE_FAIL_COVER_ORIGIN( sched )
+function ZSched:CombatChase_CantReach_CoverOrigin( sched )
     sched:EngTask( "TASK_FIND_COVER_FROM_ORIGIN",  0 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
 end
 
 
-function ZSched:COMBAT_CHASE_FAIL_COVER_ENE( sched )
+function ZSched:CombatChase_CantReach_CoverEnemy( sched )
     sched:EngTask( "TASK_FIND_NODE_COVER_FROM_ENEMY",  0 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
 end
 
 
-function ZSched:COMBAT_CHASE_FAIL_MOVE_RANDOM( sched )
+function ZSched:CombatChase_CantReach_MoveRandom( sched )
     sched:EngTask( "TASK_GET_PATH_TO_RANDOM_NODE",  512 )
     sched:EngTask( "TASK_RUN_PATH",  0 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
@@ -60,15 +60,15 @@ end
 ======================================================================================================================================================
 --]]
 
-function ZSched:FLY_CHASE_NO_NAV( sched )
+function ZSched:AerialChase_NoNav( sched )
     sched:EngTask( "TASK_WAIT",  3 )
 end
 
-function ZSched:FLY_AWAY_NO_NAV( sched )
+function ZSched:AerialBackAway_NoNav( sched )
     sched:EngTask( "TASK_WAIT",  3 )
 end
 
-function ZSched:FLY_TO_GOAL( sched )
+function ZSched:PursueAerialGoal( sched )
     sched:EngTask("TASK_WAIT_INDEFINITE", 0)
 end
 
@@ -79,31 +79,31 @@ end
 --]]
 
 
-function ZSched:COMBAT_FACE( sched )
+function ZSched:CombatFace( sched )
     sched:EngTask( "TASK_WAIT_FACE_ENEMY_RANDOM",  3 )
 end
 
 
-function ZSched:FACE_LASTPOS( sched )
+function ZSched:FaceLastPos( sched )
     sched:EngTask( "TASK_FACE_LASTPOSITION",  0 )
 end
 
 
-function ZSched:BACK_AWAY( sched )
+function ZSched:BackAwayFromEnemy( sched )
     sched:EngTask( "TASK_FIND_COVER_FROM_ENEMY",  0 )
     sched:EngTask( "TASK_RUN_PATH",  0 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
 end
 
 
-function ZSched:RUN_RANDOM( sched )
+function ZSched:RunRandom( sched )
     sched:EngTask( "TASK_GET_PATH_TO_RANDOM_NODE",  128 )
     sched:EngTask( "TASK_RUN_PATH",  1 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  1 )
 end
 
 
-function ZSched:WALK_RANDOM( sched )
+function ZSched:WalkRandom( sched )
     sched:EngTask( "TASK_GET_PATH_TO_RANDOM_NODE",  128 )
     sched:EngTask( "TASK_RUN_PATH",  1 )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  1 )

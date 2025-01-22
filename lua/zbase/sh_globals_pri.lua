@@ -114,6 +114,7 @@ function ZBaseEngineSchedName( sched )
     -- Might miss a few schedules
     -- Might be slightly inaccurate
     local schednames = {
+        [-1] = "No schedule",
         [5] = 'SCHED_ALERT_FACE', --	5	Idle stance and face ideal yaw angles.
         [6] = 'SCHED_ALERT_FACE_BESTSOUND', --	6
         [7] = 'SCHED_ALERT_REACT_TO_COMBAT_SOUND', --	7
@@ -213,7 +214,7 @@ end
 function ZBaseSchedDebug( ent )
     return ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched() )
     or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
-    or "schedule " ..tostring(ent:GetCurrentSchedule())
+    or "custom "..ent:GetClass().." schedule ("..tostring(ent:GetCurrentSchedule()..")")
 end
 
 

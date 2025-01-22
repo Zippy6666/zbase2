@@ -87,9 +87,9 @@ end
 
 
 function ENT:SetPursueAerialGoalSched()
-    self.CurrentSchedule = ZSched.PursueAerialGoal
+    self.CurrentSchedule = ZSched.FLY_TO_GOAL
     self.CurrentTaskID = 1
-    self:SetTask( ZSched.PursueAerialGoal:GetTask( 1 ) )
+    self:SetTask( ZSched.FLY_TO_GOAL:GetTask( 1 ) )
 end
 
 

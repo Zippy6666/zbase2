@@ -321,6 +321,7 @@ local function IncludeFiles()
     if SERVER then
 
         include("zbase/sv_schedules.lua")
+        include("zbase/sv_schedules_deprecated.lua")
         include("zbase/sv_meta_npc_extended.lua")
         include("zbase/sv_behaviour_system.lua")
         include("zbase/sv_spawnnpc.lua")

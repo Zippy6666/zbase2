@@ -332,7 +332,6 @@ if SERVER then
         end
 
         local hookID = "ZBaseMove:"..tostring(npc)
-        debugoverlay.Text(npc:WorldSpaceCenter()+npc:GetUp()*25, "Ending ZBaseMove '"..(identifier or "*any*").."'")
         hook.Remove("Tick", hookID)
         npc.ZBaseMove_ID = nil
     end

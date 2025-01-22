@@ -893,6 +893,7 @@ end
 
 
 local minSuppressDist = 350
+local minDistFromSuppressPointToEne = 1000^2
 function NPC:ZBWepSys_SuppressionThink()
     local ene = self:GetEnemy()
 
@@ -910,7 +911,9 @@ function NPC:ZBWepSys_SuppressionThink()
         if !IsValid(ene.ZBase_SuppressionBullseye) then 
             -- Create a new suppression point for this enemy if there is none
             local lastseenpos = self:GetEnemyLastSeenPos(ene)
-            self:ZBWepSys_CreateSuppressionPoint( lastseenpos, ene ) 
+            if lastseenpos:DistToSqr(ene:GetPos()) < minDistFromSuppressPointToEne then
+                self:ZBWepSys_CreateSuppressionPoint( lastseenpos, ene )
+            end
         end
 
         -- Can see enemy's current suppression point, start hating it and make it enemy to us
@@ -2532,23 +2535,22 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
 
     self:MultipleRangeAttacks()
 
+    if self:PreventRangeAttack() then return false end
+
     local ene = self:GetEnemy()
     local seeEnemy = self.EnemyVisible -- IsValid(ene) && self:Visible(ene)
     local trgtPos = self:Projectile_TargetPos()
     
-    if !self:VisibleVec(trgtPos) then return false end -- Can't see target position
-    if !self:ZBaseDist(trgtPos, {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end -- Not in distance
-    if !self.RangeAttackSuppressEnemy && !seeEnemy then return false end -- Suppress disabled, and enemy not visible
-
     if self.RangeAttackSuppressEnemy then
         local result = self:ZBWepSys_SuppressionThink()
         if result == false then
             return false
         end
     end
-
-    if self:PreventRangeAttack() then return false end
-
+    if !seeEnemy then return false end
+    if !self:VisibleVec(trgtPos) then return false end -- Can't see target position
+    if !self:ZBaseDist(trgtPos, {away=self.RangeAttackDistance[1], within=self.RangeAttackDistance[2]}) then return false end -- Not in distance
+    
     return true
 end
 
