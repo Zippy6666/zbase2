@@ -2172,7 +2172,7 @@ end
 
     // Call allies outside of squad for help
 
-NPCB.FactionCallForHelp = {MustHaveEnemy = true}
+NPCB.FactionCallForHelp = {}
 
 
 function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
@@ -2191,33 +2191,43 @@ function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
 end
 
 
+local callForHelpHint = SOUND_BUGBAIT
 function NPCB.FactionCallForHelp:Run( self )
-    local callForHelpDist = self.AlertAlliesDistance or self.CallForHelpDistance
-    local ally = self:GetNearestAlly(callForHelpDist)
+    local hintDuration = math.Rand(2, 3.5)
+    local loudestCallForHelpHint = sound.GetLoudestSoundHint(callForHelpHint, self:GetPos())
+    local ene = self:GetEnemy()
+    local hasEne = IsValid(ene)
 
-    if IsValid(ally) then
-        local ene = self:GetEnemy()
-        local canBeCalledForHelp = ally.CanBeAlertedByAlly or ally.CanBeCalledForHelp
+    if !hasEne && istable(loudestCallForHelpHint) && loudestCallForHelpHint.owner != self then
+        -- Check if someone calls me for help
 
-        if IsValid(ally) && ally:IsNPC() && !IsValid(ally:GetEnemy()) && !ally:HasEnemyEluded(ene) && self:GetSquad()!=ally:GetSquad() then
-            ally:UpdateEnemyMemory(ene, self:GetEnemyLastSeenPos())
-            ally:AlertSound()
+        local hintOwn = loudestCallForHelpHint.owner
+        local hintOwnCanBeCalledForHelp = hintOwn.CanBeAlertedByAlly or hintOwnhintOwn.CanBeCalledForHelp
 
-            if self.OnCallForHelp then
-                self:OnCallForHelp(ally) -- Backwards compatability
-            elseif self.OnAlertAllies then
-                self:OnAlertAllies(ally)
+        if IsValid(hintOwn) && hintOwnCanBeCalledForHelp && self:Disposition(hintOwn) == D_LI then
+            local hintOwnEne = hintOwn:GetEnemy()
+
+            if IsValid(hintOwnEne) then
+                self:UpdateEnemyMemory(hintOwnEne, hintOwnEne:GetPos())
+                self:AlertSound()
+                
+                conv.overlay("Text", function()
+                    local pos = self:GetPos()+self:GetUp()*25
+                    return {pos, "Was called by "..(hintOwn.Name or hintOwn:GetClass()).." ("..hintOwn:EntIndex()..")", 2}
+                end)
             end
+        end
+    elseif hasEne then
+        -- Call for help
 
-            conv.overlay("Text", function()
-                local pos = self:GetPos()+self:GetUp()*25
-                return {pos, "Was called by ally.", 2}
-            end)
+        local eneLastKnownPos = self:GetEnemyLastKnownPos()
 
+        if isvector(eneLastKnownPos) && !eneLastKnownPos:IsZero() then
+            sound.EmitHint(callForHelpHint, eneLastKnownPos, self.AlertAlliesDistance, hintDuration, self)
         end
     end
 
-    ZBaseDelayBehaviour(math.Rand(2, 3.5))
+    ZBaseDelayBehaviour(hintDuration)
 end
 
 
