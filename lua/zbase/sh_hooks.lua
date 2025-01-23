@@ -802,6 +802,18 @@ hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
 end)
 
 
+if SERVER then
+    concommand.Add("zbase_resetsettings", function(ply)
+        if IsValid(ply) && ply:IsPlayer() && !ply:IsSuperAdmin() then return end
+
+        for k, v in pairs(ZBCVAR or {}) do
+            if !v.Revert then continue end -- Not a cvar?
+            v:Revert()
+        end
+    end)
+end
+
+
 --[[
 ======================================================================================================================================================
                                            DEATH STUFF

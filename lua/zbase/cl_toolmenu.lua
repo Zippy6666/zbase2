@@ -64,6 +64,16 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox("Armor Sparks", "zbase_armor_sparks")
         panel:Help("Should armor hits cause sparks?")
+
+        local resetBtn = panel:Button("Reset All Settings", "zbase_resetsettings")
+        resetBtn.DoClick = function()
+            for k, v in pairs(ZBCVAR or {}) do
+                if !v.Revert then continue end
+                if !v.GetFlags then continue end
+                if bit.band(v:GetFlags(), FCVAR_REPLICATED) == FCVAR_REPLICATED then continue end
+                v:Revert()
+            end
+        end
     end)
 
     --[[
@@ -90,6 +100,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox( "Call for Help", "zbase_callforhelp" )
         panel:Help("Enable base call for help system. Lets NPCs call allies outside of its squad for help.")
+
+        panel:CheckBox( "Set Squad", "zbase_autosquad" )
+        panel:Help("Puts the NPC in a squad with the same name as its faction on spawn.")
 
         panel:CheckBox("Follow Players", "zbase_followplayers")
         panel:Help("If enabled, ZBase NPCs will follow allied players when the use key is pressed on them.")

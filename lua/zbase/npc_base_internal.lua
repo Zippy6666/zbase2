@@ -28,6 +28,8 @@ function NPC:PreSpawn()
         self:Patch_PreSpawn()
     end
 
+    self.DontAutoSetSquad = self.DontAutoSetSquad or !ZBCVAR.AutoSquad:GetBool()
+
     self:CustomPreSpawn()
 end
 
@@ -140,7 +142,7 @@ function NPC:Init2Ticks()
     self:InitCap()
 
     -- Set squad
-    if !self.DontAutoSquad then
+    if !self.DontAutoSetSquad then
         local function SetSquad()
             if !IsValid(self) then return end
             self:SetSquad(self.ZBaseFaction)
@@ -380,7 +382,7 @@ function NPC:ZBaseThink()
 
         -- Slow think, for performance
         if self.NPCNextSlowThink < CurTime() then
-            self:DoSlowThink()
+            self:AITick_Slow()
             self.NPCNextSlowThink = CurTime()+0.4
         end
 
@@ -472,22 +474,6 @@ function NPC:ZBaseThink()
 
     -- Custom think
     self:CustomThink()
-end
-
-
-function NPC:DoSlowThink()
-    -- Remove squad if faction is 'none'
-    if self.ZBaseFaction == "none" && self:SquadName()!="" then
-        self:SetSquad("")
-    end
-
-    -- Config weapon proficiency
-    if self:GetCurrentWeaponProficiency() != self.WeaponProficiency then
-        self:SetCurrentWeaponProficiency(self.WeaponProficiency)
-        debugoverlay.Text(self:GetPos(), "ZBASE NPC's weapon proficiency set to its 'self.WeaponProficiency'", 0.5)
-    end
-
-    self:AITick_Slow()
 end
 
 
@@ -1678,6 +1664,24 @@ end
 
 
 function NPC:AITick_Slow()
+    local squad = self:GetSquad()
+
+    -- Remove squad if faction is 'none'
+    if self.ZBaseFaction == "none" && isstring(squad) && squad!="" then
+        self:SetSquad("")
+    end
+
+    if self.ZBase_LastSquad != squad then
+        self.ZBase_LastSquad = squad
+        debugoverlay.Text(self:WorldSpaceCenter(), "new squad: '"..tostring(squad).."'", 3)
+    end
+
+    -- Config weapon proficiency
+    if self:GetCurrentWeaponProficiency() != self.WeaponProficiency then
+        self:SetCurrentWeaponProficiency(self.WeaponProficiency)
+        debugoverlay.Text(self:GetPos(), "ZBASE NPC's weapon proficiency set to its 'self.WeaponProficiency'", 0.5)
+    end
+
     -- Update current danger
     self:InternalDetectDanger()
 
@@ -2216,7 +2220,7 @@ function NPCB.FactionCallForHelp:Run( self )
                 
                 conv.overlay("Text", function()
                     local pos = self:GetPos()+self:GetUp()*25
-                    return {pos, "Was called by "..(hintOwn.Name or hintOwn:GetClass()).." ("..hintOwn:EntIndex()..")", 2}
+                    return {pos, "Was called by "..(hintOwn.Name or hintOwn:GetClass()).." ("..hintOwn:EntIndex()..") using SOUND_BUGBAIT", 2}
                 end)
             end
         end
