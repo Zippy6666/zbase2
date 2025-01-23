@@ -65,13 +65,16 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox("Armor Sparks", "zbase_armor_sparks")
         panel:Help("Should armor hits cause sparks?")
 
-        local resetBtn = panel:Button("Reset All Settings", "zbase_resetsettings")
+        local resetBtn = panel:Button("Reset All Settings")
         resetBtn.DoClick = function()
             for k, v in pairs(ZBCVAR or {}) do
                 if !v.Revert then continue end
                 if !v.GetFlags then continue end
                 if bit.band(v:GetFlags(), FCVAR_REPLICATED) == FCVAR_REPLICATED then continue end
                 v:Revert()
+            end
+            if LocalPlayer():IsSuperAdmin() then
+                RunConsoleCommand("zbase_resetsettings")
             end
         end
     end)
