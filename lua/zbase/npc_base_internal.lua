@@ -55,6 +55,11 @@ function NPC:ZBaseInit()
     self.PlayerToFollow = NULL
     self.GuardSpot = self:GetPos()
     self.InternalCurrentVoiceSoundDuration = 0
+
+    self.ZBase_ExpectedSightDist = (self.SightDistance == ZBASE_DEFAULT_SIGHT_DIST or ZBCVAR.SightDistOverride:GetBool())
+    && ZBCVAR.SightDist:GetInt()
+    or self.SightDistance
+    
     self:InitGrenades()
     self:InitSounds()
 
@@ -128,13 +133,11 @@ end
 
 function NPC:Init2Ticks()
     -- FOV and sight dist
+
     self.FieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
     self:SetSaveValue( "m_flFieldOfView", self.FieldOfView )
-    self:SetMaxLookDistance(
-        (self.SightDistance == ZBASE_DEFAULT_SIGHT_DIST or ZBCVAR.SightDistOverride:GetBool())
-        && ZBCVAR.SightDist:GetInt()
-        or self.SightDistance
-    )
+
+    self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
 
     -- Phys damage scale
     self:Fire("physdamagescale", self.PhysDamageScale)
@@ -1218,8 +1221,8 @@ function NPC:ZBWepSys_Think()
     if !IsValid(Weapon) then
 
         -- Reset sight distance to its default
-        if self:GetMaxLookDistance()!=self.SightDistance then
-            self:SetMaxLookDistance(self.SightDistance)
+        if self:GetMaxLookDistance()!=self.ZBase_ExpectedSightDist then
+            self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
         end
 
         return -- Stop here
@@ -1252,8 +1255,8 @@ function NPC:ZBWepSys_Think()
 
             self:SetMaxLookDistance(maxShootDist)
 
-        elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.SightDistance then
-            self:SetMaxLookDistance(self.SightDistance)
+        elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.ZBase_ExpectedSightDist then
+            self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
         end
 
     end
@@ -1663,6 +1666,7 @@ function NPC:LUAAnimEventThink()
 end
 
 
+-- Tags: TickSlow, SlowTick
 function NPC:AITick_Slow()
     local squad = self:GetSquad()
 
@@ -1671,9 +1675,17 @@ function NPC:AITick_Slow()
         self:SetSquad("")
     end
 
+    -- Debug squad
     if self.ZBase_LastSquad != squad then
         self.ZBase_LastSquad = squad
         debugoverlay.Text(self:WorldSpaceCenter(), "new squad: '"..tostring(squad).."'", 3)
+    end
+
+    -- Debug sight distance
+    local sightdist = self:GetMaxLookDistance()
+    if self.ZBase_LastSightDist != sightdist then
+        conv.overlay("Text", function() return {self:WorldSpaceCenter()+self:GetUp()*20, "new sight dist: '"..sightdist.."'", 3} end)
+        self.ZBase_LastSightDist = sightdist
     end
 
     -- Config weapon proficiency

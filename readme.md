@@ -29,4 +29,4 @@
 - [ ] Add ZBase bullseye
 - [ ] Add ZBase god mode?
 - [ ] Finish ZBase debugger
-- [ ] Fix sight distance issue with weapons
+- [x] Fix sight distance issue with weapons
