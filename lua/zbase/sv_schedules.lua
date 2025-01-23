@@ -54,6 +54,12 @@ function ZSched:COMBAT_CHASE_FAIL_MOVE_RANDOM( sched )
     sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
 end
 
+function ZSched:ESTABLISH_LINE_OF_FIRE( sched )
+    sched:EngTask( "TASK_GET_FLANK_RADIUS_PATH_TO_ENEMY_LOS",  512 )
+    sched:EngTask( "TASK_RUN_PATH",  0 )
+    sched:EngTask( "TASK_WAIT_FOR_MOVEMENT",  0 )
+end
+
 --[[
 ======================================================================================================================================================
                                            AERIAL

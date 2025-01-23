@@ -135,24 +135,34 @@ function ENT:GetBetterSchedule()
 
 		self:RememberUnreachable( enemy, 4 )
 	
-
 		if self.EnemyVisible then
 
 			if self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_HIDE then
 
+				print("WHY AM I DOING THIS NOW")
 				return (math.random(1, 2) == 1 && "CombatChase_CantReach_CoverOrigin")
 				or "CombatChase_CantReach_CoverEnemy"
 
 			elseif self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_FACE then
 
 				return "CombatFace"
+		
+			elseif self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_GO_NEAR then
+
+				self:SetSaveValue("m_vSavePosition", enemy:GetPos())
+				return "ESTABLISH_LINE_OF_FIRE"
 
 			end
 
 		else
 
-			-- Patrol if enemy is not visible
-			return SCHED_COMBAT_PATROL
+			if self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_GO_NEAR then
+
+				self:SetSaveValue("m_vSavePosition", enemy:GetPos())
+				return "ESTABLISH_LINE_OF_FIRE"
+
+			end
+			return SCHED_COMBAT_PATROL -- Patrol if enemy is not visible
 
 		end
 

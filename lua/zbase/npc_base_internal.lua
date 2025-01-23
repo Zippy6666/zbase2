@@ -1675,19 +1675,6 @@ function NPC:AITick_Slow()
         self:SetSquad("")
     end
 
-    -- Debug squad
-    if self.ZBase_LastSquad != squad then
-        self.ZBase_LastSquad = squad
-        debugoverlay.Text(self:WorldSpaceCenter(), "new squad: '"..tostring(squad).."'", 3)
-    end
-
-    -- Debug sight distance
-    local sightdist = self:GetMaxLookDistance()
-    if self.ZBase_LastSightDist != sightdist then
-        conv.overlay("Text", function() return {self:WorldSpaceCenter()+self:GetUp()*20, "new sight dist: '"..sightdist.."'", 3} end)
-        self.ZBase_LastSightDist = sightdist
-    end
-
     -- Config weapon proficiency
     if self:GetCurrentWeaponProficiency() != self.WeaponProficiency then
         self:SetCurrentWeaponProficiency(self.WeaponProficiency)
@@ -1751,8 +1738,6 @@ function NPC:AITick_Slow()
                     break
                 end
             end
-
-            debugoverlay.Box(mypos, mins, maxs, 2, Color(0,0,0,75))
             
             self:CONV_TempVar("ShouldNotManualCheckBlockingEnt", true, 2)
         end
@@ -2161,22 +2146,10 @@ function NPCB.Patrol:Run( self )
 
     if IsValid(self.PlayerToFollow) then
         self:SetSchedule(SCHED_ALERT_SCAN)
-
-        conv.overlay("Text", function()
-            return {self:GetPos(), "SCHED_ALERT_SCAN as patrol.", 2}
-        end)
     elseif IsAlert then
         self:SetSchedule(SCHED_PATROL_RUN)
-
-        conv.overlay("Text", function()
-            return {self:GetPos(), "Alert patrol.", 2}
-        end)
     else
         self:SetSchedule(SCHED_PATROL_WALK)
-
-        conv.overlay("Text", function()
-            return {self:GetPos(), "Patrol.", 2}
-        end)
     end
 
     ZBaseDelayBehaviour(IsAlert && math.random(3, 6) or math.random(8, 15))
@@ -2232,7 +2205,7 @@ function NPCB.FactionCallForHelp:Run( self )
                 
                 conv.overlay("Text", function()
                     local pos = self:GetPos()+self:GetUp()*25
-                    return {pos, "Was called by "..(hintOwn.Name or hintOwn:GetClass()).." ("..hintOwn:EntIndex()..") using SOUND_BUGBAIT", 2}
+                    return {pos, "Was from SOUND_BUGBAIT by "..(hintOwn.Name or hintOwn:GetClass()).." ("..hintOwn:EntIndex()..")", 2}
                 end)
             end
         end
