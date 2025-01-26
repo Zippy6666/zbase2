@@ -138,8 +138,7 @@ function ENT:GetBetterSchedule()
 		if self.EnemyVisible then
 
 			if self.CantReachEnemyBehaviour == ZBASE_CANTREACHENEMY_HIDE then
-
-				print("WHY AM I DOING THIS NOW")
+	
 				return (math.random(1, 2) == 1 && "CombatChase_CantReach_CoverOrigin")
 				or "CombatChase_CantReach_CoverEnemy"
 

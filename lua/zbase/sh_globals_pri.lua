@@ -1,5 +1,7 @@
 // You probably don't want to use these globals
 
+ZBASE_CANTREACHENEMY_GO_NEAR = 3
+
 ZBaseFactionTranslation = SERVER && {
     [CLASS_COMBINE_GUNSHIP] = "combine",
     [CLASS_MANHACK] = "combine",

@@ -1667,6 +1667,13 @@ end
 
 
 -- Tags: TickSlow, SlowTick
+local blockingColTypes = {
+    [COLLISION_GROUP_NONE] = true,
+    [COLLISION_GROUP_INTERACTIVE_DEBRIS] = true,
+    [COLLISION_GROUP_INTERACTIVE] = true,
+    [COLLISION_GROUP_VEHICLE] = true,
+    [COLLISION_GROUP_WORLD] = true,
+}
 function NPC:AITick_Slow()
     local squad = self:GetSquad()
 
@@ -1732,8 +1739,8 @@ function NPC:AITick_Slow()
             for _, ent in ipairs( ents.FindInBox(mypos+mins, mypos+maxs) ) do
                 if ent == self then continue end
 
-                if ent:IsSolid() && ent:GetMoveType() == MOVETYPE_VPHYSICS then
-                    conv.devPrint("Manually found blocking ent", ent)
+                if ent:IsSolid() && ent:GetMoveType() == MOVETYPE_VPHYSICS && blockingColTypes[ent:GetCollisionGroup()] then
+                    conv.devPrint("Manually found blocking ent ", ent, " ", ent:GetCollisionGroup())
                     self.ZBase_LastBlockingEnt = ent
                     break
                 end
@@ -1745,6 +1752,7 @@ function NPC:AITick_Slow()
         local blockingEnt = self.ZBase_LastBlockingEnt or self:GetBlockingEntity()
 
         if IsValid(blockingEnt) then
+            self:MultipleMeleeAttacks()
             self:MeleeAttack(blockingEnt)
             self.ZBase_LastBlockingEnt = nil
         end
