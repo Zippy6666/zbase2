@@ -2191,7 +2191,7 @@ function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
 end
 
 
-local callForHelpHint = SOUND_BUGBAIT
+local callForHelpHint = SOUND_COMBAT
 function NPCB.FactionCallForHelp:Run( self )
     local hintDuration = math.Rand(2, 3.5)
     local loudestCallForHelpHint = sound.GetLoudestSoundHint(callForHelpHint, self:GetPos())
@@ -2213,7 +2213,7 @@ function NPCB.FactionCallForHelp:Run( self )
                 
                 conv.overlay("Text", function()
                     local pos = self:GetPos()+self:GetUp()*25
-                    return {pos, "Was from SOUND_BUGBAIT by "..(hintOwn.Name or hintOwn:GetClass()).." ("..hintOwn:EntIndex()..")", 2}
+                    return {pos, "Was from SOUND_COMBAT by "..(hintOwn.Name or hintOwn:GetClass()).." ("..hintOwn:EntIndex()..")", 2}
                 end)
             end
         end
