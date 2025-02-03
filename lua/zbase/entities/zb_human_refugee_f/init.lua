@@ -11,6 +11,8 @@ NPC.OnRangeSounds = "ZBaseFemale.Melee"
 NPC.OnGrenadeSounds = "ZBaseFemale.Grenade" -- Sounds emitted when the NPC throws a grenade
 
 
+NPC.AllyDeathSounds = "ZBaseFemale.AllyDeath"
+
 -- Dialogue sounds
 -- The NPCs will face each other as if they are talking
 NPC.Dialogue_Question_Sounds = "ZBaseFemale.Question" -- Dialogue questions, emitted when the NPC starts talking to another NPC
@@ -20,6 +22,7 @@ NPC.Dialogue_Answer_Sounds = "ZBaseFemale.Answer" -- Dialogue answers, emitted w
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = "ZBaseFemale.HearSound"
+
 
 NPC.FollowPlayerSounds = "ZBaseFemale.Follow" -- Sounds emitted when the NPC starts following a player
 NPC.UnfollowPlayerSounds = "ZBaseFemale.Unfollow" -- Sounds emitted when the NPC stops following a player

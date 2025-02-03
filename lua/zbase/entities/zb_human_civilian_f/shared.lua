@@ -14,8 +14,6 @@ NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_human_civilian" -- Inherit features from any existing zbase npc
 
 
-
-
 ZBaseCreateVoiceSounds("ZBaseFemale.Alert", {
     "vo/npc/female01/headsup01.wav",
     "vo/npc/female01/headsup02.wav",
