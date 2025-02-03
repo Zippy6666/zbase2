@@ -2202,7 +2202,7 @@ function NPCB.FactionCallForHelp:Run( self )
         -- Check if someone calls me for help
 
         local hintOwn = loudestCallForHelpHint.owner
-        local hintOwnCanBeCalledForHelp = hintOwn.CanBeAlertedByAlly or hintOwnhintOwn.CanBeCalledForHelp
+        local hintOwnCanBeCalledForHelp = hintOwn.CanBeAlertedByAlly or hintOwn.CanBeCalledForHelp
 
         if IsValid(hintOwn) && hintOwnCanBeCalledForHelp && self:Disposition(hintOwn) == D_LI then
             local hintOwnEne = hintOwn:GetEnemy()
