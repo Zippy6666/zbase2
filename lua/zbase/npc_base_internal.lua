@@ -1666,7 +1666,7 @@ function NPC:LUAAnimEventThink()
 end
 
 
--- Tags: TickSlow, SlowTick
+-- Tags: TickSlow, SlowTick, SlowThink, Slow Think
 local blockingColTypes = {
     [COLLISION_GROUP_NONE] = true,
     [COLLISION_GROUP_INTERACTIVE_DEBRIS] = true,
@@ -1757,6 +1757,18 @@ function NPC:AITick_Slow()
             self.ZBase_LastBlockingEnt = nil
         end
 
+    end
+
+    -- Some prop doors normally won't open for NPCs
+    -- Force open those doors
+    if self.ZBase_IsMoving && self:CONV_HasCapability(CAP_OPEN_DOORS) then
+        local vel = self:GetMoveVelocity()
+        local wspacecenter = self:WorldSpaceCenter()
+        for _, ent in ipairs(ents.FindAlongRay(wspacecenter, wspacecenter+vel, vector_origin, vector_origin)) do
+            if ent:GetClass() == "prop_door_rotating" then
+                ent:Fire("Open")
+            end
+        end
     end
 
     -- Make follow if in player squad
