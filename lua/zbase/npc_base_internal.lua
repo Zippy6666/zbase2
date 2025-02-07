@@ -2725,8 +2725,6 @@ function NPC:OnEmitSound( data )
     local altered
     local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
 
-    print(data.OriginalSoundName)
-
     local isVoiceSound = ( isnumber(data.SentenceIndex) or data.Channel == CHAN_VOICE )
     && !self.EmittedSoundFromSentence -- Do not count as voice sound if emitted from sentence
 
