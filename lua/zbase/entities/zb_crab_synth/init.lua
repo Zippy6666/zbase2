@@ -345,7 +345,13 @@ function NPC:RangeAttackProjectile()
         Dir = (self.CurTargetPos - projStartPos):GetNormalized(),
         Src = projStartPos,
         Spread = Vector(self.RangeProjectile_Inaccuracy, self.RangeProjectile_Inaccuracy),
-        TracerName = "HelicopterTracer",
+        TracerName = "AirboatGunTracer",
+        Callback = function( _, data, dmginfo )
+            local effectdata = EffectData()
+            effectdata:SetOrigin(data.HitPos)
+            effectdata:SetNormal(data.HitNormal)
+            util.Effect("AR2Impact", effectdata, true, true)
+        end
     })
     --------------------------------------=#
 
@@ -353,7 +359,9 @@ function NPC:RangeAttackProjectile()
     local effectdata = EffectData()
     effectdata:SetEntity(self)
     effectdata:SetAttachment(1)
-    util.Effect("ChopperMuzzleFlash", effectdata, true, true)
+    util.Effect("AirboatMuzzleFlash", effectdata, true, true)
+
+    ZBaseMuzzleLight( projStartPos, .5, 256, "75 175 255" )
 end
 
 

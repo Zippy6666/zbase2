@@ -41,7 +41,7 @@ NPC.RangeAttackAnimationSpeed = 0.75 -- Speed multiplier for the range attack an
 
 -- Time until the projectile code is ran
 -- Set to false to disable the timer (if you want to use animation events instead for example)
-NPC.RangeProjectile_Delay = 1
+NPC.RangeProjectile_Delay = 0.8
 
 
 -- Attachment to spawn the projectile on 
@@ -86,6 +86,6 @@ function NPC:RangeAttackProjectile()
         proj_phys:SetVelocity(self:RangeAttackProjectileVelocity()+Vector(0, 0, 150))
     end
 
-    self:EmitSound("NPC_Antlion.RunOverByVehicle")
+    proj:EmitSound("NPC_Antlion.RunOverByVehicle")
 end
 

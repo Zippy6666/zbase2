@@ -20,11 +20,13 @@ NPC.SubMaterials = {
 
 
 local trailcol = Color(255,150,100)
---]]==============================================================================================]]
+
+
 function NPC:CustomInitialize()
 
 end
---]]==============================================================================================]]
+
+
 function NPC:CustomOnOwnedEntCreated( ent )
     if ent:GetClass() == "hunter_flechette" then
 
@@ -44,13 +46,17 @@ function NPC:CustomOnOwnedEntCreated( ent )
         effectdata:SetMagnitude(1)
         util.Effect("ChopperMuzzleFlash", effectdata, true, true)
 
+        ZBaseMuzzleLight( proj:GetPos(), .5, 256, "255 175 75" )
+
     end
 end
---]]==============================================================================================]]
+
+
 function NPC:DealDamage( dmginfo, ent )
     local infl = dmginfo:GetInflictor()
     if IsValid(infl) && infl:GetClass() == "crossbow_bolt" then
         dmginfo:SetDamage(10)
     end
 end
---]]==============================================================================================]]
+
+

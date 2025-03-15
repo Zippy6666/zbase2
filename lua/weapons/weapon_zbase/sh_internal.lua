@@ -191,18 +191,10 @@ function SWEP:NPCShootEffects()
 
 		if ZBCVAR.MuzzleLight:GetBool() then
 			local att = EffectEnt:GetAttachment(att_num)
-			local col = self.Primary.MuzzleFlashFlags==5 && "25 125 255" or "255 125 25"
-			local muzzleLight = ents.Create("light_dynamic")
-			muzzleLight:SetKeyValue("brightness", "1")
-			muzzleLight:SetKeyValue("distance", "250")
-			muzzleLight:SetPos(att.Pos)
-			muzzleLight:Fire("Color", col)
-			muzzleLight:Spawn()
-			muzzleLight:Activate()
-			muzzleLight:Fire("TurnOn", "", 0)
-			SafeRemoveEntityDelayed(muzzleLight, 0.1)
-		end
+			local col = self.Primary.MuzzleFlashFlags==5 && "75 175 255" or "255 175 75"
 
+			ZBaseMuzzleLight( att.Pos, .5, 256, col )
+		end
 	end
 	
 	-- Shell eject

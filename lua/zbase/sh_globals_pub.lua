@@ -114,7 +114,7 @@ function ZBaseAddGlowingEye(identifier, model, skin, bone, offset, scale, color)
 end
 
 
-    -- Changes a category's icon from that stupid blue monkey to whatever you like
+    -- Changes a category's icon to whatever you like
     -- Example:
     -- ZBaseSetCategoryIcon( "Combine", "icon16/female.png" )
     -- You probably want to run this in a hook like initialize
@@ -159,6 +159,36 @@ function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class, spawn_flags)
     end
 
 
+end
+
+
+    -- Emit a flash of light
+    -- 'col' needs to be a string
+    -- ZBase muzzle light option must be enabled!
+function ZBaseMuzzleLight( pos, bright, dist, col )
+    if !ZBCVAR.MuzzleLight:GetBool() then return end
+
+    local muzzleLight1 = ents.Create("env_projectedtexture")
+    local muzzleLight2 = ents.Create("env_projectedtexture")
+
+    if IsValid(muzzleLight1) && IsValid(muzzleLight2) then
+        bright = math.Rand(bright*0.1, bright)
+
+        for k, muzzleLight in ipairs({muzzleLight1, muzzleLight2}) do
+            local ang = k == 1 && Angle(0, 90, 0) or Angle(0, 270, 0)
+            muzzleLight:SetPos(pos)
+            muzzleLight:SetAngles(ang)
+            muzzleLight:SetKeyValue("enableshadows", 0)
+            muzzleLight:SetKeyValue("lightcolor", col) 
+            muzzleLight:SetKeyValue("farz", dist) 
+            muzzleLight:SetKeyValue("nearz", 1)
+            muzzleLight:SetKeyValue("lightfov", 179.99) 
+            muzzleLight:SetKeyValue("lightstrength", bright)
+            muzzleLight:Spawn()
+            muzzleLight:Activate()
+            SafeRemoveEntityDelayed(muzzleLight, 0.05)
+        end
+    end
 end
 
 
