@@ -27,9 +27,7 @@ end
 
 	-- Called when the SWEP should set up its Data Tables.
 function SWEP:SetupDataTables()
-
 	self:CustomSetupDataTables()
-
 end
 
 
@@ -39,9 +37,7 @@ end
 	-- This hook will be called before Player movement is processed on the client, and after on the server.
 	-- This will not be run during deploy animations after a serverside-only deploy. This usually happens after picking up and dropping an object with +use.
 function SWEP:Think()
-
 	self:CustomThink()
-
 end
 
 
@@ -52,18 +48,15 @@ end
 --]]
 
 
-
 function SWEP:PrimaryAttack()
-
 	local own = self:GetOwner()
+	if !IsValid(own) then return end
+	
 	local CanAttack = self:CanPrimaryAttack()
-
 
 	if own.IsZBaseNPC && !own.ZBWepSys_AllowShoot then return end -- muy imporante
 
-
 	if own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack && !self.NPCIsMeleeWep then
-
 
 		local bullet = {
 			Attacker = own,
@@ -77,24 +70,19 @@ function SWEP:PrimaryAttack()
 			TracerName = self.Primary.TracerName,
 			Num = self.Primary.NumShots,
 		}
-		self:FireBullets(bullet)
-
+		own:FireBullets(bullet)
 
 		if !self.IsZBaseNPC && self.Primary.TakeAmmoPerShot > 0 then
 			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
 		end
 
-
 		self:NPCShootEffects()
 	
-
 		-- Sound
 		self:EmitSound(self.PrimaryShootSound)
 
 	elseif own:IsPlayer() && self:OnPrimaryAttack()!=true && CanAttack then
-
 	end
-
 end
  
 
