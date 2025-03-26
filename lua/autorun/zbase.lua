@@ -549,6 +549,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             BodyGroups = BodyGroups,
             StartHealth = t.StartHealth,
             Material = t.Material,
+            Author=t.Author,
             IconOverride = "entities/"..cls..".png",
         }
         ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu

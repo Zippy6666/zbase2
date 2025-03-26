@@ -56,6 +56,10 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 		menu:Open()
 	end
 
+	if obj.tblMisc then
+		PrintTable(obj.tblMisc)
+		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.Class .. "'\nAuthor: " .. (obj.tblMisc.Author))
+	end
 
 	if ( IsValid( container ) ) then
 		container:Add( icon )
@@ -64,7 +68,6 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 
 	return icon
 end)
-
 
 
 local function GiveIconsToNode( pnlContent, tree, node, categories )
@@ -96,7 +99,8 @@ local function GiveIconsToNode( pnlContent, tree, node, categories )
 					spawnname	= name,
 					material	= mat,
 					weapon		= ent.Weapons,
-					admin		= ent.AdminOnly
+					admin		= ent.AdminOnly,
+					tblMisc		= ent
 				} )
 			end
 		
