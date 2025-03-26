@@ -1949,6 +1949,7 @@ end
 local UNKNOWN_DAMAGE_DIST = 1000^2
 function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     local attacker = dmg:GetAttacker()
+    local ene = self:GetEnemy()
 
     self:CONV_TempVar("ZBase_InDanger", true, 5)
     ZBaseUpdateGuard(self)
@@ -1980,17 +1981,25 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     elseif !self.DontTakeCoverOnHurt then
         -- Take cover stuff
 
-        local hasEne = IsValid(self:GetEnemy())
+        local hasEne = IsValid(ene)
+
         if !hasEne && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
         && self:Disposition(attacker) != D_LI && self:GetPos():DistToSqr(attacker:GetPos()) >= UNKNOWN_DAMAGE_DIST then
             -- Become alert and try to hide when hurt by unknown source
             self:SetNPCState(NPC_STATE_ALERT)
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
+
         elseif hasEne && IsValid(wep) then
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
         end
+    end
+
+    if !IsValid(ene) && IsValid(attacker) && self.IsInViewCone && self:IsInViewCone(attacker) && self:Visible(attacker) then
+        self:SetNPCState(NPC_STATE_COMBAT)
+        self:SetEnemy(attacker)
+        self:UpdateEnemyMemory(attacker, attacker:GetPos())
     end
 end
 
