@@ -585,8 +585,12 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             RegularSpawnMenuTable.Category = newcat or cat
 
             local clsname = "zbase_"..cls
-            if ZBCVAR.Replace:GetBool() && ZBASE_MENU_REPLACEMENTS[cls] then
-                clsname = ZBASE_MENU_REPLACEMENTS[cls]
+            if ZBASE_MENU_REPLACEMENTS[cls] then
+                RegularSpawnMenuTable.Name = "[ZBASE] " .. RegularSpawnMenuTable.Name
+
+                if ZBCVAR.Replace:GetBool() then
+                    clsname = ZBASE_MENU_REPLACEMENTS[cls]
+                end
             end
 
             list.Set("NPC", clsname, RegularSpawnMenuTable) -- Add to regular spawn menu
