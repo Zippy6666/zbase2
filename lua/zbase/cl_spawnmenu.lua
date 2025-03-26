@@ -57,7 +57,6 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	end
 
 	if obj.tblMisc then
-		PrintTable(obj.tblMisc)
 		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.Class .. "'\nAuthor: " .. (obj.tblMisc.Author))
 	end
 

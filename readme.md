@@ -27,5 +27,3 @@
 #### TODO:
 - [ ] Fix subtitles when citizen follows player
 - [ ] Fix issue with combines (and other?) not reloading weapons at times
-- [ ] Assess ZBase weapon primary attack code
-- [x] Add author thingy to the spawn menu icon tooltips
