@@ -26,7 +26,6 @@
 
 #### TODO:
 - [ ] Fix subtitles when citizen follows player
-- [ ] Add ZBase bullseye
-- [ ] Add ZBase god mode?
-- [ ] Finish ZBase debugger
-- [x] Fix sight distance issue with weapons
+- [ ] Fix issue with combines (and other?) not reloading weapons at times
+- [ ] Assess ZBase weapon primary attack code
+- [ ] Add author thingy to the spawn menu icon tooltips

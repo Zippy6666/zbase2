@@ -524,9 +524,7 @@ function NPC:DecideRelationship( myFaction, ent )
     -- Ent is VJ SNPC
     if ent.IsVJBaseSNPC then
         -- Give VJ SNPC a table of ZBase factions that are equal to its VJ classes
-        -- TODO: This is not enough, since VJ Base forces relationships on time intervals
-        -- Work around that somehow
-
+        
         ent.VJ_ZBaseFactions = {}
         for _, vjclass in pairs(ent.VJ_NPC_Class) do
             if !isstring(vjclass) then continue end
