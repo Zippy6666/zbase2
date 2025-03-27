@@ -53,13 +53,13 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 			RunConsoleCommand( "creator_name", obj.spawnname ) RunConsoleCommand( "creator_arg", override == "" && table.Random(obj.weapon) or override )
 		end ):SetIcon( "icon16/brick_add.png" )
 
-		menu:AddOption( "Create Spawner", function()
-		end ):SetIcon( GenericIcon )
+		-- menu:AddOption( "Create Spawner", function()
+		-- end ):SetIcon( GenericIcon )
 
 		menu:Open()
 	end
 
-	if obj.tblMisc then
+	if istable(obj.tblMisc) && isstring(obj.tblMisc.Class) && isstring(obj.tblMisc.Author) then
 		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.Class .. "'\nAuthor: " .. (obj.tblMisc.Author))
 	end
 
