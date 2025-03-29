@@ -597,6 +597,9 @@ function NPC:ZBWepSys_Reload()
 
     local wep = self:GetActiveWeapon()
 
+    local maxammo = wep.Primary.DefaultClip
+    if maxammo == nil then return end -- No max ammo?? Well then don't bother reloading
+
     -- Reload announce sound
     if math.random(1, self.OnReloadSound_Chance) == 1 then
         self:EmitSound_Uninterupted(self.OnReloadSounds)
@@ -609,11 +612,11 @@ function NPC:ZBWepSys_Reload()
 
     -- Refill ammo
     timer.Create("ZBaseReloadWeapon"..self:EntIndex(), self:SequenceDuration()*0.8 / self:GetPlaybackRate(), 1, function()
-        if !IsValid(self) or !IsValid(self:GetActiveWeapon()) then return end
+        if !IsValid(self) or !IsValid(wep) then return end
 
         local CurrentStrAct = self:GetSequenceActivityName( self:GetSequence() )
 
-        self.ZBWepSys_PrimaryAmmo = self:GetActiveWeapon().Primary.DefaultClip
+        self.ZBWepSys_PrimaryAmmo = maxammo
 
         self:ClearCondition(COND.LOW_PRIMARY_AMMO)
         self:ClearCondition(COND.NO_PRIMARY_AMMO)
