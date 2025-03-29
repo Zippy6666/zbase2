@@ -53,8 +53,20 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 			RunConsoleCommand( "creator_name", obj.spawnname ) RunConsoleCommand( "creator_arg", override == "" && table.Random(obj.weapon) or override )
 		end ):SetIcon( "icon16/brick_add.png" )
 
-		-- menu:AddOption( "Create Spawner", function()
-		-- end ):SetIcon( GenericIcon )
+		if LocalPlayer():IsSuperAdmin() then
+			menu:AddOption( "Create Spawner", function()
+				
+				local tr = LocalPlayer():GetEyeTrace()
+
+				conv.devPrint(obj.spawnname)
+				
+				net.Start("ZBASE_CreateSpawner")
+				net.WriteString(obj.spawnname)
+				net.WriteVector(tr.HitPos + tr.HitNormal*5)
+				net.SendToServer()
+				
+			end ):SetIcon( "icon16/control_repeat_blue.png" )
+		end
 
 		menu:Open()
 	end
