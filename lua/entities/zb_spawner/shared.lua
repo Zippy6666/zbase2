@@ -1,4 +1,5 @@
 AddCSLuaFile()
+AddCSLuaFile("cl_init.lua")
 
 ENT.Base =      "base_gmodentity"
 ENT.Type =      "anim"
