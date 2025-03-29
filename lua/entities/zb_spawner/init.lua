@@ -94,7 +94,6 @@ function ENT:vecSpawnPos()
 
     if tr.Hit && istable(self.tblZBaseNPC) && self.tblZBaseNPC.SNPCType == ZBASE_SNPCTYPE_FLY && isnumber(self.tblZBaseNPC.Fly_DistanceFromGround) then
         nrm = tr.HitNormal*self.tblZBaseNPC.Fly_DistanceFromGround
-        print("flyer")
     end
 
     return tr.HitPos + nrm
