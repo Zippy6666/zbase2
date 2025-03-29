@@ -58,12 +58,12 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 				
 				local tr = LocalPlayer():GetEyeTrace()
 
-				conv.devPrint(obj.spawnname)
-				
 				net.Start("ZBASE_CreateSpawner")
 				net.WriteString(obj.spawnname)
 				net.WriteVector(tr.HitPos + tr.HitNormal*5)
 				net.SendToServer()
+
+				surface.PlaySound( "buttons/button16.wav" )
 				
 			end ):SetIcon( "icon16/control_repeat_blue.png" )
 		end

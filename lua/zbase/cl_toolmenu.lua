@@ -34,7 +34,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ==================================================================================================
     --]]
 
-    ZBaseAddMenuCategory("A - General", function( panel )
+    ZBaseAddMenuCategory("A: General", function( panel )
         panel:CheckBox("Pop-Up", "zbase_popup")
         panel:Help("Show the pop-up when joining the game.")
 
@@ -60,7 +60,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:Help("NPCs will not collide with eachother (COLLISION_GROUP_NPC_SCRIPTED).")
         
         panel:CheckBox( "Client Ragdolls", "zbase_cl_ragdolls")
-        panel:Help("Should ZBase ragdolls be clientside? This will ignore 'Ragdoll Remove Time' and 'Max Ragdolls' in the aftermath section.")
+        panel:Help("Should ZBase ragdolls be clientside? This will ignore 'Ragdoll Remove Time' and 'Max Ragdolls' in the aftermath section. Does not work perfectly with all NPCs.")
 
         panel:CheckBox("Armor Sparks", "zbase_armor_sparks")
         panel:Help("Should armor hits cause sparks?")
@@ -85,7 +85,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ==================================================================================================
     --]]
 
-    ZBaseAddMenuCategory("B - AI", function( panel )
+    ZBaseAddMenuCategory("B: AI", function( panel )
         panel:NumSlider( "Health Multiplier", "zbase_hp_mult", 0, 20, 2 )
         panel:Help("Multiply ZBase NPCs' health by this number.")
         panel:NumSlider( "Damage Multiplier", "zbase_dmg_mult", 0, 20, 2 )
@@ -129,7 +129,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ==================================================================================================
     --]]
 
-    ZBaseAddMenuCategory("C - Replacer", function( panel )
+    ZBaseAddMenuCategory("C: Replacer", function( panel )
         panel:CheckBox("Replace in NPC Menu", "zbase_replace")
         panel:Help("Should the default HL2 NPCs be replaced by their ZBase equivalents in the spawn menu?")
 
@@ -155,7 +155,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ==================================================================================================
     --]]
 
-    ZBaseAddMenuCategory("D - Aftermath", function( panel )
+    ZBaseAddMenuCategory("D: Aftermath", function( panel )
 
         panel:NumSlider( "Ragdoll Remove Time", "zbase_rag_remove_time", 0, 600, 1 )
         panel:Help("Time until ragdolls are removed, 0 = never. If keep corpses is enabled, this is ignored.")
@@ -181,7 +181,20 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ==================================================================================================
     --]]
 
-    ZBaseAddMenuCategory("E - Weapons", function( panel )
+    ZBaseAddMenuCategory("E: Spawners", function( panel )
+
+        panel:NumSlider( "Cooldown", "zbase_spawner_cooldown", 0, 300, 2 )
+        panel:Help("How long does it take until a spawner can spawn again?")
+
+    end)
+
+    --[[
+    ==================================================================================================
+                                            WEAPONS
+    ==================================================================================================
+    --]]
+
+    ZBaseAddMenuCategory("F: Weapons", function( panel )
 
         panel:TextEntry("Rand Wep NPC Blacklist", "zbase_randwep_blacklist_npc")
         panel:Help("ZBase NPCs that should not have their weapons randomized, separate with spaces.")
@@ -208,7 +221,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ==================================================================================================
     --]]
 
-    ZBaseAddMenuCategory("F - Developer", function( panel )
+    ZBaseAddMenuCategory("G: Developer", function( panel )
 
         local gitlink = panel:TextEntry("ZBase Github")
         gitlink:SetValue("https://github.com/Zippy6666/zbase2")

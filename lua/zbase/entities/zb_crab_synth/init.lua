@@ -403,9 +403,8 @@ end
 
 
 function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
-    if dmginfo:GetDamage() < 90 then return false end
+    if dmginfo:GetDamage() < 66 then return false end
     if !dmginfo:IsExplosionDamage() && !dmginfo:IsDamageType(DMG_DISSOLVE) then return false end
-
 
     return true
 end

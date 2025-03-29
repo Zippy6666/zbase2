@@ -1996,7 +1996,8 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
         end
     end
 
-    if !IsValid(ene) && IsValid(attacker) && self.IsInViewCone && self:IsInViewCone(attacker) && self:Visible(attacker) then
+    if !IsValid(ene) && IsValid(attacker) && self.IsInViewCone && self:IsInViewCone(attacker) && self:Visible(attacker) 
+    && self:Disposition(attacker) == D_HT then
         self:SetNPCState(NPC_STATE_COMBAT)
         self:SetEnemy(attacker)
         self:UpdateEnemyMemory(attacker, attacker:GetPos())
