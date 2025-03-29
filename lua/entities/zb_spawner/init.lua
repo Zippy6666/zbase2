@@ -6,7 +6,7 @@ local zbase_spawner_cooldown    = ZBCVAR.SpawnerCooldown
 local zbase_spawner_vis         = ZBCVAR.SpawnerVisibility
 local zbase_spawner_mindist     = ZBCVAR.SpawnerDistance
 local vecTrStartOffset          = Vector(0, 0, 30)
-local vecTrDown                 = Vector(0, 0, 10000)
+local vecTrDown                 = Vector(0, 0, 40)
 local NOTIFY_HINT               = 3
 
 ENT.strZBaseClsName     = ""
@@ -85,7 +85,19 @@ function ENT:vecSpawnPos()
         endpos  = vecStart - vecTrDown,
         mask    = MASK_NPCWORLDSTATIC
     })
-    return tr.HitPos + tr.HitNormal*5
+
+    local nrm = tr.HitNormal*5
+
+    if tr.Hit && istable(self.tblZBaseNPC) && isnumber(self.tblZBaseNPC.Offset) then
+        nrm = tr.HitNormal*self.tblZBaseNPC.Offset
+    end
+
+    if tr.Hit && istable(self.tblZBaseNPC) && self.tblZBaseNPC.SNPCType == ZBASE_SNPCTYPE_FLY && isnumber(self.tblZBaseNPC.Fly_DistanceFromGround) then
+        nrm = tr.HitNormal*self.tblZBaseNPC.Fly_DistanceFromGround
+        print("flyer")
+    end
+
+    return tr.HitPos + nrm
 end
 
 function ENT:spawnMyNPC()
