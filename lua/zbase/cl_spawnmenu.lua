@@ -36,6 +36,16 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 		RunConsoleCommand( "zbase_spawnnpc", obj.spawnname, override == "" && table.Random(obj.weapon) or override )
 		surface.PlaySound( "buttons/button16.wav" )
 	end
+	icon.DoMiddleClick = function()
+		local tr = LocalPlayer():GetEyeTrace()
+
+		net.Start("ZBASE_CreateSpawner")
+		net.WriteString(obj.spawnname)
+		net.WriteVector(tr.HitPos + tr.HitNormal*5)
+		net.SendToServer()
+
+		surface.PlaySound( "buttons/button16.wav" )
+	end
 
 
 	icon.OpenMenu = function( self )
@@ -72,7 +82,7 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	end
 
 	if istable(obj.tblMisc) && isstring(obj.tblMisc.Class) && isstring(obj.tblMisc.Author) then
-		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.Class .. "'\nAuthor: " .. (obj.tblMisc.Author))
+		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.Class .. "'\nAuthor: " .. (obj.tblMisc.Author) .. "\n\n Middle-click to create spawner.")
 	end
 
 	if ( IsValid( container ) ) then

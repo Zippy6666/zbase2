@@ -186,6 +186,14 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:NumSlider( "Cooldown", "zbase_spawner_cooldown", 0, 300, 2 )
         panel:Help("How long does it take until a spawner can spawn again?")
 
+        panel:CheckBox( "VisCheck", "zbase_spawner_vis")
+        panel:Help("Check if any player can see the spawner before spawning. If so, skip spawning this time.")
+
+        panel:CheckBox( "Check MinDist", "zbase_spawner_mindist")
+
+        panel:NumSlider( "MinDist", "zbase_spawner_mindist", 0, 20000, 0 )
+        panel:Help("The minumim distance away from any player the spawner has to be in order to spawn. If any player is closer than this distance, skip spawning this time.")
+
     end)
 
     --[[

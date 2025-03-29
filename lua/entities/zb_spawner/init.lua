@@ -3,8 +3,11 @@ util.AddNetworkString("ZBASE_CreateSpawner")
 
 local ai_disabled               = GetConVar("ai_disabled")
 local zbase_spawner_cooldown    = ZBCVAR.SpawnerCooldown
+local zbase_spawner_vis         = ZBCVAR.SpawnerVisibility
+local zbase_spawner_mindist     = ZBCVAR.SpawnerDistance
 local vecTrStartOffset          = Vector(0, 0, 30)
 local vecTrDown                 = Vector(0, 0, 10000)
+local NOTIFY_HINT               = 3
 
 ENT.strZBaseClsName     = ""
 ENT.tblZBaseNPC         = {}
@@ -63,6 +66,11 @@ function ENT:Initialize()
             self.strZBaseFaction = self.ply.ZBaseNPCFactionOverride
         end
 
+        conv.sendGModHint(self.ply, 
+        "Spawner created! Move it with the physics gun.",
+        NOTIFY_HINT,
+        5)
+
         undo.Create("NPC Spawner")
             undo.AddEntity(self)
             undo.SetPlayer(self.ply)
@@ -70,21 +78,24 @@ function ENT:Initialize()
     end
 end
 
-function ENT:spawnMyNPC()
+function ENT:vecSpawnPos()
     local vecStart  = self:GetPos()+vecTrStartOffset
     local tr        = util.TraceLine({
         start   = vecStart,
         endpos  = vecStart - vecTrDown,
         mask    = MASK_NPCWORLDSTATIC
     })
+    return tr.HitPos + tr.HitNormal*5
+end
 
+function ENT:spawnMyNPC()
     self.npcSpawned = ents.Create(self.strZBaseClsName)
     if !IsValid(self.npcSpawned) then
         self:Remove()
         error("Spawner failed!")
     end
 
-    self.npcSpawned:SetPos(tr.HitPos + tr.HitNormal*5)
+    self.npcSpawned:SetPos(self:vecSpawnPos())
     self.npcSpawned:SetAngles(self:GetAngles())
 
     local tblWeapons = self.tblZBaseNPC.Weapons
@@ -104,15 +115,55 @@ function ENT:spawnMyNPC()
     end
 end
 
+function ENT:bShouldSpawn()
+    return !IsValid(self.npcSpawned) && !table.IsEmpty(self.tblZBaseNPC) && ai_disabled:GetBool() == false
+end
+
+function ENT:bSpawnLegalChecks()
+    --[[
+        Final checks to see if this spawn is legal
+        If these don't pass, the spawner will go on cool down either way
+    ]]--
+
+    if zbase_spawner_vis:GetBool() == true && conv.playersSeePos( self:vecSpawnPos() ) then
+        conv.devPrint("Spawner visible, skipping spawn")
+        return false
+    end
+
+    if zbase_spawner_mindist:GetBool() == true then
+        local iDistSqr      = zbase_spawner_mindist:GetInt()^2
+        local vecSpawnPos   = self:vecSpawnPos()
+
+        for _, ply in player.Iterator() do
+            local iPlySqrDist = ply:GetPos():DistToSqr(vecSpawnPos)
+
+            if iPlySqrDist < iDistSqr then
+                conv.devPrint(ply, " too close for spawner to spawn")
+                return false
+            end
+        end
+    end
+
+    return true
+end
+
 function ENT:Think()
-    if !IsValid(self.npcSpawned) && !table.IsEmpty(self.tblZBaseNPC) && ai_disabled:GetBool() == false then
-        
-        if self.fNextSpawnT < CurTime() then
+    if self:bShouldSpawn() then
+        local bTheTimeHasCome = self.fNextSpawnT < CurTime()
+
+        if bTheTimeHasCome && self:bSpawnLegalChecks() == false then
+            self.fNextSpawnT = CurTime()+zbase_spawner_cooldown:GetFloat()
+            return
+        end
+            
+        if bTheTimeHasCome then
             self:spawnMyNPC()
+            return
         end
 
     else
         self.fNextSpawnT = CurTime()+zbase_spawner_cooldown:GetFloat()
+        return
     end
 end
 

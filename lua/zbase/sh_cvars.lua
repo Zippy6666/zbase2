@@ -56,6 +56,8 @@ ZBCVAR.ShowNavigator =          CreateConVar("zbase_show_navigator", "0", Flags)
 ZBCVAR.ShowSched =              CreateConVar("zbase_show_sched", "0", Flags)
 
 ZBCVAR.SpawnerCooldown =        CreateConVar("zbase_spawner_cooldown", "3", Flags)
+ZBCVAR.SpawnerVisibility =      CreateConVar("zbase_spawner_vis", "0", Flags)
+ZBCVAR.SpawnerDistance =        CreateConVar("zbase_spawner_mindist", "0", Flags)
 
 if CLIENT then
     ZBCVAR.GlowingEyes =        CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)
