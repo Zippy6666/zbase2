@@ -26,6 +26,8 @@ function ENT:Initialize()
         error("Spawner could not find NPC '"..self.strZBaseClsName.."'...")
     end
 
+    conv.display3DText( self:GetPos() + self:GetUp() * 100, self.tblZBaseNPC.Name.. " Spawner", color_white, 0.25, 2, self.ply && {self.ply} or nil )
+
     local bModelFound = false
     if istable(self.tblZBaseNPC.Models) && isstring(self.tblZBaseNPC.Models[1]) then
         -- ZBase NPC has predefined model
@@ -64,6 +66,7 @@ function ENT:Initialize()
     if IsValid(self.ply) then
         if isstring(self.ply.ZBaseNPCFactionOverride) then
             self.strZBaseFaction = self.ply.ZBaseNPCFactionOverride
+            conv.display3DText( self:GetPos() + self:GetUp() * 95, "Faction: '"..self.strZBaseFaction.. "'", color_white, 0.25, 2, {self.ply} )
         end
 
         conv.sendGModHint(self.ply, 
