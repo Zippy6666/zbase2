@@ -17,17 +17,71 @@ ENT.npcSpawned          = NULL
 ENT.fNextSpawnT       = CurTime()
 
 function ENT:Initialize()
-    if !isstring(self.strZBaseClsName) or self.strZBaseClsName == "" then
-        error("Spawner has no ZBase NPC to spawn...")
+    self:initalValidChecks()
+    self:decideModel()
+
+    self:SetRenderMode(RENDERMODE_TRANSCOLOR)
+    self:SetColor(Color(255, 255, 255, 175))
+    self:DrawShadow(false)
+    
+    self:PhysicsInit(SOLID_VPHYSICS)
+    self:SetMoveType(MOVETYPE_NONE)
+    self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+    self:AddEFlags(EFL_DONTBLOCKLOS)
+
+    self:SetUseType(SIMPLE_USE)
+
+    self.fNextSpawnT = CurTime()+zbase_spawner_cooldown:GetFloat()
+
+    self:setupPlayerSpecifics()
+    self:displayText()
+end
+
+function ENT:displayText()
+    local _, vecMdlBndMax = self:GetModelBounds()
+    local nUpDist = vecMdlBndMax.z
+
+    conv.display3DText( "ZBASE_SpawnerNPCName"..self:EntIndex(), self:GetPos()+self:GetUp()*nUpDist, 2, self.tblZBaseNPC.Name, color_white, 0.3)
+    conv.display3DText( "ZBASE_SpawnerFaction"..self:EntIndex(), self:GetPos()+self:GetUp()* (nUpDist-10), 2,
+    "Faction: "..(self.strZBaseFaction == "" && "Default" or self.strZBaseFaction),
+    color_white, 0.3)
+end
+
+local function bPlyHasTool(ply)
+    local wep = ply:GetActiveWeapon()
+    if !IsValid(wep) then return false end
+
+    local strWepCls = wep:GetClass()
+    if strWepCls != "gmod_tool" && strWepCls != "weapon_physgun" then return false end
+
+    return true
+end
+
+function ENT:Use( entActivator )
+    if IsValid(entActivator) && entActivator:IsPlayer() && bPlyHasTool(entActivator) then
+        self:displayText()
+    end
+end
+
+function ENT:setupPlayerSpecifics()
+    if !IsValid(self.ply) then return end
+
+    if isstring(self.ply.ZBaseNPCFactionOverride) then
+        self.strZBaseFaction = self.ply.ZBaseNPCFactionOverride
     end
 
-    self.tblZBaseNPC = ZBaseNPCs[self.strZBaseClsName]
-    if !self.tblZBaseNPC then
-        error("Spawner could not find NPC '"..self.strZBaseClsName.."'...")
-    end
+    conv.sendGModHint(self.ply, 
+    "Spawner created! Move it with the physics gun.",
+    NOTIFY_HINT,
+    5)
 
-    conv.display3DText( self:GetPos() + self:GetUp() * 100, self.tblZBaseNPC.Name.. " Spawner", color_white, 0.25, 2, self.ply && {self.ply} or nil )
+    undo.Create("NPC Spawner")
+        undo.AddEntity(self)
+        undo.SetPlayer(self.ply)
+    undo.Finish()
+end
 
+function ENT:decideModel()
     local bModelFound = false
     if istable(self.tblZBaseNPC.Models) && isstring(self.tblZBaseNPC.Models[1]) then
         -- ZBase NPC has predefined model
@@ -51,33 +105,16 @@ function ENT:Initialize()
     if !bModelFound then
         self:SetModel("models/humans/group01/male_cheaple.mdl")
     end
+end
 
-    self:SetRenderMode(RENDERMODE_TRANSCOLOR)
-    self:SetColor(Color(255, 255, 255, 175))
-    self:DrawShadow(false)
-    
-    self:PhysicsInit(SOLID_VPHYSICS)
-    self:SetMoveType(MOVETYPE_NONE)
-    self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-    self:AddEFlags(EFL_DONTBLOCKLOS)
+function ENT:initalValidChecks()
+    if !isstring(self.strZBaseClsName) or self.strZBaseClsName == "" then
+        error("Spawner has no ZBase NPC to spawn...")
+    end
 
-    self.fNextSpawnT = CurTime()+zbase_spawner_cooldown:GetFloat()
-
-    if IsValid(self.ply) then
-        if isstring(self.ply.ZBaseNPCFactionOverride) then
-            self.strZBaseFaction = self.ply.ZBaseNPCFactionOverride
-            conv.display3DText( self:GetPos() + self:GetUp() * 95, "Faction: '"..self.strZBaseFaction.. "'", color_white, 0.25, 2, {self.ply} )
-        end
-
-        conv.sendGModHint(self.ply, 
-        "Spawner created! Move it with the physics gun.",
-        NOTIFY_HINT,
-        5)
-
-        undo.Create("NPC Spawner")
-            undo.AddEntity(self)
-            undo.SetPlayer(self.ply)
-        undo.Finish()
+    self.tblZBaseNPC = ZBaseNPCs[self.strZBaseClsName]
+    if !self.tblZBaseNPC then
+        error("Spawner could not find NPC '"..self.strZBaseClsName.."'...")
     end
 end
 

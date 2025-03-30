@@ -1,6 +1,6 @@
 include("shared.lua")
 
-ENT.CreatedRecently    = nil
+ENT.CreatedRecently = nil
 
 function ENT:Initialize()
     self:CONV_TempVar("CreatedRecently", true, 2)
@@ -17,12 +17,13 @@ local function bLocalPlayerHasTool()
     return true
 end
 
-function ENT:shouldDrawModel()
-    return self.CreatedRecently == true or bLocalPlayerHasTool()
+function ENT:bShouldDrawMdl()
+    self.m_bDrawModel = self.CreatedRecently == true or bLocalPlayerHasTool()
+    return self.m_bDrawModel
 end
 
 function ENT:Draw()
-    if self:shouldDrawModel() then
+    if self:bShouldDrawMdl() then
         self:DrawModel()
     end
 end
