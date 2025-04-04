@@ -1304,7 +1304,7 @@ function NPC:Face( face, duration, speed )
     if duration && duration > 0 then
         self:CONV_TempVar("ZBase_CurrentFace_Yaw", yaw, duration)
         self:CONV_TempVar("ZBase_CurrentFace_Speed", turnSpeed, duration)
-    else
+    elseif !self.ZBase_CurrentFace_Yaw then
         self:SetIdealYawAndUpdate(yaw, turnSpeed)
     end
 end

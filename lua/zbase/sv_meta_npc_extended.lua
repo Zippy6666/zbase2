@@ -93,3 +93,10 @@ function NPC:DropWeapon( wep, ... )
     -- Usual drop weapon
     return ZBase_OldDropWeapon(self, wep, ...)
 end
+
+-- local developer = GetConVar("developer")
+-- NPC.SetIdealYawAndUpdate = conv.wrapFunc( "ZBASE_IdealYaw", NPC.SetIdealYawAndUpdate, function(self, ...)
+--     if self.IsZBaseNPC && developer:GetBool() then
+--         conv.devPrint("SetIdealYawAndUpdate for ", self, "(", ..., ") from ", debug.getinfo(3).name)
+--     end
+-- end)
