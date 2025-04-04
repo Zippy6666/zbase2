@@ -495,6 +495,8 @@ function NPC:FrameTick()
     if self.ZBase_CurrentFace_Yaw then
         self:SetIdealYawAndUpdate(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
     end
+
+    self:CustomFrameTick()
 end
 
 

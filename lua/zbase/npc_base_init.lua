@@ -455,6 +455,13 @@ function NPC:CustomThink()
 end
 
 
+    -- Called continiously --
+    -- But EVERY frame --
+    -- Should be used sparingly! --
+function NPC:CustomFrameTick()
+end
+
+
 --[[
 ==================================================================================================
                                            TAKE DAMAGE FUNCTIONS
