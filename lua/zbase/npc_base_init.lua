@@ -456,7 +456,7 @@ end
 
 
     -- Called continiously --
-    -- But EVERY frame --
+    -- But EVERY server tick --
     -- Should be used sparingly! --
 function NPC:CustomFrameTick()
 end
