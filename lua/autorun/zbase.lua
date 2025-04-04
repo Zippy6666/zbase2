@@ -342,7 +342,6 @@ local function IncludeFiles()
     if CLIENT then
         include("zbase/cl_spawnmenu.lua")
         include("zbase/cl_toolmenu.lua")
-        include("zbase/cl_npcspawninfo.lua")
     end
 
 end
@@ -359,7 +358,6 @@ local function AddCSLuaFiles()
 
     AddCSLuaFile("zbase/cl_spawnmenu.lua")
     AddCSLuaFile("zbase/cl_toolmenu.lua")
-    AddCSLuaFile("zbase/cl_npcspawninfo.lua")
 
     -- Add zbase entity files
     local _, dirs = file.Find("zbase/entities/*","LUA")

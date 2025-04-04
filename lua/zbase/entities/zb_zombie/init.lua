@@ -50,7 +50,7 @@ function NPC:ShouldGib( dmginfo, hit_gr )
         return false
     end
 
-    if dmginfo:GetDamage() < 60 or (dmginfo:IsBulletDamage() && hit_gr != HITGROUP_CHEST && hit_gr != HITGROUP_STOMACH) then
+    if dmginfo:GetDamage() < 60 or (dmginfo:IsBulletDamage() && hit_gr != HITGROUP_CHEST && hit_gr != HITGROUP_STOMACH && hit_gr != HITGROUP_GENERIC) then
         return false
     end
 
