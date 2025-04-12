@@ -203,8 +203,6 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 	if !table.IsEmpty(allNPCs) then
 		GiveIconsToNode( pnlContent, tree, allNode, allNPCs )
 	end
-	allNode:DoClick()
-	allNode:SetSelected()
 
 end)
 
