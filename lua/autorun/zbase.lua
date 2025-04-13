@@ -309,17 +309,13 @@ end
 
 
 local function IncludeFiles()
-
     include("zbase/sh_globals_pri.lua")
     include("zbase/sh_globals_pub.lua")
     include("zbase/sh_hooks.lua")
     include("zbase/sh_cvars.lua")
-    include("zbase/sh_controller.lua")
     include("zbase/sh_properties.lua")
 
-
     if SERVER then
-
         include("zbase/sv_schedules.lua")
         include("zbase/sv_schedules_deprecated.lua")
         include("zbase/sv_meta_npc_extended.lua")
@@ -327,6 +323,7 @@ local function IncludeFiles()
         include("zbase/sv_spawnnpc.lua")
         include("zbase/sv_enginewep_translation.lua")
         include("zbase/sv_replacer.lua")
+        include("zbase/controller/sv.lua")
 
 
         -- Include NPC enhancement files
@@ -335,15 +332,13 @@ local function IncludeFiles()
         for _, v in ipairs(files) do
             include(enhPath..v)
         end
-
     end
-
 
     if CLIENT then
         include("zbase/cl_spawnmenu.lua")
         include("zbase/cl_toolmenu.lua")
+        include("zbase/controller/cl.lua")
     end
-
 end
 
 
@@ -353,11 +348,11 @@ local function AddCSLuaFiles()
     AddCSLuaFile("zbase/sh_globals_pub.lua")
     AddCSLuaFile("zbase/sh_override_functions.lua")
     AddCSLuaFile("zbase/sh_hooks.lua")
-    AddCSLuaFile("zbase/sh_controller.lua")
     AddCSLuaFile("zbase/sh_properties.lua")
 
     AddCSLuaFile("zbase/cl_spawnmenu.lua")
     AddCSLuaFile("zbase/cl_toolmenu.lua")
+    AddCSLuaFile("zbase/controller/cl.lua")
 
     -- Add zbase entity files
     local _, dirs = file.Find("zbase/entities/*","LUA")

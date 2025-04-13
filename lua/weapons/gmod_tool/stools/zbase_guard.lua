@@ -111,7 +111,7 @@ if SERVER then
     end)
 
     local function SetGuard(self, bool)
-        if bool == true then
+        if bool == true && !self.ZBASE_IsPlyControlled then
             self.ZBase_Guard = true
 
             -- Stop moving essentially

@@ -96,9 +96,6 @@ if CLIENT then
     local function ToggleNPCHalo( npc, tblname )
         if table.RemoveByValue(LocalPlayer()[tblname], npc) == false then
             npc:CONV_StoreInTable(LocalPlayer()[tblname])
-            notification.AddLegacy( "Added to "..tblname , NOTIFY_GENERIC, 2 )
-        else
-            notification.AddLegacy( "Removed from "..tblname, NOTIFY_UNDO, 2 )
         end
     end
     

@@ -2,13 +2,11 @@ if SERVER then
     util.AddNetworkString("ZBaseUpdateSpawnMenuFactionDropDown")
 end
 
-
 --[[
 ======================================================================================================================================================
                                            Funcs
 ======================================================================================================================================================
 --]]
-
 
 local prop_shared = {
 	Filter = function( self, ent, ply ) -- A function that determines whether an entity is valid for this property
@@ -27,12 +25,10 @@ local prop_shared = {
 	end
 }
 
-
 local CurOrder = 7000
-local function AddZBaseNPCProperty( name, icon, func )
-
+local function AddZBaseNPCProperty( name, icon, func, bZBaseOnly )
     local prop_tbl = {
-        MenuLabel = "[ZBase] "..name,
+        MenuLabel = name,
         Order = CurOrder,
         MenuIcon = icon, 
         ZBaseNPCRecieve = func,
@@ -41,21 +37,23 @@ local function AddZBaseNPCProperty( name, icon, func )
     table.Merge(prop_tbl, prop_shared)
     properties.Add( "ZBase"..name, prop_tbl )
 
-    CurOrder = CurOrder+1
+    -- Don't filter out ZBase NPCs if we shouldn't
+    if bZBaseOnly == false then
+        prop_tbl.Filter = function( self, ent, ply )
+            return IsValid(ply) && IsValid( ent ) && ent:IsNPC()
+        end
+    end
 
+    CurOrder = CurOrder+1
 end
 
-
 if CLIENT then
-
     net.Receive("ZBaseUpdateSpawnMenuFactionDropDown", function()
         if LocalPlayer().FactionDropDown then
             LocalPlayer().FactionDropDown:ChooseOption(net.ReadString())
         end
     end)
-
 end
-
 
 --[[
 ======================================================================================================================================================
@@ -63,16 +61,21 @@ end
 ======================================================================================================================================================
 --]]
 
+AddZBaseNPCProperty("Control", "icon16/controller.png", function( self, npc, length, ply )
+    if SERVER then
+        ZBASE_CONTROLLER:StartControlling( ply, npc )
+    end
+end, false)
 
 AddZBaseNPCProperty("Guard", "icon16/anchor.png", function( self, npc, length, ply )
 
     if SERVER then
         ply:ConCommand("zbase_guard " .. npc:EntIndex())
+        conv.sendGModHint( ply, !npc.ZBase_Guard && "Enabled guarding." or "Disabled guarding.", 0, 2 )
     end
 
-end)
-
-
+end, false)
+ 
 AddZBaseNPCProperty("Join Faction", "icon16/connect.png", function( self, npc, length, ply )
 
     if npc.ZBaseFaction == ply.ZBaseFaction then
@@ -112,4 +115,4 @@ AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )
     dmginfo:SetDamageType(DMG_DIRECT)
     npc:TakeDamageInfo(dmginfo)
 
-end)
+end, false)
