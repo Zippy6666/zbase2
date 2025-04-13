@@ -27,9 +27,22 @@ local colDeb        = Color(0, 255, 0, 255)
 ZBASE_CONTROLLER    = ZBASE_CONTROLLER or {}
 
 function ZBASE_CONTROLLER:StartControlling( ply, npc )
+    if !IsValid(npc) or !npc:IsNPC() then
+        conv.sendGModHint(ply, "NPCs control failed!", 1, 2)
+        return
+    end
+
     if npc.ZBase_Guard then
         conv.sendGModHint(ply, "NPCs with Guard Mode cannot be controlled!", 1, 2)
         return
+    end
+
+    local wep = ply:GetWeapon("weapon_zb_controller")
+    if !IsValid(wep) then
+        wep = ply:Give("weapon_zb_controller")
+    end
+    if IsValid(wep) then
+        ply:SetActiveWeapon(wep)
     end
 
     npc.ZBASE_IsPlyControlled = true
@@ -54,15 +67,15 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     self:UpdateRel()
 
     -- Setup camera
-    npc.ZBViewEnt = ents.Create("zb_temporary_ent")
-    npc.ZBViewEnt.ShouldRemain = true
-    npc.ZBViewEnt:SetPos( npc:GetPos() )
-    npc.ZBViewEnt:SetAngles(npc:GetAngles())
-    npc.ZBViewEnt:SetParent(npc)
-    npc.ZBViewEnt:SetNoDraw(true)
-    npc.ZBViewEnt:Spawn()
+    npc.ZBASE_ViewEnt = ents.Create("zb_temporary_ent")
+    npc.ZBASE_ViewEnt.ShouldRemain = true
+    npc.ZBASE_ViewEnt:SetPos( npc:GetPos() )
+    npc.ZBASE_ViewEnt:SetAngles(npc:GetAngles())
+    npc.ZBASE_ViewEnt:SetParent(npc)
+    npc.ZBASE_ViewEnt:SetNoDraw(true)
+    npc.ZBASE_ViewEnt:Spawn()
 
-    npc:DeleteOnRemove(npc.ZBViewEnt)
+    npc:DeleteOnRemove(npc.ZBASE_ViewEnt)
     ply:SetNWEntity("ZBASE_CONTROLLERCamEnt", npc)
 
     -- Disable jump capability for NPC
@@ -74,20 +87,23 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply.ZBASE_LastMoveType = ply:GetMoveType()
     ply:SetNoTarget(true)
     ply:SetMoveType(MOVETYPE_NONE)
+    ply.ZBASE_Controller_wepLast = ply:GetActiveWeapon()
 
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
     
     -- Undo stops controlling
-    undo.Create("ZBase Control")
-    undo.SetPlayer(ply)
-    undo.AddFunction(function() self:StopControlling( ply, npc ) end)
-    undo.SetCustomUndoText( "Stopped Controlling ".. hook.Run("GetDeathNoticeEntityName", npc) )
-    undo.Finish()
+    -- undo.Create("ZBase Control")
+    -- undo.SetPlayer(ply)
+    -- undo.AddFunction(function() self:StopControlling( ply, npc ) end)
+    -- undo.SetCustomUndoText( "Stopped Controlling ".. hook.Run("GetDeathNoticeEntityName", npc) )
+    -- undo.Finish()
 
     -- If the NPC is removed the controlling should also stop
     npc:CallOnRemove("StopControllingZB", function()
         self:StopControlling(ply, npc)
     end)
+
+    conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 2)
 end
 
 function ZBASE_CONTROLLER:StopControlling( ply, npc )
@@ -102,13 +118,13 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply.ZBASE_ControlledNPC = nil
         npc.ZBASE_HadJumpCap = nil
 
-        SafeRemoveEntity(npc.ZBViewEnt)
+        SafeRemoveEntity(npc.ZBASE_ViewEnt)
         SafeRemoveEntity(npc.ZBASE_ControlTarget)
     end
 
     if IsValid(ply) then
         ply:SetNWEntity("ZBASE_CONTROLLERCamEnt", NULL)
-        ply:SetMoveType(ply.ZBASE_LastMoveType)
+        ply:SetMoveType(MOVETYPE_WALK)
         ply:SetNoTarget(false)
     end
 
@@ -125,14 +141,21 @@ end
 
 hook.Add("PlayerButtonDown", "ZBASE_CONTROLLER", function(ply, btn)
     if IsValid(ply.ZBASE_ControlledNPC) then
-        ply.ZBASE_ControlledNPC:Controller_ButtonDown(ply, btn)
+        ply.ZBASE_ControlledNPC:ZBASE_Controller_ButtonDown(ply, btn)
     end
 end)
 
 hook.Add("KeyPress", "ZBASE_CONTROLLER", function(ply, key)
     if IsValid(ply.ZBASE_ControlledNPC) then
-        ply.ZBASE_ControlledNPC:Controller_KeyPress(ply, key)
+        ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyPress(ply, key)
     end
+end)
+
+hook.Add("PlayerNoClip", "ZBASE_CONTROLLER", function(ply, desiredState)
+    if IsValid(ply.ZBASE_ControlledNPC) then
+        ZBASE_CONTROLLER:StopControlling(ply, ply.ZBASE_ControlledNPC)
+    end
+    return true
 end)
 
 function NPC:ZBASE_Controller_Move( pos )
@@ -155,16 +178,27 @@ function NPC:ZBASE_Controller_ButtonDown(ply, btn)
 end
 
 function NPC:ZBASE_Controller_KeyPress(ply, key)
+
 end
 
 function NPC:ZBASE_ControllerThink()
+    -- Checks
     local ply       = self.ZBASE_PlyController
+    if !IsValid(ply) then
+        ZBASE_CONTROLLER:StopControlling(NULL, self)
+        return
+    end
+    local wep = ply:GetActiveWeapon()
+    if !IsValid(wep) or wep:GetClass() != "weapon_zb_controller" then
+        ZBASE_CONTROLLER:StopControlling(ply, self)
+        return
+    end
+
+    -- Vars
     local eyeangs   = ply:EyeAngles()
     local forward   = eyeangs:Forward()
     local right     = eyeangs:Right()
-
-    local camEnt = ply:GetNWEntity("ZBASE_CONTROLLERCamEnt", NULL)
-    if !IsValid(camEnt) then return end
+    local camEnt    = ply:GetNWEntity("ZBASE_CONTROLLERCamEnt", NULL)
 
     -- Camera tracer
     -- local camViewPos = camEnt:GetPos()
@@ -188,6 +222,8 @@ function NPC:ZBASE_ControllerThink()
     --         self:SetUnforgettable( self.ZBASE_ControlTarget )
     --     end
     -- end
+
+    self.NextHearSound = CurTime()+1 -- Delay hearing so we are temporarily deaf while being controlled
 
     -- Decide move direction
     local moveDir = Vector(0, 0, 0)
