@@ -1,13 +1,12 @@
 local NPC = FindMetaTable("NPC")
+local NPC_ZBASE = ZBaseNPCs["npc_zbase"]
 local Developer = GetConVar("developer")
-
 
 --[[
 ======================================================================================================================================================
                                            RELATIONSHIP STUFF
 ======================================================================================================================================================
 --]]
-
 
 function NPC:ZBASE_SetMutualRelationship( ent, rel )
     if !IsValid(ent) then return end
@@ -48,13 +47,11 @@ function NPC:ZBASE_SetMutualRelationship( ent, rel )
 
 end
 
-
 --[[
 ======================================================================================================================================================
-                                           Other
+                                           Wrapper funcs
 ======================================================================================================================================================
 --]]
-
 
 ZBase_OldSetSchedule = ZBase_OldSetSchedule or NPC.SetSchedule
 ZBase_OldDropWeapon = ZBase_OldDropWeapon or NPC.DropWeapon
@@ -88,10 +85,3 @@ function NPC:DropWeapon( wep, ... )
     -- Usual drop weapon
     return ZBase_OldDropWeapon(self, wep, ...)
 end
-
--- local developer = GetConVar("developer")
--- NPC.SetIdealYawAndUpdate = conv.wrapFunc( "ZBASE_IdealYaw", NPC.SetIdealYawAndUpdate, function(self, ...)
---     if self.IsZBaseNPC && developer:GetBool() then
---         conv.devPrint("SetIdealYawAndUpdate for ", self, "(", ..., ") from ", debug.getinfo(3).name)
---     end
--- end)

@@ -1,14 +1,6 @@
 --[[
 ==================================================================================================
                                     PLAYER CONTROL SYSTEM
-    >> TODO <<
-    - Space -> fly up, otherwise jump
-    - Ctrl -> fly down
-    - Control priority system
-    - Some way to get control help, with hints i guess
-    - Just make it feel good
-
-
     >> Control Priority Sys <<
     First two controls are left and right click, the rest are gonna be 1, 2, 3, 4, 5, and so on.
     1. Use weapon
@@ -66,6 +58,7 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
         npc.ZBASE_ControlTarget:DrawShadow(false)
     end
 
+    npc:SetEnemy(nil)
     npc:ClearEnemyMemory()
 
     -- Setup camera
@@ -88,7 +81,9 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply.ZBASE_ControlledNPC = npc
     ply.ZBASE_LastMoveType = ply:GetMoveType()
     ply:SetNoTarget(true)
-    ply:SetMoveType(MOVETYPE_NONE)
+    ply:SetMoveType(MOVETYPE_NOCLIP)
+    ply:SetNotSolid(true)
+    ply:SetNoDraw(true)
     ply.ZBASE_Controller_wepLast = ply:GetActiveWeapon()
 
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
@@ -120,6 +115,8 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply.ZBASE_ControlledNPC = nil
         npc.ZBASE_HadJumpCap = nil
 
+        npc:SetMoveYawLocked(false)
+
         SafeRemoveEntity(npc.ZBASE_ViewEnt)
         SafeRemoveEntity(npc.ZBASE_ControlTarget)
     end
@@ -128,6 +125,8 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply:SetNWEntity("ZBASE_CONTROLLERCamEnt", NULL)
         ply:SetMoveType(MOVETYPE_WALK)
         ply:SetNoTarget(false)
+        ply:SetNotSolid(false)
+        ply:SetNoDraw(false)
     end
 
     npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
@@ -159,26 +158,28 @@ function NPC:ZBASE_Controller_Move( pos )
         start = self:WorldSpaceCenter(),
         endpos = pos,
         mask = MASK_SOLID,
-        filter = self,
+        filter = {self, self.ZBASE_PlyController},
     })
     dest = tr.HitPos+tr.HitNormal*35
     self.ZBASE_CurCtrlDest = (self.ZBASE_CurCtrlDest && Lerp(0.33, self.ZBASE_CurCtrlDest, dest)) or dest
-    self:SetLastPosition( self.ZBASE_CurCtrlDest )
-    self:SetSchedule(self.ZBASE_PlyController:KeyDown(IN_SPEED) && SCHED_FORCED_GO_RUN or SCHED_FORCED_GO)
 
-    debugoverlay.Sphere(self.ZBASE_CurCtrlDest, 10, 0.05, colDeb, true)
+    if self.IsZBaseNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then
+        self:AerialCalcGoal(dest)
+    else
+        self:SetLastPosition( self.ZBASE_CurCtrlDest )
+        self:SetSchedule(self.ZBASE_PlyController:KeyDown(IN_SPEED) && SCHED_FORCED_GO_RUN or SCHED_FORCED_GO)
+    end
 end
 
 function NPC:ZBASE_Controller_ButtonDown(ply, btn)
 end
 
 function NPC:ZBASE_Controller_KeyPress(ply, key)
-
 end
 
 function NPC:ZBASE_ControllerThink()
     -- Checks
-    local ply       = self.ZBASE_PlyController
+    local ply = self.ZBASE_PlyController
     if !IsValid(ply) then
         ZBASE_CONTROLLER:StopControlling(NULL, self)
         return
@@ -189,10 +190,14 @@ function NPC:ZBASE_ControllerThink()
         return
     end
 
+    -- Position player at NPC
+    ply:SetPos(self:GetPos())
+
     -- Vars
     local eyeangs   = ply:EyeAngles()
     local forward   = eyeangs:Forward()
     local right     = eyeangs:Right()
+    local up        = Vector(0, 0, 1)
     local camEnt    = ply:GetNWEntity("ZBASE_CONTROLLERCamEnt", NULL)
 
     -- Camera tracer
@@ -235,8 +240,42 @@ function NPC:ZBASE_ControllerThink()
     if ply:KeyDown(IN_MOVERIGHT) then
         moveDir = moveDir + Vector(right.x, right.y, 0):GetNormalized()
     end
+    if ply:KeyDown(IN_JUMP) then
+        moveDir = moveDir + up
+    end
+    if ply:KeyDown(IN_DUCK) then
+        moveDir = moveDir - up
+    end
     moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
 
-    -- Move
-    self:ZBASE_Controller_Move(self:WorldSpaceCenter() + moveDir*(self:OBBMaxs().x+100))
+    -- Face same direction if not moving
+    if moveDir:IsZero() then
+        self:SetMoveYawLocked(true)
+    else
+        self:SetMoveYawLocked(false)
+    end
+
+    local moveVec = moveDir*(self:OBBMaxs().x+100)
+    if self:IsOnGround() or self:CONV_HasCapability(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
+        if ply:KeyDown(IN_JUMP) && self:SelectWeightedSequence(ACT_JUMP) != -1 && !self.ZBASE_Controller_JumpOnCooldown then
+            -- Jumping
+
+            local jumpVec = moveDir*(self:OBBMaxs().x+self:OBBMaxs().z+100) + self:GetMoveVelocity()
+            ZBaseMoveJump(self, self:WorldSpaceCenter()+jumpVec)
+            self:CONV_TempVar("ZBASE_Controller_JumpOnCooldown", true, 2)
+        else
+            -- Moving
+
+            self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
+        end
+    end
+
+    if self.ZBASE_CurCtrlDest then
+        debugoverlay.Sphere(self.ZBASE_CurCtrlDest, 10, 0.05, colDeb, true)
+    end
 end
+
+hook.Add("PlayerFootstep", "ZBASE_CONTROLLER", function(ply)
+    local camEnt = ply:GetNWEntity("ZBASE_CONTROLLERCamEnt", NULL)
+    return IsValid(camEnt)
+end)
