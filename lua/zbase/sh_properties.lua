@@ -68,7 +68,6 @@ AddZBaseNPCProperty("Control", "icon16/controller.png", function( self, npc, len
 end, false)
 
 AddZBaseNPCProperty("Guard", "icon16/anchor.png", function( self, npc, length, ply )
-
     if SERVER then
         ply:ConCommand("zbase_guard " .. npc:EntIndex())
         conv.sendGModHint( ply, !npc.ZBase_Guard && "Enabled guarding." or "Disabled guarding.", 0, 2 )
@@ -105,6 +104,8 @@ AddZBaseNPCProperty("Add to My Faction", "icon16/add.png", function( self, npc, 
 end)
 
 AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )
+    if !ply:IsAdmin() then return end
+
     local cls = npc:GetClass()
 
     if cls == "npc_combinedropship" or cls == "npc_helicopter" or cls == "npc_combinegunship" then

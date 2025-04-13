@@ -67,7 +67,6 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     end
 
     npc:ClearEnemyMemory()
-    self:UpdateRel()
 
     -- Setup camera
     npc.ZBASE_ViewEnt = ents.Create("zb_temporary_ent")
@@ -132,15 +131,8 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
     end
 
     npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
-
-    self:UpdateRel()
 end
 
-function ZBASE_CONTROLLER:UpdateRel()
-    for _, v in ipairs(ZBaseNPCInstances) do
-        v:UpdateRelationships()
-    end
-end
 
 hook.Add("PlayerButtonDown", "ZBASE_CONTROLLER", function(ply, btn)
     if IsValid(ply.ZBASE_ControlledNPC) then

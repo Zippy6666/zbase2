@@ -17,11 +17,6 @@ function NPC:ZBASE_SetMutualRelationship( ent, rel )
     local relToEnt = rel
     local allowAddRelationship = !(self.IsZBaseNPC && !self:OnBaseSetRel(ent, relToEnt, 0))
 
-    -- Neutral to all else if controlled
-    if self.IsZBPlyControlled then
-        relToEnt = D_NU
-    end
-
     -- Player using pill pack, don't do relationship operation, let parakeet's pill pack do that instead
     if ent:IsPlayer() && IsValid(ent.pk_pill_ent) then
         return
