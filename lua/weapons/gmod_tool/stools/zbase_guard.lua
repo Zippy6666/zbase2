@@ -1,7 +1,7 @@
 TOOL.AddToMenu = true
-TOOL.Category = "ZBASE"
+TOOL.Category = "NPC"
 
-local toolname = "ZBASE: Guard"
+local toolname = "Enable Guarding"
 TOOL.Name = toolname
 TOOL.Description = "Toggle guard mode for NPCs."
 

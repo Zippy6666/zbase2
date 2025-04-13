@@ -40,7 +40,7 @@ local function AddZBaseNPCProperty( name, icon, func, bZBaseOnly )
     -- Don't filter out ZBase NPCs if we shouldn't
     if bZBaseOnly == false then
         prop_tbl.Filter = function( self, ent, ply )
-            return IsValid(ply) && IsValid( ent ) && ent:IsNPC()
+            return IsValid(ply) && IsValid( ent ) && ent:IsNPC() && !ent.IsVJBaseSNPC
         end
     end
 
@@ -105,14 +105,34 @@ AddZBaseNPCProperty("Add to My Faction", "icon16/add.png", function( self, npc, 
 end)
 
 AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )
+    local cls = npc:GetClass()
 
-    local dmginfo = DamageInfo()
-    dmginfo:SetDamage(math.huge)
-    dmginfo:SetAttacker(ply)
-    dmginfo:SetInflictor(ply)
-    dmginfo:SetDamageForce(vector_origin)
-    dmginfo:SetDamagePosition(npc:WorldSpaceCenter())
-    dmginfo:SetDamageType(DMG_DIRECT)
-    npc:TakeDamageInfo(dmginfo)
+    if cls == "npc_combinedropship" or cls == "npc_helicopter" or cls == "npc_combinegunship" then
+        hook.Run("OnNPCKilled", npc, ply, game.GetWorld())
+    end
+
+    if cls == "npc_combinedropship" then
+        npc:Remove()
+        return
+    end
+
+    npc:SetHealth(0)
+    conv.callNextTick(function()
+        if !IsValid(npc) then return end
+
+        local dmginfo = DamageInfo()
+        dmginfo:SetDamage(npc:GetMaxHealth())
+        dmginfo:SetAttacker(ply)
+        dmginfo:SetInflictor(game.GetWorld())
+        dmginfo:SetDamageForce(Vector(1,1,1))
+        dmginfo:SetDamagePosition(npc:WorldSpaceCenter())
+        dmginfo:SetDamageType(DMG_BLAST)
+
+        if cls=="npc_helicopter" then
+            dmginfo:SetDamageType(DMG_AIRBOAT)
+        end
+
+        npc:TakeDamageInfo(dmginfo)
+    end)
 
 end, false)

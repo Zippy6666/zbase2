@@ -1,7 +1,7 @@
 TOOL.AddToMenu = true
-TOOL.Category = "ZBASE"
+TOOL.Category = "NPC"
 
-local toolname = "ZBASE: Mover"
+local toolname = "Mover"
 TOOL.Name = toolname
 TOOL.Description = "Move NPCs."
 

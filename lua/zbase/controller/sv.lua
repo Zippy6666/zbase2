@@ -27,8 +27,11 @@ local colDeb        = Color(0, 255, 0, 255)
 ZBASE_CONTROLLER    = ZBASE_CONTROLLER or {}
 
 function ZBASE_CONTROLLER:StartControlling( ply, npc )
-    if !IsValid(npc) or !npc:IsNPC() then
-        conv.sendGModHint(ply, "NPCs control failed!", 1, 2)
+    if npc.ZBASE_IsPlyControlled then return end
+    if IsValid(ply.ZBASE_ControlledNPC) then return end
+
+    if !IsValid(npc) or !npc:IsNPC() or npc.IsVJBaseSNPC then
+        conv.sendGModHint(ply, "Cannot control this entity!", 1, 2)
         return
     end
 
@@ -223,7 +226,8 @@ function NPC:ZBASE_ControllerThink()
     --     end
     -- end
 
-    self.NextHearSound = CurTime()+1 -- Delay hearing so we are temporarily deaf while being controlled
+    -- Delay hearing so we are temporarily deaf while being controlled
+    self.NextHearSound = CurTime()+1
 
     -- Decide move direction
     local moveDir = Vector(0, 0, 0)
