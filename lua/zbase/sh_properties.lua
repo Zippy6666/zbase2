@@ -32,6 +32,7 @@ local function AddZBaseNPCProperty( name, icon, func, bZBaseOnly )
         Order = CurOrder,
         MenuIcon = icon, 
         ZBaseNPCRecieve = func,
+        PrependSpacer = CurOrder==7000
     }
 
     table.Merge(prop_tbl, prop_shared)
