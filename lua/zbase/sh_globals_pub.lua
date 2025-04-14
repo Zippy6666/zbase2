@@ -315,14 +315,14 @@ if SERVER then
         end)
     end
 
-
     -- Make an NPC jump to the desired position
     -- 'npc' - The NPC in question
     -- 'pos' - The position to jump to
     function ZBaseMoveJump( npc, pos )
+        local cls = npc:GetClass()
         local npc_pos = npc:WorldSpaceCenter()
         local moveNrm = (pos - npc_pos)
-
+        
         npc:MoveJumpStart(moveNrm+jumpUpVec)
         npc:CONV_TempVar("ZBaseMove_JustJumped", true, 0.5)
 
@@ -331,6 +331,10 @@ if SERVER then
             local function afterLandFunc()
                 npc:SetLastPosition(pos)
                 npc:SetSchedule(SCHED_FORCED_GO_RUN)
+            end
+
+            local function startGlideFunc()
+                npc:InternalPlayAnimation(ACT_GLIDE, 5, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=onFinishFunc})
             end
 
             hook.Add("Tick", hookID, function()
@@ -347,7 +351,7 @@ if SERVER then
 
             end)
 
-            npc:InternalPlayAnimation(ACT_GLIDE, 5, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=onFinishFunc})
+            npc:InternalPlayAnimation(ACT_JUMP, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=startGlideFunc})
             npc.ZBaseMove_IsJumping = true
         end
     end

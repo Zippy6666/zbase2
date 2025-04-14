@@ -16,6 +16,17 @@
 local NPC           = FindMetaTable("NPC")
 local developer     = GetConVar("developer")
 local colDeb        = Color(0, 255, 0, 255)
+local vecFarDown    = Vector(0,0,-10000)
+
+local jumpPowerStats = {
+    [HULL_TINY]         = 100,
+    [HULL_WIDE_SHORT]   = 200,
+    [HULL_HUMAN]        = 200,
+    [HULL_WIDE_HUMAN]   = 300,
+    [HULL_MEDIUM_TALL]  = 750,
+    [HULL_LARGE]        = 750
+}
+
 ZBASE_CONTROLLER    = ZBASE_CONTROLLER or {}
 
 function ZBASE_CONTROLLER:StartControlling( ply, npc )
@@ -177,6 +188,49 @@ end
 function NPC:ZBASE_Controller_KeyPress(ply, key)
 end
 
+function NPC:ZBASE_Controller_GetJumpStats()
+    if self.Controller_JumpPower && self.Controller_JumpPower > 0 then return self.Controller_JumpPower end
+
+    local jumpPower = jumpPowerStats[self:GetHullType()]
+
+    if !jumpPower then
+        return jumpPowerStats[HULL_HUMAN]
+    end
+
+    return jumpPower
+end
+
+function NPC:ZBASE_Controller_Jump(dir)
+    local cls = self:GetClass()
+    if cls == "npc_antlion" or cls == "npc_antlionworker" then
+        local start = self:WorldSpaceCenter()+self:GetForward()*500
+        local tr = util.TraceLine({
+            start = start,
+            endpos = start+vecFarDown,
+            mask = MASK_NPCWORLDSTATIC
+        })
+
+        local tempent = ents.Create("zb_temporary_ent")
+        tempent.ShouldRemain = true
+        tempent:SetPos(tr.HitPos+tr.HitNormal*250)
+        tempent:SetName("zbase_antlion_jump_target_for_"..self:EntIndex())
+        tempent:SetNoDraw(true)
+        tempent:Spawn()
+        self:Fire("JumpAtTarget", "zbase_antlion_jump_target_for_"..self:EntIndex())
+        SafeRemoveEntityDelayed(tempent, 0.1)
+        return
+    end
+
+    -- Jumping
+
+    local jumpPower = self:ZBASE_Controller_GetJumpStats()
+    local jumpVec = dir*jumpPower
+
+    ZBaseMoveJump(self, self:WorldSpaceCenter()+jumpVec+self:GetMoveVelocity())
+
+    self:CONV_TempVar("ZBASE_Controller_JumpOnCooldown", true, 2)
+end
+
 function NPC:ZBASE_ControllerThink()
     -- Checks
     local ply = self.ZBASE_PlyController
@@ -258,14 +312,9 @@ function NPC:ZBASE_ControllerThink()
     local moveVec = moveDir*(self:OBBMaxs().x+100)
     if self:IsOnGround() or self:CONV_HasCapability(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
         if ply:KeyDown(IN_JUMP) && self:SelectWeightedSequence(ACT_JUMP) != -1 && !self.ZBASE_Controller_JumpOnCooldown then
-            -- Jumping
-
-            local jumpVec = moveDir*(self:OBBMaxs().x+self:OBBMaxs().z+100) + self:GetMoveVelocity()
-            ZBaseMoveJump(self, self:WorldSpaceCenter()+jumpVec)
-            self:CONV_TempVar("ZBASE_Controller_JumpOnCooldown", true, 2)
+            self:ZBASE_Controller_Jump(moveDir)
         else
             -- Moving
-
             self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
         end
     end
