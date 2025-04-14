@@ -91,6 +91,8 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     -- Player variables
     ply.ZBASE_ControlledNPC = npc
     ply.ZBASE_LastMoveType = ply:GetMoveType()
+    ply.ZBASE_HPBeforeControl = ply:Health()
+    ply.ZBASE_MaxHPBeforeControl = ply:GetMaxHealth()
     ply:SetNoTarget(true)
     ply:SetMoveType(MOVETYPE_NOCLIP)
     ply:SetNotSolid(true)
@@ -98,6 +100,7 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply.ZBASE_Controller_wepLast = ply:GetActiveWeapon()
 
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
+    ply:CONV_AddHook("EntityTakeDamage", function() return true end, "ZBASE_Controller_PlyGodMode")
     
     -- Undo stops controlling
     -- undo.Create("ZBase Control")
@@ -130,6 +133,8 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
 
         SafeRemoveEntity(npc.ZBASE_ViewEnt)
         SafeRemoveEntity(npc.ZBASE_ControlTarget)
+
+        npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
     end
 
     if IsValid(ply) then
@@ -138,9 +143,10 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply:SetNoTarget(false)
         ply:SetNotSolid(false)
         ply:SetNoDraw(false)
+        ply:SetHealth(ply.ZBASE_HPBeforeControl)
+        ply:SetMaxHealth(ply.ZBASE_MaxHPBeforeControl)
+        ply:CONV_RemoveHook("Think", "ZBASE_Controller_PlyGodMode")
     end
-
-    npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
 end
 
 
@@ -201,6 +207,7 @@ function NPC:ZBASE_Controller_GetJumpStats()
 end
 
 function NPC:ZBASE_Controller_Jump(dir)
+    -- Antlion stuff
     local cls = self:GetClass()
     if cls == "npc_antlion" or cls == "npc_antlionworker" then
         local start = self:WorldSpaceCenter()+self:GetForward()*500
@@ -221,11 +228,8 @@ function NPC:ZBASE_Controller_Jump(dir)
         return
     end
 
-    -- Jumping
-
     local jumpPower = self:ZBASE_Controller_GetJumpStats()
     local jumpVec = dir*jumpPower
-
     ZBaseMoveJump(self, self:WorldSpaceCenter()+jumpVec+self:GetMoveVelocity())
 
     self:CONV_TempVar("ZBASE_Controller_JumpOnCooldown", true, 2)
@@ -246,6 +250,10 @@ function NPC:ZBASE_ControllerThink()
 
     -- Position player at NPC
     ply:SetPos(self:GetPos())
+
+    -- Mimic health
+    ply:SetHealth(self:Health())
+    ply:SetMaxHealth(self:GetMaxHealth())
 
     -- Vars
     local eyeangs   = ply:EyeAngles()
@@ -302,13 +310,6 @@ function NPC:ZBASE_ControllerThink()
     end
     moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
 
-    -- Face same direction if not moving
-    if moveDir:IsZero() then
-        self:SetMoveYawLocked(true)
-    else
-        self:SetMoveYawLocked(false)
-    end
-
     local moveVec = moveDir*(self:OBBMaxs().x+100)
     if self:IsOnGround() or self:CONV_HasCapability(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
         if ply:KeyDown(IN_JUMP) && self:SelectWeightedSequence(ACT_JUMP) != -1 && !self.ZBASE_Controller_JumpOnCooldown then
@@ -317,6 +318,13 @@ function NPC:ZBASE_ControllerThink()
             -- Moving
             self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
         end
+    end
+
+    if moveDir:IsZero() then
+        self:SetMoveYawLocked(true) -- Face same direction if not moving
+    else
+        self:CONV_TempVar("ZBASE_ControllerMoving", true, 0.1)
+        self:SetMoveYawLocked(false)
     end
 
     if self.ZBASE_CurCtrlDest then

@@ -4,6 +4,39 @@ local Developer = GetConVar("developer")
 
 --[[
 ======================================================================================================================================================
+                                           ANIMATION
+======================================================================================================================================================
+--]]
+
+function NPC:ZBASE_SimpleAnimation(anim)
+    self:SetSchedule(SCHED_SCENE_GENERIC)
+
+    -- Set state to scripted
+    self.PreAnimNPCState = self:GetNPCState()
+    self:SetNPCState(NPC_STATE_SCRIPT)
+
+    if isnumber(anim) then
+        -- Anim is activity
+        -- Play as activity first, fixes shit
+        self:ResetIdealActivity(anim)
+        self:SetActivity(anim)
+
+        -- Convert activity to sequence
+        anim = self:SelectWeightedSequence(anim)
+    else
+        -- Fixes jankyness for some NPCs
+        self:ResetIdealActivity(ACT_IDLE)
+        self:SetActivity(ACT_IDLE)
+    end
+
+    -- Play the sequence
+    self:ResetSequenceInfo()
+    self:SetCycle(0)
+    self:ResetSequence(anim)
+end
+
+--[[
+======================================================================================================================================================
                                            RELATIONSHIP STUFF
 ======================================================================================================================================================
 --]]

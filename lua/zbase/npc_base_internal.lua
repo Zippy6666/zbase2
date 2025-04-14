@@ -483,7 +483,7 @@ end
 function NPC:FrameTick()
     if AIDisabled:GetBool() then return end
 
-    if self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && self:IsMoving() then
+    if self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && (self:IsMoving() or self.ZBASE_ControllerMoving) then
         self:DoMoveSpeed()
     end
 

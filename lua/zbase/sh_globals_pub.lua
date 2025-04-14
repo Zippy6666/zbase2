@@ -326,34 +326,46 @@ if SERVER then
         npc:MoveJumpStart(moveNrm+jumpUpVec)
         npc:CONV_TempVar("ZBaseMove_JustJumped", true, 0.5)
 
-        if npc.IsZBaseNPC then
-            local hookID = "ZBaseMoveJump:"..tostring(npc)
-            local function afterLandFunc()
-                npc:SetLastPosition(pos)
-                npc:SetSchedule(SCHED_FORCED_GO_RUN)
-            end
+        local hookID = "ZBaseMoveJump:"..tostring(npc)
 
-            local function startGlideFunc()
-                npc:InternalPlayAnimation(ACT_GLIDE, 5, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=onFinishFunc})
-            end
-
-            hook.Add("Tick", hookID, function()
-
-                if !IsValid(npc) then
-                    hook.Remove("Tick", hookID)
-                    return
-                end
-
-                if !npc.ZBaseMove_JustJumped && npc.ZBaseMove_IsJumping && npc:OnGround() then
-                    npc:InternalPlayAnimation(ACT_LAND, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=afterLandFunc})
-                    npc.ZBaseMove_IsJumping = false
-                end
-
-            end)
-
-            npc:InternalPlayAnimation(ACT_JUMP, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=startGlideFunc})
-            npc.ZBaseMove_IsJumping = true
+        local function afterLandFunc()
+            npc:SetLastPosition(pos)
+            npc:SetSchedule(SCHED_FORCED_GO_RUN)
         end
+
+        local function startGlideFunc()
+            if npc.IsZBaseNPC then
+                npc:InternalPlayAnimation(ACT_GLIDE, 5, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=onFinishFunc})
+            else
+                npc:ZBASE_SimpleAnimation(ACT_GLIDE)
+            end
+        end
+
+        hook.Add("Tick", hookID, function()
+
+            if !IsValid(npc) then
+                hook.Remove("Tick", hookID)
+                return
+            end
+
+            if !npc.ZBaseMove_JustJumped && npc.ZBaseMove_IsJumping && npc:OnGround() then
+                if npc.IsZBaseNPC then
+                    npc:InternalPlayAnimation(ACT_LAND, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=afterLandFunc})
+                else
+                    npc:ZBASE_SimpleAnimation(ACT_LAND)
+                end
+
+                npc.ZBaseMove_IsJumping = false
+            end
+
+        end)
+
+        if npc.IsZBaseNPC then
+            npc:InternalPlayAnimation(ACT_JUMP, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=startGlideFunc})
+        else
+            npc:ZBASE_SimpleAnimation(ACT_JUMP)
+        end
+        npc.ZBaseMove_IsJumping = true
     end
 
 
