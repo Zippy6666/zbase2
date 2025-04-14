@@ -98,6 +98,8 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply:SetNotSolid(true)
     ply:SetNoDraw(true)
     ply.ZBASE_Controller_wepLast = ply:GetActiveWeapon()
+    ply:Flashlight(false)
+    ply:AllowFlashlight(false)
 
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
     ply:CONV_AddHook("EntityTakeDamage", function() return true end, "ZBASE_Controller_PlyGodMode")
@@ -145,6 +147,7 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply:SetNoDraw(false)
         ply:SetHealth(ply.ZBASE_HPBeforeControl)
         ply:SetMaxHealth(ply.ZBASE_MaxHPBeforeControl)
+        ply:AllowFlashlight(true)
         ply:CONV_RemoveHook("Think", "ZBASE_Controller_PlyGodMode")
     end
 end
