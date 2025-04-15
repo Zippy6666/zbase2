@@ -106,6 +106,8 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply.ZBASE_LastMoveType = ply:GetMoveType()
     ply.ZBASE_HPBeforeControl = ply:Health()
     ply.ZBASE_MaxHPBeforeControl = ply:GetMaxHealth()
+    ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp or 0
+    ply.ZBASE_ControllerZoomDist = ply.ZBASE_ControllerZoomDist or 0
     ply:SetNoTarget(true)
     ply:SetMoveType(MOVETYPE_NONE)
     ply:SetNotSolid(true)
@@ -113,8 +115,13 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply.ZBASE_Controller_wepLast = ply:GetActiveWeapon()
     ply:Flashlight(false)
     ply:AllowFlashlight(false)
-    ply:CONV_AddHook("EntityTakeDamage", function() return true end, "ZBASE_Controller_PlyGodMode")
-    ply:SetNW2Entity("ZBASE_ControllerCamEnt", npc)
+    ply:CONV_AddHook("EntityTakeDamage", function(_, trgt, dmg)
+        if trgt == ply then
+            print("ANOUG")
+            return true
+        end
+    end, "ZBASE_Controller_PlyGodMode")
+    ply:SetNWEntity("ZBASE_ControllerCamEnt", npc)
 
     conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 2)
 end
@@ -137,7 +144,7 @@ function NPC:ZBASE_Controller_InitAttacks()
             self:ClearEnemyMemory()
 
             -- Ensure we hate cursor target bullseye thingy
-            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_HT, 99)
+            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_HT, 0)
 
             -- Set to enemy
             self:UpdateEnemyMemory(self.ZBASE_ControlTarget, self.ZBASE_ControlTarget:GetPos())
@@ -153,7 +160,7 @@ function NPC:ZBASE_Controller_InitAttacks()
             self:SetNPCState(NPC_STATE_ALERT)
 
             -- Start liking bullseye target again
-            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_LI, 99)
+            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_LI, 0)
         end
     )
 end
@@ -164,22 +171,37 @@ end
 =======================================================================================================
 ]]--
 
+-- Move NPC to pos
 function NPC:ZBASE_Controller_Move( pos )
-    -- Move to pos
     local tr = util.TraceLine({
         start = self:WorldSpaceCenter(),
         endpos = pos,
         mask = MASK_SOLID,
         filter = {self, self.ZBASE_PlyController},
     })
+
+    -- Calculate current dest
     dest = tr.HitPos+tr.HitNormal*35
     self.ZBASE_CurCtrlDest = (self.ZBASE_CurCtrlDest && Lerp(0.33, self.ZBASE_CurCtrlDest, dest)) or dest
 
     if self.IsZBaseNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY then
+        -- Is ZBASE flyer, do special move
         self:AerialCalcGoal(dest)
+
     else
-        self:SetLastPosition( self.ZBASE_CurCtrlDest )
-        self:SetSchedule(self.ZBASE_PlyController:KeyDown(IN_SPEED) && SCHED_FORCED_GO_RUN or SCHED_FORCED_GO)
+        local ply = self.ZBASE_PlyController
+        local bInSpeedDown = ply:KeyDown(IN_SPEED)
+
+        -- Update move schedule if we should
+        -- Update constantly if not running
+        -- to ensure accuracy when moving
+        if ( (!bInSpeedDown)
+        or (!self:IsCurrentSchedule(SCHED_FORCED_GO) && !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN))
+        or !self:IsFacing(self.ZBASE_CurCtrlDest)
+        ) then
+            self:SetLastPosition( self.ZBASE_CurCtrlDest )
+            self:SetSchedule(bInSpeedDown && SCHED_FORCED_GO_RUN or SCHED_FORCED_GO)
+        end
     end
 end
 
@@ -298,8 +320,8 @@ function NPC:ZBASE_ControllerThink()
     ply:SetPos(self:GetPos())
 
     -- Mimic health
-    ply:SetHealth(self:Health())
-    ply:SetMaxHealth(self:GetMaxHealth())
+    -- ply:SetHealth(self:Health())
+    -- ply:SetMaxHealth(self:GetMaxHealth())
 
     -- Vars
     local eyeangs   = ply:EyeAngles()
@@ -328,8 +350,15 @@ function NPC:ZBASE_ControllerThink()
     self.NextHearSound = CurTime()+1
 
     if self.ZBASE_Controller_FreeAttacking then
+        -- Don't mess with NPC movement
+        -- Just let it do its own thing while
+        -- free attacking
         bForceMv = false
+
+        -- Free yaw lock if any
         self:SetMoveYawLocked(false)
+        
+        -- Give back move cap if any
         if self.ZBASE_CtrlrDetected_CAP_MOVE then
             self:CapabilitiesAdd(CAP_MOVE_GROUND)
             self.ZBASE_CtrlrDetected_CAP_MOVE = nil
@@ -337,6 +366,9 @@ function NPC:ZBASE_ControllerThink()
     end
 
     if bForceMv then
+        -- Force the NPC to move like the player wants
+        -- Also stand still if the player does not do anything
+
         -- Decide move direction
         local moveDir = Vector(0, 0, 0)
         if ply:KeyDown(IN_FORWARD) then
@@ -357,39 +389,52 @@ function NPC:ZBASE_ControllerThink()
         if ply:KeyDown(IN_DUCK) then
             moveDir = moveDir - up
         end
-        moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
+        local bPlyWantToMoveNPC = !moveDir:IsZero()
 
-        local moveVec = moveDir*(self:OBBMaxs().x+100)
-        if self:IsOnGround() or self:CONV_HasCapability(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
-            if ply:KeyDown(IN_JUMP) && self:SelectWeightedSequence(ACT_JUMP) != -1 && !self.ZBASE_Controller_JumpOnCooldown then
-                self:ZBASE_Controller_Jump(moveDir)
-            else
-                -- Moving
-                self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
-            end
-        end
+        if bPlyWantToMoveNPC then
+            moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
 
-        if self.ZBASE_CurCtrlDest then
-            debugoverlay.Sphere(self.ZBASE_CurCtrlDest, 10, 0.05, colDeb, true)
-        end
-
-        if moveDir:IsZero() then
-            -- Be still when should not move
-            self:SetMoveYawLocked(true)
-
-            if self:CONV_HasCapability(CAP_MOVE_GROUND) then
-                self:CapabilitiesRemove(CAP_MOVE_GROUND)
-                self.ZBASE_CtrlrDetected_CAP_MOVE = true
-                self:ClearGoal()
-                self:TaskComplete()
-                self:ClearSchedule()
-            end
-        else
             self:SetMoveYawLocked(false)
 
             if self.ZBASE_CtrlrDetected_CAP_MOVE then
                 self:CapabilitiesAdd(CAP_MOVE_GROUND)
                 self.ZBASE_CtrlrDetected_CAP_MOVE = nil
+            end
+
+            local destDist = self:OBBMaxs().x+100
+
+            -- If player wants to move fast
+            -- Increase distance to destination
+            -- To better suite AI for running
+            if ply:KeyDown(IN_SPEED) then
+                destDist = destDist*10
+            end
+
+            local moveVec = moveDir*destDist
+            if self:IsOnGround() or self:CONV_HasCapability(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
+                if ply:KeyDown(IN_JUMP) && self:SelectWeightedSequence(ACT_JUMP) != -1 && !self.ZBASE_Controller_JumpOnCooldown then
+                    self:ZBASE_Controller_Jump(moveDir)
+                else
+                    -- Moving
+                    self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
+                end
+            end
+
+            if self.ZBASE_CurCtrlDest then
+                debugoverlay.Sphere(self.ZBASE_CurCtrlDest, 10, 0.05, colDeb, true)
+            end
+        else
+            -- Be still when should not move
+
+            self:SetMoveYawLocked(true)
+
+            if self:CONV_HasCapability(CAP_MOVE_GROUND) then
+                -- Stopped moving so remove ground capabilities and clear goal etc
+                self:CapabilitiesRemove(CAP_MOVE_GROUND)
+                self.ZBASE_CtrlrDetected_CAP_MOVE = true
+                self:ClearGoal()
+                self:TaskComplete()
+                self:ClearSchedule()
             end
         end
     end
@@ -431,7 +476,7 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
     end
  
     if IsValid(ply) then
-        ply:SetNW2Entity("ZBASE_ControllerCamEnt", NULL)
+        ply:SetNWEntity("ZBASE_ControllerCamEnt", NULL)
         ply:SetMoveType(MOVETYPE_WALK)
         ply:SetNoTarget(false)
         ply:SetNotSolid(false)

@@ -8,6 +8,7 @@ ZBASE_CONTROLLER    = ZBASE_CONTROLLER or {}
 
 hook.Add("InitPostEntity", "ZBASE_CONTROLLER", function()
     LocalPlayer().ZBASE_ControllerZoomDist = 0 
+    LocalPlayer().ZBASE_ControllerCamUp = 0 
 end)
 
 local function controllerZoom(amount)
@@ -22,7 +23,7 @@ end
 
 hook.Add("InputMouseApply", "ZBASE_CONTROLLER", function(cmd, x, y, angle)
     local ply = LocalPlayer()
-    local camEnt = ply:GetNW2Entity("ZBASE_ControllerCamEnt", NULL)
+    local camEnt = ply:GetNWEntity("ZBASE_ControllerCamEnt", NULL)
     if !IsValid(camEnt) then return end
 
     local scroll = cmd:GetMouseWheel()
@@ -37,13 +38,20 @@ concommand.Add("zbase_controller_zoom", function(_, _, args)
     controllerZoom(tonumber(iZoomAmount))
 end)
 
--- Block weapon switching via scroll (reserved for zoom)
 hook.Add("PlayerBindPress", "ZBASE_CONTROLLER", function(ply, bind, pressed)
     local ply = LocalPlayer()
-    local camEnt = ply:GetNW2Entity("ZBASE_ControllerCamEnt", NULL)
+    local camEnt = ply:GetNWEntity("ZBASE_ControllerCamEnt", NULL)
     if !IsValid(camEnt) then return end
 
-    if bind:find("invprev") or bind:find("invnext") then
+    if bind == "+lookup" then
+        ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp+15
+        return
+    elseif bind == "+lookdown" then
+        ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp-15
+    end
+
+    -- Block weapon switching via scroll (reserved for zoom)
+    if bind == "invprev" or bind == "invnext" then
         return true 
     end
 end)
