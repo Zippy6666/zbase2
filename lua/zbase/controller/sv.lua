@@ -13,6 +13,8 @@
 ==================================================================================================
 --]]
 
+util.AddNetworkString("ZBASE_ControllerUpdateZoomOnServer")
+
 local NPC           = FindMetaTable("NPC")
 local developer     = GetConVar("developer")
 local colDeb        = Color(0, 255, 0, 255)
@@ -72,17 +74,16 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc:SetEnemy(nil)
     npc:ClearEnemyMemory()
 
-    -- Setup camera
-    npc.ZBASE_ViewEnt = ents.Create("zb_temporary_ent")
-    npc.ZBASE_ViewEnt.ShouldRemain = true
-    npc.ZBASE_ViewEnt:SetPos( npc:GetPos() )
-    npc.ZBASE_ViewEnt:SetAngles(npc:GetAngles())
-    npc.ZBASE_ViewEnt:SetParent(npc)
-    npc.ZBASE_ViewEnt:SetNoDraw(true)
-    npc.ZBASE_ViewEnt:Spawn()
+    -- npc.ZBASE_ViewEnt = ents.Create("zb_temporary_ent")
+    -- npc.ZBASE_ViewEnt.ShouldRemain = true
+    -- npc.ZBASE_ViewEnt:SetPos( npc:GetPos() )
+    -- npc.ZBASE_ViewEnt:SetAngles(npc:GetAngles())
+    -- npc.ZBASE_ViewEnt:SetParent(npc)
+    -- npc.ZBASE_ViewEnt:SetNoDraw(true)
+    -- npc.ZBASE_ViewEnt:Spawn()
 
-    npc:DeleteOnRemove(npc.ZBASE_ViewEnt)
-    ply:SetNWEntity("ZBASE_CONTROLLERCamEnt", npc)
+    -- npc:DeleteOnRemove(npc.ZBASE_ViewEnt)
+    ply:SetNW2Entity("ZBASE_ControllerCamEnt", npc)
 
     -- Disable jump capability for NPC
     npc.ZBASE_HadJumpCap = npc:CONV_HasCapability(CAP_MOVE_JUMP)
@@ -103,13 +104,6 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
 
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
     ply:CONV_AddHook("EntityTakeDamage", function() return true end, "ZBASE_Controller_PlyGodMode")
-    
-    -- Undo stops controlling
-    -- undo.Create("ZBase Control")
-    -- undo.SetPlayer(ply)
-    -- undo.AddFunction(function() self:StopControlling( ply, npc ) end)
-    -- undo.SetCustomUndoText( "Stopped Controlling ".. hook.Run("GetDeathNoticeEntityName", npc) )
-    -- undo.Finish()
 
     -- If the NPC is removed the controlling should also stop
     npc:CallOnRemove("StopControllingZB", function()
@@ -118,59 +112,6 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
 
     conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 2)
 end
-
-function ZBASE_CONTROLLER:StopControlling( ply, npc )
-    if IsValid(npc) then
-        if npc.ZBASE_HadJumpCap then
-            npc:CapabilitiesAdd(CAP_MOVE_JUMP)
-        end
-
-        -- npc:SetSaveValue( "m_flFieldOfView", npc.FieldOfView )
-        npc.ZBASE_IsPlyControlled  = false
-        npc.ZBASE_PlyController  = nil
-        ply.ZBASE_ControlledNPC = nil
-        npc.ZBASE_HadJumpCap = nil
-
-        npc:SetMoveYawLocked(false)
-
-        SafeRemoveEntity(npc.ZBASE_ViewEnt)
-        SafeRemoveEntity(npc.ZBASE_ControlTarget)
-
-        npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
-    end
-
-    if IsValid(ply) then
-        ply:SetNWEntity("ZBASE_CONTROLLERCamEnt", NULL)
-        ply:SetMoveType(MOVETYPE_WALK)
-        ply:SetNoTarget(false)
-        ply:SetNotSolid(false)
-        ply:SetNoDraw(false)
-        ply:SetHealth(ply.ZBASE_HPBeforeControl)
-        ply:SetMaxHealth(ply.ZBASE_MaxHPBeforeControl)
-        ply:AllowFlashlight(true)
-        ply:CONV_RemoveHook("Think", "ZBASE_Controller_PlyGodMode")
-    end
-end
-
-
-hook.Add("PlayerButtonDown", "ZBASE_CONTROLLER", function(ply, btn)
-    if IsValid(ply.ZBASE_ControlledNPC) then
-        ply.ZBASE_ControlledNPC:ZBASE_Controller_ButtonDown(ply, btn)
-    end
-end)
-
-hook.Add("KeyPress", "ZBASE_CONTROLLER", function(ply, key)
-    if IsValid(ply.ZBASE_ControlledNPC) then
-        ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyPress(ply, key)
-    end
-end)
-
-hook.Add("PlayerNoClip", "ZBASE_CONTROLLER", function(ply, desiredState)
-    if IsValid(ply.ZBASE_ControlledNPC) then
-        ZBASE_CONTROLLER:StopControlling(ply, ply.ZBASE_ControlledNPC)
-    end
-    return true
-end)
 
 function NPC:ZBASE_Controller_Move( pos )
     -- Move to pos
@@ -189,24 +130,6 @@ function NPC:ZBASE_Controller_Move( pos )
         self:SetLastPosition( self.ZBASE_CurCtrlDest )
         self:SetSchedule(self.ZBASE_PlyController:KeyDown(IN_SPEED) && SCHED_FORCED_GO_RUN or SCHED_FORCED_GO)
     end
-end
-
-function NPC:ZBASE_Controller_ButtonDown(ply, btn)
-end
-
-function NPC:ZBASE_Controller_KeyPress(ply, key)
-end
-
-function NPC:ZBASE_Controller_GetJumpStats()
-    if self.Controller_JumpPower && self.Controller_JumpPower > 0 then return self.Controller_JumpPower end
-
-    local jumpPower = jumpPowerStats[self:GetHullType()]
-
-    if !jumpPower then
-        return jumpPowerStats[HULL_HUMAN]
-    end
-
-    return jumpPower
 end
 
 function NPC:ZBASE_Controller_Jump(dir)
@@ -238,6 +161,44 @@ function NPC:ZBASE_Controller_Jump(dir)
     self:CONV_TempVar("ZBASE_Controller_JumpOnCooldown", true, 2)
 end
 
+function NPC:ZBASE_Controller_GetJumpStats()
+    if self.Controller_JumpPower && self.Controller_JumpPower > 0 then return self.Controller_JumpPower end
+
+    local jumpPower = jumpPowerStats[self:GetHullType()]
+
+    if !jumpPower then
+        return jumpPowerStats[HULL_HUMAN]
+    end
+
+    return jumpPower
+end
+
+function NPC:ZBASE_Controller_ButtonDown(ply, btn)
+end
+
+function NPC:ZBASE_Controller_KeyPress(ply, key)
+end
+
+hook.Add("PlayerButtonDown", "ZBASE_CONTROLLER", function(ply, btn)
+    if IsValid(ply.ZBASE_ControlledNPC) then
+        ply.ZBASE_ControlledNPC:ZBASE_Controller_ButtonDown(ply, btn)
+    end
+end)
+
+hook.Add("KeyPress", "ZBASE_CONTROLLER", function(ply, key)
+    if IsValid(ply.ZBASE_ControlledNPC) then
+        ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyPress(ply, key)
+    end
+end)
+
+hook.Add("PlayerInitialSpawn", "ZBASE_CONTROLLER", function(ply, bIsTransition)
+    ply.ZBASE_ControllerZoomDist = 0
+end)
+
+net.Recieve("ZBASE_ControllerUpdateZoomOnServer", function(_, ply)
+    ply.ZBASE_ControllerZoomDist = net.ReadInt(11)
+end)
+
 function NPC:ZBASE_ControllerThink()
     -- Checks
     local ply = self.ZBASE_PlyController
@@ -260,33 +221,23 @@ function NPC:ZBASE_ControllerThink()
 
     -- Vars
     local eyeangs   = ply:EyeAngles()
+    local viewpos   = ZBASE_CONTROLLER:GetViewPos(ply)
     local forward   = eyeangs:Forward()
     local right     = eyeangs:Right()
     local up        = Vector(0, 0, 1)
-    local camEnt    = ply:GetNWEntity("ZBASE_CONTROLLERCamEnt", NULL)
 
     -- Camera tracer
-    -- local camViewPos = camEnt:GetPos()
-    -- local camTrace = util.TraceLine({
-    --     start = camViewPos,
-    --     endpos = camViewPos+forward*100000,
-    --     mask = MASK_VISIBLE_AND_NPCS,
-    --     filter = self,
-    -- })
-    -- print(camTrace.Entity)
-    -- -- The controller "target"
-    -- if IsValid(self.ZBASE_ControlTarget) then
-    --     -- Position target at cursor
-    --     self.ZBASE_ControlTarget:SetPos(camTrace.HitPos+camTrace.HitNormal*5)
-
-    --     -- Be enemy to target
-    --     if !IsValid(self:GetEnemy()) then
-    --         self:AddEntityRelationship(self.ZBASE_ControlTarget, D_HT, 0)
-    --         self:UpdateEnemyMemory(self.ZBASE_ControlTarget, camTrace.HitPos+camTrace.HitNormal*5)
-    --         self:SetEnemy(self.ZBASE_ControlTarget)
-    --         self:SetUnforgettable( self.ZBASE_ControlTarget )
-    --     end
-    -- end
+    local tr = util.TraceLine({
+        start = viewpos,
+        endpos = viewpos+forward*100000,
+        mask = MASK_VISIBLE_AND_NPCS,
+        filter = self,
+    })
+    -- The controller "target"
+    if IsValid(self.ZBASE_ControlTarget) then
+        -- Position target at cursor
+        self.ZBASE_ControlTarget:SetPos(camTrace.HitPos+camTrace.HitNormal*5)
+    end
 
     -- Delay hearing so we are temporarily deaf while being controlled
     self.NextHearSound = CurTime()+1
@@ -335,7 +286,43 @@ function NPC:ZBASE_ControllerThink()
     end
 end
 
-hook.Add("PlayerFootstep", "ZBASE_CONTROLLER", function(ply)
-    local camEnt = ply:GetNWEntity("ZBASE_CONTROLLERCamEnt", NULL)
-    return IsValid(camEnt)
+-- Noclipping causes controlling to stop
+hook.Add("PlayerNoClip", "ZBASE_CONTROLLER", function(ply, desiredState)
+    if IsValid(ply.ZBASE_ControlledNPC) then
+        ZBASE_CONTROLLER:StopControlling(ply, ply.ZBASE_ControlledNPC)
+    end
+    return true
 end)
+
+function ZBASE_CONTROLLER:StopControlling( ply, npc )
+    if IsValid(npc) then
+        if npc.ZBASE_HadJumpCap then
+            npc:CapabilitiesAdd(CAP_MOVE_JUMP)
+        end
+
+        -- npc:SetSaveValue( "m_flFieldOfView", npc.FieldOfView )
+        npc.ZBASE_IsPlyControlled  = false
+        npc.ZBASE_PlyController  = nil
+        ply.ZBASE_ControlledNPC = nil
+        npc.ZBASE_HadJumpCap = nil
+
+        npc:SetMoveYawLocked(false)
+
+        -- SafeRemoveEntity(npc.ZBASE_ViewEnt)
+        SafeRemoveEntity(npc.ZBASE_ControlTarget)
+
+        npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
+    end
+ 
+    if IsValid(ply) then
+        ply:SetNW2Entity("ZBASE_ControllerCamEnt", NULL)
+        ply:SetMoveType(MOVETYPE_WALK)
+        ply:SetNoTarget(false)
+        ply:SetNotSolid(false)
+        ply:SetNoDraw(false)
+        ply:SetHealth(ply.ZBASE_HPBeforeControl)
+        ply:SetMaxHealth(ply.ZBASE_MaxHPBeforeControl)
+        ply:AllowFlashlight(true)
+        ply:CONV_RemoveHook("Think", "ZBASE_Controller_PlyGodMode")
+    end
+end
