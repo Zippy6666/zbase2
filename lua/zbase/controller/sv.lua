@@ -125,7 +125,36 @@ function NPC:ZBASE_Controller_InitAttacks()
     end
 
     -- Lastly, add free attack
-    npc:ZBASE_ControllerAddAttack(function() PrintMessage(HUD_PRINTTALK, "HOYAAAH") end)
+    self:ZBASE_ControllerAddAttack(
+        function()
+            if !IsValid(self) then return end
+            if !IsValid(self.ZBASE_ControlTarget) then return end
+            self.ZBASE_Controller_FreeAttacking = true
+            
+            -- Clear ene memory first
+            self:SetEnemy(nil)
+            self:ClearEnemyMemory()
+
+            -- Ensure we hate cursor target bullseye thingy
+            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_HT, 99)
+
+            -- Set to enemy
+            self:UpdateEnemyMemory(self.ZBASE_ControlTarget, self.ZBASE_ControlTarget:GetPos())
+        end,
+        function()
+            if !IsValid(self) then return end
+            if !IsValid(self.ZBASE_ControlTarget) then return end
+            self.ZBASE_Controller_FreeAttacking = nil
+
+            -- Clear ene memory
+            self:SetEnemy(nil)
+            self:ClearEnemyMemory()
+            self:SetNPCState(NPC_STATE_ALERT)
+
+            -- Start liking bullseye target again
+            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_LI, 99)
+        end
+    )
 end
 
 --[[
@@ -275,6 +304,7 @@ function NPC:ZBASE_ControllerThink()
     local right     = eyeangs:Right()
     local up        = Vector(0, 0, 1)
     local viewpos   = ZBASE_CONTROLLER:GetViewPos(ply, forward)
+    local bForceMv  = true
 
     -- Camera tracer
     if viewpos then
@@ -294,47 +324,54 @@ function NPC:ZBASE_ControllerThink()
     -- Delay hearing so we are temporarily deaf while being controlled
     self.NextHearSound = CurTime()+1
 
-    -- Decide move direction
-    local moveDir = Vector(0, 0, 0)
-    if ply:KeyDown(IN_FORWARD) then
-        moveDir = moveDir + Vector(forward.x, forward.y, 0):GetNormalized()
-    end
-    if ply:KeyDown(IN_BACK) then
-        moveDir = moveDir - Vector(forward.x, forward.y, 0):GetNormalized()
-    end
-    if ply:KeyDown(IN_MOVELEFT) then
-        moveDir = moveDir - Vector(right.x, right.y, 0):GetNormalized()
-    end
-    if ply:KeyDown(IN_MOVERIGHT) then
-        moveDir = moveDir + Vector(right.x, right.y, 0):GetNormalized()
-    end
-    if ply:KeyDown(IN_JUMP) then
-        moveDir = moveDir + up
-    end
-    if ply:KeyDown(IN_DUCK) then
-        moveDir = moveDir - up
-    end
-    moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
-
-    local moveVec = moveDir*(self:OBBMaxs().x+100)
-    if self:IsOnGround() or self:CONV_HasCapability(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
-        if ply:KeyDown(IN_JUMP) && self:SelectWeightedSequence(ACT_JUMP) != -1 && !self.ZBASE_Controller_JumpOnCooldown then
-            self:ZBASE_Controller_Jump(moveDir)
-        else
-            -- Moving
-            self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
-        end
-    end
-
-    if moveDir:IsZero() then
-        self:SetMoveYawLocked(true) -- Face same direction if not moving
-    else
-        self:CONV_TempVar("ZBASE_ControllerMoving", true, 0.1)
+    if self.ZBASE_Controller_FreeAttacking then
+        bForceMv = false
         self:SetMoveYawLocked(false)
     end
 
-    if self.ZBASE_CurCtrlDest then
-        debugoverlay.Sphere(self.ZBASE_CurCtrlDest, 10, 0.05, colDeb, true)
+    if bForceMv then
+        -- Decide move direction
+        local moveDir = Vector(0, 0, 0)
+        if ply:KeyDown(IN_FORWARD) then
+            moveDir = moveDir + Vector(forward.x, forward.y, 0):GetNormalized()
+        end
+        if ply:KeyDown(IN_BACK) then
+            moveDir = moveDir - Vector(forward.x, forward.y, 0):GetNormalized()
+        end
+        if ply:KeyDown(IN_MOVELEFT) then
+            moveDir = moveDir - Vector(right.x, right.y, 0):GetNormalized()
+        end
+        if ply:KeyDown(IN_MOVERIGHT) then
+            moveDir = moveDir + Vector(right.x, right.y, 0):GetNormalized()
+        end
+        if ply:KeyDown(IN_JUMP) then
+            moveDir = moveDir + up
+        end
+        if ply:KeyDown(IN_DUCK) then
+            moveDir = moveDir - up
+        end
+        moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
+
+        local moveVec = moveDir*(self:OBBMaxs().x+100)
+        if self:IsOnGround() or self:CONV_HasCapability(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
+            if ply:KeyDown(IN_JUMP) && self:SelectWeightedSequence(ACT_JUMP) != -1 && !self.ZBASE_Controller_JumpOnCooldown then
+                self:ZBASE_Controller_Jump(moveDir)
+            else
+                -- Moving
+                self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
+            end
+        end
+
+        if self.ZBASE_CurCtrlDest then
+            debugoverlay.Sphere(self.ZBASE_CurCtrlDest, 10, 0.05, colDeb, true)
+        end
+
+        -- Yaw lock if no destination
+        if moveDir:IsZero() then
+            self:SetMoveYawLocked(true)
+        else
+            self:SetMoveYawLocked(false)
+        end
     end
 end
 
@@ -362,6 +399,7 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         npc.ZBASE_PlyController  = nil
         npc.ZBASE_HadJumpCap = nil
         npc.ZBASE_Controls = nil
+        npc.ZBASE_Controller_FreeAttacking = nil
         npc:SetMoveYawLocked(false)
 
         SafeRemoveEntity(npc.ZBASE_ControlTarget)
