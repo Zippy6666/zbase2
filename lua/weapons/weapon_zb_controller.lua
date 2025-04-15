@@ -6,7 +6,8 @@ SWEP.Author         = "Zippy"
 SWEP.Spawnable      = true
 SWEP.Instructions   = "Press PRIMARY KEY to control almost any NPC!"
 SWEP.Category       = "Other"
-SWEP.WorldModel     = Model( "models/weapons/w_slam.mdl" )
+SWEP.WorldModel = Model( "models/weapons/w_stunbaton.mdl" ) -- Relative path to the SWEP's world model.
+SWEP.ViewModel = Model( "models/weapons/v_stunstick.mdl" ) -- Relative path to the SWEP's view model.
 SWEP.ViewModelFOV   = 55
 
 SWEP.Primary.Ammo           = -1
@@ -14,6 +15,10 @@ SWEP.Primary.DefaultClip    = -1
 SWEP.Primary.Automatic      = false
 SWEP.Secondary.Ammo         = -1
 SWEP.Secondary.DefaultClip  = -1
+
+function SWEP:Initialize()
+    self:SetHoldType("slam")
+end
 
 function SWEP:PrimaryAttack()
     if SERVER then

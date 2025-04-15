@@ -43,6 +43,7 @@ ZBASE_CONTROLLER    = ZBASE_CONTROLLER or {}
 
 function ZBASE_CONTROLLER:StartControlling( ply, npc )
     -- Valid checks
+    if ply.ZBASE_Controller_Prevent then return end
     if npc.ZBASE_IsPlyControlled then return end
     if IsValid(ply.ZBASE_ControlledNPC) then return end
 
@@ -106,7 +107,7 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply.ZBASE_HPBeforeControl = ply:Health()
     ply.ZBASE_MaxHPBeforeControl = ply:GetMaxHealth()
     ply:SetNoTarget(true)
-    ply:SetMoveType(MOVETYPE_NOCLIP)
+    ply:SetMoveType(MOVETYPE_NONE)
     ply:SetNotSolid(true)
     ply:SetNoDraw(true)
     ply.ZBASE_Controller_wepLast = ply:GetActiveWeapon()
@@ -279,6 +280,8 @@ end
 ]]--
 
 function NPC:ZBASE_ControllerThink()
+    if self.ZBASE_NextCtrlrThink && self.ZBASE_NextCtrlrThink > CurTime() then return end
+
     -- Checks
     local ply = self.ZBASE_PlyController
     if !IsValid(ply) then
@@ -327,6 +330,10 @@ function NPC:ZBASE_ControllerThink()
     if self.ZBASE_Controller_FreeAttacking then
         bForceMv = false
         self:SetMoveYawLocked(false)
+        if self.ZBASE_CtrlrDetected_CAP_MOVE then
+            self:CapabilitiesAdd(CAP_MOVE_GROUND)
+            self.ZBASE_CtrlrDetected_CAP_MOVE = nil
+        end
     end
 
     if bForceMv then
@@ -366,13 +373,28 @@ function NPC:ZBASE_ControllerThink()
             debugoverlay.Sphere(self.ZBASE_CurCtrlDest, 10, 0.05, colDeb, true)
         end
 
-        -- Yaw lock if no destination
         if moveDir:IsZero() then
+            -- Be still when should not move
             self:SetMoveYawLocked(true)
+
+            if self:CONV_HasCapability(CAP_MOVE_GROUND) then
+                self:CapabilitiesRemove(CAP_MOVE_GROUND)
+                self.ZBASE_CtrlrDetected_CAP_MOVE = true
+                self:ClearGoal()
+                self:TaskComplete()
+                self:ClearSchedule()
+            end
         else
             self:SetMoveYawLocked(false)
+
+            if self.ZBASE_CtrlrDetected_CAP_MOVE then
+                self:CapabilitiesAdd(CAP_MOVE_GROUND)
+                self.ZBASE_CtrlrDetected_CAP_MOVE = nil
+            end
         end
     end
+
+    self.ZBASE_NextCtrlrThink = CurTime()+0.1
 end
 
 --[[
@@ -400,6 +422,7 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         npc.ZBASE_HadJumpCap = nil
         npc.ZBASE_Controls = nil
         npc.ZBASE_Controller_FreeAttacking = nil
+        npc.ZBASE_NextCtrlrThink = nil
         npc:SetMoveYawLocked(false)
 
         SafeRemoveEntity(npc.ZBASE_ControlTarget)
@@ -418,5 +441,6 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply:AllowFlashlight(true)
         ply.ZBASE_ControlledNPC = nil
         ply:CONV_RemoveHook("Think", "ZBASE_Controller_PlyGodMode")
+        ply:CONV_TempVar("ZBASE_Controller_Prevent", true, 2)
     end
 end
