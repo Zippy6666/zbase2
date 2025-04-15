@@ -13,8 +13,6 @@
 ==================================================================================================
 --]]
 
-util.AddNetworkString("ZBASE_ControllerUpdateZoomOnServer")
-
 local NPC           = FindMetaTable("NPC")
 local developer     = GetConVar("developer")
 local colDeb        = Color(0, 255, 0, 255)
@@ -31,20 +29,30 @@ local jumpPowerStats = {
 
 ZBASE_CONTROLLER    = ZBASE_CONTROLLER or {}
 
+--[[
+=======================================================================================================
+        START CONTROL
+=======================================================================================================
+]]--
+
 function ZBASE_CONTROLLER:StartControlling( ply, npc )
+    -- Valid checks
     if npc.ZBASE_IsPlyControlled then return end
     if IsValid(ply.ZBASE_ControlledNPC) then return end
 
+    -- This type of NPC cannot be controlled
     if !IsValid(npc) or !npc:IsNPC() or npc.IsVJBaseSNPC then
         conv.sendGModHint(ply, "Cannot control this entity!", 1, 2)
         return
     end
 
+    -- Is guarding, cannot be controlled
     if npc.ZBase_Guard then
         conv.sendGModHint(ply, "NPCs with Guard Mode cannot be controlled!", 1, 2)
         return
     end
 
+    -- Give player controller weapon if they don't already have it
     local wep = ply:GetWeapon("weapon_zb_controller")
     if !IsValid(wep) then
         wep = ply:Give("weapon_zb_controller")
@@ -53,17 +61,13 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
         ply:SetActiveWeapon(wep)
     end
 
-    npc.ZBASE_IsPlyControlled = true
-    npc.ZBASE_PlyController  =  ply
-
-    -- Only target the target which will follow the players cursor
+    -- Define target entity that follows the player's cursor
     npc.ZBASE_ControlTarget = ents.Create("npc_bullseye")
     npc.ZBASE_ControlTarget:SetPos( npc:WorldSpaceCenter() )
     npc.ZBASE_ControlTarget:SetNotSolid(true)
     npc.ZBASE_ControlTarget:SetHealth(math.huge)
     npc.ZBASE_ControlTarget:Spawn()
     npc.ZBASE_ControlTarget:Activate()
-
     if developer:GetBool() then
         npc.ZBASE_ControlTarget:SetModel("models/props_combine/breenbust.mdl")
         npc.ZBASE_ControlTarget:SetMaterial("models/wireframe")
@@ -71,23 +75,22 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
         npc.ZBASE_ControlTarget:DrawShadow(false)
     end
 
+    -- Remove NPCs current enemies
     npc:SetEnemy(nil)
     npc:ClearEnemyMemory()
 
-    -- npc.ZBASE_ViewEnt = ents.Create("zb_temporary_ent")
-    -- npc.ZBASE_ViewEnt.ShouldRemain = true
-    -- npc.ZBASE_ViewEnt:SetPos( npc:GetPos() )
-    -- npc.ZBASE_ViewEnt:SetAngles(npc:GetAngles())
-    -- npc.ZBASE_ViewEnt:SetParent(npc)
-    -- npc.ZBASE_ViewEnt:SetNoDraw(true)
-    -- npc.ZBASE_ViewEnt:Spawn()
-
-    -- npc:DeleteOnRemove(npc.ZBASE_ViewEnt)
-    ply:SetNW2Entity("ZBASE_ControllerCamEnt", npc)
-
     -- Disable jump capability for NPC
+    -- Jumping will be controlled manually by the player
     npc.ZBASE_HadJumpCap = npc:CONV_HasCapability(CAP_MOVE_JUMP)
     npc:CapabilitiesRemove(CAP_MOVE_JUMP)
+
+    -- NPC hooks/vars
+    npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
+    npc.ZBASE_IsPlyControlled = true
+    npc.ZBASE_PlyController  =  ply
+    npc:CallOnRemove("StopControllingZB", function()
+        self:StopControlling(ply, npc)
+    end)
 
     -- Player variables
     ply.ZBASE_ControlledNPC = npc
@@ -101,17 +104,17 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply.ZBASE_Controller_wepLast = ply:GetActiveWeapon()
     ply:Flashlight(false)
     ply:AllowFlashlight(false)
-
-    npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
     ply:CONV_AddHook("EntityTakeDamage", function() return true end, "ZBASE_Controller_PlyGodMode")
-
-    -- If the NPC is removed the controlling should also stop
-    npc:CallOnRemove("StopControllingZB", function()
-        self:StopControlling(ply, npc)
-    end)
+    ply:SetNW2Entity("ZBASE_ControllerCamEnt", npc)
 
     conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 2)
 end
+
+--[[
+=======================================================================================================
+        MOVEMENT
+=======================================================================================================
+]]--
 
 function NPC:ZBASE_Controller_Move( pos )
     -- Move to pos
@@ -173,11 +176,18 @@ function NPC:ZBASE_Controller_GetJumpStats()
     return jumpPower
 end
 
+--[[
+=======================================================================================================
+        CONTROLS
+=======================================================================================================
+]]--
+
 function NPC:ZBASE_Controller_ButtonDown(ply, btn)
     if !self.ZBASE_Controls then return end
 end
 
 function NPC:ZBASE_Controller_KeyPress(ply, key)
+    if !self.ZBASE_Controls then return end
 end
 
 hook.Add("PlayerButtonDown", "ZBASE_CONTROLLER", function(ply, btn)
@@ -192,20 +202,18 @@ hook.Add("KeyPress", "ZBASE_CONTROLLER", function(ply, key)
     end
 end)
 
-hook.Add("PlayerInitialSpawn", "ZBASE_CONTROLLER", function(ply, bIsTransition)
-    ply.ZBASE_ControllerZoomDist = 0
-end)
+function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc)
+    self.ZBASE_Controls = self.ZBASE_Controls or {}
+    self.ZBASE_ControlLastBind = self.ZBASE_ControlLastBind or IN_ATTACK
+    self.ZBASE_Controls[self.ZBASE_ControlLastBind] = {pressFunc=pressFunc, releaseFunc=releaseFunc}
+    self.ZBASE_ControlLastBind = nextBind[self.ZBASE_ControlLastBind]
+end
 
-net.Receive("ZBASE_ControllerUpdateZoomOnServer", function(_, ply)
-    ply.ZBASE_ControllerZoomDist = net.ReadInt(11)
-end)
-
--- function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc)
---     self.ZBASE_Controls = self.ZBASE_Controls or {}
---     self.ZBASE_ControlLastBind = self.ZBASE_ControlLastBind or IN_ATTACK
---     self.ZBASE_Controls[self.ZBASE_ControlLastBind] = {pressFunc=pressFunc, releaseFunc=releaseFunc}
---     self.ZBASE_ControlLastBind = nextBind[self.ZBASE_ControlLastBind]
--- end
+--[[
+=======================================================================================================
+        THINK
+=======================================================================================================
+]]--
 
 function NPC:ZBASE_ControllerThink()
     -- Checks
@@ -296,6 +304,12 @@ function NPC:ZBASE_ControllerThink()
     end
 end
 
+--[[
+=======================================================================================================
+        END CONTROLLING
+=======================================================================================================
+]]--
+
 -- Noclipping causes controlling to stop
 hook.Add("PlayerNoClip", "ZBASE_CONTROLLER", function(ply, desiredState)
     if IsValid(ply.ZBASE_ControlledNPC) then
@@ -310,14 +324,12 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
             npc:CapabilitiesAdd(CAP_MOVE_JUMP)
         end
 
-        -- npc:SetSaveValue( "m_flFieldOfView", npc.FieldOfView )
         npc.ZBASE_IsPlyControlled  = false
         npc.ZBASE_PlyController  = nil
         npc.ZBASE_HadJumpCap = nil
         npc.ZBASE_Controls = nil
         npc:SetMoveYawLocked(false)
 
-        -- SafeRemoveEntity(npc.ZBASE_ViewEnt)
         SafeRemoveEntity(npc.ZBASE_ControlTarget)
 
         npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
@@ -329,8 +341,8 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply:SetNoTarget(false)
         ply:SetNotSolid(false)
         ply:SetNoDraw(false)
-        ply:SetHealth(ply.ZBASE_HPBeforeControl)
-        ply:SetMaxHealth(ply.ZBASE_MaxHPBeforeControl)
+        ply:SetHealth(ply.ZBASE_HPBeforeControl or 100)
+        ply:SetMaxHealth(ply.ZBASE_MaxHPBeforeControl or 100)
         ply:AllowFlashlight(true)
         ply.ZBASE_ControlledNPC = nil
         ply:CONV_RemoveHook("Think", "ZBASE_Controller_PlyGodMode")
