@@ -30,7 +30,7 @@ hook.Add("PlayerBindPress", "ZBASE_CONTROLLER", function(ply, bind, pressed)
 end)
 
 hook.Add("CalcView", "ZBASE_CONTROLLER", function(ply, pos, ang, fov, znear, zfar)
-    local idealViewPos = ZBASE_CONTROLLER:GetViewPos(ply)
+    local idealViewPos = ZBASE_CONTROLLER:GetViewPos(ply, ang:Forward())
     if !idealViewPos then return end
 
     -- Lerp view position

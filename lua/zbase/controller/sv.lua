@@ -229,10 +229,10 @@ function NPC:ZBASE_ControllerThink()
 
     -- Vars
     local eyeangs   = ply:EyeAngles()
-    local viewpos   = ZBASE_CONTROLLER:GetViewPos(ply)
     local forward   = eyeangs:Forward()
     local right     = eyeangs:Right()
     local up        = Vector(0, 0, 1)
+    local viewpos   = ZBASE_CONTROLLER:GetViewPos(ply, forward)
 
     -- Camera tracer
     if viewpos then
@@ -245,10 +245,10 @@ function NPC:ZBASE_ControllerThink()
         -- The controller "target"
         if IsValid(self.ZBASE_ControlTarget) then
             -- Position target at cursor
-            self.ZBASE_ControlTarget:SetPos(camTrace.HitPos+camTrace.HitNormal*5)
+            self.ZBASE_ControlTarget:SetPos(tr.HitPos+tr.HitNormal*5)
         end
     end
-    
+
     -- Delay hearing so we are temporarily deaf while being controlled
     self.NextHearSound = CurTime()+1
 
