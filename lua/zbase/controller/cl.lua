@@ -31,6 +31,7 @@ end)
 
 hook.Add("CalcView", "ZBASE_CONTROLLER", function(ply, pos, ang, fov, znear, zfar)
     local idealViewPos = ZBASE_CONTROLLER:GetViewPos(ply)
+    if !idealViewPos then return end
 
     -- Lerp view position
     ply.ZBASE_Controller_ViewPos = LerpVector(0.5, ply.ZBASE_Controller_ViewPos or idealViewPos, idealViewPos)

@@ -174,6 +174,7 @@ function NPC:ZBASE_Controller_GetJumpStats()
 end
 
 function NPC:ZBASE_Controller_ButtonDown(ply, btn)
+    if !self.ZBASE_Controls then return end
 end
 
 function NPC:ZBASE_Controller_KeyPress(ply, key)
@@ -195,9 +196,16 @@ hook.Add("PlayerInitialSpawn", "ZBASE_CONTROLLER", function(ply, bIsTransition)
     ply.ZBASE_ControllerZoomDist = 0
 end)
 
-net.Recieve("ZBASE_ControllerUpdateZoomOnServer", function(_, ply)
+net.Receive("ZBASE_ControllerUpdateZoomOnServer", function(_, ply)
     ply.ZBASE_ControllerZoomDist = net.ReadInt(11)
 end)
+
+-- function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc)
+--     self.ZBASE_Controls = self.ZBASE_Controls or {}
+--     self.ZBASE_ControlLastBind = self.ZBASE_ControlLastBind or IN_ATTACK
+--     self.ZBASE_Controls[self.ZBASE_ControlLastBind] = {pressFunc=pressFunc, releaseFunc=releaseFunc}
+--     self.ZBASE_ControlLastBind = nextBind[self.ZBASE_ControlLastBind]
+-- end
 
 function NPC:ZBASE_ControllerThink()
     -- Checks
@@ -227,18 +235,20 @@ function NPC:ZBASE_ControllerThink()
     local up        = Vector(0, 0, 1)
 
     -- Camera tracer
-    local tr = util.TraceLine({
-        start = viewpos,
-        endpos = viewpos+forward*100000,
-        mask = MASK_VISIBLE_AND_NPCS,
-        filter = self,
-    })
-    -- The controller "target"
-    if IsValid(self.ZBASE_ControlTarget) then
-        -- Position target at cursor
-        self.ZBASE_ControlTarget:SetPos(camTrace.HitPos+camTrace.HitNormal*5)
+    if viewpos then
+        local tr = util.TraceLine({
+            start = viewpos,
+            endpos = viewpos+forward*100000,
+            mask = MASK_VISIBLE_AND_NPCS,
+            filter = self,
+        })
+        -- The controller "target"
+        if IsValid(self.ZBASE_ControlTarget) then
+            -- Position target at cursor
+            self.ZBASE_ControlTarget:SetPos(camTrace.HitPos+camTrace.HitNormal*5)
+        end
     end
-
+    
     -- Delay hearing so we are temporarily deaf while being controlled
     self.NextHearSound = CurTime()+1
 
@@ -303,9 +313,8 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         -- npc:SetSaveValue( "m_flFieldOfView", npc.FieldOfView )
         npc.ZBASE_IsPlyControlled  = false
         npc.ZBASE_PlyController  = nil
-        ply.ZBASE_ControlledNPC = nil
         npc.ZBASE_HadJumpCap = nil
-
+        npc.ZBASE_Controls = nil
         npc:SetMoveYawLocked(false)
 
         -- SafeRemoveEntity(npc.ZBASE_ViewEnt)
@@ -323,6 +332,7 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply:SetHealth(ply.ZBASE_HPBeforeControl)
         ply:SetMaxHealth(ply.ZBASE_MaxHPBeforeControl)
         ply:AllowFlashlight(true)
+        ply.ZBASE_ControlledNPC = nil
         ply:CONV_RemoveHook("Think", "ZBASE_Controller_PlyGodMode")
     end
 end

@@ -324,6 +324,7 @@ local function IncludeFiles()
         include("zbase/sv_enginewep_translation.lua")
         include("zbase/sv_replacer.lua")
         include("zbase/controller/sv.lua")
+        include("zbase/controller/sh.lua")
 
 
         -- Include NPC enhancement files
@@ -338,6 +339,7 @@ local function IncludeFiles()
         include("zbase/cl_spawnmenu.lua")
         include("zbase/cl_toolmenu.lua")
         include("zbase/controller/cl.lua")
+        include("zbase/controller/sh.lua")
     end
 end
 
@@ -353,6 +355,7 @@ local function AddCSLuaFiles()
     AddCSLuaFile("zbase/cl_spawnmenu.lua")
     AddCSLuaFile("zbase/cl_toolmenu.lua")
     AddCSLuaFile("zbase/controller/cl.lua")
+    AddCSLuaFile("zbase/controller/sh.lua")
 
     -- Add zbase entity files
     local _, dirs = file.Find("zbase/entities/*","LUA")
