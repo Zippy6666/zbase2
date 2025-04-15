@@ -18,6 +18,12 @@ local developer     = GetConVar("developer")
 local colDeb        = Color(0, 255, 0, 255)
 local vecFarDown    = Vector(0,0,-10000)
 
+local nextBind = {
+    [IN_ATTACK] = IN_ATTACK2,
+    -- [IN_ATTACK2] = etc..
+
+}
+
 local jumpPowerStats = {
     [HULL_TINY]         = 100,
     [HULL_WIDE_SHORT]   = 200,
@@ -84,6 +90,8 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc.ZBASE_HadJumpCap = npc:CONV_HasCapability(CAP_MOVE_JUMP)
     npc:CapabilitiesRemove(CAP_MOVE_JUMP)
 
+    npc:ZBASE_Controller_InitAttacks()
+
     -- NPC hooks/vars
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
     npc.ZBASE_IsPlyControlled = true
@@ -108,6 +116,16 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply:SetNW2Entity("ZBASE_ControllerCamEnt", npc)
 
     conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 2)
+end
+
+function NPC:ZBASE_Controller_InitAttacks()
+    if self.IsZBaseNPC then
+        -- Check for attacks here
+        -- Also add a CustomControllerInitAttacks so that developers can add their own
+    end
+
+    -- Lastly, add free attack
+    npc:ZBASE_ControllerAddAttack(function() PrintMessage(HUD_PRINTTALK, "HOYAAAH") end)
 end
 
 --[[
@@ -188,6 +206,16 @@ end
 
 function NPC:ZBASE_Controller_KeyPress(ply, key)
     if !self.ZBASE_Controls then return end
+    if !self.ZBASE_Controls[key] then return end
+
+    self.ZBASE_Controls[key].pressFunc()
+end
+
+function NPC:ZBASE_Controller_KeyRelease(ply, key)
+    if !self.ZBASE_Controls then return end
+    if !self.ZBASE_Controls[key] then return end
+
+    self.ZBASE_Controls[key].releaseFunc()
 end
 
 hook.Add("PlayerButtonDown", "ZBASE_CONTROLLER", function(ply, btn)
@@ -199,6 +227,12 @@ end)
 hook.Add("KeyPress", "ZBASE_CONTROLLER", function(ply, key)
     if IsValid(ply.ZBASE_ControlledNPC) then
         ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyPress(ply, key)
+    end
+end)
+
+hook.Add("KeyRelease", "ZBASE_CONTROLLER", function(ply, key)
+    if IsValid(ply.ZBASE_ControlledNPC) then
+        ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyRelease(ply, key)
     end
 end)
 
