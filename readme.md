@@ -29,7 +29,7 @@
 - [ ] Fix issue with combines (and other?) not reloading weapons at times
 - [x] Spawner system
 - [ ] Controller
-- [ ] Add separator for weapons in npc weapon dropdown + other qol changes
+- [x] Add separator for weapons in npc weapon dropdown + other qol changes
 - [ ] Ability to change reload times
 - [ ] Homing RPGs
 - [ ] Ensure aerial functionality
