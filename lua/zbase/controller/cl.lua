@@ -43,11 +43,24 @@ hook.Add("PlayerBindPress", "ZBASE_CONTROLLER", function(ply, bind, pressed)
     local camEnt = ply:GetNWEntity("ZBASE_ControllerCamEnt", NULL)
     if !IsValid(camEnt) then return end
 
+    -- Catch player pressing slots
+    if string.StartWith(bind, "slot") then
+        local num = tonumber(string.sub(bind, 5))
+
+        print("SENDING", num)
+
+        net.Start("ZBASE_Ctrlr_SlotBindPress")
+        net.WriteUInt(num, 4)
+        net.SendToServer()
+        return true
+    end
+
     if bind == "+lookup" then
         ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp+15
         return
     elseif bind == "+lookdown" then
         ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp-15
+        return
     end
 
     -- Block weapon switching via scroll (reserved for zoom)

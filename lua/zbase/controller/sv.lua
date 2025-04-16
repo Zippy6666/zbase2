@@ -13,6 +13,8 @@
 ==================================================================================================
 --]]
 
+util.AddNetworkString("ZBASE_Ctrlr_SlotBindPress")
+
 local NPC           = FindMetaTable("NPC")
 local developer     = GetConVar("developer")
 local colDeb        = Color(0, 255, 0, 255)
@@ -286,6 +288,11 @@ hook.Add("KeyRelease", "ZBASE_CONTROLLER", function(ply, key)
     if IsValid(ply.ZBASE_ControlledNPC) then
         ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyRelease(ply, key)
     end
+end)
+
+net.Receive("ZBASE_Ctrlr_SlotBindPress", function(_, ply)
+    if !ply:IsAdmin() then return end
+    print("RECEIVED FROM", ply, net.ReadUInt(4))
 end)
 
 function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc)
