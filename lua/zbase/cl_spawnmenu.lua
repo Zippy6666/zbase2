@@ -1,27 +1,21 @@
-    -- Note: Contains a lot of borrowed gmod source code! --
-
+-- Note: Contains a lot of borrowed gmod source code!
 
 ZBaseCategoryImages = ZBaseCategoryImages or {}
 ZBaseSetCategoryIcon( "HL2: Combine", "games/16/hl2.png" )
 ZBaseSetCategoryIcon( "HL2: Zombies + Enemy Aliens", "games/16/hl2.png" )
 ZBaseSetCategoryIcon( "HL2: Humans + Resistance", "games/16/hl2.png" )
 
-
 local PANEL = {}
 local GenericIcon = "entities/zippy.png"
 
-
 Derma_Hook( PANEL, "Paint", "Paint", "Tree" )
 PANEL.m_bBackground = true -- Hack for above
-
-
 
 spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	if ( !obj.material ) then return end
 	if ( !obj.nicename ) then return end
 	if ( !obj.spawnname ) then return end
 	if ( !obj.weapon ) then return end
-
 
 	local icon = vgui.Create( "ContentIcon", container )
 	icon:SetContentType( "zbase_npcs" )
@@ -46,7 +40,6 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 
 		surface.PlaySound( "buttons/button16.wav" )
 	end
-
 
 	icon.OpenMenu = function( self )
 		local menu = DermaMenu()
@@ -89,10 +82,8 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 		container:Add( icon )
 	end
 
-
 	return icon
 end)
-
 
 local function GiveIconsToNode( pnlContent, tree, node, categories )
 	node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
@@ -105,12 +96,10 @@ local function GiveIconsToNode( pnlContent, tree, node, categories )
 		self.PropPanel:SetTriggerSpawnlistChange( false )
 
 		for category, npcdata in pairs(categories) do
-
 			local header = vgui.Create("ContentHeader", self.PropPanel )
 			header:SetText(category)
 			self.PropPanel:Add( header )
 			
-
 			for name, ent in SortedPairsByMemberValue( npcdata, "Name" ) do
 				local mat = ent.IconOverride or GenericIcon
 
@@ -127,7 +116,6 @@ local function GiveIconsToNode( pnlContent, tree, node, categories )
 					tblMisc		= ent
 				} )
 			end
-		
 		end
 	end
 
@@ -137,8 +125,8 @@ local function GiveIconsToNode( pnlContent, tree, node, categories )
 	end
 end
 
-
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
+	-- Horror code
 
 	local tbl = {}
 	for class, npcdata in pairs( ZBaseSpawnMenuNPCList ) do
@@ -181,13 +169,11 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 				GiveIconsToNode( pnlContent, tree, node, {[divisionName]=division} )
 				table.Merge(allNPCs, {[divisionName]=division})
 			else
-
 				node:SetExpanded(true)
 
 				local catNode = node:AddNode(categoryName, ZBaseCategoryImages[divisionName..": "..categoryName] or GenericIcon)
 				GiveIconsToNode( pnlContent, tree, catNode, {[divisionName..": "..categoryName]=category} )
 				divisionNPCs[categoryName] = category
-
 			end
 
 		end
@@ -203,9 +189,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 	if !table.IsEmpty(allNPCs) then
 		GiveIconsToNode( pnlContent, tree, allNode, allNPCs )
 	end
-
 end)
-
 
 function PANEL:GetAllFactions( factions )
 	self.PlyFactionDropDown:Clear()
@@ -222,10 +206,8 @@ function PANEL:GetAllFactions( factions )
 	self.NPCFactionDropDown:ChooseOption(self.NPCFactionDropDown.StartVal)
 end
 
-
 net.Receive("ZBaseListFactions", function()
 	local tbl = table.Copy(net.ReadTable())
-
 
 	timer.Create("ZBasePlayerDDrawerGiveFactionTable", 1, 1, function()
 		if LocalPlayer().ZBaseDDrawer then
@@ -234,7 +216,6 @@ net.Receive("ZBaseListFactions", function()
 		end
 	end)
 end)
-
 
 function PANEL:AddDropdown( text, func, startVal )
 	local label = vgui.Create("DLabel", self)
@@ -253,14 +234,12 @@ function PANEL:AddDropdown( text, func, startVal )
 	return dropdown
 end
 
-
 function PANEL:AddHelp( text )
 	local label = vgui.Create("DLabel", self)
 	label:SetText(text)
 	label:Dock(TOP)
 	label:SetColor(Color(100,100,100))
 end
-
 
 function PANEL:AddCheckbox( text, cvar )
 	local DermaCheckbox = self:Add( "DCheckBoxLabel", self )
@@ -272,9 +251,7 @@ function PANEL:AddCheckbox( text, cvar )
 	DermaCheckbox:DockMargin( 0, 5, 0, 0 )
 end
 
-
 function PANEL:Init()
-
 	self:DockPadding( 15, 10, 15, 10 )
 	self:SetOpenSize(150)
 
@@ -298,9 +275,7 @@ function PANEL:Init()
 	ZBaseListFactions()
 
 	self:Open()
-
 end
-
 
 vgui.Register( "ZBaseSussyBaka", PANEL, "DDrawer" )
 spawnmenu.AddCreationTab( "ZBase", function(...)
@@ -324,4 +299,3 @@ spawnmenu.AddCreationTab( "ZBase", function(...)
     return pnlContent
 
 end, "entities/zippy.png", 25)
-

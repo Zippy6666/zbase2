@@ -24,7 +24,6 @@ local function ZBaseAddMenuCategory( name, func, cat )
 
 end
 
-
 hook.Add("PopulateToolMenu", "ZBASE", function()
     spawnmenu.AddToolTab( "ZBase", "ZBase", "entities/zippy.png" )
 
@@ -148,7 +147,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
     end)
 
-
     --[[
     ==================================================================================================
                                             AFTERMATH
@@ -177,7 +175,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
     --[[
     ==================================================================================================
-                                            WEAPONS
+                                            SPAWNERS
     ==================================================================================================
     --]]
 
@@ -234,18 +232,14 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         local gitlink = panel:TextEntry("ZBase Github")
         gitlink:SetValue("https://github.com/Zippy6666/zbase2")
 
-
         panel:CheckBox( "Show Aerial Navigator", "zbase_show_navigator")
         panel:Help("Show the 'ghost NPC' that Helps the aerial NPCs navigate.")
-
 
         panel:CheckBox( "Show NPC Schedule", "zbase_show_sched")
         panel:Help("Show what schedule the NPC is currently doing.")
 
-
         panel:CheckBox( "ZBase Reload Spawnmenu", "zbase_reload_spawnmenu")
         panel:Help("Should 'zbase_reload' also reload the spawn menu?")
-
 
         local ReloadButton = vgui.Create("DButton", panel)
         ReloadButton:Dock(TOP)
@@ -256,7 +250,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
             net.SendToServer()
         end
         panel:Help("Runs 'zbase_reload' which can be necessary if your NPCs aren't updating properly on save.")
-
     end)
 
     --[[
