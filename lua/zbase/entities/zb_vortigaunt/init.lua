@@ -40,7 +40,7 @@ end
 
 function NPC:CustomDealDamage( victimEnt, dmginfo )
     -- Nerf beam damage if nerf CVAR is true
-    if dmginfo:IsDamageType(DMG_SHOCK) && ZBCVAR.Nerf:GetBool() then
+    if IsValid(victimEnt) && dmginfo:IsDamageType(DMG_SHOCK) && ZBCVAR.Nerf:GetBool() && victimEnt:IsPlayer() then
         dmginfo:ScaleDamage(0.1)
     end
 end
