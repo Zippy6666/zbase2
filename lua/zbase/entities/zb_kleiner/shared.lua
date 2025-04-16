@@ -1,21 +1,15 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-
 -- The NPC class
 -- Can be any existing NPC in the game
 -- If you want to make a human that can use weapons, you should probably use "npc_combine_s" or "npc_citizen" for example
 -- Use "npc_zbase_snpc" if you want to create a brand new SNPC
 NPC.Class = "npc_citizen"
 
-
 NPC.Name = "Dr. Isaac Kleiner" -- Name of your NPC
 NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_shotgun"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
-
-
-
-
 
 ZBaseCreateVoiceSounds("ZBaseKleiner.Alert", {
     "vo/k_lab/kl_fiddlesticks.wav",
@@ -51,7 +45,6 @@ ZBaseCreateVoiceSounds("ZBaseKleiner.Question", {
     "vo/k_lab2/kl_blowyoustruck02.wav",
     "vo/k_lab2/kl_givenuphope.wav",
     "vo/k_lab2/kl_nolongeralone_b.wav",
-    
 })
 
 ZBaseCreateVoiceSounds("ZBaseKleiner.Answer", {
@@ -90,10 +83,3 @@ ZBaseCreateVoiceSounds("ZBaseKleiner.KillEnemy", {
     "vo/k_lab/kl_relieved.wav",
     "vo/k_lab2/kl_greatscott.wav",
 })
-
-
-
-
-
-
-

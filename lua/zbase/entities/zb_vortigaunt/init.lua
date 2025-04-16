@@ -26,6 +26,8 @@ NPC.FollowPlayerSounds = "ZBaseVortigaunt.Follow" -- Sounds emitted when the NPC
 NPC.UnfollowPlayerSounds = "ZBaseVortigaunt.Unfollow" -- Sounds emitted when the NPC stops following a player
 
 function NPC:CustomThink()
+    -- Don't armor recharge players we hate
+    
     local ene = self:GetEnemy()
     local eneIsPly = IsValid(ene) && ene:IsPlayer()
 

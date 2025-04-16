@@ -1,21 +1,15 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
-
 -- The NPC class
 -- Can be any existing NPC in the game
 -- If you want to make a human that can use weapons, you should probably use "npc_combine_s" or "npc_citizen" for example
 -- Use "npc_zbase_snpc" if you want to create a brand new SNPC
 NPC.Class = "npc_citizen"
 
-
 NPC.Name = "Male Civilian" -- Name of your NPC
 NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
-
-
-
-
 
 ZBaseCreateVoiceSounds("ZBaseMale.Alert", {
     "vo/npc/male01/headsup01.wav",
@@ -42,7 +36,6 @@ ZBaseCreateVoiceSounds("ZBaseMale.Alert", {
     "vo/episode_1/npc/male01/cit_alert_antlions06.wav",
     "vo/episode_1/npc/male01/cit_alert_antlions08.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseMale.Question", {
     "vo/npc/male01/question01.wav", 
@@ -101,7 +94,6 @@ ZBaseCreateVoiceSounds("ZBaseMale.Question", {
     "vo/episode_1/npc/male01/cit_remarks23.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseMale.Answer", {
     "vo/npc/male01/answer01.wav",
     "vo/npc/male01/answer02.wav",
@@ -144,7 +136,6 @@ ZBaseCreateVoiceSounds("ZBaseMale.Answer", {
     "vo/npc/male01/answer40.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseMale.KillEnemy", {
     "vo/npc/male01/gotone01.wav",
     "vo/npc/male01/gotone02.wav",
@@ -154,13 +145,11 @@ ZBaseCreateVoiceSounds("ZBaseMale.KillEnemy", {
     "vo/episode_1/npc/male01/cit_alert_head05.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseMale.HearSound", {
     "vo/npc/male01/startle01.wav",
     "vo/npc/male01/startle02.wav",
     "vo/episode_1/npc/male01/cit_alert_antlions09.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseMale.Melee", {
     "vo/npc/male01/gethellout.wav",
@@ -168,7 +157,6 @@ ZBaseCreateVoiceSounds("ZBaseMale.Melee", {
     "vo/episode_1/npc/male01/reb2_antlions05.wav",
     "vo/episode_1/npc/male01/reb2_buddykilled13.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseMale.Follow", {
     "vo/npc/male01/leadtheway01.wav",
@@ -181,7 +169,6 @@ ZBaseCreateVoiceSounds("ZBaseMale.Follow", {
     "vo/npc/male01/squad_follow03.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseMale.Unfollow", {
     "vo/npc/male01/littlecorner01.wav",
     "vo/npc/male01/squad_affirm01.wav",
@@ -189,7 +176,6 @@ ZBaseCreateVoiceSounds("ZBaseMale.Unfollow", {
     "vo/npc/male01/squad_affirm03.wav",
     "vo/npc/male01/squad_affirm04.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseMale.AllyDeath", {
     "vo/npc/male01/gordead_ans01.wav",

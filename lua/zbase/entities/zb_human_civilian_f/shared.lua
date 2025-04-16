@@ -1,18 +1,15 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
-
 -- The NPC class
 -- Can be any existing NPC in the game
 -- If you want to make a human that can use weapons, you should probably use "npc_combine_s" or "npc_citizen" for example
 -- Use "npc_zbase_snpc" if you want to create a brand new SNPC
 NPC.Class = "npc_citizen"
 
-
 NPC.Name = "Female Civilian" -- Name of your NPC
 NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_human_civilian" -- Inherit features from any existing zbase npc
-
 
 ZBaseCreateVoiceSounds("ZBaseFemale.Alert", {
     "vo/npc/female01/headsup01.wav",
@@ -30,7 +27,6 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Alert", {
     "vo/episode_1/npc/female01/cit_alert_antlions06.wav",
     "vo/episode_1/npc/female01/cit_alert_antlions08.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseFemale.Question", {
     "vo/npc/female01/question01.wav", 
@@ -89,7 +85,6 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Question", {
     "vo/episode_1/npc/female01/cit_remarks23.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseFemale.Answer", {
     "vo/npc/female01/answer01.wav",
     "vo/npc/female01/answer02.wav",
@@ -133,13 +128,11 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Answer", {
     "vo/npc/female01/answer40.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseFemale.KillEnemy", {
     "vo/npc/female01/gotone01.wav",
     "vo/npc/female01/gotone02.wav",
     "vo/npc/female01/likethat.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseFemale.HearSound", {
     "vo/npc/female01/startle01.wav",
@@ -147,12 +140,10 @@ ZBaseCreateVoiceSounds("ZBaseFemale.HearSound", {
     "vo/episode_1/npc/female01/cit_alert_antlions09.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseFemale.Melee", {
     "vo/npc/female01/gethellout.wav",
     "vo/npc/female01/getdown02.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseFemale.Follow", {
     "vo/npc/female01/leadtheway01.wav",
@@ -165,7 +156,6 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Follow", {
     "vo/npc/female01/squad_follow03.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseFemale.Unfollow", {
     "vo/npc/female01/littlecorner01.wav",
     "vo/npc/female01/squad_affirm01.wav",
@@ -173,7 +163,6 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Unfollow", {
     "vo/npc/female01/squad_affirm03.wav",
     "vo/npc/female01/squad_affirm04.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseFemale.AllyDeath", {
     "vo/npc/female01/gordead_ans01.wav",

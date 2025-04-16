@@ -1,20 +1,16 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
-
 -- The NPC class
 -- Can be any existing NPC in the game
 -- If you want to make a human that can use weapons, you should probably use "npc_combine_s" or "npc_citizen" for example
 -- Use "npc_zbase_snpc" if you want to create a brand new SNPC
 NPC.Class = "npc_vortigaunt"
 
-
 NPC.Name = "Vortigaunt" -- Name of your NPC
 NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
-
---]]==============================================================================================]]
 ZBaseCreateVoiceSounds("ZBaseVortigaunt.Question", {
     "vo/npc/vortigaunt/vortigese11.wav",
     "vo/npc/vortigaunt/vortigese12.wav",
@@ -29,7 +25,7 @@ ZBaseCreateVoiceSounds("ZBaseVortigaunt.Question", {
     "vo/npc/vortigaunt/vques09.wav",
     "vo/npc/vortigaunt/vques10.wav",
 })
---]]==============================================================================================]]
+
 ZBaseCreateVoiceSounds("ZBaseVortigaunt.Answer", {
     "vo/npc/vortigaunt/vanswer01.wav",
     "vo/npc/vortigaunt/vanswer02.wav",
@@ -50,7 +46,7 @@ ZBaseCreateVoiceSounds("ZBaseVortigaunt.Answer", {
     "vo/npc/vortigaunt/vanswer17.wav",
     "vo/npc/vortigaunt/vanswer18.wav",
 })
---]]==============================================================================================]]
+
 ZBaseCreateVoiceSounds("ZBaseVortigaunt.Follow", {
     "vo/npc/vortigaunt/weareyours.wav",
     "vo/npc/vortigaunt/wewillhelp.wav",
@@ -61,11 +57,10 @@ ZBaseCreateVoiceSounds("ZBaseVortigaunt.Follow", {
     "vo/npc/vortigaunt/honorfollow.wav",
     "vo/npc/vortigaunt/herewestay.wav",
 })
---]]==============================================================================================]]
+
 ZBaseCreateVoiceSounds("ZBaseVortigaunt.Unfollow", {
     "vo/npc/vortigaunt/willremain.wav",
     "vo/npc/vortigaunt/ourplacehere.wav",
     "vo/npc/vortigaunt/herewestay.wav",
     "vo/npc/vortigaunt/asyouwish.wav",
 })
---]]==============================================================================================]]

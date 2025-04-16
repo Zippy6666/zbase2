@@ -1,31 +1,20 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
-
 -- The NPC class
 -- Can be any existing NPC in the game
 -- If you want to make a human that can use weapons, you should probably use "npc_combine_s" or "npc_citizen" for example
 -- Use "npc_zbase_snpc" if you want to create a brand new SNPC
 NPC.Class = "npc_combine_s"
 
-
 NPC.Name = "Overwatch Soldier" -- Name of your NPC
 NPC.Category = "HL2: Combine" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_smg1", "weapon_smg1", "weapon_ar2", "weapon_shotgun"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
-
--- EYES --
-
 ZBaseAddGlowingEye("CombineEye1", "models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(0, 50, 255))
 ZBaseAddGlowingEye("CombineEye2", "models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(0, 50, 255))
-
-
 ZBaseAddGlowingEye("CombineShottyEye1", "models/combine_soldier.mdl", 1, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(155, 20, 0))
 ZBaseAddGlowingEye("CombineShottyEye2", "models/combine_soldier.mdl", 1, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(155, 20, 0))
-
-
--- SENTENCES --
-
 
 ZBaseAddScriptedSentence({
     name 	= "ZB_Combine_Alert1.SS",
@@ -47,8 +36,6 @@ ZBaseAddScriptedSentence({
     }
 })
 
-
-
 ZBaseAddScriptedSentence({
     name 	= "ZB_Combine_LostEnemy1.SS",
     channel = CHAN_VOICE,
@@ -67,11 +54,6 @@ ZBaseAddScriptedSentence({
     }
 })
 
-
-
--- SOUND SCRIPTS --
-
-
 sound.Add({
     name = "ZBaseCombine.Step",
 	channel = CHAN_AUTO,
@@ -87,7 +69,6 @@ sound.Add({
         "npc/combine_soldier/gear6.wav",
     },
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseCombine.Idle", {
     "npc/combine_soldier/vo/prison_soldier_activatecentral.wav",
@@ -107,7 +88,6 @@ ZBaseCreateVoiceSounds("ZBaseCombine.Idle", {
     "npc/combine_soldier/vo/prison_soldier_visceratorsa5.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseCombine.Question", {
     "npc/combine_soldier/vo/gridsundown46.wav",
     "npc/combine_soldier/vo/noviscon.wav",
@@ -124,12 +104,10 @@ ZBaseCreateVoiceSounds("ZBaseCombine.Question", {
     "npc/combine_soldier/vo/wehavenontaggedviromes.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseCombine.Answer", {
     "npc/combine_soldier/vo/copy.wav",
     "npc/combine_soldier/vo/copythat.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseCombine.Follow", {
     "npc/combine_soldier/vo/copythat.wav",
@@ -139,11 +117,9 @@ ZBaseCreateVoiceSounds("ZBaseCombine.Unfollow", {
     "npc/combine_soldier/vo/copy.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseCombine.Alert", {
     "ZB_Combine_Alert1.SS",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseCombine.KillEnemy", {
     "npc/combine_soldier/vo/targetcompromisedmovein.wav",
@@ -156,12 +132,10 @@ ZBaseCreateVoiceSounds("ZBaseCombine.KillEnemy", {
     "npc/combine_soldier/vo/payback.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseCombine.Reload", {
     "npc/combine_soldier/vo/cover.wav",
     "npc/combine_soldier/vo/coverme.wav",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseCombine.HearSound", {
     "npc/combine_soldier/vo/motioncheckallradials.wav",
@@ -177,14 +151,11 @@ ZBaseCreateVoiceSounds("ZBaseCombine.HearSound", {
     "npc/combine_soldier/vo/confirmsectornotsterile.wav",
 })
 
-
 ZBaseCreateVoiceSounds("ZBaseCombine.LostEnemy", {
     "ZB_Combine_LostEnemy1.SS",
 })
-
 
 ZBaseCreateVoiceSounds("ZBaseCombine.Grenade", {
     "npc/combine_soldier/vo/extractoraway.wav",
     "npc/combine_soldier/vo/extractorislive.wav",
 })
-

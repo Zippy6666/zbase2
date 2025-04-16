@@ -1,6 +1,5 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-
 NPC.Models = {"models/magnusson.mdl"}
 
 NPC.ItemDrops = {
@@ -17,9 +16,7 @@ NPC.GrenadeReleaseTime = 0.85 -- Time until grenade leaves the hand
 NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the grenade on
 NPC.GrenadeMaxSpin = 1000 -- The amount to spin the grenade measured in spin units or something idfk
 
-
 NPC.CanSecondaryAttack = false -- Can use weapon secondary attacks
-
 
 -- Sounds (Use sound scripts to alter pitch and level and such!)
 NPC.AlertSounds = "ZBaseMagnusson.Alert" -- Sounds emitted when an enemy is seen for the first time
@@ -29,7 +26,6 @@ NPC.PainSounds = "" -- Sounds emitted on hurt
 NPC.DeathSounds = "ZBaseMagnusson.Die" -- Sounds emitted on death
 NPC.KilledEnemySounds = "ZBaseMagnusson.KillEnemy" -- Sounds emitted when the NPC kills an enemy
 
-
 NPC.LostEnemySounds = "" -- Sounds emitted when the enemy is lost
 NPC.SeeDangerSounds = "ZBaseMagnusson.SeeDanger" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
 NPC.SeeGrenadeSounds = "" -- Sounds emitted when the NPC spots a grenade
@@ -38,17 +34,14 @@ NPC.OnMeleeSounds = "" -- Sounds emitted when the NPC does its melee attack
 NPC.OnRangeSounds = "" -- Sounds emitted when the NPC does its range attack
 NPC.OnReloadSounds = "" -- Sounds emitted when the NPC reloads
 
-
 -- Dialogue sounds
 -- The NPCs will face each other as if they are talking
 NPC.Dialogue_Question_Sounds = "ZBaseMagnusson.Question" -- Dialogue questions, emitted when the NPC starts talking to another NPC
 NPC.Dialogue_Answer_Sounds = "ZBaseMagnusson.Answer" -- Dialogue answers, emitted when the NPC is spoken to
 
-
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = "ZBaseMagnusson.HearDanger"
-
 
     -- The velocity to apply to the grenade
 function NPC:GrenadeVelocity()
@@ -60,13 +53,9 @@ function NPC:GrenadeVelocity()
     return ( (EndPos - StartPos)+Vector(0, 0, UpAmount) )*1.5
 end
 
-
     -- Called a tick after an entity owned by this NPC is created
     -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
 function NPC:OnGrenadeSpawned( grenade )
-
+    -- Magnade makes cool noise
     grenade:EmitSound("Weapon_StriderBuster.Ping")
-
 end
-
-

@@ -1,4 +1,5 @@
-local NPC = FindZBaseTable(debug.getinfo(1,'S'))
+local NPC       = FindZBaseTable(debug.getinfo(1,'S'))
+local ringCol   = Color(25, 25, 25) -- Color of melee shockwave effect
 
 NPC.StartHealth = 1500 -- Max health
 
@@ -25,10 +26,8 @@ NPC.MeleeAttackDistance = 300 -- Distance that it initiates the melee attack fro
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever you want
 
-
 NPC.MeleeAttackAnimations = {"pound"} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
 NPC.MeleeAttackAnimationSpeed = 1.5 -- Speed multiplier for the melee attack animation
-
 
 NPC.MeleeDamage = {50, 50} -- Melee damage {min, max}
 NPC.MeleeDamage_Distance = 400 -- Damage reach distance
@@ -41,8 +40,6 @@ NPC.MeleeDamage_AffectProps = true -- Affect props and other entites
 
 NPC.FootStepSounds = "NPC_dog.RunFootstepLeft"
 
-
-
 -- Sounds (Use sound scripts to alter pitch and level and such!)
 NPC.AlertSounds = "NPC_dog.Angry_2" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "" -- Sounds emitted while there is no enemy
@@ -50,7 +47,6 @@ NPC.Idle_HasEnemy_Sounds = "NPC_dog.Growl_1" -- Sounds emitted while there is an
 NPC.PainSounds = "NPC_dog.Pain_1" -- Sounds emitted on hurt
 NPC.DeathSounds = "NPC_dog.Scared_1" -- Sounds emitted on death
 NPC.KilledEnemySounds = "NPC_dog.Laugh_1" -- Sounds emitted when the NPC kills an enemy
-
 
 NPC.LostEnemySounds = "NPC_dog.Growl_2" -- Sounds emitted when the enemy is lost
 NPC.SeeDangerSounds = "" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
@@ -63,36 +59,34 @@ NPC.OnGrenadeSounds = "" -- Sounds emitted when the NPC throws a grenade
 NPC.FollowPlayerSounds = "" -- Sounds emitted when the NPC starts following a player
 NPC.UnfollowPlayerSounds = "" -- Sounds emitted when the NPC stops following a player
 
-
 -- Dialogue sounds
 -- The NPCs will face each other as if they are talking
 NPC.Dialogue_Question_Sounds = "" -- Dialogue questions, emitted when the NPC starts talking to another NPC
 NPC.Dialogue_Answer_Sounds = "" -- Dialogue answers, emitted when the NPC is spoken to
 
-
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = "NPC_dog.Curious_1"
 
-
-
-    -- Called when the base detects that the NPC is playing a new schedule
+-- Called when the base detects that the NPC is playing a new schedule
 function NPC:CustomNewSchedDetected( sched, oldSched )
+    -- If we see enemy, chase it
+    -- Regular dog behaviour is to hide
+    -- and that is lame
     if self:SeeEne() && sched != SCHED_CHASE_ENEMY then
         self:SetSchedule(SCHED_CHASE_ENEMY)
     end
 end
 
-    -- Force to apply to entities affected by the melee attack damage, relative to the NPC
+-- Force to apply to entities affected by the melee attack damage, relative to the NPC
 function NPC:MeleeDamageForce( dmgData )
     return {forward=400, up=100, right=0, randomness=200}
 end
 
-local ringCol = Color(25, 25, 25)
+-- Emit shockwave effects
 function NPC:D0G_Pound()
     if !self:IsOnGround() then return end
 
-    
     self:EmitSound("physics/concrete/boulder_impact_hard3.wav", 140, math.random(80, 90), 1, CHAN_AUTO)
 
     local ef = EffectData()
@@ -104,8 +98,6 @@ function NPC:D0G_Pound()
 
     effects.BeamRingPoint( self:GetPos(), 0.25, 0, 800, 70, 0, ringCol, {material="sprites/smoke"} )
 end
-
-
 
 function NPC:OnMeleeAttackDamage( hitEnts )
     self:D0G_Pound()
