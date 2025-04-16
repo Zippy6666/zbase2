@@ -1,12 +1,11 @@
-local my_cls = ZBasePatchNPCClass(debug.getinfo(1,'S'))
+local my_cls                                    = ZBasePatchNPCClass(debug.getinfo(1,'S'))
+local npc_citizen_auto_player_squad_allow_use   = GetConVar("npc_citizen_auto_player_squad_allow_use")
 
-
-local CitFollowWithUse = GetConVar("npc_citizen_auto_player_squad_allow_use")
+-- Set citizens follow when pressed E on
 RunConsoleCommand("npc_citizen_auto_player_squad_allow_use", "1")
 
-
 ZBasePatchTable[my_cls] = function( NPC )
-
+    -- Pain sounds that can interrupt other prio voice sounds
     NPC.Patch_CanInterruptImportantVoiceSound = {
         ["npc_citizen.ow01"] = true,
         ["npc_citizen.ow02"] = true,
@@ -31,8 +30,10 @@ ZBasePatchTable[my_cls] = function( NPC )
         ["npc_citizen.hitingut02"] = true,
     }    
 
+    -- Return wheter or not to use engine follow sys
+    -- As opposed to ZBASE one
     function NPC:Patch_UseEngineFollow()
-        return game.SinglePlayer() && CitFollowWithUse:GetBool()
+        return game.SinglePlayer() && npc_citizen_auto_player_squad_allow_use:GetBool()
     end
-
+    
 end
