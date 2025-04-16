@@ -1,6 +1,9 @@
 local NPC = FindMetaTable("NPC")
 local NPC_ZBASE = ZBaseNPCs["npc_zbase"]
 local Developer = GetConVar("developer")
+local isFacingFunc
+ZBase_OldSetSchedule = ZBase_OldSetSchedule or NPC.SetSchedule
+ZBase_OldDropWeapon = ZBase_OldDropWeapon or NPC.DropWeapon
 
 --[[
 ======================================================================================================================================================
@@ -33,6 +36,17 @@ function NPC:ZBASE_SimpleAnimation(anim)
     self:ResetSequenceInfo()
     self:SetCycle(0)
     self:ResetSequence(anim)
+end
+
+--[[
+======================================================================================================================================================
+                                           UTILS
+======================================================================================================================================================
+--]]
+
+function NPC:ZBASE_IsFacing(...)
+    isFacingFunc = isFacingFunc or ZBaseNPCs["npc_zbase"].IsFacing
+    isFacingFunc(self, ...)
 end
 
 --[[
@@ -85,9 +99,6 @@ end
                                            Wrapper funcs
 ======================================================================================================================================================
 --]]
-
-ZBase_OldSetSchedule = ZBase_OldSetSchedule or NPC.SetSchedule
-ZBase_OldDropWeapon = ZBase_OldDropWeapon or NPC.DropWeapon
 
 function NPC:SetSchedule( sched, ... )
     -- Prevent LUA from setting schedules to ZBase NPCs if we should

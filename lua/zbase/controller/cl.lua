@@ -44,7 +44,7 @@ hook.Add("PlayerBindPress", "ZBASE_CONTROLLER", function(ply, bind, pressed)
     if !IsValid(camEnt) then return end
 
     -- Catch player pressing slots
-    if string.StartWith(bind, "slot") then
+    if pressed && string.StartWith(bind, "slot") then
         local num = tonumber(string.sub(bind, 5))
 
         print("SENDING", num)

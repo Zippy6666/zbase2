@@ -125,7 +125,7 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     end, "ZBASE_Controller_PlyGodMode")
     ply:SetNWEntity("ZBASE_ControllerCamEnt", npc)
 
-    conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 2)
+    conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 4)
 end
 
 function NPC:ZBASE_Controller_InitAttacks()
@@ -199,7 +199,7 @@ function NPC:ZBASE_Controller_Move( pos )
         -- to ensure accuracy when moving
         if ( (!bInSpeedDown)
         or (!self:IsCurrentSchedule(SCHED_FORCED_GO) && !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN))
-        or !self:IsFacing(self.ZBASE_CurCtrlDest)
+        or !self:ZBASE_IsFacing(self.ZBASE_CurCtrlDest)
         ) then
             self:SetLastPosition( self.ZBASE_CurCtrlDest )
             self:SetSchedule(bInSpeedDown && SCHED_FORCED_GO_RUN or SCHED_FORCED_GO)
