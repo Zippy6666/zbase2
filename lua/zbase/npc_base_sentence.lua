@@ -1,12 +1,9 @@
 local NPC = ZBaseNPCs["npc_zbase"]
 ZBaseScriptedSentences = ZBaseScriptedSentences or {}
 
-
 function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFilter, callback) -- overrideTab = { [snd] = sndOverride }
-
 	if !sentence then return end
 	if !IsValid(self) || ( !self:IsAlive() ) then return end
-
 
 	local sentTab = ZBaseScriptedSentences[ sentence ]
 	if !sentTab then return end
@@ -19,7 +16,6 @@ function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFil
 	local captions = stable.caption && stable.caption[ 1 ] || ""
 
 	for _, snd in ipairs( stable.sound ) do
-
 		local num = 1
 
 		if istable( snd ) && isstring( snd[ 1 ] ) then
@@ -44,7 +40,6 @@ function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFil
 		sndOver = sndOver && ( istable( sndOver ) && sndOver[ math.random( 1, #sndOver ) ] || sndOver )
 		snd = sndOver || snd
 		stable.sound[ _ ] = snd
-
 	end
 	
 	local ZBase_ASS_CurAudio = 1
@@ -55,12 +50,9 @@ function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFil
 	
 	timer.Remove( timerName )
 
-
 	if stable.caption then ZBaseAddCaption( true, captions, stable.caption[ 2 ], stable.level, pos ) end
 
-
 	timer.Create( timerName, 0, 0, function()	
-		
 		if !IsValid(self) || stable == nil || ( ZBase_ASS_CurAudio > #stable.sound ) then
 		
 			timer.Remove(timerName)
@@ -117,20 +109,14 @@ function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFil
 				ZBase_ASS_CurAudio = ZBase_ASS_CurAudio + 1
 				ZBase_ASS_SoundDelay = dur
 				ZBase_ASS_SoundLast = CurTime()
-				
 			end
-			
 		end
-		
 	end)
-	
 end
-
 
 function NPC:ZBaseEmittingSentence()
 	return timer.Exists( "ZBaseEmitSoundSentenceTimer" .. self:EntIndex())
 end
-
 
 function NPC:ZBaseStopScriptedSentence(fullstop)
 
@@ -149,9 +135,7 @@ function NPC:ZBaseStopScriptedSentence(fullstop)
 
 end
 
-
 if (CLIENT) then
-
 	net.Receive( "ZBaseAddCaption", function()	
 		local text = net.ReadString()
 		local dur = net.ReadFloat()	
@@ -161,7 +145,6 @@ if (CLIENT) then
 	end )
 
 elseif (SERVER) then
-
 	util.AddNetworkString("ZBaseAddCaption")
 	
 end
