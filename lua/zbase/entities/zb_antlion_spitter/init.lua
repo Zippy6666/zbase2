@@ -1,11 +1,8 @@
 local NPC = FindZBaseTable(debug.getinfo(1,'S'))
 
-
 NPC.StartHealth = 80 -- Max health
 
-
 NPC.MoveSpeedMultiplier = 1.33 -- Multiply the NPC's movement speed by this amount (ground NPCs)
-
 
 -- Default engine blood color, set to DONT_BLEED if you want to use custom blood instead
 NPC.BloodColor = DONT_BLEED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
@@ -16,7 +13,6 @@ NPC.CustomBloodDecals = "ZBaseBloodBlue" -- String name of custom decal
 NPC.SubMaterials = {
     [2] = "models/antlionspitter/antlionhigh_sheet2",
 }
-
 
 -- ZBase faction
 -- Can be any string, all ZBase NPCs with the same faction will be allied
@@ -34,15 +30,12 @@ NPC.RangeAttackDistance = {300, 1000} -- Distance that it initiates the range at
 NPC.RangeAttackCooldown = {2, 4} -- Range attack cooldown {min, max}
 NPC.RangeAttackSuppressEnemy = true -- If the enemy can't be seen, target the last seen position
 
-
 NPC.RangeAttackAnimations = {"pounce"} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
 NPC.RangeAttackAnimationSpeed = 0.75 -- Speed multiplier for the range attack animation
-
 
 -- Time until the projectile code is ran
 -- Set to false to disable the timer (if you want to use animation events instead for example)
 NPC.RangeProjectile_Delay = 0.8
-
 
 -- Attachment to spawn the projectile on 
 -- If set to false the projectile will spawn from the NPCs center
@@ -53,11 +46,8 @@ NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = 
 NPC.OnRangeSounds = "NPC_Antlion.Distracted" -- Sounds emitted when the NPC does its range attack
 NPC.OnRangeSound_Chance = 1
 
-
 NPC.GibMaterial = "models/antlionspitter/antlionhigh_sheet2"
 NPC.GibParticle = "blood_impact_zbase_blue"
-
-
 
 function NPC:CustomDealDamage( victimEnt, dmginfo )
     if dmginfo:IsDamageType(DMG_SLASH) then
@@ -66,11 +56,9 @@ function NPC:CustomDealDamage( victimEnt, dmginfo )
     end
 end
 
-
 function NPC:CustomInitialize()
     self:SetSkin(1)
 end
-
 
 function NPC:RangeAttackProjectile()
     local projStartPos = self:Projectile_SpawnPos()
@@ -88,4 +76,3 @@ function NPC:RangeAttackProjectile()
 
     proj:EmitSound("NPC_Antlion.RunOverByVehicle")
 end
-

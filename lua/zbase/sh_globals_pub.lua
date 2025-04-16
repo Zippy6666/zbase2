@@ -164,9 +164,12 @@ end
 
     -- Emit a flash of light
     -- 'col' needs to be a string
+    -- 'dur' stands for duration and is optional
     -- ZBase muzzle light option must be enabled!
-function ZBaseMuzzleLight( pos, bright, dist, col )
+function ZBaseMuzzleLight( pos, bright, dist, col, dur )
     if !ZBCVAR.MuzzleLight:GetBool() then return end
+
+    dur = dur or 0.05
 
     local muzzleLight1 = ents.Create("env_projectedtexture")
     local muzzleLight2 = ents.Create("env_projectedtexture")
@@ -186,7 +189,7 @@ function ZBaseMuzzleLight( pos, bright, dist, col )
             muzzleLight:SetKeyValue("lightstrength", bright)
             muzzleLight:Spawn()
             muzzleLight:Activate()
-            SafeRemoveEntityDelayed(muzzleLight, 0.05)
+            SafeRemoveEntityDelayed(muzzleLight, dur)
         end
     end
 end

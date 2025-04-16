@@ -64,12 +64,3 @@ if CLIENT then
     ZBCVAR.PopUp =              CreateConVar("zbase_popup", "1", FCVAR_ARCHIVE)
     ZBCVAR.RandWep =            CreateConVar("zbase_randwep", "0", FCVAR_ARCHIVE)
 end
-
-
-
-
-
-
-
-
-
