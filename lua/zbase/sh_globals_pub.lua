@@ -1,12 +1,11 @@
 
-    // Useful globals
+-- Useful globals
 
 --[[
 ======================================================================================================================================================
-                                           ENUMS
+                                           ENUMS / CONSTANTS
 ======================================================================================================================================================
 --]]
-
 
 ZBASE_SNPCTYPE_WALK = 1
 ZBASE_SNPCTYPE_FLY = 2
@@ -14,18 +13,14 @@ ZBASE_SNPCTYPE_STATIONARY = 3
 ZBASE_SNPCTYPE_VEHICLE = 4
 ZBASE_SNPCTYPE_PHYSICS = 5
 
-
 ZBASE_CANTREACHENEMY_HIDE = 1
 ZBASE_CANTREACHENEMY_FACE = 2
-
 
 ZBASE_TOOCLOSEBEHAVIOUR_NONE = 0
 ZBASE_TOOCLOSEBEHAVIOUR_FACE = 1
 ZBASE_TOOCLOSEBEHAVIOUR_BACK = 2
 
-
 ZBASE_DEFAULT_SIGHT_DIST = 4096
-
 
 --[[
 ======================================================================================================================================================
@@ -33,9 +28,8 @@ ZBASE_DEFAULT_SIGHT_DIST = 4096
 ======================================================================================================================================================
 --]]
 
-
-    -- Should be at the top of your NPC file, like this:
-    -- local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
+-- Should be at the top of your NPC file, like this:
+-- local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 function FindZBaseTable(debuginfo)
     local shortsrc = debuginfo.short_src
     local split = string.Split(shortsrc, "/")
@@ -43,20 +37,18 @@ function FindZBaseTable(debuginfo)
 
     if name == "zbase" then
         name = "npc_zbase"
-    end
-
+    end 
+    
     return ZBaseNPCs[name]
-end
+end 
 
-
-    -- Should be at the top of your NPC's behaviour file if you have any, like this:
-    -- local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
+-- Should be at the top of your NPC's behaviour file if you have any, like this:
+-- local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
 function FindZBaseBehaviourTable(debuginfo)
     if SERVER then
         return FindZBaseTable(debuginfo).Behaviours
     end
-end
-
+end 
 
 --[[
 ======================================================================================================================================================
@@ -64,41 +56,35 @@ end
 ======================================================================================================================================================
 --]]
 
-
-    -- Change the zbase faction for an entity
-    -- Always use this function if you want to do so
+-- Change the ZBASE faction for an entity
+-- Always use this function if you want to do so
 function ZBaseSetFaction( ent, newFaction )
     ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
 
     for _, v in ipairs(ZBaseNPCInstances) do
         v:UpdateRelationships()
     end
-end
+end 
 
-
-    -- Gets the zbase function of an entity
+-- Gets the ZBASE function of an entity
 function ZBaseGetFaction( ent )
     return ent.ZBaseFaction
-end
+end 
 
-
-    -- Change how two entities feel about each other
-    -- https://wiki.facepunch.com/gmod/Enums/D
+-- Change how two entities feel about each other
+-- https://wiki.facepunch.com/gmod/Enums/D
 function ZBaseSetRelationship( ent1, ent2, rel )
     ent1:ZBASE_SetMutualRelationship( ent2, rel )
-end
+end 
 
-
-    -- Used to add glowing eyes to models
-    -- 'identifier' - A unique identifier for this particular eye
-    -- 'model' - The model that should have the eye
-    -- 'skin' - Which skin should have the eye, set to false to use all skins
+-- Used to add glowing eyes to models
+-- 'identifier' - A unique identifier for this particular eye
+-- 'model' - The model that should have the eye
+-- 'skin' - Which skin should have the eye, set to false to use all skins
 function ZBaseAddGlowingEye(identifier, model, skin, bone, offset, scale, color)
-
     if !ZBaseGlowingEyes[model] then
         ZBaseGlowingEyes[model] = {}
-    end
-
+    end 
 
     local Eye = {}
     Eye.skin = skin
@@ -107,38 +93,30 @@ function ZBaseAddGlowingEye(identifier, model, skin, bone, offset, scale, color)
     Eye.scale = scale
     Eye.color = color
 
-
-    
     ZBaseGlowingEyes[model][identifier] = Eye
+end 
 
-end
-
-
-    -- Changes a category's icon to whatever you like
-    -- Example:
-    -- ZBaseSetCategoryIcon( "Combine", "icon16/female.png" )
-    -- You probably want to run this in a hook like initialize
-    -- Feminist combine xddddd
+-- Changes a category's icon to whatever you like
+-- Example:
+-- ZBaseSetCategoryIcon( "Combine", "icon16/female.png" )
+-- You probably want to run this in a hook like initialize
+-- Feminist combine xddddd
 function ZBaseSetCategoryIcon( category, path )
     if SERVER then return end
     ZBaseCategoryImages[category] = path
-end
+end 
 
-
-    -- Spawn a ZBase NPC
-    -- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
-    -- 'pos' - The position to spawn it on (optional, will be Vector(0,0,0) otherwise)
-    -- 'normal' - The normal to spawn it on (optional)
-    -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
-    -- 'spawn_flags' - (optional) The spawnflags to start with instead of the default SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, and SF_NPC_LONG_RANGE
+-- Spawn a ZBase NPC
+-- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
+-- 'pos' - The position to spawn it on (optional, will be Vector(0,0,0) otherwise)
+-- 'normal' - The normal to spawn it on (optional)
+-- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
+-- 'spawn_flags' - (optional) The spawnflags to start with instead of the default SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, and SF_NPC_LONG_RANGE
 local up = Vector(0, 0, 1)
 function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class, spawn_flags)
+    if !SERVER then return NULL end 
 
-    if !SERVER then return NULL end
-
-
-    if !ZBaseNPCs[class] then return NULL end
-
+    if !ZBaseNPCs[class] then return NULL end 
 
     if weapon_class=="default" then
 
@@ -148,27 +126,22 @@ function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class, spawn_flags)
             weapon_class = table.Random(weps)
         end
          
-    end
-
+    end 
 
     local NPC = ZBaseInternalSpawnNPC( nil, pos, normal or up, class, weapon_class, spawn_flags, true, false )
     if !IsValid(NPC) then
         ErrorNoHaltWithStack("No such NPC found: '", class, "'\n")
     else
         return NPC
-    end
+    end 
+end 
 
-
-end
-
-
-    -- Emit a flash of light
-    -- 'col' needs to be a string
-    -- 'dur' stands for duration and is optional
-    -- ZBase muzzle light option must be enabled!
+-- Emit a flash of light
+-- 'col' needs to be a string
+-- 'dur' stands for duration and is optional
+-- ZBase muzzle light option must be enabled!
 function ZBaseMuzzleLight( pos, bright, dist, col, dur )
-    if !ZBCVAR.MuzzleLight:GetBool() then return end
-
+    if !ZBCVAR.MuzzleLight:GetBool() then return end 
     dur = dur or 0.05
 
     local muzzleLight1 = ents.Create("env_projectedtexture")
@@ -192,8 +165,7 @@ function ZBaseMuzzleLight( pos, bright, dist, col, dur )
             SafeRemoveEntityDelayed(muzzleLight, dur)
         end
     end
-end
-
+end 
 
 --[[
 ======================================================================================================================================================
@@ -201,9 +173,7 @@ end
 ======================================================================================================================================================
 --]]
 
-
 if SERVER then
-
     -- ZBaseMove locals, ignore...
     local MoveConstant = 300
     local DistUntilSwitchWayPointSq = (MoveConstant*0.5)^2
@@ -214,13 +184,11 @@ if SERVER then
     local MaxJumpDist = 400
     local TimeOutTime = 5
 
-
     -- Move any NPC to the desired position, works even when there are no nodes!
     -- 'npc' - The NPC in question
     -- 'pos' - The position to move the NPC to
     -- 'identifier' Optional, a way to identify this move
     function ZBaseMove( npc, pos, identifier )
-
         local hookID = "ZBaseMove:"..tostring(npc)
         local ZBaseMoveTimeOut = CurTime()+TimeOutTime
         local NextMoveTick = CurTime()
@@ -246,18 +214,15 @@ if SERVER then
                 if IsValid(npc) then
                     debugoverlay.Text(npc:WorldSpaceCenter(), "ZBaseMove finished")
                     npc.ZBaseMove_ID = nil
-                end
-
+                end 
 
                 return
-            end
-
-            -- Thinking disabled, don't run this
+            end 
+                        -- Thinking disabled, don't run this
             if AIDisabled:GetBool() or bit.band(npc:GetFlags(), EFL_NO_THINK_FUNCTION )==EFL_NO_THINK_FUNCTION then
                 return
-            end
-
-            -- Vars
+            end 
+                        -- Vars
             local npc_pos = npc:WorldSpaceCenter()
             local InWayPointDist = npc_pos:DistToSqr(npc.ZBaseMove_WaypointPos) < DistUntilSwitchWayPointSq
             local onGround = npc:IsOnGround()
@@ -289,31 +254,26 @@ if SERVER then
                     npc:SetSchedule(SCHED_FORCED_GO_RUN)
                 else
                     npc:SetSchedule(SCHED_FORCED_GO)
-                end
+                end 
+                                FirstIter = false
 
-                FirstIter = false
-
-            end
-
+            end 
 
             -- We are on the ground, and we are moving, so we should not need to jump...
             if onGround && npc:IsMoving() then
                 npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 1.8)
-            end
+            end 
 
-            
             if shouldJump then
 
                 if npc_pos:DistToSqr(destination) <= MaxJumpDist then
                     ZBaseMoveJump(npc, destination)
                 else
                     ZBaseMoveJump(npc, npc_pos + moveNrm*MaxJumpDist)
-                end
+                end 
+                                npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 3) -- Assume we can ground move after this jump
 
-                npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 3) -- Assume we can ground move after this jump
-
-            end
-
+            end 
             NextMoveTick = CurTime()+0.1
         end)
     end
@@ -334,34 +294,29 @@ if SERVER then
         local function afterLandFunc()
             npc:SetLastPosition(pos)
             npc:SetSchedule(SCHED_FORCED_GO_RUN)
-        end
-
-        local function startGlideFunc()
+        end 
+                local function startGlideFunc()
             if npc.IsZBaseNPC then
                 npc:InternalPlayAnimation(ACT_GLIDE, 5, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=onFinishFunc})
             else
                 npc:ZBASE_SimpleAnimation(ACT_GLIDE)
             end
-        end
-
-        hook.Add("Tick", hookID, function()
+        end 
+                hook.Add("Tick", hookID, function()
 
             if !IsValid(npc) then
                 hook.Remove("Tick", hookID)
                 return
-            end
-
-            if !npc.ZBaseMove_JustJumped && npc.ZBaseMove_IsJumping && npc:OnGround() then
+            end 
+                        if !npc.ZBaseMove_JustJumped && npc.ZBaseMove_IsJumping && npc:OnGround() then
                 if npc.IsZBaseNPC then
                     npc:InternalPlayAnimation(ACT_LAND, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=afterLandFunc})
                 else
                     npc:ZBASE_SimpleAnimation(ACT_LAND)
-                end
-
-                npc.ZBaseMove_IsJumping = false
-            end
-
-        end)
+                end 
+                                npc.ZBaseMove_IsJumping = false
+            end 
+                end)
 
         if npc.IsZBaseNPC then
             npc:InternalPlayAnimation(ACT_JUMP, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=startGlideFunc})
@@ -369,8 +324,7 @@ if SERVER then
             npc:ZBASE_SimpleAnimation(ACT_JUMP)
         end
         npc.ZBaseMove_IsJumping = true
-    end
-
+    end 
 
     -- Stop ZBaseMove for this NPC
     -- 'npc' - The NPC in question
@@ -378,13 +332,11 @@ if SERVER then
     function ZBaseMoveEnd( npc, identifier )
         if identifier && identifier != npc.ZBaseMove_ID then
             return
-        end
-
-        local hookID = "ZBaseMove:"..tostring(npc)
+        end 
+                local hookID = "ZBaseMove:"..tostring(npc)
         hook.Remove("Tick", hookID)
         npc.ZBaseMove_ID = nil
-    end
-
+    end 
 
     -- Checks if an NPC is doing ZBaseMove
     -- 'npc' - The NPC in question
@@ -392,22 +344,17 @@ if SERVER then
     function ZBaseMoveIsActive( npc, identifier )
         if identifier && identifier != npc.ZBaseMove_ID then
             return
-        end
-
-        local hookID = "ZBaseMove:"..tostring(npc)
+        end 
+                local hookID = "ZBaseMove:"..tostring(npc)
         return hook.GetTable()["Tick"][hookID]!=nil
-    end
-
-end
-
+    end 
+end 
 
 --[[
 ======================================================================================================================================================
                                            SOUNDS/SENTENCES
 ======================================================================================================================================================
---]]
-
---[[
+--]]--[[
     -- ADD A SENTENCE - CODE EXAMPLE (RUN IN SHARED) --
     -- Sentences need to end with .SS as provided in the example! --
 
@@ -444,8 +391,7 @@ end
 function ZBaseAddScriptedSentence(ssTab)
     if !istable(ssTab) || !ssTab['name'] then return end
     ZBaseScriptedSentences[ ssTab['name'] ] = ssTab 
-end
-
+end 
 
 -- Show a caption text for the player
 -- If the player (ply) is 'false', it will show to every player in the range
@@ -463,9 +409,8 @@ function ZBaseAddCaption(ply, text, dur, range, pos)
                     net.WriteFloat( dur || 1 )		
                     net.Send(plyIter)
                 end
-            end
-
-		elseif ply:IsPlayer() then
+            end 
+        		elseif ply:IsPlayer() then
             
             net.Start( "ZBaseAddCaption" )
             net.WriteString( text || "" )
@@ -476,10 +421,9 @@ function ZBaseAddCaption(ply, text, dur, range, pos)
 	elseif (CLIENT) then	
 		gui.AddCaption( text, dur, false )
 	end
-end
+end 
 
-
-    -- A quick way to add sounds that have attributes appropriate for a human voice
+-- A quick way to add sounds that have attributes appropriate for a human voice
 function ZBaseCreateVoiceSounds( name, tbl )
     sound.Add( {
         name = name,
@@ -489,6 +433,4 @@ function ZBaseCreateVoiceSounds( name, tbl )
         pitch = {95, 105},
         sound = tbl,
     } )
-end
-
-
+end 

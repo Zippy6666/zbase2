@@ -1,18 +1,3 @@
---[[
-==================================================================================================
-                                    PLAYER CONTROL SYSTEM
-    >> Control Priority Sys <<
-    First two controls are left and right click, the rest are gonna be 1, 2, 3, 4, 5, and so on.
-    1. Use weapon
-    2. Fire secondary
-    3. Range attack
-    4. Melee attack
-    5. Grenade attack
-    6. User defined attacks
-    7. "Free attack"
-==================================================================================================
---]]
-
 util.AddNetworkString("ZBASE_Ctrlr_SlotBindPress")
 
 local NPC           = FindMetaTable("NPC")

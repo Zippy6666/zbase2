@@ -8,32 +8,23 @@ ENT.Spawnable = false
 ENT.Category = "ZBase"
 ENT.IsZBaseProjectile = true
 
-
 ENT.Model = "models/spitball_medium.mdl" -- Model to use
 ENT.Invisible = false -- Should the model be invisible?
 
-
 ENT.StartHealth = false -- Health of the projectile, set to false to disable projectile health
-
 
 ENT.Gravity = false -- Should the projectile have gravity?
 ENT.GravityGun_Pickup = true -- Can the projectile be picked up by the gravity gun?
 ENT.GravityGun_Punt = true -- Can the projectile be punted by the gravity gun?
 
-
 ENT.OnHitDamage = 10 -- Projectile damage on hit, set to false to disable
 ENT.OnHitDamageType = DMG_GENERIC -- Projectile damage type on hit
 
-
 ENT.Damage_Disorient = false -- Should any damage (direct or radius) from the projectile disorient players (be deafening)?
 
+-- Change these functions below to your liking
 
-
-
-    -- Change these functions to your liking --
-
-
-    -- When the projectile is created
+-- When the projectile is created
 function ENT:PostInit()
     -- Example:
 
@@ -59,28 +50,19 @@ function ENT:PostInit()
     end
 end
 
-
-
-
-    -- When the projectile's physics object is created
-    -- Change things about it here
+-- When the projectile's physics object is created
+-- Change things about it here
 function ENT:PhysInit( phys )
 end
 
-
-
-
-    -- When the projectile hits an entity
+-- When the projectile hits an entity
 function ENT:OnHit( ent, data )
     -- Example:
 
     self:Die()
 end
 
-
-
-
-    -- Called continiously
+-- Called continiously
 function ENT:OnThink()
     -- Example:
 
@@ -90,34 +72,22 @@ function ENT:OnThink()
     -- end
 end
 
-
-
-
-    -- Called when it's pushed by the gravity gun
+-- Called when it's pushed by the gravity gun
 function ENT:OnGravityGunPunt()
 end
 
-
-
-
-    -- Called when a player tries to pick it up with their gravity gun
-    -- Return true to allow
-    -- Return false to not
+-- Called when a player tries to pick it up with their gravity gun
+-- Return true to allow
+-- Return false to not
 function ENT:OnTryGravityGunPickup()
     return true
 end
 
-
-
-
-    -- When the projectile takes damage
+-- When the projectile takes damage
 function ENT:CustomOnTakeDamage(dmginfo)
 end
 
-
-
-
-    -- When the projectile "dies"
+-- When the projectile "dies"
 function ENT:OnKill(dmginfo)
     -- Example:
 
@@ -148,10 +118,7 @@ function ENT:OnKill(dmginfo)
     -- ParticleEffect("Weapon_Combine_Ion_Cannon_Explosion", self:WorldSpaceCenter(), AngleRand())
 end
 
-
-
-
-    -- When the projectile is removed
+-- When the projectile is removed
 function ENT:CustomOnRemove()
     -- Example:
 
@@ -161,14 +128,7 @@ function ENT:CustomOnRemove()
     -- end
 end
 
-
-
-
-
-
-
-
-    -- Don't change these! --
+-- Don't change these!
 
 function ENT:Initialize()
     self:SetModel(self.Model)
@@ -187,7 +147,6 @@ function ENT:Initialize()
             self:PhysInit(phys)
         end
 
-
         if self.StartHealth then
             self:SetHealth(self.StartHealth)
             self:SetMaxHealth(self.StartHealth)
@@ -203,14 +162,10 @@ function ENT:Initialize()
     self:PostInit()
 end
 
-
-
 function ENT:Think()
     self:OnThink()
     self.LastVel = self:GetVelocity()
 end
-
-
 
 function ENT:PhysicsCollide( colData, collider )
     self:OnHit( colData.HitEntity, colData )
@@ -219,8 +174,6 @@ function ENT:PhysicsCollide( colData, collider )
         self:ProjectileDamage(colData.HitEntity, self.OnHitDamage, self.OnHitDamageType)
     end
 end
-
-
 
 function ENT:ProjectileDamage( ent, dmg, dmgtype )
     if !SERVER then return end
@@ -244,8 +197,6 @@ function ENT:ProjectileDamage( ent, dmg, dmgtype )
 
     ent:TakeDamageInfo(dmginfo)
 end
-
-
 
 function ENT:ProjectileBlastDamage( dmg, dmgtype, radius, force )
     if !SERVER then return end
@@ -277,8 +228,6 @@ function ENT:ProjectileBlastDamage( dmg, dmgtype, radius, force )
     util.BlastDamageInfo(dmginfo, self:WorldSpaceCenter(), radius)
 end
 
-
-
 function ENT:Die( dmg )
     if self.Dead then return end
     self.Dead = true
@@ -288,8 +237,6 @@ function ENT:Die( dmg )
     self:Remove() 
     end
 end
-
-
 
 function ENT:OnTakeDamage( dmg )
     if !self.StartHealth then return end
@@ -305,13 +252,9 @@ function ENT:OnTakeDamage( dmg )
     return dmg:GetDamage()
 end
 
-
-
 function ENT:OnRemove()
     self:CustomOnRemove()
 end
-
-
 
 hook.Add("PostEntityTakeDamage", "ZBaseProjectile", function( ent, dmg )
     local infl = dmg:GetInflictor()
@@ -320,8 +263,6 @@ hook.Add("PostEntityTakeDamage", "ZBaseProjectile", function( ent, dmg )
         ent:SetDSP(32)
     end
 end)
-
-
 
 hook.Add("GravGunPunt", "ZBaseProjectile", function( ply, ent )
     if ent.IsZBaseProjectile then
@@ -344,8 +285,6 @@ hook.Add("GravGunPunt", "ZBaseProjectile", function( ply, ent )
     end
 end)
 
-
-
 hook.Add("GravGunPickupAllowed", "ZBaseProjectile", function( ply, ent )
     if ent.IsZBaseProjectile then
         if ent.GravityGun_Pickup then
@@ -355,6 +294,3 @@ hook.Add("GravGunPickupAllowed", "ZBaseProjectile", function( ply, ent )
         end
     end
 end)
-
-
-

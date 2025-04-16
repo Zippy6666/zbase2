@@ -77,6 +77,7 @@ if SERVER then
     util.AddNetworkString("ZBase_GetFactionsFromServer")
     util.AddNetworkString("ZBaseClientReload")
     util.AddNetworkString("ZBaseReload")
+    util.AddNetworkString("ZBaseUpdateSpawnMenuFactionDropDown")
 
     net.Receive("ZBase_GetFactionsFromServer", function(_, ply)
         ZBaseListFactions(_, ply)

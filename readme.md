@@ -27,4 +27,9 @@
 #### TODO:
 - [ ] Fix subtitles when citizen follows player
 - [ ] Fix issue with combines (and other?) not reloading weapons at times
-- [ ] Spawner system
+- [x] Spawner system
+- [ ] Controller
+- [ ] Add separator for weapons in npc weapon dropdown + other qol changes
+- [ ] Ability to change reload times
+- [ ] Homing RPGs
+- [ ] Ensure aerial functionality

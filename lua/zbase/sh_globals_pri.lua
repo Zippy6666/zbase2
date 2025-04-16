@@ -1,4 +1,4 @@
-// You probably don't want to use these globals
+-- You probably don't want to use these globals
 
 ZBASE_CANTREACHENEMY_GO_NEAR = 3
 
@@ -44,7 +44,6 @@ ZBaseFactionTranslation_Flipped = SERVER and {
     neutral = CLASS_EARTH_FAUNA,
 } or nil
 
-
 ZBaseVJFactionTranslation = {
     ["combine"] = "CLASS_COMBINE",
     ["zombie"] = "CLASS_ZOMBIE",
@@ -58,7 +57,6 @@ ZBaseVJFactionTranslation = {
     ["snark"] = "CLASS_SNARK",
 }
 ZBaseVJFactionTranslation_Flipped = table.Flip(ZBaseVJFactionTranslation)
-
 
 ZBASE_MENU_REPLACEMENTS = {
     ["zb_human_civilian"] = "npc_citizen",
@@ -85,13 +83,11 @@ ZBASE_MENU_REPLACEMENTS = {
 }
 ZBASE_MENU_REPLACEMENTS_FLIPPED = table.Flip( table.Copy(ZBASE_MENU_REPLACEMENTS) )
 
-
 --[[
 ======================================================================================================================================================
                                            NPC PATCHES
 ======================================================================================================================================================
 --]]
-
 
 function ZBasePatchNPCClass(debuginfo)
     local shortsrc = debuginfo.short_src
@@ -101,16 +97,11 @@ function ZBasePatchNPCClass(debuginfo)
     return split2[1]
 end
 
-
-
-
 --[[
 ======================================================================================================================================================
                                            SCHEDULE
 ======================================================================================================================================================
 --]]
-
-
 
 function ZBaseEngineSchedName( sched )
     -- Might miss a few schedules
@@ -207,11 +198,9 @@ function ZBaseEngineSchedName( sched )
     return schednames[sched]
 end
 
-
 function ZBaseESchedID( name )
     return ai.GetScheduleID(name)-1000000000
 end
-
 
 function ZBaseSchedDebug( ent )
     return ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched() )
@@ -219,13 +208,11 @@ function ZBaseSchedDebug( ent )
     or "custom "..ent:GetClass().." schedule ("..tostring(ent:GetCurrentSchedule()..")")
 end
 
-
 --[[
 ======================================================================================================================================================
                                            NPC Copy System
 ======================================================================================================================================================
 --]]
-
 if SERVER then
         -- "NPC copy" system, makes a zbase "NPC copy" of any type/class from any spawned NPC
     local invisCol = Color(255,255,255,0)
@@ -332,14 +319,11 @@ if SERVER then
     end
 end
 
-
 --[[
 ======================================================================================================================================================
                                            OTHER
 ======================================================================================================================================================
 --]]
-
-
 
 local SoundDurationCache = {}
 function ZBaseSoundDuration( soundname )
@@ -359,18 +343,15 @@ function ZBaseSoundDuration( soundname )
     return 0
 end
 
-
 function ZBaseRoughRadius( ent )
     return math.abs(ent:GetRotatedAABB(ent:OBBMins(),ent:OBBMaxs()).x)*2
 end
-
 
 function ZBaseRndTblRange( tbl )
     return math.Rand(tbl[1], tbl[2])
 end
 
 function ZBaseShouldUseRelationshipSys( ent )
-
     if !ent:IsNPC() then
         return false
     end
@@ -388,7 +369,5 @@ function ZBaseShouldUseRelationshipSys( ent )
     -- Used by NPC suppression system
     if npc.is_fake then return false end
 
-
     return true
-
 end

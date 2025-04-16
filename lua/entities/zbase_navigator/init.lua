@@ -1,12 +1,8 @@
 include("shared.lua")
 
-
 ENT.m_iClass = CLASS_NONE
 ENT.ZBaseFaction = "neutral"
 ENT.IsZBaseNavigator = true
-
-
-
 
 function ENT:Initialize()
 	self:SetModel( "models/breen.mdl" )
@@ -22,7 +18,6 @@ function ENT:Initialize()
 	self:SetNPCState(NPC_STATE_IDLE)
 end
 
-
 function ENT:SelectSchedule()
 	if IsValid(self.ForceEnemy) then
 		self:AddEntityRelationship(self.ForceEnemy, D_HT, 0)
@@ -30,16 +25,13 @@ function ENT:SelectSchedule()
 		self:UpdateEnemyMemory(self.ForceEnemy, self.ForceEnemy:GetPos())
 	end
 
-
 	self:SetLastPosition(self.ForcedLastPos)
-
 
 	if istable(self.Sched) then
 		self:StartSchedule(self.Sched)
 	elseif isnumber(self.Sched) then
 		self:SetSchedule(self.Sched)
 	end
-
 
 	local own = self:GetOwner()
 	timer.Simple(0.4, function()
@@ -55,17 +47,14 @@ function ENT:SelectSchedule()
 	end)
 end
 
-
 function ENT:Think()
 	if self.MoveConfirmed then
 		local own = self:GetOwner()
 		local waypoint = self:GetCurWaypointPos()
 
-
 		if IsValid(own) then
 			self:SetNPCState(own:GetNPCState())
 		end
-
 
 		if !waypoint:IsZero() && IsValid(own) && own.NavigatorWaypoint != waypoint then
 
@@ -74,22 +63,16 @@ function ENT:Think()
 
 		end
 
-
 		if ZBCVAR.ShowNavigator:GetBool() then
 			debugoverlay.Text(self:WorldSpaceCenter(), "navigator sched: "..ZBaseSchedDebug( self ), 0.13)
 		end
 	end
 end
 
-
 function ENT:GetCurrentCustomSched()
 	return self.CurrentSchedule && self.CurrentSchedule.DebugName
 end
 
-
 function ENT:IsCurrentZSched( sched )
-
 	return "ZSched"..sched == self:GetCurrentCustomSched()
-
 end
-

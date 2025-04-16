@@ -1,7 +1,6 @@
 util.AddNetworkString("ZBaseGlowEyes")
 util.AddNetworkString("ZBaseClientRagdoll")
 
-
 local NPC = ZBaseNPCs["npc_zbase"]
 local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 local IsMultiplayer = !game.SinglePlayer()
@@ -9,13 +8,11 @@ local Developer = GetConVar("developer")
 local KeepCorpses = GetConVar("ai_serverragdolls")
 local AIDisabled = GetConVar("ai_disabled")
 
-
 --[[
 ==================================================================================================
                                            INIT BRUV
 ==================================================================================================
 --]]
-
 
 function NPC:PreSpawn()
     if #self.Weapons >= 1 then
@@ -32,7 +29,6 @@ function NPC:PreSpawn()
 
     self:CustomPreSpawn()
 end
-
 
 function NPC:ZBaseInit()
     -- Vars
@@ -120,7 +116,6 @@ function NPC:ZBaseInit()
     self:CONV_CallNextTick("InitNextTick")
 end
 
-
 function NPC:InitNextTick()
     -- Auto set npc class
     if self.IsZBase_SNPC && self:GetNPCClass() == -1 && ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)] then
@@ -129,7 +124,6 @@ function NPC:InitNextTick()
 
     self:CONV_CallNextTick("Init2Ticks")
 end
-
 
 function NPC:Init2Ticks()
     -- FOV and sight dist
@@ -155,7 +149,6 @@ function NPC:Init2Ticks()
     end
 end
 
-
 function NPC:InitSounds()
     -- Get names of sound variables
     self.SoundVarNames = {}
@@ -165,7 +158,6 @@ function NPC:InitSounds()
         end
     end
 end
-
 
 function NPC:InitModel()
     self:SetRenderMode(self.RenderMode)
@@ -193,7 +185,6 @@ function NPC:InitModel()
     end
 end
 
-
 function NPC:InitGrenades()
     if ZBCVAR.GrenAltRand:GetBool() then
         -- Random grenades and alts
@@ -217,7 +208,6 @@ function NPC:InitGrenades()
     end
 end
 
-
 function NPC:InitBounds()
     if self.CollisionBounds then
         if self.IsZBase_SNPC then
@@ -237,14 +227,12 @@ function NPC:InitBounds()
     end
 end
 
-
 function NPC:InitBlockingBounds()
     -- Set up blocking bounds
     local mins, maxs = self:OBBMins(), self:OBBMaxs()
     mins, maxs = Vector(mins.x*1.5, mins.y*1.5, mins.z), Vector(maxs.x*1.5, maxs.y*1.5, maxs.z)
     self.ZBase_BlockingBounds = {mins, maxs}
 end
-
 
 function NPC:InitCap()
     -- https://wiki.facepunch.com/gmod/Enums/CAP
@@ -314,7 +302,6 @@ function NPC:InitCap()
     self:OnInitCap()
 end
 
-
 function NPC:GlowEyeInit()
     if !ZBCVAR.SvGlowingEyes:GetBool() then return end
 
@@ -357,13 +344,11 @@ function NPC:GlowEyeInit()
     end)
 end
 
-
 --[[
 ==================================================================================================
                                            THINK
 ==================================================================================================
 --]]
-
 
 function NPC:ZBaseThink()
     -- Don't think if has EFL_NO_THINK_FUNCTION
@@ -479,7 +464,6 @@ function NPC:ZBaseThink()
     self:CustomThink()
 end
 
-
 function NPC:FrameTick()
     if AIDisabled:GetBool() then return end
 
@@ -499,13 +483,11 @@ function NPC:FrameTick()
     self:CustomFrameTick()
 end
 
-
 --[[
 ==================================================================================================
             RELATIONSHIPS
 ==================================================================================================
 --]]
-
 
 function NPC:DecideRelationship( myFaction, ent )
     local theirFaction = ent.ZBaseFaction
@@ -515,8 +497,7 @@ function NPC:DecideRelationship( myFaction, ent )
         self:ZBASE_SetMutualRelationship( ent, D_LI )
         return
     end
-
-
+    
     -- My faction is none, hate everybody
     if myFaction == "none" then
         self:ZBASE_SetMutualRelationship( ent, D_HT )
@@ -549,7 +530,6 @@ function NPC:DecideRelationship( myFaction, ent )
     end
 end
  
-
 function NPC:UpdateRelationships()
     -- Set my VJ class
     if ZBaseVJFactionTranslation[self.ZBaseFaction] then
@@ -569,13 +549,11 @@ function NPC:UpdateRelationships()
     end
 end
 
-
 --[[
 ==================================================================================================
                                            WEAPON SYSTEM
 ==================================================================================================
 --]]
-
 
 function NPC:ZBWepSys_Init()
     self.ZBWepSys_Inventory = {}
@@ -592,7 +570,6 @@ function NPC:ZBWepSys_Init()
         wep:SetNoDraw(true)
     end
 end
-
 
 function NPC:ZBWepSys_Reload()
     -- On reload weapon
@@ -624,7 +601,6 @@ function NPC:ZBWepSys_Reload()
         self:ClearCondition(COND.NO_PRIMARY_AMMO)
     end)
 end
-
 
 -- https://wiki.facepunch.com/gmod/Hold_Types
 local HoldTypeFallback = {
@@ -680,7 +656,6 @@ function NPC:ZBWepSys_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, is
 
     wep:SetHoldType(startHoldT)
 end
-
 
 function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
     -- Some defaults
@@ -768,12 +743,10 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
     end
 end
 
-
 function NPC:ZBWepSys_StoreInInventory( wep )
     self.ZBWepSys_Inventory[wep:GetClass()] = {model=wep:GetModel(), isScripted=wep:IsScripted()}
     wep:Remove()
 end
-
 
 function NPC:ZBNWepSys_NewNumShots()
     local wep = self:GetActiveWeapon()
@@ -787,7 +760,6 @@ function NPC:ZBNWepSys_NewNumShots()
 
     return 1
 end
-
 
 function NPC:ZBWepSys_Shoot()
     local wep = self:GetActiveWeapon()
@@ -817,8 +789,6 @@ function NPC:ZBWepSys_Shoot()
     self.ZBWepSys_NextShoot = CurTime()+cooldown
 end
 
-
-
 function NPC:ZBWepSys_TooManyAttacking( ply )
     local attacking, max = 0, ZBCVAR.MaxNPCsShootPly:GetInt()
 
@@ -835,17 +805,14 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
     return false
 end
 
-
 function NPC:ZBWepSys_TrySuppress( target )
     self:AddEntityRelationship(target.ZBase_SuppressionBullseye, D_HT, 0)
     self:UpdateEnemyMemory(target.ZBase_SuppressionBullseye, target:GetPos())
 end
 
-
 function NPC:ZBWepSys_RemoveSuppressionPoint( target )
     SafeRemoveEntity(target.ZBase_SuppressionBullseye)
 end
-
 
 local PlayerHeightVec = Vector(0, 0, 60)
 function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
@@ -877,7 +844,6 @@ function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
     target.ZBase_SuppressionBullseye:SetNotSolid(true)
 end
 
-
 function NPC:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
     if !ene.ZBase_DontCreateSuppressionPoint then
         return true
@@ -889,7 +855,6 @@ function NPC:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
 
     return true
 end
-
 
 local minSuppressDist = 350
 local minDistFromSuppressPointToEne = 1000^2
@@ -955,7 +920,6 @@ function NPC:ZBWepSys_SuppressionThink()
     return true
 end
 
-
 local AIWantsToShoot_ACT_Blacklist = {
     [ACT_JUMP] = true,
     [ACT_GLIDE] = true,
@@ -1015,7 +979,6 @@ function NPC:ZBWepSys_AIWantsToShoot()
     return true
 end
 
-
 function NPC:ZBWepSys_WantsToShoot()
     return !self.DoingPlayAnim
 
@@ -1023,7 +986,6 @@ function NPC:ZBWepSys_WantsToShoot()
 
     && self:ZBWepSys_AIWantsToShoot()
 end
-
 
 function NPC:ZBWepSys_CanFireWeapon()
     return self:ZBWepSys_WantsToShoot()
@@ -1036,7 +998,6 @@ function NPC:ZBWepSys_CanFireWeapon()
 
     && !self.ComballAttacking
 end
-
 
 local strNeedles = {
     "_AIM",
@@ -1066,14 +1027,12 @@ function NPC:ZBWepSys_HasShootAnim()
     return false
 end
 
-
 function NPC:ZBWepSys_GetActTransTbl()
     local wep = self:GetActiveWeapon()
     if !IsValid(wep) then return end
 
     return wep.ActivityTranslateAI
 end
-
 
 local holdtypesDontGesture = {
     shotgun = true,
@@ -1087,7 +1046,6 @@ function NPC:ZBWepSys_ShouldUseFireGesture( isMoving )
 
     return isMoving or !IsMultiplayer 
 end
-
 
 function NPC:ZBWepSys_TranslateAct(act, translateTbl)
     if AIDisabled:GetBool() then return end
@@ -1120,7 +1078,6 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
     return translatedAct
 end
 
-
 function NPC:InternalOnFireWeapon()
     local wep = self:GetActiveWeapon()
     local ene = self:GetEnemy()
@@ -1150,7 +1107,6 @@ function NPC:InternalOnFireWeapon()
         end)
     end
 end
-
 
 local OutOfShootRangeSched = SCHED_FORCED_GO_RUN
 function NPC:ZBWepSys_FireWeaponThink()
@@ -1195,8 +1151,6 @@ function NPC:ZBWepSys_FireWeaponThink()
     end
 end
 
-
-
 function NPC:ZBWepSys_MeleeThink()
     local ene = self:GetEnemy()
 
@@ -1221,7 +1175,6 @@ function NPC:ZBWepSys_MeleeThink()
         end
     end
 end
-
 
 function NPC:ZBWepSys_Think()
     local Weapon = self:GetActiveWeapon()
@@ -1272,13 +1225,11 @@ function NPC:ZBWepSys_Think()
     end
 end
 
-
 --[[
 ==================================================================================================
                                            INTERNAL UTIL
 ==================================================================================================
 --]]
-
 
 
 function NPC:Face( face, duration, speed )
@@ -1309,7 +1260,6 @@ function NPC:Face( face, duration, speed )
     end
 end
 
-
 function NPC:Face_Simple( ent_or_pos )
     if isvector(ent_or_pos) then
         local FaceEnt = ents.Create("zb_temporary_ent")
@@ -1326,7 +1276,6 @@ function NPC:Face_Simple( ent_or_pos )
     end
 end
 
-
 function NPC:StopFace()
     if self:IsCurrentSchedule(SCHED_TARGET_FACE) then
         self:ClearSchedule()
@@ -1335,7 +1284,6 @@ function NPC:StopFace()
     self:CONV_RemoveTempVar("ZBase_CurrentFace_Yaw")
     self:CONV_RemoveTempVar("ZBase_CurrentFace_Speed")
 end
-
 
 function NPC:CheckHasAimPoseParam()
     for i=0, self:GetNumPoseParameters() - 1 do
@@ -1350,7 +1298,6 @@ function NPC:CheckHasAimPoseParam()
 
     return false
 end
-
 
 function NPC:FullReset(dontStopZBaseMove)
     self:TaskComplete()
@@ -1368,13 +1315,11 @@ function NPC:FullReset(dontStopZBaseMove)
     end
 end
 
-
 --[[
 ==================================================================================================
                                            ANIMATION
 ==================================================================================================
 --]]
-
 
 function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc, isGest, isTransition, noTransitions, moreArgs)
     if self.Dead or self.DoingDeathAnim then return end
@@ -1527,7 +1472,6 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
     playAnim()
 end
 
-
 function NPC:ExecuteWalkFrames(mult)
     if mult then
         self:AutoMovement(self:GetAnimTimeInterval()*mult)
@@ -1535,7 +1479,6 @@ function NPC:ExecuteWalkFrames(mult)
         self:AutoMovement(self:GetAnimTimeInterval())
     end
 end
-
 
 function NPC:InternalDoPlayAnim()
 
@@ -1554,7 +1497,6 @@ function NPC:InternalDoPlayAnim()
     end
 
 end
-
 
 function NPC:InternalStopAnimation(dontTransitionOut)
     if !self.DoingPlayAnim then return end
@@ -1596,13 +1538,11 @@ function NPC:InternalStopAnimation(dontTransitionOut)
     timer.Remove("ZBasePlayAnim"..self:EntIndex())
 end
 
-
 function NPC:SequenceGetFrames(seqID, anim)
     local seqInf = self:GetSequenceInfo( seqID )
 	local animID = anim && seqInf.anims[ anim ]
 	return animID && self:GetAnimInfo( animID ).numframes || -1
 end
-
 
 function NPC:GetGestureSequence()
 	local gest
@@ -1617,13 +1557,11 @@ function NPC:GetGestureSequence()
 	return gest, lay || false
 end
 
-
 -- For SNPCs and SNPCs ONLY
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
     if self.Dead then return end
     self:SNPCHandleAnimEvent(event, eventTime, cycle, type, options)
 end
-
 
 -- LUA anim events, that is
 function NPC:InternalHandleAnimationEvent( seq, ev )
@@ -1634,7 +1572,6 @@ function NPC:InternalHandleAnimationEvent( seq, ev )
 
     self:HandleLUAAnimationEvent( seq, ev )
 end
-
 
 function NPC:LUAAnimEventThink()
 	if self.ZBaseLuaAnimEvents then
@@ -1674,7 +1611,6 @@ function NPC:LUAAnimEventThink()
 		end
 	end
 end
-
 
 -- Tags: TickSlow, SlowTick, SlowThink, Slow Think
 local blockingColTypes = {
@@ -1796,7 +1732,6 @@ function NPC:AITick_Slow()
     end
 end
 
-
 function NPC:ShouldPreventSetSched( sched )
     -- Forced go will run no matter what
     if sched==SCHED_FORCED_GO then return false end
@@ -1807,7 +1742,6 @@ function NPC:ShouldPreventSetSched( sched )
     or self.DoingPlayAnim
 end
 
-
 function NPC:OnKilledEnt( ent )
     if ent == self:GetEnemy() then
         self:EmitSound_Uninterupted(self.KilledEnemySounds)
@@ -1815,7 +1749,6 @@ function NPC:OnKilledEnt( ent )
 
     self:CustomOnKilledEnt( ent )
 end
-
 
 function NPC:RangeThreatened( threat )
     if !self:HasEnemyMemory(threat) then return end
@@ -1828,7 +1761,6 @@ function NPC:RangeThreatened( threat )
 
     self.NextRangeThreatened = CurTime()+3
 end
-
 
 local RangeAttackActs = {
     [ACT_RANGE_ATTACK1] = true,
@@ -1846,7 +1778,6 @@ function NPC:NewActivityDetected( act )
     self:CustomNewActivityDetected( act )
 end
 
-
 function NPC:NewSequenceDetected( seq, seqName )
     if self:GetActiveWeapon().IsZBaseWeapon
     && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil
@@ -1858,7 +1789,6 @@ function NPC:NewSequenceDetected( seq, seqName )
 
     self:CustomNewSequenceDetected( seq, seqName )
 end
-
 
 function NPC:NewSchedDetected( sched, schedName )
     local assumedFailSched =
@@ -1879,7 +1809,6 @@ function NPC:NewSchedDetected( sched, schedName )
 
     self:CustomNewSchedDetected(sched, self.ZBaseLastESched or -1)
 end
-
 
 function NPC:OnDetectSchedFail()
     if !ZBCVAR.FallbackNav:GetBool() then return end
@@ -1907,7 +1836,6 @@ function NPC:OnDetectSchedFail()
 
     ZBaseMove(self, fallback_MovePos, "MoveFallback")
 end
-
 
 function NPC:DoNewEnemy()
     local ene = self:GetEnemy()
@@ -1949,7 +1877,6 @@ function NPC:DoNewEnemy()
     self.HadPreviousEnemy = ene && true or false
     self.LastEnemy = ene or self.LastEnemy
 end
-
 
 local UNKNOWN_DAMAGE_DIST = 1000^2
 function NPC:AI_OnHurt( dmg, MoreThan0Damage )
@@ -2009,21 +1936,17 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     end
 end
 
-
 function NPC:OnOwnedEntCreated( ent )
     self:CustomOnOwnedEntCreated( ent )
 end
-
 
 function NPC:OnParentedEntCreated( ent )
     self:CustomOnParentedEntCreated( ent )
 end
 
-
 function NPC:MarkEnemyAsDead( ene, time )
     self:CONV_TempVar("EnemyDied", true, time)
 end
-
 
 function NPC:DoMoveSpeed()
     if !self.DoingPlayAnim then
@@ -2032,7 +1955,6 @@ function NPC:DoMoveSpeed()
 
     self:SetSaveValue("m_flTimeLastMovement", -0.1*self.MoveSpeedMultiplier)
 end
-
 
 function NPC:InternalOnReactToSound(ent, pos, loudness)
     if self:GetNPCState()==NPC_STATE_ALERT then
@@ -2048,11 +1970,9 @@ function NPC:InternalOnReactToSound(ent, pos, loudness)
     self:OnReactToSound(ent, pos, loudness)
 end
 
-
 function NPC:OnBaseSetRel( ent, rel )
     return self:CustomOnBaseSetRel(ent, rel, priority)
 end
-
 
 --[[
 ==================================================================================================
@@ -2068,11 +1988,9 @@ function NPC:CanStartFollowPlayers()
     && self.SNPCType != ZBASE_SNPCTYPE_STATIONARY && followPly:GetBool()
 end
 
-
 function NPC:CurrentlyFollowingPlayer()
     return IsValid(self.PlayerToFollow) && self:IsCurrentSchedule(SCHED_FORCED_GO_RUN)
 end
-
 
 function NPC:StartFollowingPlayer( ply, dontSched, skipChecks, dontReset )
     if self.PlayerToFollow == ply then return end
@@ -2101,7 +2019,6 @@ function NPC:StartFollowingPlayer( ply, dontSched, skipChecks, dontReset )
     self:FollowPlayerStatus(self.PlayerToFollow)
 end
 
-
 function NPC:StopFollowingCurrentPlayer( noSound, skipDistCheck )
     if !IsValid(self.PlayerToFollow) then return end
     
@@ -2126,7 +2043,6 @@ function NPC:StopFollowingCurrentPlayer( noSound, skipDistCheck )
     self:FollowPlayerStatus(NULL)
 end
 
-
 function NPC:CanPursueFollowing()
     return IsValid(self.PlayerToFollow)
     && !self.ZBaseFollow_DontSchedule
@@ -2135,7 +2051,6 @@ function NPC:CanPursueFollowing()
     && !self:ZBWepSys_CanFireWeapon()
     && !self.ZBase_Guard
 end
-
 
 function NPC:PursueFollowing()
     if !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) then
@@ -2146,7 +2061,6 @@ function NPC:PursueFollowing()
     self:NavSetGoalTarget( self.PlayerToFollow, vector_origin )
     self:CONV_TempVar("DontUpdatePlayerFollowing", true, 0.5)
 end
-
 
 --[[
 ==================================================================================================
@@ -2166,20 +2080,17 @@ local SchedsToReplaceWithPatrol = {
     [SCHED_ALERT_WALK] = true,
 }
 
-
 function NPCB.Patrol:ShouldDoBehaviour( self )
     return PatrolCvar:GetBool() && self.CanPatrol && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()]
     && self:GetMoveType() == MOVETYPE_STEP
     && !self.CurrentSchedule -- Not doing any custom SNPC schedule at the moment
 end
 
-
 function NPCB.Patrol:Delay(self)
     if self.ZBase_IsMoving or self.DoingPlayAnim then
         return math.random(8, 15)
     end
 end
-
 
 function NPCB.Patrol:Run( self )
     local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
@@ -2195,7 +2106,6 @@ function NPCB.Patrol:Run( self )
     ZBaseDelayBehaviour(IsAlert && math.random(3, 6) or math.random(8, 15))
 end
 
-
 --[[
 ==================================================================================================
                                            AI CALL FOR HELP
@@ -2205,7 +2115,6 @@ end
     // Call allies outside of squad for help
 
 NPCB.FactionCallForHelp = {}
-
 
 function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
     if !ZBCVAR.CallForHelp:GetBool() then
@@ -2221,7 +2130,6 @@ function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
 
     return self.ZBaseFaction != "none" && self.ZBaseFaction != "neutral"
 end
-
 
 local callForHelpHint = SOUND_COMBAT
 function NPCB.FactionCallForHelp:Run( self )
@@ -2262,25 +2170,20 @@ function NPCB.FactionCallForHelp:Run( self )
     ZBaseDelayBehaviour(hintDuration)
 end
 
-
 --[[
 ==================================================================================================
                                            AI SECONDARY FIRE
 ==================================================================================================
 --]]
 
-
 ZBaseComballOwner = NULL
 
-
 NPCB.SecondaryFire = {MustHaveVisibleEnemy = true, MustFaceEnemy = true}
-
 
 local SecondaryFireWeapons = {
     ["weapon_ar2"] = {dist=4000, mindist=100},
     ["weapon_smg1"] = {dist=1500, mindist=250},
 }
-
 
 function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
     local seq = self:LookupSequence("shootar2alt")
@@ -2346,7 +2249,6 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
     end
 end
 
-
 function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
     local startPos = wep:GetAttachment(wep:LookupAttachment("muzzle")).Pos
     local grenade = ents.Create("grenade_ar2")
@@ -2369,7 +2271,6 @@ function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
     end
 end
 
-
 function NPCB.SecondaryFire:ShouldDoBehaviour( self )
     if !self.CanSecondaryAttack then return false end
     if self.DoingPlayAnim then return false end
@@ -2385,13 +2286,11 @@ function NPCB.SecondaryFire:ShouldDoBehaviour( self )
     && self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
 end
 
-
 function NPCB.SecondaryFire:Delay( self )
     if math.random(1, 2) == 1 then
         return math.Rand(4, 6)
     end
 end
-
 
 function NPCB.SecondaryFire:Run( self )
     local enemy = self:GetEnemy()
@@ -2406,22 +2305,18 @@ function NPCB.SecondaryFire:Run( self )
     ZBaseDelayBehaviour(math.Rand(4, 8))
 end
 
-
 --[[
 ==================================================================================================
                                            AI MELEE ATTACK
 ==================================================================================================
 --]]
 
-
 NPCB.MeleeAttack = {MustHaveEnemy = true}
 NPCB.PreMeleeAttack = {MustHaveEnemy = true}
-
 
 function NPC:TooBusyForMelee()
     return self.DoingPlayAnim
 end
-
 
 function NPC:CanBeMeleed( ent )
     local mtype = ent:GetMoveType()
@@ -2430,7 +2325,6 @@ function NPC:CanBeMeleed( ent )
     or mtype == MOVETYPE_WALK -- Player
     or ent:IsNextBot()
 end
-
 
 function NPC:InternalMeleeAttackDamage(dmgData)
     local mypos = self:WorldSpaceCenter()
@@ -2509,7 +2403,6 @@ function NPC:InternalMeleeAttackDamage(dmgData)
     return hurtEnts
 end
 
-
 function NPCB.MeleeAttack:ShouldDoBehaviour( self )
     if !self.BaseMeleeAttack then return false end
     if self:GetActiveWeapon().NPCIsMeleeWep then return false end
@@ -2524,12 +2417,10 @@ function NPCB.MeleeAttack:ShouldDoBehaviour( self )
     && self:ZBaseDist(ene, {within=self.MeleeAttackDistance})
 end
 
-
 function NPCB.MeleeAttack:Run( self )
     self:MeleeAttack()
     ZBaseDelayBehaviour(self:SequenceDuration() + ZBaseRndTblRange(self.MeleeAttackCooldown))
 end
-
 
 function NPCB.PreMeleeAttack:ShouldDoBehaviour( self )
     if !self.BaseMeleeAttack then return false end
@@ -2537,11 +2428,9 @@ function NPCB.PreMeleeAttack:ShouldDoBehaviour( self )
     return true
 end
 
-
 function NPCB.PreMeleeAttack:Run( self )
     self:MultipleMeleeAttacks()
 end
-
 
 --[[
 ==================================================================================================
@@ -2549,9 +2438,7 @@ end
 ==================================================================================================
 --]]
 
-
 NPCB.RangeAttack = {MustHaveEnemy = true}
-
 
 function NPCB.RangeAttack:ShouldDoBehaviour( self )
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
@@ -2583,7 +2470,6 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
     return true
 end
 
-
 function NPCB.RangeAttack:Run( self )
     local ene = self:GetEnemy()
 
@@ -2596,16 +2482,13 @@ function NPCB.RangeAttack:Run( self )
     ZBaseDelayBehaviour(self:SequenceDuration() + 0.25 + ZBaseRndTblRange(self.RangeAttackCooldown))
 end
 
-
 --[[
 ==================================================================================================
                                            AI GRENADE
 ==================================================================================================
 --]]
 
-
 NPCB.Grenade = {MustHaveEnemy = true}
-
 
 function NPCB.Grenade:ShouldDoBehaviour( self )
     local lastSeenPos = self:GetEnemyLastSeenPos()
@@ -2621,7 +2504,6 @@ function NPCB.Grenade:ShouldDoBehaviour( self )
     && !(self.Patch_PreventGrenade && self:Patch_PreventGrenade())
 end
 
-
 function NPCB.Grenade:Delay( self )
     local should_throw_visible = self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Visible)==1
     local should_throw_occluded = !self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Occluded)==1
@@ -2636,12 +2518,10 @@ function NPCB.Grenade:Delay( self )
     end
 end
 
-
 function NPCB.Grenade:Run( self )
     self:ThrowGrenade()
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.GrenadeCoolDown))
 end
-
 
 --[[
 ==================================================================================================
@@ -2649,14 +2529,12 @@ end
 ==================================================================================================
 --]]
 
-
 local Class_ShouldRunRandomOnDanger = {
     [CLASS_PLAYER_ALLY_VITAL] = true,
     [CLASS_COMBINE] = true,
     [CLASS_METROPOLICE] = true,
     [CLASS_PLAYER_ALLY] = true,
 }
-
 
 function NPC:HandleDanger()
     if self:BusyPlayingAnimation() then return end
@@ -2682,11 +2560,9 @@ function NPC:HandleDanger()
     self:CancelConversation()
 end
 
-
 function NPC:InDanger()
     return self.LastLoudestSoundHint && self.LastLoudestSoundHint.type == SOUND_DANGER
 end
-
 
 function NPC:InternalDetectDanger()
 	local hint = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
@@ -2698,20 +2574,16 @@ function NPC:InternalDetectDanger()
     end
 end
 
-
 --[[
 ==================================================================================================
                                            SOUND
 ==================================================================================================
 --]]
 
-
 ZBase_DontSpeakOverThisSound = false
-
 
 local SoundIndexes = {}
 local ShuffledSoundTables = {}
-
 
 function NPC:RestartSoundCycle( sndTbl, data )
     SoundIndexes[data.OriginalSoundName] = 1
@@ -2720,7 +2592,6 @@ function NPC:RestartSoundCycle( sndTbl, data )
     table.Shuffle(shuffle)
     ShuffledSoundTables[data.OriginalSoundName] = shuffle
 end
-
 
 local sndVarToCapTrans = {
     AlertSounds = "[ Alert! ]",
@@ -2869,7 +2740,6 @@ function NPC:OnEmitSound( data )
     return altered
 end
 
-
 function NPC:NearbyAllySpeaking( soundList )
     if self.Dead or self.DoingDeathAnim then return false end -- Otherwise they might not do their death sounds
 
@@ -2891,7 +2761,6 @@ function NPC:NearbyAllySpeaking( soundList )
     return false
 end
 
-
 function NPC:StopTalking( talkCvar )
     if talkCvar then
         self:StopSound(talkCvar)
@@ -2901,18 +2770,15 @@ function NPC:StopTalking( talkCvar )
     self.IsSpeaking_SoundVar = nil
 end
 
-
 --[[
 ==================================================================================================
                                            FOOTSTEPS
 ==================================================================================================
 --]]
 
-
 function NPC:EngineFootStep()
     self:OnEngineFootStep()
 end
-
 
 --[[
 ==================================================================================================
@@ -2920,9 +2786,7 @@ end
 ==================================================================================================
 --]]
 
-
 NPCB.DoIdleSound = {MustNotHaveEnemy = true}
-
 
 function NPCB.DoIdleSound:ShouldDoBehaviour( self )
     if self.IdleSounds == "" then return false end
@@ -2932,19 +2796,16 @@ function NPCB.DoIdleSound:ShouldDoBehaviour( self )
     return true
 end
 
-
 function NPCB.DoIdleSound:Delay( self )
     if self:NearbyAllySpeaking({"IdleSounds"}) or math.random(1, self.IdleSound_Chance)==1 then
         return ZBaseRndTblRange(self.IdleSoundCooldown)
     end
 end
 
-
 function NPCB.DoIdleSound:Run( self )
     self:EmitSound_Uninterupted(self.IdleSounds)
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSoundCooldown))
 end
-
 
 --[[
 ==================================================================================================
@@ -2952,9 +2813,7 @@ end
 ==================================================================================================
 --]]
 
-
 NPCB.DoIdleEnemySound = {MustHaveEnemy = true}
-
 
 function NPCB.DoIdleEnemySound:ShouldDoBehaviour( self )
     if self.Idle_HasEnemy_Sounds == "" then return false end
@@ -2963,13 +2822,11 @@ function NPCB.DoIdleEnemySound:ShouldDoBehaviour( self )
     return true
 end
 
-
 function NPCB.DoIdleEnemySound:Delay( self )
     if self:NearbyAllySpeaking() then
         return ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown)
     end
 end
-
 
 function NPCB.DoIdleEnemySound:Run( self )
     local snd = self.Idle_HasEnemy_Sounds
@@ -2979,16 +2836,13 @@ function NPCB.DoIdleEnemySound:Run( self )
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown))
 end
 
-
 --[[
 ==================================================================================================
                                            DIALOGUE
 ==================================================================================================
 --]]
 
-
 NPCB.Dialogue = {MustNotHaveEnemy = true}
-
 
 function NPCB.Dialogue:ShouldDoBehaviour( self )
     if self.Dialogue_Question_Sounds == "" then return false end
@@ -2999,13 +2853,11 @@ function NPCB.Dialogue:ShouldDoBehaviour( self )
     return true
 end
 
-
 function NPCB.Dialogue:Delay( self )
     if self:NearbyAllySpeaking() or self.HavingConversation or math.random(1, self.IdleSound_Chance)==1 then
         return ZBaseRndTblRange(self.IdleSoundCooldown)
     end
 end
-
 
 function NPCB.Dialogue:Run( self )
     -- Nearest ally
@@ -3082,7 +2934,6 @@ function NPCB.Dialogue:Run( self )
     ZBaseDelayBehaviour( ZBaseRndTblRange(self.IdleSoundCooldown)+DialogueExtraCoolDown )
 end
 
-
 function NPC:CancelConversation()
     if !self.HavingConversation then return end
 
@@ -3107,13 +2958,11 @@ function NPC:CancelConversation()
     timer.Remove("DialogueAnswerTimer"..self:EntIndex())
 end
 
-
 --[[
 ==================================================================================================
                                            DEAL DAMAGE
 ==================================================================================================
 --]]
-
 
 function NPC:DealDamage( dmg, ent )
     local infl = dmg:GetInflictor()
@@ -3158,13 +3007,11 @@ function NPC:DealDamage( dmg, ent )
     dmg:ScaleDamage(ZBCVAR.DMGMult:GetFloat())
 end
 
-
 --[[
 ==================================================================================================
                                            TAKE DAMAGE
 ==================================================================================================
 --]]
-
 
 function NPC:CustomBleed( pos, dir )
     if !self.CustomBloodParticles && !self.CustomBloodDecals then return end
@@ -3197,7 +3044,6 @@ function NPC:CustomBleed( pos, dir )
     end
 end
 
-
 function NPC:StoreDMGINFO( dmg )
     local ammotype = dmg:GetAmmoType()
     local attacker = dmg:GetAttacker()
@@ -3217,7 +3063,6 @@ function NPC:StoreDMGINFO( dmg )
         infl = infl,
     }
 end
-
 
 function NPC:LastDMGINFO( dmg )
     if !self.LastDMGINFOTbl then return end
@@ -3241,8 +3086,7 @@ function NPC:LastDMGINFO( dmg )
     return lastdmginfo
 end
 
-
-    -- Called first
+-- Called first
 function NPC:OnScaleDamage( dmg, hit_gr )
     local attacker = dmg:GetAttacker()
 
@@ -3279,7 +3123,6 @@ function NPC:OnScaleDamage( dmg, hit_gr )
     end
 end
 
-
 local ShouldPreventGib = {
     ["npc_zombie"] = true,
     ["npc_fastzombie"] = true,
@@ -3290,7 +3133,6 @@ local ShouldPreventGib = {
     ["npc_antlion"] = true,
     ["npc_antlion_worker"] = true,
 }
-
 
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
@@ -3368,8 +3210,7 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 end
 
-
-    -- Called last
+-- Called last
 function NPC:OnPostEntityTakeDamage( dmg )
     local MoreThan0Damage = dmg:GetDamage() > 0
 
@@ -3391,13 +3232,11 @@ function NPC:OnPostEntityTakeDamage( dmg )
     self.CustomTakeDamageDone = nil
 end
 
-
 --[[
 ==================================================================================================
                                            DEATH
 ==================================================================================================
 --]]
-
 
 function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     if self.Patch_SkipDeathRoutine then return end
@@ -3515,13 +3354,11 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     end
 end
 
-
 function NPC:InternalOnAllyDeath()
     -- All nearby allies stop talking
     self:StopTalking(self.IdleSounds)
     self:CancelConversation()
 end
-
 
 function NPC:ImTheNearestAllyAndThisIsMyHonestReaction( deathpos )
     if self.AllyDeathSound_Chance && math.random(1, self.AllyDeathSound_Chance) == 1 then
@@ -3540,7 +3377,6 @@ function NPC:ImTheNearestAllyAndThisIsMyHonestReaction( deathpos )
     end
 end
 
-
 -- Called on death and makes nearby allies to me react to it
 function NPC:Death_AlliesReact()
     local allies = self:GetNearbyAllies(600)
@@ -3557,7 +3393,6 @@ function NPC:Death_AlliesReact()
         ally:ImTheNearestAllyAndThisIsMyHonestReaction( deathpos )
     end
 end
-
 
 function NPC:Death_ItemDrop(dmg)
     -- Item drops
@@ -3602,7 +3437,6 @@ function NPC:Death_ItemDrop(dmg)
 
     end
 
-
 end
 
 --[[
@@ -3611,9 +3445,7 @@ end
 ==================================================================================================
 --]]
 
-
 ZBaseRagdolls = ZBaseRagdolls or {}
-
 
 local RagdollBlacklist = {
     ["npc_clawscanner"] = true,
@@ -3622,7 +3454,6 @@ local RagdollBlacklist = {
     ["npc_combinegunship"] = true,
     ["npc_combinedropship"] = true,
 }
-
 
 function NPC:FakeRagdoll()
 	local rag = ents.Create("prop_ragdoll")
@@ -3653,7 +3484,6 @@ function NPC:FakeRagdoll()
 
     return rag
 end
-
 
 function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     if !self.HasDeathRagdoll then return end
@@ -3768,13 +3598,11 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     return rag
 end
 
-
 --[[
 ==================================================================================================
                                            GIBS
 ==================================================================================================
 --]]
-
 
 function NPC:InternalCreateGib( model, data )
     data = data or {}
@@ -3883,13 +3711,11 @@ function NPC:InternalCreateGib( model, data )
     return Gib
 end
 
-
 --[[
 ==================================================================================================
                                            DEATH ANIMATION
 ==================================================================================================
 --]]
-
 
 function NPC:DeathAnimation( dmg )
     if self.DeathAnimStarted then return end
@@ -3912,7 +3738,6 @@ function NPC:DeathAnimation( dmg )
         self:AddFlags(FL_NOTARGET)
     end
 end
-
 
 function NPC:InternalOnRemove()
     -- Unregister me as a NPC that is attacking players

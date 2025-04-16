@@ -1,6 +1,5 @@
 AddCSLuaFile()
 
-
 sound.Add({
     name = "Weapon_MP5K_Z.NPC_Fire",
     level = 140,
@@ -19,19 +18,14 @@ sound.Add({
     sound = "weapons/zippy/mp5k/mp5k_reload.wav",
 })
 
-
-
-
 SWEP.Base = "weapon_zbase"
 SWEP.PrintName = "MP5K"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
 SWEP.WorldModel = Model( "models/weapons/zippy/w_mp5k.mdl" )
 
-
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = true -- Add to NPC weapon list
-
 
 -- NPC Stuff
 SWEP.NPCOnly = true -- Should only NPCs be able to use this weapon?
@@ -45,7 +39,6 @@ SWEP.NPCBulletSpreadMult = 1 -- Higher number = worse accuracy
 SWEP.NPCReloadSound = "Weapon_MP5K.Reload" -- Sound when the NPC reloads the gun
 SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number with this weapon
 
-
 -- Basic primary attack stuff
 SWEP.Primary.DefaultClip = 30 -- Clipsize for NPCs
 SWEP.PrimaryDamage = 3
@@ -53,8 +46,6 @@ SWEP.PrimaryShootSound = "Weapon_MP5K_Z.NPC_Fire"
 SWEP.PrimarySpread = 0.02
 SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 SWEP.Primary.ShellEject = "1" -- Set to the name of an attachment to enable shell ejection
-
-
 
 function SWEP:Initialize()
 	self:SetHoldType( "smg" )

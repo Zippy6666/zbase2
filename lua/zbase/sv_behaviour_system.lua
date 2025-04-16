@@ -1,10 +1,8 @@
-
-    // we be behavin
+-- we be behavin
 
 local ZBaseDelayEnt = NULL
 local ZBaseDelayBehaviour_Name
 local NextBehaviourThink = CurTime()
-
 
 function ZBaseDelayBehaviour( delay, ent, name )
     local Ent = ent or ZBaseDelayEnt
@@ -15,9 +13,7 @@ function ZBaseDelayBehaviour( delay, ent, name )
     end
 end
 
-
 local function BehaviourTimer( ent )
-
     -- Is dead, so don't do behaviour
     if ent.DoingDeathAnim then return end
     if ent.Dead then return end
@@ -31,15 +27,12 @@ local function BehaviourTimer( ent )
     -- Doing ZBaseMove, don't do behaviour
     if ZBaseMoveIsActive(ent) then return end
 
-
     ZBaseDelayEnt = ent
     for BehaviourName, Behaviour in pairs(ent.Behaviours) do
         if !Behaviour.Run then continue end
         ZBaseDelayBehaviour_Name = BehaviourName
 
-
         if ent.ZBase_Behaviour_Delays[BehaviourName] > CurTime() then continue end
-
 
         -- Checks
         local enemy = ent:GetEnemy()
@@ -52,7 +45,6 @@ local function BehaviourTimer( ent )
         end
         if Behaviour.ShouldDoBehaviour && !Behaviour:ShouldDoBehaviour( ent ) then continue end
         
-
         -- Delay
         local delay = Behaviour.Delay && Behaviour:Delay( ent )
         if delay then
@@ -60,19 +52,15 @@ local function BehaviourTimer( ent )
             return
         end
 
-
         -- Run the behaviour
         Behaviour:Run( ent )
-
     end
 
     ZBaseDelayEnt = NULL
     ZBaseDelayBehaviour_Name = nil
 end
 
-
 function ZBaseBehaviourInit( ent )
-
     ent.ZBase_Behaviour_Delays = {}
 
     for BehaviourName in pairs(ent.Behaviours) do
@@ -86,6 +74,4 @@ function ZBaseBehaviourInit( ent )
     end
 
     table.insert(ZBaseBehaviourTimerFuncs, timerFunc)
-
 end
-

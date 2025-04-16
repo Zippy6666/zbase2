@@ -1,16 +1,11 @@
 local trailcol = Color(255,150,100) -- For crossbow
 
-
 ZBase_EngineWeapon_Attributes = {
-
-
     --[[
     ======================================================================================================================================================
                                             Pistol
     ======================================================================================================================================================
     --]]
- 
-
     ["weapon_pistol"] = {
         PrimaryShootSound = "Weapon_Pistol.NPC_Single", 
         PrimaryDamage = 3,
@@ -32,15 +27,11 @@ ZBase_EngineWeapon_Attributes = {
         Weight = 2,
         NPCHoldType =  "pistol" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
-
-
     --[[
     ======================================================================================================================================================
                                             SMG
     ======================================================================================================================================================
     --]]
-
-
     ["weapon_smg1"] = {
         PrimaryShootSound = "Weapon_SMG1.NPC_Single",
         PrimaryDamage = 2,
@@ -63,15 +54,11 @@ ZBase_EngineWeapon_Attributes = {
         Weight = 3,
         NPCHoldType =  "smg" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
-
-
     --[[
     ======================================================================================================================================================
                                             AR2
     ======================================================================================================================================================
     --]]
-    
-
     ["weapon_ar2"] = {
         PrimaryShootSound = "Weapon_AR2.NPC_Single",
         PrimaryDamage = 3,
@@ -95,15 +82,11 @@ ZBase_EngineWeapon_Attributes = {
         Weight = 5,
         NPCHoldType =  "ar2" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
-
-
     --[[
     ======================================================================================================================================================
                                             SHOTGUN
     ======================================================================================================================================================
     --]]
-
-
     ["weapon_shotgun"] = {
         PrimaryShootSound = "Weapon_Shotgun.Single",
         PrimarySpread = 0.02, 
@@ -127,15 +110,11 @@ ZBase_EngineWeapon_Attributes = {
         Weight = 4,
         NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
-
-
     --[[
     ======================================================================================================================================================
                                             CROSSBOW
     ======================================================================================================================================================
     --]]
-    
-
     ["weapon_crossbow"] = {
         PrimaryShootSound = "Weapon_Crossbow.Single",
         PrimaryDamage = 40,
@@ -178,15 +157,11 @@ ZBase_EngineWeapon_Attributes = {
             return true
         end,
     },
-
-
     --[[
     ======================================================================================================================================================
                                             .357
     ======================================================================================================================================================
     --]]
-
-
     ["weapon_357"] = {
         PrimaryShootSound = "Weapon_357.Single",
         NPCReloadSound = "Weapon_357.RemoveLoader", 
@@ -203,30 +178,22 @@ ZBase_EngineWeapon_Attributes = {
             ShellEject = false, 
         },
     },
-
-
     --[[
     ======================================================================================================================================================
                                             CROWBAR
     ======================================================================================================================================================
     --]]
-
-
     ["weapon_crowbar"] = {
         NPCIsMeleeWep = true,
         Weight = 0,
         NPCMeleeWep_Damage = {10, 20}, -- Melee weapon damage {min, max}
         NPCHoldType =  "melee", -- https://wiki.facepunch.com/gmod/Hold_Types
     },
-
-
     --[[
     ======================================================================================================================================================
                                             RPG
     ======================================================================================================================================================
     --]]
-
-
     ["weapon_rpg"] = {
         Weight = 0,
         NPCHoldType =  "rpg", -- https://wiki.facepunch.com/gmod/Hold_Types
@@ -240,13 +207,9 @@ ZBase_EngineWeapon_Attributes = {
         },
         NPCPrimaryAttack = function( self )
             local own = self:GetOwner()
-
-
             if IsValid(own) then
                 local start = self:GetAttachment(self:LookupAttachment("muzzle")).Pos
                 local vel = own:GetAimVector()*500
-
-
                 local rocket = ents.Create("rpg_missile")
                 rocket:SetPos(start)
                 rocket:SetOwner(own)
@@ -255,29 +218,19 @@ ZBase_EngineWeapon_Attributes = {
                 rocket.IsZBaseDMGInfl = true
                 rocket:Spawn()
                 rocket:SetSaveValue("m_flDamage", 150)
-
-
                 self:EmitSound("Weapon_RPG.Single")
-
-
                 self:ShootEffects()
                 self:TakePrimaryAmmo(1)
                 
             end
-
-
             return true
         end,
     },
-
-
     --[[
     ======================================================================================================================================================
                                             STUNSTICK
     ======================================================================================================================================================
     --]]
-
-
     ["weapon_stunstick"] = {
         NPCIsMeleeWep = true,
         Weight = 0,
@@ -288,15 +241,11 @@ ZBase_EngineWeapon_Attributes = {
         NPCMeleeWep_DamageAngle = 90, -- Damage angle (180 = everything in front of the NPC is damaged)
         NPCMeleeWep_DamageDist = 100, -- Melee weapon damage reach distance
     },
-
-
     --[[
     ======================================================================================================================================================
                                             HL1 SHOTGUN
     ======================================================================================================================================================
     --]]
-
-
     ["weapon_shotgun_hl1"] = {
         PrimaryShootSound = "HL1Weapon_Shotgun.Single",
         NPCReloadSound = "HL1Weapon_Shotgun.Reload",
@@ -319,15 +268,11 @@ ZBase_EngineWeapon_Attributes = {
         Weight = 4,
         NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
     },
-
-
     --[[
     ======================================================================================================================================================
                                             HL1 .357
     ======================================================================================================================================================
     --]]
-
-
     ["weapon_357_hl1"] = {
         PrimaryShootSound = "HL1Weapon_357.Single",
         NPCReloadSound = "HL1Weapon_357.Reload", 
@@ -344,15 +289,11 @@ ZBase_EngineWeapon_Attributes = {
             ShellEject = false, 
         },
     },
-
-
     --[[
     ======================================================================================================================================================
                                             HL1 GLOCK
     ======================================================================================================================================================
     --]]
-
-
     ["weapon_glock_hl1"] = {
         PrimaryDamage = 3,
         Primary = {

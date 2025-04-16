@@ -1,13 +1,3 @@
-if SERVER then
-    util.AddNetworkString("ZBaseUpdateSpawnMenuFactionDropDown")
-end
-
---[[
-======================================================================================================================================================
-                                           Funcs
-======================================================================================================================================================
---]]
-
 local prop_shared = {
 	Filter = function( self, ent, ply ) -- A function that determines whether an entity is valid for this property
 		return IsValid(ply) && IsValid( ent ) && ent:GetNWBool("IsZBaseNPC")
@@ -56,12 +46,6 @@ if CLIENT then
     end)
 end
 
---[[
-======================================================================================================================================================
-                                           Add properties
-======================================================================================================================================================
---]]
-
 AddZBaseNPCProperty("Control", "icon16/controller.png", function( self, npc, length, ply )
     if SERVER then
         ZBASE_CONTROLLER:StartControlling( ply, npc )
@@ -77,7 +61,6 @@ AddZBaseNPCProperty("Guard", "icon16/anchor.png", function( self, npc, length, p
 end, false)
  
 AddZBaseNPCProperty("Join Faction", "icon16/connect.png", function( self, npc, length, ply )
-
     if npc.ZBaseFaction == ply.ZBaseFaction then
         ply:PrintMessage(HUD_PRINTTALK, "You are already in the same faction! ("..npc.ZBaseFaction..")")
         return
@@ -89,11 +72,9 @@ AddZBaseNPCProperty("Join Faction", "icon16/connect.png", function( self, npc, l
     net.Start("ZBaseUpdateSpawnMenuFactionDropDown")
     net.WriteString(npc.ZBaseFaction)
     net.Send(ply)
-
 end)
 
 AddZBaseNPCProperty("Add to My Faction", "icon16/add.png", function( self, npc, length, ply )
-
     if npc.ZBaseFaction == ply.ZBaseFaction then
         ply:PrintMessage(HUD_PRINTTALK, "You are already in the same faction! ("..npc.ZBaseFaction..")")
         return
@@ -101,7 +82,6 @@ AddZBaseNPCProperty("Add to My Faction", "icon16/add.png", function( self, npc, 
 
     ZBaseSetFaction(npc, ply.ZBaseFaction)
     ply:PrintMessage(HUD_PRINTTALK, npc.Name.." is now in your faction ("..ply.ZBaseFaction..")")
-
 end)
 
 AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )
