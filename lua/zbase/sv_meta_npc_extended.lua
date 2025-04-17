@@ -46,7 +46,7 @@ end
 
 function NPC:ZBASE_IsFacing(...)
     isFacingFunc = isFacingFunc or ZBaseNPCs["npc_zbase"].IsFacing
-    isFacingFunc(self, ...)
+    return isFacingFunc(self, ...)
 end
 
 --[[
