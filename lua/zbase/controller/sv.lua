@@ -6,9 +6,21 @@ local colDeb        = Color(0, 255, 0, 255)
 local vecFarDown    = Vector(0,0,-10000)
 
 local nextBind = {
-    [IN_ATTACK] = IN_ATTACK2,
-    -- [IN_ATTACK2] = etc..
+    [IN_ATTACK]     = IN_ATTACK2,
+    [IN_ATTACK2]    = "slot1",
+    ["slot1"]       = "slot2",
+    ["slot2"]       = "slot3",
+    ["slot3"]       = "slot4",
+    ["slot4"]       = "slot5",
+    ["slot5"]       = "slot6",
+    ["slot6"]       = "slot7",
+    ["slot7"]       = "slot8",
+    ["slot8"]       = "slot9"
+}
 
+local bindNames = {
+    [IN_ATTACK] = "PRIMARY KEY",
+    [IN_ATTACK2] = "SECONDARY KEY"
 }
 
 local jumpPowerStats = {
@@ -69,6 +81,12 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
         npc.ZBASE_ControlTarget:DrawShadow(false)
     end
 
+    -- If target for some reason is removed
+    -- Stop controlling to prevent undefined behavior
+    npc.ZBASE_ControlTarget:CallOnRemove("ZBASE_Controller_Stop", function()
+        self:StopControlling(ply, npc)
+    end)
+
     -- Remove NPCs current enemies
     npc:SetEnemy(nil)
     npc:ClearEnemyMemory()
@@ -84,7 +102,7 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
     npc.ZBASE_IsPlyControlled = true
     npc.ZBASE_PlyController  =  ply
-    npc:CallOnRemove("StopControllingZB", function()
+    npc:CallOnRemove("ZBASE_Controller_Stop", function()
         self:StopControlling(ply, npc)
     end)
 
@@ -104,52 +122,12 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply:AllowFlashlight(false)
     ply:CONV_AddHook("EntityTakeDamage", function(_, trgt, dmg)
         if trgt == ply then
-            print("ANOUG")
             return true
         end
     end, "ZBASE_Controller_PlyGodMode")
     ply:SetNWEntity("ZBASE_ControllerCamEnt", npc)
 
     conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 4)
-end
-
-function NPC:ZBASE_Controller_InitAttacks()
-    if self.IsZBaseNPC then
-        -- Check for attacks here
-        -- Also add a CustomControllerInitAttacks so that developers can add their own
-    end
-
-    -- Lastly, add free attack
-    self:ZBASE_ControllerAddAttack(
-        function()
-            if !IsValid(self) then return end
-            if !IsValid(self.ZBASE_ControlTarget) then return end
-            self.ZBASE_Controller_FreeAttacking = true
-            
-            -- Clear ene memory first
-            self:SetEnemy(nil)
-            self:ClearEnemyMemory()
-
-            -- Ensure we hate cursor target bullseye thingy
-            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_HT, 0)
-
-            -- Set to enemy
-            self:UpdateEnemyMemory(self.ZBASE_ControlTarget, self.ZBASE_ControlTarget:GetPos())
-        end,
-        function()
-            if !IsValid(self) then return end
-            if !IsValid(self.ZBASE_ControlTarget) then return end
-            self.ZBASE_Controller_FreeAttacking = nil
-
-            -- Clear ene memory
-            self:SetEnemy(nil)
-            self:ClearEnemyMemory()
-            self:SetNPCState(NPC_STATE_ALERT)
-
-            -- Start liking bullseye target again
-            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_LI, 0)
-        end
-    )
 end
 
 --[[
@@ -239,8 +217,51 @@ end
 =======================================================================================================
 ]]--
 
-function NPC:ZBASE_Controller_ButtonDown(ply, btn)
-    if !self.ZBASE_Controls then return end
+function NPC:ZBASE_Controller_InitAttacks()
+    if self.IsZBaseNPC then
+        -- Check for attacks here
+        -- Also add a CustomControllerInitAttacks so that developers can add their own
+
+        -- Weapon attack
+        if self:CONV_HasCapability(CAP_USE_WEAPONS) then
+            self:ZBASE_ControllerAddAttack(
+                function()
+                    
+                end,
+                function()
+
+                end
+            )
+        end
+    end
+
+    -- Lastly, add free attack
+    self:ZBASE_ControllerAddAttack(
+        function()
+            self.ZBASE_Controller_FreeAttacking = true
+            
+            -- Clear ene memory first
+            self:SetEnemy(nil)
+            self:ClearEnemyMemory()
+
+            -- Ensure we hate cursor target bullseye thingy
+            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_HT, 0)
+
+            -- Set to enemy
+            self:UpdateEnemyMemory(self.ZBASE_ControlTarget, self.ZBASE_ControlTarget:GetPos())
+        end,
+        function()
+            self.ZBASE_Controller_FreeAttacking = nil
+
+            -- Clear ene memory
+            self:SetEnemy(nil)
+            self:ClearEnemyMemory()
+            self:SetNPCState(NPC_STATE_ALERT)
+
+            -- Start liking bullseye target again
+            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_LI, 0)
+        end
+    )
 end
 
 function NPC:ZBASE_Controller_KeyPress(ply, key)
@@ -257,12 +278,6 @@ function NPC:ZBASE_Controller_KeyRelease(ply, key)
     self.ZBASE_Controls[key].releaseFunc()
 end
 
-hook.Add("PlayerButtonDown", "ZBASE_CONTROLLER", function(ply, btn)
-    if IsValid(ply.ZBASE_ControlledNPC) then
-        ply.ZBASE_ControlledNPC:ZBASE_Controller_ButtonDown(ply, btn)
-    end
-end)
-
 hook.Add("KeyPress", "ZBASE_CONTROLLER", function(ply, key)
     if IsValid(ply.ZBASE_ControlledNPC) then
         ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyPress(ply, key)
@@ -277,14 +292,31 @@ end)
 
 net.Receive("ZBASE_Ctrlr_SlotBindPress", function(_, ply)
     if !ply:IsAdmin() then return end
-    print("RECEIVED FROM", ply, net.ReadUInt(4))
+
+    local slotnum   = net.ReadUInt(4)
+    local press     = net.ReadBool()
+    local slot      = "slot"..slotnum
+
+    print("RECEIVED FROM", ply, slot)
+
+    if press == true then
+        ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyPress(ply, slot)
+    else
+        ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyRelease(ply, slot)
+    end
 end)
 
 function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc)
     self.ZBASE_Controls = self.ZBASE_Controls or {}
+
     self.ZBASE_ControlLastBind = self.ZBASE_ControlLastBind or IN_ATTACK
     self.ZBASE_Controls[self.ZBASE_ControlLastBind] = {pressFunc=pressFunc, releaseFunc=releaseFunc}
+
     self.ZBASE_ControlLastBind = nextBind[self.ZBASE_ControlLastBind]
+
+    if self.ZBASE_ControlLastBind == nil then
+        error("Cannot add any more controller attacks, limit reached!")
+    end
 end
 
 --[[
