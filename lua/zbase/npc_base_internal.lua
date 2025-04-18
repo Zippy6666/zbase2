@@ -467,7 +467,7 @@ end
 function NPC:FrameTick()
     if AIDisabled:GetBool() then return end
 
-    if self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && (self:IsMoving() or self.ZBASE_ControllerMoving) then
+    if self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && (self:IsMoving() or self.bControllerMoving) then
         self:DoMoveSpeed()
     end
 
@@ -596,7 +596,7 @@ function NPC:ZBWepSys_Reload()
         local CurrentStrAct = self:GetSequenceActivityName( self:GetSequence() )
 
         self.ZBWepSys_PrimaryAmmo = maxammo
-
+        
         self:ClearCondition(COND.LOW_PRIMARY_AMMO)
         self:ClearCondition(COND.NO_PRIMARY_AMMO)
     end)
@@ -782,7 +782,7 @@ function NPC:ZBWepSys_Shoot()
         self.ZBWepSys_LastShootCooldown = cooldown
     end
 
-    if self.ZBWepSys_PrimaryAmmo <= 0 then
+    if self.ZBWepSys_PrimaryAmmo <= 0 && !self.bControllerBlock then
         self:SetCondition(COND.NO_PRIMARY_AMMO)
     end
 
@@ -806,6 +806,8 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
 end
 
 function NPC:ZBWepSys_TrySuppress( target )
+    if self.ZBASE_IsPlyControlled then return end
+
     self:AddEntityRelationship(target.ZBase_SuppressionBullseye, D_HT, 0)
     self:UpdateEnemyMemory(target.ZBase_SuppressionBullseye, target:GetPos())
 end
@@ -816,6 +818,8 @@ end
 
 local PlayerHeightVec = Vector(0, 0, 60)
 function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
+    if self.ZBASE_IsPlyControlled then return end
+
     local pos
     if target:IsPlayer() && target:Crouching() then
         -- Crappy workaround that should work most of the time
@@ -984,7 +988,7 @@ function NPC:ZBWepSys_WantsToShoot()
 
     && self:ShouldFireWeapon()
 
-    && self:ZBWepSys_AIWantsToShoot()
+    && (self.ZBASE_bControllerShoot or self:ZBWepSys_AIWantsToShoot())
 end
 
 function NPC:ZBWepSys_CanFireWeapon()
@@ -1139,8 +1143,8 @@ function NPC:ZBWepSys_FireWeaponThink()
         -- Should shoot
         if self.ZBWepSys_AllowShoot then
             -- Make sure yaw is precise when standing and shooting
-            if !self.ZBase_IsMoving && IsValid(ene) then
-                self:SetIdealYawAndUpdate((ene:WorldSpaceCenter() - self:GetShootPos()):Angle().yaw, -2)
+            if !self:IsMoving_Cheap() && IsValid(ene) then
+                self:SetIdealYawAndUpdate(self:GetAimVector():Angle().yaw, -2)
             end
 
             self:ZBWepSys_Shoot()
@@ -2121,6 +2125,8 @@ function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
         return false
     end
 
+    if self.ZBASE_IsPlyControlled then return end
+
     local hasCallForHelp = self.AlertAllies or self.CallForHelp
     local callForHelpDist = self.AlertAlliesDistance or self.CallForHelpDistance
 
@@ -2274,6 +2280,7 @@ end
 function NPCB.SecondaryFire:ShouldDoBehaviour( self )
     if !self.CanSecondaryAttack then return false end
     if self.DoingPlayAnim then return false end
+    if self.bControllerBlock then return false end
 
     local wep = self:GetActiveWeapon()
 
@@ -2315,7 +2322,7 @@ NPCB.MeleeAttack = {MustHaveEnemy = true}
 NPCB.PreMeleeAttack = {MustHaveEnemy = true}
 
 function NPC:TooBusyForMelee()
-    return self.DoingPlayAnim
+    return self.DoingPlayAnim or self.bControllerBlock
 end
 
 function NPC:CanBeMeleed( ent )
@@ -2443,6 +2450,7 @@ NPCB.RangeAttack = {MustHaveEnemy = true}
 function NPCB.RangeAttack:ShouldDoBehaviour( self )
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
     if self.DoingPlayAnim then return false end
+    if self.bControllerBlock then return false end
 
     -- Don't range attack in mid-air
     if self:GetNavType() == 0
@@ -2495,6 +2503,7 @@ function NPCB.Grenade:ShouldDoBehaviour( self )
 
     return self.BaseGrenadeAttack
     && !self.DoingPlayAnim
+    && !self.bControllerBlock
     && (self.GrenCount == -1 or self.GrenCount > 0)
     && !table.IsEmpty(self.GrenadeAttackAnimations)
     && self:GetNPCState()==NPC_STATE_COMBAT

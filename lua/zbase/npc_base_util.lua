@@ -376,6 +376,12 @@ function NPC:SeeEne()
     return self.EnemyVisible
 end
 
+-- Essentially just a classic npc:IsMoving() check
+-- But maybe better performance idk
+function NPC:IsMoving_Cheap()
+    return self.ZBase_IsMoving or self.bControllerMoving
+end
+
 -- Check if the NPC is facing a position or entity
 -- 'maxYawDifference' - If the yaw difference is less than this, we are facing the entity/position (default 22.5 degrees)
 function NPC:IsFacing( ent_or_pos, maxYawDifference )

@@ -19,8 +19,18 @@ local nextBind = {
 }
 
 local bindNames = {
-    [IN_ATTACK] = "PRIMARY KEY",
-    [IN_ATTACK2] = "SECONDARY KEY"
+    [IN_ATTACK]     = "PRIMARY KEY", 
+    [IN_ATTACK2]    = "SECONDARY KEY",
+    [IN_RELOAD]     = "RELOAD KEY",
+    ["slot1"]       = "SLOT 1",
+    ["slot2"]       = "SLOT 2",
+    ["slot3"]       = "SLOT 3",
+    ["slot4"]       = "SLOT 4",
+    ["slot5"]       = "SLOT 5",
+    ["slot6"]       = "SLOT 6",
+    ["slot7"]       = "SLOT 7",
+    ["slot8"]       = "SLOT 8",
+    ["slot9"]       = "SLOT 9"
 }
 
 local jumpPowerStats = {
@@ -57,6 +67,13 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
         conv.sendGModHint(ply, "NPCs with Guard Mode cannot be controlled!", 1, 2)
         return
     end
+
+    -- Reset these vars
+    -- These are checks that make sure that
+    -- the routine for stopping NPC control isn't
+    -- called multiple times
+    npc.ZBASE_Controller_HasCleanedUp = nil
+    ply.ZBASE_Controller_HasCleanedUp = nil
 
     -- Give player controller weapon if they don't already have it
     local wep = ply:GetWeapon("weapon_zb_controller")
@@ -96,12 +113,19 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc.ZBASE_HadJumpCap = npc:CONV_HasCapability(CAP_MOVE_JUMP)
     npc:CapabilitiesRemove(CAP_MOVE_JUMP)
 
+    -- Initialize controls for attacks
     npc:ZBASE_Controller_InitAttacks()
 
     -- NPC hooks/vars
+
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
-    npc.ZBASE_IsPlyControlled = true
-    npc.ZBASE_PlyController  =  ply
+
+    npc.ZBASE_IsPlyControlled   = true
+    npc.ZBASE_PlyController     = ply
+    if npc.IsZBaseNPC then
+        npc.bControllerBlock  = true -- Prevents ZBase NPCs from doing built in attacks
+    end
+
     npc:CallOnRemove("ZBASE_Controller_Stop", function()
         self:StopControlling(ply, npc)
     end)
@@ -157,16 +181,11 @@ function NPC:ZBASE_Controller_Move( pos )
         local ply = self.ZBASE_PlyController
         local bInSpeedDown = ply:KeyDown(IN_SPEED)
 
-        -- Update move schedule if we should
-        -- Update constantly if not running
-        -- to ensure accuracy when moving
-        if ( (!bInSpeedDown)
-        or (!self:IsCurrentSchedule(SCHED_FORCED_GO) && !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN))
-        or !self:ZBASE_IsFacing(self.ZBASE_CurCtrlDest)
-        ) then
-            self:SetLastPosition( self.ZBASE_CurCtrlDest )
-            self:SetSchedule(bInSpeedDown && SCHED_FORCED_GO_RUN or SCHED_FORCED_GO)
-        end
+        self:SetLastPosition( self.ZBASE_CurCtrlDest )
+        self:SetSchedule(bInSpeedDown && SCHED_FORCED_GO_RUN or SCHED_FORCED_GO)
+        self:CONV_TempVar("bControllerMoving", true, 0.2)
+
+        ply.ZBASE_Controller_LastMoveWasSprint = bInSpeedDown
     end
 end
 
@@ -217,21 +236,61 @@ end
 =======================================================================================================
 ]]--
 
+function NPC:ZBASE_Controller_TargetBullseye(bShould)
+    if bShould == true then
+        -- Clear ene memory first
+        self:SetEnemy(nil)
+        self:ClearEnemyMemory()
+
+        -- Ensure we hate cursor target bullseye thingy
+        self:AddEntityRelationship(self.ZBASE_ControlTarget, D_HT, 0)
+
+        -- Set to enemy
+        self:UpdateEnemyMemory(self.ZBASE_ControlTarget, self.ZBASE_ControlTarget:GetPos())
+    elseif bShould == false then
+        -- Clear ene memory
+        self:SetEnemy(nil)
+        self:ClearEnemyMemory()
+        self:SetNPCState(NPC_STATE_ALERT)
+
+        -- Start liking bullseye target again
+        self:AddEntityRelationship(self.ZBASE_ControlTarget, D_LI, 0)
+    end
+end
+
 function NPC:ZBASE_Controller_InitAttacks()
+    local initmsg = hook.Run("GetDeathNoticeEntityName", self).." controls:"
+    
+    PrintMessage(HUD_PRINTTALK, string.upper(initmsg))
+
     if self.IsZBaseNPC then
         -- Check for attacks here
         -- Also add a CustomControllerInitAttacks so that developers can add their own
 
-        -- Weapon attack
+        -- If ZBase NPC can use weapons
         if self:CONV_HasCapability(CAP_USE_WEAPONS) then
+            -- Weapon attack
             self:ZBASE_ControllerAddAttack(
                 function()
-                    
+                    self.ZBASE_bControllerShoot = true
+                    self:ZBASE_Controller_TargetBullseye(true)
                 end,
-                function()
 
-                end
-            )
+                function()
+                    self.ZBASE_bControllerShoot = false
+                    self:ZBASE_Controller_TargetBullseye(false)
+                end,
+            nil, "Fire Weapon")
+
+            -- Reload ability
+            self:ZBASE_ControllerAddAttack(function()
+                local wep = self:GetActiveWeapon()
+
+                if !wep.IsZBaseWeapon then return end
+                if self.ZBWepSys_PrimaryAmmo >= wep.Primary.DefaultClip then return end
+
+                self:SetSchedule(SCHED_RELOAD)
+            end, nil, IN_RELOAD, "Reload")
         end
     end
 
@@ -239,34 +298,24 @@ function NPC:ZBASE_Controller_InitAttacks()
     self:ZBASE_ControllerAddAttack(
         function()
             self.ZBASE_Controller_FreeAttacking = true
-            
-            -- Clear ene memory first
-            self:SetEnemy(nil)
-            self:ClearEnemyMemory()
-
-            -- Ensure we hate cursor target bullseye thingy
-            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_HT, 0)
-
-            -- Set to enemy
-            self:UpdateEnemyMemory(self.ZBASE_ControlTarget, self.ZBASE_ControlTarget:GetPos())
+            self.bControllerBlock = nil
+            self:ZBASE_Controller_TargetBullseye(true)
         end,
+
         function()
             self.ZBASE_Controller_FreeAttacking = nil
-
-            -- Clear ene memory
-            self:SetEnemy(nil)
-            self:ClearEnemyMemory()
-            self:SetNPCState(NPC_STATE_ALERT)
-
-            -- Start liking bullseye target again
-            self:AddEntityRelationship(self.ZBASE_ControlTarget, D_LI, 0)
+            if self.IsZBaseNPC then self.bControllerBlock = true end
+            self:ZBASE_Controller_TargetBullseye(false)
         end
-    )
+    , nil, "Free Attack")
+
+    self.ZBASE_ControlLastBind = nil -- Reset until next time controls are setup
 end
 
 function NPC:ZBASE_Controller_KeyPress(ply, key)
     if !self.ZBASE_Controls then return end
     if !self.ZBASE_Controls[key] then return end
+    if !self.ZBASE_Controls[key].pressFunc then return end
 
     self.ZBASE_Controls[key].pressFunc()
 end
@@ -274,6 +323,7 @@ end
 function NPC:ZBASE_Controller_KeyRelease(ply, key)
     if !self.ZBASE_Controls then return end
     if !self.ZBASE_Controls[key] then return end
+    if !self.ZBASE_Controls[key].releaseFunc then return end
 
     self.ZBASE_Controls[key].releaseFunc()
 end
@@ -297,8 +347,6 @@ net.Receive("ZBASE_Ctrlr_SlotBindPress", function(_, ply)
     local press     = net.ReadBool()
     local slot      = "slot"..slotnum
 
-    print("RECEIVED FROM", ply, slot)
-
     if press == true then
         ply.ZBASE_ControlledNPC:ZBASE_Controller_KeyPress(ply, slot)
     else
@@ -306,16 +354,24 @@ net.Receive("ZBASE_Ctrlr_SlotBindPress", function(_, ply)
     end
 end)
 
-function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc)
+function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc, optionalBind, attackName)
     self.ZBASE_Controls = self.ZBASE_Controls or {}
 
     self.ZBASE_ControlLastBind = self.ZBASE_ControlLastBind or IN_ATTACK
-    self.ZBASE_Controls[self.ZBASE_ControlLastBind] = {pressFunc=pressFunc, releaseFunc=releaseFunc}
+    self.ZBASE_Controls[optionalBind or self.ZBASE_ControlLastBind] = {pressFunc=pressFunc, releaseFunc=releaseFunc}
 
-    self.ZBASE_ControlLastBind = nextBind[self.ZBASE_ControlLastBind]
+    local bindName = bindNames[optionalBind or self.ZBASE_ControlLastBind] or "nil"
+    PrintMessage(
+        HUD_PRINTTALK, 
+        "["..bindName.."] "..attackName
+    )
 
-    if self.ZBASE_ControlLastBind == nil then
-        error("Cannot add any more controller attacks, limit reached!")
+    if !optionalBind then
+        self.ZBASE_ControlLastBind = nextBind[self.ZBASE_ControlLastBind]
+
+        if self.ZBASE_ControlLastBind == nil then
+            error("Cannot add any more controller attacks, limit reached!")
+        end
     end
 end
 
@@ -366,7 +422,7 @@ function NPC:ZBASE_ControllerThink()
         -- The controller "target"
         if IsValid(self.ZBASE_ControlTarget) then
             -- Position target at cursor
-            self.ZBASE_ControlTarget:SetPos(tr.HitPos+tr.HitNormal*5)
+            self.ZBASE_ControlTarget:SetPos(tr.HitPos+tr.HitNormal*25)
         end
     end
 
@@ -379,9 +435,6 @@ function NPC:ZBASE_ControllerThink()
         -- free attacking
         bForceMv = false
 
-        -- Free yaw lock if any
-        self:SetMoveYawLocked(false)
-        
         -- Give back move cap if any
         if self.ZBASE_CtrlrDetected_CAP_MOVE then
             self:CapabilitiesAdd(CAP_MOVE_GROUND)
@@ -418,23 +471,14 @@ function NPC:ZBASE_ControllerThink()
         if bPlyWantToMoveNPC then
             moveDir = moveDir:GetNormalized() -- Normalize the accumulated movement direction
 
-            self:SetMoveYawLocked(false)
-
             if self.ZBASE_CtrlrDetected_CAP_MOVE then
                 self:CapabilitiesAdd(CAP_MOVE_GROUND)
                 self.ZBASE_CtrlrDetected_CAP_MOVE = nil
             end
 
-            local destDist = self:OBBMaxs().x+100
-
-            -- If player wants to move fast
-            -- Increase distance to destination
-            -- To better suite AI for running
-            if ply:KeyDown(IN_SPEED) then
-                destDist = destDist*10
-            end
-
+            local destDist = self:OBBMaxs().x+200
             local moveVec = moveDir*destDist
+
             if self:IsOnGround() or self:CONV_HasCapability(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
                 if ply:KeyDown(IN_JUMP) && self:SelectWeightedSequence(ACT_JUMP) != -1 && !self.ZBASE_Controller_JumpOnCooldown then
                     self:ZBASE_Controller_Jump(moveDir)
@@ -449,8 +493,6 @@ function NPC:ZBASE_ControllerThink()
             end
         else
             -- Be still when should not move
-
-            self:SetMoveYawLocked(true)
 
             if self:CONV_HasCapability(CAP_MOVE_GROUND) then
                 -- Stopped moving so remove ground capabilities and clear goal etc
@@ -481,25 +523,33 @@ hook.Add("PlayerNoClip", "ZBASE_CONTROLLER", function(ply, desiredState)
 end)
 
 function ZBASE_CONTROLLER:StopControlling( ply, npc )
-    if IsValid(npc) then
+    if IsValid(npc) && !npc.ZBASE_Controller_HasCleanedUp then
         if npc.ZBASE_HadJumpCap then
             npc:CapabilitiesAdd(CAP_MOVE_JUMP)
         end
 
-        npc.ZBASE_IsPlyControlled  = false
+        npc.ZBASE_IsPlyControlled  = nil
         npc.ZBASE_PlyController  = nil
         npc.ZBASE_HadJumpCap = nil
         npc.ZBASE_Controls = nil
         npc.ZBASE_Controller_FreeAttacking = nil
         npc.ZBASE_NextCtrlrThink = nil
+        npc.bControllerBlock = nil
         npc:SetMoveYawLocked(false)
 
         SafeRemoveEntity(npc.ZBASE_ControlTarget)
 
         npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
+        npc:RemoveCallOnRemove("ZBASE_Controller_Stop")
+
+        if IsValid(npc.ZBASE_ControlTarget) then
+            npc.ZBASE_ControlTarget:RemoveCallOnRemove("ZBASE_Controller_Stop")
+        end
+
+        npc.ZBASE_Controller_HasCleanedUp = true
     end
  
-    if IsValid(ply) then
+    if IsValid(ply) && !ply.ZBASE_Controller_HasCleanedUp then
         ply:SetNWEntity("ZBASE_ControllerCamEnt", NULL)
         ply:SetMoveType(MOVETYPE_WALK)
         ply:SetNoTarget(false)
@@ -509,7 +559,8 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply:SetMaxHealth(ply.ZBASE_MaxHPBeforeControl or 100)
         ply:AllowFlashlight(true)
         ply.ZBASE_ControlledNPC = nil
-        ply:CONV_RemoveHook("Think", "ZBASE_Controller_PlyGodMode")
+        ply:CONV_RemoveHook("EntityTakeDamage", "ZBASE_Controller_PlyGodMode")
         ply:CONV_TempVar("ZBASE_Controller_Prevent", true, 2)
+        ply.ZBASE_Controller_HasCleanedUp = true
     end
 end

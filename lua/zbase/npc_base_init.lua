@@ -888,7 +888,7 @@ end
 
 -- Timer based foot steps
 function NPC:FootStepTimer()
-    if !self:IsMoving() && !self.ZBASE_ControllerMoving then return end
+    if !self:IsMoving_Cheap() then return end
     if self.HasEngineFootSteps then return end
 
     self:EmitFootStepSound()
