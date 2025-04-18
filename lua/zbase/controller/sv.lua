@@ -1,4 +1,5 @@
 util.AddNetworkString("ZBASE_Ctrlr_SlotBindPress")
+util.AddNetworkString("ZBASE_Ctrlr_SetNameOnClient")
 
 local NPC           = FindMetaTable("NPC")
 local developer     = GetConVar("developer")
@@ -91,12 +92,10 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc.ZBASE_ControlTarget:SetHealth(math.huge)
     npc.ZBASE_ControlTarget:Spawn()
     npc.ZBASE_ControlTarget:Activate()
-    if developer:GetBool() then
-        npc.ZBASE_ControlTarget:SetModel("models/props_combine/breenbust.mdl")
-        npc.ZBASE_ControlTarget:SetMaterial("models/wireframe")
-        npc.ZBASE_ControlTarget:SetNoDraw(false)
-        npc.ZBASE_ControlTarget:DrawShadow(false)
-    end
+    npc.ZBASE_ControlTarget:SetModel("models/props_junk/TrafficCone001a.mdl")
+    npc.ZBASE_ControlTarget:SetNoDraw(false)
+    if !developer:GetBool() then npc.ZBASE_ControlTarget:SetModelScale(0,0) end
+    npc:SetNWEntity("ZBASE_ControlTarget", npc.ZBASE_ControlTarget)
 
     -- If target for some reason is removed
     -- Stop controlling to prevent undefined behavior
@@ -148,6 +147,11 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
 
     -- Initialize controls for attacks
     npc:ZBASE_Controller_InitAttacks()
+
+    -- Give NPC its name on client so that it can be shown on the hud
+    net.Start("ZBASE_Ctrlr_SetNameOnClient")
+    net.WriteString( hook.Run("GetDeathNoticeEntityName", npc) )
+    net.Send(ply)
 
     conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 4)
 end
@@ -257,7 +261,7 @@ function NPC:ZBASE_Controller_TargetBullseye(bShould)
 end
 
 function NPC:ZBASE_Controller_InitAttacks()
-    local initmsg = "------------- "..hook.Run("GetDeathNoticeEntityName", self).." controls -------------"
+    local initmsg = "------------- Controls -------------"
     local ply = self.ZBASE_PlyController
 
     ply:PrintMessage(HUD_PRINTTALK, string.upper(initmsg))
@@ -455,7 +459,7 @@ function NPC:ZBASE_ControllerThink()
         -- The controller "target"
         if IsValid(self.ZBASE_ControlTarget) then
             -- Position target at cursor
-            self.ZBASE_ControlTarget:SetPos(tr.HitPos+tr.HitNormal*25)
+            self.ZBASE_ControlTarget:SetPos(tr.HitPos+tr.HitNormal*3)
         end
     end
 
@@ -569,6 +573,7 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         npc.ZBASE_NextCtrlrThink = nil
         npc.bControllerBlock = nil
         npc:SetMoveYawLocked(false)
+        npc:SetNWEntity("ZBASE_ControlTarget", NULL)
 
         SafeRemoveEntity(npc.ZBASE_ControlTarget)
 

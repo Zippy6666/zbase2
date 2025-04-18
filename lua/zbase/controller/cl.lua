@@ -55,20 +55,22 @@ hook.Add("PlayerBindPress", "ZBASE_CONTROLLER", function(ply, bind, pressed)
         return true
     end
 
-    if bind == "+lookup" then
-        ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp+8
-        return
-    elseif bind == "+lookdown" then
-        ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp-8
-        return
-    elseif bind == "+lookright" then
-        ply.ZBASE_ControllerCamRight = ply.ZBASE_ControllerCamRight+8
-        return
-    elseif bind == "+lookleft" then
-        ply.ZBASE_ControllerCamRight = ply.ZBASE_ControllerCamRight-8
-        return
+    if pressed then
+        if bind == "+lookup" then
+            ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp+8
+            return true
+        elseif bind == "+lookdown" then
+            ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp-8
+            return true 
+        elseif bind == "+right" then
+            ply.ZBASE_ControllerCamRight = ply.ZBASE_ControllerCamRight+8
+            return true
+        elseif bind == "+left" then
+            ply.ZBASE_ControllerCamRight = ply.ZBASE_ControllerCamRight-8
+            return true
+        end
     end
-
+    
     -- Block weapon switching via scroll (reserved for zoom)
     if bind == "invprev" or bind == "invnext" then
         return true 
@@ -105,27 +107,45 @@ end)
 local mat           = Material("sprites/hud/v_crosshair1")
 local iCrosshairLen = 35
 
+local hudW, hudH    = 300, 70
+local hudMrgn       = 5
+local barMrgn       = 5
+
 hook.Add("HUDPaint", "ZBASE_CONTROLLER", function()
     local ply = LocalPlayer()
     local camEnt = ply:GetNWEntity("ZBASE_ControllerCamEnt", NULL)
     if !IsValid(camEnt) then return end
 
-    local eyeangs   = ply:EyeAngles()
-    local forward   = eyeangs:Forward()
-    local viewpos   = ZBASE_CONTROLLER:GetViewPos(ply, forward)
-    if viewpos then
-        local tr = util.TraceLine({
-            start = viewpos,
-            endpos = viewpos+forward*100000,
-            mask = MASK_VISIBLE_AND_NPCS,
-            filter = {ply, camEnt},
-        })
-
-        local pos = tr.HitPos+tr.HitNormal*25
-
+    -- Display crosshair
+    local targetEnt = camEnt:GetNWEntity("ZBASE_ControlTarget")
+    if IsValid(targetEnt) then
+        local pos = targetEnt:GetPos()
         local tbl = pos:ToScreen()
         surface.SetMaterial(mat)
-        surface.SetDrawColor(255, 200, 0, 255)
+        surface.SetDrawColor(175, 255, 0, 255)
         surface.DrawTexturedRect(tbl.x, tbl.y, iCrosshairLen, iCrosshairLen)
     end
+
+    -- Display hud background
+    local x, y = ScrW()*0.5 - hudW*0.5, hudMrgn
+    surface.SetDrawColor(0, 0, 0, 125)
+    surface.DrawRect(x, y, hudW, hudH)
+
+    -- Display name of NPC
+    surface.SetTextColor(255,255,255,255)
+    local npcname = language.GetPhrase(ply.ZBASE_ControlledNPCName)
+    surface.SetFont("TargetID")
+    local nameW, nameH = surface.GetTextSize(npcname)
+    surface.SetTextPos(x+hudW*0.5 - nameW*0.5, y)
+    surface.DrawText(npcname)
+
+    -- Draw health bar
+    surface.SetDrawColor(75, 0 ,0, 255)
+    surface.DrawRect(x+barMrgn, y+nameH+3, hudW-barMrgn*2, 15)
+    surface.SetDrawColor(255, 0 ,0, 255)
+    surface.DrawRect(x+barMrgn, y+nameH+3, (hudW-barMrgn*2) * (camEnt:Health()/camEnt:GetMaxHealth()), 15)
+end)
+
+net.Receive("ZBASE_Ctrlr_SetNameOnClient", function()
+    LocalPlayer().ZBASE_ControlledNPCName = net.ReadString()
 end)
