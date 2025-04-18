@@ -9,11 +9,14 @@ function ZBASE_CONTROLLER:GetViewPos(ply, forward)
     if !IsValid(camEnt) then return end
 
     local _, modelmaxs = camEnt:GetModelBounds()
-    local camViewPos = camEnt:GetPos()+camEnt:GetUp()*(modelmaxs.z+ply.ZBASE_ControllerCamUp) - ( forward * (200+modelmaxs.x+(ply.ZBASE_ControllerZoomDist)) )
+    local camUp = camEnt:GetUp()
+    local camOrig = camEnt:GetPos()+camUp*modelmaxs.z
+    local camViewPos = camOrig + camUp*ply.ZBASE_ControllerCamUp - (forward * ( 200 + modelmaxs.x + ply.ZBASE_ControllerZoomDist ) )
+    +camEnt:GetRight()*ply.ZBASE_ControllerCamRight
 
     -- Make camera bounce of walls and shit
     local tr = util.TraceLine({
-        start = camEnt:GetPos(),
+        start = camOrig,
         endpos = camViewPos,
         mask = MASK_VISIBLE
     })

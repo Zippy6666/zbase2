@@ -77,10 +77,10 @@ SWEP.Primary.TakeAmmoPerShot = 1 -- Ammo to take for each shot
 SWEP.Primary.NumShots = 1 -- Number of bullets per shot
 
 SWEP.Primary.ShellEject = false -- Set to the name of an attachment to enable shell ejection
-SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Effects
+SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Default_Effects
 SWEP.Primary.ShellAngOffset = Angle(0, 0, 0) -- Change the direction of the shell eject direction by this angle
 
-SWEP.Primary.TracerName = "Tracer" -- The tracer effect https://wiki.facepunch.com/gmod/Effects
+SWEP.Primary.TracerName = "Tracer" -- The tracer effect https://wiki.facepunch.com/gmod/Default_Effects
 SWEP.Primary.TracerChance = 3 -- 1 / x
 
 -- 1 - Regular muzzleflash

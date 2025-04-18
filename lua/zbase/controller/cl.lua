@@ -7,8 +7,9 @@ ZBASE_CONTROLLER    = ZBASE_CONTROLLER or {}
 ]]--
 
 hook.Add("InitPostEntity", "ZBASE_CONTROLLER", function()
-    LocalPlayer().ZBASE_ControllerZoomDist = 0 
-    LocalPlayer().ZBASE_ControllerCamUp = 0 
+    LocalPlayer().ZBASE_ControllerZoomDist  = 0 
+    LocalPlayer().ZBASE_ControllerCamUp     = 0 
+    LocalPlayer().ZBASE_ControllerCamRight  = 0
 end)
 
 local function controllerZoom(amount)
@@ -47,8 +48,6 @@ hook.Add("PlayerBindPress", "ZBASE_CONTROLLER", function(ply, bind, pressed)
     if string.StartWith(bind, "slot") then
         local num = tonumber(string.sub(bind, 5))
 
-        print("SENDING", num)
-
         net.Start("ZBASE_Ctrlr_SlotBindPress")
         net.WriteUInt(num, 4)
         net.WriteBool(pressed)
@@ -57,10 +56,16 @@ hook.Add("PlayerBindPress", "ZBASE_CONTROLLER", function(ply, bind, pressed)
     end
 
     if bind == "+lookup" then
-        ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp+15
+        ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp+8
         return
     elseif bind == "+lookdown" then
-        ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp-15
+        ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp-8
+        return
+    elseif bind == "+lookright" then
+        ply.ZBASE_ControllerCamRight = ply.ZBASE_ControllerCamRight+8
+        return
+    elseif bind == "+lookleft" then
+        ply.ZBASE_ControllerCamRight = ply.ZBASE_ControllerCamRight-8
         return
     end
 
@@ -89,4 +94,16 @@ hook.Add("CalcView", "ZBASE_CONTROLLER", function(ply, pos, ang, fov, znear, zfa
         fov = fov,
         drawviewer = true,
     }
+end)
+
+--[[
+=======================================================================================================
+        HUD STUFF
+=======================================================================================================
+]]--
+
+hook.Add("HUDPaint", "ZBASE_CONTROLLER", function()
+    local ply = LocalPlayer()
+    local camEnt = ply:GetNWEntity("ZBASE_ControllerCamEnt", NULL)
+    if !IsValid(camEnt) then return end
 end)

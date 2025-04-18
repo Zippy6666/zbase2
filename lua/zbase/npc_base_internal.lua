@@ -466,6 +466,7 @@ end
 
 function NPC:FrameTick()
     if AIDisabled:GetBool() then return end
+    local ene = self:GetEnemy()
 
     if self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && (self:IsMoving() or self.bControllerMoving) then
         self:DoMoveSpeed()
@@ -478,6 +479,12 @@ function NPC:FrameTick()
     -- For NPC:Face()
     if self.ZBase_CurrentFace_Yaw then
         self:SetIdealYawAndUpdate(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
+    end
+
+    -- For ZBase weapon system
+    -- Make sure yaw is precise when standing and shooting
+    if self.bShouldFaceAimVector && IsValid(ene) then
+        self:SetIdealYawAndUpdate((self:GetPos() - ene_GetPos()):Angle().yaw, -2)
     end
 
     self:CustomFrameTick()
@@ -1142,14 +1149,16 @@ function NPC:ZBWepSys_FireWeaponThink()
 
         -- Should shoot
         if self.ZBWepSys_AllowShoot then
-            -- Make sure yaw is precise when standing and shooting
             if !self:IsMoving_Cheap() && IsValid(ene) then
-                self:SetIdealYawAndUpdate(self:GetAimVector():Angle().yaw, -2)
+                self:CONV_TempVar("bShouldFaceShootDir", true, 0.2)
             end
 
-            self:ZBWepSys_Shoot()
-            self:InternalOnFireWeapon()
-            self:OnFireWeapon()
+            if !( self.ZBASE_IsPlyControlled && !self.ZBASE_bControllerShoot) then
+                self:ZBWepSys_Shoot()
+                self:InternalOnFireWeapon()
+                self:OnFireWeapon()
+            end
+
             self.ZBWepSys_AllowShoot = nil
         end
     end
@@ -1643,7 +1652,7 @@ function NPC:AITick_Slow()
 
     -- Reload if we cannot see enemy and we have no ammo
     if self.ZBWepSys_PrimaryAmmo && IsValid(self:GetActiveWeapon()) && self.ZBWepSys_PrimaryAmmo <= 0
-    && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) then
+    && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
         self:SetSchedule(SCHED_RELOAD)
         debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end
@@ -1654,7 +1663,8 @@ function NPC:AITick_Slow()
     end
 
     -- Stop following if no longer allied
-    if IsValid(self.PlayerToFollow) && !self:IsAlly(self.PlayerToFollow) then
+    -- Or any other thing that should cause us to stop following
+    if IsValid(self.PlayerToFollow) && ( !self:IsAlly(self.PlayerToFollow) or self.bControllerBlock ) then
         self:StopFollowingCurrentPlayer(true)
     end
 
@@ -1679,7 +1689,7 @@ function NPC:AITick_Slow()
     self.ZBase_IsMoving = self:IsMoving() or nil
 
     -- Push blocking entities away
-    if self.ZBase_IsMoving && self.BaseMeleeAttack && self.MeleeDamage_AffectProps then
+    if self.ZBase_IsMoving && self.BaseMeleeAttack && self.MeleeDamage_AffectProps && !self.bControllerBlock then
 
         -- Find blocking entities manually since the engine is a bit dumb (my copilot said this lol, based)
         if !self.ShouldNotManualCheckBlockingEnt && self.ZBase_BlockingBounds then
@@ -2054,6 +2064,7 @@ function NPC:CanPursueFollowing()
     && self:ZBaseDist(self.PlayerToFollow, {away=200})
     && !self:ZBWepSys_CanFireWeapon()
     && !self.ZBase_Guard
+    && !self.bControllerBlock
 end
 
 function NPC:PursueFollowing()
@@ -2310,6 +2321,18 @@ function NPCB.SecondaryFire:Run( self )
     end
 
     ZBaseDelayBehaviour(math.Rand(4, 8))
+end
+
+-- QOL for dispatching secondary using controller
+function NPC:ControllerSecondaryAttack()
+    local wep = self:GetActiveWeapon()
+    local ene = self:GetEnemy()
+
+    if !IsValid(ene) then return end
+
+    if !SecondaryFireWeapons[ wep.EngineCloneClass ] then return end
+
+    NPCB.SecondaryFire:Run( self )
 end
 
 --[[
@@ -2574,6 +2597,8 @@ function NPC:InDanger()
 end
 
 function NPC:InternalDetectDanger()
+    if self.bControllerBlock then return end
+
 	local hint = sound.GetLoudestSoundHint(SOUND_DANGER, self:GetPos())
     local IsDangerHint = (istable(hint) && hint.type==SOUND_DANGER)
 

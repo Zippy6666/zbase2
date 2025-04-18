@@ -13,7 +13,7 @@ ZBase_EngineWeapon_Attributes = {
             DefaultClip = 18, 
             Ammo = "Pistol", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
             ShellEject = "1", 
-            ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Effects
+            ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Default_Effects
             NumShots = 1,
         },
         NPCBurstMin = 1, 
@@ -39,7 +39,7 @@ ZBase_EngineWeapon_Attributes = {
             DefaultClip = 45, 
             Ammo = "SMG1", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
             ShellEject = "1", 
-            ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Effects
+            ShellType = "RifleShellEject", -- https://wiki.facepunch.com/gmod/Default_Effects
             NumShots = 1,
             MuzzleFlashChance = 1,
         },
@@ -95,7 +95,7 @@ ZBase_EngineWeapon_Attributes = {
             DefaultClip = 8, 
             Ammo = "Buckshot", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
             ShellEject = "1", 
-            ShellType = "ShotgunShellEject", -- https://wiki.facepunch.com/gmod/Effects
+            ShellType = "ShotgunShellEject", -- https://wiki.facepunch.com/gmod/Default_Effects
             NumShots = 7,
             MuzzleFlashFlags = 7,
         },
@@ -255,7 +255,7 @@ ZBase_EngineWeapon_Attributes = {
             DefaultClip = 8, 
             Ammo = "Buckshot", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
             ShellEject = "1", 
-            ShellType = "ShotgunShellEject", -- https://wiki.facepunch.com/gmod/Effects
+            ShellType = "ShotgunShellEject", -- https://wiki.facepunch.com/gmod/Default_Effects
             NumShots = 7,
         },
         NPCBurstMin = 1,
@@ -300,7 +300,7 @@ ZBase_EngineWeapon_Attributes = {
             DefaultClip = 18, 
             Ammo = "Pistol", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
             ShellEject = "1", 
-            ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Effects
+            ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Default_Effects
             NumShots = 1,
         },
         NPCBurstMin = 1, 

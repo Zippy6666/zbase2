@@ -113,19 +113,13 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc.ZBASE_HadJumpCap = npc:CONV_HasCapability(CAP_MOVE_JUMP)
     npc:CapabilitiesRemove(CAP_MOVE_JUMP)
 
-    -- Initialize controls for attacks
-    npc:ZBASE_Controller_InitAttacks()
-
     -- NPC hooks/vars
-
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
-
     npc.ZBASE_IsPlyControlled   = true
     npc.ZBASE_PlyController     = ply
     if npc.IsZBaseNPC then
         npc.bControllerBlock  = true -- Prevents ZBase NPCs from doing built in attacks
     end
-
     npc:CallOnRemove("ZBASE_Controller_Stop", function()
         self:StopControlling(ply, npc)
     end)
@@ -135,7 +129,8 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply.ZBASE_LastMoveType = ply:GetMoveType()
     ply.ZBASE_HPBeforeControl = ply:Health()
     ply.ZBASE_MaxHPBeforeControl = ply:GetMaxHealth()
-    ply.ZBASE_ControllerCamUp = ply.ZBASE_ControllerCamUp or 0
+    ply.ZBASE_ControllerCamUp = 0
+    ply.ZBASE_ControllerCamRight = 0
     ply.ZBASE_ControllerZoomDist = ply.ZBASE_ControllerZoomDist or 0
     ply:SetNoTarget(true)
     ply:SetMoveType(MOVETYPE_NONE)
@@ -150,6 +145,9 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
         end
     end, "ZBASE_Controller_PlyGodMode")
     ply:SetNWEntity("ZBASE_ControllerCamEnt", npc)
+
+    -- Initialize controls for attacks
+    npc:ZBASE_Controller_InitAttacks()
 
     conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 4)
 end
@@ -259,9 +257,10 @@ function NPC:ZBASE_Controller_TargetBullseye(bShould)
 end
 
 function NPC:ZBASE_Controller_InitAttacks()
-    local initmsg = hook.Run("GetDeathNoticeEntityName", self).." controls:"
-    
-    PrintMessage(HUD_PRINTTALK, string.upper(initmsg))
+    local initmsg = "------------- "..hook.Run("GetDeathNoticeEntityName", self).." controls -------------"
+    local ply = self.ZBASE_PlyController
+
+    ply:PrintMessage(HUD_PRINTTALK, string.upper(initmsg))
 
     if self.IsZBaseNPC then
         -- Check for attacks here
@@ -281,6 +280,26 @@ function NPC:ZBASE_Controller_InitAttacks()
                     self:ZBASE_Controller_TargetBullseye(false)
                 end,
             nil, "Fire Weapon")
+
+            -- Secondary weapon attack
+            if self.CanSecondaryAttack then
+                self:ZBASE_ControllerAddAttack(
+                    function()
+                        self:ZBASE_Controller_TargetBullseye(true)
+
+                        if self.AltCount <= 0 && self.AltCount != -1 then
+                            ply:PrintMessage(HUD_PRINTTALK, "Out of secondary ammo!")
+                            return
+                        end
+
+                        self:CONV_TimerSimple(0.25, function() self:ControllerSecondaryAttack() end)
+                    end, 
+
+                    function() 
+                        self:ZBASE_Controller_TargetBullseye(false)
+                    end,
+                nil, "Secondary Weapon Attack (if any)")
+            end
 
             -- Reload ability
             self:ZBASE_ControllerAddAttack(function()
@@ -310,6 +329,8 @@ function NPC:ZBASE_Controller_InitAttacks()
     , nil, "Free Attack")
 
     self.ZBASE_ControlLastBind = nil -- Reset until next time controls are setup
+
+    ply:PrintMessage(HUD_PRINTTALK, "------------------------------------------------------------")
 end
 
 function NPC:ZBASE_Controller_KeyPress(ply, key)
@@ -355,13 +376,15 @@ net.Receive("ZBASE_Ctrlr_SlotBindPress", function(_, ply)
 end)
 
 function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc, optionalBind, attackName)
+    local ply = self.ZBASE_PlyController
+    
     self.ZBASE_Controls = self.ZBASE_Controls or {}
 
     self.ZBASE_ControlLastBind = self.ZBASE_ControlLastBind or IN_ATTACK
     self.ZBASE_Controls[optionalBind or self.ZBASE_ControlLastBind] = {pressFunc=pressFunc, releaseFunc=releaseFunc}
 
     local bindName = bindNames[optionalBind or self.ZBASE_ControlLastBind] or "nil"
-    PrintMessage(
+    ply:PrintMessage(
         HUD_PRINTTALK, 
         "["..bindName.."] "..attackName
     )
@@ -487,10 +510,6 @@ function NPC:ZBASE_ControllerThink()
                     self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
                 end
             end
-
-            if self.ZBASE_CurCtrlDest then
-                debugoverlay.Sphere(self.ZBASE_CurCtrlDest, 10, 0.05, colDeb, true)
-            end
         else
             -- Be still when should not move
 
@@ -526,6 +545,10 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
     if IsValid(npc) && !npc.ZBASE_Controller_HasCleanedUp then
         if npc.ZBASE_HadJumpCap then
             npc:CapabilitiesAdd(CAP_MOVE_JUMP)
+        end
+        if npc.ZBASE_CtrlrDetected_CAP_MOVE then
+            npc:CapabilitiesAdd(CAP_MOVE_GROUND)
+            npc.ZBASE_CtrlrDetected_CAP_MOVE = nil
         end
 
         npc.ZBASE_IsPlyControlled  = nil
