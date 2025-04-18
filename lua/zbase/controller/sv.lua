@@ -271,6 +271,12 @@ function NPC:ZBASE_Controller_InitAttacks()
             -- Weapon attack
             self:ZBASE_ControllerAddAttack(
                 function()
+                    if self.ZBWepSys_PrimaryAmmo <= 0 then
+                        ply:PrintMessage(HUD_PRINTTALK, "Out of ammo!")
+                        ply:EmitSound("Weapon_Pistol.Empty")
+                        return
+                    end
+
                     self.ZBASE_bControllerShoot = true
                     self:ZBASE_Controller_TargetBullseye(true)
                 end,
@@ -289,6 +295,7 @@ function NPC:ZBASE_Controller_InitAttacks()
 
                         if self.AltCount <= 0 && self.AltCount != -1 then
                             ply:PrintMessage(HUD_PRINTTALK, "Out of secondary ammo!")
+                            ply:EmitSound("Weapon_AR2.Empty")
                             return
                         end
 
@@ -306,7 +313,10 @@ function NPC:ZBASE_Controller_InitAttacks()
                 local wep = self:GetActiveWeapon()
 
                 if !wep.IsZBaseWeapon then return end
-                if self.ZBWepSys_PrimaryAmmo >= wep.Primary.DefaultClip then return end
+
+                if self.ZBWepSys_PrimaryAmmo >= wep.Primary.DefaultClip then
+                    return
+                end
 
                 self:SetSchedule(SCHED_RELOAD)
             end, nil, IN_RELOAD, "Reload")

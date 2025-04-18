@@ -102,8 +102,30 @@ end)
 =======================================================================================================
 ]]--
 
+local mat           = Material("sprites/hud/v_crosshair1")
+local iCrosshairLen = 35
+
 hook.Add("HUDPaint", "ZBASE_CONTROLLER", function()
     local ply = LocalPlayer()
     local camEnt = ply:GetNWEntity("ZBASE_ControllerCamEnt", NULL)
     if !IsValid(camEnt) then return end
+
+    local eyeangs   = ply:EyeAngles()
+    local forward   = eyeangs:Forward()
+    local viewpos   = ZBASE_CONTROLLER:GetViewPos(ply, forward)
+    if viewpos then
+        local tr = util.TraceLine({
+            start = viewpos,
+            endpos = viewpos+forward*100000,
+            mask = MASK_VISIBLE_AND_NPCS,
+            filter = {ply, camEnt},
+        })
+
+        local pos = tr.HitPos+tr.HitNormal*25
+
+        local tbl = pos:ToScreen()
+        surface.SetMaterial(mat)
+        surface.SetDrawColor(255, 200, 0, 255)
+        surface.DrawTexturedRect(tbl.x, tbl.y, iCrosshairLen, iCrosshairLen)
+    end
 end)
