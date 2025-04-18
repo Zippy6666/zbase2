@@ -25,15 +25,15 @@ local bindNames = {
     [IN_ATTACK2]    = "SECONDARY KEY",
     [IN_RELOAD]     = "RELOAD KEY",
     [IN_GRENADE1]   = "GRENADE1 KEY",
-    ["slot1"]       = "SLOT 1",
-    ["slot2"]       = "SLOT 2",
-    ["slot3"]       = "SLOT 3",
-    ["slot4"]       = "SLOT 4",
-    ["slot5"]       = "SLOT 5",
-    ["slot6"]       = "SLOT 6",
-    ["slot7"]       = "SLOT 7",
-    ["slot8"]       = "SLOT 8",
-    ["slot9"]       = "SLOT 9"
+    ["slot1"]       = "WEAPON SLOT 1",
+    ["slot2"]       = "WEAPON SLOT 2",
+    ["slot3"]       = "WEAPON SLOT 3",
+    ["slot4"]       = "WEAPON SLOT 4",
+    ["slot5"]       = "WEAPON SLOT 5",
+    ["slot6"]       = "WEAPON SLOT 6",
+    ["slot7"]       = "WEAPON SLOT 7",
+    ["slot8"]       = "WEAPON SLOT 8",
+    ["slot9"]       = "WEAPON SLOT 9"
 }
 
 local jumpPowerStats = {
@@ -117,9 +117,15 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     -- NPC hooks/vars
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
     npc:CONV_AddHook("EntityTakeDamage", function(_, trgt, dmg)
-        net.Start("ZBASE_Ctrlr_UpdateNPCHealth")
-        net.WriteUInt(npc:Health(), 16)
-        net.Send(ply)
+        if trgt == npc then
+            conv.callNextTick(function()
+                if IsValid(npc) then
+                    net.Start("ZBASE_Ctrlr_UpdateNPCHealth")
+                    net.WriteUInt(npc:Health(), 16)
+                    net.Send(ply)
+                end
+            end)
+        end
     end, "ZBASE_Controller_UpdateHealth")
     npc.ZBASE_IsPlyControlled   = true
     npc.ZBASE_PlyController     = ply
@@ -288,8 +294,11 @@ function NPC:ZBASE_Controller_InitAttacks()
             self:ZBASE_ControllerAddAttack(
                 function()
                     if self.ZBWepSys_PrimaryAmmo <= 0 then
-                        ply:PrintMessage(HUD_PRINTTALK, "Out of ammo!")
-                        ply:EmitSound("Weapon_Pistol.Empty")
+                        if !timer.Exists("ZBaseReloadWeapon"..self:EntIndex()) then
+                            ply:PrintMessage(HUD_PRINTTALK, "Out of ammo!")
+                            ply:EmitSound("Weapon_Pistol.Empty")
+                        end
+
                         return
                     end
 
@@ -403,6 +412,8 @@ function NPC:ZBASE_Controller_InitAttacks()
 
             end, nil, "Range Attack")
         end
+
+        self:CustomControllerInitAttacks()
     end
 
     -- Lastly, add free attack
@@ -418,7 +429,7 @@ function NPC:ZBASE_Controller_InitAttacks()
             if self.IsZBaseNPC then self.bControllerBlock = true end
             self:ZBASE_Controller_TargetBullseye(false)
         end
-    , nil, "Free Attack")
+    , nil, "Auto Attack")
 
     self.ZBASE_ControlLastBind = nil -- Reset until next time controls are setup
 
@@ -517,6 +528,14 @@ function NPC:ZBASE_ControllerThink()
     -- Mimic health
     -- ply:SetHealth(self:Health())
     -- ply:SetMaxHealth(self:GetMaxHealth())
+
+    -- Update NPC health
+    if !self.ZBASE_CtrlrDontUpdateHealth then
+        net.Start("ZBASE_Ctrlr_UpdateNPCHealth")
+        net.WriteUInt(self:Health(), 16)
+        net.Send(ply)
+        self:CONV_TempVar("ZBASE_CtrlrDontUpdateHealth", true, 1)
+    end
 
     -- Vars
     local eyeangs   = ply:EyeAngles()

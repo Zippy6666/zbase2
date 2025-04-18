@@ -1,4 +1,5 @@
-local NPC = FindZBaseTable(debug.getinfo(1,'S'))
+local NPC       = FindZBaseTable(debug.getinfo(1,'S'))
+local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
 
 NPC.Models = {"models/zippy/Synth.mdl"}
 NPC.StartHealth = 320
@@ -107,6 +108,17 @@ NPC.FootStepSoundDelay_Charge = 0.3
 function NPC:CustomInitialize()
     self.MinigunShootSound = CreateSound(self, "ZBaseCrabSynth.MinigunLoop")
     self:CallOnRemove("StopShootSoundLoop", function() self.MinigunShootSound:Stop() end)
+end
+
+-- Called when the NPC controller sets up attacks
+-- Add your own attacks here
+function NPC:CustomControllerInitAttacks()
+    self:AddControllerAttack(function() 
+        if self:BusyPlayingAnimation() then return end
+
+        BEHAVIOUR.ChargeAttack:Run( self ) 
+    
+    end, nil, "Charge Attack")
 end
 
 function NPC:OverrideMovementAct()

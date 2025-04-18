@@ -381,6 +381,10 @@ end
 function NPC:OnInitCap()
 end
 
+-- Called when the NPC controller sets up attacks
+-- Add your own attacks here
+function NPC:CustomControllerInitAttacks()
+end
 
 -- Should the NPC have glowing eyes on spawn if the model supports it?
 function NPC:ShouldGlowEyes()
