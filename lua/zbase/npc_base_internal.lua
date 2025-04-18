@@ -596,8 +596,10 @@ function NPC:ZBWepSys_Reload()
         wep:EmitSound(wep.NPCReloadSound)
     end
 
+    local reloadTime = math.max(self.NPCReloadTime, self:SequenceDuration()*0.8 / self:GetPlaybackRate())
+
     -- Refill ammo
-    timer.Create("ZBaseReloadWeapon"..self:EntIndex(), self:SequenceDuration()*0.8 / self:GetPlaybackRate(), 1, function()
+    timer.Create("ZBaseReloadWeapon"..self:EntIndex(), reloadTime, 1, function()
         if !IsValid(self) or !IsValid(wep) then return end
 
         local CurrentStrAct = self:GetSequenceActivityName( self:GetSequence() )

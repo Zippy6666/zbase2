@@ -199,6 +199,7 @@ ZBase_EngineWeapon_Attributes = {
         NPCHoldType =  "rpg", -- https://wiki.facepunch.com/gmod/Hold_Types
         NPCBulletSpreadMult = 1.5, 
         NPCShootDistanceMult = 0.75,
+        NPCReloadSound = "Weapon_AR2.Reload",
         MuzzleFlashFlags = 7,
         Primary = {
             DefaultClip = 1, 

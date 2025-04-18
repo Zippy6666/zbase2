@@ -105,6 +105,7 @@ SWEP.NPCFireRestTimeMin = 1 -- Minimum amount of time the NPC rests between burs
 SWEP.NPCFireRestTimeMax = 1 -- Maximum amount of time the NPC rests between bursts in seconds
 SWEP.NPCBulletSpreadMult = 1 -- Higher number = worse accuracy
 SWEP.NPCReloadSound = "" -- Sound when the NPC reloads the gun
+SWEP.NPCReloadTime = 2 -- The NPC will not be able to use the weapon for at least this amount of time after reloading
 SWEP.NPCShootDistanceMult = 1 -- Multiply the NPCs shoot distance by this number with this weapon
 SWEP.NPCCanBePickedUp = true -- Can NPCs pick up this weapon?
 
