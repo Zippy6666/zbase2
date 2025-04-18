@@ -10,6 +10,7 @@ hook.Add("InitPostEntity", "ZBASE_CONTROLLER", function()
     LocalPlayer().ZBASE_ControllerZoomDist  = 0 
     LocalPlayer().ZBASE_ControllerCamUp     = 0 
     LocalPlayer().ZBASE_ControllerCamRight  = 0
+    LocalPlayer().ZBASE_ControlledNPCHealth = 0
 end)
 
 local function controllerZoom(amount)
@@ -107,9 +108,10 @@ end)
 local mat           = Material("sprites/hud/v_crosshair1")
 local iCrosshairLen = 35
 
-local hudW, hudH    = 300, 70
+local hudW, hudH    = 260, 40
 local hudMrgn       = 5
 local barMrgn       = 5
+local barH          = 10
 
 hook.Add("HUDPaint", "ZBASE_CONTROLLER", function()
     local ply = LocalPlayer()
@@ -141,11 +143,15 @@ hook.Add("HUDPaint", "ZBASE_CONTROLLER", function()
 
     -- Draw health bar
     surface.SetDrawColor(75, 0 ,0, 255)
-    surface.DrawRect(x+barMrgn, y+nameH+3, hudW-barMrgn*2, 15)
+    surface.DrawRect(x+barMrgn, y+nameH+3, hudW-barMrgn*2, barH)
     surface.SetDrawColor(255, 0 ,0, 255)
-    surface.DrawRect(x+barMrgn, y+nameH+3, (hudW-barMrgn*2) * (camEnt:Health()/camEnt:GetMaxHealth()), 15)
+    surface.DrawRect(x+barMrgn, y+nameH+3, (hudW-barMrgn*2) * (ply.ZBASE_ControlledNPCHealth/camEnt:GetMaxHealth()), barH)
 end)
 
 net.Receive("ZBASE_Ctrlr_SetNameOnClient", function()
     LocalPlayer().ZBASE_ControlledNPCName = net.ReadString()
+end)
+
+net.Receive("ZBASE_Ctrlr_UpdateNPCHealth", function()
+    LocalPlayer().ZBASE_ControlledNPCHealth = net.ReadUInt(16)
 end)

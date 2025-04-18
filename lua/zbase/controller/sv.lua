@@ -1,5 +1,6 @@
 util.AddNetworkString("ZBASE_Ctrlr_SlotBindPress")
 util.AddNetworkString("ZBASE_Ctrlr_SetNameOnClient")
+util.AddNetworkString("ZBASE_Ctrlr_UpdateNPCHealth")
 
 local NPC           = FindMetaTable("NPC")
 local developer     = GetConVar("developer")
@@ -23,6 +24,7 @@ local bindNames = {
     [IN_ATTACK]     = "PRIMARY KEY", 
     [IN_ATTACK2]    = "SECONDARY KEY",
     [IN_RELOAD]     = "RELOAD KEY",
+    [IN_GRENADE1]   = "GRENADE1 KEY",
     ["slot1"]       = "SLOT 1",
     ["slot2"]       = "SLOT 2",
     ["slot3"]       = "SLOT 3",
@@ -114,6 +116,11 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
 
     -- NPC hooks/vars
     npc:CONV_AddHook("Think", npc.ZBASE_ControllerThink, "ZBASE_Controller_Think")
+    npc:CONV_AddHook("EntityTakeDamage", function(_, trgt, dmg)
+        net.Start("ZBASE_Ctrlr_UpdateNPCHealth")
+        net.WriteUInt(npc:Health(), 16)
+        net.Send(ply)
+    end, "ZBASE_Controller_UpdateHealth")
     npc.ZBASE_IsPlyControlled   = true
     npc.ZBASE_PlyController     = ply
     if npc.IsZBaseNPC then
@@ -151,6 +158,11 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     -- Give NPC its name on client so that it can be shown on the hud
     net.Start("ZBASE_Ctrlr_SetNameOnClient")
     net.WriteString( hook.Run("GetDeathNoticeEntityName", npc) )
+    net.Send(ply)
+
+    -- Also give the lastest most updated health
+    net.Start("ZBASE_Ctrlr_UpdateNPCHealth")
+    net.WriteUInt(npc:Health(), 16)
     net.Send(ply)
 
     conv.sendGModHint(ply, "Press your NOCLIP key to stop controlling.", 3, 4)
@@ -303,13 +315,12 @@ function NPC:ZBASE_Controller_InitAttacks()
                             return
                         end
 
-                        self:CONV_TimerSimple(0.25, function() self:ControllerSecondaryAttack() end)
-                    end, 
-
-                    function() 
-                        self:ZBASE_Controller_TargetBullseye(false)
+                        self:CONV_TimerSimple(0.25, function() 
+                            self:ControllerSecondaryAttack() 
+                            self:ZBASE_Controller_TargetBullseye(false)
+                        end)
                     end,
-                nil, "Secondary Weapon Attack (if any)")
+                nil, nil, "Secondary Weapon Attack (if any)")
             end
 
             -- Reload ability
@@ -324,6 +335,32 @@ function NPC:ZBASE_Controller_InitAttacks()
 
                 self:SetSchedule(SCHED_RELOAD)
             end, nil, IN_RELOAD, "Reload")
+        end
+
+        -- Grenade attack control
+        if self.BaseGrenadeAttack then
+            self:ZBASE_ControllerAddAttack(function()
+                if self.ZBASE_Ctrlr_Grenading then return end
+
+                if self.GrenCount <= 0 then
+                    ply:PrintMessage(HUD_PRINTTALK, "No grenades left!")
+                    return
+                end
+
+                self.ZBASE_Ctrlr_Grenading = true
+
+                self:ZBASE_Controller_TargetBullseye(true)
+
+                self:CONV_TimerSimple(0.25, function()
+                    self:ThrowGrenade()
+                end)
+
+                self:CONV_TimerSimple(2, function()
+                    self:ZBASE_Controller_TargetBullseye(false)
+                    self.ZBASE_Ctrlr_Grenading = nil
+                end)
+            end, 
+            nil, IN_GRENADE1, "Throw Grenade")
         end
     end
 
@@ -578,6 +615,7 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         SafeRemoveEntity(npc.ZBASE_ControlTarget)
 
         npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
+        npc:CONV_RemoveHook("EntityTakeDamage", "ZBASE_Controller_UpdateHealth")
         npc:RemoveCallOnRemove("ZBASE_Controller_Stop")
 
         if IsValid(npc.ZBASE_ControlTarget) then
