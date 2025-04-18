@@ -87,6 +87,8 @@ end
 
 -- A real translate schedule function for aerial NPCs
 function ENT:AerialTranslateSched( sched )
+    if self.bControllerBlock then return end -- Don't do anything if being controlled
+
     local lastpos = self:GetInternalVariable("m_vecLastPosition")
     local npcstate = self:GetNPCState()
     local hasAerialGoal = false

@@ -362,6 +362,47 @@ function NPC:ZBASE_Controller_InitAttacks()
             end, 
             nil, IN_GRENADE1, "Throw Grenade")
         end
+
+        -- Melee attack
+        if self.BaseMeleeAttack then
+            self:ZBASE_ControllerAddAttack(function()
+                self:CONV_AddHook("Think", function()
+                    if !self:BusyPlayingAnimation() then
+                        self:MultipleMeleeAttacks()
+                        self:MeleeAttack()
+                    end
+                end, "ZBASE_Ctrlr_MeleeRambo")
+
+                self:ZBASE_Controller_TargetBullseye(true)
+                
+            end, 
+            function()
+                self:CONV_RemoveHook("Think", "ZBASE_Ctrlr_MeleeRambo")
+                self:ZBASE_Controller_TargetBullseye(false)
+
+            end,
+            nil, "Melee Attack")
+        end
+
+        -- Range attack
+        if self.BaseRangeAttack then
+            self:ZBASE_ControllerAddAttack(function()
+                self:CONV_AddHook("Think", function()
+                    if !self:BusyPlayingAnimation() then
+                        self:MultipleRangeAttacks()
+                        self:RangeAttack()
+                    end
+                end, "ZBASE_Ctrlr_RangeRambo")
+
+                self:ZBASE_Controller_TargetBullseye(true)
+
+            end, 
+            function()
+                self:CONV_RemoveHook("Think", "ZBASE_Ctrlr_RangeRambo")
+                self:ZBASE_Controller_TargetBullseye(false)
+
+            end, nil, "Range Attack")
+        end
     end
 
     -- Lastly, add free attack
