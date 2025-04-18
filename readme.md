@@ -30,6 +30,6 @@
 - [x] Spawner system
 - [ ] Controller
 - [x] Add separator for weapons in npc weapon dropdown + other qol changes
-- [ ] Ability to change reload times
+- [x] Ability to change reload times
 - [ ] Homing RPGs
 - [ ] Ensure aerial functionality

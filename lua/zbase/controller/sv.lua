@@ -87,24 +87,6 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
         ply:SetActiveWeapon(wep)
     end
 
-    -- Define target entity that follows the player's cursor
-    npc.ZBASE_ControlTarget = ents.Create("npc_bullseye")
-    npc.ZBASE_ControlTarget:SetPos( npc:WorldSpaceCenter() )
-    npc.ZBASE_ControlTarget:SetNotSolid(true)
-    npc.ZBASE_ControlTarget:SetHealth(math.huge)
-    npc.ZBASE_ControlTarget:Spawn()
-    npc.ZBASE_ControlTarget:Activate()
-    npc.ZBASE_ControlTarget:SetModel("models/props_junk/TrafficCone001a.mdl")
-    npc.ZBASE_ControlTarget:SetNoDraw(false)
-    if !developer:GetBool() then npc.ZBASE_ControlTarget:SetModelScale(0,0) end
-    npc:SetNWEntity("ZBASE_ControlTarget", npc.ZBASE_ControlTarget)
-
-    -- If target for some reason is removed
-    -- Stop controlling to prevent undefined behavior
-    npc.ZBASE_ControlTarget:CallOnRemove("ZBASE_Controller_Stop", function()
-        self:StopControlling(ply, npc)
-    end)
-
     -- Remove NPCs current enemies
     npc:SetEnemy(nil)
     npc:ClearEnemyMemory()
@@ -263,19 +245,38 @@ function NPC:ZBASE_Controller_TargetBullseye(bShould)
         self:ClearEnemyMemory()
 
         -- Ensure we hate cursor target bullseye thingy
-        self:AddEntityRelationship(self.ZBASE_ControlTarget, D_HT, 0)
+        self:AddEntityRelationship(self:ZBASE_Controller_GetBullseye(), D_HT, 0)
 
         -- Set to enemy
-        self:UpdateEnemyMemory(self.ZBASE_ControlTarget, self.ZBASE_ControlTarget:GetPos())
+        self:UpdateEnemyMemory(self:ZBASE_Controller_GetBullseye(), self:ZBASE_Controller_GetBullseye():GetPos())
     elseif bShould == false then
         -- Clear ene memory
         self:SetEnemy(nil)
         self:ClearEnemyMemory()
-        self:SetNPCState(NPC_STATE_ALERT)
+        -- self:SetNPCState(NPC_STATE_ALERT)
 
         -- Start liking bullseye target again
-        self:AddEntityRelationship(self.ZBASE_ControlTarget, D_LI, 0)
+        self:AddEntityRelationship(self:ZBASE_Controller_GetBullseye(), D_LI, 0)
     end
+end
+
+function NPC:ZBASE_Controller_GetBullseye()
+    if IsValid(self.ZBASE_ControlBullseye) then
+        return self.ZBASE_ControlBullseye
+    end
+
+    -- Define target entity that follows the player's cursor
+    self.ZBASE_ControlBullseye = ents.Create("npc_bullseye")
+    self.ZBASE_ControlBullseye:SetPos( self:WorldSpaceCenter() )
+    self.ZBASE_ControlBullseye:SetNotSolid(true)
+    self.ZBASE_ControlBullseye:SetHealth(math.huge)
+    self.ZBASE_ControlBullseye:Spawn()
+    self.ZBASE_ControlBullseye:Activate()
+    self.ZBASE_ControlBullseye:SetModel("models/props_junk/TrafficCone001a.mdl")
+    self.ZBASE_ControlBullseye:SetNoDraw(false)
+    if !developer:GetBool() then self.ZBASE_ControlBullseye:SetModelScale(0,0) end
+    self:SetNWEntity("ZBASE_ControlTarget", self.ZBASE_ControlBullseye)
+    return self.ZBASE_ControlBullseye
 end
 
 function NPC:ZBASE_Controller_InitAttacks()
@@ -293,6 +294,14 @@ function NPC:ZBASE_Controller_InitAttacks()
             -- Weapon attack
             self:ZBASE_ControllerAddAttack(
                 function()
+                    local wep = self:GetActiveWeapon()
+                    if !IsValid(wep) then return end
+
+                    if wep.NPCIsMeleeWep then
+                        self:ZBWepSys_MeleeAttack()
+                        return
+                    end
+
                     if self.ZBWepSys_PrimaryAmmo <= 0 then
                         if !timer.Exists("ZBaseReloadWeapon"..self:EntIndex()) then
                             ply:PrintMessage(HUD_PRINTTALK, "Out of ammo!")
@@ -307,7 +316,7 @@ function NPC:ZBASE_Controller_InitAttacks()
                 end,
 
                 function()
-                    self.ZBASE_bControllerShoot = false
+                    self.ZBASE_bControllerShoot = nil
                     self:ZBASE_Controller_TargetBullseye(false)
                 end,
             nil, "Fire Weapon")
@@ -516,11 +525,6 @@ function NPC:ZBASE_ControllerThink()
         ZBASE_CONTROLLER:StopControlling(NULL, self)
         return
     end
-    local wep = ply:GetActiveWeapon()
-    if !IsValid(wep) or wep:GetClass() != "weapon_zb_controller" then
-        ZBASE_CONTROLLER:StopControlling(ply, self)
-        return
-    end
 
     -- Position player at NPC
     ply:SetPos(self:GetPos())
@@ -554,9 +558,10 @@ function NPC:ZBASE_ControllerThink()
             filter = self,
         })
         -- The controller "target"
-        if IsValid(self.ZBASE_ControlTarget) then
+        local trgt = self:ZBASE_Controller_GetBullseye()
+        if IsValid(trgt) then
             -- Position target at cursor
-            self.ZBASE_ControlTarget:SetPos(tr.HitPos+tr.HitNormal*3)
+            trgt:SetPos(tr.HitPos+tr.HitNormal*3)
         end
     end
 
@@ -653,6 +658,7 @@ hook.Add("PlayerNoClip", "ZBASE_CONTROLLER", function(ply, desiredState)
 end)
 
 function ZBASE_CONTROLLER:StopControlling( ply, npc )
+    PrintTable(debug.getinfo(2))
     if IsValid(npc) && !npc.ZBASE_Controller_HasCleanedUp then
         if npc.ZBASE_HadJumpCap then
             npc:CapabilitiesAdd(CAP_MOVE_JUMP)
@@ -672,15 +678,11 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         npc:SetMoveYawLocked(false)
         npc:SetNWEntity("ZBASE_ControlTarget", NULL)
 
-        SafeRemoveEntity(npc.ZBASE_ControlTarget)
+        SafeRemoveEntity(self.ZBASE_ControlBullseye)
 
         npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
         npc:CONV_RemoveHook("EntityTakeDamage", "ZBASE_Controller_UpdateHealth")
         npc:RemoveCallOnRemove("ZBASE_Controller_Stop")
-
-        if IsValid(npc.ZBASE_ControlTarget) then
-            npc.ZBASE_ControlTarget:RemoveCallOnRemove("ZBASE_Controller_Stop")
-        end
 
         npc.ZBASE_Controller_HasCleanedUp = true
     end

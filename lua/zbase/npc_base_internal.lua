@@ -1164,6 +1164,16 @@ function NPC:ZBWepSys_FireWeaponThink()
     end
 end
 
+function NPC:ZBWepSys_MeleeAttack()
+    self:Weapon_MeleeAnim()
+
+    timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
+        if IsValid(self) && IsValid(self:GetActiveWeapon()) && !self.Dead then
+            self:GetActiveWeapon():NPCMeleeWeaponDamage()
+        end
+    end)
+end
+
 function NPC:ZBWepSys_MeleeThink()
     local ene = self:GetEnemy()
 
@@ -1172,13 +1182,7 @@ function NPC:ZBWepSys_MeleeThink()
         if !self.DoingPlayAnim && self:ZBaseDist(ene, {within=ZBaseRoughRadius(ene)})
         && !( ene:IsPlayer() && !ene:Alive() ) then
 
-            self:Weapon_MeleeAnim()
-
-            timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
-                if IsValid(self) && IsValid(self:GetActiveWeapon()) && !self.Dead then
-                    self:GetActiveWeapon():NPCMeleeWeaponDamage()
-                end
-            end)
+            self:ZBWepSys_MeleeAttack()
 
         end
 
