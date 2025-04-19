@@ -273,6 +273,7 @@ function NPC:ZBASE_Controller_GetBullseye()
     self.ZBASE_ControlBullseye:Activate()
     self.ZBASE_ControlBullseye:SetModel("models/props_junk/TrafficCone001a.mdl")
     self.ZBASE_ControlBullseye:SetNoDraw(false)
+    self.ZBASE_ControlBullseye:DrawShadow(false)
     if !developer:GetBool() then self.ZBASE_ControlBullseye:SetModelScale(0,0) end
     self:SetNWEntity("ZBASE_ControlTarget", self.ZBASE_ControlBullseye)
     return self.ZBASE_ControlBullseye
