@@ -28,8 +28,8 @@
 - [ ] Fix subtitles when citizen follows player
 - [ ] Fix issue with combines (and other?) not reloading weapons at times
 - [x] Spawner system
-- [ ] Controller
+- [x] Controller
 - [x] Add separator for weapons in npc weapon dropdown + other qol changes
 - [x] Ability to change reload times
-- [ ] Homing RPGs
+- [x] Homing RPGs
 - [ ] Ensure aerial functionality
