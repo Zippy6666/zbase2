@@ -117,6 +117,7 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc:CallOnRemove("ZBASE_Controller_Stop", function()
         self:StopControlling(ply, npc)
     end)
+    npc:Fire("SetAmmoResupplierOff") -- TAKE SOME AMMO
 
     -- Player variables
     ply.ZBASE_ControlledNPC = npc
@@ -186,8 +187,6 @@ function NPC:ZBASE_Controller_Move( pos )
         self:SetLastPosition( self.ZBASE_CurCtrlDest )
         self:SetSchedule(bInSpeedDown && SCHED_FORCED_GO_RUN or SCHED_FORCED_GO)
         self:CONV_TempVar("bControllerMoving", true, 0.2)
-
-        ply.ZBASE_Controller_LastMoveWasSprint = bInSpeedDown
     end
 end
 
@@ -570,8 +569,7 @@ function NPC:ZBASE_ControllerThink()
 
     if self.ZBASE_Controller_FreeAttacking then
         -- Don't mess with NPC movement
-        -- Just let it do its own thing while
-        -- free attacking
+        -- Just let it do its own thing whil
         bForceMv = false
 
         -- Give back move cap if any
