@@ -78,6 +78,15 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc.ZBASE_Controller_HasCleanedUp = nil
     ply.ZBASE_Controller_HasCleanedUp = nil
 
+    -- Give player controller weapon if they don't already have it
+    local wep = ply:GetWeapon("weapon_zb_controller")
+    if !IsValid(wep) then
+        wep = ply:Give("weapon_zb_controller")
+    end
+    if IsValid(wep) then
+        ply:SetActiveWeapon(wep)
+    end
+
     -- Remove NPCs current enemies
     npc:SetEnemy(nil)
     npc:ClearEnemyMemory()
@@ -690,5 +699,14 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         ply:CONV_RemoveHook("EntityTakeDamage", "ZBASE_Controller_PlyGodMode")
         ply:CONV_TempVar("ZBASE_Controller_Prevent", true, 2)
         ply.ZBASE_Controller_HasCleanedUp = true
+
+        -- Remove controller weapon
+        local tblWeps = ply:GetWeapons()
+        for k, v in ipairs(tblWeps) do 
+            if v:GetClass() == "weapon_zb_controller" then
+                ply:DropWeapon(v)
+                v:Remove()
+            end
+        end
     end
 end
