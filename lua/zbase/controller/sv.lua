@@ -296,7 +296,7 @@ function NPC:ZBASE_Controller_InitAttacks()
                     local wep = self:GetActiveWeapon()
                     if !IsValid(wep) then return end
 
-                    if wep.NPCIsMeleeWep then
+                    if wep.NPCIsMeleeWep && !self:BusyPlayingAnimation() then
                         self:ZBWepSys_MeleeAttack()
                         return
                     end
