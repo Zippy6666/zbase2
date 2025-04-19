@@ -218,8 +218,12 @@ function NPC:RangeAttack()
 
     -- Projectile
     if self.RangeProjectile_Delay then
+        self.RangeAttackTimerActive = true
+
         timer.Simple(self.RangeProjectile_Delay, function()
 
+            self.RangeAttackTimerActive = nil
+            
             if !IsValid(self) then return end
             if self.Dead or self:GetNPCState()==NPC_STATE_DEAD then return end
 

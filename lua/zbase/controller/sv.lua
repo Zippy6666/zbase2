@@ -405,7 +405,7 @@ function NPC:ZBASE_Controller_InitAttacks()
         if self.BaseRangeAttack then
             self:ZBASE_ControllerAddAttack(function()
                 self:CONV_AddHook("Think", function()
-                    if !self:BusyPlayingAnimation() then
+                    if !self:BusyPlayingAnimation() && !self.RangeAttackTimerActive then
                         self:MultipleRangeAttacks()
                         self:RangeAttack()
                     end
