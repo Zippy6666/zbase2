@@ -78,15 +78,6 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc.ZBASE_Controller_HasCleanedUp = nil
     ply.ZBASE_Controller_HasCleanedUp = nil
 
-    -- Give player controller weapon if they don't already have it
-    local wep = ply:GetWeapon("weapon_zb_controller")
-    if !IsValid(wep) then
-        wep = ply:Give("weapon_zb_controller")
-    end
-    if IsValid(wep) then
-        ply:SetActiveWeapon(wep)
-    end
-
     -- Remove NPCs current enemies
     npc:SetEnemy(nil)
     npc:ClearEnemyMemory()
@@ -658,7 +649,6 @@ hook.Add("PlayerNoClip", "ZBASE_CONTROLLER", function(ply, desiredState)
 end)
 
 function ZBASE_CONTROLLER:StopControlling( ply, npc )
-    PrintTable(debug.getinfo(2))
     if IsValid(npc) && !npc.ZBASE_Controller_HasCleanedUp then
         if npc.ZBASE_HadJumpCap then
             npc:CapabilitiesAdd(CAP_MOVE_JUMP)

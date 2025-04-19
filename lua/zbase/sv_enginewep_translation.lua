@@ -211,18 +211,47 @@ ZBase_EngineWeapon_Attributes = {
             if IsValid(own) then
                 local start = self:GetAttachment(self:LookupAttachment("muzzle")).Pos
                 local vel = own:GetAimVector()*500
-                local rocket = ents.Create("rpg_missile")
+
+                -- Laser dot
+                if !IsValid(self.LaserDot) then
+                    self.LaserDot = ents.Create("env_sprite")
+                    self.LaserDot:SetKeyValue("model", "sprites/redglow1.vmt")
+                    self.LaserDot:SetKeyValue("rendermode", "5")
+                    self.LaserDot:SetKeyValue("renderfx", "14")
+                    self.LaserDot:SetKeyValue("scale", "0.1 ")
+                    self.LaserDot:SetKeyValue("spawnflags", "1")
+                    self.LaserDot:Spawn()
+                    self.LaserDot:Activate()
+                    self.LaserDot.tNextThink = CurTime()
+                    self.LaserDot:CONV_AddHook("Think", function(lDot)
+                        if lDot.tNextThink > CurTime() then return end
+                        local vecStart = self:GetAttachment(self:LookupAttachment("muzzle")).Pos
+
+                        local tr = util.TraceLine({
+                            start = vecStart,
+                            endpos = vecStart + own:GetEyeDirection()*10000,
+                            mask = MASK_VISIBLE_AND_NPCS,
+                            filter = {self, own}
+                        })
+
+                        lDot:SetPos(tr.HitPos+tr.HitNormal*3)
+
+                        lDot.tNextThink = CurTime()+0.1
+                    end, "PositionLaserDot")
+                    self:DeleteOnRemove(self.LaserDot)
+                end
+
+                local rocket = ents.Create("zb_rocket")
+                rocket.entTarget = self.LaserDot
                 rocket:SetPos(start)
                 rocket:SetOwner(own)
-                rocket:SetVelocity(vel+Vector(0,0,100))
                 rocket:SetAngles(vel:Angle())
-                rocket.IsZBaseDMGInfl = true
                 rocket:Spawn()
-                rocket:SetSaveValue("m_flDamage", 150)
+                rocket.IsZBaseDMGInfl = true
+
                 self:EmitSound("Weapon_RPG.Single")
                 self:ShootEffects()
                 self:TakePrimaryAmmo(1)
-                
             end
             return true
         end,

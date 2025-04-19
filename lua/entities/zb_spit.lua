@@ -3,7 +3,7 @@ AddCSLuaFile()
 ENT.Base = "zb_projectile"
 ENT.Type = "anim"
 ENT.Author = "Zippy"
-ENT.PrintName = "Mortar"
+ENT.PrintName = "Spit"
 ENT.Spawnable = false
 ENT.Category = "ZBase"
 ENT.IsZBaseProjectile = true

@@ -3031,7 +3031,7 @@ function NPC:DealDamage( dmg, ent )
 
     -- Nerf smg nades/ energy balls etc
     if ZBCVAR.Nerf:GetBool() && IsValid(infl) && infl.IsZBaseDMGInfl && ent:IsPlayer() then
-        if infl:GetClass()=="rpg_missile" or infl:GetClass()=="grenade_ar2" then
+        if infl:GetClass()=="rpg_missile" or infl:GetClass() == "zb_rocket" or  infl:GetClass()=="grenade_ar2" then
             -- RPG rocket ~ 50 dmg
             -- SMG Nade ~ 33 dmg
             dmg:ScaleDamage(0.33)
