@@ -252,7 +252,6 @@ function NPC:ZBASE_Controller_TargetBullseye(bShould)
         -- Clear ene memory
         self:SetEnemy(nil)
         self:ClearEnemyMemory()
-        -- self:SetNPCState(NPC_STATE_ALERT)
 
         -- Start liking bullseye target again
         self:AddEntityRelationship(self:ZBASE_Controller_GetBullseye(), D_LI, 0)

@@ -13,6 +13,25 @@ function ZBaseDelayBehaviour( delay, ent, name )
     end
 end
 
+-- Return false if we should not do behavior while in controller
+local function bControllerBehaviorValidCheck( Behaviour, ent, BehaviourName )
+    if !ent.ZBASE_IsPlyControlled then
+        return true
+    end
+
+    if !(Behaviour.MustHaveEnemy or Behaviour.MustHaveVisibleEnemy or Behaviour.MustFaceEnemy) then
+        return true
+    end
+
+    local ctrlrBlock = ent.bControllerBlock
+
+    if ctrlrBlock then
+        conv.devPrint("Blocked behavior "..(BehaviourName or "*Unnamed*"))
+    end
+
+    return !ent.bControllerBlock
+end
+
 local function BehaviourTimer( ent )
     -- Is dead, so don't do behaviour
     if ent.DoingDeathAnim then return end
@@ -40,9 +59,11 @@ local function BehaviourTimer( ent )
         if (Behaviour.MustHaveEnemy && !has_ene)
         or (Behaviour.MustNotHaveEnemy && has_ene)
         or (Behaviour.MustHaveVisibleEnemy && !(has_ene && ent.EnemyVisible) )
-        or (Behaviour.MustFaceEnemy && !ent:IsFacing(enemy)) then
+        or (Behaviour.MustFaceEnemy && !ent:IsFacing(enemy))
+        or (!bControllerBehaviorValidCheck( Behaviour, ent, BehaviourName )) then
             continue
         end
+        
         if Behaviour.ShouldDoBehaviour && !Behaviour:ShouldDoBehaviour( ent ) then continue end
         
         -- Delay
