@@ -271,8 +271,10 @@ function NPC:ZBASE_Controller_GetBullseye()
     self.ZBASE_ControlBullseye:Spawn()
     self.ZBASE_ControlBullseye:Activate()
     self.ZBASE_ControlBullseye:SetModel("models/props_junk/TrafficCone001a.mdl")
+    self.ZBASE_ControlBullseye:SetMaterial("models/wireframe")
     self.ZBASE_ControlBullseye:SetNoDraw(false)
     self.ZBASE_ControlBullseye:DrawShadow(false)
+    self:DeleteOnRemove(self.ZBASE_ControlBullseye)
     if !developer:GetBool() then self.ZBASE_ControlBullseye:SetModelScale(0,0) end
     self:SetNWEntity("ZBASE_ControlTarget", self.ZBASE_ControlBullseye)
     return self.ZBASE_ControlBullseye
@@ -575,6 +577,7 @@ function NPC:ZBASE_ControllerThink()
         -- Give back move cap if any
         if self.ZBASE_CtrlrDetected_CAP_MOVE then
             self:CapabilitiesAdd(CAP_MOVE_GROUND)
+            self:SetCondition(COND.NPC_UNFREEZE)
             self.ZBASE_CtrlrDetected_CAP_MOVE = nil
         end
     end
@@ -610,6 +613,7 @@ function NPC:ZBASE_ControllerThink()
 
             if self.ZBASE_CtrlrDetected_CAP_MOVE then
                 self:CapabilitiesAdd(CAP_MOVE_GROUND)
+                self:SetCondition(COND.NPC_UNFREEZE)
                 self.ZBASE_CtrlrDetected_CAP_MOVE = nil
             end
 
@@ -624,17 +628,15 @@ function NPC:ZBASE_ControllerThink()
                     self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
                 end
             end
-        else
+        elseif self:CONV_HasCapability(CAP_MOVE_GROUND) then
             -- Be still when should not move
-
-            if self:CONV_HasCapability(CAP_MOVE_GROUND) then
-                -- Stopped moving so remove ground capabilities and clear goal etc
-                self:CapabilitiesRemove(CAP_MOVE_GROUND)
-                self.ZBASE_CtrlrDetected_CAP_MOVE = true
-                self:ClearGoal()
-                self:TaskComplete()
-                self:ClearSchedule()
-            end
+            -- Stopped moving so remove ground capabilities and clear goal etc
+            self:CapabilitiesRemove(CAP_MOVE_GROUND)
+            self:SetCondition(COND.NPC_FREEZE)
+            self.ZBASE_CtrlrDetected_CAP_MOVE = true
+            self:ClearGoal()
+            self:TaskComplete()
+            self:ClearSchedule()
         end
     end
 
@@ -680,6 +682,8 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         npc:CONV_RemoveHook("Think", "ZBASE_Controller_Think")
         npc:CONV_RemoveHook("EntityTakeDamage", "ZBASE_Controller_UpdateHealth")
         npc:RemoveCallOnRemove("ZBASE_Controller_Stop")
+
+        npc:SetCondition(COND.NPC_UNFREEZE)
 
         npc.ZBASE_Controller_HasCleanedUp = true
     end
