@@ -328,8 +328,14 @@ end
 --]]
 
 function NPC:HasAmmo()
-    if !IsValid(self:GetActiveWeapon()) then return false end
-    return !self.ZBWepSys_PrimaryAmmo or self.ZBWepSys_PrimaryAmmo>0
+    local wep = self:GetActiveWeapon()
+    if !IsValid(wep) then return false end
+
+    if self:HasZBaseWeapon() then
+        return !self.ZBWepSys_PrimaryAmmo or self.ZBWepSys_PrimaryAmmo>0
+    end
+
+    return wep:Clip1() > 0
 end
 
 --[[

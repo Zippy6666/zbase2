@@ -516,6 +516,7 @@ end
 -- Add ZBASE SWEPS to npc weapon menu if we should
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
+		print("added", class)
 		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName.." ("..class..")" } )
         table.insert(ZBaseNPCWeps, class)
 	end

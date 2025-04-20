@@ -6,7 +6,7 @@ local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
 local IsMultiplayer = !game.SinglePlayer()
 local Developer = GetConVar("developer")
 local KeepCorpses = GetConVar("ai_serverragdolls")
-local AIDisabled = GetConVar("ai_disabled")
+local ai_disabled = GetConVar("ai_disabled")
 
 --[[
 ==================================================================================================
@@ -356,7 +356,7 @@ function NPC:ZBaseThink()
         return
     end
 
-    local isAIEnabled = !AIDisabled:GetBool()
+    local isAIEnabled = !ai_disabled:GetBool()
 
     if isAIEnabled then
         local ene = self:GetEnemy()
@@ -465,7 +465,7 @@ function NPC:ZBaseThink()
 end
 
 function NPC:FrameTick()
-    if AIDisabled:GetBool() then return end
+    if ai_disabled:GetBool() then return end
     local ene = self:GetEnemy()
 
     if self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && (self:IsMoving() or self.bControllerMoving) then
@@ -563,20 +563,13 @@ end
 --]]
 
 function NPC:ZBWepSys_Init()
-    self.ZBWepSys_Inventory = {}
     self.ZBWepSys_NextBurst = CurTime()
     self.ZBWepSys_NextShoot = CurTime()
-    self.ZBWepSys_InShootDist = false
     self.ZBWepSys_LastShootCooldown = 0
     self.ZBWepSys_Stored_AIWantsToShoot = false
     self.ZBWepSys_Stored_FacingEne = false
     self.ZBWepSys_NextCheckIsFacingEne = CurTime()
     self.ZBWepSys_PrimaryAmmo = 0
-
-    local wep = self:GetActiveWeapon()
-    if IsValid(wep) && !wep:IsScripted() then
-        wep:SetNoDraw(true)
-    end
 end
 
 function NPC:ZBWepSys_Reload()
@@ -965,8 +958,8 @@ local AIWantsToShoot_SCHED_Blacklist = {
     [SCHED_SCENE_GENERIC] = true,
 }
 function NPC:ZBWepSys_AIWantsToShoot()
-    if AIDisabled:GetBool() then return false end
-    if !self.ZBWepSys_InShootDist then return false end
+    if ai_disabled:GetBool() then return false end
+    if !self.bStoredInShootDist then return false end
 
     local ene = self:GetEnemy()
 
@@ -1072,7 +1065,7 @@ function NPC:ZBWepSys_ShouldUseFireGesture( isMoving )
 end
 
 function NPC:ZBWepSys_TranslateAct(act, translateTbl)
-    if AIDisabled:GetBool() then return end
+    if ai_disabled:GetBool() then return end
 
     local useLegacyAnimSys = ( (self.WeaponFire_Activities or self.WeaponFire_MoveActivities) && (true or false) )
     local shouldForceShootStance = self.ForceShootStance && !useLegacyAnimSys
@@ -1118,6 +1111,7 @@ function NPC:InternalOnFireWeapon()
     end
 
     -- AI when shooting at players
+    -- Check there aren't too many NPCs firing at this player
     if ZBCVAR.MaxNPCsShootPly:GetBool() && IsValid(ene) && ene:IsPlayer() then
         local ply = ene
         ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
@@ -1130,27 +1124,28 @@ function NPC:InternalOnFireWeapon()
             end
         end)
     end
+
+    self:OnFireWeapon()
 end
 
-local OutOfShootRangeSched = SCHED_FORCED_GO_RUN
 function NPC:ZBWepSys_FireWeaponThink()
     local ene = self:GetEnemy()
     local wep = self:GetActiveWeapon()
     self.ZBWepSys_CheckDist = {within=self.MaxShootDistance*wep.NPCShootDistanceMult, away=self.MinShootDistance}
 
     -- In shoot dist check
-    self.ZBWepSys_InShootDist = IsValid(ene) && self:ZBaseDist(ene, self.ZBWepSys_CheckDist)
+    self.bStoredInShootDist = ( IsValid(ene) && self:ZBaseDist(ene, self.ZBWepSys_CheckDist) ) or nil
 
     -- Force move to enemy, do so if:
     -- > Enemy is outside of the shooting range
     -- > Enemy is visible
     -- > We are not currently doing any schedule that causes the NPC to move
-    if IsValid(ene) && !self.ZBWepSys_InShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
-    && !self:IsMoving() && !self:IsCurrentSchedule(OutOfShootRangeSched) && self.NextOutOfShootRangeSched < CurTime() then
+    if IsValid(ene) && !self.bStoredInShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
+    && !self:IsMoving() && !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) && self.NextOutOfShootRangeSched < CurTime() then
 
         local lastpos = ene:GetPos()
         self:SetLastPosition(lastpos)
-        self:SetSchedule(OutOfShootRangeSched)
+        self:SetSchedule(SCHED_FORCED_GO_RUN)
         self.OutOfShootRange_LastPos = lastpos
         self.NextOutOfShootRangeSched = CurTime()+3
 
@@ -1169,7 +1164,6 @@ function NPC:ZBWepSys_FireWeaponThink()
             if !( self.ZBASE_IsPlyControlled && !self.ZBASE_bControllerShoot) then
                 self:ZBWepSys_Shoot()
                 self:InternalOnFireWeapon()
-                self:OnFireWeapon()
             end
 
             self.ZBWepSys_AllowShoot = nil
@@ -1181,7 +1175,7 @@ function NPC:ZBWepSys_MeleeAttack()
     self:Weapon_MeleeAnim()
 
     timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
-        if IsValid(self) && IsValid(self:GetActiveWeapon()) && !self.Dead then
+        if IsValid(self) && self:IsAlive() && self:HasZBaseWeapon() then
             self:GetActiveWeapon():NPCMeleeWeaponDamage()
         end
     end)
@@ -1191,53 +1185,36 @@ function NPC:ZBWepSys_MeleeThink()
     local ene = self:GetEnemy()
 
     if IsValid(ene) then
-
         if !self.DoingPlayAnim && self:ZBaseDist(ene, {within=ZBaseRoughRadius(ene)})
         && !( ene:IsPlayer() && !ene:Alive() ) then
-
             self:ZBWepSys_MeleeAttack()
-
         end
 
         if !self:IsMoving() && !(self.Patch_DontMeleeChase && self:Patch_DontMeleeChase()) then
             self:SetTarget(ene)
             self:SetSchedule(SCHED_CHASE_ENEMY)
         end
+
     end
 end
 
 function NPC:ZBWepSys_Think()
-    local Weapon = self:GetActiveWeapon()
+    local wep = self:GetActiveWeapon()
     local ene = self:GetEnemy()
+    local bHasZBaseWep = self:HasZBaseWeapon()
 
-    -- No weapon, don't do anything
-    if !IsValid(Weapon) then
-
-        -- Reset sight distance to its default
-        if self:GetMaxLookDistance()!=self.ZBase_ExpectedSightDist then
-            self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
-        end
-
-        return -- Stop here
+    -- Adjust sight distance back to normal if weapon system altered it
+    -- but we no longer have a valid zbase weapon
+    if ( !IsValid(wep) or !bHasZBaseWep ) && self:GetMaxLookDistance()!=self.ZBase_ExpectedSightDist then
+        self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
     end
 
-    -- Store in inventory
-    local WeaponCls = Weapon:GetClass()
-    if !Weapon.FromZBaseInventory then
-        self:ZBWepSys_StoreInInventory( Weapon )
-        self:ZBWepSys_SetActiveWeapon( WeaponCls )
-        return -- Stop here
-    end
-
-    if !AIDisabled:GetBool() then
-
+    if bHasZBaseWep && !ai_disabled:GetBool() then
         -- Weapon think
-        if Weapon.IsZBaseWeapon then
-            if Weapon.NPCIsMeleeWep then
-                self:ZBWepSys_MeleeThink()
-            else
-                self:ZBWepSys_FireWeaponThink()
-            end
+        if wep.NPCIsMeleeWep then
+            self:ZBWepSys_MeleeThink()
+        else
+            self:ZBWepSys_FireWeaponThink()
         end
 
         -- Adjust sight distance to match shoot distance when the enemy is valid
@@ -1245,13 +1222,10 @@ function NPC:ZBWepSys_Think()
         local maxShootDist = self.ZBWepSys_CheckDist && self.ZBWepSys_CheckDist.within
         local alteredSightDist = false
         if IsValid(ene) && maxShootDist && self:GetMaxLookDistance()!=maxShootDist then
-
             self:SetMaxLookDistance(maxShootDist)
-
         elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.ZBase_ExpectedSightDist then
             self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
         end
-
     end
 end
 
@@ -1261,6 +1235,13 @@ end
 ==================================================================================================
 --]]
 
+function NPC:HasZBaseWeapon()
+    local wep = self:GetActiveWeapon()
+    if !IsValid(wep) then
+        return false
+    end
+    return wep.IsZBaseWeapon
+end
 
 function NPC:Face( face, duration, speed )
     if !face then return end
@@ -1668,8 +1649,7 @@ function NPC:AITick_Slow()
     self:InternalDetectDanger()
 
     -- Reload if we cannot see enemy and we have no ammo
-    if self.ZBWepSys_PrimaryAmmo && IsValid(self:GetActiveWeapon()) && self.ZBWepSys_PrimaryAmmo <= 0
-    && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
+    if !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
         self:SetSchedule(SCHED_RELOAD)
         debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end
@@ -1693,7 +1673,7 @@ function NPC:AITick_Slow()
 
     -- Stop doing forced go when we really shouldn't
     if ( self:IsCurrentSchedule(SCHED_FORCED_GO) or self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) )
-    && (self.EnemyVisible && self.ZBWepSys_InShootDist) then
+    && (self.EnemyVisible && self.bStoredInShootDist) then
 
         -- Doing move fallback
         if ZBaseMoveIsActive(self, "MoveFallback") then
