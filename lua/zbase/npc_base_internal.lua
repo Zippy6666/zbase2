@@ -573,7 +573,6 @@ function NPC:ZBWepSys_Init()
 end
 
 function NPC:ZBWepSys_Reload()
-    print("tried calling ZBWepSys_Reload")
     -- local wep = self:GetActiveWeapon()
 
     -- local maxammo = wep.Primary.DefaultClip
@@ -608,61 +607,6 @@ function NPC:ZBWepSys_Reload()
 
     --     self.ZBASE_bReloading = false
     -- end)
-end
-
--- https://wiki.facepunch.com/gmod/Hold_Types
-local HoldTypeFallback = {
-    ["pistol"] = "revolver",
-    ["smg"] = "ar2",
-    ["grenade"] = "passive",
-    ["ar2"] = "shotgun",	
-    ["shotgun"] = "ar2",	
-    ["rpg"] = "ar2",	
-    ["physgun"] = "shotgun",	
-    ["crossbow"] = "shotgun",	
-    ["melee"] = "passive",	
-    ["slam"] = "passive",	
-    ["fist"] = "passive",	
-    ["melee2"] = "passive",	
-    ["knife"] = "passive",	
-    ["duel"] = "pistol",	
-    ["camera"] = "revolver",
-    ["magic"] = "passive", 
-    ["revolver"] = "pistol", 
-    ["passive"] = "normal",
-}
-local HoldTypeActCheck = {
-    ["pistol"] = ACT_RANGE_ATTACK_PISTOL,
-    ["smg"] = ACT_RANGE_ATTACK_SMG1,
-    ["ar2"] = ACT_RANGE_ATTACK_AR2,
-    ["shotgun"] =ACT_RANGE_ATTACK_SHOTGUN,
-    ["rpg"] = ACT_RANGE_ATTACK_RPG,
-    ["passive"] = ACT_IDLE,
-}
-function NPC:ZBWepSys_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFail )
-    -- Set hold type, use fallbacks if npc does not have supporting anims
-    -- Priority:
-    -- Original -> Fallback -> "smg" -> "normal"
-
-    if !isFail && (!HoldTypeActCheck[startHoldT] or self:SelectWeightedSequence(HoldTypeActCheck[startHoldT]) == -1) then
-        -- Doesn't support this hold type
-
-        if lastFallBack then
-            -- "normal"
-            self:ZBWepSys_SetHoldType( wep, "normal", false, false, true )
-            return
-        elseif isFallBack then
-            -- "smg"
-            self:ZBWepSys_SetHoldType( wep, "smg", false, true )
-            return
-        else
-            -- Fallback
-            self:ZBWepSys_SetHoldType( wep, HoldTypeFallback[startHoldT], true )
-            return
-        end
-    end
-
-    wep:SetHoldType(startHoldT)
 end
 
 function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
@@ -801,6 +745,8 @@ function NPC:ZBWepSys_Shoot()
     end
 
     self.ZBWepSys_NextShoot = CurTime()+cooldown
+
+    self:InternalOnFireWeapon()
 end
 
 function NPC:ZBWepSys_TooManyAttacking( ply )
@@ -1154,20 +1100,19 @@ function NPC:ZBWepSys_FireWeaponThink()
 
     -- Here is where the fun begins
     if self:ZBWepSys_CanFireWeapon() then
-        self.ZBWepSys_AllowShoot = self.ZBWepSys_PrimaryAmmo > 0
+        self.bZBaseNPCPullTrigger = true
 
         -- Should shoot
-        if self.ZBWepSys_AllowShoot then
+        if self.bZBaseNPCPullTrigger then
             if !self:IsMoving_Cheap() && IsValid(ene) then
                 self:CONV_TempVar("bShouldFaceShootDir", true, 0.2)
             end
 
             if !( self.ZBASE_IsPlyControlled && !self.ZBASE_bControllerShoot) then
                 self:ZBWepSys_Shoot()
-                self:InternalOnFireWeapon()
             end
 
-            self.ZBWepSys_AllowShoot = nil
+            self.bZBaseNPCPullTrigger = nil
         end
     end
 end

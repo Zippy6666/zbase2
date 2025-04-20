@@ -40,6 +40,67 @@ end
 
 --[[
 ======================================================================================================================================================
+                                           WEAPON HANDLING
+======================================================================================================================================================
+--]]
+
+-- https://wiki.facepunch.com/gmod/Hold_Types
+local holdTypeFallBack = {
+    ["pistol"] 		= "revolver",
+    ["smg"] 		= "ar2",
+    ["grenade"] 	= "passive",
+    ["ar2"] 		= "shotgun",	
+    ["shotgun"] 	= "ar2",	
+    ["rpg"] 		= "ar2",	
+    ["physgun"] 	= "shotgun",	
+    ["crossbow"] 	= "shotgun",	
+    ["melee"] 		= "passive",	
+    ["slam"] 		= "passive",	
+    ["fist"] 		= "passive",	
+    ["melee2"] 		= "passive",	
+    ["knife"] 		= "passive",	
+    ["duel"] 		= "pistol",	
+    ["camera"] 		= "revolver",
+    ["magic"] 		= "passive", 
+    ["revolver"] 	= "pistol", 
+    ["passive"] 	= "normal"
+}
+
+local holdTypeACTCheck = {
+    ["pistol"] 	= ACT_RANGE_ATTACK_PISTOL,
+    ["smg"] 	= ACT_RANGE_ATTACK_SMG1,
+    ["ar2"] 	= ACT_RANGE_ATTACK_AR2,
+    ["shotgun"] = ACT_RANGE_ATTACK_SHOTGUN,
+    ["rpg"] 	= ACT_RANGE_ATTACK_RPG,
+    ["passive"] = ACT_IDLE
+}
+
+-- Set hold type, use fallbacks if npc does not have supporting anims
+-- Priority:
+-- Original -> Fallback -> "smg" -> "normal"
+function NPC:ZBASE_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFail )
+    if !isFail && (!holdTypeACTCheck[startHoldT] or self:SelectWeightedSequence(holdTypeACTCheck[startHoldT]) == -1) then
+        -- Doesn't support this hold type
+        if lastFallBack then
+            -- "normal"
+            self:ZBASE_SetHoldType( wep, "normal", false, false, true )
+            return
+        elseif isFallBack then
+            -- "smg"
+            self:ZBASE_SetHoldType( wep, "smg", false, true )
+            return
+        else
+            -- Fallback
+            self:ZBASE_SetHoldType( wep, holdTypeFallBack[startHoldT], true )
+            return
+        end
+    end
+
+    wep:SetHoldType(startHoldT)
+end
+
+--[[
+======================================================================================================================================================
                                            UTILS
 ======================================================================================================================================================
 --]]

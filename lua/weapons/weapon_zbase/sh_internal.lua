@@ -17,6 +17,7 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
 function SWEP:Initialize()
 	self:Init()
+	self.InitialHoldType = self:GetHoldType()
 
 	-- Store bullet spread vector
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
@@ -26,6 +27,8 @@ function SWEP:Initialize()
 	-- weapon base to function as intended lol
 	self.Primary.ClipSize = self.Primary.DefaultClip
 end
+
+-- ZBASE_SetHoldType
 
 -- Called when the SWEP should set up its Data Tables.
 function SWEP:SetupDataTables()
@@ -47,26 +50,19 @@ end
 ==================================================================================================
 --]]
 
--- Workaround for combine soldier
--- Their shooting AI does not match the rest
-function SWEP:Primary_DoCombineSWorkaround()
-	local own = self:GetOwner()
-	if !IsValid(own) then return end
-
-	own:SetSaveValue("m_nShots", 2)
-
-	-- Make sure combines don't spam some weapons they should not
-	-- if self.NPCBurstMin == 1 && self.NPCBurstMin == self.NPCBurstMax then
-	-- 	own:SetSaveValue("m_flShotDelay", math.Rand(self.NPCFireRestTimeMin, self.NPCFireRestTimeMax))
-	-- end
-end
-
 function SWEP:PrimaryAttack()
 	local own = self:GetOwner()
 	if !IsValid(own) then return end
 
 	if own:IsNPC() && self.NPCIsMeleeWep then return end
 
+	-- Only let ZBASE NPCs fire when we ask them to
+	if own.IsZBaseNPC && !own.bZBaseNPCPullTrigger then
+		return
+	end
+
+	-- No ammo
+	-- *click*
 	if !self:CanPrimaryAttack() then return end
 
 	-- Owner is NPC
@@ -98,6 +94,7 @@ function SWEP:PrimaryAttack()
 			self:EmitSound(self.PrimaryShootSound)
 			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
 		end
+
 	-- Owner is player and default primary has not been prevented
 	elseif own:IsPlayer() && self:OnPrimaryAttack() != true then
 		-- Default primary logic for players here
@@ -115,6 +112,22 @@ function SWEP:TakePrimaryAmmo( num )
 	end
 
 	self:SetClip1( self:Clip1() - num )	
+end
+
+-- Workaround for combine soldier
+-- Their shooting AI does not match the rest
+function SWEP:Primary_DoCombineSWorkaround()
+	local own = self:GetOwner()
+	if !IsValid(own) then return end
+
+	-- Allow shooting in long bursts
+	own:SetSaveValue("m_nShots", 2)
+
+	-- Prevents combines from spamming their weapon
+	-- TODO: When should this run? It does not always work here
+	if self.NPCBurstMin == 1 && self.NPCBurstMin == self.NPCBurstMax then
+		own:SetSaveValue("m_flShotDelay", math.Rand(self.NPCFireRestTimeMin, self.NPCFireRestTimeMax))
+	end
 end
 
 --[[
@@ -251,6 +264,20 @@ end
 
 	-- Called whenever the weapons Lua script is reloaded.
 function SWEP:OnReloaded()
+end
+
+	-- Setup holdtype for NPC
+function SWEP:OwnerChanged()
+	if !SERVER then return end
+
+	local own = self:GetOwner()
+	if !IsValid(own) then return end
+
+	if own:IsNPC() then
+		own:ZBASE_SetHoldType(self, self.NPCHoldType)
+	else
+		self:SetHoldType(self.InitialHoldType)
+	end
 end
 
 --[[
@@ -421,20 +448,16 @@ function SWEP:TranslateActivity( act )
 
 	-- NPC
 	if own:IsNPC() then
-
 		if self.ActivityTranslateAI[ act ] then
 			return self.ActivityTranslateAI[ act ]
 		end
 
 		return -1
-
 	end
 
 	-- Player
 	if self.ActivityTranslate[ act ] != nil then
-
 		return self.ActivityTranslate[ act ]
-
 	end
 
 	return -1
