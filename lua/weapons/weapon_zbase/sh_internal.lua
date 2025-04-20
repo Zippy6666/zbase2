@@ -46,7 +46,17 @@ function SWEP:PrimaryAttack()
 	
 	local CanAttack = self:CanPrimaryAttack()
 
-	if own.IsZBaseNPC && !own.ZBWepSys_AllowShoot then return end -- muy imporante
+	if own.IsZBaseNPC then 
+		if !CanAttack then
+			-- Notify ZBASE NPC that they are try firing
+			own:CONV_TempVar("bIsDryFiring", true, 1)
+		end
+
+		-- muy imporante
+		if !own.ZBWepSys_AllowShoot then
+			return
+		end
+	end
 
 	if own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack && !self.NPCIsMeleeWep then
 
@@ -94,10 +104,11 @@ function SWEP:TakePrimaryAmmo( num )
 	if own.IsZBaseNPC then
 
 		own.ZBWepSys_PrimaryAmmo = own.ZBWepSys_PrimaryAmmo - num
+		self:SetClip1( own.ZBWepSys_PrimaryAmmo )
 		
 	else
 
-		self.Weapon:SetClip1( self.Weapon:Clip1() - num )	
+		self:SetClip1( self:Clip1() - num )	
 
 	end
 end

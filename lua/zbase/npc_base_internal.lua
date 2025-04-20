@@ -571,6 +571,7 @@ function NPC:ZBWepSys_Init()
     self.ZBWepSys_Stored_AIWantsToShoot = false
     self.ZBWepSys_Stored_FacingEne = false
     self.ZBWepSys_NextCheckIsFacingEne = CurTime()
+    self.ZBWepSys_PrimaryAmmo = 0
 
     local wep = self:GetActiveWeapon()
     if IsValid(wep) && !wep:IsScripted() then
@@ -579,12 +580,13 @@ function NPC:ZBWepSys_Init()
 end
 
 function NPC:ZBWepSys_Reload()
-    -- On reload weapon
-
     local wep = self:GetActiveWeapon()
 
     local maxammo = wep.Primary.DefaultClip
     if maxammo == nil then return end -- No max ammo?? Well then don't bother reloading
+
+    if self.ZBWepSys_PrimaryAmmo >= maxammo then return end -- Don't reload if already full
+    if self.ZBASE_bReloading then return end
 
     -- Reload announce sound
     if math.random(1, self.OnReloadSound_Chance) == 1 then
@@ -598,14 +600,19 @@ function NPC:ZBWepSys_Reload()
 
     local reloadTime = math.max(wep.NPCReloadTime, self:SequenceDuration()*0.8 / self:GetPlaybackRate())
 
+    self.ZBASE_bReloading = true
+
     -- Refill ammo
     timer.Create("ZBaseReloadWeapon"..self:EntIndex(), reloadTime, 1, function()
         if !IsValid(self) or !IsValid(wep) then return end
 
         self.ZBWepSys_PrimaryAmmo = maxammo
-        
+        wep:SetClip1(self.ZBWepSys_PrimaryAmmo)
+
         self:ClearCondition(COND.LOW_PRIMARY_AMMO)
         self:ClearCondition(COND.NO_PRIMARY_AMMO)
+
+        self.ZBASE_bReloading = false
     end)
 end
 
@@ -736,6 +743,7 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
         self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
         self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
+        Weapon:SetClip1(self.ZBWepSys_PrimaryAmmo)
     else
         self:CONV_TimerSimple(0.1, function()
             local Weapon = self:Give( class )
@@ -744,6 +752,7 @@ function NPC:ZBWepSys_SetActiveWeapon( class )
 
             if Weapon.IsZBaseWeapon then
                 self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
+                Weapon:SetClip1(self.ZBWepSys_PrimaryAmmo)
                 self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
             end
         end)
@@ -787,6 +796,10 @@ function NPC:ZBWepSys_Shoot()
         self.ZBWepSys_LastShootCooldown = RndRest
     else
         self.ZBWepSys_LastShootCooldown = cooldown
+    end
+
+    if self.ZBWepSys_PrimaryAmmo <= wep.Primary.DefaultClip*0.33 then
+        self:SetCondition(COND.LOW_PRIMARY_AMMO)
     end
 
     if self.ZBWepSys_PrimaryAmmo <= 0 && !self.bControllerBlock then
@@ -1661,6 +1674,12 @@ function NPC:AITick_Slow()
         debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end
 
+    -- Reload if dry firing
+    if self.bIsDryFiring && !self:IsCurrentSchedule(SCHED_RELOAD) then
+        self:SetSchedule(SCHED_RELOAD)
+        debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because of dry fire")
+    end
+
     -- Follow player that we should follow
     if self:CanPursueFollowing() then
         self:PursueFollowing()
@@ -1797,12 +1816,9 @@ function NPC:NewActivityDetected( act )
 end
 
 function NPC:NewSequenceDetected( seq, seqName )
-    if self:GetActiveWeapon().IsZBaseWeapon
-    && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil
-    && self:IsCurrentSchedule(SCHED_RELOAD) then
-
+    -- Reloading
+    if self:GetActiveWeapon().IsZBaseWeapon && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil then
         self:ZBWepSys_Reload()
-
     end
 
     self:CustomNewSequenceDetected( seq, seqName )
