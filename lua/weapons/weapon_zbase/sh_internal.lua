@@ -17,7 +17,15 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
 function SWEP:Initialize()
 	self:Init()
+
+	-- Store bullet spread vector
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
+
+	-- Backwards compat
+	-- Clip size variable used to be self.ClipSize
+	-- which internally does not do anything
+	-- as opposed to self.Primary.Clisize
+	self.Primary.ClipSize = self.ClipSize
 end
 
 -- Called when the SWEP should set up its Data Tables.

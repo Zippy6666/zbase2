@@ -1,7 +1,7 @@
 TOOL.AddToMenu = true
 TOOL.Category = "NPC"
 
-local toolname = "Enable Guarding"
+local toolname = "Guard"
 TOOL.Name = toolname
 TOOL.Description = "Toggle guard mode for NPCs."
 

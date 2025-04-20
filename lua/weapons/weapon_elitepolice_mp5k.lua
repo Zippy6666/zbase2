@@ -33,7 +33,8 @@ SWEP.NPCFireRate = 0.1 -- Shoot delay in seconds
 SWEP.NPCFireRestTimeMin = 0.1 -- Minimum amount of time the NPC rests between bursts in seconds
 SWEP.NPCFireRestTimeMax = 0.1 -- Maximum amount of time the NPC rests between bursts in seconds
 
-SWEP.Primary.DefaultClip = 30 -- Clipsize for NPCs
+SWEP.Primary.ClipSize = 30
+SWEP.Primary.DefaultClip = 30
 
 SWEP.PrimaryDamage = 3
 SWEP.PrimaryShootSound = "Weapon_MP5K_Z.NPC_Fire"

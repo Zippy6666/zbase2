@@ -612,16 +612,14 @@ hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
 end)
 
 -- Don't pickup some ZBASE weapons
+-- Give ammo instead
 hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
 	if wep.IsZBaseWeapon && wep.NPCOnly then
-
         if !wep.Pickup_GaveAmmo then
 		    ply:GiveAmmo(wep.Primary.DefaultClip, wep:GetPrimaryAmmoType())
             wep.Pickup_GaveAmmo = true
         end
-
 		wep:Remove()
-
 		return false
 	end
 end)

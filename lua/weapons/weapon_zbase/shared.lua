@@ -63,9 +63,6 @@ SWEP.m_bPlayPickupSound = true -- If set to false, the weapon will not play the 
 ==================================================================================================
 --]]
 
-SWEP.ClipSize = 30 -- The maximum amount of bullets one clip can hold. Setting it to -1 means weapon uses no clips, like a grenade or a rocket launch.
-SWEP.Automatic = true -- If true makes the weapon shoot automatically as long as the player has primary attack button held down
-
 SWEP.PrimaryShootSound = "Weapon_SMG1.NPC_Single" -- Shoot sound
 SWEP.PrimarySpread = 0.02 -- Spread
 SWEP.PrimaryDamage = 3 -- Damage
@@ -74,6 +71,8 @@ SWEP.Primary.DefaultClip = 30 -- Clipsize for NPCs
 SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 SWEP.Primary.TakeAmmoPerShot = 1 -- Ammo to take for each shot
 SWEP.Primary.NumShots = 1 -- Number of bullets per shot
+SWEP.Primary.ClipSize = 30 -- The maximum amount of bullets one clip can hold. Setting it to -1 means weapon uses no clips, like a grenade or a rocket launch.
+SWEP.Primary.Automatic = true -- If true makes the weapon shoot automatically as long as the player has primary attack button held down
 
 SWEP.Primary.ShellEject = false -- Set to the name of an attachment to enable shell ejection
 SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Default_Effects
