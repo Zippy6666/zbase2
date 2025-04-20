@@ -27,6 +27,9 @@ SWEP.Author = "Zippy" -- The SWEP's author.
 
 SWEP.WorldModel = Model( "models/weapons/w_smg1.mdl" ) -- Relative path to the SWEP's world model.
 SWEP.ViewModel = Model( "models/weapons/c_smg1.mdl" ) -- Relative path to the SWEP's view model.
+-- Makes the player models hands bonemerged onto the view model
+-- The gamemode and view models must support this feature for it to work! You can find more information here: Using Viewmodel Hands
+SWEP.UseHands = true
 
 SWEP.ViewModelFlip = false -- Used primarily for Counter Strike: Source view models, this variable is used to flip them back to normal.
 SWEP.ViewModelFlip1 = false -- Behaves similarly to ViewModelFlip, but for the second view model.
@@ -40,6 +43,7 @@ SWEP.Weight = 5 -- Determines the priority of the weapon when autoswitching. The
 SWEP.m_WeaponDeploySpeed = 1 -- The deploy speed multiplier. This does not change the internal deployment speed.
 SWEP.BobScale = 1 -- The scale of the viewmodel bob (viewmodel movement from left to right when walking around)
 SWEP.SwayScale = 1 -- The scale of the viewmodel sway (viewmodel position lerp when looking around).
+SWEP.m_bPlayPickupSound = true -- If set to false, the weapon will not play the weapon pick up sound when picked up.
 
 SWEP.BounceWeaponIcon = true -- Should the weapon icon bounce in weapon selection?
 SWEP.DrawAmmo = true -- Should we draw the default HL2 ammo counter?
@@ -49,13 +53,7 @@ SWEP.AccurateCrosshair = false -- Makes the default SWEP crosshair be positioned
 SWEP.Slot = 0 -- Slot in the weapon selection menu, starts with 0
 SWEP.SlotPos = 10 -- Position in the slot, should be in the range 0-128
 
--- Makes the player models hands bonemerged onto the view model
--- The gamemode and view models must support this feature for it to work! You can find more information here: Using Viewmodel Hands
-SWEP.UseHands = true
-
 SWEP.DisableDuplicator = false -- Disable the ability for players to duplicate this SWEP
-
-SWEP.m_bPlayPickupSound = true -- If set to false, the weapon will not play the weapon pick up sound when picked up.
 
 --[[
 ==================================================================================================
@@ -67,11 +65,10 @@ SWEP.PrimaryShootSound = "Weapon_SMG1.NPC_Single" -- Shoot sound
 SWEP.PrimarySpread = 0.02 -- Spread
 SWEP.PrimaryDamage = 3 -- Damage
 
-SWEP.Primary.DefaultClip = 30 -- Clipsize for NPCs
+SWEP.Primary.DefaultClip = 30 -- How much a single magazine can hold.
 SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 SWEP.Primary.TakeAmmoPerShot = 1 -- Ammo to take for each shot
 SWEP.Primary.NumShots = 1 -- Number of bullets per shot
-SWEP.Primary.ClipSize = 30 -- The maximum amount of bullets one clip can hold. Setting it to -1 means weapon uses no clips, like a grenade or a rocket launch.
 SWEP.Primary.Automatic = true -- If true makes the weapon shoot automatically as long as the player has primary attack button held down
 
 SWEP.Primary.ShellEject = false -- Set to the name of an attachment to enable shell ejection

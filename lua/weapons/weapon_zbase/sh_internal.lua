@@ -21,11 +21,10 @@ function SWEP:Initialize()
 	-- Store bullet spread vector
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
 
-	-- Backwards compat
-	-- Clip size variable used to be self.ClipSize
-	-- which internally does not do anything
-	-- as opposed to self.Primary.Clisize
-	self.Primary.ClipSize = self.ClipSize
+	-- Due to my whoopsies and daisies
+	-- this workaround is now needed for the
+	-- weapon base to function as intended lol
+	self.Primary.ClipSize = self.Primary.DefaultClip
 end
 
 -- Called when the SWEP should set up its Data Tables.
@@ -51,14 +50,13 @@ end
 function SWEP:PrimaryAttack()
 	local own = self:GetOwner()
 	if !IsValid(own) then return end
-	
 	local CanAttack = self:CanPrimaryAttack()
 
 	if own.IsZBaseNPC then 
-		if !CanAttack then
-			-- Notify ZBASE NPC that they are try firing
-			own:CONV_TempVar("bIsDryFiring", true, 1)
-		end
+		-- if !CanAttack then
+		-- 	-- Notify ZBASE NPC that they are try firing
+		-- 	own:CONV_TempVar("bIsDryFiring", true, 1)
+		-- end
 
 		-- muy imporante
 		if !own.ZBWepSys_AllowShoot then
@@ -67,7 +65,6 @@ function SWEP:PrimaryAttack()
 	end
 
 	if own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack && !self.NPCIsMeleeWep then
-
 		local bullet = {
 			Attacker = own,
 			Inflictor = self,
@@ -81,17 +78,13 @@ function SWEP:PrimaryAttack()
 			Num = self.Primary.NumShots,
 		}
 		own:FireBullets(bullet)
-
-		if !self.IsZBaseNPC && self.Primary.TakeAmmoPerShot > 0 then
-			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
-		end
-
 		self:NPCShootEffects()
-	
-		-- Sound
 		self:EmitSound(self.PrimaryShootSound)
+		self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
 
 	elseif own:IsPlayer() && self:OnPrimaryAttack()!=true && CanAttack then
+		-- Default primary logic for players here
+		-- None for now
 	end
 end
 
@@ -99,26 +92,12 @@ function SWEP:TakePrimaryAmmo( num )
 	local own = self:GetOwner()
 
 	-- Doesn't use clips
-	if !own.IsZBaseNPC && self.Weapon:Clip1() <= 0 then 
-	
-		if self:Ammo1() <= 0 then return end
-
-
+	if self.Weapon:Clip1() <= 0 then 
 		own:RemoveAmmo( num, self.Weapon:GetPrimaryAmmoType() )
 		return
-
 	end
-	
-	if own.IsZBaseNPC then
 
-		own.ZBWepSys_PrimaryAmmo = own.ZBWepSys_PrimaryAmmo - num
-		self:SetClip1( own.ZBWepSys_PrimaryAmmo )
-		
-	else
-
-		self:SetClip1( self:Clip1() - num )	
-
-	end
+	self:SetClip1( self:Clip1() - num )	
 end
 
 --[[
@@ -144,39 +123,36 @@ function SWEP:NPCShootEffects()
 		return
 	end
 
-	local modelname = self:GetNWString("ZBaseNPCWorldModel", nil)
-	local CustomModel = modelname!=nil && modelname!=""
-	local EffectEnt = CustomModel && ents.Create("base_gmodentity") or self
 	local own = self:GetOwner()
 
 	-- Model override effect fix, create temporary a new ent with the same model
-	if CustomModel && IsValid(EffectEnt) && IsValid(own) then
-		EffectEnt:SetModel(modelname)
-		EffectEnt:SetPos(own:GetPos())
-		EffectEnt:SetParent(own)
-		EffectEnt:AddEffects(EF_BONEMERGE)
-		EffectEnt:Spawn()
-		self:DeleteOnRemove(EffectEnt)
+	if CustomModel && IsValid(self) && IsValid(own) then
+		self:SetModel(modelname)
+		self:SetPos(own:GetPos())
+		self:SetParent(own)
+		self:AddEffects(EF_BONEMERGE)
+		self:Spawn()
+		self:DeleteOnRemove(self)
 	end
 
 	-- Muzzle flash
-	local att_num = EffectEnt:LookupAttachment("muzzle")
-	if IsValid(EffectEnt) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
+	local att_num = self:LookupAttachment("muzzle")
+	if IsValid(self) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
 
 		if ZBCVAR.MMODMuzzle:GetBool() then
 			local particle = (self.Primary.MuzzleFlashFlags == 1 && "hl2mmod_muzzleflash_npc_pistol")
 			or (self.Primary.MuzzleFlashFlags == 5 && "hl2mmod_muzzleflash_npc_ar2")
 			or (self.Primary.MuzzleFlashFlags == 7 && "hl2mmod_muzzleflash_npc_shotgun")
-			if particle then ParticleEffectAttach( particle, PATTACH_POINT_FOLLOW, EffectEnt, att_num ) end
+			if particle then ParticleEffectAttach( particle, PATTACH_POINT_FOLLOW, self, att_num ) end
 		else
 			local effectdata = EffectData()
 			effectdata:SetFlags(self.Primary.MuzzleFlashFlags)
-			effectdata:SetEntity(EffectEnt)
+			effectdata:SetEntity(self)
 			util.Effect( "MuzzleFlash", effectdata, true, true )
 		end
 
 		if ZBCVAR.MuzzleLight:GetBool() then
-			local att = EffectEnt:GetAttachment(att_num)
+			local att = self:GetAttachment(att_num)
 			local col = self.Primary.MuzzleFlashFlags==5 && "75 175 255" or "255 175 75"
 
 			ZBaseMuzzleLight( att.Pos, .5, 256, col )
@@ -186,11 +162,11 @@ function SWEP:NPCShootEffects()
 	-- Shell eject
 	if self.Primary.ShellEject then
 
-		local att = EffectEnt:GetAttachment(EffectEnt:LookupAttachment(self.Primary.ShellEject))
+		local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
 
 		if att then
 			local effectdata = EffectData()
-			effectdata:SetEntity(EffectEnt)
+			effectdata:SetEntity(self)
 			effectdata:SetOrigin(att.Pos)
 			effectdata:SetAngles(att.Ang+self.Primary.ShellAngOffset)
 			util.Effect( self.Primary.ShellType, effectdata, true, rf )
@@ -199,8 +175,8 @@ function SWEP:NPCShootEffects()
 	end
 
 	if CustomModel then
-		EffectEnt:SetNoDraw(true)
-		SafeRemoveEntityDelayed(EffectEnt, 0.5)
+		self:SetNoDraw(true)
+		SafeRemoveEntityDelayed(self, 0.5)
 	end
 end
 

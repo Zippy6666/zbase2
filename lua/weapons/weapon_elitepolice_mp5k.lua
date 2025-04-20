@@ -19,7 +19,7 @@ sound.Add({
 })
 
 SWEP.Base = "weapon_zbase"
-SWEP.PrintName = "MP5K"
+SWEP.PrintName = "Elitecop MP5K"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
 SWEP.WorldModel = Model( "models/weapons/zippy/w_mp5k.mdl" )
