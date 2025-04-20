@@ -111,13 +111,18 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     end, "ZBASE_Controller_UpdateHealth")
     npc.ZBASE_IsPlyControlled   = true
     npc.ZBASE_PlyController     = ply
+
     if npc.IsZBaseNPC then
-        npc.bControllerBlock  = true -- Prevents ZBase NPCs from doing built in attacks
+        npc.bControllerBlock  = true -- Prevents ZBase NPCs from doing some built in attacks
+        npc:StopFollowingCurrentPlayer(true, true)
     end
+
     npc:CallOnRemove("ZBASE_Controller_Stop", function()
         self:StopControlling(ply, npc)
     end)
+    
     npc:Fire("SetAmmoResupplierOff") -- TAKE SOME AMMO
+    npc:SetOwner(ply)
 
     -- Player variables
     ply.ZBASE_ControlledNPC = npc
@@ -127,7 +132,9 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     ply.ZBASE_ControllerCamUp = 0
     ply.ZBASE_ControllerCamRight = 0
     ply.ZBASE_ControllerZoomDist = ply.ZBASE_ControllerZoomDist or 0
+    ply.ZBASE_ControllerHadNoTarget = bit.band(ply:GetFlags(), FL_NOTARGET)==FL_NOTARGET
     ply:SetNoTarget(true)
+
     ply:SetMoveType(MOVETYPE_NONE)
     ply:SetNotSolid(true)
     ply:SetNoDraw(true)
@@ -577,7 +584,7 @@ function NPC:ZBASE_ControllerThink()
         -- Give back move cap if any
         if self.ZBASE_CtrlrDetected_CAP_MOVE then
             self:CapabilitiesAdd(CAP_MOVE_GROUND)
-            self:SetCondition(COND.NPC_UNFREEZE)
+            -- self:SetCondition(COND.NPC_UNFREEZE)
             self.ZBASE_CtrlrDetected_CAP_MOVE = nil
         end
     end
@@ -613,7 +620,7 @@ function NPC:ZBASE_ControllerThink()
 
             if self.ZBASE_CtrlrDetected_CAP_MOVE then
                 self:CapabilitiesAdd(CAP_MOVE_GROUND)
-                self:SetCondition(COND.NPC_UNFREEZE)
+                -- self:SetCondition(COND.NPC_UNFREEZE)
                 self.ZBASE_CtrlrDetected_CAP_MOVE = nil
             end
 
@@ -632,7 +639,7 @@ function NPC:ZBASE_ControllerThink()
             -- Be still when should not move
             -- Stopped moving so remove ground capabilities and clear goal etc
             self:CapabilitiesRemove(CAP_MOVE_GROUND)
-            self:SetCondition(COND.NPC_FREEZE)
+            -- self:SetCondition(COND.NPC_FREEZE)
             self.ZBASE_CtrlrDetected_CAP_MOVE = true
             self:ClearGoal()
             self:TaskComplete()
@@ -683,7 +690,8 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
         npc:CONV_RemoveHook("EntityTakeDamage", "ZBASE_Controller_UpdateHealth")
         npc:RemoveCallOnRemove("ZBASE_Controller_Stop")
 
-        npc:SetCondition(COND.NPC_UNFREEZE)
+        -- npc:SetCondition(COND.NPC_UNFREEZE)
+        npc:SetOwner() -- Clear owner
 
         npc.ZBASE_Controller_HasCleanedUp = true
     end
@@ -691,7 +699,7 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
     if IsValid(ply) && !ply.ZBASE_Controller_HasCleanedUp then
         ply:SetNWEntity("ZBASE_ControllerCamEnt", NULL)
         ply:SetMoveType(MOVETYPE_WALK)
-        ply:SetNoTarget(false)
+        ply:SetNoTarget(ply.ZBASE_ControllerHadNoTarget)
         ply:SetNotSolid(false)
         ply:SetNoDraw(false)
         ply:SetHealth(ply.ZBASE_HPBeforeControl or 100)

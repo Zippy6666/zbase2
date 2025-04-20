@@ -2011,6 +2011,7 @@ function NPC:CurrentlyFollowingPlayer()
 end
 
 function NPC:StartFollowingPlayer( ply, dontSched, skipChecks, dontReset )
+    if self.ZBASE_IsPlyControlled then return end
     if self.PlayerToFollow == ply then return end
 
     if !skipChecks then
