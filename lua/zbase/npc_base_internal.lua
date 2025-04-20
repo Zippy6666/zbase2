@@ -573,40 +573,41 @@ function NPC:ZBWepSys_Init()
 end
 
 function NPC:ZBWepSys_Reload()
-    local wep = self:GetActiveWeapon()
+    print("tried calling ZBWepSys_Reload")
+    -- local wep = self:GetActiveWeapon()
 
-    local maxammo = wep.Primary.DefaultClip
-    if maxammo == nil then return end -- No max ammo?? Well then don't bother reloading
+    -- local maxammo = wep.Primary.DefaultClip
+    -- if maxammo == nil then return end -- No max ammo?? Well then don't bother reloading
 
-    if self.ZBWepSys_PrimaryAmmo >= maxammo then return end -- Don't reload if already full
-    if self.ZBASE_bReloading then return end
+    -- if self.ZBWepSys_PrimaryAmmo >= maxammo then return end -- Don't reload if already full
+    -- if self.ZBASE_bReloading then return end
 
-    -- Reload announce sound
-    if math.random(1, self.OnReloadSound_Chance) == 1 then
-        self:EmitSound_Uninterupted(self.OnReloadSounds)
-    end
+    -- -- Reload announce sound
+    -- if math.random(1, self.OnReloadSound_Chance) == 1 then
+    --     self:EmitSound_Uninterupted(self.OnReloadSounds)
+    -- end
 
-    -- Weapon reload sound
-    if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
-        wep:EmitSound(wep.NPCReloadSound)
-    end
+    -- -- Weapon reload sound
+    -- if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
+    --     wep:EmitSound(wep.NPCReloadSound)
+    -- end
 
-    local reloadTime = math.max(wep.NPCReloadTime, self:SequenceDuration()*0.8 / self:GetPlaybackRate())
+    -- local reloadTime = math.max(wep.NPCReloadTime, self:SequenceDuration()*0.8 / self:GetPlaybackRate())
 
-    self.ZBASE_bReloading = true
+    -- self.ZBASE_bReloading = true
 
-    -- Refill ammo
-    timer.Create("ZBaseReloadWeapon"..self:EntIndex(), reloadTime, 1, function()
-        if !IsValid(self) or !IsValid(wep) then return end
+    -- -- Refill ammo
+    -- timer.Create("ZBaseReloadWeapon"..self:EntIndex(), reloadTime, 1, function()
+    --     if !IsValid(self) or !IsValid(wep) then return end
 
-        self.ZBWepSys_PrimaryAmmo = maxammo
-        wep:SetClip1(self.ZBWepSys_PrimaryAmmo)
+    --     self.ZBWepSys_PrimaryAmmo = maxammo
+    --     wep:SetClip1(self.ZBWepSys_PrimaryAmmo)
 
-        self:ClearCondition(COND.LOW_PRIMARY_AMMO)
-        self:ClearCondition(COND.NO_PRIMARY_AMMO)
+    --     self:ClearCondition(COND.LOW_PRIMARY_AMMO)
+    --     self:ClearCondition(COND.NO_PRIMARY_AMMO)
 
-        self.ZBASE_bReloading = false
-    end)
+    --     self.ZBASE_bReloading = false
+    -- end)
 end
 
 -- https://wiki.facepunch.com/gmod/Hold_Types
@@ -1648,17 +1649,17 @@ function NPC:AITick_Slow()
     -- Update current danger
     self:InternalDetectDanger()
 
-    -- Reload if we cannot see enemy and we have no ammo
-    if !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
-        self:SetSchedule(SCHED_RELOAD)
-        debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
-    end
+    -- -- Reload if we cannot see enemy and we have no ammo
+    -- if !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
+    --     self:SetSchedule(SCHED_RELOAD)
+    --     debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
+    -- end
 
-    -- Reload if dry firing
-    if self.bIsDryFiring && !self:IsCurrentSchedule(SCHED_RELOAD) then
-        self:SetSchedule(SCHED_RELOAD)
-        debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because of dry fire")
-    end
+    -- -- Reload if dry firing
+    -- if self.bIsDryFiring && !self:IsCurrentSchedule(SCHED_RELOAD) then
+    --     self:SetSchedule(SCHED_RELOAD)
+    --     debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because of dry fire")
+    -- end
 
     -- Follow player that we should follow
     if self:CanPursueFollowing() then
@@ -1920,11 +1921,13 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
         end
     end
 
-    -- Panicked reload if out of ammo
     local wep = self:GetActiveWeapon()
-    if ( IsValid(wep) && wep.IsZBaseWeapon && self.ZBWepSys_PrimaryAmmo <= 0 ) && !self:IsCurrentSchedule(SCHED_RELOAD) then
-        self:SetSchedule(SCHED_RELOAD)
-    elseif !self.DontTakeCoverOnHurt then
+
+    -- if ( IsValid(wep) && wep.IsZBaseWeapon && self.ZBWepSys_PrimaryAmmo <= 0 ) && !self:IsCurrentSchedule(SCHED_RELOAD) then
+    --     self:SetSchedule(SCHED_RELOAD)
+    -- else
+     
+    if !self.DontTakeCoverOnHurt then
         -- Take cover stuff
 
         local hasEne = IsValid(ene)

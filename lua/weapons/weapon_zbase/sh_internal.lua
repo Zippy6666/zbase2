@@ -47,42 +47,59 @@ end
 ==================================================================================================
 --]]
 
+-- Workaround for combine soldier
+-- Their shooting AI does not match the rest
+function SWEP:Primary_DoCombineSWorkaround()
+	local own = self:GetOwner()
+	if !IsValid(own) then return end
+
+	own:SetSaveValue("m_nShots", 2)
+
+	-- Make sure combines don't spam some weapons they should not
+	-- if self.NPCBurstMin == 1 && self.NPCBurstMin == self.NPCBurstMax then
+	-- 	own:SetSaveValue("m_flShotDelay", math.Rand(self.NPCFireRestTimeMin, self.NPCFireRestTimeMax))
+	-- end
+end
+
 function SWEP:PrimaryAttack()
 	local own = self:GetOwner()
 	if !IsValid(own) then return end
-	local CanAttack = self:CanPrimaryAttack()
 
-	if own.IsZBaseNPC then 
-		-- if !CanAttack then
-		-- 	-- Notify ZBASE NPC that they are try firing
-		-- 	own:CONV_TempVar("bIsDryFiring", true, 1)
-		-- end
+	if own:IsNPC() && self.NPCIsMeleeWep then return end
 
-		-- muy imporante
-		if !own.ZBWepSys_AllowShoot then
-			return
+	if !self:CanPrimaryAttack() then return end
+
+	-- Owner is NPC
+	if own:IsNPC() then
+		-- Combine workaround
+		if own:GetClass() == "npc_combine_s" then
+			self:Primary_DoCombineSWorkaround()
 		end
-	end
 
-	if own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack && !self.NPCIsMeleeWep then
-		local bullet = {
-			Attacker = own,
-			Inflictor = self,
-			Damage = self.PrimaryDamage,
-			AmmoType = self.Primary.Ammo,
-			Src = own:GetShootPos(),
-			Dir = own:GetAimVector(),
-			Spread = self.BulletSpread,
-			Tracer = self.Primary.TracerChance,
-			TracerName = self.Primary.TracerName,
-			Num = self.Primary.NumShots,
-		}
-		own:FireBullets(bullet)
-		self:NPCShootEffects()
-		self:EmitSound(self.PrimaryShootSound)
-		self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+		-- ..and default primary has not been prevented
+		if self:NPCPrimaryAttack() != true then
+			-- Do default primary for NPC
 
-	elseif own:IsPlayer() && self:OnPrimaryAttack()!=true && CanAttack then
+			local bullet = {
+				Attacker = own,
+				Inflictor = self,
+				Damage = self.PrimaryDamage,
+				AmmoType = self.Primary.Ammo,
+				Src = own:GetShootPos(),
+				Dir = own:GetAimVector(),
+				Spread = self.BulletSpread,
+				Tracer = self.Primary.TracerChance,
+				TracerName = self.Primary.TracerName,
+				Num = self.Primary.NumShots,
+			}
+			own:FireBullets(bullet)
+
+			self:NPCShootEffects()
+			self:EmitSound(self.PrimaryShootSound)
+			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+		end
+	-- Owner is player and default primary has not been prevented
+	elseif own:IsPlayer() && self:OnPrimaryAttack() != true then
 		-- Default primary logic for players here
 		-- None for now
 	end
@@ -125,16 +142,6 @@ function SWEP:NPCShootEffects()
 
 	local own = self:GetOwner()
 
-	-- Model override effect fix, create temporary a new ent with the same model
-	if CustomModel && IsValid(self) && IsValid(own) then
-		self:SetModel(modelname)
-		self:SetPos(own:GetPos())
-		self:SetParent(own)
-		self:AddEffects(EF_BONEMERGE)
-		self:Spawn()
-		self:DeleteOnRemove(self)
-	end
-
 	-- Muzzle flash
 	local att_num = self:LookupAttachment("muzzle")
 	if IsValid(self) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
@@ -172,11 +179,6 @@ function SWEP:NPCShootEffects()
 			util.Effect( self.Primary.ShellType, effectdata, true, rf )
 		end
 	
-	end
-
-	if CustomModel then
-		self:SetNoDraw(true)
-		SafeRemoveEntityDelayed(self, 0.5)
 	end
 end
 
