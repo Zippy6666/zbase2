@@ -685,6 +685,15 @@ if SERVER then
     end)
 end
 
+
+-- Add ZBASE SWEPS to npc weapon menu if we should
+hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
+	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
+		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName } )
+        table.insert(ZBaseNPCWeps, class)
+	end
+end)
+
 --[[
 ======================================================================================================================================================
                                            DEATH STUFF

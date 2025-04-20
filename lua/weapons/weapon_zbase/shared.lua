@@ -54,7 +54,6 @@ SWEP.SlotPos = 10 -- Position in the slot, should be in the range 0-128
 SWEP.UseHands = true
 
 SWEP.DisableDuplicator = false -- Disable the ability for players to duplicate this SWEP
-SWEP.ScriptedEntityType =  "weapon" -- Sets the spawnmenu content icon type for the entity, used by spawnmenu in the Sandbox-derived gamemodes.
 
 SWEP.m_bPlayPickupSound = true -- If set to false, the weapon will not play the weapon pick up sound when picked up.
 

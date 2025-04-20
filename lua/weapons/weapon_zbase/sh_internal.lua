@@ -467,35 +467,7 @@ if CLIENT then
 			return
 		end
 
-		local own = self:GetOwner()
-
-		if IsValid(own) && own:GetNWBool("IsZBaseNPC") then
-
-			if IsValid(self.NPCWorldModelOverride) then
-
-				if !self.NPCWorldModelOverride.SetupDone then
-
-					self.NPCWorldModelOverride:SetNoDraw(true)
-					self.NPCWorldModelOverride:AddEffects(EF_BONEMERGE)
-					self.NPCWorldModelOverride:AddEffects(EF_BONEMERGE_FASTCULL) -- dunno wtf this does but it fixed the leg jankin so
-					self.NPCWorldModelOverride.SetupDone = true
-
-				end
-
-				self.NPCWorldModelOverride:SetParent(own)
-				self.NPCWorldModelOverride:DrawModel()
-			else
-				local modelname = self:GetNWString("ZBaseNPCWorldModel", false)
-
-				if modelname then
-					self.NPCWorldModelOverride = ClientsideModel( modelname )
-				else
-					self:DrawModel()	
-				end
-			end
-		else
-			self:DrawModel()
-		end
+		self:DrawModel()
 	end
 
 	-- Called when we are about to draw the translucent world model.
@@ -504,23 +476,10 @@ if CLIENT then
 		if r != nil then
 			return
 		end
+
+		self:DrawModel()
 	end
 end
-
---[[
-==================================================================================================
-                            PreRegisterSWEP
-==================================================================================================
---]]
-
--- Add ZBASE SWEPS to npc weapon menu if we should
-hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
-	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
-		print("added", class)
-		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName.." ("..class..")" } )
-        table.insert(ZBaseNPCWeps, class)
-	end
-end)
 
 --[[
 ==================================================================================================
@@ -530,8 +489,4 @@ end)
 
 function SWEP:OnRemove()
 	self:CustomOnRemove()
-
-	if IsValid(self.NPCWorldModelOverride) then
-		self.NPCWorldModelOverride:Remove()
-	end
 end
