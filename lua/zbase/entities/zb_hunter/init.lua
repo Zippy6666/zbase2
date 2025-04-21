@@ -5,7 +5,6 @@ NPC.StartHealth = 210 -- Max health
 -- Default engine blood color, set to DONT_BLEED if you want to use custom blood instead
 NPC.BloodColor = DONT_BLEED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER
-NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
 NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 NPC.DeathAnimations = {"death_stagger_e", "death_stagger_s", "death_stagger_se", "death_stagger_sw", "death_stagger_e"} -- Death animations to use, leave empty to disable the base death animation
