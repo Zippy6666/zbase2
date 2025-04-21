@@ -11,7 +11,7 @@ SWEP.NPCSpawnable = false -- Add to NPC weapon list
 SWEP.WorldModel = Model( "models/weapons/w_rocket_launcher.mdl" )
 
 SWEP.Weight = 0
-SWEP.NPCHoldType =  "rpg"
+SWEP.NPCHoldType =  "ar2"
 SWEP.NPCBulletSpreadMult = 1.5
 SWEP.NPCShootDistanceMult = 0.75
 SWEP.NPCReloadSound = "Weapon_AR2.Reload"
