@@ -23,13 +23,3 @@
 
 ### Projectile base
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
-
-#### TODO:
-- [ ] Fix subtitles when citizen follows player
-- [ ] Fix issue with combines (and other?) not reloading weapons at times
-- [x] Spawner system
-- [x] Controller
-- [x] Add separator for weapons in npc weapon dropdown + other qol changes
-- [x] Ability to change reload times
-- [x] Homing RPGs
-- [ ] Ensure aerial functionality
