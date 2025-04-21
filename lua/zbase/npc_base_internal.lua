@@ -569,7 +569,6 @@ function NPC:ZBWepSys_Init()
     self.ZBWepSys_Stored_AIWantsToShoot = false
     self.ZBWepSys_Stored_FacingEne = false
     self.ZBWepSys_NextCheckIsFacingEne = CurTime()
-    self.ZBWepSys_PrimaryAmmo = 0
 end
 
 function NPC:ZBWepSys_Reload()
@@ -736,13 +735,13 @@ function NPC:ZBWepSys_Shoot()
         self.ZBWepSys_LastShootCooldown = cooldown
     end
 
-    if self.ZBWepSys_PrimaryAmmo <= wep.Primary.DefaultClip*0.33 then
-        self:SetCondition(COND.LOW_PRIMARY_AMMO)
-    end
+    -- if self.ZBWepSys_PrimaryAmmo <= wep.Primary.DefaultClip*0.33 then
+    --     self:SetCondition(COND.LOW_PRIMARY_AMMO)
+    -- end
 
-    if self.ZBWepSys_PrimaryAmmo <= 0 && !self.bControllerBlock then
-        self:SetCondition(COND.NO_PRIMARY_AMMO)
-    end
+    -- if self.ZBWepSys_PrimaryAmmo <= 0 && !self.bControllerBlock then
+    --     self:SetCondition(COND.NO_PRIMARY_AMMO)
+    -- end
 
     self.ZBWepSys_NextShoot = CurTime()+cooldown
 
@@ -1094,7 +1093,7 @@ function NPC:ZBWepSys_FireWeaponThink()
         self:SetLastPosition(lastpos)
         self:SetSchedule(SCHED_FORCED_GO_RUN)
         self.OutOfShootRange_LastPos = lastpos
-        self.NextOutOfShootRangeSched = CurTime()+3
+        self.NextOutOfShootRangeSched = CurTime()+1
 
     end
 
@@ -1742,9 +1741,14 @@ function NPC:NewActivityDetected( act )
 end
 
 function NPC:NewSequenceDetected( seq, seqName )
-    -- Reloading
-    if self:GetActiveWeapon().IsZBaseWeapon && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil then
-        self:ZBWepSys_Reload()
+    -- ZBase weapon reload sound
+    -- I cannot think of a better method than this
+    if self:HasZBaseWeapon() then
+        local wep = self:GetActiveWeapon()
+
+        if IsValid(wep) && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil then
+            wep:EmitSound(wep.NPCReloadSound)
+        end
     end
 
     self:CustomNewSequenceDetected( seq, seqName )

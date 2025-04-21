@@ -28,8 +28,6 @@ function SWEP:Initialize()
 	self.Primary.ClipSize = self.Primary.DefaultClip
 end
 
--- ZBASE_SetHoldType
-
 -- Called when the SWEP should set up its Data Tables.
 function SWEP:SetupDataTables()
 	self:CustomSetupDataTables()
@@ -225,7 +223,7 @@ end
 ==================================================================================================
 --]]
 
-	-- Called when another entity fires an event to this entity.
+-- Called when another entity fires an event to this entity.
 function SWEP:AcceptInput( inputName, activator, called, data )
 
 	local r = self:CustomAcceptInput( inputName, activator, called, data )
@@ -235,8 +233,8 @@ function SWEP:AcceptInput( inputName, activator, called, data )
 
 end
 
-	-- Called before firing animation events, such as muzzle flashes or shell ejections.
-	-- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
+-- Called before firing animation events, such as muzzle flashes or shell ejections.
+-- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
 function SWEP:FireAnimationEvent( pos, ang, event, options, source )
 
 	local r = self:CustomFireAnimationEvent( pos, ang, event, options, source )
@@ -246,8 +244,8 @@ function SWEP:FireAnimationEvent( pos, ang, event, options, source )
 
 end
 
-	-- Called when the engine sets a value for this scripted weapon.
-	-- See GM:EntityKeyValue for a hook that works for all entities. See ENTITY:KeyValue for an hook that works for scripted entities.
+-- Called when the engine sets a value for this scripted weapon.
+-- See GM:EntityKeyValue for a hook that works for all entities. See ENTITY:KeyValue for an hook that works for scripted entities.
 function SWEP:KeyValue( key, value )
 
 	local r = self:CustomKeyValue( key, value )
@@ -257,16 +255,16 @@ function SWEP:KeyValue( key, value )
 
 end
 
-	-- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves or dupes)
-	-- or on a changelevel (for example Half-Life 2 campaign level transitions)
+-- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves or dupes)
+-- or on a changelevel (for example Half-Life 2 campaign level transitions)
 function SWEP:OnRestore()
 end
 
-	-- Called whenever the weapons Lua script is reloaded.
+-- Called whenever the weapons Lua script is reloaded.
 function SWEP:OnReloaded()
 end
 
-	-- Setup holdtype for NPC
+-- Setup holdtype for NPC
 function SWEP:OwnerChanged()
 	if !SERVER then return end
 
@@ -316,7 +314,7 @@ function SWEP:GetNPCBulletSpread( proficiency )
 	return (7 - proficiency)*self.NPCBulletSpreadMult
 end
 
-	-- This hook is for NPCs, you return what they should try to do with it.
+-- This hook is for NPCs, you return what they should try to do with it.
 function SWEP:GetCapabilities()
 	if self.NPCIsMeleeWep then
 		return bit.bor( CAP_WEAPON_MELEE_ATTACK1, CAP_INNATE_MELEE_ATTACK1 )

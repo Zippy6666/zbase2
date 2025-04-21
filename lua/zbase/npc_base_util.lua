@@ -120,7 +120,7 @@ function NPC:AddAnimationEvent(seq, frame, ev)
     end
 
     if frame <= self.ZBaseLuaAnimationFrames[seq] then
-        conv.devPrint( "LUA animation event created: ", "[ SEQUENCE: " .. seq .. " FRAMES: " .. self.ZBaseLuaAnimationFrames[seq] .. " ] AT" .. " [ FRAME: " .. frame, " EVENT_ID: " .. ev .. " ]" )
+        -- conv.devPrint( "LUA animation event created: ", "[ SEQUENCE: " .. seq .. " FRAMES: " .. self.ZBaseLuaAnimationFrames[seq] .. " ] AT" .. " [ FRAME: " .. frame, " EVENT_ID: " .. ev .. " ]" )
     else
         conv.devPrint( Color( 255, 0, 0, 255 ), "LUA animation event ERROR! ", "You've tried to create an animation event at frame [" .. frame .. "] while sequence [" .. seq .. "] has only [" .. self.ZBaseLuaAnimationFrames[seq] .. "] frame/s." )
         return false
@@ -330,10 +330,6 @@ end
 function NPC:HasAmmo()
     local wep = self:GetActiveWeapon()
     if !IsValid(wep) then return false end
-
-    if self:HasZBaseWeapon() then
-        return !self.ZBWepSys_PrimaryAmmo or self.ZBWepSys_PrimaryAmmo>0
-    end
 
     return wep:Clip1() > 0
 end

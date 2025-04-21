@@ -42,3 +42,4 @@ SWEP.PrimarySpread = 0.02
 SWEP.Primary.Ammo = "SMG1" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 
 SWEP.NPCHoldType =  "smg"
+SWEP.NPCReloadSound = "Weapon_MP5K.Reload"
