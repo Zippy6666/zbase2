@@ -589,14 +589,6 @@ function NPC:ZBWepSys_Shoot()
         self.ZBWepSys_LastShootCooldown = cooldown
     end
 
-    -- if self.ZBWepSys_PrimaryAmmo <= wep.Primary.DefaultClip*0.33 then
-    --     self:SetCondition(COND.LOW_PRIMARY_AMMO)
-    -- end
-
-    -- if self.ZBWepSys_PrimaryAmmo <= 0 && !self.bControllerBlock then
-    --     self:SetCondition(COND.NO_PRIMARY_AMMO)
-    -- end
-
     self.ZBWepSys_NextShoot = CurTime()+cooldown
 
     self:InternalOnFireWeapon()
@@ -799,10 +791,17 @@ function NPC:InternalOnFireWeapon()
     local actTranslateTbl = self:ZBWepSys_GetActTransTbl()
 
     -- Trigger firing animations
-    if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture(self.ZBase_IsMoving) then
-        self:PlayAnimation(actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
-    else
-        self:ResetIdealActivity(ACT_RANGE_ATTACK1)
+    if self:HasAmmo() then
+        if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture(self.ZBase_IsMoving) then
+            -- Gesture
+            self:PlayAnimation(actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
+
+        else
+            -- ACT
+            self:ResetIdealActivity(ACT_RANGE_ATTACK1)
+
+        end
+
     end
 
     -- AI when shooting at players
@@ -920,7 +919,6 @@ function NPC:ZBWepSys_Think()
         local replCls = engineWeaponReplacements[wep:GetClass()]
         
         if replCls then
-            print("REPLACED")
             self:Give(replCls)
             return -- Skip this think
         end
@@ -1498,16 +1496,16 @@ function NPC:AITick_Slow()
     self:InternalDetectDanger()
 
     -- -- Reload if we cannot see enemy and we have no ammo
-    -- if !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
-    --     self:SetSchedule(SCHED_RELOAD)
-    --     debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
-    -- end
+    if !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
+        self:SetSchedule(SCHED_RELOAD)
+        debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
+    end
 
     -- -- Reload if dry firing
-    -- if self.bIsDryFiring && !self:IsCurrentSchedule(SCHED_RELOAD) then
-    --     self:SetSchedule(SCHED_RELOAD)
-    --     debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because of dry fire")
-    -- end
+    if self.bIsDryFiring && !self:IsCurrentSchedule(SCHED_RELOAD) then
+        self:SetSchedule(SCHED_RELOAD)
+        debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because of dry fire")
+    end
 
     -- Follow player that we should follow
     if self:CanPursueFollowing() then
@@ -1645,20 +1643,28 @@ function NPC:NewActivityDetected( act )
 end
 
 function NPC:NewSequenceDetected( seq, seqName )
+    local bIsReloadAnim = string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil
+
     -- ZBase weapon reload sound
     -- I cannot think of a better method than this
     if self:HasZBaseWeapon() then
         local wep = self:GetActiveWeapon()
 
-        -- Announce
-        if math.random(1, self.OnReloadSound_Chance) == 1 then
-            self:EmitSound_Uninterupted(self.OnReloadSounds)
-        end
-
         -- Reload sound for weapon
-        if IsValid(wep) && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil then
+        if IsValid(wep) && bIsReloadAnim then
             wep:EmitSound(wep.NPCReloadSound)
         end
+
+        -- Our reload was interupted
+        -- Stop reload sound
+        if !bIsReloadAnim then
+            wep:StopSound(wep.NPCReloadSound)
+        end
+    end
+
+    -- Announce reload
+    if bIsReloadAnim && math.random(1, self.OnReloadSound_Chance) == 1 then
+        self:EmitSound_Uninterupted(self.OnReloadSounds)
     end
 
     self:CustomNewSequenceDetected( seq, seqName )
@@ -1782,11 +1788,9 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
 
     local wep = self:GetActiveWeapon()
 
-    -- if ( IsValid(wep) && wep.IsZBaseWeapon && self.ZBWepSys_PrimaryAmmo <= 0 ) && !self:IsCurrentSchedule(SCHED_RELOAD) then
-    --     self:SetSchedule(SCHED_RELOAD)
-    -- else
-     
-    if !self.DontTakeCoverOnHurt then
+    if self:HasZBaseWeapon() && !self:HasAmmo() && !self:IsCurrentSchedule(SCHED_RELOAD) then
+        self:SetSchedule(SCHED_RELOAD)
+    elseif !self.DontTakeCoverOnHurt then
         -- Take cover stuff
 
         local hasEne = IsValid(ene)
@@ -3135,6 +3139,23 @@ end
 ==================================================================================================
 --]]
 
+local engineWeaponFlipped = {
+    ["weapon_zb_ar2"]          = "weapon_ar2",
+    ["weapon_zb_357"]          = "weapon_357",
+    ["weapon_zb_crossbow"]     = "weapon_crossbow",
+    ["weapon_zb_crowbar"]      = "weapon_crowbar",
+    ["weapon_zb_pistol"]       = "weapon_pistol",
+    ["weapon_zb_rpg"]          = "weapon_rpg",
+    ["weapon_zb_shotgun"]      = "weapon_shotgun",
+    ["weapon_zb_smg1"]         = "weapon_smg1",
+    ["weapon_zb_stunstick"]    = "weapon_stunstick",
+    ["weapon_zb_alyxgun"]      = "weapon_alyxgun",
+    ["weapon_zb_annabelle"]    = "weapon_annabelle",
+    ["weapon_zb_357_hl1"]      = "weapon_357_hl1",
+    ["weapon_zb_glock_hl1"]    = "weapon_glock_hl1",
+    ["weapon_zb_shotgun_hl1"]  = "weapon_shotgun_hl1"
+}
+
 function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     if self.Patch_SkipDeathRoutine then return end
     if self.Dead then return end
@@ -3180,7 +3201,9 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- Drop engine weapon, not stoopid vegetable zbase weapon
     local wep = self:GetActiveWeapon()
-    if IsValid(wep) && wep.EngineCloneClass then self:Give(wep.EngineCloneClass) end
+    if IsValid(wep) && engineWeaponFlipped[wep:GetClass()] then 
+        self:Give(engineWeaponFlipped[wep:GetClass()]) 
+    end
 
     -- Item drop
     if ZBCVAR.ItemDrop:GetBool() then

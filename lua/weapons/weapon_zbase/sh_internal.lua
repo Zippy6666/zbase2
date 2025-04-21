@@ -61,7 +61,14 @@ function SWEP:PrimaryAttack()
 
 	-- No ammo
 	-- *click*
-	if !self:CanPrimaryAttack() then return end
+	if !self:CanPrimaryAttack() then
+		-- Notify owner we are dryfiring
+		if IsValid(own)  then
+			own:CONV_TempVar("bIsDryFiring", true, 0.2)
+		end
+
+		return 
+	end
 
 	-- Owner is NPC
 	if own:IsNPC() then
@@ -145,16 +152,22 @@ end
 --]]
 
 function SWEP:NPCShootEffects()
+	local own = self:GetOwner()
+	
 	-- Custom
+
 	local r = self:CustomShootEffects()
 	if r == true then
 		return
 	end
 
-	local own = self:GetOwner()
-
 	-- Muzzle flash
+
 	local att_num = self:LookupAttachment("muzzle")
+	if att_num == 0 then
+		att_num = self:LookupAttachment("0")
+	end
+
 	if IsValid(self) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
 
 		if ZBCVAR.MMODMuzzle:GetBool() then
@@ -178,6 +191,7 @@ function SWEP:NPCShootEffects()
 	end
 	
 	-- Shell eject
+
 	if self.Primary.ShellEject then
 
 		local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))

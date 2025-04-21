@@ -1,20 +1,28 @@
--- PrimaryShootSound = "HL1Weapon_Shotgun.Single",
--- NPCReloadSound = "HL1Weapon_Shotgun.Reload",
--- PrimarySpread = 0.02, 
--- PrimaryDamage = 3,
--- Primary = {
---     DefaultClip = 8, 
---     Ammo = "Buckshot", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
---     ShellEject = "1", 
---     ShellType = "ShotgunShellEject", -- https://wiki.facepunch.com/gmod/Default_Effects
---     NumShots = 7,
--- },
--- NPCBurstMin = 1,
--- NPCBurstMax = 1,
--- NPCFireRate = 0,
--- NPCFireRestTimeMin = 0.5, 
--- NPCFireRestTimeMax = 1,
--- NPCBulletSpreadMult = 1.5, 
--- NPCShootDistanceMult = 0.5,
--- Weight = 4,
--- NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
+AddCSLuaFile()
+
+SWEP.Base = "weapon_zbase"
+SWEP.PrintName = "HL1 Shotgun"
+SWEP.Author = "Zippy"
+SWEP.Spawnable = false
+SWEP.WorldModel = Model( "models/weapons/w_shotgun_hls.mdl" )
+SWEP.IsZBaseWeapon = true
+SWEP.NPCSpawnable = false -- Add to NPC weapon list
+
+SWEP.PrimaryShootSound = "HL1Weapon_Shotgun.Single"
+SWEP.NPCReloadSound = "HL1Weapon_Shotgun.Reload"
+SWEP.PrimarySpread = 0.02
+SWEP.PrimaryDamage = 3
+SWEP.Primary.DefaultClip = 8
+SWEP.Primary.Ammo = "Buckshot"-- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+SWEP.Primary.ShellEject = "1"
+SWEP.Primary.ShellType = "ShotgunShellEject"-- https://wiki.facepunch.com/gmod/Default_Effects
+SWEP.Primary.NumShots = 7
+SWEP.NPCBurstMin = 1
+SWEP.NPCBurstMax = 1
+SWEP.NPCFireRate = 0
+SWEP.NPCFireRestTimeMin = 0.5
+SWEP.NPCFireRestTimeMax = 1
+SWEP.NPCBulletSpreadMult = 1.5
+SWEP.NPCShootDistanceMult = 0.5
+SWEP.Weight = 4
+SWEP.NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types

@@ -25,10 +25,6 @@ local function bControllerBehaviorValidCheck( Behaviour, ent, BehaviourName )
 
     local ctrlrBlock = ent.bControllerBlock
 
-    if ctrlrBlock then
-        conv.devPrint("Blocked behavior "..(BehaviourName or "*Unnamed*"))
-    end
-
     return !ent.bControllerBlock
 end
 

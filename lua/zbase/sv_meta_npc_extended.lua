@@ -82,8 +82,6 @@ function NPC:ZBASE_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFai
     if !isFail && (!holdTypeACTCheck[startHoldT] or self:SelectWeightedSequence(holdTypeACTCheck[startHoldT]) == -1) then
         -- Doesn't support this hold type
 
-        print(startHoldT, "not supported")
-
         if lastFallBack then
             -- "normal"
             self:ZBASE_SetHoldType( wep, "normal", false, false, true )
@@ -99,7 +97,6 @@ function NPC:ZBASE_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFai
         end
     end
 
-    print("SET TO", startHoldT)
     wep:SetHoldType(startHoldT)
 end
 
