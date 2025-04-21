@@ -83,6 +83,21 @@ ZBASE_MENU_REPLACEMENTS = {
 }
 ZBASE_MENU_REPLACEMENTS_FLIPPED = table.Flip( table.Copy(ZBASE_MENU_REPLACEMENTS) )
 
+ZBaseDepSchedTrans = {
+	CombatChase 						= "COMBAT_CHASE",
+	CombatChase_CantReach_CoverOrigin 	= "COMBAT_CHASE_FAIL_COVER_ORIGIN",
+	CombatChase_CantReach_CoverEnemy 	= "COMBAT_CHASE_FAIL_COVER_ENE",
+	CombatChase_CantReach_MoveRandom 	= "COMBAT_CHASE_FAIL_MOVE_RANDOM",
+	AerialChase_NoNav 					= "FLY_CHASE_NO_NAV",
+	AerialBackAway_NoNav 				= "FLY_AWAY_NO_NAV",
+	PursueAerialGoal 					= "FLY_TO_GOAL",
+	CombatFace 							= "COMBAT_FACE",
+	FaceLastPos 						= "FACE_LASTPOS",
+	BackAwayFromEnemy 					= "BACK_AWAY",
+	RunRandom 							= "RUN_RANDOM",
+	WalkRandom 							= "WALK_RANDOM"
+}
+
 --[[
 ======================================================================================================================================================
                                            NPC PATCHES

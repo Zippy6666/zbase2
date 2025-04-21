@@ -5,7 +5,7 @@ function ENT:GetAerialOptimizedSched()
 
 	if IsValid(self.Navigator) && IsValid(self:GetEnemy()) then
 		if self.Navigator:IsCurrentZSched("CombatChase") && self.EnemyVisible then
-			return "AerialChase_NoNav", self:GetEnemy():GetPos()
+            return "AerialChase_NoNav", self:GetEnemy():GetPos()
 		end
 
 		if self.Navigator:IsCurrentZSched("BackAwayFromEnemy") && self.EnemyVisible then
@@ -233,4 +233,3 @@ function ENT:AerialThink()
         self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     end
 end
-

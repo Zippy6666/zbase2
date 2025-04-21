@@ -1496,7 +1496,7 @@ function NPC:AITick_Slow()
     self:InternalDetectDanger()
 
     -- -- Reload if we cannot see enemy and we have no ammo
-    if !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
+    if IsValid(self:GetActiveWeapon()) && !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
         self:SetSchedule(SCHED_RELOAD)
         debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end

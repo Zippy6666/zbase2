@@ -1,18 +1,4 @@
 local AIDisabled = GetConVar("ai_disabled")
-local DeprecatedScheduleTranslation = {
-	CombatChase = "COMBAT_CHASE",
-	CombatChase_CantReach_CoverOrigin = "COMBAT_CHASE_FAIL_COVER_ORIGIN",
-	CombatChase_CantReach_CoverEnemy = "COMBAT_CHASE_FAIL_COVER_ENE",
-	CombatChase_CantReach_MoveRandom = "COMBAT_CHASE_FAIL_MOVE_RANDOM",
-	AerialChase_NoNav = "FLY_CHASE_NO_NAV",
-	AerialBackAway_NoNav = "FLY_AWAY_NO_NAV",
-	PursueAerialGoal = "FLY_TO_GOAL",
-	CombatFace = "COMBAT_FACE",
-	FaceLastPos = "FACE_LASTPOS",
-	BackAwayFromEnemy = "BACK_AWAY",
-	RunRandom = "RUN_RANDOM",
-	WalkRandom = "WALK_RANDOM"
-}
 
 function ENT:StartSchedule( sched )
 	-- Start sched for aerial mfs, set up navigator and shid
@@ -34,12 +20,12 @@ function ENT:NewSched( newsched )
 	if isnumber(newsched) then
 		self:SetSchedule(newsched)
 	elseif isstring(newsched) then
-		newsched = DeprecatedScheduleTranslation[newsched] or newsched
+		newsched = ZBaseDepSchedTrans[newsched] or newsched
 		self:StartSchedule(ZSched[newsched])
 	elseif istable(newsched) then
 		if isstring( newsched.DebugName ) then
 			local schedName = string.Replace(newsched.DebugName, "ZSched", "")
-			local deprecatedSchedTrans = DeprecatedScheduleTranslation[schedName]
+			local deprecatedSchedTrans = ZBaseDepSchedTrans[schedName]
 			if deprecatedSchedTrans then
 				newsched = ZSched[deprecatedSchedTrans]
 			end
@@ -79,7 +65,7 @@ end
 function ENT:IsCurrentZSched( sched )
 	local curCusSchd = self:GetCurrentCustomSched()
 	if "ZSched"..sched == curCusSchd
-	or "SCHED_ZBASE_"..(DeprecatedScheduleTranslation[sched] or "") == curCusSchd
+	or "SCHED_ZBASE_"..(ZBaseDepSchedTrans[sched] or "") == curCusSchd
 	or "SCHED_ZBASE_"..sched == curCusSchd then
 		return true
 	end

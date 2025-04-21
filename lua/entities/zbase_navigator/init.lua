@@ -69,10 +69,17 @@ function ENT:Think()
 	end
 end
 
+-- Get the name of the current custom schedule
 function ENT:GetCurrentCustomSched()
 	return self.CurrentSchedule && self.CurrentSchedule.DebugName
 end
 
+-- Check if we are doing a certain ZSched, by name
 function ENT:IsCurrentZSched( sched )
-	return "ZSched"..sched == self:GetCurrentCustomSched()
+	local curCusSchd = self:GetCurrentCustomSched()
+	if "ZSched"..sched == curCusSchd
+	or "SCHED_ZBASE_"..(ZBaseDepSchedTrans[sched] or "") == curCusSchd
+	or "SCHED_ZBASE_"..sched == curCusSchd then
+		return true
+	end
 end
