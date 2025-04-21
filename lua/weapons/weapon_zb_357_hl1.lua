@@ -1,0 +1,23 @@
+-- AddCSLuaFile()
+
+-- SWEP.Base = "weapon_zbase"
+-- SWEP.PrintName = "HL1 .357"
+-- SWEP.Author = "Zippy"
+-- SWEP.Spawnable = false
+-- SWEP.Weight = 2
+-- SWEP.WorldModel = Model( "models/weapons/w_pistol.mdl" )
+-- SWEP.IsZBaseWeapon = true
+-- SWEP.NPCSpawnable = false -- Add to NPC weapon list
+
+-- SWEP.PrimaryShootSound = "HL1Weapon_357.Single"
+-- SWEP.NPCReloadSound = "HL1Weapon_357.Reload" 
+-- SWEP.NPCFireRestTimeMin = 0.5 
+-- SWEP.NPCFireRestTimeMax = 1
+-- SWEP.Weight = 5
+-- SWEP.NPCHoldType =  "revolver" -- https://wiki.facepunch.com/gmod/Hold_Types
+-- SWEP.NPCBulletSpreadMult = 1.5 
+-- SWEP.NPCShootDistanceMult = 0.75
+-- SWEP.PrimaryDamage = 30
+-- SWEP.PrimaryDefaultClip = 6 
+-- SWEP.PrimaryAmmo = "357" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+-- SWEP.PrimaryShellEject = false 

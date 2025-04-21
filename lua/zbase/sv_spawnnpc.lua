@@ -103,10 +103,22 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	end
 	if Equipment == "zbase_random_weapon" then
 		local randTBL = table.Copy(ZBaseNPCWeps)
-		table.Add(randTBL,
-		{"weapon_pistol", "weapon_357", "weapon_crossbow",
-		"weapon_crowbar", "weapon_ar2", "weapon_rpg",
-		"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
+		table.Add(randTBL, {
+			"weapon_zb_ar2",
+			"weapon_zb_357",
+			"weapon_zb_crossbow",
+			"weapon_zb_crowbar",
+			"weapon_zb_pistol",
+			"weapon_zb_rpg",
+			"weapon_zb_shotgun",
+			"weapon_zb_smg1",
+			"weapon_zb_stunstick",
+			"weapon_zb_alyxgun",
+			"weapon_zb_annabelle",
+			"weapon_zb_357_hl1",
+			"weapon_zb_glock_hl1",
+			"weapon_zb_shotgun_hl1"
+		})
 
 		for i, wclass in ipairs( table.Copy(randTBL) ) do
 			if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then

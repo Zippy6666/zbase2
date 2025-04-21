@@ -310,12 +310,10 @@ function NPC:ZBASE_Controller_InitAttacks()
                         return
                     end
 
-                    if self.ZBWepSys_PrimaryAmmo <= 0 then
+                    if wep:Clip1() <= 0 then
                         if !timer.Exists("ZBaseReloadWeapon"..self:EntIndex()) then
                             ply:PrintMessage(HUD_PRINTTALK, "Out of ammo!")
-                            ply:EmitSound("Weapon_Pistol.Empty")
                         end
-
                         return
                     end
 
@@ -353,9 +351,7 @@ function NPC:ZBASE_Controller_InitAttacks()
             self:ZBASE_ControllerAddAttack(function()
                 local wep = self:GetActiveWeapon()
 
-                if !wep.IsZBaseWeapon then return end
-
-                if self.ZBWepSys_PrimaryAmmo >= wep.Primary.DefaultClip then
+                if wep:Clip1() >= wep:GetMaxClip1() then
                     return
                 end
 

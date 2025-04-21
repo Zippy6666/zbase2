@@ -1,0 +1,19 @@
+-- PrimaryDamage = 3,
+-- Primary = {
+--     DefaultClip = 18, 
+--     Ammo = "Pistol", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+--     ShellEject = "1", 
+--     ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Default_Effects
+--     NumShots = 1,
+-- },
+-- NPCBurstMin = 1, 
+-- NPCBurstMax = 1, 
+-- NPCFireRate = 0.2, 
+-- NPCFireRestTimeMin = 0.2, 
+-- NPCFireRestTimeMax = 1,
+-- NPCBulletSpreadMult = 1.5,
+-- NPCShootDistanceMult = 0.75,
+-- Weight = 2,
+-- NPCHoldType =  "pistol",  -- https://wiki.facepunch.com/gmod/Hold_Types
+-- PrimaryShootSound = "HL1Weapon_Glock.Single",
+-- NPCReloadSound = "Weapon_Pistol.Reload", 

@@ -1,0 +1,20 @@
+-- PrimaryShootSound = "HL1Weapon_Shotgun.Single",
+-- NPCReloadSound = "HL1Weapon_Shotgun.Reload",
+-- PrimarySpread = 0.02, 
+-- PrimaryDamage = 3,
+-- Primary = {
+--     DefaultClip = 8, 
+--     Ammo = "Buckshot", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
+--     ShellEject = "1", 
+--     ShellType = "ShotgunShellEject", -- https://wiki.facepunch.com/gmod/Default_Effects
+--     NumShots = 7,
+-- },
+-- NPCBurstMin = 1,
+-- NPCBurstMax = 1,
+-- NPCFireRate = 0,
+-- NPCFireRestTimeMin = 0.5, 
+-- NPCFireRestTimeMax = 1,
+-- NPCBulletSpreadMult = 1.5, 
+-- NPCShootDistanceMult = 0.5,
+-- Weight = 4,
+-- NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types
