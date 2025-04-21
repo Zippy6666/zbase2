@@ -186,7 +186,7 @@ function SWEP:NPCShootEffects()
 			local att = self:GetAttachment(att_num)
 			local col = self.Primary.MuzzleFlashFlags==5 && "75 175 255" or "255 175 75"
 
-			ZBaseMuzzleLight( att.Pos, .5, 256, col )
+			ZBaseMuzzleLight( att.Pos, 1.5, 256, col )
 		end
 	end
 	
