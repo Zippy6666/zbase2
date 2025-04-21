@@ -7,25 +7,7 @@ ZBase_EngineWeapon_Attributes = {
     ======================================================================================================================================================
     --]]
     ["weapon_pistol"] = {
-        PrimaryShootSound = "Weapon_Pistol.NPC_Single", 
-        PrimaryDamage = 3,
-        Primary = {
-            DefaultClip = 18, 
-            Ammo = "Pistol", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
-            ShellEject = "1", 
-            ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Default_Effects
-            NumShots = 1,
-        },
-        NPCBurstMin = 1, 
-        NPCBurstMax = 1, 
-        NPCFireRate = 0.2, 
-        NPCFireRestTimeMin = 0.2, 
-        NPCFireRestTimeMax = 0.6,
-        NPCBulletSpreadMult = 1.5,
-        NPCReloadSound = "Weapon_Pistol.Reload", 
-        NPCShootDistanceMult = 0.75,
-        Weight = 2,
-        NPCHoldType =  "pistol" -- https://wiki.facepunch.com/gmod/Hold_Types
+
     },
     --[[
     ======================================================================================================================================================

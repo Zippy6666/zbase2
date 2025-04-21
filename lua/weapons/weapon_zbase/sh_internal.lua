@@ -268,14 +268,17 @@ end
 function SWEP:OwnerChanged()
 	if !SERVER then return end
 
-	local own = self:GetOwner()
-	if !IsValid(own) then return end
+	conv.callNextTick(function()
+		if !IsValid(self) then return end
+		local own = self:GetOwner()
+		if !IsValid(own) then return end
 
-	if own:IsNPC() then
-		own:ZBASE_SetHoldType(self, self.NPCHoldType)
-	else
-		self:SetHoldType(self.InitialHoldType)
-	end
+		if own:IsNPC() then
+			own:ZBASE_SetHoldType(self, self.NPCHoldType)
+		else
+			self:SetHoldType(self.InitialHoldType)
+		end
+	end)
 end
 
 --[[

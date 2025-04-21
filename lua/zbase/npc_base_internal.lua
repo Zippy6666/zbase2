@@ -52,6 +52,14 @@ function NPC:ZBaseInit()
     self.GuardSpot = self:GetPos()
     self.InternalCurrentVoiceSoundDuration = 0
 
+    -- Weapon variables
+    self.ZBWepSys_NextBurst = CurTime()
+    self.ZBWepSys_NextShoot = CurTime()
+    self.ZBWepSys_LastShootCooldown = 0
+    self.ZBWepSys_Stored_AIWantsToShoot = false
+    self.ZBWepSys_Stored_FacingEne = false
+    self.ZBWepSys_NextCheckIsFacingEne = CurTime()
+
     self.ZBase_ExpectedSightDist = (self.SightDistance == ZBASE_DEFAULT_SIGHT_DIST or ZBCVAR.SightDistOverride:GetBool())
     && ZBCVAR.SightDist:GetInt()
     or self.SightDistance
@@ -79,8 +87,6 @@ function NPC:ZBaseInit()
     if self.BloodColor != false then
         self:SetBloodColor(self.BloodColor)
     end
-
-    self:ZBWepSys_Init()
 
     -- Makes behaviour system function
     ZBaseBehaviourInit( self )
@@ -558,161 +564,9 @@ end
 
 --[[
 ==================================================================================================
-                                           WEAPON SYSTEM
+                                WEAPON HANDLING / AI
 ==================================================================================================
 --]]
-
-function NPC:ZBWepSys_Init()
-    self.ZBWepSys_NextBurst = CurTime()
-    self.ZBWepSys_NextShoot = CurTime()
-    self.ZBWepSys_LastShootCooldown = 0
-    self.ZBWepSys_Stored_AIWantsToShoot = false
-    self.ZBWepSys_Stored_FacingEne = false
-    self.ZBWepSys_NextCheckIsFacingEne = CurTime()
-end
-
-function NPC:ZBWepSys_Reload()
-    -- local wep = self:GetActiveWeapon()
-
-    -- local maxammo = wep.Primary.DefaultClip
-    -- if maxammo == nil then return end -- No max ammo?? Well then don't bother reloading
-
-    -- if self.ZBWepSys_PrimaryAmmo >= maxammo then return end -- Don't reload if already full
-    -- if self.ZBASE_bReloading then return end
-
-    -- -- Reload announce sound
-    -- if math.random(1, self.OnReloadSound_Chance) == 1 then
-    --     self:EmitSound_Uninterupted(self.OnReloadSounds)
-    -- end
-
-    -- -- Weapon reload sound
-    -- if wep.IsZBaseWeapon && wep.NPCReloadSound != "" then
-    --     wep:EmitSound(wep.NPCReloadSound)
-    -- end
-
-    -- local reloadTime = math.max(wep.NPCReloadTime, self:SequenceDuration()*0.8 / self:GetPlaybackRate())
-
-    -- self.ZBASE_bReloading = true
-
-    -- -- Refill ammo
-    -- timer.Create("ZBaseReloadWeapon"..self:EntIndex(), reloadTime, 1, function()
-    --     if !IsValid(self) or !IsValid(wep) then return end
-
-    --     self.ZBWepSys_PrimaryAmmo = maxammo
-    --     wep:SetClip1(self.ZBWepSys_PrimaryAmmo)
-
-    --     self:ClearCondition(COND.LOW_PRIMARY_AMMO)
-    --     self:ClearCondition(COND.NO_PRIMARY_AMMO)
-
-    --     self.ZBASE_bReloading = false
-    -- end)
-end
-
-function NPC:ZBWepSys_EngineCloneAttrs( zbasewep, engineClass )
-    -- Some defaults
-    zbasewep.IsZBaseWeapon = true
-    zbasewep.PrimaryShootSound = "common/null.wav"
-    zbasewep.PrimarySpread = 0
-    zbasewep.PrimaryDamage = 2
-    zbasewep.NPCBurstMin = 1
-    zbasewep.NPCBurstMax = 1
-    zbasewep.NPCFireRate = 0.2
-    zbasewep.NPCFireRestTimeMin = 0.2
-    zbasewep.NPCFireRestTimeMax = 1
-    zbasewep.NPCBulletSpreadMult = 1
-    zbasewep.NPCReloadSound = "common/null.wav"
-    zbasewep.NPCShootDistanceMult = 0.75
-    zbasewep.NPCHoldType =  "smg" -- https://wiki.facepunch.com/gmod/Hold_Types
-
-    table.Merge( zbasewep.Primary, {
-        DefaultClip = 30,
-        Ammo = "SMG1", -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
-        ShellEject = "1",
-        ShellType = "ShellEject", -- https://wiki.facepunch.com/gmod/Effects
-        NumShots = 1,
-    } )
-
-    if ZBase_EngineWeapon_Attributes[ engineClass ] then
-        for varname, var in pairs( ZBase_EngineWeapon_Attributes[ engineClass ] ) do
-            if istable(var) then
-                table.Merge( zbasewep[varname], var )
-            else
-                zbasewep[varname] = var
-            end
-        end
-    end
-
-    zbasewep.IsEngineClone = true
-    zbasewep.EngineCloneMaxClip = zbasewep.Primary.DefaultClip
-    zbasewep.EngineCloneClass = engineClass
-end
-
-local barely_visible = Color(5,5,5,5)
-local engineWeapon_HasReservedReplacement = {
-    weapon_zb_pistol = true,
-    weapon_zb_smg1 = true,
-    weapon_zb_shotgun = true,
-    weapon_zb_stunstick = true,
-    weapon_zb_crowbar = true,
-    weapon_zb_rpg = true,
-    weapon_zb_crossbow = true,
-    weapon_zb_ar2 = true,
-    weapon_zb_357 = true,
-}
-function NPC:ZBWepSys_SetActiveWeapon( class )
-    if !self.ZBWepSys_Inventory[class] then return end
-
-    local WepData = self.ZBWepSys_Inventory[class]
-
-    if !WepData.isScripted then
-        local zbwepclass = "weapon_zb_" .. string.Right(class, #class - 7)
-        local Weapon
-        if engineWeapon_HasReservedReplacement[zbwepclass] then
-            Weapon = self:Give( zbwepclass )
-        else
-            Weapon = self:Give("weapon_zbase")
-            Weapon:SetNWString("ZBaseNPCWorldModel", WepData.model)
-        end
-
-        self:ZBWepSys_EngineCloneAttrs( Weapon, class )
-
-        Weapon.FromZBaseInventory = true
-
-        self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
-        self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
-        Weapon:SetClip1(self.ZBWepSys_PrimaryAmmo)
-    else
-        self:CONV_TimerSimple(0.1, function()
-            local Weapon = self:Give( class )
-
-            Weapon.FromZBaseInventory = true
-
-            if Weapon.IsZBaseWeapon then
-                self.ZBWepSys_PrimaryAmmo = Weapon.Primary.DefaultClip
-                Weapon:SetClip1(self.ZBWepSys_PrimaryAmmo)
-                self:ZBWepSys_SetHoldType( Weapon, Weapon.NPCHoldType )
-            end
-        end)
-    end
-end
-
-function NPC:ZBWepSys_StoreInInventory( wep )
-    self.ZBWepSys_Inventory[wep:GetClass()] = {model=wep:GetModel(), isScripted=wep:IsScripted()}
-    wep:Remove()
-end
-
-function NPC:ZBNWepSys_NewNumShots()
-    local wep = self:GetActiveWeapon()
-
-    if IsValid(wep) && wep.ZBaseGetNPCBurstSettings then
-        local ShotsMin, ShotsMax = wep:ZBaseGetNPCBurstSettings()
-
-        local RndShots = math.random(ShotsMin, ShotsMax)
-        return RndShots
-    end
-
-    return 1
-end
 
 function NPC:ZBWepSys_Shoot()
     local wep = self:GetActiveWeapon()
@@ -748,6 +602,20 @@ function NPC:ZBWepSys_Shoot()
     self:InternalOnFireWeapon()
 end
 
+function NPC:ZBNWepSys_NewNumShots()
+    local wep = self:GetActiveWeapon()
+
+    if IsValid(wep) && wep.ZBaseGetNPCBurstSettings then
+        local ShotsMin, ShotsMax = wep:ZBaseGetNPCBurstSettings()
+
+        local RndShots = math.random(ShotsMin, ShotsMax)
+        return RndShots
+    end
+
+    return 1
+end
+
+-- Check if there is too many NPCs attacking this player
 function NPC:ZBWepSys_TooManyAttacking( ply )
     local attacking, max = 0, ZBCVAR.MaxNPCsShootPly:GetInt()
 
@@ -762,125 +630,6 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
     end
 
     return false
-end
-
-function NPC:ZBWepSys_TrySuppress( target )
-    if self.ZBASE_IsPlyControlled then return end
-
-    self:AddEntityRelationship(target.ZBase_SuppressionBullseye, D_HT, 0)
-    self:UpdateEnemyMemory(target.ZBase_SuppressionBullseye, target:GetPos())
-end
-
-function NPC:ZBWepSys_RemoveSuppressionPoint( target )
-    SafeRemoveEntity(target.ZBase_SuppressionBullseye)
-end
-
-local PlayerHeightVec = Vector(0, 0, 60)
-function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
-    if self.ZBASE_IsPlyControlled then return end
-
-    local pos
-    if target:IsPlayer() && target:Crouching() then
-        -- Crappy workaround that should work most of the time
-        pos = lastseenpos+PlayerHeightVec
-    else
-        pos = lastseenpos+target:OBBCenter()
-    end
-
-    SafeRemoveEntity(target.ZBase_SuppressionBullseye)
-
-    target.ZBase_SuppressionBullseye = ents.Create("npc_bullseye")
-    target.ZBase_SuppressionBullseye.Is_ZBase_SuppressionBullseye = true
-    target.ZBase_SuppressionBullseye.EntityToSuppress = target
-    target.ZBase_SuppressionBullseye:SetPos( pos )
-    target.ZBase_SuppressionBullseye:Spawn()
-    target.ZBase_SuppressionBullseye:SetModel("models/props_lab/huladoll.mdl")
-    target.ZBase_SuppressionBullseye:SetHealth(math.huge)
-    target:DeleteOnRemove(target.ZBase_SuppressionBullseye) -- Remove suppression point when target does not exist anymore
-    SafeRemoveEntityDelayed(target.ZBase_SuppressionBullseye, 8) -- Remove suppression point after some time
-
-    if Developer:GetBool() then
-        target.ZBase_SuppressionBullseye:SetNoDraw(false)
-        target.ZBase_SuppressionBullseye:SetMaterial("models/wireframe")
-    end
-    
-    target.ZBase_SuppressionBullseye:SetNotSolid(true)
-end
-
-function NPC:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
-    if !ene.ZBase_DontCreateSuppressionPoint then
-        return true
-    end
-
-    if ene.ZBase_DontCreateSuppressionPoint[self] then
-        return false
-    end
-
-    return true
-end
-
-local minSuppressDist = 350
-local minDistFromSuppressPointToEne = 1000^2
-function NPC:ZBWepSys_SuppressionThink()
-    local ene = self:GetEnemy()
-
-    if !IsValid(ene) then return false end
-
-    -- Don't suppress bullseye that is not visible
-    if ene.Is_ZBase_SuppressionBullseye && !self.EnemyVisible then
-        return false
-    end
-
-    if !self.EnemyVisible
-    && self:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
-    && !ene.Is_ZBase_SuppressionBullseye -- Don't create a suppression point for a suppression point...
-    then
-        if !IsValid(ene.ZBase_SuppressionBullseye) then 
-            -- Create a new suppression point for this enemy if there is none
-            local lastseenpos = self:GetEnemyLastSeenPos(ene)
-            if lastseenpos:DistToSqr(ene:GetPos()) < minDistFromSuppressPointToEne then
-                self:ZBWepSys_CreateSuppressionPoint( lastseenpos, ene )
-            end
-        end
-
-        -- Can see enemy's current suppression point, start hating it and make it enemy to us
-        if IsValid(ene.ZBase_SuppressionBullseye) then
-            self:ZBWepSys_TrySuppress(ene)
-        end
-
-        -- Don't allow new suppression points for this enemy until it is seen again
-        ene.ZBase_DontCreateSuppressionPoint = ene.ZBase_DontCreateSuppressionPoint or {}
-        self:CONV_MapInTable( ene.ZBase_DontCreateSuppressionPoint )
-
-        -- Don't shoot since enemy is not visible
-        return false
-    end
-
-    if self.EnemyVisible && !ene.Is_ZBase_SuppressionBullseye then
-        -- Enemy is visible...
-
-        if ene.ZBase_DontCreateSuppressionPoint then
-            ene.ZBase_DontCreateSuppressionPoint[self] = nil -- Allow new suppression points to be created
-        end
-
-        -- Remove their suppression point since we know they are no longer there
-        self:ZBWepSys_RemoveSuppressionPoint( ene )
-    end
-
-    -- Enemy is a suppression point and its NPC/player (the actual enemy) is visible
-    -- stop attacking this point and attack the NPC/player instead
-    -- TODO: Change to in view cone instead of visible
-    if ene.Is_ZBase_SuppressionBullseye
-    && ( (IsValid(ene.EntityToSuppress) && self:Visible(ene.EntityToSuppress))
-    or self:ZBaseDist(ene, {within=minSuppressDist}) ) then
-        self:ZBWepSys_RemoveSuppressionPoint( ene.EntityToSuppress )
-
-        self:UpdateEnemyMemory(ene.EntityToSuppress, ene.EntityToSuppress:GetPos())
-
-        return false -- Don't shoot this time, shoot at the actual enemy next time instead
-    end
-
-    return true
 end
 
 local AIWantsToShoot_ACT_Blacklist = {
@@ -1143,9 +892,40 @@ function NPC:ZBWepSys_MeleeThink()
     end
 end
 
+local engineWeaponReplacements = {
+    ["weapon_ar2"]          = "weapon_zb_ar2",
+    ["weapon_357"]          = "weapon_zb_357",
+    ["weapon_crossbow"]     = "weapon_zb_crossbow",
+    ["weapon_crowbar"]      = "weapon_zb_crowbar",
+    ["weapon_pistol"]       = "weapon_zb_pistol",
+    ["weapon_rpg"]          = "weapon_zb_rpg",
+    ["weapon_shotgun"]      = "weapon_zb_shotgun",
+    ["weapon_smg1"]         = "weapon_zb_smg1",
+    ["weapon_stunstick"]    = "weapon_zb_stunstick",
+    ["weapon_alyxgun"]      = "weapon_zb_alyxgun",
+    ["weapon_annabelle"]    = "weapon_zb_annabelle",
+    ["weapon_357_hl1"]      = "weapon_zb_357_hl1",
+    ["weapon_glock_hl1"]    = "weapon_zb_glock_hl1",
+    ["weapon_shotgun_hl1"]  = "weapon_zb_shotgun_hl1"
+}
+
 function NPC:ZBWepSys_Think()
     local wep = self:GetActiveWeapon()
     local ene = self:GetEnemy()
+
+    -- If we have an engine-based weapon
+    -- Replace it with a ZBASE equivalent
+    -- so that we get more control over it
+    if IsValid(wep) then
+        local replCls = engineWeaponReplacements[wep:GetClass()]
+        
+        if replCls then
+            print("REPLACED")
+            self:Give(replCls)
+            return -- Skip this think
+        end
+    end
+
     local bHasZBaseWep = self:HasZBaseWeapon()
 
     -- Adjust sight distance back to normal if weapon system altered it
@@ -1172,6 +952,130 @@ function NPC:ZBWepSys_Think()
             self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
         end
     end
+end
+
+--[[
+==================================================================================================
+                                           SUPPRESSION AI
+==================================================================================================
+--]]
+
+function NPC:ZBWepSys_TrySuppress( target )
+    if self.ZBASE_IsPlyControlled then return end
+    self:AddEntityRelationship(target.ZBase_SuppressionBullseye, D_HT, 0)
+    self:UpdateEnemyMemory(target.ZBase_SuppressionBullseye, target:GetPos())
+end
+
+function NPC:ZBWepSys_RemoveSuppressionPoint( target )
+    SafeRemoveEntity(target.ZBase_SuppressionBullseye)
+end
+
+local PlayerHeightVec = Vector(0, 0, 60)
+function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
+    if self.ZBASE_IsPlyControlled then return end
+
+    local pos
+    if target:IsPlayer() && target:Crouching() then
+        -- Crappy workaround that should work most of the time
+        pos = lastseenpos+PlayerHeightVec
+    else
+        pos = lastseenpos+target:OBBCenter()
+    end
+
+    SafeRemoveEntity(target.ZBase_SuppressionBullseye)
+
+    target.ZBase_SuppressionBullseye = ents.Create("npc_bullseye")
+    target.ZBase_SuppressionBullseye.Is_ZBase_SuppressionBullseye = true
+    target.ZBase_SuppressionBullseye.EntityToSuppress = target
+    target.ZBase_SuppressionBullseye:SetPos( pos )
+    target.ZBase_SuppressionBullseye:Spawn()
+    target.ZBase_SuppressionBullseye:SetModel("models/props_lab/huladoll.mdl")
+    target.ZBase_SuppressionBullseye:SetHealth(math.huge)
+    target:DeleteOnRemove(target.ZBase_SuppressionBullseye) -- Remove suppression point when target does not exist anymore
+    SafeRemoveEntityDelayed(target.ZBase_SuppressionBullseye, 8) -- Remove suppression point after some time
+
+    if Developer:GetBool() then
+        target.ZBase_SuppressionBullseye:SetNoDraw(false)
+        target.ZBase_SuppressionBullseye:SetMaterial("models/wireframe")
+    end
+    
+    target.ZBase_SuppressionBullseye:SetNotSolid(true)
+end
+
+function NPC:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
+    if !ene.ZBase_DontCreateSuppressionPoint then
+        return true
+    end
+
+    if ene.ZBase_DontCreateSuppressionPoint[self] then
+        return false
+    end
+
+    return true
+end
+
+local minSuppressDist = 350
+local minDistFromSuppressPointToEne = 1000^2
+function NPC:ZBWepSys_SuppressionThink()
+    local ene = self:GetEnemy()
+
+    if !IsValid(ene) then return false end
+
+    -- Don't suppress bullseye that is not visible
+    if ene.Is_ZBase_SuppressionBullseye && !self.EnemyVisible then
+        return false
+    end
+
+    if !self.EnemyVisible
+    && self:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
+    && !ene.Is_ZBase_SuppressionBullseye -- Don't create a suppression point for a suppression point...
+    then
+        if !IsValid(ene.ZBase_SuppressionBullseye) then 
+            -- Create a new suppression point for this enemy if there is none
+            local lastseenpos = self:GetEnemyLastSeenPos(ene)
+            if lastseenpos:DistToSqr(ene:GetPos()) < minDistFromSuppressPointToEne then
+                self:ZBWepSys_CreateSuppressionPoint( lastseenpos, ene )
+            end
+        end
+
+        -- Can see enemy's current suppression point, start hating it and make it enemy to us
+        if IsValid(ene.ZBase_SuppressionBullseye) then
+            self:ZBWepSys_TrySuppress(ene)
+        end
+
+        -- Don't allow new suppression points for this enemy until it is seen again
+        ene.ZBase_DontCreateSuppressionPoint = ene.ZBase_DontCreateSuppressionPoint or {}
+        self:CONV_MapInTable( ene.ZBase_DontCreateSuppressionPoint )
+
+        -- Don't shoot since enemy is not visible
+        return false
+    end
+
+    if self.EnemyVisible && !ene.Is_ZBase_SuppressionBullseye then
+        -- Enemy is visible...
+
+        if ene.ZBase_DontCreateSuppressionPoint then
+            ene.ZBase_DontCreateSuppressionPoint[self] = nil -- Allow new suppression points to be created
+        end
+
+        -- Remove their suppression point since we know they are no longer there
+        self:ZBWepSys_RemoveSuppressionPoint( ene )
+    end
+
+    -- Enemy is a suppression point and its NPC/player (the actual enemy) is visible
+    -- stop attacking this point and attack the NPC/player instead
+    -- TODO: Change to in view cone instead of visible
+    if ene.Is_ZBase_SuppressionBullseye
+    && ( (IsValid(ene.EntityToSuppress) && self:Visible(ene.EntityToSuppress))
+    or self:ZBaseDist(ene, {within=minSuppressDist}) ) then
+        self:ZBWepSys_RemoveSuppressionPoint( ene.EntityToSuppress )
+
+        self:UpdateEnemyMemory(ene.EntityToSuppress, ene.EntityToSuppress:GetPos())
+
+        return false -- Don't shoot this time, shoot at the actual enemy next time instead
+    end
+
+    return true
 end
 
 --[[
@@ -1746,6 +1650,12 @@ function NPC:NewSequenceDetected( seq, seqName )
     if self:HasZBaseWeapon() then
         local wep = self:GetActiveWeapon()
 
+        -- Announce
+        if math.random(1, self.OnReloadSound_Chance) == 1 then
+            self:EmitSound_Uninterupted(self.OnReloadSounds)
+        end
+
+        -- Reload sound for weapon
         if IsValid(wep) && string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil then
             wep:EmitSound(wep.NPCReloadSound)
         end
