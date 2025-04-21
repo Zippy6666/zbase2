@@ -236,6 +236,16 @@ sound.Add({
 
 --[[
 ======================================================================================================================================================
+                                           SET SPAWN MENU CATEGORY ICONS
+======================================================================================================================================================
+--]]
+
+list.Set("ContentCategoryIcons", "HL2: Humans + Resistance",    "games/16/hl2.png")
+list.Set("ContentCategoryIcons", "HL2: Combine",                "games/16/hl2.png")
+list.Set("ContentCategoryIcons", "HL2: Zombies + Enemy Aliens",  "games/16/hl2.png")
+
+--[[
+======================================================================================================================================================
                                            ESSENTIAL GLOBALS
 ======================================================================================================================================================
 --]]
@@ -488,8 +498,6 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
 
             local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
             local cat = RegularSpawnMenuTable.Category
-            local split = isstring(cat) && string.Split(cat, ": ") -- Split away prefixes such as "HL2:"
-            local newcat = istable(split) && #split >= 2 && split[2]
             local kvs = RegularSpawnMenuTable.KeyValues
             if kvs then
                 kvs["parentname"] = cls
@@ -498,11 +506,11 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             local sFlags = RegularSpawnMenuTable.TotalSpawnFlags or SpawnFlagTblToBit()
 
             RegularSpawnMenuTable.TotalSpawnFlags = sFlags
-            RegularSpawnMenuTable.Category = newcat or cat
+            RegularSpawnMenuTable.Category = cat
 
             local clsname = "zbase_"..cls
             if ZBASE_MENU_REPLACEMENTS[cls] then
-                RegularSpawnMenuTable.Name = "[ZBASE] " .. RegularSpawnMenuTable.Name
+                -- RegularSpawnMenuTable.Name = "[ZBASE] " .. RegularSpawnMenuTable.Name
 
                 if ZBCVAR.Replace:GetBool() then
                     clsname = ZBASE_MENU_REPLACEMENTS[cls]
