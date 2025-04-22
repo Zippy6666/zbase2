@@ -42,6 +42,22 @@ NPC.DodgeAnimations = {
     Right = "dodge_e",
 }
 
+function NPC:CustomInitialize()
+    self:AddAnimationEvent("dodge_w", 5, 100)
+    self:AddAnimationEvent("dodge_e", 5, 100)
+end
+
+-- Your hook for handling custom defined LUA animation events
+-- Add new animation events by calling:
+-- self:AddAnimationEvent("your_animation", your_frame, your_event_id),
+-- in CustomInitialize
+function NPC:HandleLUAAnimationEvent(seq, ev)
+    -- Dodge voice sound
+    if (seq == "dodge_w" or seq == "dodge_e") && ev == 100 then
+        self:EmitSound(self.SeeDangerSounds)
+    end
+end
+
 function NPC:OnRangeThreatened( ent )
     -- Dodge AI when being threatened by range attack
 
@@ -64,12 +80,10 @@ function NPC:OnRangeThreatened( ent )
     if math.random(1, 2) == 1 && !TraceRight.Hit then
         -- Right dodge
         self:PlayAnimation(self.DodgeAnimations.Right, false, {face=ent, speedMult=1.2, duration=1})
-        self:EmitSound(self.SeeDangerSounds)
 
     elseif !TraceLeft.Hit then
         -- Left dodge
         self:PlayAnimation(self.DodgeAnimations.Left, false, {face=ent, speedMult=1.2, duration=1})
-        self:EmitSound(self.SeeDangerSounds)
 
     end
 end
