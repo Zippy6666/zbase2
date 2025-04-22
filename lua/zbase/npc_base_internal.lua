@@ -488,7 +488,6 @@ function NPC:FrameTick()
             -- Ent face
             yaw = ( self.ZBase_CurrentFace_Ent:GetPos()-self:GetPos() ):Angle().yaw
             self.ZBase_CurrentFace_Yaw = yaw
-            print("facing ent", self.ZBase_CurrentFace_Ent)
         end
 
         -- Constant yaw face
