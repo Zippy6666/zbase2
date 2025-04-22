@@ -27,3 +27,4 @@
 #### TODO
 - [ ] Controller follows crosshair more accurately (use relationships)
 - [ ] System for restricting aim angle of range attacks
+- [ ] Anim event on reload if necessary
