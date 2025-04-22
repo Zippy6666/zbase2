@@ -109,6 +109,7 @@ game.AddParticles("particles/mortarsynth_fx.pcf")
 PrecacheParticleSystem("blood_impact_zbase_green")
 PrecacheParticleSystem("blood_impact_zbase_black")
 PrecacheParticleSystem("blood_impact_zbase_blue")
+PrecacheParticleSystem("blood_impact_zbase_synth")
 PrecacheParticleSystem("striderbuster_break")
 PrecacheParticleSystem("striderbuster_break_shell")
 

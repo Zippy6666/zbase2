@@ -1117,6 +1117,8 @@ function NPC:Face( face, duration, speed )
         
     end
 
+    if yaw == nil then return end
+
     if duration && duration > 0 then
         self:CONV_TempVar("ZBase_CurrentFace_bShould", true, duration)
         self:CONV_TempVar("ZBase_CurrentFace_Yaw", yaw, duration)
@@ -1154,6 +1156,8 @@ function NPC:StopFace()
         self:ClearSchedule()
     end
 
+    self:CONV_RemoveTempVar("ZBase_CurrentFace_Ent")
+    self:CONV_RemoveTempVar("ZBase_CurrentFace_bShould")
     self:CONV_RemoveTempVar("ZBase_CurrentFace_Yaw")
     self:CONV_RemoveTempVar("ZBase_CurrentFace_Speed")
 end

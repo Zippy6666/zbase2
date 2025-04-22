@@ -8,7 +8,7 @@ NPC.ForceAvoidDanger = true -- Force this NPC to avoid dangers such as grenades
 NPC.ZBaseStartFaction = "combine"
 
 NPC.BloodColor = DONT_BLEED
-NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
+NPC.CustomBloodParticles = {"blood_impact_zbase_synth"} -- Table of custom particles
 NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 NPC.CollisionBounds = {min=Vector(-65, -65, 0), max=Vector(65, 65, 80)}
