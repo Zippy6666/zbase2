@@ -6,6 +6,7 @@ local NPC           = FindMetaTable("NPC")
 local developer     = GetConVar("developer")
 local colDeb        = Color(0, 255, 0, 255)
 local vecFarDown    = Vector(0,0,-10000)
+local bDidControllerNoclipCode = false
 
 local nextBind = {
     [IN_ATTACK]     = IN_ATTACK2,
@@ -654,10 +655,17 @@ end
 
 -- Noclipping causes controlling to stop
 hook.Add("PlayerNoClip", "ZBASE_CONTROLLER", function(ply, desiredState)
+    if bDidControllerNoclipCode then return end
+
     if IsValid(ply.ZBASE_ControlledNPC) then
         ZBASE_CONTROLLER:StopControlling(ply, ply.ZBASE_ControlledNPC)
     end
-    return true
+
+    bDidControllerNoclipCode = true
+    local result = hook.Run("PlayerNoClip", ply, desiredState)
+    bDidControllerNoclipCode = false
+
+    return result
 end)
 
 function ZBASE_CONTROLLER:StopControlling( ply, npc )
