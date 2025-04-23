@@ -31,59 +31,55 @@ function NPC:PreSpawn()
 end
 
 function NPC:ZBaseInit()
-    -- Vars
+    -- Variables
+
     self:SetNWBool("IsZBaseNPC", true)
-    self.NextPainSound = CurTime()
-    self.NextAlertSound = CurTime()
-    self.NPCNextSlowThink = CurTime()
-    self.NPCNextDangerSound = CurTime()
-    self.NextEmitHearDangerSound = CurTime()
-    self.NextFlinch = CurTime()
-    self.NextHealthRegen = CurTime()
-    self.NextFootStepTimer = CurTime()
-    self.NextRangeThreatened = CurTime()
-    self.NextOutOfShootRangeSched = CurTime()
-    self.EnemyVisible = false
-    self.HadPreviousEnemy = false
-    self.LastEnemy = NULL
-    self.InternalDistanceFromGround = self.Fly_DistanceFromGround
-    self.ZBLastHitGr = HITGROUP_GENERIC
-    self.PlayerToFollow = NULL
-    self.GuardSpot = self:GetPos()
-    self.InternalCurrentVoiceSoundDuration = 0
 
-    -- Weapon variables
-    self.ZBWepSys_NextBurst = CurTime()
-    self.ZBWepSys_NextShoot = CurTime()
-    self.ZBWepSys_LastShootCooldown = 0
-    self.ZBWepSys_Stored_AIWantsToShoot = false
-    self.ZBWepSys_Stored_FacingEne = false
-    self.ZBWepSys_NextCheckIsFacingEne = CurTime()
+    self.NextPainSound                      = CurTime()
+    self.NextAlertSound                     = CurTime()
+    self.NPCNextSlowThink                   = CurTime()
+    self.NPCNextDangerSound                 = CurTime()
+    self.NextEmitHearDangerSound            = CurTime()
+    self.NextFlinch                         = CurTime()
+    self.NextHealthRegen                    = CurTime()
+    self.NextFootStepTimer                  = CurTime()
+    self.NextRangeThreatened                = CurTime()
+    self.NextOutOfShootRangeSched           = CurTime()
+    self.ZBWepSys_NextBurst                 = CurTime()
+    self.ZBWepSys_NextShoot                 = CurTime()
+    self.ZBWepSys_NextCheckIsFacingEne      = CurTime()
+    self.EnemyVisible                       = false
+    self.HadPreviousEnemy                   = false
+    self.LastEnemy                          = NULL
+    self.InternalDistanceFromGround         = self.Fly_DistanceFromGround
+    self.ZBLastHitGr                        = HITGROUP_GENERIC
+    self.PlayerToFollow                     = NULL
+    self.GuardSpot                          = self:GetPos()
+    self.InternalCurrentVoiceSoundDuration  = 0
+    self.ZBWepSys_LastShootCooldown         = 0
+    self.ZBWepSys_Stored_AIWantsToShoot     = false
+    self.ZBWepSys_Stored_FacingEne          = false
+    self.ZBase_ExpectedSightDist            = ( (self.SightDistance == ZBASE_DEFAULT_SIGHT_DIST or ZBCVAR.SightDistOverride:GetBool()) && ZBCVAR.SightDist:GetInt() ) or self.SightDistance
+    self.ZBaseLuaAnimationFrames            = {}
+    self.ZBaseLuaAnimEvents                 = {}
+    self.ZBaseFrameLast                     = -1
+    self.ZBaseSeqLast                       = -1	
 
-    self.ZBase_ExpectedSightDist = (self.SightDistance == ZBASE_DEFAULT_SIGHT_DIST or ZBCVAR.SightDistOverride:GetBool())
-    && ZBCVAR.SightDist:GetInt()
-    or self.SightDistance
-    
     self:InitGrenades()
     self:InitSounds()
-
-    -- Set specified internal variables
-    for varname, var in pairs(self.EInternalVars or {}) do
-        self:SetSaveValue(varname, var)
-    end
-    self.EInternalVars = nil
-
+    self:InitInternalVars()
     self:InitModel()
     self:InitBounds()
     self:AddEFlags(EFL_NO_DISSOLVE)
+    self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
+    self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
 
+    -- No collide if we should
     if ZBCVAR.NPCNocollide:GetBool() then
         self:SetCollisionGroup(COLLISION_GROUP_NPC_SCRIPTED)
     end
 
-    self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
-    self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
-
+    -- Blood color
     if self.BloodColor != false then
         self:SetBloodColor(self.BloodColor)
     end
@@ -91,68 +87,75 @@ function NPC:ZBaseInit()
     -- Makes behaviour system function
     ZBaseBehaviourInit( self )
 
+    -- On remove function
     self:CallOnRemove("ZBaseOnRemove"..self:EntIndex(), function()
         self:InternalOnRemove()
         self:OnRemove()
     end)
 
+    -- Set to 'zbase' squad initially before we know faction
+    -- if we should
     if !self.DontAutoSetSquad then
         self:SetSquad("zbase")
     end
 
-    -- For LUA animation events
-    if self.EnableLUAAnimationEvents then
-        self.ZBaseLuaAnimationFrames = {}
-        self.ZBaseLuaAnimEvents = {}
-        self.ZBaseFrameLast = -1
-        self.ZBaseSeqLast = -1		
-    end
+    -- For use with hammer inputs
+    self:Fire("wake")
 
+    -- User defined init
+    self:CustomInitialize()
+
+    -- Init more stuff next tick
+    self:CONV_CallNextTick("InitNextTick")
+end
+
+function NPC:InitSharedAnimEvents()
     -- Add footsteps when landing after a jump
     self.JumpLandSequence = self:GetSequenceName( self:SelectWeightedSequence(ACT_LAND) )
     if self.JumpLandSequence != "Not Found!" then
         self:AddAnimationEvent(self.JumpLandSequence, 1, 100)
         self:AddAnimationEvent(self.JumpLandSequence, 3, 100)
     end
-
-    self:Fire("wake")
-
-    self:CustomInitialize()
-
-    self:CONV_CallNextTick("InitNextTick")
 end
 
 function NPC:InitNextTick()
-    -- Auto set npc class
+    -- Auto set NPC class
     if self.IsZBase_SNPC && self:GetNPCClass() == -1 && ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)] then
         self:SetNPCClass(ZBaseFactionTranslation_Flipped[ZBaseGetFaction(self)])
     end
 
+    -- Init more stuff next tick
     self:CONV_CallNextTick("Init2Ticks")
 end
 
 function NPC:Init2Ticks()
     -- FOV and sight dist
-
     self.FieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
     self:SetSaveValue( "m_flFieldOfView", self.FieldOfView )
-
     self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
 
     -- Phys damage scale
     self:Fire("physdamagescale", self.PhysDamageScale)
 
+    -- Initialize capabilities
     self:InitCap()
 
-    -- Set squad
+    -- Set squad to faction if we should
     if !self.DontAutoSetSquad then
-        local function SetSquad()
-            if !IsValid(self) then return end
-            self:SetSquad(self.ZBaseFaction)
-        end
-
-        conv.callNextTick(SetSquad)
+        conv.callNextTick(function()
+            if IsValid(self) then
+                self:SetSquad(self.ZBaseFaction)
+            end
+        end)
     end
+end
+
+-- Set specified internal variables
+function NPC:InitInternalVars()
+    for varname, var in pairs(self.EInternalVars or {}) do
+        self:SetSaveValue(varname, var)
+    end
+    self.EInternalVars = nil
 end
 
 function NPC:InitSounds()
@@ -166,15 +169,16 @@ function NPC:InitSounds()
 end
 
 function NPC:InitModel()
+    -- Set rendermode
     self:SetRenderMode(self.RenderMode)
 
+    -- Set submaterials
     for k, v in pairs(self.SubMaterials) do
         self:SetSubMaterial(k - 1, v)
     end
 
     -- Set model
     if self.SpawnModel then
-
         -- Default collision bounds
         local mins, maxs = self:GetCollisionBounds()
 
@@ -182,7 +186,6 @@ function NPC:InitModel()
         self:SetModel(self.SpawnModel)
         self:SetCollisionBounds(mins, maxs)
         self:ResetIdealActivity(ACT_IDLE)
-
     end
 
     -- Glowing eyes
