@@ -1,12 +1,12 @@
 util.AddNetworkString("ZBaseGlowEyes")
 util.AddNetworkString("ZBaseClientRagdoll")
 
-local NPC = ZBaseNPCs["npc_zbase"]
-local NPCB = ZBaseNPCs["npc_zbase"].Behaviours
-local IsMultiplayer = !game.SinglePlayer()
-local Developer = GetConVar("developer")
-local KeepCorpses = GetConVar("ai_serverragdolls")
-local ai_disabled = GetConVar("ai_disabled")
+local NPC               = ZBaseNPCs["npc_zbase"]
+local BEHAVIOUR         = ZBaseNPCs["npc_zbase"].Behaviours
+local bMultiplayer      = !game.SinglePlayer()
+local developer         = GetConVar("developer")
+local ai_serverragdolls = GetConVar("ai_serverragdolls")
+local ai_disabled       = GetConVar("ai_disabled")
 
 --[[
 ==================================================================================================
@@ -257,9 +257,9 @@ function NPC:InitCap()
     end
 
     -- Door/button stuff
-    if self.CanOpenDoors then self:CapabilitiesAdd(CAP_OPEN_DOORS) end
-    if self.CanOpenAutoDoors then self:CapabilitiesAdd(CAP_AUTO_DOORS) end
-    if self.CanPushButtons then self:CapabilitiesAdd(CAP_USE) end
+    if self.CanOpenDoors        then self:CapabilitiesAdd(CAP_OPEN_DOORS) end
+    if self.CanOpenAutoDoors    then self:CapabilitiesAdd(CAP_AUTO_DOORS) end
+    if self.CanUse              then self:CapabilitiesAdd(CAP_USE) end
 
     -- Jump
     if self.CanJump && self:SelectWeightedSequence(ACT_JUMP) != -1 then
@@ -755,7 +755,7 @@ function NPC:ZBWepSys_ShouldUseFireGesture( isMoving )
         return false
     end
 
-    return isMoving or !IsMultiplayer 
+    return isMoving or !bMultiplayer 
 end
 
 function NPC:ZBWepSys_TranslateAct(act, translateTbl)
@@ -999,7 +999,7 @@ function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
     target:DeleteOnRemove(target.ZBase_SuppressionBullseye) -- Remove suppression point when target does not exist anymore
     SafeRemoveEntityDelayed(target.ZBase_SuppressionBullseye, 8) -- Remove suppression point after some time
 
-    if Developer:GetBool() then
+    if developer:GetBool() then
         target.ZBase_SuppressionBullseye:SetNoDraw(false)
         target.ZBase_SuppressionBullseye:SetMaterial("models/wireframe")
     end
@@ -1202,7 +1202,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
     if self.Dead or self.DoingDeathAnim then return end
     if !anim then return end
 
-    if isGest && !self.IsZBase_SNPC && IsMultiplayer then return end -- Don't do gestures on non-scripted NPCs in multiplayer, it seems to be broken
+    if isGest && !self.IsZBase_SNPC && bMultiplayer then return end -- Don't do gestures on non-scripted NPCs in multiplayer, it seems to be broken
 
     moreArgs = moreArgs or {}
 
@@ -1699,7 +1699,7 @@ function NPC:NewSchedDetected( sched, schedName )
     && !( self.IsZBase_SNPC && self.SNPCType == ZBASE_SNPCTYPE_FLY ) -- Don't detect failures for flying mfs
 
     if assumedFailSched then
-        if Developer:GetInt() >= 2 then
+        if developer:GetInt() >= 2 then
             MsgN("Had schedule failure (", schedName, ")")
         end
 
@@ -1713,7 +1713,7 @@ function NPC:OnDetectSchedFail()
     if !ZBCVAR.FallbackNav:GetBool() then return end
     if ZBaseMoveIsActive(self, "MoveFallback") then return end
 
-    if Developer:GetInt() >= 2 then
+    if developer:GetInt() >= 2 then
         MsgN("Schedule failed, last seen sched was: "..(self.ZBaseLastESchedName or "none"))
     end
 
@@ -1970,7 +1970,7 @@ end
 --]]
 
 
-NPCB.Patrol = {MustNotHaveEnemy = true}
+BEHAVIOUR.Patrol = {MustNotHaveEnemy = true}
 
 
 local PatrolCvar = GetConVar("zbase_patrol")
@@ -1981,19 +1981,19 @@ local SchedsToReplaceWithPatrol = {
     [SCHED_ALERT_WALK] = true,
 }
 
-function NPCB.Patrol:ShouldDoBehaviour( self )
+function BEHAVIOUR.Patrol:ShouldDoBehaviour( self )
     return PatrolCvar:GetBool() && self.CanPatrol && SchedsToReplaceWithPatrol[self:GetCurrentSchedule()]
     && self:GetMoveType() == MOVETYPE_STEP
     && !self.CurrentSchedule -- Not doing any custom SNPC schedule at the moment
 end
 
-function NPCB.Patrol:Delay(self)
+function BEHAVIOUR.Patrol:Delay(self)
     if self.ZBase_IsMoving or self.DoingPlayAnim then
         return math.random(8, 15)
     end
 end
 
-function NPCB.Patrol:Run( self )
+function BEHAVIOUR.Patrol:Run( self )
     local IsAlert = self:GetNPCState() == NPC_STATE_ALERT
 
     if IsValid(self.PlayerToFollow) then
@@ -2013,11 +2013,12 @@ end
 ==================================================================================================
 --]]
 
-    // Call allies outside of squad for help
+-- Call allies outside of squad for help
 
-NPCB.FactionCallForHelp = {}
+local callForHelpHint           = SOUND_COMBAT
+BEHAVIOUR.FactionCallForHelp    = {}
 
-function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
+function BEHAVIOUR.FactionCallForHelp:ShouldDoBehaviour( self )
     if !ZBCVAR.CallForHelp:GetBool() then
         return false
     end
@@ -2034,8 +2035,7 @@ function NPCB.FactionCallForHelp:ShouldDoBehaviour( self )
     return self.ZBaseFaction != "none" && self.ZBaseFaction != "neutral"
 end
 
-local callForHelpHint = SOUND_COMBAT
-function NPCB.FactionCallForHelp:Run( self )
+function BEHAVIOUR.FactionCallForHelp:Run( self )
     local hintDuration = math.Rand(2, 3.5)
     local loudestCallForHelpHint = sound.GetLoudestSoundHint(callForHelpHint, self:GetPos())
     local ene = self:GetEnemy()
@@ -2081,7 +2081,7 @@ end
 
 ZBaseComballOwner = NULL
 
-NPCB.SecondaryFire = {MustHaveVisibleEnemy = true, MustFaceEnemy = true}
+BEHAVIOUR.SecondaryFire = {MustHaveVisibleEnemy = true, MustFaceEnemy = true}
 
 local SecondaryFireWeapons = {
     ["weapon_ar2"] = {dist=4000, mindist=100},
@@ -2174,7 +2174,7 @@ function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
     end
 end
 
-function NPCB.SecondaryFire:ShouldDoBehaviour( self )
+function BEHAVIOUR.SecondaryFire:ShouldDoBehaviour( self )
     if !self.CanSecondaryAttack then return false end
     if self.DoingPlayAnim then return false end
     if self.bControllerBlock then return false end
@@ -2190,13 +2190,13 @@ function NPCB.SecondaryFire:ShouldDoBehaviour( self )
     && self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
 end
 
-function NPCB.SecondaryFire:Delay( self )
+function BEHAVIOUR.SecondaryFire:Delay( self )
     if math.random(1, 2) == 1 then
         return math.Rand(4, 6)
     end
 end
 
-function NPCB.SecondaryFire:Run( self )
+function BEHAVIOUR.SecondaryFire:Run( self )
     local enemy = self:GetEnemy()
     local wep = self:GetActiveWeapon()
 
@@ -2218,7 +2218,7 @@ function NPC:ControllerSecondaryAttack()
 
     if !SecondaryFireWeapons[ wep.EngineCloneClass ] then return end
 
-    NPCB.SecondaryFire:Run( self )
+    BEHAVIOUR.SecondaryFire:Run( self )
 end
 
 --[[
@@ -2227,8 +2227,8 @@ end
 ==================================================================================================
 --]]
 
-NPCB.MeleeAttack = {MustHaveEnemy = true}
-NPCB.PreMeleeAttack = {MustHaveEnemy = true}
+BEHAVIOUR.MeleeAttack = {MustHaveEnemy = true}
+BEHAVIOUR.PreMeleeAttack = {MustHaveEnemy = true}
 
 function NPC:TooBusyForMelee()
     return self.DoingPlayAnim or self.bControllerBlock
@@ -2319,7 +2319,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
     return hurtEnts
 end
 
-function NPCB.MeleeAttack:ShouldDoBehaviour( self )
+function BEHAVIOUR.MeleeAttack:ShouldDoBehaviour( self )
     if !self.BaseMeleeAttack then return false end
     if self:GetActiveWeapon().NPCIsMeleeWep then return false end
 
@@ -2333,18 +2333,18 @@ function NPCB.MeleeAttack:ShouldDoBehaviour( self )
     && self:ZBaseDist(ene, {within=self.MeleeAttackDistance})
 end
 
-function NPCB.MeleeAttack:Run( self )
+function BEHAVIOUR.MeleeAttack:Run( self )
     self:MeleeAttack()
     ZBaseDelayBehaviour(self:SequenceDuration() + ZBaseRndTblRange(self.MeleeAttackCooldown))
 end
 
-function NPCB.PreMeleeAttack:ShouldDoBehaviour( self )
+function BEHAVIOUR.PreMeleeAttack:ShouldDoBehaviour( self )
     if !self.BaseMeleeAttack then return false end
     if self:TooBusyForMelee() then return false end
     return true
 end
 
-function NPCB.PreMeleeAttack:Run( self )
+function BEHAVIOUR.PreMeleeAttack:Run( self )
     self:MultipleMeleeAttacks()
 end
 
@@ -2354,9 +2354,9 @@ end
 ==================================================================================================
 --]]
 
-NPCB.RangeAttack = {MustHaveEnemy = true}
+BEHAVIOUR.RangeAttack = {MustHaveEnemy = true}
 
-function NPCB.RangeAttack:ShouldDoBehaviour( self )
+function BEHAVIOUR.RangeAttack:ShouldDoBehaviour( self )
     if !self.BaseRangeAttack then return false end -- Doesn't have range attack
     if self.DoingPlayAnim then return false end
     if self.bControllerBlock then return false end
@@ -2387,7 +2387,7 @@ function NPCB.RangeAttack:ShouldDoBehaviour( self )
     return true
 end
 
-function NPCB.RangeAttack:Run( self )
+function BEHAVIOUR.RangeAttack:Run( self )
     local ene = self:GetEnemy()
 
     if IsValid(ene) && ene.IsZBaseNPC then
@@ -2405,9 +2405,9 @@ end
 ==================================================================================================
 --]]
 
-NPCB.Grenade = {MustHaveEnemy = true}
+BEHAVIOUR.Grenade = {MustHaveEnemy = true}
 
-function NPCB.Grenade:ShouldDoBehaviour( self )
+function BEHAVIOUR.Grenade:ShouldDoBehaviour( self )
     local lastSeenPos = self:GetEnemyLastSeenPos()
 
     return self.BaseGrenadeAttack
@@ -2422,7 +2422,7 @@ function NPCB.Grenade:ShouldDoBehaviour( self )
     && !(self.Patch_PreventGrenade && self:Patch_PreventGrenade())
 end
 
-function NPCB.Grenade:Delay( self )
+function BEHAVIOUR.Grenade:Delay( self )
     local should_throw_visible = self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Visible)==1
     local should_throw_occluded = !self.EnemyVisible && math.random(1, self.ThrowGrenadeChance_Occluded)==1
 
@@ -2436,7 +2436,7 @@ function NPCB.Grenade:Delay( self )
     end
 end
 
-function NPCB.Grenade:Run( self )
+function BEHAVIOUR.Grenade:Run( self )
     self:ThrowGrenade()
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.GrenadeCoolDown))
 end
@@ -2706,9 +2706,9 @@ end
 ==================================================================================================
 --]]
 
-NPCB.DoIdleSound = {MustNotHaveEnemy = true}
+BEHAVIOUR.DoIdleSound = {MustNotHaveEnemy = true}
 
-function NPCB.DoIdleSound:ShouldDoBehaviour( self )
+function BEHAVIOUR.DoIdleSound:ShouldDoBehaviour( self )
     if self.IdleSounds == "" then return false end
     if self:GetNPCState() != NPC_STATE_IDLE then return false end
     if self.HavingConversation then return false end
@@ -2716,13 +2716,13 @@ function NPCB.DoIdleSound:ShouldDoBehaviour( self )
     return true
 end
 
-function NPCB.DoIdleSound:Delay( self )
+function BEHAVIOUR.DoIdleSound:Delay( self )
     if self:NearbyAllySpeaking({"IdleSounds"}) or math.random(1, self.IdleSound_Chance)==1 then
         return ZBaseRndTblRange(self.IdleSoundCooldown)
     end
 end
 
-function NPCB.DoIdleSound:Run( self )
+function BEHAVIOUR.DoIdleSound:Run( self )
     self:EmitSound_Uninterupted(self.IdleSounds)
     ZBaseDelayBehaviour(ZBaseRndTblRange(self.IdleSoundCooldown))
 end
@@ -2733,22 +2733,22 @@ end
 ==================================================================================================
 --]]
 
-NPCB.DoIdleEnemySound = {MustHaveEnemy = true}
+BEHAVIOUR.DoIdleEnemySound = {MustHaveEnemy = true}
 
-function NPCB.DoIdleEnemySound:ShouldDoBehaviour( self )
+function BEHAVIOUR.DoIdleEnemySound:ShouldDoBehaviour( self )
     if self.Idle_HasEnemy_Sounds == "" then return false end
     if self:GetNPCState() == NPC_STATE_DEAD then return false end
 
     return true
 end
 
-function NPCB.DoIdleEnemySound:Delay( self )
+function BEHAVIOUR.DoIdleEnemySound:Delay( self )
     if self:NearbyAllySpeaking() then
         return ZBaseRndTblRange(self.IdleSounds_HasEnemyCooldown)
     end
 end
 
-function NPCB.DoIdleEnemySound:Run( self )
+function BEHAVIOUR.DoIdleEnemySound:Run( self )
     local snd = self.Idle_HasEnemy_Sounds
     local enemy = self:GetEnemy()
 
@@ -2762,9 +2762,9 @@ end
 ==================================================================================================
 --]]
 
-NPCB.Dialogue = {MustNotHaveEnemy = true}
+BEHAVIOUR.Dialogue = {MustNotHaveEnemy = true}
 
-function NPCB.Dialogue:ShouldDoBehaviour( self )
+function BEHAVIOUR.Dialogue:ShouldDoBehaviour( self )
     if self.Dialogue_Question_Sounds == "" then return false end
     if self:GetNPCState() != NPC_STATE_IDLE then return false end
     if self.HavingConversation then return false end
@@ -2773,13 +2773,13 @@ function NPCB.Dialogue:ShouldDoBehaviour( self )
     return true
 end
 
-function NPCB.Dialogue:Delay( self )
+function BEHAVIOUR.Dialogue:Delay( self )
     if self:NearbyAllySpeaking() or self.HavingConversation or math.random(1, self.IdleSound_Chance)==1 then
         return ZBaseRndTblRange(self.IdleSoundCooldown)
     end
 end
 
-function NPCB.Dialogue:Run( self )
+function BEHAVIOUR.Dialogue:Run( self )
     -- Nearest ally
     local ally = self:GetNearestAlly(350)
     if !IsValid(ally) then return end
@@ -3200,14 +3200,14 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     local infl = dmg:GetInflictor()
     local Gibbed = self:ShouldGib(dmg, hit_gr)
     local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
-    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !KeepCorpses:GetBool() && !isDissolveDMG && self.HasDeathRagdoll
+    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !ai_serverragdolls:GetBool() && !isDissolveDMG && self.HasDeathRagdoll
     local rag
 
     self:SetShouldServerRagdoll(!shouldCLRagdoll)
 
     -- Become ragdoll if we should
     if !shouldCLRagdoll && !Gibbed && !dmg:IsDamageType(DMG_REMOVENORAGDOLL) then
-        local Ragdoll = self:BecomeRagdoll(dmg, hit_gr, KeepCorpses:GetBool())
+        local Ragdoll = self:BecomeRagdoll(dmg, hit_gr, ai_serverragdolls:GetBool())
         if IsValid(Ragdoll) then
             rag = Ragdoll
         end
