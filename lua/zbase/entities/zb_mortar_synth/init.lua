@@ -12,7 +12,7 @@ NPC.SNPCType = ZBASE_SNPCTYPE_FLY -- ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY |
 NPC.StartHealth = 110
 
 NPC.BloodColor = DONT_BLEED
-NPC.CustomBloodParticles = {"blood_impact_synth_01"} -- Table of custom particles
+NPC.CustomBloodParticles = {"blood_impact_zbase_synth"} -- Table of custom particles
 NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 NPC.ZBaseStartFaction = "combine" -- Any string, all ZBase NPCs with this faction will be allied
@@ -217,16 +217,19 @@ end
 function NPC:ShouldGib( dmginfo, hit_gr )
     -- Gibs / explosion effects
 
-    self:CreateGib("models/gibs/mortarsynth_gib_01.mdl", {offset=Vector(0, 0, 0)})
+    local trailgib = self:CreateGib("models/gibs/mortarsynth_gib_01.mdl", {offset=Vector(0, 0, 0)})
     self:CreateGib("models/gibs/mortarsynth_gib_02.mdl", {offset=Vector(-20, 0, 0)})
     self:CreateGib("models/gibs/mortarsynth_gib_03.mdl", {offset=Vector(0, 0, -15)})
     self:CreateGib("models/gibs/mortarsynth_gib_04.mdl", {offset=Vector(15, -28, -30)})
     self:CreateGib("models/gibs/mortarsynth_gib_05.mdl", {offset=Vector(15, 28, -30)})
 
-    ParticleEffect("striderbuster_break_shell", self:GetPos(), self:GetAngles())
+    if IsValid(trailgib) then
+        ParticleEffectAttach("striderbuster_shotdown_trail", PATTACH_ABSORIGIN_FOLLOW, trailgib, 0)
+    end
+
     local explosion = ents.Create("env_explosion")
     explosion:SetPos(self:WorldSpaceCenter())
-    explosion:SetKeyValue("spawnflags", bit.bor(1, 64, 256))
+    -- explosion:SetKeyValue("spawnflags", bit.bor(1, 64, 256))
     explosion:Spawn()
     explosion:Fire("Explode")
     explosion:Remove()

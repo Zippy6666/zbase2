@@ -483,7 +483,14 @@ function NPC:FrameTick()
     end
 
     -- For NPC:Face()
-    if self.ZBase_CurrentFace_Yaw then
+    if self.ZBase_CurrentFace_bShould then
+        if IsValid(self.ZBase_CurrentFace_Ent) then
+            -- Ent face
+            yaw = ( self.ZBase_CurrentFace_Ent:GetPos()-self:GetPos() ):Angle().yaw
+            self.ZBase_CurrentFace_Yaw = yaw
+        end
+
+        -- Constant yaw face
         self:SetIdealYawAndUpdate(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
     end
 
@@ -1110,11 +1117,21 @@ function NPC:Face( face, duration, speed )
         
     end
 
+    if yaw == nil then return end
+
     if duration && duration > 0 then
+        self:CONV_TempVar("ZBase_CurrentFace_bShould", true, duration)
         self:CONV_TempVar("ZBase_CurrentFace_Yaw", yaw, duration)
+
+        if IsValid(face) then
+            self:CONV_TempVar("ZBase_CurrentFace_Ent", face, duration)
+        end
+
         self:CONV_TempVar("ZBase_CurrentFace_Speed", turnSpeed, duration)
+
     elseif !self.ZBase_CurrentFace_Yaw then
         self:SetIdealYawAndUpdate(yaw, turnSpeed)
+
     end
 end
 
@@ -1139,6 +1156,8 @@ function NPC:StopFace()
         self:ClearSchedule()
     end
 
+    self:CONV_RemoveTempVar("ZBase_CurrentFace_Ent")
+    self:CONV_RemoveTempVar("ZBase_CurrentFace_bShould")
     self:CONV_RemoveTempVar("ZBase_CurrentFace_Yaw")
     self:CONV_RemoveTempVar("ZBase_CurrentFace_Speed")
 end

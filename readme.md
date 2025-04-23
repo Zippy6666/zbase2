@@ -23,3 +23,8 @@
 
 ### Projectile base
 - Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/entities/zb_projectile.lua
+
+#### TODO
+- [ ] Controller follows crosshair more accurately (use relationships)
+- [ ] System for restricting aim angle of range attacks
+- [ ] Anim event on reload if necessary
