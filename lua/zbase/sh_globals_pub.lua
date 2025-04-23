@@ -1,5 +1,7 @@
 -- Useful globals
 
+local up = Vector(0, 0, 1)
+
 --[[
 ======================================================================================================================================================
                                            ENUMS / CONSTANTS
@@ -24,7 +26,7 @@ ZBASE_DEFAULT_SIGHT_DIST = 4096
 
 --[[
 ======================================================================================================================================================
-                                           "ESSENTIAL" FUNCTIONS
+                                           UTILITIES
 ======================================================================================================================================================
 --]]
 
@@ -50,61 +52,44 @@ function FindZBaseBehaviourTable(debuginfo)
     end
 end 
 
---[[
-======================================================================================================================================================
-                                           UTIL
-======================================================================================================================================================
---]]
-
--- Change the ZBASE faction for an entity
--- Always use this function if you want to do so
-function ZBaseSetFaction( ent, newFaction )
-    ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
-
-    for _, v in ipairs(ZBaseNPCInstances) do
-        v:UpdateRelationships()
-    end
-end 
-
--- Gets the ZBASE function of an entity
-function ZBaseGetFaction( ent )
-    return ent.ZBaseFaction
-end 
-
--- Change how two entities feel about each other
--- https://wiki.facepunch.com/gmod/Enums/D
-function ZBaseSetRelationship( ent1, ent2, rel )
-    ent1:ZBASE_SetMutualRelationship( ent2, rel )
-end 
-
--- Used to add glowing eyes to models
--- 'identifier' - A unique identifier for this particular eye
--- 'model' - The model that should have the eye
--- 'skin' - Which skin should have the eye, set to false to use all skins
-function ZBaseAddGlowingEye(identifier, model, skin, bone, offset, scale, color)
-    if !ZBaseGlowingEyes[model] then
-        ZBaseGlowingEyes[model] = {}
-    end 
-
-    local Eye = {}
-    Eye.skin = skin
-    Eye.bone = bone
-    Eye.offset = offset
-    Eye.scale = scale
-    Eye.color = color
-
-    ZBaseGlowingEyes[model][identifier] = Eye
-end 
-
 -- Changes a category's icon to whatever you like
--- Example:
--- ZBaseSetCategoryIcon( "Combine", "icon16/female.png" )
 -- You probably want to run this in a hook like initialize
--- Feminist combine xddddd
 function ZBaseSetCategoryIcon( category, path )
     if SERVER then return end
     ZBaseCategoryImages[category] = path
 end 
+
+-- Clamps a direction in a view cone of a certain angle
+-- Can be used to prevent NPCs from firing bullets out of their ass for example
+function ZBaseClampDirection(nrm, nrmForward, flMaxDeg)
+    flMaxRad = math.rad(flMaxDeg) -- Convert degrees to radians for dot product comparison
+
+    -- Calculate dot product (cosine of angle between vectors)
+    local flDot = nrm:Dot(nrmForward)
+
+    -- If angle is already within limits, return original direction
+    if flDot >= math.cos(flMaxRad) then
+        return nrm
+    end
+
+    -- Calculate rejection of 'nrm' perpendicular to 'nrmForward'
+    local flProjection = nrm:Dot(nrmForward)
+    local vRejection = nrm - (nrmForward * flProjection)
+    vRejection:Normalize()
+
+    -- Construct new direction at the maximum allowed angle
+    local flClampedDot = math.cos(flMaxRad)
+    local flClampedSin = math.sin(flMaxRad)
+    local vClampedDir = (nrmForward * flClampedDot) + (vRejection * flClampedSin)
+
+    return vClampedDir:GetNormalized()
+end
+
+--[[
+======================================================================================================================================================
+                                           NPCS / RELATIONSHIPS
+======================================================================================================================================================
+--]]
 
 -- Spawn a ZBase NPC
 -- 'class' - The ZBase NPC class, example: 'zb_combine_soldier'
@@ -112,7 +97,6 @@ end
 -- 'normal' - The normal to spawn it on (optional)
 -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
 -- 'spawn_flags' - (optional) The spawnflags to start with instead of the default SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, and SF_NPC_LONG_RANGE
-local up = Vector(0, 0, 1)
 function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class, spawn_flags)
     if !SERVER then return NULL end 
 
@@ -134,6 +118,52 @@ function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class, spawn_flags)
     else
         return NPC
     end 
+end
+
+-- Change the ZBASE faction for an entity
+-- Always use this function if you want to do so
+function ZBaseSetFaction( ent, newFaction )
+    ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
+
+    for _, v in ipairs(ZBaseNPCInstances) do
+        v:UpdateRelationships()
+    end
+end 
+
+-- Gets the ZBASE faction of an entity
+function ZBaseGetFaction( ent )
+    return ent.ZBaseFaction
+end 
+
+-- Change how two entities feel about each other
+-- https://wiki.facepunch.com/gmod/Enums/D
+function ZBaseSetRelationship( ent1, ent2, rel )
+    ent1:ZBASE_SetMutualRelationship( ent2, rel )
+end 
+
+--[[
+======================================================================================================================================================
+                                           FX / EFFECTS / VISUALS
+======================================================================================================================================================
+--]]
+
+-- Used to add glowing eyes to models
+-- 'identifier' - A unique identifier for this particular eye
+-- 'model' - The model that should have the eye
+-- 'skin' - Which skin should have the eye, set to false to use all skins
+function ZBaseAddGlowingEye(identifier, model, skin, bone, offset, scale, color)
+    if !ZBaseGlowingEyes[model] then
+        ZBaseGlowingEyes[model] = {}
+    end 
+
+    local Eye = {}
+    Eye.skin = skin
+    Eye.bone = bone
+    Eye.offset = offset
+    Eye.scale = scale
+    Eye.color = color
+
+    ZBaseGlowingEyes[model][identifier] = Eye
 end 
 
 -- Emit a flash of light
@@ -169,7 +199,7 @@ end
 
 --[[
 ======================================================================================================================================================
-                                           ZBaseMove
+                                           ZBASE MOVE
 ======================================================================================================================================================
 --]]
 

@@ -5,5 +5,4 @@ TODO
 - System for restricting aim angle of range attacks
 - Anim event on reload if necessary
 - Quality sliders for dynamic light and particle effects
-- Metro cop arrest option (off by default)
 - Ensure face when doing anim works as intended
