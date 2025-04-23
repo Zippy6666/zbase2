@@ -109,6 +109,7 @@ game.AddParticles("particles/mortarsynth_fx.pcf")
 PrecacheParticleSystem("blood_impact_zbase_green")
 PrecacheParticleSystem("blood_impact_zbase_black")
 PrecacheParticleSystem("blood_impact_zbase_blue")
+PrecacheParticleSystem("blood_impact_zbase_synth")
 PrecacheParticleSystem("striderbuster_break")
 PrecacheParticleSystem("striderbuster_break_shell")
 
@@ -264,27 +265,6 @@ if SERVER then
     ZBaseGibs = ZBaseGibs or {}
     ZBasePatchTable = {}
     ZBaseLastSavedFileTimeRegistry = ZBaseLastSavedFileTimeRegistry or {} -- For autorefresh
-end
-
-function ZBaseListFactions( _, ply )
-    if SERVER then
-        local factions = {none=true, neutral=true, ally=true}
-
-        for k, v in pairs(ZBaseNPCs) do
-            if v.ZBaseStartFaction then
-                factions[v.ZBaseStartFaction] = true
-            end
-        end
-
-        net.Start("ZBaseListFactions")
-        net.WriteTable(factions)
-        net.Send(ply)
-    end
-
-    if CLIENT then
-        net.Start("ZBase_GetFactionsFromServer")
-        net.SendToServer()
-    end
 end
 
 --[[

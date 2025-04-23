@@ -1,4 +1,3 @@
-
 -- Useful globals
 
 --[[
@@ -7,19 +6,20 @@
 ======================================================================================================================================================
 --]]
 
+-- SNPC types
 ZBASE_SNPCTYPE_WALK = 1
 ZBASE_SNPCTYPE_FLY = 2
-ZBASE_SNPCTYPE_STATIONARY = 3
-ZBASE_SNPCTYPE_VEHICLE = 4
-ZBASE_SNPCTYPE_PHYSICS = 5
 
+-- SNPC behaviours when enemy can't be reached
 ZBASE_CANTREACHENEMY_HIDE = 1
 ZBASE_CANTREACHENEMY_FACE = 2
 
+-- SNPC behaviours when enemy is too close
 ZBASE_TOOCLOSEBEHAVIOUR_NONE = 0
 ZBASE_TOOCLOSEBEHAVIOUR_FACE = 1
 ZBASE_TOOCLOSEBEHAVIOUR_BACK = 2
 
+-- Default sight distance
 ZBASE_DEFAULT_SIGHT_DIST = 4096
 
 --[[

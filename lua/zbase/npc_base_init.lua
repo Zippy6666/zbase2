@@ -279,7 +279,7 @@ NPC.GrenadeMaxSpin = 11-- The amount to spin the grenade measured in spin units 
 -- -1 = Pick automatically
 NPC.m_iClass = -1
 NPC.m_fMaxYawSpeed = 10 -- Max turning speed
-NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- SNPC Type: ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
+NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- SNPC Type: ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY
 
 NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_HIDE -- How should it behave when it cannot reach the enemy while chasing
 -- ZBASE_CANTREACHENEMY_HIDE - Hide from enemy
