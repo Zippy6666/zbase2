@@ -43,7 +43,11 @@ ZBCVAR.GibCollide =             CreateConVar("zbase_gib_collide", "0", Flags)
 ZBCVAR.ZombieHeadcrabs =        CreateConVar("zbase_zombie_headcrabs", "0", Flags)
 ZBCVAR.ZombieRedBlood =         CreateConVar("zbase_zombie_red_blood", "1", Flags)
 
+ZBCVAR.CitizenRocks =           CreateConVar("zbase_cit_rocks", "1", Flags)
+ZBCVAR.RebelAmmo =              CreateConVar("zbase_reb_ammo", "0", Flags)
+
 ZBCVAR.MetroCopGlowEyes =       CreateConVar("zbase_metrocop_glow_eyes", "0", Flags)
+ZBCVAR.MetroCopArrest =         CreateConVar("zbase_metrocop_arrest", "1", Flags)
 
 ZBCVAR.SvGlowingEyes =          CreateConVar("zbase_sv_glowing_eyes", "1", Flags)
 

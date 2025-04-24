@@ -62,6 +62,13 @@ NPC.FootStepSounds = "ZBaseMetrocop.Step" -- Footstep sound
 
 NPC.HasZBaseManhackThrow = true
 
+function NPC:CustomPreSpawn()
+    -- Optional arrest behavior
+    if !ZBCVAR.MetroCopArrest:GetBool() then
+        self:RemoveSpawnFlags(SF_METROPOLICE_ARREST_ENEMY)
+    end
+end
+
 function NPC:CustomInitialize()
     -- 50% chance to spawn with manhack
     local Manhacks = math.random(0, 1)

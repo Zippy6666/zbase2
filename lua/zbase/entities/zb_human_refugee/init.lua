@@ -15,21 +15,25 @@ NPC.KeyValues = {citizentype = CT_REFUGEE} -- Keyvalues
 NPC.MeleeAttackAnimations = {"meleeattack01"}
 
 function NPC:CustomPreSpawn()
-    -- When we have SF_CITIZEN_AMMORESUPPLIER flag
-    -- Pick a random type of ammo to resupply
-    local AmmoSupplyTbl = {
-        AR2 = 60,
-        SMG1_Grenade = 1,
-        SMG1 = 100,
-        Pistol = 100,
-        XBowBolt = 12,
-        Buckshot = 15,
-        RPG_Round = 3,
-        Grenade = 5,
-    }
-    local v, k = table.Random(AmmoSupplyTbl)
-    self:SetKeyValue("ammosupply", k)
-    self:SetKeyValue("ammoamount", v)
+    if ZBCVAR.RebelAmmo:GetBool() then
+        -- When we have SF_CITIZEN_AMMORESUPPLIER flag
+        -- Pick a random type of ammo to resupply
+        local AmmoSupplyTbl = {
+            AR2 = 60,
+            SMG1_Grenade = 1,
+            SMG1 = 100,
+            Pistol = 100,
+            XBowBolt = 12,
+            Buckshot = 15,
+            RPG_Round = 3,
+            Grenade = 5,
+        }
+        local v, k = table.Random(AmmoSupplyTbl)
+        self:SetKeyValue("ammosupply", k)
+        self:SetKeyValue("ammoamount", v)
+    else
+        self:RemoveSpawnFlags(SF_CITIZEN_AMMORESUPPLIER)
+    end
 end
 
 function NPC:CustomThink()

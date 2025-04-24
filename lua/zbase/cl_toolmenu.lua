@@ -238,6 +238,20 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     
     ZBaseAddMenuCategory("Combine", function( panel )
         panel:CheckBox("Metrocop Glow Eyes", "zbase_metrocop_glow_eyes")
+        panel:CheckBox("Metrocop Arrest", "zbase_metrocop_arrest")
+        panel:Help("Metrocops will 'arrest' enemies, instead of attacking immediately")
+    end, "NPCs")
+
+    --[[
+    ==================================================================================================
+                                            CITIZEN
+    ==================================================================================================
+    --]]
+    
+    ZBaseAddMenuCategory("Citizens", function( panel )
+        panel:CheckBox("Give Ammo", "zbase_reb_ammo")
+        panel:CheckBox("Rock Throw", "zbase_cit_rocks")
+        panel:Help("For any unarmed citizen, refugee, rebel, or similiar")
     end, "NPCs")
 end)
 

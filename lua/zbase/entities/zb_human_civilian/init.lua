@@ -66,6 +66,13 @@ NPC.OnRangeSound_Chance = 3
 
 NPC.MuteDefaultVoice = false -- Mute all default voice sounds emitted by this NPC
 
+function NPC:CustomInitialize()
+    -- Optional rock throw
+    if !ZBCVAR.CitizenRocks:GetBool() then 
+        self.BaseRangeAttack = false
+    end
+end
+
 function NPC:RangeAttackProjectile()
     -- Throw bloody rocks mate
 

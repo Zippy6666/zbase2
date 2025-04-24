@@ -5,5 +5,5 @@ TODO
 - System for restricting aim angle of range attacks
 - Anim event on reload if necessary
 - Quality sliders for dynamic light and particle effects
-- Ensure face when doing anim works as intended
-- Option for rock throwing
+- Ensure face when doing anim works as intended, make other ideal yaw face calls cancel built in face (maybe)
+- Fix holdtype bug / reload melee bug
