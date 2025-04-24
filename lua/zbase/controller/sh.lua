@@ -27,5 +27,8 @@ end
 -- Silence player footsteps when in control mode
 hook.Add("PlayerFootstep", "ZBASE_CONTROLLER", function(ply)
     local camEnt = ply:GetNWEntity("ZBASE_ControllerCamEnt", NULL)
-    return IsValid(camEnt)
+
+    if IsValid(camEnt) then
+        return true
+    end
 end)
