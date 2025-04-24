@@ -314,7 +314,7 @@ function NPC:RangeAttackProjectile()
         Attacker = self,
         Inflictor = self,
         Damage = 3,
-        Dir = (self.CurTargetPos - projStartPos):GetNormalized(),
+        Dir = ZBaseClampDirection((self.CurTargetPos - projStartPos):GetNormalized(), self:GetForward(), 45),
         Src = projStartPos,
         Spread = Vector(self.RangeProjectile_Inaccuracy, self.RangeProjectile_Inaccuracy),
         TracerName = "AirboatGunTracer",
