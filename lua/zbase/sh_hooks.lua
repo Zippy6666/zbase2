@@ -473,6 +473,7 @@ if CLIENT then
     local up            = Vector(0, 0, 1)
 
     hook.Add( "RenderScreenspaceEffects", "ZBaseFollowHalo", function()
+        if !ZBCVAR.FollowHalo:GetBool() then return end
         local tbl = LocalPlayer().ZBaseFollowHaloEnts
         if tbl then
             for _, v in ipairs(tbl) do

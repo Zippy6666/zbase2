@@ -36,12 +36,6 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
         panel:CheckBox( "Logo", "zbase_enable_logo")
         panel:Help("ASCII-style 'ZBASE' logo in menu, requires spawn menu reload")
 
-        panel:CheckBox("SV Glowing Eyes", "zbase_sv_glowing_eyes")
-        panel:Help("Network eye sprites globally")
-
-        panel:CheckBox("CL Glowing Eyes (Client)", "zbase_glowing_eyes")
-        panel:Help("Render eye sprites on client")
-
         panel:CheckBox("NPC Tab", "zbase_defmenu")
         panel:Help("NPCs in regular NPC tab too")
 
@@ -183,10 +177,20 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
     ==================================================================================================
     --]]
 
-    ZBaseAddMenuCategory("Performance", function( panel )
-        panel:CheckBox("Armor Spark", "")
+    ZBaseAddMenuCategory("Effects", function( panel )
+        panel:CheckBox("SV Glowing Eyes", "zbase_sv_glowing_eyes")
+        panel:Help("Network eye sprites globally")
+
+        panel:CheckBox("CL Glowing Eyes (Client)", "zbase_glowing_eyes")
+        panel:Help("Render eye sprites on client")
+
+        panel:CheckBox("Armor Spark", "zbase_armor_sparks")
+        panel:CheckBox("Follow Halo", "zbase_follow_halo")
+
         panel:NumSlider("Light Quality", "zbase_muzzle_light", 0, 2, 0)
-        panel:NumSlider("Particle Quality", "zbase_mmod_muzzle", 0, 2, 0)
+
+        panel:NumSlider("Muzzle Flashes", "zbase_mmod_muzzle", 0, 2, 0)
+        panel:NumSlider("AR2 Flashes", "zbase_mmod_muzzle", 0, 2, 0)
     end)
 
     --[[
