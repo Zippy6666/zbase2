@@ -6,3 +6,4 @@ TODO
 - Anim event on reload if necessary
 - Quality sliders for dynamic light and particle effects
 - Ensure face when doing anim works as intended
+- Option for rock throwing
