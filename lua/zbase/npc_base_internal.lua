@@ -8,6 +8,40 @@ local developer         = GetConVar("developer")
 local ai_serverragdolls = GetConVar("ai_serverragdolls")
 local ai_disabled       = GetConVar("ai_disabled")
 
+local engineWeaponReplacements = {
+    ["weapon_ar2"]          = "weapon_zb_ar2",
+    ["weapon_357"]          = "weapon_zb_357",
+    ["weapon_crossbow"]     = "weapon_zb_crossbow",
+    ["weapon_crowbar"]      = "weapon_zb_crowbar",
+    ["weapon_pistol"]       = "weapon_zb_pistol",
+    ["weapon_rpg"]          = "weapon_zb_rpg",
+    ["weapon_shotgun"]      = "weapon_zb_shotgun",
+    ["weapon_smg1"]         = "weapon_zb_smg1",
+    ["weapon_stunstick"]    = "weapon_zb_stunstick",
+    ["weapon_alyxgun"]      = "weapon_zb_alyxgun",
+    ["weapon_annabelle"]    = "weapon_zb_annabelle",
+    ["weapon_357_hl1"]      = "weapon_zb_357_hl1",
+    ["weapon_glock_hl1"]    = "weapon_zb_glock_hl1",
+    ["weapon_shotgun_hl1"]  = "weapon_zb_shotgun_hl1"
+}
+
+local engineWeaponFlipped = {
+    ["weapon_zb_ar2"]          = "weapon_ar2",
+    ["weapon_zb_357"]          = "weapon_357",
+    ["weapon_zb_crossbow"]     = "weapon_crossbow",
+    ["weapon_zb_crowbar"]      = "weapon_crowbar",
+    ["weapon_zb_pistol"]       = "weapon_pistol",
+    ["weapon_zb_rpg"]          = "weapon_rpg",
+    ["weapon_zb_shotgun"]      = "weapon_shotgun",
+    ["weapon_zb_smg1"]         = "weapon_smg1",
+    ["weapon_zb_stunstick"]    = "weapon_stunstick",
+    ["weapon_zb_alyxgun"]      = "weapon_alyxgun",
+    ["weapon_zb_annabelle"]    = "weapon_annabelle",
+    ["weapon_zb_357_hl1"]      = "weapon_357_hl1",
+    ["weapon_zb_glock_hl1"]    = "weapon_glock_hl1",
+    ["weapon_zb_shotgun_hl1"]  = "weapon_shotgun_hl1"
+}
+
 --[[
 ==================================================================================================
                                            INIT BRUV
@@ -574,9 +608,45 @@ end
 
 --[[
 ==================================================================================================
-                                WEAPON HANDLING / AI
+                                WEAPON HANDLING / WEAPON AI
 ==================================================================================================
 --]]
+
+local AIWantsToShoot_ACT_Blacklist = {
+    [ACT_JUMP]              = true,
+    [ACT_GLIDE]             = true,
+    [ACT_LAND]              = true,
+    [ACT_SIGNAL1]           = true,	
+    [ACT_SIGNAL2]           = true,
+    [ACT_SIGNAL3]           = true,
+    [ACT_SIGNAL_ADVANCE]    = true,
+    [ACT_SIGNAL_FORWARD]    = true,
+    [ACT_SIGNAL_GROUP]      = true,
+    [ACT_SIGNAL_HALT]       = true,
+    [ACT_SIGNAL_LEFT]       = true,
+    [ACT_SIGNAL_RIGHT]      = true,
+    [ACT_SIGNAL_TAKECOVER]  = true,
+}
+
+local AIWantsToShoot_SCHED_Blacklist = {
+    [SCHED_RELOAD]          = true,
+    [SCHED_HIDE_AND_RELOAD] = true,
+    [SCHED_SCENE_GENERIC]   = true,
+}
+
+local shootACTNeedles = {
+    "_AIM",
+    "RANGE_ATTACK",
+    "ANGRY_PISTOL",
+    "ANGRY_SMG1",
+    "ANGRY_AR2",
+    "ANGRY_RPG",
+    "ANGRY_SHOTGUN",
+}
+
+local holdtypesDontGesture = {
+    shotgun = true,
+}
 
 function NPC:ZBWepSys_Shoot()
     local wep = self:GetActiveWeapon()
@@ -634,26 +704,6 @@ function NPC:ZBWepSys_TooManyAttacking( ply )
     return false
 end
 
-local AIWantsToShoot_ACT_Blacklist = {
-    [ACT_JUMP] = true,
-    [ACT_GLIDE] = true,
-    [ACT_LAND] = true,
-    [ACT_SIGNAL1] = true,	
-    [ACT_SIGNAL2] = true,
-    [ACT_SIGNAL3] = true,
-    [ACT_SIGNAL_ADVANCE] = true,
-    [ACT_SIGNAL_FORWARD] = true,
-    [ACT_SIGNAL_GROUP] = true,
-    [ACT_SIGNAL_HALT] = true,
-    [ACT_SIGNAL_LEFT] = true,
-    [ACT_SIGNAL_RIGHT] = true,
-    [ACT_SIGNAL_TAKECOVER] = true,
-}
-local AIWantsToShoot_SCHED_Blacklist = {
-    [SCHED_RELOAD] = true,
-    [SCHED_HIDE_AND_RELOAD] = true,
-    [SCHED_SCENE_GENERIC] = true,
-}
 function NPC:ZBWepSys_AIWantsToShoot()
     if ai_disabled:GetBool() then return false end
     if !self.bStoredInShootDist then return false end
@@ -695,38 +745,23 @@ end
 
 function NPC:ZBWepSys_WantsToShoot()
     return !self.DoingPlayAnim
-
     && self:ShouldFireWeapon()
-
     && (self.ZBASE_bControllerShoot or self:ZBWepSys_AIWantsToShoot())
 end
 
 function NPC:ZBWepSys_CanFireWeapon()
     return self:ZBWepSys_WantsToShoot()
-
     && self:ZBWepSys_HasShootAnim()
-
     && self.ZBWepSys_NextShoot < CurTime()
-
     && self.ZBWepSys_NextBurst < CurTime()
-
     && !self.ComballAttacking
 end
 
-local strNeedles = {
-    "_AIM",
-    "RANGE_ATTACK",
-    "ANGRY_PISTOL",
-    "ANGRY_SMG1",
-    "ANGRY_AR2",
-    "ANGRY_RPG",
-    "ANGRY_SHOTGUN",
-}
 function NPC:ZBWepSys_HasShootAnim()
     local seq, moveSeq = self:GetSequence(), self:GetMovementSequence()
     local strMoveAct, strAct = self:GetSequenceActivityName(seq), self:GetSequenceActivityName(moveSeq)
 
-    for _, needle in ipairs(strNeedles) do
+    for _, needle in ipairs(shootACTNeedles) do
         if string.find(strAct, needle) or string.find(strMoveAct, needle) then
             return true
         end
@@ -748,9 +783,6 @@ function NPC:ZBWepSys_GetActTransTbl()
     return wep.ActivityTranslateAI
 end
 
-local holdtypesDontGesture = {
-    shotgun = true,
-}
 function NPC:ZBWepSys_ShouldUseFireGesture( isMoving )
     local wep = self:GetActiveWeapon()
 
@@ -900,23 +932,6 @@ function NPC:ZBWepSys_MeleeThink()
 
     end
 end
-
-local engineWeaponReplacements = {
-    ["weapon_ar2"]          = "weapon_zb_ar2",
-    ["weapon_357"]          = "weapon_zb_357",
-    ["weapon_crossbow"]     = "weapon_zb_crossbow",
-    ["weapon_crowbar"]      = "weapon_zb_crowbar",
-    ["weapon_pistol"]       = "weapon_zb_pistol",
-    ["weapon_rpg"]          = "weapon_zb_rpg",
-    ["weapon_shotgun"]      = "weapon_zb_shotgun",
-    ["weapon_smg1"]         = "weapon_zb_smg1",
-    ["weapon_stunstick"]    = "weapon_zb_stunstick",
-    ["weapon_alyxgun"]      = "weapon_zb_alyxgun",
-    ["weapon_annabelle"]    = "weapon_zb_annabelle",
-    ["weapon_357_hl1"]      = "weapon_zb_357_hl1",
-    ["weapon_glock_hl1"]    = "weapon_zb_glock_hl1",
-    ["weapon_shotgun_hl1"]  = "weapon_zb_shotgun_hl1"
-}
 
 function NPC:ZBWepSys_Think()
     local wep = self:GetActiveWeapon()
@@ -1100,6 +1115,20 @@ function NPC:HasZBaseWeapon()
     return wep.IsZBaseWeapon
 end
 
+-- Checks if weapon is ZBASE melee weapon
+-- Not the best check but works for the current case(s)
+function NPC:HasMeleeWeapon()
+    local wep = self:GetActiveWeapon()
+    if !IsValid(wep) then
+        return false
+    end
+
+    if wep:GetClass() == "weapon_stunstick" then return true end
+    if wep:GetClass() == "weapon_crowbar"   then return true end
+
+    return wep.IsZBaseWeapon && wep.NPCIsMeleeWep
+end
+
 function NPC:Face( face, duration, speed )
     if !face then return end
 
@@ -1148,14 +1177,17 @@ function NPC:Face_Simple( ent_or_pos )
         SafeRemoveEntityDelayed(FaceEnt, 5)
         self:SetTarget(FaceEnt)
         self:SetSchedule(SCHED_TARGET_FACE)
+
     elseif IsValid(ent_or_pos) then
         self:SetTarget(ent_or_pos)
         self:SetSchedule(SCHED_TARGET_FACE)
+
     end
 end
 
 function NPC:StopFace()
     if self:IsCurrentSchedule(SCHED_TARGET_FACE) then
+        self:TaskComplete()
         self:ClearSchedule()
     end
 
@@ -1439,7 +1471,7 @@ end
 
 -- For SNPCs and SNPCs ONLY
 function NPC:HandleAnimEvent(event, eventTime, cycle, type, options)
-    if self.Dead then return end
+    if !self:IsAlive() then return end
     self:SNPCHandleAnimEvent(event, eventTime, cycle, type, options)
 end
 
@@ -1511,14 +1543,17 @@ function NPC:AITick_Slow()
     -- Config weapon proficiency
     if self:GetCurrentWeaponProficiency() != self.WeaponProficiency then
         self:SetCurrentWeaponProficiency(self.WeaponProficiency)
-        debugoverlay.Text(self:GetPos(), "ZBASE NPC's weapon proficiency set to its 'self.WeaponProficiency'", 0.5)
+
+        if developer:GetInt() >= 2 then
+            debugoverlay.Text(self:GetPos(), "ZBASE NPC's weapon proficiency set to its 'self.WeaponProficiency'", 0.5)
+        end
     end
 
     -- Update current danger
     self:InternalDetectDanger()
 
-    -- -- Reload if we cannot see enemy and we have no ammo
-    if IsValid(self:GetActiveWeapon()) && !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
+    -- Reload if we cannot see enemy and we have no ammo
+    if IsValid(self:GetActiveWeapon()) && !self:HasMeleeWeapon() && !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
         self:SetSchedule(SCHED_RELOAD)
         debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end
@@ -1810,7 +1845,7 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
 
     local wep = self:GetActiveWeapon()
 
-    if self:HasZBaseWeapon() && !self:HasAmmo() && !self:IsCurrentSchedule(SCHED_RELOAD) then
+    if self:HasZBaseWeapon() && !self:HasMeleeWeapon() && !self:HasAmmo() && !self:IsCurrentSchedule(SCHED_RELOAD) then
         self:SetSchedule(SCHED_RELOAD)
     elseif !self.DontTakeCoverOnHurt then
         -- Take cover stuff
@@ -3160,23 +3195,6 @@ end
                                            DEATH
 ==================================================================================================
 --]]
-
-local engineWeaponFlipped = {
-    ["weapon_zb_ar2"]          = "weapon_ar2",
-    ["weapon_zb_357"]          = "weapon_357",
-    ["weapon_zb_crossbow"]     = "weapon_crossbow",
-    ["weapon_zb_crowbar"]      = "weapon_crowbar",
-    ["weapon_zb_pistol"]       = "weapon_pistol",
-    ["weapon_zb_rpg"]          = "weapon_rpg",
-    ["weapon_zb_shotgun"]      = "weapon_shotgun",
-    ["weapon_zb_smg1"]         = "weapon_smg1",
-    ["weapon_zb_stunstick"]    = "weapon_stunstick",
-    ["weapon_zb_alyxgun"]      = "weapon_alyxgun",
-    ["weapon_zb_annabelle"]    = "weapon_annabelle",
-    ["weapon_zb_357_hl1"]      = "weapon_357_hl1",
-    ["weapon_zb_glock_hl1"]    = "weapon_glock_hl1",
-    ["weapon_zb_shotgun_hl1"]  = "weapon_shotgun_hl1"
-}
 
 function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     if self.Patch_SkipDeathRoutine then return end

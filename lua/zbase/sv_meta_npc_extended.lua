@@ -98,6 +98,12 @@ function NPC:ZBASE_SetHoldType( wep, startHoldT, isFallBack, lastFallBack, isFai
     end
 
     wep:SetHoldType(startHoldT)
+
+    -- Make sure animations get updated
+    
+    self:TaskComplete()
+    self:ClearSchedule()
+    self:ResetIdealActivity(ACT_IDLE)
 end
 
 --[[
