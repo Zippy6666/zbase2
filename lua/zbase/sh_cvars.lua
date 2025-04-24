@@ -22,7 +22,8 @@ ZBCVAR.NPCNocollide =           CreateConVar("zbase_nocollide", "0", Flags)
 
 ZBCVAR.ArmorSparks =            CreateConVar("zbase_armor_sparks", "1", Flags)
 ZBCVAR.MuzzleLight =            CreateConVar("zbase_muzzle_light", "1", Flags)
-ZBCVAR.MMODMuzzle =             CreateConVar("zbase_mmod_muzzle", "1", Flags)
+ZBCVAR.Muzzle =                 CreateConVar("zbase_muzztyle", "mmod", Flags)
+ZBCVAR.AR2Muzzle =              CreateConVar("zbase_mar2tyle", "mmod", Flags)
 
 ZBCVAR.Patrol =                 CreateConVar("zbase_patrol", "1", Flags)
 ZBCVAR.CallForHelp =            CreateConVar("zbase_callforhelp", "1", Flags)

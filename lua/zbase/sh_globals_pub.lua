@@ -195,7 +195,36 @@ function ZBaseMuzzleLight( pos, bright, dist, col, dur )
             SafeRemoveEntityDelayed(muzzleLight, dur)
         end
     end
-end 
+end
+
+-- Create a muzzle flash effect from the entity at attachment 'att_num'
+-- 'iFlags' = 1 -> Nrm muzzle flash
+-- 'iFlags' = 5 -> AR2 muzzle flash
+-- 'iFlags' = 7 -> Big muzzle flash
+function ZBaseMuzzleFlash(ent, iFlags, att_num)
+    if IsValid(ent) then
+		local bAR2 = 	( (iFlags == 5) or false )
+		local bLarge = 	( (iFlags == 7) or false )
+
+		if bAR2 && (ZBCVAR.AR2Muzzle:GetString()=="mmod") then
+			ParticleEffectAttach("hl2mmod_muzzleflash_npc_ar2", PATTACH_POINT_FOLLOW, ent, att_num)
+		elseif !bAR2 && ZBCVAR.Muzzle:GetString() == "mmod" then
+			ParticleEffectAttach(bLarge && "hl2mmod_muzzleflash_npc_shotgun" or "hl2mmod_muzzleflash_npc_pistol", PATTACH_POINT_FOLLOW, ent, att_num)
+		elseif !bAR2 && ZBCVAR.Muzzle:GetString() == "black_mesa" then
+			ParticleEffectAttach(bLarge && "" or "", PATTACH_POINT_FOLLOW, ent, att_num)
+		else
+			local effectdata = EffectData()
+			effectdata:SetFlags(iFlags)
+			effectdata:SetEntity(ent)
+			util.Effect( "MuzzleFlash", effectdata, true, true )
+		end
+
+		-- Dynamic light
+		local att = ent:GetAttachment(att_num)
+		local col = iFlags==5 && "75 175 255" or "255 175 75"
+		ZBaseMuzzleLight( att.Pos, 1.5, 256, col )
+	end
+end
 
 --[[
 ======================================================================================================================================================

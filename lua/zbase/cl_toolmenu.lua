@@ -189,8 +189,16 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:NumSlider("Light Quality", "zbase_muzzle_light", 0, 2, 0)
 
-        panel:NumSlider("Muzzle Flashes", "zbase_mmod_muzzle", 0, 2, 0)
-        panel:NumSlider("AR2 Flashes", "zbase_mmod_muzzle", 0, 2, 0)
+        local mFlashesBox = panel:ComboBox("Muzzle Flashes", "zbase_muzztyle")
+        mFlashesBox:AddChoice("hl2")
+        mFlashesBox:AddChoice("black_mesa")
+        mFlashesBox:AddChoice("mmod")
+        mFlashesBox:ChooseOption(ZBCVAR.Muzzle:GetString())
+
+        local ar2FlashesBox = panel:ComboBox("AR2 Flashes", "zbase_mar2tyle")
+        ar2FlashesBox:AddChoice("hl2")
+        ar2FlashesBox:AddChoice("mmod")
+        ar2FlashesBox:ChooseOption(ZBCVAR.AR2Muzzle:GetString())
     end)
 
     --[[

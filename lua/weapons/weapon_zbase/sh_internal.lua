@@ -167,29 +167,10 @@ function SWEP:NPCShootEffects()
 	if att_num == 0 then
 		att_num = self:LookupAttachment("0")
 	end
-
-	if IsValid(self) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
-
-		if ZBCVAR.MMODMuzzle:GetBool() then
-			local particle = (self.Primary.MuzzleFlashFlags == 1 && "hl2mmod_muzzleflash_npc_pistol")
-			or (self.Primary.MuzzleFlashFlags == 5 && "hl2mmod_muzzleflash_npc_ar2")
-			or (self.Primary.MuzzleFlashFlags == 7 && "hl2mmod_muzzleflash_npc_shotgun")
-			if particle then ParticleEffectAttach( particle, PATTACH_POINT_FOLLOW, self, att_num ) end
-		else
-			local effectdata = EffectData()
-			effectdata:SetFlags(self.Primary.MuzzleFlashFlags)
-			effectdata:SetEntity(self)
-			util.Effect( "MuzzleFlash", effectdata, true, true )
-		end
-
-		if ZBCVAR.MuzzleLight:GetBool() then
-			local att = self:GetAttachment(att_num)
-			local col = self.Primary.MuzzleFlashFlags==5 && "75 175 255" or "255 175 75"
-
-			ZBaseMuzzleLight( att.Pos, 1.5, 256, col )
-		end
+	if self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
+		ZBaseMuzzleFlash(self, self.Primary.MuzzleFlashFlags, att_num)
 	end
-	
+
 	-- Shell eject
 
 	if self.Primary.ShellEject then
