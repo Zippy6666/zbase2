@@ -125,7 +125,7 @@ hook.Add("HUDPaint", "ZBASE_CONTROLLER", function()
         local tbl = pos:ToScreen()
         surface.SetMaterial(mat)
         surface.SetDrawColor(175, 255, 0, 255)
-        surface.DrawTexturedRect(tbl.x, tbl.y, iCrosshairLen, iCrosshairLen)
+        surface.DrawTexturedRect(tbl.x-iCrosshairLen*0.5, tbl.y-iCrosshairLen*0.5, iCrosshairLen, iCrosshairLen)
     end
 
     -- Display hud background

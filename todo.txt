@@ -1,5 +1,5 @@
 TODO
 * May or may not be updated
 
-- Controller follows crosshair more accurately (use relationships)
 - Add black mesa effects
+- Assess transition system for anims

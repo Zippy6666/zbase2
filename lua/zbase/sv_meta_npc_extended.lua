@@ -131,15 +131,24 @@ function NPC:ZBASE_SetMutualRelationship( ent, rel )
     local relToEnt = rel
     local allowAddRelationship = !(self.IsZBaseNPC && !self:OnBaseSetRel(ent, relToEnt, 0))
 
-    -- Player using pill pack, don't do relationship operation, let parakeet's pill pack do that instead
+    -- I am being controlled by a player
+    -- and I am a ZBase NPC
+    if self.IsZBaseNPC && self.ZBASE_IsPlyControlled && ent != self.ZBASE_ControlBullseye then
+        -- I like everyone who is not my target bullseye
+        -- they don't have to like me back though...
+        relToEnt = D_LI
+        conv.devPrint(self, " likes ", ent, " since not its bullseye")
+    end
+
+    -- ent is player using pill pack, don't do relationship operation, let parakeet's pill pack do that instead
     if ent:IsPlayer() && IsValid(ent.pk_pill_ent) then
         return
     end
 
     if myLastDispToEnt == relToEnt then return end -- Relationship unchanged, don't do any relationship operations
-    
+
     -- Set relationship to recipient
-    if allowAddRelationship then
+    if allowAddRelationship  then
 
         self:AddEntityRelationship(ent, relToEnt, 0)
 
@@ -155,6 +164,7 @@ function NPC:ZBASE_SetMutualRelationship( ent, rel )
     if isRegularNPC then
         local meHasNoTarget = (bit.band(self:GetFlags(), FL_NOTARGET)==FL_NOTARGET)
         local entRelToMe = rel
+
         if !hasNoTarget then
             ent:AddEntityRelationship(self, entRelToMe, 0)
         end

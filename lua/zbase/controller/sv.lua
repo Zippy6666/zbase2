@@ -152,6 +152,11 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     -- Initialize controls for attacks
     npc:ZBASE_Controller_InitAttacks()
 
+    -- Update all relationships for NPC
+    if self.IsZBaseNPC then
+        npc:ZBASE_UpdateMyRelationships()
+    end
+    
     -- Give NPC its name on client so that it can be shown on the hud
     net.Start("ZBASE_Ctrlr_SetNameOnClient")
     net.WriteString( hook.Run("GetDeathNoticeEntityName", npc) )
