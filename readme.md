@@ -11,11 +11,11 @@
 - ZBase Dummy Addon: https://github.com/Zippy6666/zbase2/tree/dummy. Put that in your addon's folder, and go wild. It works similiarly to any other SNPC/NPC/NextBot base. NPCs are stored in "lua/zbase/entities".
 
 ### Base variables and functions:
-- Init: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base_init.lua
-- Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base_shared.lua
+- Init: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base/init.lua
+- Shared: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base/shared.lua
 
 ### Callable functions:
-- NPC Utilities: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base_util.lua
+- NPC Utilities: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/npc_base/sv_util.lua
 - Globals: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/sh_globals_pub.lua
 
 ### Weapon base: 
