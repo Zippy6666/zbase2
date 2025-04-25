@@ -247,87 +247,33 @@ list.Set("ContentCategoryIcons", "HL2: Zombies + Enemy Aliens",  "games/16/hl2.p
 
 --[[
 ======================================================================================================================================================
-                                           ESSENTIAL GLOBALS
-======================================================================================================================================================
---]]
-
-ZBase_RegisterHandler = {}
-ZBaseNPCs = {}
-ZBaseSpawnMenuNPCList = {}
-ZBaseDynSplatterInstalled = file.Exists("dynsplatter", "LUA")
-ZBaseNPCWeps = ZBaseNPCWeps or {}
-
-if SERVER then
-    ZBaseNPCInstances = ZBaseNPCInstances or {}
-    ZBaseNPCInstances_NonScripted = ZBaseNPCInstances_NonScripted or {}
-    ZBaseBehaviourTimerFuncs = ZBaseBehaviourTimerFuncs or {}
-    ZBaseRelationshipEnts = ZBaseRelationshipEnts or {}
-    ZBaseGibs = ZBaseGibs or {}
-    ZBasePatchTable = {}
-    ZBaseLastSavedFileTimeRegistry = ZBaseLastSavedFileTimeRegistry or {} -- For autorefresh
-end
-
---[[
-======================================================================================================================================================
                                            INCLUDES
 ======================================================================================================================================================
 --]]
 
-local function IncludeFiles()
-    include("zbase/sh_globals_pri.lua")
-    include("zbase/sh_globals_pub.lua")
-    include("zbase/sh_hooks.lua")
-    include("zbase/sh_cvars.lua")
-    include("zbase/sh_properties.lua")
+include("zbase/sh_globals_pri.lua")
+include("zbase/sh_globals_pub.lua")
 
-    if SERVER then
-        include("zbase/sv_schedules.lua")
-        include("zbase/sv_schedules_deprecated.lua")
-        include("zbase/sv_meta_npc_extended.lua")
-        include("zbase/sv_behaviour_system.lua")
-        include("zbase/sv_spawnnpc.lua")
-        include("zbase/sv_replacer.lua")
-        include("zbase/controller/sv.lua")
-        include("zbase/controller/sh.lua")
+conv.includeDir(
+    "zbase/", 
+    -- These require special procedures so they are skipped
+    {"sh_override_functions", "npc_patches", "entities", "npc_base", "sh_globals_"} 
+)
 
-        -- Include NPC enhancement files
-        local files = file.Find("zbase/npc_patches/*","LUA")
-        local enhPath = "zbase/npc_patches/"
-        for _, v in ipairs(files) do
-            include(enhPath..v)
-        end
+if SERVER then
+    -- Include NPC patch files
+    local files = file.Find("zbase/npc_patches/*","LUA")
+    local enhPath = "zbase/npc_patches/"
+    for _, v in ipairs(files) do
+        include(enhPath..v)
     end
 
-    if CLIENT then
-        include("zbase/cl_spawnmenu.lua")
-        include("zbase/cl_toolmenu.lua")
-        include("zbase/controller/cl.lua")
-        include("zbase/controller/sh.lua")
-    end
-end
-
-local function AddCSLuaFiles()
-    AddCSLuaFile("zbase/sh_cvars.lua")
-    AddCSLuaFile("zbase/sh_globals_pri.lua")
-    AddCSLuaFile("zbase/sh_globals_pub.lua")
-    AddCSLuaFile("zbase/sh_override_functions.lua")
-    AddCSLuaFile("zbase/sh_hooks.lua")
-    AddCSLuaFile("zbase/sh_properties.lua")
-
-    AddCSLuaFile("zbase/cl_spawnmenu.lua")
-    AddCSLuaFile("zbase/cl_toolmenu.lua")
-    AddCSLuaFile("zbase/controller/cl.lua")
-    AddCSLuaFile("zbase/controller/sh.lua")
-
-    -- Add zbase entity files
+    -- Add shared files of all ZBase npcs to clients when they join
     local _, dirs = file.Find("zbase/entities/*","LUA")
     for _, v in ipairs(dirs) do
         AddCSLuaFile("zbase/entities/"..v.."/shared.lua")
     end
 end
-
-AddCSLuaFiles()
-IncludeFiles()
 
 --[[
 ======================================================================================================================================================
@@ -364,20 +310,20 @@ function ZBase_RegisterHandler:RegBase()
     ZBaseNPCs["npc_zbase"].Behaviours = {}
     ZBaseNPCs["npc_zbase"].IsZBaseNPC = true
 
-    local NPCBasePrefix = "zbase/npc_base_"
+    local NPCBasePrefix = "zbase/npc_base/"
 
     if SERVER && !ZBase_AddedBaseLuaFilesToClient then
-        AddCSLuaFile(NPCBasePrefix.."sentence.lua")
+        AddCSLuaFile(NPCBasePrefix.."sh_sentence.lua")
         AddCSLuaFile(NPCBasePrefix.."shared.lua")
         ZBase_AddedBaseLuaFilesToClient = true
     end
 
-    include(NPCBasePrefix.."sentence.lua")
+    include(NPCBasePrefix.."sh_sentence.lua")
     include(NPCBasePrefix.."shared.lua")
 
     if SERVER then
-        include(NPCBasePrefix.."internal.lua")
-        include(NPCBasePrefix.."util.lua")
+        include(NPCBasePrefix.."sv_internal.lua")
+        include(NPCBasePrefix.."sv_util.lua")
         include(NPCBasePrefix.."init.lua")
     end
 end

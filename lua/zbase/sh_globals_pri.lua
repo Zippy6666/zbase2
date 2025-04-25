@@ -103,6 +103,28 @@ local schednames = {
 
 --[[
 ======================================================================================================================================================
+                                           BASE CORE
+======================================================================================================================================================
+--]]
+
+ZBase_RegisterHandler = {}
+ZBaseNPCs = {}
+ZBaseSpawnMenuNPCList = {}
+ZBaseDynSplatterInstalled = file.Exists("dynsplatter", "LUA")
+ZBaseNPCWeps = ZBaseNPCWeps or {}
+
+if SERVER then
+    ZBaseNPCInstances = ZBaseNPCInstances or {}
+    ZBaseNPCInstances_NonScripted = ZBaseNPCInstances_NonScripted or {}
+    ZBaseBehaviourTimerFuncs = ZBaseBehaviourTimerFuncs or {}
+    ZBaseRelationshipEnts = ZBaseRelationshipEnts or {}
+    ZBaseGibs = ZBaseGibs or {}
+    ZBasePatchTable = {}
+    ZBaseLastSavedFileTimeRegistry = ZBaseLastSavedFileTimeRegistry or {} -- For autorefresh
+end
+
+--[[
+======================================================================================================================================================
                                            CONSTANTS / ENUMS
 ======================================================================================================================================================
 --]]

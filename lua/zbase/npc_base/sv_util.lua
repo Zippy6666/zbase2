@@ -1,6 +1,5 @@
 local NPC = ZBaseNPCs["npc_zbase"]
-local KeepCorpses = GetConVar("ai_serverragdolls")
-local MinMaxCache = {}
+local cacheGetNearbyAlliesOptimized = {}
 
 -- These are functions that you can call, don't change them
 
@@ -457,13 +456,13 @@ end
 function NPC:GetNearbyAlliesOptimized( lenght )
     local allies = {}
 
-    if !MinMaxCache[lenght] then
+    if !cacheGetNearbyAlliesOptimized[lenght] then
         local halflenght = lenght*0.5
         local vec = Vector(halflenght, halflenght, halflenght)
-        MinMaxCache[lenght] = vec
+        cacheGetNearbyAlliesOptimized[lenght] = vec
     end
 
-    local vec_add = MinMaxCache[lenght]
+    local vec_add = cacheGetNearbyAlliesOptimized[lenght]
 
     local mypos = self:GetPos()
     local amt = 0

@@ -2,4 +2,4 @@ TODO
 * May or may not be updated
 
 - Add black mesa effects
-- Assess transition system for anims
+- Move hearing system into zbase
