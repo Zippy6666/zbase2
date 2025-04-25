@@ -1315,7 +1315,7 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
         -- Decide duration
         if !duration then
-            duration = (self:SequenceDuration(anim)*0.9)/(playbackRate or 1)
+            duration = (self:SequenceDuration(anim))/(playbackRate or 1)
         elseif isnumber(duration) then
             duration = duration/(playbackRate or 1)
         end
