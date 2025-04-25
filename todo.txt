@@ -3,3 +3,5 @@ TODO
 - Move hearing system into zbase
 - Add 'ZBaseBleed' (mayb)
 - Fix controller jumping needing button held
+- Fix controller not able to use nades and alts when they are infinite (-1)
+- Make light quality functional
