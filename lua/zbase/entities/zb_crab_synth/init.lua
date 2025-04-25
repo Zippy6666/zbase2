@@ -48,7 +48,7 @@ NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_FACE -- ZBASE_CANTREACHENEMY_
 
         -- BASE RANGE ATTACK --
 NPC.BaseRangeAttack = true -- Use ZBase range attack system
-NPC.RangeAttackFaceEnemy = false
+NPC.RangeAttackFaceEnemy = true
 NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
 NPC.RangeProjectile_Inaccuracy = 0.07
 NPC.RangeAttackCooldown = {10, 15} -- Range attack cooldown {min, max}
@@ -190,11 +190,6 @@ function NPC:CustomThink()
     -- Get name of current sequence
     local seqName = self:GetSequenceName(self:GetSequence())
 
-    -- Custom range face code
-    if self:GetActivity()==ACT_RANGE_ATTACK1 then
-        self:SetIdealYawAndUpdate((self:Projectile_TargetPos()-self:GetPos()):Angle().Yaw)
-    end
-
     -- Not range attacking currently
     if seqName != "range_loop" then
         -- So stop shoot loop sound
@@ -271,9 +266,9 @@ function NPC:CustomThink()
     end
 end
 
+-- Random range attack duration
 function NPC:RangeAttackAnimation()
-    -- Random range attack duration
-    return self:PlayAnimation(self.RangeAttackAnimations[1], false, {duration=math.Rand(4,6)})
+    return self:PlayAnimation(self.RangeAttackAnimations[1], self.RangeAttackFaceEnemy, {duration=math.Rand(4,6)})
 end
 
 function NPC:OnRangeAttack()

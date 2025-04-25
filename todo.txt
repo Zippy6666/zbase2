@@ -2,6 +2,5 @@ TODO
 * May or may not be updated
 
 - Controller follows crosshair more accurately (use relationships)
-- Anim event on reload if necessary
-- Quality sliders for dynamic light and particle effects
+- Add black mesa effects
 - Ensure face when doing anim works as intended, make other ideal yaw face calls cancel built in face (maybe)
