@@ -1,5 +1,6 @@
 TODO
 * May or may not be updated
-
 - Add black mesa effects
 - Move hearing system into zbase
+- Add 'ZBaseBleed'
+- Fix controller jumping needing button held

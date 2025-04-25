@@ -21,6 +21,11 @@ function NPC:IsBeingControlled()
     return self.ZBASE_IsPlyControlled or false
 end
 
+-- Get where the player is aiming
+function NPC:ControllerTargetPos() 
+    return self:ZBASE_Controller_GetBullseye():GetPos()
+end
+
 --[[
 ==================================================================================================
                                            ANIMATION

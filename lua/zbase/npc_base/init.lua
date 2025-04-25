@@ -89,7 +89,7 @@ NPC.CanJump = true -- Can the NPC jump?
 NPC.MoveSpeedMultiplier = 1
 
 -- How much power to add when jumping using the controller on this NPC
--- 0 = default
+-- 0 = auto
 NPC.Controller_JumpPower = 0
 
 --[[
