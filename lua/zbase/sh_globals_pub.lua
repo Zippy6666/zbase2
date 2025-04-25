@@ -211,7 +211,7 @@ function ZBaseMuzzleFlash(ent, iFlags, att_num)
 		elseif !bAR2 && ZBCVAR.Muzzle:GetString() == "mmod" then
 			ParticleEffectAttach(bLarge && "hl2mmod_muzzleflash_npc_shotgun" or "hl2mmod_muzzleflash_npc_pistol", PATTACH_POINT_FOLLOW, ent, att_num)
 		elseif !bAR2 && ZBCVAR.Muzzle:GetString() == "black_mesa" then
-			ParticleEffectAttach(bLarge && "" or "", PATTACH_POINT_FOLLOW, ent, att_num)
+			ParticleEffectAttach(bLarge && "world_weapon_mp5_muzzleflash_bmb" or "world_weapon_mp5_muzzleflash_bmb", PATTACH_POINT_FOLLOW, ent, att_num)
 		else
 			local effectdata = EffectData()
 			effectdata:SetFlags(iFlags)
@@ -221,7 +221,7 @@ function ZBaseMuzzleFlash(ent, iFlags, att_num)
 
 		-- Dynamic light
 		local att = ent:GetAttachment(att_num)
-		local col = iFlags==5 && "75 175 255" or "255 175 75"
+		local col = iFlags==5 && "75 175 255" or "255 125 25"
 		ZBaseMuzzleLight( att.Pos, 1.5, 256, col )
 	end
 end

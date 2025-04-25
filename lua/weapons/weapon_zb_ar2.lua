@@ -31,3 +31,12 @@ SWEP.Weight = 5
 SWEP.NPCHoldType =  "ar2" -- https://wiki.facepunch.com/gmod/Hold_Types
 
 SWEP.EngineCloneClass = "weapon_ar2"
+
+-- Called so the weapon can override the impact effects it makes.
+-- Return true to disable default
+function SWEP:CustomDoImpactEffect( tr, damageType )
+    local effectdata = EffectData()
+    effectdata:SetOrigin(tr.HitPos)
+    effectdata:SetNormal(tr.HitNormal)
+    util.Effect("AR2Impact", effectdata, true, true)
+end

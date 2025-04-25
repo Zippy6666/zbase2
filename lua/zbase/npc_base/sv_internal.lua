@@ -2175,10 +2175,16 @@ function SecondaryFireWeapons.weapon_ar2:Func( self, wep, enemy )
             end
         end)
 
-        local effectdata = EffectData()
-        effectdata:SetFlags(5)
-        effectdata:SetEntity(wep)
-        util.Effect( "MuzzleFlash", effectdata, true, true )
+        local att_num = wep:LookupAttachment("muzzle")
+        if att_num == 0 then
+            att_num = wep:LookupAttachment("0")
+        end
+        if att_num then
+            local effectdata = EffectData()
+            effectdata:SetFlags(5)
+            effectdata:SetEntity(wep)
+            ZBaseMuzzleFlash(self, 5, att_num)
+        end
 
         sound.Play("Weapon_IRifle.Single", self:GetPos())
 
@@ -2202,10 +2208,14 @@ function SecondaryFireWeapons.weapon_smg1:Func( self, wep, enemy )
 
     sound.Play("Weapon_AR2.Double", self:GetPos())
 
+    local att_num = wep:LookupAttachment("muzzle")
+    if att_num == 0 then
+        att_num = wep:LookupAttachment("0")
+    end
     local effectdata = EffectData()
-    effectdata:SetFlags(7)
+    effectdata:SetFlags(5)
     effectdata:SetEntity(wep)
-    util.Effect( "MuzzleFlash", effectdata, true, true )
+    ZBaseMuzzleFlash(self, 7, att_num)
 
     if IsValid(enemy) && enemy.IsZBaseNPC then
         enemy:RangeThreatened( self )
