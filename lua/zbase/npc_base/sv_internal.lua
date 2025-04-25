@@ -146,6 +146,7 @@ end
 function NPC:InitSharedAnimEvents()
     -- Add footsteps when landing after a jump
     self.JumpLandSequence = self:GetSequenceName( self:SelectWeightedSequence(ACT_LAND) )
+
     if self.JumpLandSequence != "Not Found!" then
         self:AddAnimationEvent(self.JumpLandSequence, 1, 100)
         self:AddAnimationEvent(self.JumpLandSequence, 3, 100)
@@ -1709,6 +1710,7 @@ function NPC:NewSequenceDetected( seq, seqName )
 
         -- Reload sound for weapon
         if IsValid(wep) && bIsReloadAnim then
+            -- timer.Simple(0.5, function() PrintTable(self:GetSequenceInfo(seq)) end)
             wep:EmitSound(wep.NPCReloadSound)
         end
 

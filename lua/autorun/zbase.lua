@@ -256,6 +256,9 @@ list.Set("ContentCategoryIcons", "HL2: Zombies + Enemy Aliens",  "games/16/hl2.p
 ======================================================================================================================================================
 --]]
 
+-- If not already ran, run now
+include("autorun/conv.lua")
+
 include("zbase/sh_globals_pri.lua")
 include("zbase/sh_globals_pub.lua")
 
