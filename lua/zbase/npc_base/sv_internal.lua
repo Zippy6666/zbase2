@@ -1702,28 +1702,53 @@ end
 
 function NPC:NewSequenceDetected( seq, seqName )
     local bIsReloadAnim = string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil
-
+    local wep           = self:GetActiveWeapon()
+    
+    -- Has ZBase weapon
     -- ZBase weapon reload sound
     -- I cannot think of a better method than this
-    if self:HasZBaseWeapon() then
-        local wep = self:GetActiveWeapon()
-
-        -- Reload sound for weapon
+    if self:HasZBaseWeapon() then       
         if IsValid(wep) && bIsReloadAnim then
-            -- timer.Simple(0.5, function() PrintTable(self:GetSequenceInfo(seq)) end)
+            -- Reload sound for weapon
             wep:EmitSound(wep.NPCReloadSound)
         end
 
-        -- Our reload was interupted
+        -- Our reload has stopped
+        -- We are doing some other sequence now
         -- Stop reload sound
         if !bIsReloadAnim then
             wep:StopSound(wep.NPCReloadSound)
         end
     end
 
-    -- Announce reload
-    if bIsReloadAnim && math.random(1, self.OnReloadSound_Chance) == 1 then
-        self:EmitSound_Uninterupted(self.OnReloadSounds)
+    -- Has any weapon
+    if IsValid(wep) then
+        if bIsReloadAnim then
+            -- Weapon reload workaround
+            self.bReloadWorkaround = true
+            self:CONV_TimerCreate("WeaponReloadWorkaround", self:SequenceDuration(seq)*0.75, 1, function()
+                local wep           = self:GetActiveWeapon()
+
+                if IsValid(wep) && wep:Clip1() < wep:GetMaxClip1() then
+                    wep:SetClip1(wep:GetMaxClip1())
+                    self:ClearCondition(COND.LOW_PRIMARY_AMMO)
+                    self:ClearCondition(COND.NO_PRIMARY_AMMO)
+                    conv.devPrint(self.Name, " ", self:EntIndex(), " did wep reload workaround")
+                end
+            end)
+
+            -- Reload announce
+            if math.random(1, self.OnReloadSound_Chance) == 1 then
+                self:EmitSound_Uninterupted(self.OnReloadSounds)
+            end
+        end
+
+        if self.bReloadWorkaround && !bIsReloadAnim then
+            -- Weapon reload workaround
+            -- Don't do it if we aren't reloading anymore
+            self:CONV_TimerRemove("WeaponReloadWorkaround")
+            self.bReloadWorkaround = nil
+        end
     end
 
     self:CustomNewSequenceDetected( seq, seqName )
