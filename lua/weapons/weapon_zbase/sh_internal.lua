@@ -468,10 +468,15 @@ end
 --]]
 
 if CLIENT then
+	function SWEP:ShouldDrawFakeModel()
+		local own = self:GetOwner()
+		return IsValid(own) && self.CustomWorldModel.Active
+	end
+
 	function SWEP:DrawFakeModel()
 		local own = self:GetOwner()
 
-		if IsValid(own) && self.CustomWorldModel.Active then
+		if self:ShouldDrawFakeModel() then
 			if self.customWModel == nil then
 				-- New custom view model
 				self.customWModel = ClientsideModel(self.WorldModel)
@@ -493,6 +498,7 @@ if CLIENT then
 				self.customWModel:SetAngles(newAng)
 				self.customWModel:SetupBones()
 				self.customWModel:DrawModel()
+				self:DrawShadow(false)
 			end
 		elseif self.customWModel != nil then
 			self.customWModel:Remove()
@@ -508,7 +514,7 @@ if CLIENT then
 			return
 		end
 
-		if !self.CustomWorldModel.Active then
+		if !self:ShouldDrawFakeModel() then
 			self:DrawModel()
 		end
 	end
@@ -522,7 +528,7 @@ if CLIENT then
 			return
 		end
 
-		if !self.CustomWorldModel.Active then
+		if !self:ShouldDrawFakeModel() then
 			self:DrawModel()
 		end
 	end

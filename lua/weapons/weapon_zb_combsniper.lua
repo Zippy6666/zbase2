@@ -1,5 +1,10 @@
 AddCSLuaFile()
 
+-- TODO:
+-- Add distant sounds
+-- Add laser
+-- Add realistic sonic boom
+
 sound.Add({
     name = "ZBASE.Sniper",
     volume = 1,
