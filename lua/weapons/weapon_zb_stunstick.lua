@@ -4,6 +4,7 @@ SWEP.Base = "weapon_zbase"
 SWEP.PrintName = "Pistol"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
+SWEP.Weight = 0
 
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = false -- Add to NPC weapon list
@@ -11,7 +12,6 @@ SWEP.NPCSpawnable = false -- Add to NPC weapon list
 SWEP.WorldModel = Model( "models/weapons/w_stunbaton.mdl" )
 
 SWEP.NPCIsMeleeWep = true
-SWEP.Weight = 0
 SWEP.NPCHoldType =  "melee" -- https://wiki.facepunch.com/gmod/Hold_Types
 SWEP.NPCMeleeWep_Damage = {5, 10} -- Melee weapon damage {min max}
 SWEP.NPCMeleeWep_DamageType = DMG_SHOCK -- Melee weapon damage type

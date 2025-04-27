@@ -22,6 +22,7 @@ SWEP.Base = "weapon_zbase"
 SWEP.PrintName = "Elitecop MP5K"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
+SWEP.Weight = 3
 SWEP.WorldModel = Model( "models/weapons/zippy/w_mp5k.mdl" )
 
 SWEP.IsZBaseWeapon = true

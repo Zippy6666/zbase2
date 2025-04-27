@@ -5,6 +5,8 @@ SWEP.PrintName = "HL1 Shotgun"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
 SWEP.WorldModel = Model( "models/weapons/w_shotgun_hls.mdl" )
+SWEP.Weight = 4
+
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = false -- Add to NPC weapon list
 
@@ -24,5 +26,4 @@ SWEP.NPCFireRestTimeMin = 0.5
 SWEP.NPCFireRestTimeMax = 1
 SWEP.NPCBulletSpreadMult = 1.5
 SWEP.NPCShootDistanceMult = 0.5
-SWEP.Weight = 4
 SWEP.NPCHoldType =  "shotgun" -- https://wiki.facepunch.com/gmod/Hold_Types

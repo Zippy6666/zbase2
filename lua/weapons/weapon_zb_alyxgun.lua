@@ -4,7 +4,7 @@ SWEP.Base = "weapon_zbase"
 SWEP.PrintName = "Alyx's Gun"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
-SWEP.Weight = 2
+SWEP.Weight = 4
 SWEP.WorldModel = Model( "models/weapons/w_alyx_gun.mdl" )
 
 SWEP.IsZBaseWeapon = true

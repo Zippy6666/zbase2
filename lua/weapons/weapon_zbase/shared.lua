@@ -27,6 +27,15 @@ SWEP.Author = "Zippy" -- The SWEP's author.
 
 SWEP.WorldModel = Model( "models/weapons/w_smg1.mdl" ) -- Relative path to the SWEP's world model.
 SWEP.ViewModel = Model( "models/weapons/c_smg1.mdl" ) -- Relative path to the SWEP's view model.
+
+-- Custom world model options
+SWEP.CustomWorldModel = {
+    Active      = false,                        -- Needs to be true if you want to change things about the world model, such as positioning
+    Bone        = "ValveBiped.Bip01_R_Hand",    -- The bone the model should be attached to, default is the right hand
+    Offset      = Vector(0, 0, 0),              -- Position offset
+    AngOffset   = Angle(0, 0, 0)                -- Angle offset
+}
+
 -- Makes the player models hands bonemerged onto the view model
 -- The gamemode and view models must support this feature for it to work! You can find more information here: Using Viewmodel Hands
 SWEP.UseHands = true

@@ -4,6 +4,7 @@ SWEP.Base = "weapon_zbase"
 SWEP.PrintName = "Pistol"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
+SWEP.Weight = 3
 
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = false -- Add to NPC weapon list
@@ -26,7 +27,6 @@ SWEP.NPCFireRestTimeMax = 0.1
 SWEP.NPCBulletSpreadMult = 1.5
 SWEP.NPCReloadSound = "Weapon_SMG1.NPC_Reload"
 SWEP.NPCShootDistanceMult = 0.75
-SWEP.Weight = 3
 SWEP.NPCHoldType =  "smg" -- https://wiki.facepunch.com/gmod/Hold_Types
 
 SWEP.EngineCloneClass = "weapon_smg1"

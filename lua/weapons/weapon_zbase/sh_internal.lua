@@ -348,7 +348,6 @@ function SWEP:NPCMeleeWeaponDamage(dmgData)
         if own.GetNPCState && own:GetNPCState() == NPC_STATE_DEAD then continue end
         if !own:Visible(ent) then continue end
 
-
 		local disp = own:Disposition(ent)
         local entpos = ent:WorldSpaceCenter()
         local undamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
@@ -419,10 +418,13 @@ function SWEP:TranslateActivity( act )
 			if own:IsMoving() && own:GetNavType() == NAV_GROUND then
 				local shouldMeleeRun = (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT or IsValid(own.PlayerToFollow))
 				meleeActOverride = ( shouldMeleeRun && ACT_RUN ) or ACT_WALK
+
 			elseif act == ACT_IDLE_PISTOL or act == ACT_IDLE_RELAXED then
 				return ACT_IDLE
+
 			elseif act == ACT_IDLE_ANGRY_PISTOL or act == ACT_IDLE_ANGRY then
 				return ACT_IDLE_ANGRY_MELEE
+
 			end
 		end
 
@@ -466,23 +468,63 @@ end
 --]]
 
 if CLIENT then
+	function SWEP:DrawFakeModel()
+		local own = self:GetOwner()
+
+		if IsValid(own) && self.CustomWorldModel.Active then
+			if self.customWModel == nil then
+				-- New custom view model
+				self.customWModel = ClientsideModel(self.WorldModel)
+				self.customWModel:SetNoDraw(true)
+			else
+				-- Specify a good position
+				local offsetVec = self.CustomWorldModel.Offset
+				local offsetAng = self.CustomWorldModel.AngOffset
+				
+				local boneid = own:LookupBone(self.CustomWorldModel.Bone) -- Right Hand
+				if !boneid then return end
+
+				local matrix = own:GetBoneMatrix(boneid)
+				if !matrix then return end
+
+				local newPos, newAng = LocalToWorld(offsetVec, offsetAng, matrix:GetTranslation(), matrix:GetAngles())
+
+				self.customWModel:SetPos(newPos)
+				self.customWModel:SetAngles(newAng)
+				self.customWModel:SetupBones()
+				self.customWModel:DrawModel()
+			end
+		elseif self.customWModel != nil then
+			self.customWModel:Remove()
+			self.customWModel = nil
+		end
+	end
+
 	function SWEP:DrawWorldModel( flags )
+		self:DrawFakeModel()
+
 		local r = self:CustomDrawWorldModel( flags )
 		if r != nil then
 			return
 		end
 
-		self:DrawModel()
+		if !self.CustomWorldModel.Active then
+			self:DrawModel()
+		end
 	end
 
 	-- Called when we are about to draw the translucent world model.
 	function SWEP:DrawWorldModelTranslucent( flags )
+		self:DrawFakeModel()
+
 		local r = self:CustomDrawWorldModelTranslucent( flags )
 		if r != nil then
 			return
 		end
 
-		self:DrawModel()
+		if !self.CustomWorldModel.Active then
+			self:DrawModel()
+		end
 	end
 end
 

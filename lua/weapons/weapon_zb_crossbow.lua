@@ -4,6 +4,7 @@ SWEP.Base = "weapon_zbase"
 SWEP.PrintName = "Crossbow"
 SWEP.Author = "Zippy"
 SWEP.Spawnable = false
+SWEP.Weight = 6
 
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = false -- Add to NPC weapon list
@@ -21,7 +22,6 @@ SWEP.Primary.MuzzleFlash = false
 SWEP.NPCBulletSpreadMult = 0.5
 SWEP.NPCReloadSound = "Weapon_Crossbow.BoltElectrify"
 SWEP.NPCShootDistanceMult = 2
-SWEP.Weight = 6
 SWEP.NPCHoldType =  "shotgun"
 
 local trailcol = Color(255,150,100)

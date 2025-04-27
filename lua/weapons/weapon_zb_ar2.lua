@@ -9,6 +9,7 @@ SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = false -- Add to NPC weapon list
 
 SWEP.WorldModel = Model( "models/weapons/w_irifle.mdl" )
+SWEP.Weight = 5
 
 SWEP.PrimaryShootSound = "Weapon_AR2.NPC_Single"
 SWEP.PrimaryDamage = 3
@@ -27,7 +28,6 @@ SWEP.NPCFireRestTimeMax = 0.5
 SWEP.NPCBulletSpreadMult = 0.25 
 SWEP.NPCReloadSound = "Weapon_AR2.NPC_Reload" 
 SWEP.NPCShootDistanceMult = 1
-SWEP.Weight = 5
 SWEP.NPCHoldType =  "ar2" -- https://wiki.facepunch.com/gmod/Hold_Types
 
 SWEP.EngineCloneClass = "weapon_ar2"
