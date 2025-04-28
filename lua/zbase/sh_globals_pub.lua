@@ -237,7 +237,8 @@ function ZBaseMuzzleFlashAtPos(pos, ang, iFlags, optionalParentEnt)
     temp:SetPos(pos)
     temp:SetAngles(ang)
     if IsValid(optionalParentEnt) then
-        temp:SetParent(optionalParentEnt)
+        temp:SetParent(optionalParentEnt, 0)
+        temp:SetOwner(optionalParentEnt)
     end
     temp:SetModelScale(0,0)
     temp:Spawn()

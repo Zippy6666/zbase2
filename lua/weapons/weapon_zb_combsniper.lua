@@ -41,13 +41,11 @@ SWEP.CustomWorldModel = {
     AngOffset   = Angle(180, 0, 0)                -- Angle offset
 }
 
--- SWEP.Primary.MuzzleFlashPos = {
---     ShouldUse   = true,             -- Set to true to use manual positioning instead of attachment
---     Offset      = Vector(20,0,0),    -- Position offset
---     AngOffset   = Angle(0,0,0)      -- Angle offset
--- }
-
-SWEP.Primary.MuzzleFlash = false -- Temp
+SWEP.Primary.MuzzleFlashPos = {
+    ShouldUse   = true,             -- Set to true to use manual positioning instead of attachment
+    Offset      = Vector(30,0,0),    -- Position offset
+    AngOffset   = Angle(0,0,0)      -- Angle offset
+}
 
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = true -- Add to NPC weapon list
@@ -80,4 +78,12 @@ function SWEP:CustomDoImpactEffect( tr, damageType )
     effectdata:SetOrigin(tr.HitPos)
     effectdata:SetNormal(tr.HitNormal)
     util.Effect("AR2Impact", effectdata, true, true)
+end
+
+function SWEP:Init()
+    if CLIENT then
+        self:CONV_TimerCreate("testmflash", 0.1, 0, function()
+            self:MainEffects()
+        end)
+    end
 end

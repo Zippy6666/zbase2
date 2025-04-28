@@ -154,11 +154,13 @@ end
 function SWEP:WorldMFlash()
 	if self.Primary.MuzzleFlashPos.ShouldUse then
 		if math.random(1, self.Primary.MuzzleFlashChance)==1 then
+			local ofs = 	self.Primary.MuzzleFlashPos.Offset
+			local angof = 	self.Primary.MuzzleFlashPos.AngOffset
+
 			ZBaseMuzzleFlashAtPos(
-				self:GetPos()+self.Primary.MuzzleFlashPos.Offset, 
-				self:GetAngles()+self.Primary.MuzzleFlashPos.AngOffset, 
-				self.Primary.MuzzleFlashFlags,
-				self
+				self:GetPos()+self:GetForward()*ofs.x+self:GetRight()*ofs.y+self:GetUp()*ofs.z, 
+				self:GetAngles()+angof,
+				self.Primary.MuzzleFlashFlags, self
 			)
 		end
 
