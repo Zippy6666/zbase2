@@ -119,7 +119,7 @@ PrecacheParticleSystem("hl2mmod_muzzleflash_npc_ar2")
 PrecacheParticleSystem("hl2mmod_muzzleflash_npc_pistol")
 PrecacheParticleSystem("hl2mmod_muzzleflash_npc_shotgun")
 
-PrecacheParticleSystem("world_weapon_mp5_muzzleflash_bmbs")
+PrecacheParticleSystem("world_weapon_mp5_muzzleflash_bmb")
 PrecacheParticleSystem("world_weapon_shotgun_muzzleflash")
 
 --[[

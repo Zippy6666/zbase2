@@ -41,6 +41,14 @@ SWEP.CustomWorldModel = {
     AngOffset   = Angle(180, 0, 0)                -- Angle offset
 }
 
+-- SWEP.Primary.MuzzleFlashPos = {
+--     ShouldUse   = true,             -- Set to true to use manual positioning instead of attachment
+--     Offset      = Vector(20,0,0),    -- Position offset
+--     AngOffset   = Angle(0,0,0)      -- Angle offset
+-- }
+
+SWEP.Primary.MuzzleFlash = false -- Temp
+
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
@@ -54,7 +62,7 @@ SWEP.Primary.ShellType = "EjectBrass_338Mag" -- https://wiki.facepunch.com/gmod/
 SWEP.Primary.TracerName = "AirboatGunTracer"
 SWEP.Primary.TracerChance = 1
 SWEP.Primary.NumShots = 1
-SWEP.Primary.MuzzleFlashFlags = 7
+SWEP.Primary.MuzzleFlashFlags = 5
 SWEP.NPCBurstMin = 1
 SWEP.NPCBurstMax = 1
 SWEP.NPCFireRate = 0

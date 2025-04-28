@@ -1,4 +1,5 @@
 AddCSLuaFile()
+AddCSLuaFile("cl_init.lua")
 include("sh_internal.lua")
 
 -- You can use this weapon base for your swep to have better control over how NPCs handle it --

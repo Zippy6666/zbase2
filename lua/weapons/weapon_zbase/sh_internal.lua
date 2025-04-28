@@ -151,41 +151,79 @@ end
 ==================================================================================================
 --]]
 
+function SWEP:WorldMFlash()
+	if self.Primary.MuzzleFlashPos.ShouldUse then
+		if math.random(1, self.Primary.MuzzleFlashChance)==1 then
+			ZBaseMuzzleFlashAtPos(
+				self:GetPos()+self.Primary.MuzzleFlashPos.Offset, 
+				self:GetAngles()+self.Primary.MuzzleFlashPos.AngOffset, 
+				self.Primary.MuzzleFlashFlags,
+				self
+			)
+		end
+
+	else
+		local att_num = self:LookupAttachment("muzzle")
+		if att_num == 0 then
+			att_num = self:LookupAttachment("0")
+		end
+
+		if math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
+			ZBaseMuzzleFlash(self, self.Primary.MuzzleFlashFlags, att_num)
+		end
+
+	end
+end
+
+function SWEP:WorldShellEject()
+	local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
+	if att then
+		local effectdata = EffectData()
+		effectdata:SetEntity(self)
+		effectdata:SetOrigin(att.Pos)
+		effectdata:SetAngles(att.Ang+self.Primary.ShellAngOffset)
+		util.Effect( self.Primary.ShellType, effectdata, true, rf )
+	end
+end
+
+function SWEP:MainEffects()
+	local effectEnt = self
+
+	if self:ShouldDrawFakeModel() then
+		effectEnt = self.customWModel
+	end
+
+	if !IsValid(effectEnt) then return end
+
+	-- Muzzle flash
+	if self.Primary.MuzzleFlash then
+		self:WorldMFlash()
+	end
+
+	-- Shell eject
+	if self.Primary.ShellEject then
+		self:WorldShellEject()
+	end
+end
+
 function SWEP:NPCShootEffects()
 	local own = self:GetOwner()
+	if !IsValid(own) then return end 
 	
 	-- Custom
-
 	local r = self:CustomShootEffects()
 	if r == true then
 		return
 	end
 
-	-- Muzzle flash
-
-	local att_num = self:LookupAttachment("muzzle")
-	if att_num == 0 then
-		att_num = self:LookupAttachment("0")
-	end
-	if self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
-		ZBaseMuzzleFlash(self, self.Primary.MuzzleFlashFlags, att_num)
+	if self:ShouldDrawFakeModel() then
+		net.Start("ZBASE_MuzzleFlash")
+		net.WriteEntity(self)
+		net.SendPVS(self:GetPos())
+		return
 	end
 
-	-- Shell eject
-
-	if self.Primary.ShellEject then
-
-		local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
-
-		if att then
-			local effectdata = EffectData()
-			effectdata:SetEntity(self)
-			effectdata:SetOrigin(att.Pos)
-			effectdata:SetAngles(att.Ang+self.Primary.ShellAngOffset)
-			util.Effect( self.Primary.ShellType, effectdata, true, rf )
-		end
-	
-	end
+	self:MainEffects()
 end
 
 -- Called so the weapon can override the impact effects it makes.
@@ -463,16 +501,16 @@ end
 
 --[[
 ==================================================================================================
-                            CLIENT
+                            MODEL DRAWING
 ==================================================================================================
 --]]
 
-if CLIENT then
-	function SWEP:ShouldDrawFakeModel()
-		local own = self:GetOwner()
-		return IsValid(own) && self.CustomWorldModel.Active
-	end
+function SWEP:ShouldDrawFakeModel()
+	local own = self:GetOwner()
+	return IsValid(own) && self.CustomWorldModel.Active
+end
 
+if CLIENT then
 	function SWEP:DrawFakeModel()
 		local own = self:GetOwner()
 

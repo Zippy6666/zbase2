@@ -171,7 +171,9 @@ end
 -- 'dur' stands for duration and is optional
 -- ZBase muzzle light option must be enabled!
 function ZBaseMuzzleLight( pos, bright, dist, col, dur )
-    if !ZBCVAR.MuzzleLight:GetBool() then return end 
+    if !SERVER then return end
+    if !ZBCVAR.MuzzleLight:GetBool() then return end
+
     dur = dur or 0.05
 
     local muzzleLight1 = ents.Create("env_projectedtexture")
@@ -201,17 +203,17 @@ end
 -- 'iFlags' = 1 -> Nrm muzzle flash
 -- 'iFlags' = 5 -> AR2 muzzle flash
 -- 'iFlags' = 7 -> Big muzzle flash
-function ZBaseMuzzleFlash(ent, iFlags, att_num)
+function ZBaseMuzzleFlash(ent, iFlags, att_num, optionalAttType)
     if IsValid(ent) then
 		local bAR2 = 	( (iFlags == 5) or false )
 		local bLarge = 	( (iFlags == 7) or false )
 
 		if bAR2 && (ZBCVAR.AR2Muzzle:GetString()=="mmod") then
-			ParticleEffectAttach("hl2mmod_muzzleflash_npc_ar2", PATTACH_POINT_FOLLOW, ent, att_num)
+			ParticleEffectAttach("hl2mmod_muzzleflash_npc_ar2", optionalAttType or PATTACH_POINT_FOLLOW, ent, att_num)
 		elseif !bAR2 && ZBCVAR.Muzzle:GetString() == "mmod" then
-			ParticleEffectAttach(bLarge && "hl2mmod_muzzleflash_npc_shotgun" or "hl2mmod_muzzleflash_npc_pistol", PATTACH_POINT_FOLLOW, ent, att_num)
+			ParticleEffectAttach(bLarge && "hl2mmod_muzzleflash_npc_shotgun" or "hl2mmod_muzzleflash_npc_pistol", optionalAttType or PATTACH_POINT_FOLLOW, ent, att_num)
 		elseif !bAR2 && ZBCVAR.Muzzle:GetString() == "black_mesa" then
-			ParticleEffectAttach(bLarge && "world_weapon_mp5_muzzleflash_bmb" or "world_weapon_mp5_muzzleflash_bmb", PATTACH_POINT_FOLLOW, ent, att_num)
+			ParticleEffectAttach(bLarge && "world_weapon_mp5_muzzleflash_bmb" or "world_weapon_mp5_muzzleflash_bmb", optionalAttType or PATTACH_POINT_FOLLOW, ent, att_num)
 		else
 			local effectdata = EffectData()
 			effectdata:SetFlags(iFlags)
@@ -221,9 +223,26 @@ function ZBaseMuzzleFlash(ent, iFlags, att_num)
 
 		-- Dynamic light
 		local att = ent:GetAttachment(att_num)
+        local lightpos = att && att.pos or ent:WorldSpaceCenter()
 		local col = iFlags==5 && "75 175 255" or "255 125 25"
-		ZBaseMuzzleLight( att.Pos, 1.5, 256, col )
+		ZBaseMuzzleLight( lightpos, 1.5, 256, col )
 	end
+end
+
+-- Same as above but at a specific angle and position instead
+function ZBaseMuzzleFlashAtPos(pos, ang, iFlags, optionalParentEnt)
+    local temp = SERVER && ents.Create("zb_temporary_ent") or ents.CreateClientside("zb_temporary_ent")
+    temp.ShouldRemain = true
+    temp:SetModel("models/props_combine/breenglobe.mdl")
+    temp:SetPos(pos)
+    temp:SetAngles(ang)
+    if IsValid(optionalParentEnt) then
+        temp:SetParent(optionalParentEnt)
+    end
+    temp:SetModelScale(0,0)
+    temp:Spawn()
+    ZBaseMuzzleFlash(temp, iFlags, 0, PATTACH_ABSORIGIN_FOLLOW)
+    SafeRemoveEntityDelayed(temp, 1)
 end
 
 --[[
