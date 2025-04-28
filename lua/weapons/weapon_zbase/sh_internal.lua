@@ -151,60 +151,91 @@ end
 ==================================================================================================
 --]]
 
-function SWEP:WorldMFlash()
+function SWEP:WorldMFlash(effectEnt)
+	print("RAN")
+
+	local effectEnt = self
+
+	if self:ShouldDrawFakeModel() then
+		effectEnt = self.customWModel -- Client only variable
+
+		-- Only emit effect on client if has fake model
+		if SERVER or !IsValid(effectEnt) then
+			if SERVER then
+				-- Still, emit light on server
+				local iFlags = self.Primary.MuzzleFlashFlags
+				local col = iFlags==5 && "75 175 255" or "255 125 25"
+				ZBaseMuzzleLight( self:GetPos(), 1.5, 256, col )
+
+			end
+			
+			return 
+		end
+	end
+
 	if self.Primary.MuzzleFlashPos.ShouldUse then
 		if math.random(1, self.Primary.MuzzleFlashChance)==1 then
 			local ofs = 	self.Primary.MuzzleFlashPos.Offset
 			local angof = 	self.Primary.MuzzleFlashPos.AngOffset
 
 			ZBaseMuzzleFlashAtPos(
-				self:GetPos()+self:GetForward()*ofs.x+self:GetRight()*ofs.y+self:GetUp()*ofs.z, 
-				self:GetAngles()+angof,
-				self.Primary.MuzzleFlashFlags, self
+				effectEnt:GetPos()+effectEnt:GetForward()*ofs.x+effectEnt:GetRight()*ofs.y+effectEnt:GetUp()*ofs.z, 
+				effectEnt:GetAngles()+angof,
+				self.Primary.MuzzleFlashFlags, effectEnt
 			)
 		end
 
 	else
-		local att_num = self:LookupAttachment("muzzle")
+		local att_num = effectEnt:LookupAttachment("muzzle")
 		if att_num == 0 then
-			att_num = self:LookupAttachment("0")
+			att_num = effectEnt:LookupAttachment("0")
 		end
 
 		if math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
-			ZBaseMuzzleFlash(self, self.Primary.MuzzleFlashFlags, att_num)
+			ZBaseMuzzleFlash(effectEnt, self.Primary.MuzzleFlashFlags, att_num)
 		end
 
 	end
 end
 
 function SWEP:WorldShellEject()
+	local effectEnt = self
+
+	if self:ShouldDrawFakeModel() then
+		effectEnt = self.customWModel -- Client only variable
+
+		-- Only emit effect on client if has fake model
+		if SERVER or !IsValid(effectEnt) then return end
+	end
+
 	local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
+
 	if att then
+		-- Attachment found
 		local effectdata = EffectData()
-		effectdata:SetEntity(self)
+		effectdata:SetEntity(effectEnt)
 		effectdata:SetOrigin(att.Pos)
 		effectdata:SetAngles(att.Ang+self.Primary.ShellAngOffset)
+		util.Effect( self.Primary.ShellType, effectdata, true, rf )
+	else
+		-- No attachment
+		local effectdata = EffectData()
+		effectdata:SetEntity(effectEnt)
+		effectdata:SetOrigin(effectEnt:GetPos())
+		effectdata:SetAngles(effectEnt:GetAngles())
 		util.Effect( self.Primary.ShellType, effectdata, true, rf )
 	end
 end
 
 function SWEP:MainEffects()
-	local effectEnt = self
-
-	if self:ShouldDrawFakeModel() then
-		effectEnt = self.customWModel
-	end
-
-	if !IsValid(effectEnt) then return end
-
 	-- Muzzle flash
 	if self.Primary.MuzzleFlash then
-		self:WorldMFlash()
+		self:WorldMFlash(effectEnt)
 	end
 
 	-- Shell eject
 	if self.Primary.ShellEject then
-		self:WorldShellEject()
+		self:WorldShellEject(effectEnt)
 	end
 end
 
@@ -222,7 +253,6 @@ function SWEP:NPCShootEffects()
 		net.Start("ZBASE_MuzzleFlash")
 		net.WriteEntity(self)
 		net.SendPVS(self:GetPos())
-		return
 	end
 
 	self:MainEffects()

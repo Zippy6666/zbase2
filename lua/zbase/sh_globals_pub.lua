@@ -234,8 +234,8 @@ function ZBaseMuzzleFlashAtPos(pos, ang, iFlags, optionalParentEnt)
     local temp = SERVER && ents.Create("zb_temporary_ent") or ents.CreateClientside("zb_temporary_ent")
     temp.ShouldRemain = true
     temp:SetModel("models/props_combine/breenglobe.mdl")
-    temp:SetPos(pos)
     temp:SetAngles(ang)
+    temp:SetPos(pos)
     if IsValid(optionalParentEnt) then
         temp:SetParent(optionalParentEnt, 0)
         temp:SetOwner(optionalParentEnt)
@@ -243,7 +243,7 @@ function ZBaseMuzzleFlashAtPos(pos, ang, iFlags, optionalParentEnt)
     temp:SetModelScale(0,0)
     temp:Spawn()
     ZBaseMuzzleFlash(temp, iFlags, 0, PATTACH_ABSORIGIN_FOLLOW)
-    SafeRemoveEntityDelayed(temp, 1)
+    SafeRemoveEntityDelayed(temp, 0.5)
 end
 
 --[[

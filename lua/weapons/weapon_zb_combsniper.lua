@@ -43,8 +43,8 @@ SWEP.CustomWorldModel = {
 
 SWEP.Primary.MuzzleFlashPos = {
     ShouldUse   = true,             -- Set to true to use manual positioning instead of attachment
-    Offset      = Vector(30,0,0),    -- Position offset
-    AngOffset   = Angle(0,0,0)      -- Angle offset
+    Offset      = Vector(-30,0,0),    -- Position offset
+    AngOffset   = Angle(0,180,0)      -- Angle offset
 }
 
 SWEP.IsZBaseWeapon = true
@@ -56,7 +56,7 @@ SWEP.PrimaryDamage = 90
 SWEP.Primary.DefaultClip = 1
 SWEP.Primary.Ammo = "357" -- https://wiki.facepunch.com/gmod/Default_Ammo_Types
 SWEP.Primary.ShellEject = "1" 
-SWEP.Primary.ShellType = "EjectBrass_338Mag" -- https://wiki.facepunch.com/gmod/Default_Effects
+SWEP.Primary.ShellType = "RifleShellEject" -- https://wiki.facepunch.com/gmod/Default_Effects
 SWEP.Primary.TracerName = "AirboatGunTracer"
 SWEP.Primary.TracerChance = 1
 SWEP.Primary.NumShots = 1
@@ -78,12 +78,4 @@ function SWEP:CustomDoImpactEffect( tr, damageType )
     effectdata:SetOrigin(tr.HitPos)
     effectdata:SetNormal(tr.HitNormal)
     util.Effect("AR2Impact", effectdata, true, true)
-end
-
-function SWEP:Init()
-    if CLIENT then
-        self:CONV_TimerCreate("testmflash", 0.1, 0, function()
-            self:MainEffects()
-        end)
-    end
 end

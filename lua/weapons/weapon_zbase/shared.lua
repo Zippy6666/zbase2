@@ -94,6 +94,11 @@ SWEP.Primary.TracerChance = 3 -- 1 / x
 SWEP.Primary.MuzzleFlashFlags = 1
 SWEP.Primary.MuzzleFlash = true -- Should it have a muzzleflash?
 SWEP.Primary.MuzzleFlashChance = 1 -- Should it have a muzzleflash?
+SWEP.Primary.MuzzleFlashPos = {
+    ShouldUse   = false,             -- Set to true to use manual positioning instead of attachment
+    Offset      = Vector(0,0,0),    -- Position offset
+    AngOffset   = Angle(0,0,0)      -- Angle offset
+}
 
 --[[
 ==================================================================================================
