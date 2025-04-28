@@ -152,8 +152,6 @@ end
 --]]
 
 function SWEP:WorldMFlash(effectEnt)
-	print("RAN")
-
 	local effectEnt = self
 
 	if self:ShouldDrawFakeModel() then

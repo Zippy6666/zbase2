@@ -242,7 +242,24 @@ function ZBaseMuzzleFlashAtPos(pos, ang, iFlags, optionalParentEnt)
     end
     temp:SetModelScale(0,0)
     temp:Spawn()
+
     ZBaseMuzzleFlash(temp, iFlags, 0, PATTACH_ABSORIGIN_FOLLOW)
+
+    -- HL2 Muzzle workaround when no proper muzzle attachment
+    if ZBCVAR.AR2Muzzle:GetString()=="hl2" then
+        local bAR2 = ( (iFlags == 5) or false )
+
+        if bAR2 then
+            --
+        else
+            local effectdata = EffectData()
+            effectdata:SetOrigin(pos)
+            effectdata:SetAngles(ang)
+            effectdata:SetScale(0.8)
+            util.Effect( "MuzzleEffect", effectdata, true, true )
+        end
+    end
+
     SafeRemoveEntityDelayed(temp, 0.5)
 end
 

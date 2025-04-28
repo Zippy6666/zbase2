@@ -1,6 +1,6 @@
 local NPC       = FindZBaseTable(debug.getinfo(1,'S'))
 local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
-
+ 
 NPC.Models = {"models/zippy/Synth.mdl"}
 NPC.StartHealth = 320
 NPC.MoveSpeedMultiplier = 1.35
