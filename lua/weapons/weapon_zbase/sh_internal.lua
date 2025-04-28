@@ -15,10 +15,7 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 ==================================================================================================
 --]]
 
-function SWEP:Initialize()
-	self:Init()
-	self.InitialHoldType = self:GetHoldType()
-
+function SWEP:InternalInit()
 	-- Store bullet spread vector
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
 
@@ -26,6 +23,28 @@ function SWEP:Initialize()
 	-- this workaround is now needed for the
 	-- weapon base to function as intended lol
 	self.Primary.ClipSize = self.Primary.DefaultClip
+end
+
+function SWEP:Initialize()
+	self.InitialHoldType = self:GetHoldType()
+	self:Init()
+end
+
+function SWEP:OwnerChanged()
+	self:InternalInit()
+
+	if !SERVER then return end
+	local own = self:GetOwner()
+
+	conv.callNextTick(function()
+		if !IsValid(self) or !IsValid(own) then return end
+
+		if own:IsNPC() then
+			own:ZBASE_SetHoldType(self, self.NPCHoldType)
+		else
+			self:SetHoldType(self.InitialHoldType)
+		end
+	end)
 end
 
 -- Called when the SWEP should set up its Data Tables.
@@ -325,23 +344,6 @@ end
 
 -- Called whenever the weapons Lua script is reloaded.
 function SWEP:OnReloaded()
-end
-
--- Setup holdtype for NPC
-function SWEP:OwnerChanged()
-	if !SERVER then return end
-
-	local own = self:GetOwner()
-
-	conv.callNextTick(function()
-		if !IsValid(self) or !IsValid(own) then return end
-
-		if own:IsNPC() then
-			own:ZBASE_SetHoldType(self, self.NPCHoldType)
-		else
-			self:SetHoldType(self.InitialHoldType)
-		end
-	end)
 end
 
 --[[

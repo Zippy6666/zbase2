@@ -144,6 +144,7 @@ SWEP.NPCMeleeWep_DamageDist = 100 -- Melee weapon damage reach distance
 --]]
 
 -- On weapon created
+-- DON'T USE SWEP:Initialize! USE THIS INSTEAD
 function SWEP:Init()
 	self:SetHoldType( "smg" )
 end
