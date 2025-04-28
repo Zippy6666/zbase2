@@ -440,11 +440,25 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             local sFlags = RegularSpawnMenuTable.TotalSpawnFlags or SpawnFlagTblToBit()
 
             RegularSpawnMenuTable.TotalSpawnFlags = sFlags
-            RegularSpawnMenuTable.Category = cat
+
+            -- Mix with regular NPCs, or don't
+            if ZBCVAR.MenuMixin:GetBool() then
+                local split = string.Split(cat, ": ")
+                
+                if #split == 2 then
+                    RegularSpawnMenuTable.Category = split[2]
+                else
+                    RegularSpawnMenuTable.Category = cat
+                end
+            else
+                RegularSpawnMenuTable.Category = cat
+            end
 
             local clsname = "zbase_"..cls
             if ZBASE_MENU_REPLACEMENTS[cls] then
-                -- RegularSpawnMenuTable.Name = "[ZBASE] " .. RegularSpawnMenuTable.Name
+                if ZBCVAR.MenuMixin:GetBool() then
+                    RegularSpawnMenuTable.Name = "[ZBASE] " .. RegularSpawnMenuTable.Name
+                end
 
                 if ZBCVAR.Replace:GetBool() then
                     clsname = ZBASE_MENU_REPLACEMENTS[cls]

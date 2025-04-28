@@ -26,7 +26,7 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
     --[[
     ==================================================================================================
-                                            GENERAL
+                                            MISC
     ==================================================================================================
     --]]
 
@@ -38,6 +38,9 @@ hook.Add("PopulateToolMenu", "ZBASE", function()
 
         panel:CheckBox("NPC Tab", "zbase_defmenu")
         panel:Help("NPCs in regular NPC tab too")
+
+        panel:CheckBox("Tab Mixin", "zbase_mixmenu")
+        panel:Help("Don't use separate categories in default NPC tab")
 
         panel:CheckBox( "Ply Hurt Ally", "zbase_ply_hurt_ally" )
         panel:CheckBox( "NPC Hurt Ally", "zbase_friendly_fire" )
