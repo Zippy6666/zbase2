@@ -2329,7 +2329,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         local entpos = ent:WorldSpaceCenter()
         local entIsUndamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
         local forcevec = self:GetForward()*100
-        local isFriendlyTowardsEnt = (disp==D_LI or disp==D_NU) && bullseyeDisp!=D_HT && bullseyeDisp!=D_FR
+        local isFriendlyTowardsEnt = ( (disp==D_LI or disp==D_NU) && bullseyeDisp!=D_HT && bullseyeDisp!=D_FR ) && !self.ZBASE_IsPlyControlled
         local isProp = (disp == D_NU or entIsUndamagable)
 
         if ent == self then continue end
