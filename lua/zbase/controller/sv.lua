@@ -153,8 +153,8 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc:ZBASE_Controller_InitAttacks()
 
     -- Update all relationships for NPC
-    if self.IsZBaseNPC then
-        npc:ZBASE_UpdateMyRelationships()
+    if npc.IsZBaseNPC then
+        npc:UpdateRelationships()
     end
     
     -- Give NPC its name on client so that it can be shown on the hud
@@ -701,6 +701,11 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
 
         -- npc:SetCondition(COND.NPC_UNFREEZE)
         npc:SetOwner() -- Clear owner
+
+        -- Update all relationships for NPC
+        if npc.IsZBaseNPC then
+            npc:UpdateRelationships()
+        end
 
         npc.ZBASE_Controller_HasCleanedUp = true
     end
