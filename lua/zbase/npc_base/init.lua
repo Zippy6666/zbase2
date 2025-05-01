@@ -23,7 +23,7 @@ NPC.EnableLUAAnimationEvents = true
 NPC.StartHealth = 50 -- Max health
 
 NPC.SightDistance = ZBASE_DEFAULT_SIGHT_DIST -- Sight distance, set to any number
-NPC.SightAngle = 90 -- Sight angle
+NPC.SightAngle = 180 -- Sight angle
 NPC.AlertAllies = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
 NPC.AlertAlliesDistance = 4096 -- Call for help distance
 NPC.CanBeAlertedByAlly = true -- Can this NPC be called by other allies when they need help?

@@ -512,11 +512,11 @@ if SERVER then
 
         -- ZBase installed as legacy addon
         if file.Find("zbase/npc_base_internal.lua", "GAME") then
-            table.insert(filenames, "zbase/npc_base_internal.lua")
-            table.insert(filenames, "zbase/npc_base_init.lua")
-            table.insert(filenames, "zbase/npc_base_shared.lua")
-            table.insert(filenames, "zbase/npc_base_util.lua")
-            table.insert(filenames, "zbase/npc_base_sentence.lua")
+            table.insert(filenames, "zbase/npc_base/sv_internal.lua")
+            table.insert(filenames, "zbase/npc_base/init.lua")
+            table.insert(filenames, "zbase/npc_base/shared.lua")
+            table.insert(filenames, "zbase/npc_base/sv_util.lua")
+            table.insert(filenames, "zbase/npc_base/sh_sentence.lua")
 
             local files = file.Find("zbase/npc_patches/*", "LUA")
             for _, f in ipairs(files) do
