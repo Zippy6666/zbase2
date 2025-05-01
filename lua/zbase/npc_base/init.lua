@@ -286,11 +286,16 @@ NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_HIDE -- How should it behave 
 -- ZBASE_CANTREACHENEMY_HIDE - Hide from enemy
 -- ZBASE_CANTREACHENEMY_FACE - Stand still and face enemy
 
-
 -- Minimum distance it chases before doing it runs SNPCChase_TooClose
 -- SNPCChase_TooClose will by default cause the SNPC to stop and face the enemy
 -- 0 = Chase enemy regardless of how close it is
 NPC.ChaseMinDistance = 0
+
+NPC.LookPoseParams = false -- Enable looking pose parameters
+NPC.LookPoseParamNames = {
+    Pitch = {"aim_pitch"},
+    Yaw = {"aim_yaw"}
+}
 
 --[[
 ==================================================================================================

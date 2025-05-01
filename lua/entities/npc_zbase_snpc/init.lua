@@ -1,6 +1,7 @@
 include("shared.lua")
 include("zbase_ai.lua")
 include("zbase_aerial.lua")
+include("zbase_poseparam.lua")
 
 ENT.IsZBase_SNPC = true
 
@@ -57,6 +58,8 @@ function ENT:Think()
 		end
 
 	end
+
+	self:PoseParamThink()
 
 	self:ZBaseThink()
 end
