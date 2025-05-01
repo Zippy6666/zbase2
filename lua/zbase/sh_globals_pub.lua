@@ -485,36 +485,39 @@ end
     })
 ]]
 function ZBaseAddScriptedSentence(ssTab)
-    if !istable(ssTab) || !ssTab['name'] then return end
+    if !istable(ssTab) or !ssTab['name'] then return end
     ZBaseScriptedSentences[ ssTab['name'] ] = ssTab 
 end 
 
 -- Show a caption text for the player
+-- ON SERVER:
 -- If the player (ply) is 'false', it will show to every player in the range
 -- 'range' should be about equal to the sound level
+-- 'pos' should be the position of the NPC that is speaking
+-- ON CLIENT:
+-- Shows the caption to the client
+-- Ignores range and position
 function ZBaseAddCaption(ply, text, dur, range, pos)
-	if (SERVER) then
-        range = range || 75
+	if SERVER then
+        range = range or 75
 
-		if isbool(ply) then
-
+		if !ply or isbool(ply) then
             for _, plyIter in player.Iterator() do
                 if plyIter:GetPos():DistToSqr( pos ) <= ( range * 40 )^2 then
                     net.Start( "ZBaseAddCaption" )
-                    net.WriteString( text || "" )
-                    net.WriteFloat( dur || 1 )		
+                    net.WriteString( text or "" )
+                    net.WriteFloat( dur or 1 )		
                     net.Send(plyIter)
                 end
             end 
-        		elseif ply:IsPlayer() then
-            
+        elseif ply:IsPlayer() then
             net.Start( "ZBaseAddCaption" )
-            net.WriteString( text || "" )
-            net.WriteFloat( dur || 1 )	
+            net.WriteString( text or "" )
+            net.WriteFloat( dur or 1 )	
 			net.Send( ply )
-			
-		end	
-	elseif (CLIENT) then	
+		end
+
+	elseif CLIENT then	
 		gui.AddCaption( text, dur, false )
 	end
 end 

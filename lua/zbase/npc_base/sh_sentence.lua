@@ -1,7 +1,9 @@
-local NPC = ZBaseNPCs["npc_zbase"]
-ZBaseScriptedSentences = ZBaseScriptedSentences or {}
+if SERVER then util.AddNetworkString("ZBaseAddCaption") end
 
-function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFilter, callback) -- overrideTab = { [snd] = sndOverride }
+local NPC 				= ZBaseNPCs["npc_zbase"]
+ZBaseScriptedSentences 	= ZBaseScriptedSentences or {}
+
+function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFilter, callback)
 	if !sentence then return end
 	if !IsValid(self) || ( !self:IsAlive() ) then return end
 
@@ -101,7 +103,6 @@ function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFil
 				local durFix = dur * ( ( pitch || 100 ) / 100 )
 				dur = durFix > dur && durFix || durFix < dur && dur + durFix || dur
 
-				--EmitSound( snd, pos || self:GetPos(), self:EntIndex(), channel, volume, level, flags, pitch, dsp )
 				self.EmittedSoundFromSentence = true
 				self:EmitSound( snd, level, pitch, volume, channel, flags, dsp, CRecipientFilter )
 				self.EmittedSoundFromSentence = nil
@@ -135,16 +136,12 @@ function NPC:ZBaseStopScriptedSentence(fullstop)
 
 end
 
-if (CLIENT) then
-	net.Receive( "ZBaseAddCaption", function()	
+if CLIENT then
+
+	net.Receive( "ZBaseAddCaption", function(len, ply)	
 		local text = net.ReadString()
 		local dur = net.ReadFloat()	
-		local range = net.ReadFloat()	
-		local pos = net.ReadVector()
-		ZBaseAddCaption( nil, text, dur, range, pos )
-	end )
+		ZBaseAddCaption( nil, text, dur, nil, nil )
+	end)
 
-elseif (SERVER) then
-	util.AddNetworkString("ZBaseAddCaption")
-	
 end
