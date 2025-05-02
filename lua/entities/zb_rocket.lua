@@ -75,10 +75,6 @@ function ENT:RocketIgnite()
     self.bIgnited = true
 end
 
-function ENT:OnThink()
-
-end
-
 function ENT:OnKill(dmginfo)
     self:ProjectileBlastDamage( 150, DMG_BLAST, 400, 50 )
 

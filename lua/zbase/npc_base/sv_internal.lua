@@ -269,6 +269,18 @@ function NPC:InitBounds()
         self:SetHullType(self.HullType)
         self:SetHullSizeNormal()
     end
+
+    if self.UseVPhysics then
+        self:PhysicsInit(SOLID_VPHYSICS)
+        local phys = self:GetPhysicsObject()
+
+        if IsValid(phys) then
+            phys:Wake()
+            self:OnInitPhys(phys)
+        end
+
+        return
+    end
 end
 
 function NPC:InitBlockingBounds()
@@ -506,6 +518,9 @@ function NPC:ZBaseThink()
 
     -- Custom think
     self:CustomThink()
+    if isAIEnabled then
+        self:AIThink()
+    end
 end
 
 function NPC:FrameTick()

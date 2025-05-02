@@ -6,13 +6,18 @@ include("zbase_poseparam.lua")
 ENT.IsZBase_SNPC = true
 
 function ENT:Initialize()
-	self:SetSolid(SOLID_BBOX)
-	self:SetMoveType(MOVETYPE_STEP)
+	if !self.UseVPhysics then
+		-- Use normal physics
+
+		self:SetSolid(SOLID_BBOX)
+		self:SetMoveType(MOVETYPE_STEP)
+	end
+
 	self:SetCollisionGroup(COLLISION_GROUP_NPC)
 	self:SetBloodColor(BLOOD_COLOR_RED)
 
 	self.Bullseye = ents.Create("npc_bullseye")
-	self.Bullseye:SetPos(self:GetPos())
+	self.Bullseye:SetPos(self:GetPos()) 
 	self.Bullseye:SetAngles(self:GetAngles())
 	self.Bullseye:SetNotSolid(true)
 	self.Bullseye:SetParent(self)

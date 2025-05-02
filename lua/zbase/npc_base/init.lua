@@ -297,6 +297,8 @@ NPC.LookPoseParamNames = {
     Yaw = {"aim_yaw"}
 }
 
+NPC.UseVPhysics = false -- Make NPC physical like a prop
+
 --[[
 ==================================================================================================
                                            FLYING SNPC ONLY
@@ -392,13 +394,23 @@ end
 function NPC:CustomControllerInitAttacks()
 end
 
+-- Called if NPC is SNPC and uses VPhysics
+function NPC:OnInitPhys(phys)
+    -- Example:
+    -- phys:SetMass(100)
+end
+
 -- Should the NPC have glowing eyes on spawn if the model supports it?
 function NPC:ShouldGlowEyes()
     return true
 end
 
--- Called continiously --
+-- Called continiously
 function NPC:CustomThink()
+end
+
+-- Called continiously when thinking is enabled
+function NPC:AIThink()
 end
 
 -- Called continiously --
