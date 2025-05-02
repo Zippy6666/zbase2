@@ -7,6 +7,7 @@ local bMultiplayer      = !game.SinglePlayer()
 local developer         = GetConVar("developer")
 local ai_serverragdolls = GetConVar("ai_serverragdolls")
 local ai_disabled       = GetConVar("ai_disabled")
+local ai_ignoreplayers  = GetConVar("ai_ignoreplayers")
 
 local engineWeaponReplacements = {
     ["weapon_ar2"]          = "weapon_zb_ar2",
@@ -1916,7 +1917,7 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     end
 
     if !IsValid(ene) && IsValid(attacker) && self.IsInViewCone && self:IsInViewCone(attacker) && self:Visible(attacker) 
-    && self:Disposition(attacker) == D_HT then
+    && self:Disposition(attacker) == D_HT && !(attacker:IsPlayer() && ai_ignoreplayers:GetBool()) then
         self:SetNPCState(NPC_STATE_COMBAT)
         self:SetEnemy(attacker)
         self:UpdateEnemyMemory(attacker, attacker:GetPos())

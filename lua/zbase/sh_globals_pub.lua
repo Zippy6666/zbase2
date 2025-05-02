@@ -527,9 +527,9 @@ function ZBaseCreateVoiceSounds( name, tbl )
     sound.Add( {
         name = name,
         channel = CHAN_VOICE,
-        volume = 0.5,
-        level = 75,
-        pitch = {95, 105},
+        volume = 0.7,
+        level = 78,
+        pitch = {90, 110},
         sound = tbl,
     } )
 end 
