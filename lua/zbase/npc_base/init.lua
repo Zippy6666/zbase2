@@ -631,18 +631,14 @@ end
 -- Animation code
 function NPC:RangeAttackAnimation()
     local rangeAttack = self.RangeAttackAnimations
-    local rangeAnimSpeed = self.RangeAttackAnimationSpeed
 
     if ( istable(rangeAttack) ) then
         rangeAttack = rangeAttack[math.random(1, #rangeAttack)]
     end
 
-    if ( istable(rangeAnimSpeed) ) then
-        rangeAnimSpeed = rangeAnimSpeed[math.random(1, #rangeAnimSpeed)]
-    end
-
     return self:PlayAnimation(rangeAttack, false, {
-        speedMult = self.rangeAnimSpeed,
+        speedMult = self.RangeAttackAnimationSpeed,
+        turnSpeed = self.RangeAttackTurnSpeed,
         noTransitions = true,
     })
 end
