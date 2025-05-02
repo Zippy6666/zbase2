@@ -26,6 +26,16 @@ function NPC:ControllerTargetPos()
     return self:ZBASE_Controller_GetBullseye():GetPos()
 end
 
+-- Attack the bullseye entity that follows the players cursor
+function NPC:StartAttackBullseye() 
+    self:ZBASE_Controller_TargetBullseye(true)
+end
+
+-- Stop attacking the bullseye entity that follows the players cursor
+function NPC:StopAttackBullseye() 
+    self:ZBASE_Controller_TargetBullseye(false)
+end
+
 --[[
 ==================================================================================================
                                            ANIMATION
@@ -45,6 +55,7 @@ end
     -- extraData.freezeForever - If true, the frozen state of the npc will never end, this should really just be used for the death animation
     -- extraData.onFinishFunc - Function to play when the animation finishes
     -- extraData.onFinishFuncArgs - Table of arguments to pass in onFinishFunc
+    -- extraData.forcedTransitionFrom - If set, it will force the animation to transition from this act/seq
 -- Returns the provided 'extraData' table or an empty table if none was provided
 function NPC:PlayAnimation( anim, faceEnemy, extraData )
     extraData = extraData or {}
@@ -62,8 +73,8 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
         freezeForever = extraData.freezeForever,
         onFinishFunc = extraData.onFinishFunc,
         onFinishFuncArgs = extraData.onFinishFuncArgs,
+        forcedTransitionFrom = extraData.forcedTransitionFrom
     }
-
 
     -- Deprecated stuff
     local loop = nil

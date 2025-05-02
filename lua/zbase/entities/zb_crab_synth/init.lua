@@ -268,7 +268,7 @@ end
 
 -- Random range attack duration
 function NPC:RangeAttackAnimation()
-    return self:PlayAnimation(self.RangeAttackAnimations[1], self.RangeAttackFaceEnemy, {duration=math.Rand(4,6)})
+    return self:PlayAnimation(self.RangeAttackAnimations[1], self.RangeAttackFaceEnemy, {duration=math.Rand(4,6), forcedTransitionFrom=ACT_IDLE})
 end
 
 function NPC:OnRangeAttack()

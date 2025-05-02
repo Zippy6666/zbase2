@@ -1367,10 +1367,18 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
     end
     
-    -- Transition --
+    -- Transition
+    
+    local forceFrm = moreArgs.forcedTransitionFrom
+    forceFrm = ( isstring(forceFrm) && self:LookupSequence(forceFrm) ) or ( isnumber(forceFrm) && self:SelectWeightedSequence(forceFrm) )
+
     local goalSeq = isstring(anim) && self:LookupSequence(anim) or self:SelectWeightedSequence(anim)
-    local transition = self:FindTransitionSequence( self:GetSequence(), goalSeq )
+    local transition = self:FindTransitionSequence( forceFrm or self:GetSequence(), goalSeq )
     local transitionAct = self:GetSequenceActivity(transition)
+
+    if forceFrm then
+        conv.devPrint("Forced transition from: ", self:GetSequenceName(forceFrm), " to: ", self:GetSequenceName(goalSeq))
+    end
 
     if !noTransitions
     && transition != -1
