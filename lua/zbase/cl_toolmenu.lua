@@ -133,10 +133,10 @@ local function IDCreate(name)
 end
 
 hook.Add( "AddToolMenuTabs", "ZBase_AddToolMenuTabs", function( category, name, panel, tab )
-	for i = 1, #ZBaseToolMenuGlobal do
-		local toolData = ZBaseToolMenuGlobal[ i ]
-		if toolData then spawnmenu.AddToolMenuOption( "ZBase", toolData['Category'], IDCreate( toolData['Category'] ) .. "_menu", toolData['Name'], nil, nil, toolData['Panel'], toolData['Table'] || nil ) end
-	end		
+    for i = 1, #ZBaseToolMenuGlobal do
+        local toolData = ZBaseToolMenuGlobal[ i ]
+        if toolData then spawnmenu.AddToolMenuOption( "ZBase", toolData['Category'], IDCreate( toolData['Category'] ) .. "_" .. IDCreate( toolData['Name'] ) .. "_menu", toolData['Name'], nil, nil, toolData['Panel'], toolData['Table'] || nil ) end
+    end        
 end )
 
 -- Example custom tool menu --
@@ -212,9 +212,9 @@ ZBaseAddToolMenu( "ZBASE", "Misc", function(panel)
     end
 end)
 
--- ZBaseAddToolMenu( "ZBASE", "AI", function(panel)
---     panel:ZBase_ToolMenuCustomize( "AI", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
--- end)
+ZBaseAddToolMenu( "ZBASE", "AI", function(panel)
+    panel:ZBase_ToolMenuCustomize( "AI", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
+end)
 
 -- ZBaseAddToolMenu( "ZBASE", "Replace", function(panel)
 --     panel:ZBase_ToolMenuCustomize( "REPLACE", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
