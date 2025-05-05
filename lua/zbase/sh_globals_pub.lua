@@ -60,14 +60,24 @@ end
 
 -- Changes a category's icon to whatever you like
 -- You probably want to run this in a hook like initialize
+-- Or run these includes at the top of your autorun file:
+-- include("zbase/cl_spawnmenu.lua")
+-- include("zbase/sh_globals_pub.lua")
 function ZBaseSetCategoryIcon( category, path )
     if SERVER then return end
     ZBaseCategoryImages[category] = path
 end
 
--- Explanation here...
-function ZBaseAddToolMenu(category, name, panel, tab)
-    ZBaseAddToolMenuInternal(category, name, panel, tab)
+-- This is for adding options in the tool menu
+-- Call in your autorun file clientside, make sure you have done the following includes:
+-- include("zbase/toolmenu/cl_internal.lua")
+-- include("zbase/sh_globals_pub.lua")
+-- 'category' - The category to add the menu to, ZBase ideally
+-- 'name' - The name of the menu, could be your addon name for example
+-- 'func' - Function that passes a panel to the menu, this is where you add your controls
+-- See example: *url here*
+function ZBaseAddToolMenu(category, name, func)
+    ZBaseAddToolMenuInternal(category, name, panel, nil)
 end
 
 --[[
