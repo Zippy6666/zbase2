@@ -6,7 +6,7 @@ include("zbase/sh_globals_pub.lua")
 local SettingFont       = "Trebuchet18"
 local DescriptionColor  = Color( 50, 50, 50 )
 local DescriptionFont   = "DefaultSmall"
-local grey              = Color( 150, 150, 150 )
+local grey              = Color( 180, 16, 52)
 local lightgrey         = Color( 200, 200, 200 )
 local posterTab = {
     ['Image']     = "vgui/zbase_menu.jpg",
@@ -14,7 +14,7 @@ local posterTab = {
     ['Color']     = color_white,
     ['Scroll']    = 0.2
 }
-
+ 
 ZBaseAddToolMenu( "ZBASE", "Misc", function(panel)
     panel:ZBase_ToolMenuCustomize( "MISC", color_white, "ChatFont", grey, lightgrey, posterTab  )
 
