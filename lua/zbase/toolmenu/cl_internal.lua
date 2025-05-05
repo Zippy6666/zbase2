@@ -153,8 +153,9 @@ local function IDCreate(name)
 end
 
 hook.Add( "AddToolMenuTabs", "ZBase_AddToolMenuTabs", function( category, name, panel, tab )
+    spawnmenu.GetToolMenu( "ZBase", "ZBase", "entities/zippy.png" )
     for i = 1, #ZBaseToolMenuGlobal do
         local toolData = ZBaseToolMenuGlobal[ i ]
         if toolData then spawnmenu.AddToolMenuOption( "ZBase", toolData['Category'], IDCreate( toolData['Category'] ) .. "_" .. IDCreate( toolData['Name'] ) .. "_menu", toolData['Name'], nil, nil, toolData['Panel'], toolData['Table'] || nil ) end
-    end        
+    end
 end )

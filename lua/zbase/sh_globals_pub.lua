@@ -72,8 +72,8 @@ end
 -- Call in your autorun file clientside, make sure you have done the following includes:
 -- include("zbase/toolmenu/cl_internal.lua")
 -- include("zbase/sh_globals_pub.lua")
--- 'category' - The category to add the menu to, ZBase ideally
--- 'name' - The name of the menu, could be your addon name for example
+-- 'category' - The category to add the menu to, could be your addon name for example
+-- 'name' - The name of the menu, could be "settings" for example
 -- 'func' - Function that passes a panel to the menu, this is where you add your controls
 -- See example: *url here*
 function ZBaseAddToolMenu(category, name, func)
