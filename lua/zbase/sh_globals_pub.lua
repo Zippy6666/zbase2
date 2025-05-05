@@ -26,7 +26,7 @@ ZBASE_DEFAULT_SIGHT_DIST = 4096
 
 --[[
 ======================================================================================================================================================
-                                           UTILITIES
+                                           ESSENTIALS
 ======================================================================================================================================================
 --]]
 
@@ -52,37 +52,32 @@ function FindZBaseBehaviourTable(debuginfo)
     end
 end 
 
+--[[
+======================================================================================================================================================
+                                           MENU STUFF
+======================================================================================================================================================
+--]]
+
 -- Changes a category's icon to whatever you like
 -- You probably want to run this in a hook like initialize
+-- Or run these includes at the top of your autorun file:
+-- include("zbase/cl_spawnmenu.lua")
+-- include("zbase/sh_globals_pub.lua")
 function ZBaseSetCategoryIcon( category, path )
     if SERVER then return end
     ZBaseCategoryImages[category] = path
-end 
+end
 
--- Clamps a direction in a view cone of a certain angle
--- Can be used to prevent NPCs from firing bullets out of their ass for example
-function ZBaseClampDirection(nrm, nrmForward, flMaxDeg)
-    flMaxRad = math.rad(flMaxDeg) -- Convert degrees to radians for dot product comparison
-
-    -- Calculate dot product (cosine of angle between vectors)
-    local flDot = nrm:Dot(nrmForward)
-
-    -- If angle is already within limits, return original direction
-    if flDot >= math.cos(flMaxRad) then
-        return nrm
-    end
-
-    -- Calculate rejection of 'nrm' perpendicular to 'nrmForward'
-    local flProjection = nrm:Dot(nrmForward)
-    local vRejection = nrm - (nrmForward * flProjection)
-    vRejection:Normalize()
-
-    -- Construct new direction at the maximum allowed angle
-    local flClampedDot = math.cos(flMaxRad)
-    local flClampedSin = math.sin(flMaxRad)
-    local vClampedDir = (nrmForward * flClampedDot) + (vRejection * flClampedSin)
-
-    return vClampedDir:GetNormalized()
+-- This is for adding options in the tool menu
+-- Call in your autorun file clientside, make sure you have done the following includes:
+-- include("zbase/toolmenu/cl_internal.lua")
+-- include("zbase/sh_globals_pub.lua")
+-- 'category' - The category to add the menu to, ZBase ideally
+-- 'name' - The name of the menu, could be your addon name for example
+-- 'func' - Function that passes a panel to the menu, this is where you add your controls
+-- See example: *url here*
+function ZBaseAddToolMenu(category, name, func)
+    ZBaseAddToolMenuInternal(category, name, func, nil)
 end
 
 --[[
@@ -533,3 +528,35 @@ function ZBaseCreateVoiceSounds( name, tbl )
         sound = tbl,
     } )
 end 
+
+--[[
+======================================================================================================================================================
+                                           UTILITIES
+======================================================================================================================================================
+--]]
+
+-- Clamps a direction in a view cone of a certain angle
+-- Can be used to prevent NPCs from firing bullets out of their ass for example
+function ZBaseClampDirection(nrm, nrmForward, flMaxDeg)
+    flMaxRad = math.rad(flMaxDeg) -- Convert degrees to radians for dot product comparison
+
+    -- Calculate dot product (cosine of angle between vectors)
+    local flDot = nrm:Dot(nrmForward)
+
+    -- If angle is already within limits, return original direction
+    if flDot >= math.cos(flMaxRad) then
+        return nrm
+    end
+
+    -- Calculate rejection of 'nrm' perpendicular to 'nrmForward'
+    local flProjection = nrm:Dot(nrmForward)
+    local vRejection = nrm - (nrmForward * flProjection)
+    vRejection:Normalize()
+
+    -- Construct new direction at the maximum allowed angle
+    local flClampedDot = math.cos(flMaxRad)
+    local flClampedSin = math.sin(flMaxRad)
+    local vClampedDir = (nrmForward * flClampedDot) + (vRejection * flClampedSin)
+
+    return vClampedDir:GetNormalized()
+end
