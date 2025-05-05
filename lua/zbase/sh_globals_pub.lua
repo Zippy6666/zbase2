@@ -77,7 +77,7 @@ end
 -- 'func' - Function that passes a panel to the menu, this is where you add your controls
 -- See example: *url here*
 function ZBaseAddToolMenu(category, name, func)
-    ZBaseAddToolMenuInternal(category, name, panel, nil)
+    ZBaseAddToolMenuInternal(category, name, func, nil)
 end
 
 --[[

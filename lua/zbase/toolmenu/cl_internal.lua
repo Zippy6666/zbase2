@@ -132,7 +132,7 @@ end
 --]]
 
 -- Used to add custom tool menus with settings --
-ZBaseToolMenuGlobal = {}
+ZBaseToolMenuGlobal = ZBaseToolMenuGlobal or {}
 
 function ZBaseAddToolMenuInternal(category, name, panel, tab)
 	if ZBaseToolMenuGlobal then 
