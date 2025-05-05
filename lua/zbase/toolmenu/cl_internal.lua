@@ -9,49 +9,69 @@ local metaPanel = FindMetaTable( "Panel" )
 -- Used to edit tool menu's header and background --
 function metaPanel:ZBase_ToolMenuCustomize(text, textColor, textFont, catColor, bgColor, posterTab)
 
-	bgColor = bgColor || Color( 255, 255, 255, 255 )
-	local oldPaint = self.Paint
-	self.Paint = function( self, w, h ) 
-		oldPaint( self, w, h ) 
+    bgColor = bgColor || Color( 255, 255, 255, 255 )
+    local oldPaint = self.Paint
+    self.Paint = function( self, w, h ) 
+        oldPaint( self, w, h ) 
 
-		surface.SetDrawColor( bgColor.r, bgColor.g, bgColor.b, bgColor.a )
-		surface.DrawRect( 0, 0, w, h )
+        surface.SetDrawColor( bgColor.r, bgColor.g, bgColor.b, bgColor.a )
+        surface.DrawRect( 0, 0, w, h )
 
-	end 
+    end 
 
-	local panel = self:GetChildren()[ 1 ]
+    local panel = self:GetChildren()[ 1 ]
 
-	self.m_colCategory = catColor || Color( 17, 148, 240, 255 )
-	
-	panel.Paint = function( panel, w, h ) 
-		surface.SetDrawColor( self.m_colCategory.r, self.m_colCategory.g, self.m_colCategory.b, self.m_colCategory.a )
-		surface.DrawRect( 0, 0, w, h )
-	end
+    self.m_colCategory = catColor || Color( 17, 148, 240, 255 )
+    
+    panel.Paint = function( panel, w, h ) 
+        surface.SetDrawColor( self.m_colCategory.r, self.m_colCategory.g, self.m_colCategory.b, self.m_colCategory.a )
+        surface.DrawRect( 0, 0, w, h )
+    end
 
-	panel:SetText( text || panel:GetText() )
+    panel:SetText( text || panel:GetText() )
 
-	self.m_colText = textColor || Color( 255, 255, 255, 255 )
+    self.m_colText = textColor || Color( 255, 255, 255, 255 )
 
-	panel:SetTextColor( self.m_colText )
+    panel:SetTextColor( self.m_colText )
 
-	self.m_sFont = textFont || "DermaDefaultBold"
+    self.m_sFont = textFont || "DermaDefaultBold"
 
-	panel:SetFont( self.m_sFont )
+    panel:SetFont( self.m_sFont )
 
 
-	if posterTab then
+    if posterTab then
 
-		panel.m_pPoster = vgui.Create( "DImage", self ) 		
-		panel.m_pPoster:SetImage( posterTab['Image'], "vgui/zbase_menu.png" )
+        local w, h = posterTab['Size'][ 1 ] || 512, posterTab['Size'][ 2 ] || 512
 
-		panel.m_pPoster:SetSize( posterTab['Size'][ 1 ] || 512, posterTab['Size'][ 2 ] || 512 ) 		
-		panel.m_pPoster:SetImageColor( posterTab['Color'] || Color( 255, 255, 255, 255 ) )
-		panel.m_pPoster:SetKeepAspect( true )
-		panel.m_pPoster:Dock( TOP )
+        panel.m_pScroll = vgui.Create( "DHorizontalScroller", self )
+        panel.m_pScroll:SetSize( w, h )     
+        panel.m_pScroll:Dock( TOP )
+        panel.m_pScroll.btnLeft.Paint = nil
+        panel.m_pScroll.btnRight.Paint = nil
 
-	else
-		self:SetHeaderHeight( 0 )
-	end
+        panel.m_pPoster = vgui.Create( "DImage", panel.m_pScroll )         
+        panel.m_pPoster:SetImage( posterTab['Image'], "vgui/zbase_menu.png" )
+        panel.m_pPoster:SetSize( w, h )         
+        panel.m_pPoster:SetImageColor( posterTab['Color'] || Color( 255, 255, 255, 255 ) )
+        panel.m_pScroll:AddPanel( panel.m_pPoster )
+        panel.m_pPoster:Dock( FILL )
+        local scroll = posterTab['Scroll'] || 0
+
+        if scroll && scroll > 0 then
+
+            panel.m_pPoster.Think = function(self)            
+                local time = CurTime() * posterTab['Scroll']
+                scroll = math.abs( ( time % 2 ) - 1 ) * ( self:GetWide() - panel:GetParent():GetWide() )
+                panel.m_pScroll:SetScroll( scroll )
+            end
+
+        end
+
+    else
+
+        self:SetHeaderHeight( 0 )
+
+    end
 
 end
 
@@ -114,7 +134,7 @@ end
 -- Used to add custom tool menus with settings --
 ZBaseToolMenuGlobal = {}
 
-function ZBaseAddToolMenu(category, name, panel, tab)
+function ZBaseAddToolMenuInternal(category, name, panel, tab)
 	if ZBaseToolMenuGlobal then 
 		local addTab = { [ #ZBaseToolMenuGlobal + 1 ] = { ['Category'] = category, ['Name'] = name, ['Panel'] = panel, ['Table'] = tab } } -- This should help with all these NPC spawner tools :/
 		table.Merge( ZBaseToolMenuGlobal, addTab )				
@@ -139,33 +159,6 @@ hook.Add( "AddToolMenuTabs", "ZBase_AddToolMenuTabs", function( category, name, 
     end        
 end )
 
--- Example custom tool menu --
-
--- local SettingColor = Color( 0, 0, 0, 255 )
--- local SettingFont = "Trebuchet18"
--- local DescriptionColor = Color( 50, 50, 50, 255 )
--- local DescriptionFont = "DefaultSmall"
-
--- local posterTab = {
--- 	['Image'] 	= "Sex",
--- 	['Size'] 	= { 512, 600 },
--- 	['Color'] 	= Color( 255, 255, 255, 255 ),
--- }
-
--- ZBaseAddToolMenu( "NPC Pack", "Settings", function(panel) 
-
--- 	panel:ZBase_ToolMenuCustomize( "Sex", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
-
--- 	panel:ZBase_ToolMenuAddCategory( "Category 1" )
--- 	panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Check Box", "anp_cup_medic_heal_all" ) }, SettingColor, SettingFont, "This is a DForm checkbox.", DescriptionColor, DescriptionFont )
--- 	panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Slider", "anp_cup_medic_heal_range", 50, 2048, 0 ) }, SettingColor, SettingFont, "This is a DForm slider.", DescriptionColor, DescriptionFont)
-	
---     panel:ZBase_ToolMenuAddCategory( "Category 2" )
--- 	panel:ZBase_ToolMenuAddItem( { panel:Button( "Button", "anp_cup_over_dmg_res" ) }, SettingColor, SettingFont, "This is a DForm button.", DescriptionColor, DescriptionFont )
--- 	panel:ZBase_ToolMenuAddItem( { panel:ComboBox( "ComboBox", "anp_cup_over_dmg_res" ) }, SettingColor, SettingFont, "This is a DForm button.", DescriptionColor, DescriptionFont )
-
--- end ) 
-
 --[[
 ==================================================================================================
                                            DEFAULT TOOL MENU
@@ -177,12 +170,13 @@ local SettingFont       = "Trebuchet18"
 local DescriptionColor  = Color( 50, 50, 50, 255 )
 local DescriptionFont   = "DefaultSmall"
 local posterTab = {
-	['Image'] 	= "Sex",
-	['Size'] 	= { 512, 600 },
-	['Color'] 	= Color( 255, 255, 255, 255 ),
+    ['Image']     = "vgui/menu_lol2.png",
+    ['Size']     = { 375, 375 },
+    ['Color']     = Color( 255, 255, 255, 255 ),
+    ['Scroll']    = 0.2
 }
 
-ZBaseAddToolMenu( "ZBASE", "Misc", function(panel)
+ZBaseAddToolMenuInternal( "ZBASE", "Misc", function(panel)
     panel:ZBase_ToolMenuCustomize( "MISC", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 
     panel:ZBase_ToolMenuAddCategory( "MENU" )
@@ -212,39 +206,39 @@ ZBaseAddToolMenu( "ZBASE", "Misc", function(panel)
     end
 end)
 
-ZBaseAddToolMenu( "ZBASE", "AI", function(panel)
+ZBaseAddToolMenuInternal( "ZBASE", "AI", function(panel)
     panel:ZBase_ToolMenuCustomize( "AI", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 end)
 
--- ZBaseAddToolMenu( "ZBASE", "Replace", function(panel)
+-- ZBaseAddToolMenuInternal( "ZBASE", "Replace", function(panel)
 --     panel:ZBase_ToolMenuCustomize( "REPLACE", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 -- end)
 
--- ZBaseAddToolMenu( "ZBASE", "Cleanup", function(panel)
+-- ZBaseAddToolMenuInternal( "ZBASE", "Cleanup", function(panel)
 --     panel:ZBase_ToolMenuCustomize( "CLEAN UP", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 -- end)
 
--- ZBaseAddToolMenu( "ZBASE", "Spawner", function(panel)
+-- ZBaseAddToolMenuInternal( "ZBASE", "Spawner", function(panel)
 --     panel:ZBase_ToolMenuCustomize( "SPAWNER", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 -- end)
 
--- ZBaseAddToolMenu( "ZBASE", "Effects", function(panel)
+-- ZBaseAddToolMenuInternal( "ZBASE", "Effects", function(panel)
 --     panel:ZBase_ToolMenuCustomize( "FX", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 -- end)
 
--- ZBaseAddToolMenu( "ZBASE", "Dev", function(panel)
+-- ZBaseAddToolMenuInternal( "ZBASE", "Dev", function(panel)
 --     panel:ZBase_ToolMenuCustomize( "DEV", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 -- end)
 
-ZBaseAddToolMenu( "DEF. NPCs", "Zombie", function(panel)
+ZBaseAddToolMenuInternal( "DEF. NPCs", "Zombie", function(panel)
     panel:ZBase_ToolMenuCustomize( "ZOMBIE", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 end)
 
--- ZBaseAddToolMenu( "DEF. NPCs", "Combine", function(panel)
+-- ZBaseAddToolMenuInternal( "DEF. NPCs", "Combine", function(panel)
 --     panel:ZBase_ToolMenuCustomize( "COMBINE", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 -- end)
 
--- ZBaseAddToolMenu( "DEF. NPCs", "Citizen", function(panel)
+-- ZBaseAddToolMenuInternal( "DEF. NPCs", "Citizen", function(panel)
 --     panel:ZBase_ToolMenuCustomize( "CITIZEN", Color( 255, 255, 255, 255 ), "ChatFont", Color( 150, 150, 150, 255 ), Color( 200, 200, 200, 255 ), posterTab  )
 -- end)
 
