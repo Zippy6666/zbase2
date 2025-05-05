@@ -75,7 +75,7 @@ end
 -- 'category' - The category to add the menu to, could be your addon name for example
 -- 'name' - The name of the menu, could be "settings" for example
 -- 'func' - Function that passes a panel to the menu, this is where you add your controls
--- See example: *url here*
+-- See example: https://github.com/Zippy6666/zbase2/blob/main/lua/zbase/toolmenu/cl_defaultmenu.lua
 function ZBaseAddToolMenu(category, name, func)
     ZBaseAddToolMenuInternal(category, name, func, nil)
 end
