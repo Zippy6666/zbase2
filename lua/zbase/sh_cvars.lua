@@ -67,9 +67,10 @@ ZBCVAR.SpawnerDistance =        CreateConVar("zbase_spawner_mindist", "0", Flags
 
 if CLIENT then
     ZBCVAR.GlowingEyes =        CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)
-    ZBCVAR.FollowHalo =         CreateConVar("zbase_follow_halo", "1", Flags)
+    ZBCVAR.FollowHalo =         CreateConVar("zbase_follow_halo", "1", FCVAR_ARCHIVE)
 
     ZBCVAR.PopUp =              CreateConVar("zbase_popup", "1", FCVAR_ARCHIVE)
+    ZBCVAR.CollapseCat =        CreateConVar("zbase_collapse_cat", "1", FCVAR_ARCHIVE)
     
     ZBCVAR.RandWep =            CreateConVar("zbase_randwep", "0", FCVAR_ARCHIVE)
 end

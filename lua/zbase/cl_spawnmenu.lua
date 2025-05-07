@@ -127,7 +127,6 @@ end
 
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
 	-- Horror code
-
 	local tbl = {}
 	for class, npcdata in pairs( ZBaseSpawnMenuNPCList ) do
 		if isstring(npcdata.Category) then
@@ -145,11 +144,14 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 	end
 
 	local allNPCs = {}
+
 	local allNode = tree:AddNode( "ZBASE", GenericIcon )
-	allNode:SetExpanded(true)
+	allNode:SetExpanded(!ZBCVAR.CollapseCat:GetBool())
+
 	for divisionName, division in SortedPairs( tbl ) do
 		local allCatIconsSame = true
 		local lastIconPath
+
 		for categoryName in pairs(division) do
 			local catIcon = ZBaseCategoryImages[divisionName..": "..categoryName]
 			if isstring(lastIconPath) && catIcon != lastIconPath then
@@ -157,11 +159,15 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			end
 			lastIconPath = catIcon
 		end
-		if !lastIconPath then lastIconPath=ZBaseCategoryImages[divisionName] end
+
+		if !lastIconPath then 
+			lastIconPath=ZBaseCategoryImages[divisionName] 
+		end
 
 		local divisionIcon = (allCatIconsSame && lastIconPath ) or GenericIcon
 		local divisionNPCs = {}
 		local node = allNode:AddNode( divisionName, divisionIcon ) -- Add a node to the tree
+
 		for categoryName, category in SortedPairs(division) do
 
 			if ZBaseNPCs[categoryName] then
@@ -169,7 +175,7 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 				GiveIconsToNode( pnlContent, tree, node, {[divisionName]=division} )
 				table.Merge(allNPCs, {[divisionName]=division})
 			else
-				node:SetExpanded(true)
+				node:SetExpanded(!ZBCVAR.CollapseCat:GetBool())
 
 				local catNode = node:AddNode(categoryName, ZBaseCategoryImages[divisionName..": "..categoryName] or GenericIcon)
 				GiveIconsToNode( pnlContent, tree, catNode, {[divisionName..": "..categoryName]=category} )
@@ -177,15 +183,17 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			end
 
 		end
+
 		if !table.IsEmpty(divisionNPCs) then
 			GiveIconsToNode( pnlContent, tree, node, divisionNPCs )
+
 			for k, v in pairs(divisionNPCs) do
 				allNPCs[k] = allNPCs[k] or {}
 				table.Merge(allNPCs[k], v)
 			end
 		end
-
 	end
+
 	if !table.IsEmpty(allNPCs) then
 		GiveIconsToNode( pnlContent, tree, allNode, allNPCs )
 	end
