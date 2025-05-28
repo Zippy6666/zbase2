@@ -310,6 +310,7 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 	end
 
 	NPC.ZBase_PlayerWhoSpawnedMe = ply
+	NPC:SetCreator(ply)
 
 	return ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate, SpawnFlagsSaved )
 end
