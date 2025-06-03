@@ -18,6 +18,7 @@ SWEP.Secondary.DefaultClip  = -1
 
 function SWEP:Initialize()
     self:SetHoldType("slam")
+    self:SetNoDraw(true)
 end
 
 function SWEP:PrimaryAttack()
