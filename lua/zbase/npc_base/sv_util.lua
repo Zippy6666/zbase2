@@ -551,6 +551,19 @@ function NPC:GetNearestAlly( radius )
     return ally
 end
 
+-- Get the velocity vector of a moving target
+function NPC:GetMovingTargetVel( trgt )
+    if !IsValid(trgt) then
+        return vector_origin
+    end
+
+    if trgt:IsNPC() then
+        return trgt:GetMoveVelocity()
+    end
+
+    return trgt:GetVelocity()
+end
+
 --[[
 ==================================================================================================
                                            DEATH / GIB STUFF

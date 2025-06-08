@@ -3563,7 +3563,7 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	hook.Run("CreateEntityRagdoll", self, rag)
 
 	-- Dissolve
-	if isDissolveDMG then
+	if isDissolveDMG && self.DissolveRagdoll then
 		rag:SetName( "base_ai_ext_rag" .. rag:EntIndex() )
 
 		local dissolve = ents.Create("env_entity_dissolver")
