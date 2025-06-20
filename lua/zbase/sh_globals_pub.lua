@@ -524,7 +524,7 @@ function ZBaseCreateVoiceSounds( name, tbl )
         channel = CHAN_VOICE,
         volume = 0.7,
         level = 78,
-        pitch = {90, 110},
+        pitch = {95, 105},
         sound = tbl,
     } )
 end 

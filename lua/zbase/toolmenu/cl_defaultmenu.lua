@@ -31,7 +31,7 @@ ZBaseAddToolMenu( "ZBASE", "Misc", function(panel)
 
     panel:ZBase_ToolMenuAddCategory( "RESET" )
 
-    local resetBtn = panel:ZBase_ToolMenuAddItem( { panel:Button( "Reset All Settings" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
+    local resetBtn = panel:ZBase_ToolMenuAddItem( { panel:Button( "Reset All Settings" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )[1]
     resetBtn.DoClick = function()
         for k, v in pairs(ZBCVAR or {}) do
             if !v.Revert then continue end
