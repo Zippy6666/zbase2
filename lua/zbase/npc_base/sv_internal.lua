@@ -3540,7 +3540,10 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 
 	local physcount = rag:GetPhysicsObjectCount()
     local dmgpos = dmg:GetDamagePosition()
-    local force = self.RagdollApplyForce && dmg:GetDamageForce()*0.02
+    local force = self.RagdollApplyForce && (
+        dmg:GetDamageForce()*0.02  + self:GetMoveVelocity() + self:GetVelocity() 
+    )
+
 	for i = 0, physcount - 1 do
 		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
