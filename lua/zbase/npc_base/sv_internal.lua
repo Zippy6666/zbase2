@@ -50,6 +50,13 @@ local engineWeaponFlipped = {
 --]]
 
 function NPC:PreSpawn()
+    -- First and foremost...
+    self:SetNWBool("IsZBaseNPC", true)
+    self:SetNWString("ZBaseName", self.NPCName)
+
+    -- Apply custom class name serverside
+    self:ApplyCustomClassName(self.NPCName)
+ 
     if #self.Weapons >= 1 then
         self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Important! Or else some NPCs won't spawn with weapons.
     else
@@ -67,9 +74,6 @@ end
 
 function NPC:ZBaseInit()
     -- Variables
-
-    self:SetNWBool("IsZBaseNPC", true)
-
     self.NextPainSound                      = CurTime()
     self.NextAlertSound                     = CurTime()
     self.NPCNextSlowThink                   = CurTime()
@@ -2462,7 +2466,7 @@ function BEHAVIOUR.RangeAttack:ShouldDoBehaviour( self )
 
     -- Don't range attack in mid-air
     if self:GetNavType() == 0
-    && self:GetClass() != "npc_manhack"
+    && self:GetEngineClass() != "npc_manhack"
     && !self:IsOnGround() then return false end
 
     self:MultipleRangeAttacks()
@@ -3206,7 +3210,7 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
     -- Prevent engine gib
-    if goingToDie && ShouldPreventGib[self:GetClass()] then
+    if goingToDie && ShouldPreventGib[self:GetEngineClass()] then
         self.ZBasePreDeathDamageType = dmg:GetDamageType()
 		
         if dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball") then
@@ -3508,7 +3512,7 @@ end
 
 function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     if !self.HasDeathRagdoll then return end
-    if RagdollBlacklist[self:GetClass()] && !self.RagdollModel then return end
+    if RagdollBlacklist[self:GetEngineClass()] && !self.RagdollModel then return end
 
     local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
     local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !keep_corpse && !isDissolveDMG

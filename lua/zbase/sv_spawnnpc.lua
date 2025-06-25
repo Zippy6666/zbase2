@@ -153,6 +153,12 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		NPC.OnDuplicated = NPCData.OnDuplicated
 	end
 
+		-- Store name and table like the usual spawn menu spawn system in GMOD
+	NPC.NPCName = Class
+	NPC.NPCTable = NPCData
+	NPC.EngineClass = NPCData.Class
+	NPC._wasSpawnedOnCeiling = wasSpawnedOnCeiling
+
 	-- Pre-spawn
 	if NPC.Patch_PreSpawn then
 		NPC:Patch_PreSpawn()
@@ -170,11 +176,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		ed:SetEntity( NPC )
 		util.Effect( "zbasespawn", ed, true, true )
 	end
-
-	-- Store name and table like the usual spawn menu spawn system in GMOD
-	NPC.NPCName = Class
-	NPC.NPCTable = NPCData
-	NPC._wasSpawnedOnCeiling = wasSpawnedOnCeiling
 
 	-- Body groups
 	if ( NPCData.BodyGroups ) then

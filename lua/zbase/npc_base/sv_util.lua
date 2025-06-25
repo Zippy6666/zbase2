@@ -360,7 +360,7 @@ function NPC:Zombie_GiveHeadCrabs()
     self:SetSaveValue("m_fIsHeadless", false)
     self:SetBodygroup(1, 1)
 
-    if self:GetClass()=="npc_poisonzombie" then
+    if self:GetEngineClass()=="npc_poisonzombie" then
         self:SetSaveValue("m_nCrabCount", 3)
         self:SetSaveValue("m_bCrabs", {true, true, true})
 

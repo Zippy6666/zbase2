@@ -326,11 +326,13 @@ function ZBase_RegisterHandler:RegBase()
     if SERVER && !ZBase_AddedBaseLuaFilesToClient then
         AddCSLuaFile(NPCBasePrefix.."sh_sentence.lua")
         AddCSLuaFile(NPCBasePrefix.."shared.lua")
+        AddCSLuaFile(NPCBasePrefix.."sh_classname.lua")
         ZBase_AddedBaseLuaFilesToClient = true
     end
 
     include(NPCBasePrefix.."sh_sentence.lua")
     include(NPCBasePrefix.."shared.lua")
+    include(NPCBasePrefix.."sh_classname.lua")
 
     if SERVER then
         include(NPCBasePrefix.."sv_internal.lua")
