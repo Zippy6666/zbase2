@@ -3543,11 +3543,20 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     local force = self.RagdollApplyForce && (
         dmg:GetDamageForce()*0.02  + self:GetMoveVelocity() + self:GetVelocity() 
     )
-
-	for i = 0, physcount - 1 do
+    local forcemaxnoise = force && force:Length()*0.3
+    local closestPhys
+    local mindist = math.huge
+	for i = 1, physcount - 1 do
 		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
-		local pos, ang = npc:GetBonePosition(npc:TranslatePhysBoneToBone(i))
+        local bone = npc:TranslatePhysBoneToBone(i)
+		local pos, ang = npc:GetBonePosition(bone)
+        local distsqrFromDmg = pos:DistToSqr(dmg:GetDamagePosition())
+
+        if distsqrFromDmg < mindist then
+            mindist = distsqrFromDmg
+            closestPhys = physObj
+        end
 
         if !self.RagdollUseAltPositioning then
 		    physObj:SetPos( pos )
@@ -3558,9 +3567,14 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
         end
 
         if force then
-            physObj:SetVelocity(force)
+            physObj:SetVelocity(force + VectorRand()*forcemaxnoise)
         end
 	end
+
+    -- Apply more force to the closest bone to the damage 
+    if closestPhys && force then
+        closestPhys:ApplyForceCenter(force)
+    end
 
 	-- Hook
 	hook.Run("CreateEntityRagdoll", self, rag)
