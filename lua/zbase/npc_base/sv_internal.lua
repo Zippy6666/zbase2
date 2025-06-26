@@ -53,9 +53,6 @@ function NPC:PreSpawn()
     -- First and foremost...
     self:SetNWBool("IsZBaseNPC", true)
     self:SetNWString("ZBaseName", self.NPCName)
-
-    -- Apply custom class name serverside
-    self:ApplyCustomClassName(self.NPCName)
  
     if #self.Weapons >= 1 then
         self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Important! Or else some NPCs won't spawn with weapons.
@@ -140,6 +137,9 @@ function NPC:ZBaseInit()
 
     -- For use with hammer inputs
     self:Fire("wake")
+
+    -- Apply custom class name serverside
+    self:ApplyCustomClassName(self.NPCName)
 
     -- User defined init
     self:CustomInitialize()
