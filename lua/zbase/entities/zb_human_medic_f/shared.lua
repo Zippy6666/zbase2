@@ -19,6 +19,7 @@ NPC.Weapons = {
     "weapon_stunstick", 
     "weapon_pistol", 
     "weapon_alyxgun", 
-    "weapon_annabelle"
+    "weapon_annabelle",
+    "weapon_zb_canalspipe"
 }
 NPC.Inherit = "zb_human_medic" -- Inherit features from any existing zbase npc
