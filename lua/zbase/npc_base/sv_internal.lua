@@ -141,6 +141,11 @@ function NPC:ZBaseInit()
     -- This will be networked
     self:ApplyCustomClassName(self.NPCName)
 
+    -- Start LUA thinking if non-scripted
+    if !self:IsScripted() then
+        self:EngineNPC_StartLuaThink()
+    end
+
     -- User defined init
     self:CustomInitialize()
 
@@ -148,6 +153,21 @@ function NPC:ZBaseInit()
     self:CONV_CallNextTick("InitNextTick")
 
     self.RanInit = true
+end
+
+-- Start LUA thinking if non-scripted
+function NPC:EngineNPC_StartLuaThink()
+    self.EngineNPC_NextLUAThink = CurTime()
+    self:CONV_AddHook("Think", function()
+        if self.EngineNPC_NextLUAThink > CurTime() then return end
+        self:ZBaseThink()
+
+        if self.Patch_Think then
+            self:Patch_Think()
+        end
+
+        self.EngineNPC_NextLUAThink = CurTime()+0.1
+    end, "EngineNPC_LUAThink")
 end
 
 function NPC:InitSharedAnimEvents()

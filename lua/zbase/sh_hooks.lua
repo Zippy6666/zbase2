@@ -154,17 +154,17 @@ if SERVER then
 
     hook.Add("Tick", "ZBASE", function()
         -- Regular think for non-scripted NPCs
-        if NextThink < CurTime() then
-            for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
-                zbaseNPC:ZBaseThink()
+        -- if NextThink < CurTime() then
+        --     for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
+        --         zbaseNPC:ZBaseThink()
 
-                if zbaseNPC.Patch_Think then
-                    zbaseNPC:Patch_Think()
-                end
-            end
+        --         if zbaseNPC.Patch_Think then
+        --             zbaseNPC:Patch_Think()
+        --         end
+        --     end
 
-            NextThink = CurTime()+0.1
-        end
+        --     NextThink = CurTime()+0.1
+        -- end
 
         -- Behaviour tick
         if !GetConVar("ai_disabled"):GetBool()
