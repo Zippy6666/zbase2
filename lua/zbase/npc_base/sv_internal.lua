@@ -52,7 +52,6 @@ local engineWeaponFlipped = {
 function NPC:PreSpawn()
     -- First and foremost...
     self:SetNWBool("IsZBaseNPC", true)
-    self:SetNWString("ZBaseName", self.NPCName)
  
     if #self.Weapons >= 1 then
         self:CapabilitiesAdd(CAP_USE_WEAPONS) -- Important! Or else some NPCs won't spawn with weapons.
@@ -138,7 +137,8 @@ function NPC:ZBaseInit()
     -- For use with hammer inputs
     self:Fire("wake")
 
-    -- Apply custom class name serverside
+    -- Apply custom class name
+    -- This will be networked
     self:ApplyCustomClassName(self.NPCName)
 
     -- User defined init
@@ -146,6 +146,8 @@ function NPC:ZBaseInit()
 
     -- Init more stuff next tick
     self:CONV_CallNextTick("InitNextTick")
+
+    self.RanInit = true
 end
 
 function NPC:InitSharedAnimEvents()
@@ -2636,6 +2638,8 @@ local sndVarToCapTrans = {
     HearDangerSounds = "[ Hear sound. ]",
 }
 function NPC:OnEmitSound( data )
+    if !self.RanInit then return end
+
     local altered
     local sndVarName = (data.OriginalSoundName && self.SoundVarNames[data.OriginalSoundName]) or nil
 

@@ -29,6 +29,10 @@ ZBaseAddToolMenu( "ZBASE", "Misc", function(panel)
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "NPC Hurt Ally", "zbase_friendly_fire" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Nocollide between NPCs", "zbase_nocollide" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
 
+    panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Custom Classes", "zbase_custom_class" ) }, color_black, SettingFont, 
+    "Give custom class names to ZBase NPCs. Disable this to allow NPC-specific improvement addons, such as improved Combine AI, to affect ZBase NPCs.", 
+    DescriptionColor, DescriptionFont )
+
     panel:ZBase_ToolMenuAddCategory( "RESET" )
 
     local resetBtn = panel:ZBase_ToolMenuAddItem( { panel:Button( "Reset All Settings" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )[1]

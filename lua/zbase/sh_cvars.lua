@@ -54,6 +54,7 @@ ZBCVAR.SvGlowingEyes =          CreateConVar("zbase_sv_glowing_eyes", "1", Flags
 
 ZBCVAR.Replace =                CreateConVar("zbase_replace", "0", Flags)
 ZBCVAR.CampaignReplace =        CreateConVar("zbase_camp_replace", "0", Flags)
+ZBCVAR.CustomClass =            CreateConVar("zbase_custom_class", "1", Flags)
 ZBCVAR.DefaultMenu =            CreateConVar("zbase_defmenu", "0", Flags)
 ZBCVAR.MenuMixin =              CreateConVar("zbase_mixmenu", "0", Flags)
 ZBCVAR.ReloadSpawnMenu =        CreateConVar("zbase_reload_spawnmenu", "0", Flags)
