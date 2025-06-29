@@ -215,6 +215,20 @@ function ZBaseAfterSpawn( NPC, Class, bDropToFloor )
 	-- Store my class for dupe data
 	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
 
+	-- Make sure I always spawn with my engine class when duped
+	-- not my custom ZBase one
+	-- If i should have a custom class
+	-- it will be applied after I am pasted anyway
+	function NPC:PreEntityCopy()
+		self.PreDupeClassName = self:GetClass()
+		self:SetKeyValue("classname", self:GetEngineClass())
+		
+		self:CONV_CallNextTick(function()
+			self:SetKeyValue("classname", self.PreDupeClassName)
+			self.PreDupeClassName = nil
+		end)
+	end
+
 	-- Drop to floor
 	if ( bDropToFloor ) then
 		NPC:DropToFloor()
@@ -223,25 +237,24 @@ function ZBaseAfterSpawn( NPC, Class, bDropToFloor )
 	NPC.ZBase_Spawned = true
 end
 
+-- Apply stuff after duped
 duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
-    local zbaseClass = data[1]
-    local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
-
-	if ent:GetClass() != ZBaseNPCTable.Class then return end
+    local ZBaseClass = data[1]
+    local ZBaseNPCTable = ZBaseNPCs[ ZBaseClass ]
 
     if ZBaseNPCTable then
+		local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
+
         ent.ZBaseInitialized = false -- So that it can be initialized again
         ent.IsDupeSpawnedZBaseNPC = true
 
-        local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
-        ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
+        ZBaseInitialize( ent, ZBaseNPCTable, ZBaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
     end
 end)
 
 function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
 	local NPCList = ZBaseSpawnMenuNPCList
 	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
-
 
 	-- Don't let them spawn this entity if it isn't in our NPC Spawn list.
 	-- We don't want them spawning any entity they like!

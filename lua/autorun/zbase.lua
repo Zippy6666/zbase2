@@ -369,6 +369,11 @@ function ZBase_RegisterHandler:NPCReg( name )
                         ZBaseNPCs[name].EInternalVars[varname] = var
                     end
                 end
+
+                -- Make dupable if using custom class
+                duplicator.RegisterEntityClass(name, function(ply, _)
+                    return duplicator.GenericDuplicatorFunction(ply, {})
+                end)
             end
 
             if file.Exists(cl, "LUA") && CLIENT then
