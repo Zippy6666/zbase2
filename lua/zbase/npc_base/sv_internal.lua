@@ -554,7 +554,7 @@ function NPC:FrameTick()
     if ai_disabled:GetBool() then return end
     local ene = self:GetEnemy()
 
-    if self.MoveSpeedMultiplier != 1 && !self.DoingPlayAnim && (self:IsMoving() or self.bControllerMoving) then
+    if !self.DoingPlayAnim && (self:IsMoving() or self.bControllerMoving) then
         self:DoMoveSpeed()
     end
 
@@ -1963,11 +1963,13 @@ function NPC:MarkEnemyAsDead( ene, time )
 end
 
 function NPC:DoMoveSpeed()
+    local mult = self.MoveSpeedMultiplier * ZBCVAR.MoveSpeedMult:GetFloat()
+
     if !self.DoingPlayAnim then
-        self:SetPlaybackRate(self.MoveSpeedMultiplier)
+        self:SetPlaybackRate(mult)
     end
 
-    self:SetSaveValue("m_flTimeLastMovement", -0.1*self.MoveSpeedMultiplier)
+    self:SetSaveValue("m_flTimeLastMovement", -0.1*mult)
 end
 
 function NPC:InternalOnReactToSound(ent, pos, loudness)
