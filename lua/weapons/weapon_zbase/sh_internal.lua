@@ -130,14 +130,17 @@ function SWEP:PrimaryAttack()
 					bulletDispatcherEnt = ents.Create("zb_temporary_ent")
 					bulletDispatcherEnt.ShouldRemain = true
 					bulletDispatcherEnt:SetPos(offsetpos)
-					-- bulletDispatcherEnt:SetNoDraw(true)
-					bulletDispatcherEnt:SetModel("models/props_junk/garbage_coffeemug001a.mdl")
-					bulletDispatcherEnt:SetMaterial("models/wireframe")
+					bulletDispatcherEnt:SetNoDraw(true)
+					-- bulletDispatcherEnt:SetModel("models/props_junk/garbage_coffeemug001a.mdl")
+					-- bulletDispatcherEnt:SetMaterial("models/wireframe")
 					bulletDispatcherEnt:Spawn()
 					SafeRemoveEntityDelayed(bulletDispatcherEnt, 1)
 					
 					-- Change src to the offset position
 					src = offsetpos
+
+					debugoverlay.Axis(src, angle_zero, 20, 2, true)
+					debugoverlay.Text(src+vector_up*10, "Bullet start position", 2, false)
 				end
 			end
 			

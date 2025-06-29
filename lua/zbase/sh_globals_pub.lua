@@ -245,7 +245,11 @@ function ZBaseMuzzleFlashAtPos(pos, ang, iFlags, optionalParentEnt)
         local bAR2 = ( (iFlags == 5) or false )
 
         if bAR2 then
-            --
+            local effectdata = EffectData()
+            effectdata:SetOrigin(pos)
+            effectdata:SetNormal(ang:Forward())
+            effectdata:SetRadius(8)
+            util.Effect( "AR2Explosion", effectdata, true, true )
         else
             local effectdata = EffectData()
             effectdata:SetOrigin(pos)
