@@ -43,8 +43,14 @@ SWEP.CustomWorldModel = {
 
 SWEP.Primary.MuzzleFlashPos = {
     ShouldUse   = true,             -- Set to true to use manual positioning instead of attachment
-    Offset      = Vector(-30,0,0),    -- Position offset
-    AngOffset   = Angle(0,180,0)      -- Angle offset
+    Offset      = Vector(-30,0,0),  -- Position offset
+    AngOffset   = Angle(0,180,0)    -- Angle offset
+}
+
+SWEP.Primary.BulletPos = {
+    ShouldUse   = true,             -- Set to true to use manual positioning instead of attachment
+    Offset      = Vector(50,0,0),  -- Position offset
+    AngOffset   = Angle(0,0,0)    -- Angle offset
 }
 
 SWEP.IsZBaseWeapon = true
@@ -71,8 +77,6 @@ SWEP.NPCReloadSound = "ZBASE.SniperReload"
 SWEP.NPCShootDistanceMult = 3
 SWEP.NPCHoldType =  "ar2" -- https://wiki.facepunch.com/gmod/Hold_Types
 
--- Called so the weapon can override the impact effects it makes.
--- Return true to disable default
 function SWEP:CustomDoImpactEffect( tr, damageType )
     local effectdata = EffectData()
     effectdata:SetOrigin(tr.HitPos)

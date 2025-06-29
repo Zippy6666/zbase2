@@ -92,12 +92,21 @@ SWEP.Primary.TracerChance = 3 -- 1 / x
 -- 5 - Combine muzzleflash
 -- 7 - Regular muzzle but bigger
 SWEP.Primary.MuzzleFlashFlags = 1
+
 SWEP.Primary.MuzzleFlash = true -- Should it have a muzzleflash?
-SWEP.Primary.MuzzleFlashChance = 1 -- Should it have a muzzleflash?
+SWEP.Primary.MuzzleFlashChance = 1
 SWEP.Primary.MuzzleFlashPos = {
     ShouldUse   = false,             -- Set to true to use manual positioning instead of attachment
     Offset      = Vector(0,0,0),    -- Position offset
     AngOffset   = Angle(0,0,0)      -- Angle offset
+}
+
+SWEP.Primary.BulletPos = {
+    ShouldUse   = false,            -- Set to true to use manual positioning instead of attachment
+    Offset      = Vector(0,0,0),    -- Position offset
+    AngOffset   = Angle(0,0,0)      -- Angle offset,
+                                    -- you are probably best of not touching the angle for 
+                                    -- the bullet position
 }
 
 --[[

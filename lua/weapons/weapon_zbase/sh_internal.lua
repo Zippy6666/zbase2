@@ -67,6 +67,21 @@ end
 ==================================================================================================
 --]]
 
+-- Get the bullet position with the specified offset
+-- Or nil if it could not determine one
+function SWEP:GetBulletOffsetPos()
+	local own = self:GetOwner()
+	if !IsValid(own) then return end
+
+	local boneid = own:LookupBone(self.CustomWorldModel.Bone) -- Right Hand
+	if !boneid then return end
+
+	local matrix = own:GetBoneMatrix(boneid)
+	if !matrix then return end
+
+	return LocalToWorld(self.Primary.BulletPos.Offset, self.Primary.BulletPos.AngOffset, matrix:GetTranslation(), matrix:GetAngles())
+end
+
 function SWEP:PrimaryAttack()
 	local own = self:GetOwner()
 	if !IsValid(own) then return end
@@ -100,19 +115,45 @@ function SWEP:PrimaryAttack()
 		if self:NPCPrimaryAttack() != true then
 			-- Do default primary for NPC
 
+			-- Owner or a temporary ent, if we want to adjust the offset
+			-- Will fire the bullet
+			local bulletDispatcherEnt = own
+			local src = own:GetShootPos() -- Bullet start position
+
+			-- Check should use manual positioning
+			if self.Primary.BulletPos.ShouldUse == true then
+				local offsetpos = self:GetBulletOffsetPos()
+				
+				-- Got an offset...
+				if offsetpos then
+					-- Change bullet dispatcher to a temporary ent with the offset position
+					bulletDispatcherEnt = ents.Create("zb_temporary_ent")
+					bulletDispatcherEnt.ShouldRemain = true
+					bulletDispatcherEnt:SetPos(offsetpos)
+					-- bulletDispatcherEnt:SetNoDraw(true)
+					bulletDispatcherEnt:SetModel("models/props_junk/garbage_coffeemug001a.mdl")
+					bulletDispatcherEnt:SetMaterial("models/wireframe")
+					bulletDispatcherEnt:Spawn()
+					SafeRemoveEntityDelayed(bulletDispatcherEnt, 1)
+					
+					-- Change src to the offset position
+					src = offsetpos
+				end
+			end
+			
 			local bullet = {
 				Attacker = own,
 				Inflictor = self,
 				Damage = self.PrimaryDamage,
 				AmmoType = self.Primary.Ammo,
-				Src = own:GetShootPos(),
+				Src = src,
 				Dir = own:GetAimVector(),
 				Spread = self.BulletSpread,
 				Tracer = self.Primary.TracerChance,
 				TracerName = self.Primary.TracerName,
 				Num = self.Primary.NumShots,
 			}
-			own:FireBullets(bullet)
+			bulletDispatcherEnt:FireBullets(bullet)
 
 			self:NPCShootEffects()
 			self:EmitSound(self.PrimaryShootSound)
