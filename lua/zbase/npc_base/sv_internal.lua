@@ -2357,6 +2357,13 @@ end
 BEHAVIOUR.MeleeAttack = {MustHaveEnemy = true}
 BEHAVIOUR.PreMeleeAttack = {MustHaveEnemy = true}
 
+-- Don't melee push NPCs with these hulls (fairly large)
+local HULL_CANNOT_PUSH = {
+    [HULL_LARGE] = true,
+    [HULL_LARGE_CENTERED] = true,
+    [HULL_MEDIUM_TALL] = true
+}
+
 function NPC:TooBusyForMelee()
     return self.DoingPlayAnim or self.bControllerBlock
 end
@@ -2382,6 +2389,11 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         local entIsUndamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
         local forcevec = self:GetForward()*100
         local isFriendlyTowardsEnt = ( (disp==D_LI or disp==D_NU) && bullseyeDisp!=D_HT && bullseyeDisp!=D_FR ) && !self.ZBASE_IsPlyControlled
+        local htype = ent:IsNPC() && ent:GetHullType() -- Target hull type
+        
+        -- Don't melee push NPCs with these hulls (fairly large)
+        local entTooHeavyToPush = (ent:IsNPC() && HULL_CANNOT_PUSH[htype])
+
         local isProp = (disp == D_NU or entIsUndamagable)
 
         if ent == self then continue end
@@ -2408,7 +2420,7 @@ function NPC:InternalMeleeAttackDamage(dmgData)
         end
 
         -- Push
-        if !isFriendlyTowardsEnt or isProp then
+        if !entTooHeavyToPush && (!isFriendlyTowardsEnt or isProp) then
             local phys = ent:GetPhysicsObject()
 
             if IsValid(phys) then
