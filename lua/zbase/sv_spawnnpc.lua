@@ -241,6 +241,16 @@ end
 duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
     local ZBaseClass = data[1]
     local ZBaseNPCTable = ZBaseNPCs[ ZBaseClass ]
+	local EngineClass = ZBaseNPCTable.Class
+
+	-- Apparently, entities can be duped but their classes can change
+	-- Easy animation tool for example, does this when you select
+	-- "Make Animatable" through the context menu
+	-- We don't want any special ZBase shenanigans on the entity
+	-- in this case, so return
+	if ent:GetClass() != EngineClass then
+		return
+	end
 
     if ZBaseNPCTable then
 		local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
