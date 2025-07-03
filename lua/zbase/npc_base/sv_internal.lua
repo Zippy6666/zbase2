@@ -571,13 +571,14 @@ function NPC:FrameTick()
         end
 
         -- Constant yaw face
-        self:SetIdealYawAndUpdate(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
+
+        self:ZBaseUpdateYaw(self.ZBase_CurrentFace_Yaw, self.ZBase_CurrentFace_Speed or 15)
     end
 
     -- For ZBase weapon system
     -- Make sure yaw is precise when standing and shooting
     if self.bShouldFaceAimVector && IsValid(ene) then
-        self:SetIdealYawAndUpdate((self:GetPos() - ene_GetPos()):Angle().yaw, -2)
+        self:ZBaseUpdateYaw((self:GetPos() - ene.GetPos()):Angle().yaw, -2)
     end
 
     self:CustomFrameTick()
@@ -1185,6 +1186,12 @@ function NPC:HasMeleeWeapon()
     return wep.IsZBaseWeapon && wep.NPCIsMeleeWep
 end
 
+function NPC:ZBaseUpdateYaw(yaw, speed)
+    self.ZBase_DidInternalUpdateYawCall = true
+    self:SetIdealYawAndUpdate(yaw, speed)
+    self.ZBase_DidInternalUpdateYawCall = false
+end
+
 function NPC:Face( face, duration, speed )
     if !face then return end
 
@@ -1218,7 +1225,7 @@ function NPC:Face( face, duration, speed )
         self:CONV_TempVar("ZBase_CurrentFace_Speed", turnSpeed, duration)
 
     elseif !self.ZBase_CurrentFace_Yaw then
-        self:SetIdealYawAndUpdate(yaw, turnSpeed)
+        self:ZBaseUpdateYaw(yaw, turnSpeed)
 
     end
 end
@@ -1726,6 +1733,14 @@ function NPC:ShouldPreventSetSched( sched )
     return self.HavingConversation
     or self.DoingPlayAnim
 end
+
+-- function NPC:ShouldPreventSetYaw()
+--     if self.IsZBaseSNPC && self:IsCurrentZSched("SCHED_ZBASE_COMBAT_FACE") then
+--         print("PREVENTING")
+--         return true
+--     end
+--     return false
+-- end
 
 function NPC:OnKilledEnt( ent )
     if ent == self:GetEnemy() then

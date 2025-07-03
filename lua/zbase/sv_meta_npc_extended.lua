@@ -188,7 +188,6 @@ function NPC:SetSchedule( sched, ... )
     return ZBase_OldSetSchedule(self, sched, ...)
 end
 
-
 function NPC:DropWeapon( wep, ... )
     -- Fix zbase npcs not dropping engine weapons
     if self.IsZBaseNPC then
@@ -207,3 +206,24 @@ function NPC:DropWeapon( wep, ... )
     -- Usual drop weapon
     return ZBase_OldDropWeapon(self, wep, ...)
 end
+
+-- Ideal yaw and update - wrapper
+-- NPC.SetIdealYawAndUpdate = conv.wrapFunc("ZBASE_UpdateYaw", NPC.SetIdealYawAndUpdate, function(self, yaw, speed)
+    -- Is ZBase NPC...
+    -- if self.IsZBaseNPC then
+    --     if self:ShouldPreventSetYaw() then
+            -- Prevent set yaw if we should
+        --     return false
+        -- end
+    
+        --     if !self.ZBase_DidInternalUpdateYawCall && self.ZBase_CurrentFace_bShould then
+            -- Stop ZBase face function
+            -- The developer of the NPC clearly wants it to face somewhere else
+            -- Don't fight them
+    --         self:StopFace()
+    --         conv.devPrint("Stopped ZBase face")
+    --     end
+    -- end
+
+    -- Don't alter anything for other NPCs
+-- end)
