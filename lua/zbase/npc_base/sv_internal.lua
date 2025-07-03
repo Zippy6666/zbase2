@@ -841,28 +841,41 @@ function NPC:ZBWepSys_TranslateAct(act, translateTbl)
 
     local useLegacyAnimSys = ( (self.WeaponFire_Activities or self.WeaponFire_MoveActivities) && (true or false) )
     local shouldForceShootStance = self.ForceShootStance && !useLegacyAnimSys
+    
+    -- Check forcing of shoot stance is allowed
     if !shouldForceShootStance then return end
 
     local translatedAct
     local wep = self:GetActiveWeapon()
+
     if self.ZBWepSys_Stored_AIWantsToShoot && !self:HasCondition(COND.NO_PRIMARY_AMMO) then
+        -- We want to shoot now...
+
         if self.ZBase_IsMoving then
+            -- We are moving
             local translatedMoveAct = translateTbl[ACT_RUN_AIM] -- Run shooting
 
-            if !self.MovementOverrideActive && self:SelectWeightedSequence(translatedMoveAct) != -1 && self:GetMovementActivity() != translatedMoveAct then
+            if !self.MovementOverrideActive && self:SelectWeightedSequence(translatedMoveAct) != -1 
+            && self:GetMovementActivity() != translatedMoveAct then
+                -- Put a run shooting movement activity
                 self:SetMovementActivity(translatedMoveAct)
             end
-        elseif !self:ZBWepSys_ShouldUseFireGesture(self.ZBase_IsMoving) then
+
+        elseif !self:ZBWepSys_ShouldUseFireGesture(false) then
+            -- We are not moving, and we are not expected to use a gesture
+            -- Translate the given activity using the weapon's ActivityTranslateAI table
             translatedAct =  translateTbl[ act ]
         else
+            -- We are not moving, but we should use a gesture
+            -- Translate from angry idle instead
+            -- #TODO: Why not do this when we are not doing a gesture as well?
             translatedAct =  translateTbl[ ACT_IDLE_ANGRY ]
         end
+
     end
 
     -- Don't put this activity if it has no animation for it
-    if translatedAct && self:SelectWeightedSequence(translatedAct) == -1 then
-        return
-    end
+    if translatedAct && self:SelectWeightedSequence(translatedAct) == -1 then return end
 
     return translatedAct
 end
