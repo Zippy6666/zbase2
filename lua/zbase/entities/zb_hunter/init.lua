@@ -8,12 +8,7 @@ NPC.BloodColor = DONT_BLEED -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELL
 NPC.CustomBloodDecals = "ZBaseBloodSynth" -- String name of custom decal
 
 NPC.DeathAnimations = {"death_stagger_e", "death_stagger_s", "death_stagger_se", "death_stagger_sw", "death_stagger_e"} -- Death animations to use, leave empty to disable the base death animation
-NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
-NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
 NPC.DeathAnimation_StopAttackingMe = false -- Stop other NPCs from attacking this NPC when it is doing its death animation
-
--- Duration of death animation, set to false to use the default duration (note that doing so may cause issues with some models/npcs so be careful)
-NPC.DeathAnimationDuration = false
 
 -- ZBase faction
 -- Can be any string, all ZBase NPCs with the same faction will be allied
@@ -93,4 +88,22 @@ function NPC:OnPlayAnimationFailed( seq )
     if self:DoingDeathAnimation() then
         self:EmitSound("NPC_Hunter.Death")
     end
+end
+
+-- Death animation code
+function NPC:DeathAnimation_Animation()
+    -- This is to prevent another death sound from playing when the hunter
+    -- officially dies after the animation
+    self.MuteDefaultVoice = true
+    
+    return self:PlayAnimation(table.Random(self.DeathAnimations), false, {
+        speedMult=1,
+        face=false,
+        duration=0.75,
+        noTransitions = true,
+        freezeForever = true,
+        onFinishFunc = function() 
+            self:InduceDeath() 
+        end
+    })
 end

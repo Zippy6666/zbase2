@@ -538,26 +538,66 @@ end
 
 -- Client ragdolls
 hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
-
+    -- No ragdolls for "dull state" npcs
 	if ent:GetNWBool("ZBaseNPCCopy_DullState") then
 		rag:Remove()
         return
 	end
 
+    -- ZBase NPC...
     if ent:GetNWBool("IsZBaseNPC") then
-
+        -- Copy submaterials
         for k, v in ipairs(ent:GetMaterials()) do
             rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))
         end
-
     end
-
 end)
 
--- Disable default server ragdolls
+
+local ai_serverragdolls = GetConVar("ai_serverragdolls")
 hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
-    if ent.IsZBaseNPC && !rag.IsZBaseRag then
-        rag:Remove()
+    if ent.IsZBaseNPC then
+        -- Remove ragdoll if undesired by the user
+        if !ent.HasDeathRagdoll then
+            rag:Remove()
+            return
+        end
+
+        -- Allow NPC to interact with ragdoll before death
+        ent.ServerRagdoll = rag
+
+        if !ai_serverragdolls:GetBool() then
+            -- ZBase ragdoll with keep corpses off
+
+            -- Nocollide
+            rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+
+            -- Put in ragdoll table
+            table.insert(ZBaseRagdolls, rag)
+
+            -- Remove one ragdoll if there are too many
+            if #ZBaseRagdolls > ZBCVAR.MaxRagdolls:GetInt() then
+
+                local ragToRemove = ZBaseRagdolls[1]
+                table.remove(ZBaseRagdolls, 1)
+                ragToRemove:Remove()
+
+            end
+
+            -- Remove ragdoll after delay if that is active
+            if ZBCVAR.RemoveRagdollTime:GetBool() then
+                SafeRemoveEntityDelayed(rag, ZBCVAR.RemoveRagdollTime:GetInt())
+            end
+
+            -- Remove from table on ragdoll removed
+            rag:CallOnRemove("ZBase_RemoveFromRagdollTable", function()
+                table.RemoveByValue(ZBaseRagdolls, rag)
+            end)
+
+            -- Remove from undo/cleanup lists
+            undo.ReplaceEntity( rag, NULL )
+            cleanup.ReplaceEntity( rag, NULL )
+        end
     end
 end)
 

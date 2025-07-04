@@ -69,6 +69,11 @@ function ENT:Think()
 	self:ZBaseThink()
 end
 
+-- Removes the SNPC and spawns a ragdoll
+function ENT:SNPCDeath()
+	SafeRemoveEntityDelayed(self, 0.1)
+end
+
 function ENT:OnTakeDamage( dmginfo )
 	-- On hurt behaviour
 	self:SNPCOnHurt(dmginfo)
@@ -79,5 +84,7 @@ function ENT:OnTakeDamage( dmginfo )
 	-- Die
 	if self:Health() <= 0 && !self.Dead then
 		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
+
+		self:SNPCDeath()
 	end
 end
