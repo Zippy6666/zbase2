@@ -44,6 +44,7 @@ end
 
 function ENT:Think()
 	-- Make sure we stay invisible when we are dead
+	-- TODO: Does this still happpen?
 	if self.Dead && !self:GetNoDraw() then
 		self:SetNoDraw(true)
 	end
@@ -71,25 +72,28 @@ end
 
 -- Removes the SNPC and spawns a ragdoll
 function ENT:SNPCDeath()
+	if self:GetShouldServerRagdoll() then
+		-- Server ragdoll
 
-	if self.IsZBase_SNPC then
-		-- net.Start("ZBaseClientRagdoll")
-		-- net.WriteEntity(self)
-		-- net.SendPVS(self:GetPos())
+		-- LUA BecomeRagdoll code
+		self:MakeShiftRagdoll()
 
-		-- self:StopMoving()
-		-- self:ClearGoal()
-		-- self:CapabilitiesClear()
-		-- self:SetCollisionBounds(vector_origin, vector_origin)
-		-- self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-		-- self:SetNPCState(NPC_STATE_DEAD)
+		-- Remove me soon
+		SafeRemoveEntityDelayed(self, 0.1)
+	else
+		-- Client ragdoll 
 		
-		-- -- Remove with lua after one second
-		-- -- if not done by the engine now
-		-- SafeRemoveEntityDelayed(self, 1)
+		self:StopMoving()
+		self:ClearGoal()
+		self:CapabilitiesClear()
+		self:SetCollisionBounds(vector_origin, vector_origin)
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+		self:SetNPCState(NPC_STATE_DEAD)
+		SafeRemoveEntityDelayed(self, 1)
+		net.Start("ZBaseClientRagdoll")
+		net.WriteEntity(self)
+		net.SendPVS(self:GetPos())
 	end
-
-	SafeRemoveEntityDelayed(self, 0.1)
 end
 
 function ENT:OnTakeDamage( dmginfo )
@@ -101,8 +105,10 @@ function ENT:OnTakeDamage( dmginfo )
 
 	-- Die
 	if self:Health() <= 0 && !self.Dead then
+		// Run on killed cpde
 		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
-
+		
+		// Become ragdoll
 		self:SNPCDeath()
 	end
 end

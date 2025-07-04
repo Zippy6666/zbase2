@@ -946,6 +946,7 @@ end
 
 -- Called after death
 -- You can do stuff with its ragdoll here if it has any (remember to check if it's valid!)
+-- This may not get called for all NPC classes
 function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
 end
 

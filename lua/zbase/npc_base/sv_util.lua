@@ -575,14 +575,15 @@ end
 function NPC:InduceDeath( dmginfo )
     dmginfo = dmginfo or DamageInfo()
     
-    -- Mark us as not doing death animation
-    -- Allows damage to happen, etc..
-    self.DoingDeathAnim = false
+    -- Death anim workaround
+    if self.DoingDeathAnim then
+        -- Mark us as not doing death animation
+        -- Allows damage to happen, etc..
+        self.DoingDeathAnim = false
 
-    -- Do SNPC death if is SNPC
-    if self.IsZBaseSNPC then
-        self:SNPCDeath()
-        return 
+        -- Stop playing the animation to reset our state
+        -- so we can die
+        self:InternalStopAnimation()
     end
 
     local cls = self:GetClass()

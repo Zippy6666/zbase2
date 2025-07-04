@@ -3153,7 +3153,7 @@ function NPC:StoreDMGINFO( dmg )
     }
 end
 
-function NPC:LastDMGINFO( dmg )
+function NPC:LastDMGINFO()
     if !self.LastDMGINFOTbl then return end
 
     local lastdmginfo = DamageInfo()
@@ -3334,6 +3334,8 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     if self.Dead then return end
     self.Dead = true
 
+    local infl = dmg:GetInflictor()
+
     -- Return previous damage
     -- If it was altered in an effort of preventing engine gibs
     if self.ZBasePreDeathDamageType then
@@ -3385,12 +3387,17 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
 
     -- Do gib code
     self.ZBase_WasGibbedOnDeath = self:ShouldGib(dmg, hit_gr)
-
-    local infl = dmg:GetInflictor()
+    
+    -- Client or server ragdoll?
     local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !ai_serverragdolls:GetBool() 
     && self.HasDeathRagdoll
-
     self:SetShouldServerRagdoll(!shouldCLRagdoll)
+
+    -- Set my own model to the custom ragdoll model if any
+    -- so that my ragdoll has the model
+    if self.RagdollModel != "" then
+        self:SetModel(self.RagdollModel)
+    end
 
     if shouldCLRagdoll then
         -- If we should client ragdoll, create a fake ragdoll on server first so that
@@ -3546,6 +3553,111 @@ end
 -- LEGACY
 function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
     error("Tried using legacy ZBase function: 'NPC.BecomeRagdoll'!")
+end
+
+-- Create server ragdoll manually with LUA, this may be desired at times
+function NPC:MakeShiftRagdoll()
+	if !self.HasDeathRagdoll then return end
+    if self.ZBase_WasGibbedOnDeath then return end
+
+    local rag = ents.Create("prop_ragdoll")
+	rag:SetModel(self.RagdollModel == "" && self:GetModel() or self.RagdollModel)
+    rag:SetPos(self:GetPos())
+    rag:SetAngles(self:GetAngles())
+	rag:SetSkin(self:GetSkin())
+	rag:SetColor(self:GetColor())
+	rag:SetMaterial(self:GetMaterial())
+	rag:Spawn()
+
+    for k, v in ipairs(self:GetBodyGroups()) do
+        rag:SetBodygroup(v.id, self:GetBodygroup(v.id))
+    end
+
+    for k, v in ipairs(self:GetMaterials()) do
+        rag:SetSubMaterial( k-1, self:GetSubMaterial(k-1) )
+    end
+
+	local ragPhys = rag:GetPhysicsObject()
+	if !IsValid(ragPhys) then
+		rag:Remove()
+		return
+	end
+
+    local dmg = self:LastDMGINFO() -- Get last damage info
+    
+    -- Create basic damage info if none was stored
+    if !dmg then
+        dmg = DamageInfo()
+        dmg:SetDamageForce(vector_up)
+        dmg:SetDamagePosition(self:GetPos())
+        dmg:SetInflictor(self)
+        dmg:SetAttacker(self)
+        dmg:SetDamageType(DMG_GENERIC)
+    end
+
+	local physcount = rag:GetPhysicsObjectCount()
+    local dmgpos = dmg:GetDamagePosition()
+    local force = self.RagdollApplyForce && (
+        dmg:GetDamageForce()*0.02  + self:GetMoveVelocity() + self:GetVelocity() 
+    )
+    local forcemaxnoise = force && force:Length()*0.3
+    local closestPhys
+    local mindist = math.huge
+	for i = 1, physcount - 1 do
+		-- Placement
+		local physObj = rag:GetPhysicsObjectNum(i)
+        local bone = self:TranslatePhysBoneToBone(i)
+		local pos, ang = self:GetBonePosition(bone)
+        local distsqrFromDmg = pos:DistToSqr(dmg:GetDamagePosition())
+
+        if distsqrFromDmg < mindist then
+            mindist = distsqrFromDmg
+            closestPhys = physObj
+        end
+
+        if !self.RagdollUseAltPositioning then
+		    physObj:SetPos( pos )
+        end
+
+        if !self.RagdollDontAnglePhysObjects then
+	        physObj:SetAngles( ang )
+        end
+
+        if force then
+            physObj:SetVelocity(force + VectorRand()*forcemaxnoise)
+        end
+	end
+
+    -- Apply more force to the closest bone to the damage 
+    if closestPhys && force then
+        closestPhys:ApplyForceCenter(force)
+    end
+
+	-- Dissolve
+    local infl = dmg:GetInflictor()
+    local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
+	if isDissolveDMG && self.DissolveRagdoll then
+		rag:SetName( "base_ai_ext_rag" .. rag:EntIndex() )
+
+		local dissolve = ents.Create("env_entity_dissolver")
+		dissolve:SetKeyValue("target", rag:GetName())
+		dissolve:SetKeyValue("dissolvetype", dmg:IsDamageType(DMG_SHOCK) && 2 or 0)
+		dissolve:Fire("Dissolve", rag:GetName())
+		dissolve:Spawn()
+		rag:DeleteOnRemove(dissolve)
+
+        rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+		undo.ReplaceEntity( rag, NULL )
+		cleanup.ReplaceEntity( rag, NULL )
+	end
+
+	-- Ignite
+	if self:IsOnFire() then
+		rag:Ignite(math.Rand(4,8))
+	end
+
+	-- Hook
+	hook.Run("CreateEntityRagdoll", self, rag)
 end
 
 --[[

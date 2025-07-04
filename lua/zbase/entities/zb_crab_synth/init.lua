@@ -422,7 +422,7 @@ function NPC:DeathAnimation_Animation()
         face=false,
         duration=self.DeathAnimationDuration,
         noTransitions = true,
-        freezeForever = self.DeathAnimationDuration==false,
+        freezeForever = true,
         onFinishFunc = function() self:InduceDeath() end, -- Kill NPC when the animation ends
     })
 end

@@ -553,24 +553,35 @@ hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
     end
 end)
 
-
+-- Server ragdolls
 ZBaseRagdolls = ZBaseRagdolls or {}
 local ai_serverragdolls = GetConVar("ai_serverragdolls")
 hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
+    -- Is ZBase NPC..
     if ent.IsZBaseNPC then
+        -- Copy submaterials
+        for k, v in ipairs(ent:GetMaterials()) do
+            rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))
+        end
+
+        -- Run "custom on death" now, even if the ragdoll may be invalid
+        local dmg = ent:LastDMGINFO() -- Get last damage info
+        -- Create basic damage info if none was stored
+        if !dmg then
+            dmg = DamageInfo()
+            dmg:SetDamageForce(vector_up)
+            dmg:SetDamagePosition(ent:GetPos())
+            dmg:SetInflictor(ent)
+            dmg:SetAttacker(ent)
+            dmg:SetDamageType(DMG_GENERIC)
+        end
+        ent:CustomOnDeath(dmg, hit_gr, rag)
+
         -- Remove ragdoll if undesired by the user
         -- or if the NPC was gibbed by ZBase
         if !ent.HasDeathRagdoll or ent.ZBase_WasGibbedOnDeath then
             rag:Remove()
             return
-        end
-
-        -- Allow NPC to interact with ragdoll before death
-        ent.ServerRagdoll = rag
-
-        -- Copy submaterials
-        for k, v in ipairs(ent:GetMaterials()) do
-            rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))
         end
 
         if !ai_serverragdolls:GetBool() then
