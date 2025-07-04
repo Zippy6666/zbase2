@@ -2751,7 +2751,7 @@ function NPC:OnEmitSound( data )
     if goingToZBaseSpeak then
 
         local sndTbl = sound.GetProperties(data.OriginalSoundName)
-        if sndTbl && istable(sndTbl.sound) && #sndTbl.sound > 1 then
+        if sndTbl && istable(sndTbl.sound) && sndTbl.sound[1] != nil then
 
             if !SoundIndexes[data.OriginalSoundName] then
                 self:RestartSoundCycle(sndTbl, data)
