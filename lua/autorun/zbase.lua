@@ -385,7 +385,7 @@ end
 
 function ZBase_RegisterHandler:RegNPCs()
     -- Empty NPC register
-    table.Empty(ZBaseNPCs)
+    ZBaseNPCs = {}
 
     -- Register base
     self:RegBase()
