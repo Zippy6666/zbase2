@@ -39,10 +39,10 @@ function FindZBaseTable(debuginfo)
 
     if name == "zbase" then
         name = "npc_zbase"
-    end 
-    
+    end
+
     return ZBaseNPCs[name]
-end 
+end
 
 -- Should be at the top of your NPC's behaviour file if you have any, like this:
 -- local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
@@ -50,7 +50,7 @@ function FindZBaseBehaviourTable(debuginfo)
     if SERVER then
         return FindZBaseTable(debuginfo).Behaviours
     end
-end 
+end
 
 --[[
 ======================================================================================================================================================
@@ -93,9 +93,9 @@ end
 -- 'weapon_class' The weapon class to equip the npc with (optional), set to "default" to make it use its default weapons
 -- 'spawn_flags' - (optional) The spawnflags to start with instead of the default SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, and SF_NPC_LONG_RANGE
 function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class, spawn_flags)
-    if !SERVER then return NULL end 
+    if !SERVER then return NULL end
 
-    if !ZBaseNPCs[class] then return NULL end 
+    if !ZBaseNPCs[class] then return NULL end
 
     if weapon_class=="default" then
 
@@ -104,15 +104,15 @@ function ZBaseSpawnZBaseNPC( class, pos, normal, weapon_class, spawn_flags)
         if !table.IsEmpty(weps) then
             weapon_class = table.Random(weps)
         end
-         
-    end 
+
+    end
 
     local NPC = ZBaseInternalSpawnNPC( nil, pos, normal or up, class, weapon_class, spawn_flags, true, false )
     if !IsValid(NPC) then
         ErrorNoHaltWithStack("No such NPC found: '", class, "'\n")
     else
         return NPC
-    end 
+    end
 end
 
 -- Change the ZBASE faction for an entity
@@ -120,21 +120,21 @@ end
 function ZBaseSetFaction( ent, newFaction )
     ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
 
-    for _, v in ipairs(ZBaseNPCInstances) do
-        v:UpdateRelationships()
+    for i = 1, #ZBaseNPCInstances do
+        ZBaseNPCInstances[i]:UpdateRelationships()
     end
-end 
+end
 
 -- Gets the ZBASE faction of an entity
 function ZBaseGetFaction( ent )
     return ent.ZBaseFaction
-end 
+end
 
 -- Change how two entities feel about each other
 -- https://wiki.facepunch.com/gmod/Enums/D
 function ZBaseSetRelationship( ent1, ent2, rel )
     ent1:ZBASE_SetMutualRelationship( ent2, rel )
-end 
+end
 
 --[[
 ======================================================================================================================================================
@@ -149,7 +149,7 @@ end
 function ZBaseAddGlowingEye(identifier, model, skin, bone, offset, scale, color)
     if !ZBaseGlowingEyes[model] then
         ZBaseGlowingEyes[model] = {}
-    end 
+    end
 
     local Eye = {}
     Eye.skin = skin
@@ -159,7 +159,7 @@ function ZBaseAddGlowingEye(identifier, model, skin, bone, offset, scale, color)
     Eye.color = color
 
     ZBaseGlowingEyes[model][identifier] = Eye
-end 
+end
 
 -- Emit a flash of light
 -- 'col' needs to be a string
@@ -177,15 +177,17 @@ function ZBaseMuzzleLight( pos, bright, dist, col, dur )
     if IsValid(muzzleLight1) && IsValid(muzzleLight2) then
         bright = math.Rand(bright*0.1, bright)
 
-        for k, muzzleLight in ipairs({muzzleLight1, muzzleLight2}) do
-            local ang = k == 1 && Angle(0, 90, 0) or Angle(0, 270, 0)
+        local muzzleLights = {muzzleLight1, muzzleLight2}
+        for i = 1, 2 do
+            local muzzleLight = muzzleLights[i]
+            local ang = i == 1 and Angle(0, 90, 0) or Angle(0, 270, 0)
             muzzleLight:SetPos(pos)
             muzzleLight:SetAngles(ang)
             muzzleLight:SetKeyValue("enableshadows", 0)
-            muzzleLight:SetKeyValue("lightcolor", col) 
-            muzzleLight:SetKeyValue("farz", dist) 
+            muzzleLight:SetKeyValue("lightcolor", col)
+            muzzleLight:SetKeyValue("farz", dist)
             muzzleLight:SetKeyValue("nearz", 1)
-            muzzleLight:SetKeyValue("lightfov", 179.99) 
+            muzzleLight:SetKeyValue("lightfov", 179.99)
             muzzleLight:SetKeyValue("lightstrength", bright)
             muzzleLight:Spawn()
             muzzleLight:Activate()
@@ -305,18 +307,18 @@ if SERVER then
             if NextMoveTick > CurTime() then return end
             if !IsValid(npc) or destination:DistToSqr(npc:GetPos()) <= 10000 or ZBaseMoveTimeOut < CurTime() then
                 hook.Remove("Tick", hookID)
-                
+
                 if IsValid(npc) then
                     debugoverlay.Text(npc:WorldSpaceCenter(), "ZBaseMove finished")
                     npc.ZBaseMove_ID = nil
-                end 
+                end
 
                 return
-            end 
+            end
                         -- Thinking disabled, don't run this
             if AIDisabled:GetBool() or bit.band(npc:GetFlags(), EFL_NO_THINK_FUNCTION )==EFL_NO_THINK_FUNCTION then
                 return
-            end 
+            end
                         -- Vars
             local npc_pos = npc:WorldSpaceCenter()
             local InWayPointDist = npc_pos:DistToSqr(npc.ZBaseMove_WaypointPos) < DistUntilSwitchWayPointSq
@@ -349,15 +351,15 @@ if SERVER then
                     npc:SetSchedule(SCHED_FORCED_GO_RUN)
                 else
                     npc:SetSchedule(SCHED_FORCED_GO)
-                end 
+                end
                                 FirstIter = false
 
-            end 
+            end
 
             -- We are on the ground, and we are moving, so we should not need to jump...
             if onGround && npc:IsMoving() then
                 npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 1.8)
-            end 
+            end
 
             if shouldJump then
 
@@ -365,10 +367,10 @@ if SERVER then
                     ZBaseMoveJump(npc, destination)
                 else
                     ZBaseMoveJump(npc, npc_pos + moveNrm*MaxJumpDist)
-                end 
+                end
                                 npc:CONV_TempVar("ZBaseMove_CanGroundMove", true, 3) -- Assume we can ground move after this jump
 
-            end 
+            end
             NextMoveTick = CurTime()+0.1
         end)
     end
@@ -380,7 +382,7 @@ if SERVER then
         local cls = npc:GetClass()
         local npc_pos = npc:WorldSpaceCenter()
         local moveNrm = (pos - npc_pos)
-        
+
         npc:MoveJumpStart(moveNrm+jumpUpVec)
         npc:CONV_TempVar("ZBaseMove_JustJumped", true, 0.5)
 
@@ -389,28 +391,28 @@ if SERVER then
         local function afterLandFunc()
             npc:SetLastPosition(pos)
             npc:SetSchedule(SCHED_FORCED_GO_RUN)
-        end 
+        end
                 local function startGlideFunc()
             if npc.IsZBaseNPC then
                 npc:InternalPlayAnimation(ACT_GLIDE, 5, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=onFinishFunc})
             else
                 npc:ZBASE_SimpleAnimation(ACT_GLIDE)
             end
-        end 
+        end
                 hook.Add("Tick", hookID, function()
 
             if !IsValid(npc) then
                 hook.Remove("Tick", hookID)
                 return
-            end 
+            end
                         if !npc.ZBaseMove_JustJumped && npc.ZBaseMove_IsJumping && npc:OnGround() then
                 if npc.IsZBaseNPC then
                     npc:InternalPlayAnimation(ACT_LAND, nil, 1, SCHED_SCENE_GENERIC, pos, nil, true, nil, false, false, false, {dontStopZBaseMove=true, onFinishFunc=afterLandFunc})
                 else
                     npc:ZBASE_SimpleAnimation(ACT_LAND)
-                end 
+                end
                                 npc.ZBaseMove_IsJumping = false
-            end 
+            end
                 end)
 
         if npc.IsZBaseNPC then
@@ -419,7 +421,7 @@ if SERVER then
             npc:ZBASE_SimpleAnimation(ACT_JUMP)
         end
         npc.ZBaseMove_IsJumping = true
-    end 
+    end
 
     -- Stop ZBaseMove for this NPC
     -- 'npc' - The NPC in question
@@ -427,11 +429,11 @@ if SERVER then
     function ZBaseMoveEnd( npc, identifier )
         if identifier && identifier != npc.ZBaseMove_ID then
             return
-        end 
+        end
                 local hookID = "ZBaseMove:"..tostring(npc)
         hook.Remove("Tick", hookID)
         npc.ZBaseMove_ID = nil
-    end 
+    end
 
     -- Checks if an NPC is doing ZBaseMove
     -- 'npc' - The NPC in question
@@ -439,11 +441,11 @@ if SERVER then
     function ZBaseMoveIsActive( npc, identifier )
         if identifier && identifier != npc.ZBaseMove_ID then
             return
-        end 
+        end
                 local hookID = "ZBaseMove:"..tostring(npc)
         return hook.GetTable()["Tick"][hookID]!=nil
-    end 
-end 
+    end
+end
 
 --[[
 ======================================================================================================================================================
@@ -462,7 +464,7 @@ end
         flags 	= nil,
         dsp		= 0,
         caption	= { "<clr:0,100,255>[Combine Soldier: ", 2 }, -- https://developer.valvesoftware.com/wiki/Closed_Captions
-        sound 	= { 
+        sound 	= {
 
             "radio_on.wav",
 
@@ -485,8 +487,8 @@ end
 ]]
 function ZBaseAddScriptedSentence(ssTab)
     if !istable(ssTab) or !ssTab['name'] then return end
-    ZBaseScriptedSentences[ ssTab['name'] ] = ssTab 
-end 
+    ZBaseScriptedSentences[ ssTab['name'] ] = ssTab
+end
 
 -- Show a caption text for the player
 -- ON SERVER:
@@ -505,21 +507,21 @@ function ZBaseAddCaption(ply, text, dur, range, pos)
                 if plyIter:GetPos():DistToSqr( pos ) <= ( range * 40 )^2 then
                     net.Start( "ZBaseAddCaption" )
                     net.WriteString( text or "" )
-                    net.WriteFloat( dur or 1 )		
+                    net.WriteFloat( dur or 1 )
                     net.Send(plyIter)
                 end
-            end 
+            end
         elseif ply:IsPlayer() then
             net.Start( "ZBaseAddCaption" )
             net.WriteString( text or "" )
-            net.WriteFloat( dur or 1 )	
+            net.WriteFloat( dur or 1 )
 			net.Send( ply )
 		end
 
-	elseif CLIENT then	
+	elseif CLIENT then
 		gui.AddCaption( text, dur, false )
 	end
-end 
+end
 
 -- A quick way to add sounds that have attributes appropriate for a human voice
 function ZBaseCreateVoiceSounds( name, tbl )
@@ -531,7 +533,7 @@ function ZBaseCreateVoiceSounds( name, tbl )
         pitch = {95, 105},
         sound = tbl,
     } )
-end 
+end
 
 --[[
 ======================================================================================================================================================

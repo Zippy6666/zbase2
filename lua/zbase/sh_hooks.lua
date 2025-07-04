@@ -24,7 +24,7 @@ hook.Add("InitPostEntity", "ZBASE", function()
             ReloadedSpawnmenuRecently = true
             spawnmenu_reload(...)
             timer.Simple(0.5, function()
-                ReloadedSpawnmenuRecently = false 
+                ReloadedSpawnmenuRecently = false
             end)
         end)
 
@@ -79,7 +79,7 @@ if SERVER then
             local zbaseClass = ent:GetKeyValues().parentname
             if ZBaseNPCs[zbaseClass] && !ent.IsDupeSpawnedZBaseNPC then
                 ZBaseNPCCopy( ent, zbaseClass, true )
-            end    
+            end
 
             -- When a entity owned by a ZBase NPC is created
             -- Catch that
@@ -91,7 +91,7 @@ if SERVER then
                     own:Patch_CreateEnt( ent )
                 end
             end
-        
+
             -- Same thing goes for a paranted entity
             local parent = ent:GetParent()
             if IsValid(parent) && parent.IsZBaseNPC then
@@ -169,19 +169,20 @@ if SERVER then
         -- Behaviour tick
         if !GetConVar("ai_disabled"):GetBool()
         && NextBehaviourThink < CurTime() then
-            for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
+            for i = #ZBaseBehaviourTimerFuncs, 1, -1 do
+                local func = ZBaseBehaviourTimerFuncs[i]
                 local entValid = func()
 
-                if !entValid then
-                    table.remove(ZBaseBehaviourTimerFuncs, k)
+                if not entValid then
+                    table.remove(ZBaseBehaviourTimerFuncs, i)
                 end
             end
 
             NextBehaviourThink = CurTime() + 0.4
         end
 
-        for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
-            zbaseNPC:FrameTick()
+        for i = 1, #ZBaseNPCInstances do
+            ZBaseNPCInstances[i]:FrameTick()
         end
     end)
 end
@@ -200,8 +201,8 @@ if SERVER then
         local faction = net.ReadString()
         ply.ZBaseFaction = faction
 
-        for _, v in ipairs(ZBaseNPCInstances) do
-            v:UpdateRelationships()
+        for i = 1, #ZBaseNPCInstances do
+            ZBaseNPCInstances[i]:UpdateRelationships()
         end
     end)
 
@@ -433,8 +434,9 @@ end
 hook.Add( "PostDrawEffects", "ZBaseGlowingEyes", function()
     if !ZBCVAR.GlowingEyes:GetBool() then return end
 
-    for _, ent in ipairs(ZBaseEntsWithGlowingEyes) do
-        if !ent.GlowEyes then continue end
+    for i = 1, #ZBaseEntsWithGlowingEyes do
+        local ent = ZBaseEntsWithGlowingEyes[i]
+        if !istable(ent.GlowEyes) then continue end
         if ent:GetNoDraw() then continue end
 
         for id, eye in pairs(ent.GlowEyes) do
@@ -476,7 +478,8 @@ if CLIENT then
         if !ZBCVAR.FollowHalo:GetBool() then return end
         local tbl = LocalPlayer().ZBaseFollowHaloEnts
         if tbl then
-            for _, v in ipairs(tbl) do
+            for i = 1, #tbl do
+                local v = tbl[i]
                 cam.Start3D()
                     local tr = util.TraceLine({
                         start = v:GetPos()+startoffset,
@@ -545,9 +548,10 @@ hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
 	end
 
     if ent:GetNWBool("IsZBaseNPC") then
-
-        for k, v in ipairs(ent:GetMaterials()) do
-            rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))
+        -- Copy submaterials
+        local mats = ent:GetMaterials()
+        for i = 1, #mats do
+            rag:SetSubMaterial(i - 1, ent:GetSubMaterial(i - 1))
         end
 
     end
@@ -648,8 +652,10 @@ end)
 hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
     -- Engine follow
     if game.SinglePlayer() && ZBaseNPCCount > 0 && ent==Entity(1) && input == "Use" then
-        
-        for _, v in ipairs( ents.FindInSphere( ent:GetShootPos(), 125 ) ) do
+
+        local entsInSphere = ents.FindInSphere(ent:GetShootPos(), 125)
+        for i = 1, #entsInSphere do
+            local v = entsInSphere[i]
             if v.Patch_UseEngineFollow && v:Patch_UseEngineFollow() then
                 v:CONV_CallNextTick(function()
                     local squad = v:GetSquad()
@@ -664,7 +670,6 @@ hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
                 end)
             end
         end
-
     end
 
     if ent.IsZBaseNPC then
@@ -709,8 +714,8 @@ hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
     end
 
     -- Mark enemy as dead
-    for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
-        zbaseNPC:MarkEnemyAsDead(npc, 2)
+    for i = 1, #ZBaseNPCInstances do
+        ZBaseNPCInstances[i]:MarkEnemyAsDead(npc, 2)
     end
 
     -- On death
@@ -723,7 +728,9 @@ end)
 local function FindNearestZBaseAllyToPly( ply, returntable )
     if returntable then -- Return the table of all nearby allies
         local allies = {}
-        for _, v in ipairs(ents.FindInSphere(ply:GetPos(), 600)) do
+        local entsInSphere = ents.FindInSphere(ply:GetPos(), 600)
+        for i = 1, #entsInSphere do
+            local v = entsInSphere[i]
             if !v.IsZBaseNPC then continue end
             if v.ZBaseFaction == "none" then continue end
             if v.ZBaseFaction != ply.ZBaseFaction then continue end
@@ -735,7 +742,9 @@ local function FindNearestZBaseAllyToPly( ply, returntable )
 
     local mindist
     local ally
-    for _, v in ipairs(ents.FindInSphere(ply:GetPos(), 600)) do
+    local entsInSphere = ents.FindInSphere(ply:GetPos(), 600)
+    for i = 1, #entsInSphere do
+        local v = entsInSphere[i]
         if !v.IsZBaseNPC then continue end
         if v.ZBaseFaction == "none" then continue end
         if v.ZBaseFaction != ply.ZBaseFaction then continue end
@@ -753,9 +762,10 @@ end
 -- ZBASE NPC logic when a player dies
 hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
     if table.IsEmpty(ZBaseNPCInstances) then return end -- No ZBase NPCs, don't do any ZBase stuff on player death
-    
+
     local allies = FindNearestZBaseAllyToPly(ply, true)
-    for _, ally in ipairs(allies) do
+    for i = 1, #allies do
+        local ally = allies[i]
         if IsValid(ally) && isfunction(ally.OnAllyDeath) && ally:Visible(ply) then
             ally:OnAllyDeath(ply)
         end
@@ -779,7 +789,7 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
     end
 
     -- Mark this player as dead for all ZBase NPCs
-    for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
-        zbaseNPC:MarkEnemyAsDead(ply, 2)
+    for i = 1, #ZBaseNPCInstances do
+        ZBaseNPCInstances[i]:MarkEnemyAsDead(ply, 2)
     end
 end)

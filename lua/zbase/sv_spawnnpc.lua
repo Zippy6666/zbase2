@@ -41,7 +41,7 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
     for k, v in pairs(ZBaseNPCs[Class]) do
         NPC[k] = v
     end
-    
+
 	-- "Patches"
 	local patchFunc = ZBasePatchTable[NPCData.Class]
 	if patchFunc then
@@ -67,14 +67,14 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 			NPC:SetKeyValue( k, v )
 		end
 	end
-	
+
 	--
 	-- Spawn Flags
 	--
 	local SpawnFlags = !NPC.Patch_DontApplyDefaultFlags && bit.bor( SF_NPC_FADE_CORPSE, SF_NPC_ALWAYSTHINK, SF_NPC_LONG_RANGE ) or SpawnFlagsSaved or 0
 	if istable(NPCData.SpawnFlagTbl) then
-		for _, v in ipairs(NPCData.SpawnFlagTbl) do
-			SpawnFlags = bit.bor( SpawnFlags, v )
+		for i = 1, #NPCData.SpawnFlagTbl do
+			SpawnFlags = bit.bor( SpawnFlags, NPCData.SpawnFlagTbl[i] )
 		end
 	end
 
@@ -83,8 +83,8 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 
     -- Set skin
     if NPCData.Skins then
-        local mySkin = table.Random( NPCData.Skins )
-        
+        local mySkin = NPCData.Skins[math.random(#NPCData.Skins)]
+
         if mySkin then
             NPC:SetSkin( mySkin )
         end
@@ -120,9 +120,9 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 			"weapon_zb_shotgun_hl1"
 		})
 
-		for i, wclass in ipairs( table.Copy(randTBL) ) do
-			if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
-				table.RemoveByValue(randTBL, wclass)
+		for i = 1, #table.Copy(randTBL) do
+			if string.find(ZBCVAR.RandWepBlackList:GetString(), randTBL[i]) then
+				table.remove(randTBL, i)
 			end
 		end
 
@@ -222,7 +222,7 @@ function ZBaseAfterSpawn( NPC, Class, bDropToFloor )
 	function NPC:PreEntityCopy()
 		self.PreDupeClassName = self:GetClass()
 		self:SetKeyValue("classname", self:GetEngineClass())
-		
+
 		self:CONV_CallNextTick(function()
 			self:SetKeyValue("classname", self.PreDupeClassName)
 			self.PreDupeClassName = nil
@@ -349,7 +349,7 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 	ZBase_PlayerSpawnNPCHookCall = true
 	if ( !gamemode.Call( "PlayerSpawnNPC", ply, NPCClassName, WeaponName ) ) then return end
 	ZBase_PlayerSpawnNPCHookCall = nil
-	
+
 	if ( !tr ) then
 		local vStart = ply:GetShootPos()
 		local vForward = ply:GetAimVector()

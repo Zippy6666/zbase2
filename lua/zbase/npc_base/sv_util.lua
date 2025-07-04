@@ -482,9 +482,10 @@ function NPC:GetNearbyAlliesOptimized( lenght )
 
     local mypos = self:GetPos()
     local amt = 0
-    for k, v in ipairs(ents.FindInBox(mypos-vec_add, mypos+vec_add)) do
-
-        amt = k
+    local entsInBox = ents.FindInBox(mypos-vec_add, mypos+vec_add)
+    for i = 1, #entsInBox do
+        local v = entsInBox[i]
+        amt = i
 
         if v == self then continue end
         if !v.IsZBaseNPC then continue end
@@ -503,7 +504,9 @@ end
 function NPC:GetNearbyAllies( radius )
     local allies = {}
 
-    for _, v in ipairs(ents.FindInSphere(self:GetPos(), radius)) do
+    local entsInSphere = ents.FindInSphere(self:GetPos(), radius)
+    for i = 1, #entsInSphere do
+        local v = entsInSphere[i]
         if v == self then continue end
         if !v:IsNPC() && !v:IsPlayer() then continue end
 
@@ -521,7 +524,9 @@ function NPC:GetNearestAllyOptimized( lenght )
     local mindist
     local ally
 
-    for _, v in ipairs(self:GetNearbyAlliesOptimized(lenght)) do
+    local optNearbyAllies = self:GetNearbyAlliesOptimized(lenght)
+    for i = 1, #optNearbyAllies do
+        local v = optNearbyAllies[i]
         local dist = self:GetPos():DistToSqr(v:GetPos())
 
         if !mindist or dist < mindist then
@@ -539,10 +544,10 @@ function NPC:GetNearestAlly( radius )
     local mindist
     local ally
 
-    local nearbyAllies = self:GetNearbyAllies(radius)
-    table.sort(nearbyAllies, function(a, b)
-        return self:GetPos():DistToSqr(a:GetPos()) < self:GetPos():DistToSqr(b:GetPos())
-    end)
+    local nearBy = self:GetNearbyAllies(radius)
+    for i = 1, #nearBy do
+        local v = nearBy[i]
+        local dist = self:GetPos():DistToSqr(v:GetPos())
 
     for _, v in ipairs(nearbyAllies) do
         ally = v

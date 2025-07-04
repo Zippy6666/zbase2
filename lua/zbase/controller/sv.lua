@@ -22,7 +22,7 @@ local nextBind = {
 }
 
 local bindNames = {
-    [IN_ATTACK]     = "PRIMARY KEY", 
+    [IN_ATTACK]     = "PRIMARY KEY",
     [IN_ATTACK2]    = "SECONDARY KEY",
     [IN_RELOAD]     = "RELOAD KEY",
     [IN_GRENADE1]   = "GRENADE1 KEY",
@@ -121,7 +121,7 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     npc:CallOnRemove("ZBASE_Controller_Stop", function()
         self:StopControlling(ply, npc)
     end)
-    
+
     npc:Fire("SetAmmoResupplierOff") -- TAKE SOME AMMO
     npc:SetOwner(ply)
 
@@ -156,7 +156,7 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
     if npc.IsZBaseNPC then
         npc:UpdateRelationships()
     end
-    
+
     -- Give NPC its name on client so that it can be shown on the hud
     net.Start("ZBASE_Ctrlr_SetNameOnClient")
     net.WriteString( hook.Run("GetDeathNoticeEntityName", npc) )
@@ -345,8 +345,8 @@ function NPC:ZBASE_Controller_InitAttacks()
                             return
                         end
 
-                        self:CONV_TimerSimple(0.25, function() 
-                            self:ControllerSecondaryAttack() 
+                        self:CONV_TimerSimple(0.25, function()
+                            self:ControllerSecondaryAttack()
                             self:ZBASE_Controller_TargetBullseye(false)
                         end)
                     end,
@@ -387,7 +387,7 @@ function NPC:ZBASE_Controller_InitAttacks()
                     self:ZBASE_Controller_TargetBullseye(false)
                     self.ZBASE_Ctrlr_Grenading = nil
                 end)
-            end, 
+            end,
             nil, IN_GRENADE1, "Throw Grenade")
         end
 
@@ -402,8 +402,8 @@ function NPC:ZBASE_Controller_InitAttacks()
                 end, "ZBASE_Ctrlr_MeleeRambo")
 
                 self:ZBASE_Controller_TargetBullseye(true)
-                
-            end, 
+
+            end,
             function()
                 self:CONV_RemoveHook("Think", "ZBASE_Ctrlr_MeleeRambo")
                 self:ZBASE_Controller_TargetBullseye(false)
@@ -424,7 +424,7 @@ function NPC:ZBASE_Controller_InitAttacks()
 
                 self:ZBASE_Controller_TargetBullseye(true)
 
-            end, 
+            end,
             function()
                 self:CONV_RemoveHook("Think", "ZBASE_Ctrlr_RangeRambo")
                 self:ZBASE_Controller_TargetBullseye(false)
@@ -499,7 +499,7 @@ end)
 
 function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc, optionalBind, attackName)
     local ply = self.ZBASE_PlyController
-    
+
     self.ZBASE_Controls = self.ZBASE_Controls or {}
 
     self.ZBASE_ControlLastBind = self.ZBASE_ControlLastBind or IN_ATTACK
@@ -507,7 +507,7 @@ function NPC:ZBASE_ControllerAddAttack(pressFunc, releaseFunc, optionalBind, att
 
     local bindName = bindNames[optionalBind or self.ZBASE_ControlLastBind] or "nil"
     ply:PrintMessage(
-        HUD_PRINTTALK, 
+        HUD_PRINTTALK,
         "["..bindName.."] "..attackName
     )
 
@@ -709,7 +709,7 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
 
         npc.ZBASE_Controller_HasCleanedUp = true
     end
- 
+
     if IsValid(ply) && !ply.ZBASE_Controller_HasCleanedUp then
         ply:SetNWEntity("ZBASE_ControllerCamEnt", NULL)
         ply:SetMoveType(MOVETYPE_WALK)
@@ -726,10 +726,11 @@ function ZBASE_CONTROLLER:StopControlling( ply, npc )
 
         -- Remove controller weapon
         local tblWeps = ply:GetWeapons()
-        for k, v in ipairs(tblWeps) do 
-            if v:GetClass() == "weapon_zb_controller" then
-                ply:DropWeapon(v)
-                v:Remove()
+        for i = 1, #tblWeps do
+            local wep = tblWeps[i]
+            if wep:GetClass() == "weapon_zb_controller" then
+                ply:DropWeapon(wep)
+                wep:Remove()
             end
         end
     end

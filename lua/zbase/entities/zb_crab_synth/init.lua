@@ -1,6 +1,6 @@
 local NPC       = FindZBaseTable(debug.getinfo(1,'S'))
 local BEHAVIOUR = FindZBaseBehaviourTable(debug.getinfo(1,'S'))
- 
+
 NPC.Models = {"models/zippy/Synth.mdl"}
 NPC.StartHealth = 320
 NPC.MoveSpeedMultiplier = 1.35
@@ -113,11 +113,11 @@ end
 -- Called when the NPC controller sets up attacks
 -- Add your own attacks here
 function NPC:CustomControllerInitAttacks()
-    self:AddControllerAttack(function() 
+    self:AddControllerAttack(function()
         if self:BusyPlayingAnimation() then return end
 
-        BEHAVIOUR.ChargeAttack:Run( self ) 
-    
+        BEHAVIOUR.ChargeAttack:Run( self )
+
     end, nil, "Charge Attack")
 end
 
@@ -136,7 +136,7 @@ function NPC:FootStepTimer()
     local moveact = self:GetMovementActivity()
 
     -- Checks
-    if !self:IsMoving() 
+    if !self:IsMoving()
     && seqName != "charge_loop" then return end
 
     -- Foot step sound
@@ -201,7 +201,7 @@ function NPC:CustomThink()
     end
 
     -- Charge attack think
-    if seqName == "charge_loop" or seqName == "charge_start" then 
+    if seqName == "charge_loop" or seqName == "charge_start" then
         -- Trace check
         local startPos = self:GetPos()+self:GetUp()*20
         local tr = util.TraceEntity({
@@ -248,11 +248,13 @@ function NPC:CustomThink()
         end
 
         -- Push entities that it hits
-        for _, ent in ipairs(ents.FindInSphere(self:GetPos(), 130)) do
+        local entsInSphere = ents.FindInSphere(self:GetPos(), 130)
+        for i = 1, #entsInSphere do
+            local ent = entsInSphere[i]
             if ent == self then continue end
 
             local mtype = ent:GetMoveType()
-            
+
             if mtype == MOVETYPE_VPHYSICS then
                 local phys = ent:GetPhysicsObject()
 
@@ -390,12 +392,12 @@ function NPC:CustomTakeDamage( dmginfo, HitGroup )
         self.DamagedSmoke:SetPos(self:GetAttachment(self:LookupAttachment("vent")).Pos)
         self.DamagedSmoke:SetParent(self, self:LookupAttachment("vent"))
         self.DamagedSmoke:SetKeyValue("spawnrate",48)
-        self.DamagedSmoke:SetKeyValue("lifetime",1.5) 
+        self.DamagedSmoke:SetKeyValue("lifetime",1.5)
         self.DamagedSmoke:SetKeyValue("startsize",0)
         self.DamagedSmoke:SetKeyValue("endsize",40)
-        self.DamagedSmoke:SetKeyValue("startcolor","40 40 40") 
+        self.DamagedSmoke:SetKeyValue("startcolor","40 40 40")
         self.DamagedSmoke:SetKeyValue("endcolor","40 40 40")
-        self.DamagedSmoke:SetKeyValue("minspeed",30) 
+        self.DamagedSmoke:SetKeyValue("minspeed",30)
         self.DamagedSmoke:SetKeyValue("maxspeed",50)
         self.DamagedSmoke:Spawn()
         self:DeleteOnRemove(self.DamagedSmoke)
@@ -431,12 +433,12 @@ function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
     rag.DamagedSmoke:SetPos(rag:GetAttachment(rag:LookupAttachment("vent")).Pos)
     rag.DamagedSmoke:SetParent(rag, rag:LookupAttachment("vent"))
     rag.DamagedSmoke:SetKeyValue("spawnrate",48)
-    rag.DamagedSmoke:SetKeyValue("lifetime",1.5) 
+    rag.DamagedSmoke:SetKeyValue("lifetime",1.5)
     rag.DamagedSmoke:SetKeyValue("startsize",0)
     rag.DamagedSmoke:SetKeyValue("endsize",40)
-    rag.DamagedSmoke:SetKeyValue("startcolor","40 40 40") 
+    rag.DamagedSmoke:SetKeyValue("startcolor","40 40 40")
     rag.DamagedSmoke:SetKeyValue("endcolor","40 40 40")
-    rag.DamagedSmoke:SetKeyValue("minspeed",30) 
+    rag.DamagedSmoke:SetKeyValue("minspeed",30)
     rag.DamagedSmoke:SetKeyValue("maxspeed",50)
     rag.DamagedSmoke:Spawn()
     rag:DeleteOnRemove(rag.DamagedSmoke)

@@ -38,15 +38,15 @@ function NPC:ShouldGib( dmginfo, hit_gr )
         self:CreateGib("models/gibs/antlion_gib_medium_1.mdl", {offset=vector_origin}),
         self:CreateGib("models/gibs/antlion_gib_medium_2.mdl", {offset=vector_origin}),
         self:CreateGib("models/gibs/antlion_gib_small_1.mdl", {offset=vector_origin}),
-        self:CreateGib("models/gibs/antlion_gib_small_2.mdl", {offset=vector_origin}),   
+        self:CreateGib("models/gibs/antlion_gib_small_2.mdl", {offset=vector_origin}),
     }
 
-    for _, v in ipairs(Gibs) do
+    for i = 1, #Gibs do
         if self.GibMaterial then
-            v:SetMaterial(self.GibMaterial)
+            Gibs[i]:SetMaterial(self.GibMaterial)
         end
-        
-        local phys = v:GetPhysicsObject()
+
+        local phys = Gibs[i]:GetPhysicsObject()
         if IsValid(phys) then
             phys:SetVelocity(dmginfo:GetDamageForce()*0.1 + VectorRand()*200)
         end

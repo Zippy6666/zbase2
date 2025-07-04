@@ -266,23 +266,23 @@ include("zbase/sh_globals_pri.lua")
 include("zbase/sh_globals_pub.lua")
 
 conv.includeDir(
-    "zbase", 
+    "zbase",
     -- These require special procedures so they are skipped
-    {"sh_override_functions", "npc_patches", "entities", "npc_base", "sh_globals_"} 
+    {"sh_override_functions", "npc_patches", "entities", "npc_base", "sh_globals_"}
 )
 
 if SERVER then
     -- Include NPC patch files
     local files = file.Find("zbase/npc_patches/*","LUA")
     local enhPath = "zbase/npc_patches/"
-    for _, v in ipairs(files) do
-        include(enhPath..v)
+    for i = 1, #files do
+        include(enhPath .. files[i])
     end
 
     -- Add shared files of all ZBase npcs to clients when they join
     local _, dirs = file.Find("zbase/entities/*","LUA")
-    for _, v in ipairs(dirs) do
-        AddCSLuaFile("zbase/entities/"..v.."/shared.lua")
+    for i = 1, #dirs do
+        AddCSLuaFile("zbase/entities/" .. dirs[i] .. "/shared.lua")
     end
 end
 
@@ -392,8 +392,8 @@ function ZBase_RegisterHandler:RegNPCs()
 
     -- Register all ZBase NPCs
     local _, dirs = file.Find("zbase/entities/*","LUA")
-    for _, v in ipairs(dirs) do
-        self:NPCReg(v)
+    for i = 1, #dirs do
+        self:NPCReg(dirs[i])
     end
 end
 
@@ -433,8 +433,10 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             local function SpawnFlagTblToBit()
                 local bt = 0
 
-                for _, flag in ipairs(t.SpawnFlagTbl or {}) do
-                    bt = bit.bor(bt, flag)
+                if ( istable(t.SpawnFlagTbl) && t.SpawnFlagTbl[1] != nil ) then
+                    for i = 1, #t.SpawnFlagTbl do
+                        bt = bit.bor(bt, t.SpawnFlagTbl[i])
+                    end
                 end
 
                 return bt
@@ -454,7 +456,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             -- Mix with regular NPCs, or don't
             if ZBCVAR.MenuMixin:GetBool() then
                 local split = string.Split(cat, ": ")
-                
+
                 if #split == 2 then
                     RegularSpawnMenuTable.Category = split[2]
                 else
@@ -529,20 +531,22 @@ if SERVER then
             table.insert(filenames, "zbase/npc_base/sh_sentence.lua")
 
             local files = file.Find("zbase/npc_patches/*", "LUA")
-            for _, f in ipairs(files) do
-                table.insert(filenames, "zbase/npc_patches/"..f)
+            for i = 1, #files do
+                table.insert(filenames, "zbase/npc_patches/"..files[i])
             end
         end
 
         local _, dirs = file.Find(root.."*", "GAME")
 
-        for k, v in ipairs(dirs) do
-            local checkpath = root..v.."/lua/zbase/entities/"
+        for i = 1, #dirs do
+            local checkpath = root..dirs[i].."/lua/zbase/entities/"
 
             if file.Exists(checkpath, "GAME") then
                 local _, zbase_folder_names = file.Find(checkpath.."*", "GAME")
 
-                for _, zbase_folder_name in ipairs(zbase_folder_names) do
+                for j = 1, #zbase_folder_names do
+                    local zbase_folder_name = zbase_folder_names[j]
+
                     if file.Exists( "zbase/entities/"..zbase_folder_name.."/init.lua", "LUA" ) then
                         table.insert(filenames, "zbase/entities/"..zbase_folder_name.."/init.lua")
                     end
@@ -558,6 +562,7 @@ if SERVER then
             end
         end
 
+
         return filenames
     end
 
@@ -568,13 +573,14 @@ if SERVER then
     local function AutoRefreshFunc()
         ZBaseFilesToAutorefresh = ZBaseFilesToAutorefresh or FetchFilenamesForAddonsInDevelopment()
 
-        for _, fname in ipairs(ZBaseFilesToAutorefresh) do
-            local time = file.Time(fname, "LUA")
+        for i = 1, #ZBaseFilesToAutorefresh do
+            local fname = ZBaseFilesToAutorefresh[i]
 
+            local time = file.Time(fname, "LUA")
             if ZBaseLastSavedFileTimeRegistry[fname] && ZBaseLastSavedFileTimeRegistry[fname] != time then
                 conv.devPrint(Color(0, 255, 200), "ZBase detected change in '", fname, "', doing autorefresh!")
                 RunConsoleCommand("zbase_reload")
-                table.Empty(ZBaseLastSavedFileTimeRegistry)
+                ZBaseLastSavedFileTimeRegistry = {}
                 break
             end
 
