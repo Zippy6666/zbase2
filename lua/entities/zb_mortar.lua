@@ -1,6 +1,5 @@
 AddCSLuaFile()
 
-
 ENT.Base = "zb_projectile"
 ENT.Type = "anim"
 ENT.Author = "Zippy"
@@ -9,32 +8,24 @@ ENT.Spawnable = false
 ENT.Category = "ZBase"
 ENT.IsZBaseProjectile = true
 
-
 ENT.Model = "models/spitball_large.mdl" -- Model to use
 ENT.Invisible = true -- Should the model be invisible?
 
-
 ENT.StartHealth = 10 -- Health of the projectile, set to false to disable projectile health
-
 
 ENT.Gravity = true -- Should the projectile have gravity?
 ENT.GravityGun_Pickup = true -- Can the projectile be picked up by the gravity gun?
 ENT.GravityGun_Punt = true -- Can the projectile be punted by the gravity gun?
 
-
 ENT.OnHitDamage = false -- Projectile damage on hit, set to false to disable
 ENT.OnHitDamageType = bit.bor(DMG_DISSOLVE, DMG_SHOCK) -- Projectile damage type on hit
 
-
 ENT.Damage_Disorient = false -- Should any damage (direct or radius) from the projectile disorient players (be deafening)?
-
 
 ENT.IsMortarSynthProjectile = true
 
-
 local white = Color(255,255,255,255)
 
---]]=================================================================================================================================]]
 function ENT:PostInit()
     if SERVER then
         self.CombineBallEffect = ents.Create("prop_combine_ball")
@@ -48,11 +39,11 @@ function ENT:PostInit()
         self:EmitSound("NPC_CombineBall.HoldingInPhysCannon")
     end
 end
---]]=================================================================================================================================]]
+
 function ENT:PhysInit( phys )
 
 end
---]]=================================================================================================================================]]
+
 function ENT:OnHit( ent, data )
     -- Explode from hitting something hard
     if self.ExplodeOnImpact then
@@ -92,18 +83,18 @@ function ENT:OnHit( ent, data )
         end)
     end
 end
---]]==============================================================================================]]
+
 function ENT:OnGravityGunPunt()
     self.ExplodeOnImpact = true
 end
---]]=================================================================================================================================]]
+
 function ENT:OnThink()
 end
---]]=================================================================================================================================]]
+
 function ENT:CustomOnTakeDamage(dmginfo)
 
 end
---]]=================================================================================================================================]]
+
 function ENT:OnKill(dmginfo)
     if IsValid(self.CombineBallEffect) then
         self.CombineBallEffect:SetParent(NULL) -- So that it doesn't get removed, lets us fire the explode effect
@@ -115,8 +106,7 @@ function ENT:OnKill(dmginfo)
 
     -- self:EmitSound("Weapon_Mortar.Impact")
 end
---]]=================================================================================================================================]]
+
 function ENT:CustomOnRemove()
     self:StopSound("NPC_CombineBall.HoldingInPhysCannon")
 end
---]]=================================================================================================================================]]

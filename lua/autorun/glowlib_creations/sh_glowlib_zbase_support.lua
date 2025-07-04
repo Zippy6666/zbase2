@@ -9,7 +9,6 @@ GlowLib:Define("models/zippy/elitepolice.mdl", {
     },
 })
 
-
 GlowLib:Define("models/zippy/mortarsynth.mdl", {
     Position = function(self, ent)
         local attachmentData = ent:GetAttachment(ent:LookupAttachment("tentacle"))
@@ -22,7 +21,6 @@ GlowLib:Define("models/zippy/mortarsynth.mdl", {
     },
 })
 
-
 GlowLib:Define("models/zippy/synth.mdl", {
     Position = function(self, ent)
         local attachmentData = ent:GetAttachment(ent:LookupAttachment("vent"))
@@ -34,7 +32,6 @@ GlowLib:Define("models/zippy/synth.mdl", {
         [0] = Color(0, 75, 255),
     },
 })
-
 
 GlowLib:Define("models/zippy/resistancehunter.mdl", {
     Position = function(self, ent)

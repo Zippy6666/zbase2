@@ -1,22 +1,18 @@
 local AIDisabled = GetConVar("ai_disabled")
 
-
 function ENT:GetAerialOptimizedSched()
 	-- Return better schedule and goal for aerial NPCs
 
 	if IsValid(self.Navigator) && IsValid(self:GetEnemy()) then
-
 		if self.Navigator:IsCurrentZSched("CombatChase") && self.EnemyVisible then
-			return "AerialChase_NoNav", self:GetEnemy():GetPos()
+            return "AerialChase_NoNav", self:GetEnemy():GetPos()
 		end
 
 		if self.Navigator:IsCurrentZSched("BackAwayFromEnemy") && self.EnemyVisible then
 			return "AerialBackAway_NoNav", self:GetPos()+( self:GetPos() - self:GetEnemy():GetPos() ):GetNormalized()*300
 		end
-
 	end
 end
-
 
 function ENT:AerialSetSchedule(sched)
     -- Called when NewSched is called
@@ -49,7 +45,6 @@ function ENT:AerialSetSchedule(sched)
     -- self.ScannerNavigator:SetSchedule(SCHED_FORCED_GO_RUN)
 end
 
-
 -- The navigators start position
 function ENT:AerialNavigatorPos()
     local start = self:GetPos() + self:GetForward()*self:OBBMaxs().x*2.5
@@ -72,7 +67,6 @@ function ENT:AerialNavigatorPos()
     return tr.HitPos+tr.HitNormal*5
 end
 
-
 -- For deciding a position the aerial SNPC should patrol to
 local function RandomXYVector()
     local angle = math.random() * math.pi * 2
@@ -85,16 +79,16 @@ local function RandomXYVector()
     return Vector(x, y, 0)
 end
 
-
 function ENT:SetPursueAerialGoalSched()
-    self.CurrentSchedule = ZSched.PursueAerialGoal
+    self.CurrentSchedule = ZSched.FLY_TO_GOAL
     self.CurrentTaskID = 1
-    self:SetTask( ZSched.PursueAerialGoal:GetTask( 1 ) )
+    self:SetTask( ZSched.FLY_TO_GOAL:GetTask( 1 ) )
 end
-
 
 -- A real translate schedule function for aerial NPCs
 function ENT:AerialTranslateSched( sched )
+    if self.bControllerBlock then return end -- Don't do anything if being controlled
+
     local lastpos = self:GetInternalVariable("m_vecLastPosition")
     local npcstate = self:GetNPCState()
     local hasAerialGoal = false
@@ -127,15 +121,12 @@ function ENT:AerialTranslateSched( sched )
         self:CONV_CallNextTick("SetPursueAerialGoalSched")
         return SCHED_IDLE_STAND
     end
-
 end
-
 
 function ENT:AerialResetNav()
     self.AerialGoal = nil
     SafeRemoveEntity(self.Navigator)
 end
-
 
 function ENT:AerialCalcGoal( pos )
     if !self.ZBase_HasLUAFlyCapability then return end
@@ -152,7 +143,6 @@ function ENT:AerialCalcGoal( pos )
     self.AerialGoal = pos
 end
 
-
 function ENT:Aerial_TooCloseToGround()
     local start = self:GetPos()
     local tr = util.TraceLine({
@@ -164,16 +154,12 @@ function ENT:Aerial_TooCloseToGround()
     return tr.Hit && tr.Fraction*self.InternalDistanceFromGround
 end
 
-
 function ENT:Aerial_CalcVel()
     local myPos = self:GetPos()
 
-
     self.Aerial_CurrentDestination = nil
 
-
     if self.AerialGoal then
-
         self.Aerial_CurrentDestination = self.AerialGoal
 
     elseif self.Aerial_NextMoveFromGroundCheck < CurTime() then
@@ -184,19 +170,15 @@ function ENT:Aerial_CalcVel()
         self.Aerial_NextMoveFromGroundCheck = CurTime()+2
     end
 
-
     -- Is near destination, reset navigation
     if self.Aerial_CurrentDestination && self:ZBaseDist(self.Aerial_CurrentDestination, {within=30}) then
         self:AerialResetNav()
     end
 
-
     local curMoveDir = self.Aerial_CurrentDestination && (self.Aerial_CurrentDestination - myPos):GetNormalized()
 
-    
     local speedLimit = self:IsFacing(self.Aerial_CurrentDestination) && self.Fly_MoveSpeed or self.Fly_MoveSpeed*0.35
     if self:GetNPCState()==NPC_STATE_IDLE then speedLimit=speedLimit*0.5 end
-
 
     if curMoveDir then
         -- Accelerate, store last direction
@@ -250,6 +232,4 @@ function ENT:AerialThink()
     else
         self.InternalDistanceFromGround = self.Fly_DistanceFromGround
     end
-
 end
-

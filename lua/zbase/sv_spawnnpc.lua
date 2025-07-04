@@ -1,6 +1,7 @@
-	// Mostly borrowed gmod source code!
+-- Mostly borrowed gmod source code!
 
-	
+ZBaseNPCCount 		= 0
+
 -- A little hacky function to help prevent spawning props partially inside walls
 -- Maybe it should use physics object bounds, not OBB, and use physics object bounds to initial position too
 local function fixupProp( ply, ent, hitpos, mins, maxs )
@@ -12,7 +13,6 @@ local function fixupProp( ply, ent, hitpos, mins, maxs )
 		filter = { ent, ply }
 	} )
 
-
 	local endposU = ent:LocalToWorld( maxs )
 	local tr_up = util.TraceLine( {
 		start = entPos,
@@ -20,15 +20,12 @@ local function fixupProp( ply, ent, hitpos, mins, maxs )
 		filter = { ent, ply }
 	} )
 
-
 	-- Both traces hit meaning we are probably inside a wall on both sides, do nothing
 	if ( tr_up.Hit && tr_down.Hit ) then return end
-
 
 	if ( tr_down.Hit ) then ent:SetPos( entPos + ( tr_down.HitPos - endposD ) ) end
 	if ( tr_up.Hit ) then ent:SetPos( entPos + ( tr_up.HitPos - endposU ) ) end
 end
-
 
 local function TryFixPropPosition( ply, ent, hitpos )
 	fixupProp( ply, ent, hitpos, Vector( ent:OBBMins().x, 0, 0 ), Vector( ent:OBBMaxs().x, 0, 0 ) )
@@ -36,9 +33,6 @@ local function TryFixPropPosition( ply, ent, hitpos )
 	fixupProp( ply, ent, hitpos, Vector( 0, 0, ent:OBBMins().z ), Vector( 0, 0, ent:OBBMaxs().z ) )
 end
 
-
-ZBaseNPCCount = 0
-local wep_override = GetConVar("gmod_npcweapon")
 function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate, SpawnFlagsSaved )
 	if NPC.ZBaseInitialized then return end
 	NPC.ZBaseInitialized = true
@@ -69,11 +63,9 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 
 	-- Keyvalues
 	if istable(NPCData.KeyValues) then
-
 		for k, v in pairs( NPCData.KeyValues ) do
 			NPC:SetKeyValue( k, v )
 		end
-	
 	end
 	
 	--
@@ -111,10 +103,22 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	end
 	if Equipment == "zbase_random_weapon" then
 		local randTBL = table.Copy(ZBaseNPCWeps)
-		table.Add(randTBL,
-		{"weapon_pistol", "weapon_357", "weapon_crossbow",
-		"weapon_crowbar", "weapon_ar2", "weapon_rpg",
-		"weapon_shotgun", "weapon_smg1", "weapon_stunstick"})
+		table.Add(randTBL, {
+			"weapon_zb_ar2",
+			"weapon_zb_357",
+			"weapon_zb_crossbow",
+			"weapon_zb_crowbar",
+			"weapon_zb_pistol",
+			"weapon_zb_rpg",
+			"weapon_zb_shotgun",
+			"weapon_zb_smg1",
+			"weapon_zb_stunstick",
+			"weapon_zb_alyxgun",
+			"weapon_zb_annabelle",
+			"weapon_zb_357_hl1",
+			"weapon_zb_glock_hl1",
+			"weapon_zb_shotgun_hl1"
+		})
 
 		for i, wclass in ipairs( table.Copy(randTBL) ) do
 			if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
@@ -132,12 +136,9 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 
 		NPC:SetKeyValue( "additionalequipment", Equipment )
 		NPC.Equipment = Equipment
-
 	elseif Equipment && Equipment != "none" && valid then
-
 		NPC:SetKeyValue( "additionalequipment", Equipment )
 		NPC.Equipment = Equipment
-
 	end
 
     -- Ceiling and floor functions
@@ -151,6 +152,12 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 	if ( isfunction( NPCData.OnDuplicated ) ) then
 		NPC.OnDuplicated = NPCData.OnDuplicated
 	end
+
+		-- Store name and table like the usual spawn menu spawn system in GMOD
+	NPC.NPCName = Class
+	NPC.NPCTable = NPCData
+	NPC.EngineClass = NPCData.Class
+	NPC._wasSpawnedOnCeiling = wasSpawnedOnCeiling
 
 	-- Pre-spawn
 	if NPC.Patch_PreSpawn then
@@ -170,11 +177,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		util.Effect( "zbasespawn", ed, true, true )
 	end
 
-	-- Store name and table like the usual spawn menu spawn system in GMOD
-	NPC.NPCName = Class
-	NPC.NPCTable = NPCData
-	NPC._wasSpawnedOnCeiling = wasSpawnedOnCeiling
-
 	-- Body groups
 	if ( NPCData.BodyGroups ) then
 		for k, v in pairs( NPCData.BodyGroups ) do
@@ -189,7 +191,6 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 
 	return NPC
 end
-
 
 function ZBaseAfterSpawn( NPC, Class, bDropToFloor )
     -- "Register"
@@ -214,6 +215,20 @@ function ZBaseAfterSpawn( NPC, Class, bDropToFloor )
 	-- Store my class for dupe data
 	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
 
+	-- Make sure I always spawn with my engine class when duped
+	-- not my custom ZBase one
+	-- If i should have a custom class
+	-- it will be applied after I am pasted anyway
+	function NPC:PreEntityCopy()
+		self.PreDupeClassName = self:GetClass()
+		self:SetKeyValue("classname", self:GetEngineClass())
+		
+		self:CONV_CallNextTick(function()
+			self:SetKeyValue("classname", self.PreDupeClassName)
+			self.PreDupeClassName = nil
+		end)
+	end
+
 	-- Drop to floor
 	if ( bDropToFloor ) then
 		NPC:DropToFloor()
@@ -222,41 +237,41 @@ function ZBaseAfterSpawn( NPC, Class, bDropToFloor )
 	NPC.ZBase_Spawned = true
 end
 
-
+-- Apply stuff after duped
 duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
+    local ZBaseClass = data[1]
+    local ZBaseNPCTable = ZBaseNPCs[ ZBaseClass ]
+	local EngineClass = ZBaseNPCTable.Class
 
-    local zbaseClass = data[1]
-    local ZBaseNPCTable = ZBaseNPCs[ zbaseClass ]
-
-	if ent:GetClass() != ZBaseNPCTable.Class then return end
+	-- Apparently, entities can be duped but their classes can change
+	-- Easy animation tool for example, does this when you select
+	-- "Make Animatable" through the context menu
+	-- We don't want any special ZBase shenanigans on the entity
+	-- in this case, so return
+	if ent:GetClass() != EngineClass then
+		return
+	end
 
     if ZBaseNPCTable then
+		local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
 
         ent.ZBaseInitialized = false -- So that it can be initialized again
         ent.IsDupeSpawnedZBaseNPC = true
 
-        local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
-        ZBaseInitialize( ent, ZBaseNPCTable, zbaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
-
+        ZBaseInitialize( ent, ZBaseNPCTable, ZBaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
     end
-
 end)
-
 
 function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
 	local NPCList = ZBaseSpawnMenuNPCList
 	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
 
-	
-
 	-- Don't let them spawn this entity if it isn't in our NPC Spawn list.
 	-- We don't want them spawning any entity they like!
 	if ( !NPCData ) then return end
 
-
 	local isAdmin = ( IsValid( ply ) && ply:IsAdmin() ) or game.SinglePlayer()
 	if ( NPCData.AdminOnly && !isAdmin ) then return end
-
 
 	--
 	-- This NPC has to be spawned on a ceiling (Barnacle) or a floor (Turrets)
@@ -283,13 +298,10 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 		bDropToFloor = true
 	end
 
-
 	if ( NPCData.NoDrop or NoDropToFloor ) then bDropToFloor = false end
-
 
 	-- Create NPC
 	local NPC = ents.Create( NPCData.Class )
-
 
 	-- Not valid
 	if !IsValid( NPC ) or !NPC.SetSchedule or (NPC:IsScripted() && NPC:GetClass()!="npc_zbase_snpc") then
@@ -298,18 +310,15 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 		return
 	end
 
-
 	--
 	-- Set Position if any
 	--
 	if Position then
 		NPC:SetPos( Position + Normal * (NPCData.Offset or 32) )
 
-
 		if isnumber(NPCData.Offset) then
 			bDropToFloor = false
 		end
-	
 
 		-- Rotate to face player (expected behaviour)
 		local Angles = Angle( 0, 0, 0 )
@@ -324,26 +333,13 @@ function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFl
 		NPC:SetAngles( Angles )
 	end
 
-
 	NPC.ZBase_PlayerWhoSpawnedMe = ply
-
+	NPC:SetCreator(ply)
 
 	return ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, bDropToFloor, skipSpawnAndActivate, SpawnFlagsSaved )
 end
 
-
-util.AddNetworkString("ZBaseOnNPCSpawnInfo")
-local function OnNPCSpawn_Info(ply, npc)
-
-	-- net.Start("ZBaseOnNPCSpawnInfo")
-	-- net.WriteEntity(npc)
-	-- net.Send(ply)
-
-end
-
-
 function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
-
 	-- We don't support this command from dedicated server console
 	if ( !IsValid( ply ) ) then return end
 
@@ -355,7 +351,6 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 	ZBase_PlayerSpawnNPCHookCall = nil
 	
 	if ( !tr ) then
-
 		local vStart = ply:GetShootPos()
 		local vForward = ply:GetAimVector()
 
@@ -364,7 +359,6 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 			endpos = vStart + ( vForward * 2048 ),
 			filter = ply
 		} )
-
 	end
 
 	-- Create the NPC if you can.
@@ -398,38 +392,8 @@ function Spawn_ZBaseNPC( ply, NPCClassName, WeaponName, tr )
 	ply:AddCleanup( "npcs", SpawnedNPC )
 
 	ply:SendLua( "achievements.SpawnedNPC()" )
-
-	if IsValid(ply) && IsValid(SpawnedNPC) then
-		OnNPCSpawn_Info(ply, SpawnedNPC)
-	end
-
 end
 
-
 concommand.Add( "zbase_spawnnpc", function( ply, cmd, args )
-
     Spawn_ZBaseNPC( ply, args[ 1 ], args[ 2 ] )
-
 end)
-
-
-concommand.Add( "zbase_debug_spawn_many", function( ply, cmd, args )
-	for x = 1, args[ 2 ] or 25 do
-		for y = 1, args[ 2 ] or 25 do
-			if ZBaseNPCs[args[ 1 ]] then
-				Spawn_ZBaseNPC( ply, args[ 1 ], args[3], util.TraceLine({
-					start = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, 1000),
-					endpos = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, -1000),
-					mask = MASK_NPCWORLDSTATIC,
-				}) )
-			else
-				Spawn_NPC( ply, args[ 1 ], args[3], util.TraceLine({
-					start = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, 1000),
-					endpos = ply:GetEyeTrace().HitPos+Vector(x*200, y*200, -1000),
-					mask = MASK_NPCWORLDSTATIC,
-				}) )
-			end
-		end
-	end
-end)
-

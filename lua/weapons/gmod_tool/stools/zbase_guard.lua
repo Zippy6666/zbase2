@@ -1,10 +1,9 @@
 TOOL.AddToMenu = true
-TOOL.Category = "ZBASE"
+TOOL.Category = "NPC"
 
-local toolname = "ZBASE: Guard"
+local toolname = "Guard"
 TOOL.Name = toolname
 TOOL.Description = "Toggle guard mode for NPCs."
-
 
 local help = "Left-click: Toggle guard mode for the NPC at your crosshair."
 if CLIENT then
@@ -12,7 +11,6 @@ if CLIENT then
     language.Add("tool.zbase_guard.desc", TOOL.Description)
     language.Add("tool.zbase_guard.0", help)
 end
-
 
 if SERVER then
     local AIDisabled = GetConVar("ai_disabled")
@@ -111,7 +109,7 @@ if SERVER then
     end)
 
     local function SetGuard(self, bool)
-        if bool == true then
+        if bool == true && !self.ZBASE_IsPlyControlled then
             self.ZBase_Guard = true
 
             -- Stop moving essentially
@@ -167,7 +165,6 @@ if SERVER then
     end)
 end
 
-
 function TOOL:LeftClick( trace )
     local own = self:GetOwner()
     local ent = trace.Entity
@@ -181,18 +178,14 @@ function TOOL:LeftClick( trace )
     end
 end
 
-
 function TOOL:RightClick( trace )
 end
 
-
 function TOOL:Reload( trace )
 end
-
 
 if CLIENT then
     function TOOL.BuildCPanel(panel)
         panel:Help(help)
     end
 end
-

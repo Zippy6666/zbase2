@@ -1,8 +1,8 @@
-local NPC = FindZBaseTable(debug.getinfo(1,'S'))
+local NPC       = FindZBaseTable(debug.getinfo(1,'S'))
+local trailcol  = Color(255,150,100) -- Color of flechette/arrow trails
 
 NPC.Models = {"models/zippy/ResistanceHunter.mdl"}
 NPC.StartHealth = 310 -- Max health
-
 
 -- ZBase faction
 -- Can be any string, all ZBase NPCs with the same faction will be allied
@@ -12,22 +12,13 @@ NPC.StartHealth = 310 -- Max health
     -- "neutral" = allied with everybody
 NPC.ZBaseStartFaction = "ally"
 
-
 NPC.SubMaterials = {
     [1] = "models/huntey/huntey_skin_basecolor",
     [2] = "models/huntey/huntey_armor_basecolor",
 }
 
-
-local trailcol = Color(255,150,100)
---]]==============================================================================================]]
-function NPC:CustomInitialize()
-
-end
---]]==============================================================================================]]
 function NPC:CustomOnOwnedEntCreated( ent )
     if ent:GetClass() == "hunter_flechette" then
-
         local proj = ents.Create("crossbow_bolt")
         proj:SetPos(ent:GetPos())
         proj:SetAngles(ent:GetAngles())
@@ -44,13 +35,13 @@ function NPC:CustomOnOwnedEntCreated( ent )
         effectdata:SetMagnitude(1)
         util.Effect("ChopperMuzzleFlash", effectdata, true, true)
 
+        ZBaseMuzzleLight( proj:GetPos(), .5, 256, "255 175 75" )
     end
 end
---]]==============================================================================================]]
+
 function NPC:DealDamage( dmginfo, ent )
     local infl = dmginfo:GetInflictor()
     if IsValid(infl) && infl:GetClass() == "crossbow_bolt" then
         dmginfo:SetDamage(10)
     end
 end
---]]==============================================================================================]]

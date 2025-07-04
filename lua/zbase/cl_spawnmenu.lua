@@ -1,27 +1,21 @@
-    -- Note: Contains a lot of borrowed gmod source code! --
-
+-- Note: Contains a lot of borrowed gmod source code!
 
 ZBaseCategoryImages = ZBaseCategoryImages or {}
 ZBaseSetCategoryIcon( "HL2: Combine", "games/16/hl2.png" )
 ZBaseSetCategoryIcon( "HL2: Zombies + Enemy Aliens", "games/16/hl2.png" )
 ZBaseSetCategoryIcon( "HL2: Humans + Resistance", "games/16/hl2.png" )
 
-
 local PANEL = {}
 local GenericIcon = "entities/zippy.png"
 
-
 Derma_Hook( PANEL, "Paint", "Paint", "Tree" )
 PANEL.m_bBackground = true -- Hack for above
-
-
 
 spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	if ( !obj.material ) then return end
 	if ( !obj.nicename ) then return end
 	if ( !obj.spawnname ) then return end
 	if ( !obj.weapon ) then return end
-
 
 	local icon = vgui.Create( "ContentIcon", container )
 	icon:SetContentType( "zbase_npcs" )
@@ -36,7 +30,16 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 		RunConsoleCommand( "zbase_spawnnpc", obj.spawnname, override == "" && table.Random(obj.weapon) or override )
 		surface.PlaySound( "buttons/button16.wav" )
 	end
+	icon.DoMiddleClick = function()
+		local tr = LocalPlayer():GetEyeTrace()
 
+		net.Start("ZBASE_CreateSpawner")
+		net.WriteString(obj.spawnname)
+		net.WriteVector(tr.HitPos + tr.HitNormal*5)
+		net.SendToServer()
+
+		surface.PlaySound( "buttons/button16.wav" )
+	end
 
 	icon.OpenMenu = function( self )
 		local menu = DermaMenu()
@@ -52,20 +55,35 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 			RunConsoleCommand( "gmod_tool", "creator" ) RunConsoleCommand( "creator_type", "2" )
 			RunConsoleCommand( "creator_name", obj.spawnname ) RunConsoleCommand( "creator_arg", override == "" && table.Random(obj.weapon) or override )
 		end ):SetIcon( "icon16/brick_add.png" )
-	
+
+		if LocalPlayer():IsSuperAdmin() then
+			menu:AddOption( "Create Spawner", function()
+				
+				local tr = LocalPlayer():GetEyeTrace()
+
+				net.Start("ZBASE_CreateSpawner")
+				net.WriteString(obj.spawnname)
+				net.WriteVector(tr.HitPos + tr.HitNormal*5)
+				net.SendToServer()
+
+				surface.PlaySound( "buttons/button16.wav" )
+				
+			end ):SetIcon( "icon16/control_repeat_blue.png" )
+		end
+
 		menu:Open()
 	end
 
+	if istable(obj.tblMisc) && isstring(obj.tblMisc.Class) && isstring(obj.tblMisc.Author) then
+		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.Class .. "'\nAuthor: " .. (obj.tblMisc.Author) .. "\n\n Middle-click to create spawner.")
+	end
 
 	if ( IsValid( container ) ) then
 		container:Add( icon )
 	end
 
-
 	return icon
 end)
-
-
 
 local function GiveIconsToNode( pnlContent, tree, node, categories )
 	node.DoPopulate = function( self ) -- When we click on the node - populate it using this function
@@ -78,12 +96,10 @@ local function GiveIconsToNode( pnlContent, tree, node, categories )
 		self.PropPanel:SetTriggerSpawnlistChange( false )
 
 		for category, npcdata in pairs(categories) do
-
 			local header = vgui.Create("ContentHeader", self.PropPanel )
 			header:SetText(category)
 			self.PropPanel:Add( header )
 			
-
 			for name, ent in SortedPairsByMemberValue( npcdata, "Name" ) do
 				local mat = ent.IconOverride or GenericIcon
 
@@ -96,10 +112,10 @@ local function GiveIconsToNode( pnlContent, tree, node, categories )
 					spawnname	= name,
 					material	= mat,
 					weapon		= ent.Weapons,
-					admin		= ent.AdminOnly
+					admin		= ent.AdminOnly,
+					tblMisc		= ent
 				} )
 			end
-		
 		end
 	end
 
@@ -109,9 +125,8 @@ local function GiveIconsToNode( pnlContent, tree, node, categories )
 	end
 end
 
-
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
-
+	-- Horror code
 	local tbl = {}
 	for class, npcdata in pairs( ZBaseSpawnMenuNPCList ) do
 		if isstring(npcdata.Category) then
@@ -129,11 +144,14 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 	end
 
 	local allNPCs = {}
+
 	local allNode = tree:AddNode( "ZBASE", GenericIcon )
-	allNode:SetExpanded(true)
+	allNode:SetExpanded(!ZBCVAR.CollapseCat:GetBool())
+
 	for divisionName, division in SortedPairs( tbl ) do
 		local allCatIconsSame = true
 		local lastIconPath
+
 		for categoryName in pairs(division) do
 			local catIcon = ZBaseCategoryImages[divisionName..": "..categoryName]
 			if isstring(lastIconPath) && catIcon != lastIconPath then
@@ -141,11 +159,15 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 			end
 			lastIconPath = catIcon
 		end
-		if !lastIconPath then lastIconPath=ZBaseCategoryImages[divisionName] end
+
+		if !lastIconPath then 
+			lastIconPath=ZBaseCategoryImages[divisionName] 
+		end
 
 		local divisionIcon = (allCatIconsSame && lastIconPath ) or GenericIcon
 		local divisionNPCs = {}
 		local node = allNode:AddNode( divisionName, divisionIcon ) -- Add a node to the tree
+
 		for categoryName, category in SortedPairs(division) do
 
 			if ZBaseNPCs[categoryName] then
@@ -153,33 +175,29 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 				GiveIconsToNode( pnlContent, tree, node, {[divisionName]=division} )
 				table.Merge(allNPCs, {[divisionName]=division})
 			else
-
-				node:SetExpanded(true)
+				node:SetExpanded(!ZBCVAR.CollapseCat:GetBool())
 
 				local catNode = node:AddNode(categoryName, ZBaseCategoryImages[divisionName..": "..categoryName] or GenericIcon)
 				GiveIconsToNode( pnlContent, tree, catNode, {[divisionName..": "..categoryName]=category} )
 				divisionNPCs[categoryName] = category
-
 			end
 
 		end
+
 		if !table.IsEmpty(divisionNPCs) then
 			GiveIconsToNode( pnlContent, tree, node, divisionNPCs )
+
 			for k, v in pairs(divisionNPCs) do
 				allNPCs[k] = allNPCs[k] or {}
 				table.Merge(allNPCs[k], v)
 			end
 		end
-
 	end
+
 	if !table.IsEmpty(allNPCs) then
 		GiveIconsToNode( pnlContent, tree, allNode, allNPCs )
 	end
-	allNode:DoClick()
-	allNode:SetSelected()
-
 end)
-
 
 function PANEL:GetAllFactions( factions )
 	self.PlyFactionDropDown:Clear()
@@ -196,10 +214,8 @@ function PANEL:GetAllFactions( factions )
 	self.NPCFactionDropDown:ChooseOption(self.NPCFactionDropDown.StartVal)
 end
 
-
 net.Receive("ZBaseListFactions", function()
 	local tbl = table.Copy(net.ReadTable())
-
 
 	timer.Create("ZBasePlayerDDrawerGiveFactionTable", 1, 1, function()
 		if LocalPlayer().ZBaseDDrawer then
@@ -208,7 +224,6 @@ net.Receive("ZBaseListFactions", function()
 		end
 	end)
 end)
-
 
 function PANEL:AddDropdown( text, func, startVal )
 	local label = vgui.Create("DLabel", self)
@@ -227,14 +242,12 @@ function PANEL:AddDropdown( text, func, startVal )
 	return dropdown
 end
 
-
 function PANEL:AddHelp( text )
 	local label = vgui.Create("DLabel", self)
 	label:SetText(text)
 	label:Dock(TOP)
 	label:SetColor(Color(100,100,100))
 end
-
 
 function PANEL:AddCheckbox( text, cvar )
 	local DermaCheckbox = self:Add( "DCheckBoxLabel", self )
@@ -246,9 +259,7 @@ function PANEL:AddCheckbox( text, cvar )
 	DermaCheckbox:DockMargin( 0, 5, 0, 0 )
 end
 
-
 function PANEL:Init()
-
 	self:DockPadding( 15, 10, 15, 10 )
 	self:SetOpenSize(150)
 
@@ -272,9 +283,7 @@ function PANEL:Init()
 	ZBaseListFactions()
 
 	self:Open()
-
 end
-
 
 vgui.Register( "ZBaseSussyBaka", PANEL, "DDrawer" )
 spawnmenu.AddCreationTab( "ZBase", function(...)
@@ -298,4 +307,3 @@ spawnmenu.AddCreationTab( "ZBase", function(...)
     return pnlContent
 
 end, "entities/zippy.png", 25)
-

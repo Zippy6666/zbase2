@@ -1,11 +1,11 @@
 util.AddNetworkString("zbase_camp_replace_reload")
 
-
 local CurrentReplaceList = {}
-local filename = "zbase_campaign_replace.json"
-local loadMSG = "Loaded '"..filename.."'! See details in the console."
-local failMSG = "Failed to load '"..filename.."', likely due to invalid syntax!"
 
+local filename      = "zbase_campaign_replace.json"
+local loadMSG       = "Loaded '"..filename.."'! See details in the console."
+local failMSG       = "Failed to load '"..filename.."', likely due to invalid syntax!"
+local ep2Mounted    = IsMounted('ep2')
 
 local defaultReplace = {
     npc_combine_s = { zb_combine_soldier=1, zb_combine_elite=3, zb_combine_nova_prospekt=2 },
@@ -26,7 +26,6 @@ local defaultReplace = {
     }
 }
 
-
 local function CreateFile()
     -- No file exists, create a new basic one
     if !file.Exists(filename, "DATA") then
@@ -34,34 +33,24 @@ local function CreateFile()
     end
 end
 
-
 local function zbase_camp_replace_reload(domsg)
-
     -- Create the file if it doesn't exist
     CreateFile()
-
     local tbl = util.JSONToTable( file.Read(filename, "DATA") )
     if tbl then
         table.CopyFromTo( tbl, CurrentReplaceList )
-
         if domsg then
             MsgN(loadMSG)
             PrintTable(CurrentReplaceList)
         end
-
         return true
     else
-
         if domsg then
             MsgN(failMSG)
         end
-
         return false
-
     end
-
 end
-
 
 net.Receive("zbase_camp_replace_reload", function()
     
@@ -71,26 +60,20 @@ net.Receive("zbase_camp_replace_reload", function()
     else
         PrintMessage(HUD_PRINTTALK, failMSG)
     end
-
 end)
 
-    -- Tick delayed OnEntityCreated
-local ep2Mounted = IsMounted('ep2')
+-- Tick delayed OnEntityCreated
 hook.Add("OnEntityCreated", "ZBaseReplaceSys", function( ent ) conv.callNextTick( function()
-
     if !ZBCVAR.CampaignReplace:GetBool() then return end
     if !IsValid(ent) then return end
     if ent.IsZBaseNPC then return end -- Don't replace ZBase NPCs with ZBase NPCs!
-
-
+    
     -- Chance based NPC replace
     local _ReplaceData = CurrentReplaceList[ent:GetClass()]
     if _ReplaceData then
-
         -- Make a copy of the replace data table
         local data = table.Copy(_ReplaceData)
-
-
+        
         -- Do the lottery
         -- Pick a random float from 0 - chance for each zbase class
         -- The smallest one wins, and becomes the one to replace the npc
@@ -104,9 +87,7 @@ hook.Add("OnEntityCreated", "ZBaseReplaceSys", function( ent ) conv.callNextTick
             end
         end
         if ZBCls then
-
             local zbaseNPC = ZBaseNPCCopy(ent, ZBCls)
-
             -- Start burrowed
             if ep2Mounted && ent:GetKeyValues().startburrowed then
                 sound.Play("npc/antlion/digup1.wav", zbaseNPC:GetPos(), 100, math.random(90, 110), 1)
@@ -114,10 +95,7 @@ hook.Add("OnEntityCreated", "ZBaseReplaceSys", function( ent ) conv.callNextTick
             end
             
         end
-
     end
-
 end) end)
-
 
 zbase_camp_replace_reload()

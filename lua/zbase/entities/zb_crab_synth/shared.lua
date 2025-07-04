@@ -1,23 +1,17 @@
 local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 
-
 -- The NPC class
 -- Can be any existing NPC in the game
 -- If you want to make a human that can use weapons, you should probably use "npc_combine_s" or "npc_citizen" for example
 -- Use "npc_zbase_snpc" if you want to create a brand new SNPC
 NPC.Class = "npc_zbase_snpc"
 
-
 NPC.Name = "Crab Synth" -- Name of your NPC
 NPC.Category = "HL2: Combine" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
 
-
 ZBaseAddGlowingEye("CrabGlow", "models/zippy/synth.mdl", 0, "Box09", Vector(12,7,0), 65, Color(0, 75, 150))
-
-
-
 
 sound.Add({
     name = "ZBaseCrabSynth.Step",
@@ -32,7 +26,6 @@ sound.Add({
     },
 })
 
-
 sound.Add({
     name = "ZBaseCrabSynth.Idle",
 	channel = CHAN_VOICE,
@@ -45,7 +38,6 @@ sound.Add({
 		"npc/crabsynth/cs_idle03.wav",
     }
 })
-
 
 sound.Add({
     name = "ZBaseCrabSynth.Alert",
@@ -60,7 +52,6 @@ sound.Add({
     }
 })
 
-
 sound.Add({
     name = "ZBaseCrabSynth.HearSound",
 	channel = CHAN_VOICE,
@@ -71,7 +62,6 @@ sound.Add({
         "npc/crabsynth/cs_distant01.wav",
     }
 })
-
 
 sound.Add({
     name = "ZBaseCrabSynth.LostEnemy",
@@ -84,7 +74,6 @@ sound.Add({
     }
 })
 
-
 sound.Add({
     name = "ZBaseCrabSynth.Announce",
 	channel = CHAN_VOICE,
@@ -95,7 +84,6 @@ sound.Add({
         "npc/crabsynth/cs_pissed01.wav",
     }
 })
-
 
 sound.Add({
     name = "ZBaseCrabSynth.Pain",
@@ -108,7 +96,6 @@ sound.Add({
     }
 })
 
-
 sound.Add({
     name = "ZBaseCrabSynth.SeeDanger",
 	channel = CHAN_VOICE,
@@ -119,7 +106,6 @@ sound.Add({
         "npc/crabsynth/cs_roar01.wav",
     }
 })
-
 
 sound.Add({
     name = "ZBaseCrabSynth.Death",
@@ -132,7 +118,6 @@ sound.Add({
     }
 })
 
-
 sound.Add({
     name = "ZBaseCrabSynth.MeleeHit",
 	channel = CHAN_AUTO,
@@ -143,7 +128,6 @@ sound.Add({
         "npc/crabsynth/cs_skewer.wav",
     }
 })
-
 
 sound.Add({
     name = "ZBaseCrabSynth.MinigunLoop",
@@ -156,7 +140,6 @@ sound.Add({
     }
 })
 
-
 sound.Add({
     name = "ZBaseCrabSynth.MinigunStart",
 	channel = CHAN_AUTO,
@@ -168,7 +151,6 @@ sound.Add({
     }
 })
 
-
 sound.Add({
     name = "ZBaseCrabSynth.MinigunStop",
 	channel = CHAN_AUTO,
@@ -179,5 +161,3 @@ sound.Add({
 		"npc/crabsynth/minigun_stop.wav",
     }
 })
-
-

@@ -1,8 +1,12 @@
 ZBaseInstalled = true
 
+--[[
+======================================================================================================================================================
+                                           CONV CHECK
+============================================= =========================================================================================================
+--]]
 
 if CLIENT then
-
     function MissingConvMsg()
         local frame = vgui.Create("DFrame")
         frame:SetSize(300, 125)
@@ -25,7 +29,6 @@ if CLIENT then
     end
 
 elseif SERVER && ( !file.Exists("convenience/adam.lua", "LUA") && !conv ) then
-
     -- Conv lib not on on server, send message to clients
     hook.Add("PlayerInitialSpawn", "convenienceerrormsg", function( ply )
         local sendstr = 'MissingConvMsg()'
@@ -43,13 +46,11 @@ elseif SERVER && ( !file.Exists("convenience/adam.lua", "LUA") && !conv ) then
 
 end
 
-
 --[[
 ======================================================================================================================================================
                                            WELCOME MESSAGE OR SOMETHING IDK
 ======================================================================================================================================================
 --]]
-
 
 if SERVER then
     ZBaseDidConsoleLogo = ZBaseDidConsoleLogo
@@ -71,38 +72,27 @@ end
 ======================================================================================================================================================
 --]]
 
-
 if SERVER then
-
     util.AddNetworkString("ZBaseListFactions")
     util.AddNetworkString("ZBase_GetFactionsFromServer")
     util.AddNetworkString("ZBaseClientReload")
     util.AddNetworkString("ZBaseReload")
-
+    util.AddNetworkString("ZBaseUpdateSpawnMenuFactionDropDown")
 
     net.Receive("ZBase_GetFactionsFromServer", function(_, ply)
         ZBaseListFactions(_, ply)
     end)
 
     net.Receive("ZBaseReload", function()
-
         ZBase_RegisterHandler:NetworkedReload()
-
     end)
-
 end
-
 
 if CLIENT then
-
     net.Receive("ZBaseClientReload", function()
-
         ZBase_RegisterHandler:Reload()
-
     end)
-
 end
-
 
 --[[
 ======================================================================================================================================================
@@ -110,9 +100,10 @@ end
 ======================================================================================================================================================
 --]]
 
-
 game.AddParticles("particles/zbase/zbase_blood_impact.pcf")
 game.AddParticles("particles/zbase/hl2mmod_muzzleflashes_npc.pcf")
+game.AddParticles("particles/zbase/weapon_mp5_bmbs.pcf")
+game.AddParticles("particles/zbase/weapon_shotgun.pcf")
 
 game.AddParticles("particles/striderbuster.pcf")
 game.AddParticles("particles/mortarsynth_fx.pcf")
@@ -120,6 +111,7 @@ game.AddParticles("particles/mortarsynth_fx.pcf")
 PrecacheParticleSystem("blood_impact_zbase_green")
 PrecacheParticleSystem("blood_impact_zbase_black")
 PrecacheParticleSystem("blood_impact_zbase_blue")
+PrecacheParticleSystem("blood_impact_zbase_synth")
 PrecacheParticleSystem("striderbuster_break")
 PrecacheParticleSystem("striderbuster_break_shell")
 
@@ -127,13 +119,14 @@ PrecacheParticleSystem("hl2mmod_muzzleflash_npc_ar2")
 PrecacheParticleSystem("hl2mmod_muzzleflash_npc_pistol")
 PrecacheParticleSystem("hl2mmod_muzzleflash_npc_shotgun")
 
+PrecacheParticleSystem("world_weapon_mp5_muzzleflash_bmb")
+PrecacheParticleSystem("world_weapon_shotgun_muzzleflash")
 
 --[[
 ======================================================================================================================================================
                                            DECALS
 ======================================================================================================================================================
 --]]
-
 
 game.AddDecal("ZBaseBloodBlack", {
     "decals/zbase_blood_black/blood1",
@@ -180,14 +173,11 @@ game.AddDecal("ZBaseBloodBlue", {
     "decals/zbase_blood_blue/blood6",
 })
 
-
-
 --[[
 ======================================================================================================================================================
                                            SOUNDS
 ======================================================================================================================================================
 --]]
-
 
 sound.Add( {
 	name = "ZBase.Melee1",
@@ -233,7 +223,6 @@ sound.Add( {
     }
 } )
 
-
 sound.Add({
     name = "ZBase.Step",
 	channel = CHAN_AUTO,
@@ -251,55 +240,15 @@ sound.Add({
     },
 })
 
-
 --[[
 ======================================================================================================================================================
-                                           ESSENTIAL GLOBALS
+                                           SET SPAWN MENU CATEGORY ICONS
 ======================================================================================================================================================
 --]]
 
-
-ZBase_RegisterHandler = {}
-ZBaseNPCs = {}
-ZBaseSpawnMenuNPCList = {}
-ZBaseDynSplatterInstalled = file.Exists("dynsplatter", "LUA")
-ZBaseNPCWeps = ZBaseNPCWeps or {}
-
-
-if SERVER then
-    ZBaseNPCInstances = ZBaseNPCInstances or {}
-    ZBaseNPCInstances_NonScripted = ZBaseNPCInstances_NonScripted or {}
-    ZBaseBehaviourTimerFuncs = ZBaseBehaviourTimerFuncs or {}
-    ZBaseRelationshipEnts = ZBaseRelationshipEnts or {}
-    ZBaseGibs = ZBaseGibs or {}
-    ZBasePatchTable = {}
-    ZBaseLastSavedFileTimeRegistry = ZBaseLastSavedFileTimeRegistry or {} -- For autorefresh
-end
-
-
-function ZBaseListFactions( _, ply )
-
-    if SERVER then
-        local factions = {none=true, neutral=true, ally=true}
-
-        for k, v in pairs(ZBaseNPCs) do
-            if v.ZBaseStartFaction then
-                factions[v.ZBaseStartFaction] = true
-            end
-        end
-
-        net.Start("ZBaseListFactions")
-        net.WriteTable(factions)
-        net.Send(ply)
-    end
-
-    if CLIENT then
-        net.Start("ZBase_GetFactionsFromServer")
-        net.SendToServer()
-    end
-
-end
-
+list.Set("ContentCategoryIcons", "HL2: Humans + Resistance",    "games/16/hl2.png")
+list.Set("ContentCategoryIcons", "HL2: Combine",                "games/16/hl2.png")
+list.Set("ContentCategoryIcons", "HL2: Zombies + Enemy Aliens",  "games/16/hl2.png")
 
 --[[
 ======================================================================================================================================================
@@ -307,176 +256,111 @@ end
 ======================================================================================================================================================
 --]]
 
+-- If not already ran, run now
+include("autorun/conv.lua")
 
-local function IncludeFiles()
+AddCSLuaFile("zbase/sh_globals_pri.lua")
+AddCSLuaFile("zbase/sh_globals_pub.lua")
+AddCSLuaFile("zbase/sh_override_functions.lua")
+include("zbase/sh_globals_pri.lua")
+include("zbase/sh_globals_pub.lua")
 
-    include("zbase/sh_globals_pri.lua")
-    include("zbase/sh_globals_pub.lua")
-    include("zbase/sh_hooks.lua")
-    include("zbase/sh_cvars.lua")
-    include("zbase/sh_controller.lua")
-    include("zbase/sh_properties.lua")
+conv.includeDir(
+    "zbase", 
+    -- These require special procedures so they are skipped
+    {"sh_override_functions", "npc_patches", "entities", "npc_base", "sh_globals_"} 
+)
 
-
-    if SERVER then
-
-        include("zbase/sv_schedules.lua")
-        include("zbase/sv_meta_npc_extended.lua")
-        include("zbase/sv_behaviour_system.lua")
-        include("zbase/sv_spawnnpc.lua")
-        include("zbase/sv_enginewep_translation.lua")
-        include("zbase/sv_replacer.lua")
-
-
-        -- Include NPC enhancement files
-        local files = file.Find("zbase/npc_patches/*","LUA")
-        local enhPath = "zbase/npc_patches/"
-        for _, v in ipairs(files) do
-            include(enhPath..v)
-        end
-
+if SERVER then
+    -- Include NPC patch files
+    local files = file.Find("zbase/npc_patches/*","LUA")
+    local enhPath = "zbase/npc_patches/"
+    for _, v in ipairs(files) do
+        include(enhPath..v)
     end
 
-
-    if CLIENT then
-        include("zbase/cl_spawnmenu.lua")
-        include("zbase/cl_toolmenu.lua")
-        include("zbase/cl_npcspawninfo.lua")
-    end
-
-end
-
-
-local function AddCSLuaFiles()
-    AddCSLuaFile("zbase/sh_cvars.lua")
-    AddCSLuaFile("zbase/sh_globals_pri.lua")
-    AddCSLuaFile("zbase/sh_globals_pub.lua")
-    AddCSLuaFile("zbase/sh_override_functions.lua")
-    AddCSLuaFile("zbase/sh_hooks.lua")
-    AddCSLuaFile("zbase/sh_controller.lua")
-    AddCSLuaFile("zbase/sh_properties.lua")
-
-    AddCSLuaFile("zbase/cl_spawnmenu.lua")
-    AddCSLuaFile("zbase/cl_toolmenu.lua")
-    AddCSLuaFile("zbase/cl_npcspawninfo.lua")
-
-    -- Add zbase entity files
+    -- Add shared files of all ZBase npcs to clients when they join
     local _, dirs = file.Find("zbase/entities/*","LUA")
     for _, v in ipairs(dirs) do
         AddCSLuaFile("zbase/entities/"..v.."/shared.lua")
     end
 end
 
-
-AddCSLuaFiles()
-IncludeFiles()
-
-
 --[[
 ======================================================================================================================================================
-                                           REGISTER THE BLOODY BASE AND NPCS
-                                           ADD TO SPAWNMENU
+                                           REGISTER / ADD TO SPAWN MENU FUNCS
 ======================================================================================================================================================
 --]]
 
-
 function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
-
     local New_NPCTablesToInheritFrom = {}
 
     for CurInheritClass, CurInheritTable in pairs(NPCTablesToInheritFrom) do
-
-
         for NPCClass, NPCTable in pairs(ZBaseNPCs) do
-
             if NPCClass == "npc_zbase" then continue end -- Don't do shit to the base
 
-
             if NPCTable.Inherit == CurInheritClass then
-
-
-
                 table.Inherit(NPCTable, CurInheritTable)
                 table.Inherit(NPCTable.Behaviours, CurInheritTable.Behaviours)
 
                 NPCTable.BaseClass = nil
                 NPCTable.Behaviours.BaseClass = nil
 
-
                 New_NPCTablesToInheritFrom[NPCClass] = NPCTable
-
             end
-
         end
-
-
-
     end
-
-
 
     if !table.IsEmpty(New_NPCTablesToInheritFrom) then
         self:NPCsInherit(New_NPCTablesToInheritFrom)
     end
-
 end
 
-
 function ZBase_RegisterHandler:RegBase()
-
     ZBaseNPCs["npc_zbase"] = {}
     ZBaseNPCs["npc_zbase"].Behaviours = {}
     ZBaseNPCs["npc_zbase"].IsZBaseNPC = true
 
-    local NPCBasePrefix = "zbase/npc_base_"
+    local NPCBasePrefix = "zbase/npc_base/"
 
     if SERVER && !ZBase_AddedBaseLuaFilesToClient then
-        AddCSLuaFile(NPCBasePrefix.."sentence.lua")
+        AddCSLuaFile(NPCBasePrefix.."sh_sentence.lua")
         AddCSLuaFile(NPCBasePrefix.."shared.lua")
+        AddCSLuaFile(NPCBasePrefix.."sh_classname.lua")
         ZBase_AddedBaseLuaFilesToClient = true
     end
 
-    include(NPCBasePrefix.."sentence.lua")
+    include(NPCBasePrefix.."sh_sentence.lua")
     include(NPCBasePrefix.."shared.lua")
+    include(NPCBasePrefix.."sh_classname.lua")
 
     if SERVER then
-        include(NPCBasePrefix.."internal.lua")
-        include(NPCBasePrefix.."util.lua")
+        include(NPCBasePrefix.."sv_internal.lua")
+        include(NPCBasePrefix.."sv_util.lua")
         include(NPCBasePrefix.."init.lua")
     end
-
 end
 
-
 function ZBase_RegisterHandler:NPCReg( name )
-
     if name != "npc_zbase" then
-
         local path = "zbase/entities/"..name.."/"
         local sh = path.."shared.lua"
         local cl = path.."cl_init.lua"
         local sv = path.."init.lua"
 
-
         if file.Exists(sh, "LUA") && (CLIENT or file.Exists(sv, "LUA")) then
-
             ZBaseNPCs[name] = {}
             ZBaseNPCs[name].Behaviours = {}
 
-
             include(sh)
 
-
             if SERVER then
-
                 include(sv)
-
 
                 local bh = path.."behaviour.lua"
                 if file.Exists(bh, "LUA") then
                     include(bh)
                 end
-
 
                 -- Store internal vars
                 ZBaseNPCs[name].EInternalVars = {}
@@ -486,46 +370,37 @@ function ZBase_RegisterHandler:NPCReg( name )
                     end
                 end
 
-
+                -- Make dupable if using custom class
+                duplicator.RegisterEntityClass(name, function(ply, _)
+                    return duplicator.GenericDuplicatorFunction(ply, {})
+                end)
             end
-
 
             if file.Exists(cl, "LUA") && CLIENT then
                 include(cl)
             end
-
         end
     end
-
 end
 
-
-
 function ZBase_RegisterHandler:RegNPCs()
-
     -- Empty NPC register
     table.Empty(ZBaseNPCs)
 
-
     -- Register base
     self:RegBase()
-
 
     -- Register all ZBase NPCs
     local _, dirs = file.Find("zbase/entities/*","LUA")
     for _, v in ipairs(dirs) do
         self:NPCReg(v)
     end
-
 end
 
-
 function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
-
     for cls, t in pairs( ZBaseNPCs ) do
         if t.Category == false then continue end -- Don't add to menu
         if cls == "npc_zbase" then continue end -- Don't add base to menu
-
 
         -- ZBase spawn menu tab
         local ZBaseSpawnMenuTbl = {
@@ -548,10 +423,10 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             BodyGroups = BodyGroups,
             StartHealth = t.StartHealth,
             Material = t.Material,
+            Author=t.Author,
             IconOverride = "entities/"..cls..".png",
         }
         ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
-
 
         -- Regular npc spawn menu
         if ZBCVAR.DefaultMenu:GetBool() then
@@ -565,26 +440,39 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
                 return bt
             end
 
-
             local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
             local cat = RegularSpawnMenuTable.Category
-            local split = isstring(cat) && string.Split(cat, ": ") -- Split away prefixes such as "HL2:"
-            local newcat = istable(split) && #split >= 2 && split[2]
             local kvs = RegularSpawnMenuTable.KeyValues
             if kvs then
                 kvs["parentname"] = cls
             end
 
-
             local sFlags = RegularSpawnMenuTable.TotalSpawnFlags or SpawnFlagTblToBit()
 
-
             RegularSpawnMenuTable.TotalSpawnFlags = sFlags
-            RegularSpawnMenuTable.Category = newcat or cat
+
+            -- Mix with regular NPCs, or don't
+            if ZBCVAR.MenuMixin:GetBool() then
+                local split = string.Split(cat, ": ")
+                
+                if #split == 2 then
+                    RegularSpawnMenuTable.Category = split[2]
+                else
+                    RegularSpawnMenuTable.Category = cat
+                end
+            else
+                RegularSpawnMenuTable.Category = cat
+            end
 
             local clsname = "zbase_"..cls
-            if ZBCVAR.Replace:GetBool() && ZBASE_MENU_REPLACEMENTS[cls] then
-                clsname = ZBASE_MENU_REPLACEMENTS[cls]
+            if ZBASE_MENU_REPLACEMENTS[cls] then
+                if ZBCVAR.MenuMixin:GetBool() then
+                    RegularSpawnMenuTable.Name = "[ZBASE] " .. RegularSpawnMenuTable.Name
+                end
+
+                if ZBCVAR.Replace:GetBool() then
+                    clsname = ZBASE_MENU_REPLACEMENTS[cls]
+                end
             end
 
             list.Set("NPC", clsname, RegularSpawnMenuTable) -- Add to regular spawn menu
@@ -592,9 +480,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
     end
 end
 
-
 function ZBase_RegisterHandler:Reload()
-
     self:RegNPCs()
     self:NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
     self:AddNPCsToSpawnMenu()
@@ -602,39 +488,33 @@ function ZBase_RegisterHandler:Reload()
     if SERVER && ZBCVAR.ReloadSpawnMenu:GetBool() then
         RunConsoleCommand("spawnmenu_reload")
     end
-
-
 end
 
-
 function ZBase_RegisterHandler:Load()
-
     self:RegNPCs()
     self:NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
     self:AddNPCsToSpawnMenu()
-
-
 end
 
-
 function ZBase_RegisterHandler:NetworkedReload()
-
     ZBase_RegisterHandler:Reload()
 
     net.Start("ZBaseClientReload")
     net.Broadcast()
-
 end
 
+--[[
+======================================================================================================================================================
+                                           AUTO RELOAD BECAUSE I BROKE LUA REFRESH XD
+                                           IVAN VLADIMIR CONFIRMS
+======================================================================================================================================================
+--]]
 
 if SERVER then
     concommand.Add("zbase_reload", function(ply)
-
         ZBase_RegisterHandler:NetworkedReload()
         conv.devPrint(Color(0, 255, 200), "ZBase reloaded!")
-
     end)
-
 
     local function FetchFilenamesForAddonsInDevelopment()
         local root = "addons/"
@@ -642,11 +522,11 @@ if SERVER then
 
         -- ZBase installed as legacy addon
         if file.Find("zbase/npc_base_internal.lua", "GAME") then
-            table.insert(filenames, "zbase/npc_base_internal.lua")
-            table.insert(filenames, "zbase/npc_base_init.lua")
-            table.insert(filenames, "zbase/npc_base_shared.lua")
-            table.insert(filenames, "zbase/npc_base_util.lua")
-            table.insert(filenames, "zbase/npc_base_sentence.lua")
+            table.insert(filenames, "zbase/npc_base/sv_internal.lua")
+            table.insert(filenames, "zbase/npc_base/init.lua")
+            table.insert(filenames, "zbase/npc_base/shared.lua")
+            table.insert(filenames, "zbase/npc_base/sv_util.lua")
+            table.insert(filenames, "zbase/npc_base/sh_sentence.lua")
 
             local files = file.Find("zbase/npc_patches/*", "LUA")
             for _, f in ipairs(files) do
@@ -681,11 +561,9 @@ if SERVER then
         return filenames
     end
 
-
     concommand.Add("zbase_update_autorefresh", function()
         ZBaseFilesToAutorefresh = FetchFilenamesForAddonsInDevelopment()
     end)
-
 
     local function AutoRefreshFunc()
         ZBaseFilesToAutorefresh = ZBaseFilesToAutorefresh or FetchFilenamesForAddonsInDevelopment()
@@ -704,7 +582,6 @@ if SERVER then
         end
     end
 
-
     local Developer = GetConVar("developer")
     timer.Create("ZBaseAutoRefresh_Base (set developer to 0 if performance is impacted too much!)", 4, 0, function()
         if !Developer:GetBool() then return end
@@ -713,9 +590,14 @@ if SERVER then
     end)
 end
 
+--[[
+======================================================================================================================================================
+                                           REGISTER THE BLOODY BASE AND NPCS
+                                           ADD TO SPAWNMENU
+======================================================================================================================================================
+--]]
 
 ZBase_RegisterHandler:Load()
-
 
 if SERVER then
     conv.devPrint(Color(0, 255, 200), "ZBase autorun complete!")

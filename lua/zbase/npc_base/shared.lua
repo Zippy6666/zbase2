@@ -1,5 +1,5 @@
-local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
-
+local NPC = ZBaseNPCs["npc_zbase"]
+-- ABOVE SHOULD BE "local NPC = FindZBaseTable(debug.getinfo(1, 'S'))" IN YOUR FILE
 
 -- The NPC class
 -- Can be any existing NPC in the game
@@ -7,8 +7,8 @@ local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 -- Use "npc_zbase_snpc" if you want to create a brand new SNPC
 NPC.Class = "npc_combine_s"
 
-
 NPC.Name = "Base" -- Name of your NPC
 NPC.Category = "Other" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
+NPC.Author = "ZBASE" -- Put your name here

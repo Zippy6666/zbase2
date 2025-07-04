@@ -1,7 +1,7 @@
 TOOL.AddToMenu = true
-TOOL.Category = "ZBASE"
+TOOL.Category = "NPC"
 
-local toolname = "ZBASE: Mover"
+local toolname = "Mover"
 TOOL.Name = toolname
 TOOL.Description = "Move NPCs."
 
@@ -96,9 +96,6 @@ if CLIENT then
     local function ToggleNPCHalo( npc, tblname )
         if table.RemoveByValue(LocalPlayer()[tblname], npc) == false then
             npc:CONV_StoreInTable(LocalPlayer()[tblname])
-            notification.AddLegacy( "Added to "..tblname , NOTIFY_GENERIC, 2 )
-        else
-            notification.AddLegacy( "Removed from "..tblname, NOTIFY_UNDO, 2 )
         end
     end
     

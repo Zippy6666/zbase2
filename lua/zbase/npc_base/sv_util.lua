@@ -1,10 +1,40 @@
 local NPC = ZBaseNPCs["npc_zbase"]
-local KeepCorpses = GetConVar("ai_serverragdolls")
-local MinMaxCache = {}
+local cacheGetNearbyAlliesOptimized = {}
 
+-- These are functions that you can call, don't change them
 
-    // These are functions that you can call, don't change them
+--[[
+==================================================================================================
+                                           CONTROLLER
+==================================================================================================
+--]]
 
+-- Adds a new attack/bind that can be triggered via the controller
+-- pressFunc and releaseFunc are called respectively when the key is pressed and released
+-- attackName should be the name of your attack. Example: "Charge Attack"
+function NPC:AddControllerAttack(pressFunc, releaseFunc, attackName)
+    self:ZBASE_ControllerAddAttack(pressFunc, releaseFunc, nil, attackName)
+end
+
+-- Returns wheter or not the NPC is being controlled by a player
+function NPC:IsBeingControlled()
+    return self.ZBASE_IsPlyControlled or false
+end
+
+-- Get where the player is aiming
+function NPC:ControllerTargetPos()
+    return self:ZBASE_Controller_GetBullseye():GetPos()
+end
+
+-- Attack the bullseye entity that follows the players cursor
+function NPC:StartAttackBullseye()
+    self:ZBASE_Controller_TargetBullseye(true)
+end
+
+-- Stop attacking the bullseye entity that follows the players cursor
+function NPC:StopAttackBullseye()
+    self:ZBASE_Controller_TargetBullseye(false)
+end
 
 --[[
 ==================================================================================================
@@ -12,21 +42,21 @@ local MinMaxCache = {}
 ==================================================================================================
 --]]
 
-
-    -- Play an activity or sequence
-    -- 'anim' - The sequence (as a string) or activity (https://wiki.facepunch.com/gmod/Enums/ACT) to play
-    -- 'faceEnemy' - Set to true to constantly face enemy while the animation is playing
-    -- 'extraData' (table)
-        -- extraData.isGesture - If true, it will play the animation as a gesture
-        -- extraData.face - Position or entity to constantly face, if set to false, it will face the direction it started the animation in
-        -- extraData.speedMult - Speed multiplier for the animation
-        -- extraData.duration - The animation duration
-        -- extraData.faceSpeed - Face turn speed
-        -- extraData.noTransitions - If true, it won't do any transition animations
-        -- extraData.freezeForever - If true, the frozen state of the npc will never end, this should really just be used for the death animation
-        -- extraData.onFinishFunc - Function to play when the animation finishes
-        -- extraData.onFinishFuncArgs - Table of arguments to pass in onFinishFunc
-    -- Returns the provided 'extraData' table or an empty table if none was provided
+-- Play an activity or sequence
+-- 'anim' - The sequence (as a string) or activity (https://wiki.facepunch.com/gmod/Enums/ACT) to play
+-- 'faceEnemy' - Set to true to constantly face enemy while the animation is playing
+-- 'extraData' (table)
+    -- extraData.isGesture - If true, it will play the animation as a gesture
+    -- extraData.face - Position or entity to constantly face, if set to false, it will face the direction it started the animation in
+    -- extraData.speedMult - Speed multiplier for the animation
+    -- extraData.duration - The animation duration
+    -- extraData.faceSpeed - Face turn speed
+    -- extraData.noTransitions - If true, it won't do any transition animations
+    -- extraData.freezeForever - If true, the frozen state of the npc will never end, this should really just be used for the death animation
+    -- extraData.onFinishFunc - Function to play when the animation finishes
+    -- extraData.onFinishFuncArgs - Table of arguments to pass in onFinishFunc
+    -- extraData.forcedTransitionFrom - If set, it will force the animation to transition from this act/seq
+-- Returns the provided 'extraData' table or an empty table if none was provided
 function NPC:PlayAnimation( anim, faceEnemy, extraData )
     extraData = extraData or {}
 
@@ -39,14 +69,12 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     if extraData.face == false then
         face = false
     end
-
-
-    local moreArgs = {
+        local moreArgs = {
         freezeForever = extraData.freezeForever,
         onFinishFunc = extraData.onFinishFunc,
         onFinishFuncArgs = extraData.onFinishFuncArgs,
+        forcedTransitionFrom = extraData.forcedTransitionFrom
     }
-
 
     -- Deprecated stuff
     local loop = nil
@@ -66,39 +94,33 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     return extraData or {}
 end
 
-
-    -- Stops the current NPC:PlayAnimation() animation from playing
+-- Stops the current NPC:PlayAnimation() animation
 function NPC:StopCurrentAnimation()
     self:InternalStopAnimation()
 end
 
-
-    -- Check if the NPC is currently busy playing an animation
+-- Check if the NPC is currently busy playing an animation
 function NPC:BusyPlayingAnimation()
     return self.DoingPlayAnim
 end
 
-
-    -- Check if the NPC is currently doing the death animation
+-- Check if the NPC is currently doing the death animation
 function NPC:DoingDeathAnimation()
     return self.DoingDeathAnim
 end
 
-
-    -- Return the name of the sequence the NPC currently is playing
+-- Return the name of the sequence the NPC currently is playing
 function NPC:GetCurrentSequenceName()
     return self:GetSequenceName(self:GetSequence())
 end
 
-
-    -- Return the name of the activity the NPC currently is playing
+-- Return the name of the activity the NPC currently is playing
 function NPC:GetCurrentActivityName()
     return self:GetSequenceActivityName(self:GetSequence())
 end
 
-
-    -- Add a new animation event for this sequence at the desired frame
-    -- Use in CustomInitialize
+-- Add a new animation event for this sequence at the desired frame
+-- Use in CustomInitialize
 function NPC:AddAnimationEvent(seq, frame, ev)
     if !self.EnableLUAAnimationEvents then return end
     if(!self.ZBaseLuaAnimationFrames[seq]) then
@@ -113,7 +135,7 @@ function NPC:AddAnimationEvent(seq, frame, ev)
     end
 
     if frame <= self.ZBaseLuaAnimationFrames[seq] then
-        conv.devPrint( "LUA animation event created: ", "[ SEQUENCE: " .. seq .. " FRAMES: " .. self.ZBaseLuaAnimationFrames[seq] .. " ] AT" .. " [ FRAME: " .. frame, " EVENT_ID: " .. ev .. " ]" )
+        -- conv.devPrint( "LUA animation event created: ", "[ SEQUENCE: " .. seq .. " FRAMES: " .. self.ZBaseLuaAnimationFrames[seq] .. " ] AT" .. " [ FRAME: " .. frame, " EVENT_ID: " .. ev .. " ]" )
     else
         conv.devPrint( Color( 255, 0, 0, 255 ), "LUA animation event ERROR! ", "You've tried to create an animation event at frame [" .. frame .. "] while sequence [" .. seq .. "] has only [" .. self.ZBaseLuaAnimationFrames[seq] .. "] frame/s." )
         return false
@@ -125,28 +147,25 @@ function NPC:AddAnimationEvent(seq, frame, ev)
     table.insert( self.ZBaseLuaAnimEvents[seq][frame], ev )
 end
 
-
 --[[
 ==================================================================================================
                                            MELEE ATTACK
 ==================================================================================================
 --]]
 
-
-    -- Triggers the base melee attack
-    -- 'forceFaceEnt' - Force the NPC to face this entity while attacking
+-- Triggers the base melee attack
+-- 'forceFaceEnt' - Force the NPC to face this entity while attacking
 function NPC:MeleeAttack( forceFaceEnt )
     self.MeleeEntToFace = forceFaceEnt
 
-        -- Animation --
+    -- Animation
     if !table.IsEmpty(self.MeleeAttackAnimations) then
         self:MeleeAnimation()
     end
-    
+
     self.MeleeEntToFace = nil
 
-
-        -- Damage --
+    -- Damage
     local dmgData = {
         dist=self.MeleeDamage_Distance,
         ang=self.MeleeDamage_Angle,
@@ -168,24 +187,18 @@ function NPC:MeleeAttack( forceFaceEnt )
             self:InternalMeleeAttackDamage(dmgData)
         end)
     end
-    -----------------------------------------------------------------=#
-
 
     if math.random(1, self.OnMeleeSound_Chance) == 1 then
         self:EmitSound_Uninterupted(self.OnMeleeSounds)
     end
 
-
     self:OnMelee()
 end
 
-
-    -- Triggers the base melee attack damage code
-    -- Returns the entities that was hit by the damage
+-- Triggers the base melee attack damage code
+-- Returns the entities that was hit by the damage
 function NPC:MeleeAttackDamage()
     if self:GetNPCState() == NPC_STATE_DEAD then return end
-
-
     local dmgData = self.CurrentMeleeDMGData
     if !dmgData then
         dmgData = {
@@ -199,14 +212,9 @@ function NPC:MeleeAttackDamage()
             hitSoundProps = self.MeleeDamage_Sound_Prop,
         }
     end
-
-
     local hitEnts = self:InternalMeleeAttackDamage(dmgData)
-
-
     return hitEnts
 end
-
 
 --[[
 ==================================================================================================
@@ -214,25 +222,22 @@ end
 ==================================================================================================
 --]]
 
-
-    -- Triggers the base range attack
+-- Triggers the base range attack
 function NPC:RangeAttack()
         -- Animation --
     local animData = {}
 
-
     if !table.IsEmpty(self.RangeAttackAnimations) then
-
         animData = self:RangeAttackAnimation() or {}
-
     end
-    -----------------------------------------------------------------=#
 
-
-        -- Projectile --
+    -- Projectile
     if self.RangeProjectile_Delay then
+        self.RangeAttackTimerActive = true
 
         timer.Simple(self.RangeProjectile_Delay, function()
+
+            self.RangeAttackTimerActive = nil
 
             if !IsValid(self) then return end
             if self.Dead or self:GetNPCState()==NPC_STATE_DEAD then return end
@@ -240,30 +245,20 @@ function NPC:RangeAttack()
             self:RangeAttackProjectile()
 
         end)
-
     end
-    -----------------------------------------------------------------=#
-
 
     -- Special face code
     if !table.IsEmpty(self.RangeAttackAnimations) && self.RangeAttackFaceEnemy then
-
         self.TimeUntilStopFace = (animData.duration or (self:SequenceDuration() + 0.25)) / (animData.speedMult or 1)
-
         self:Face(self:RangeAttack_IdealFacePos(), self.TimeUntilStopFace, self.RangeAttackTurnSpeed)
-
     end
-    -----------------------------------------------------------------=#
-
 
     if math.random(1, self.OnRangeSound_Chance) == 1 then
         self:EmitSound_Uninterupted(self.OnRangeSounds)
     end
 
-
     self:OnRangeAttack()
 end
-
 
     -- Returns the ideal position to face while range attacking
 function NPC:RangeAttack_IdealFacePos()
@@ -271,7 +266,6 @@ function NPC:RangeAttack_IdealFacePos()
     local pos = IsValid(ene) && self.EnemyVisible && ene:WorldSpaceCenter() or self:Projectile_TargetPos()
     return pos
 end
-
 
     -- Returns the spawn position for the NPC's projectile
 function NPC:Projectile_SpawnPos()
@@ -295,10 +289,10 @@ function NPC:Projectile_SpawnPos()
     return pos
 end
 
-
     -- Returns the target position for the NPC's projectile
 function NPC:Projectile_TargetPos()
     local ene = self:GetEnemy()
+    self:ZBWepSys_SuppressionThink()
     return ( ene && self.EnemyVisible && ene:WorldSpaceCenter() ) or self:Projectile_SpawnPos()+self:GetForward()*400
 end
 
@@ -308,8 +302,7 @@ end
 ==================================================================================================
 --]]
 
-
-    -- Throw a grenade
+-- Throw a grenade
 function NPC:ThrowGrenade()
     self:GrenadeAnimation()
     self:EmitSound_Uninterupted(self.OnGrenadeSounds)
@@ -349,15 +342,12 @@ end
 ==================================================================================================
 --]]
 
-
 function NPC:HasAmmo()
+    local wep = self:GetActiveWeapon()
+    if !IsValid(wep) then return false end
 
-    if !IsValid(self:GetActiveWeapon()) then return false end
-
-    return !self.ZBWepSys_PrimaryAmmo or self.ZBWepSys_PrimaryAmmo>0
-
+    return wep:Clip1() > 0
 end
-
 
 --[[
 ==================================================================================================
@@ -365,13 +355,12 @@ end
 ==================================================================================================
 --]]
 
-
-    -- Give zombie NPCs headcrabs
+-- Give zombie NPCs headcrabs
 function NPC:Zombie_GiveHeadCrabs()
     self:SetSaveValue("m_fIsHeadless", false)
     self:SetBodygroup(1, 1)
 
-    if self:GetClass()=="npc_poisonzombie" then
+    if self:GetEngineClass()=="npc_poisonzombie" then
         self:SetSaveValue("m_nCrabCount", 3)
         self:SetSaveValue("m_bCrabs", {true, true, true})
 
@@ -381,9 +370,8 @@ function NPC:Zombie_GiveHeadCrabs()
     end
 end
 
-
-    -- Emit a foot step sound, should idealy be used instead of regular emit sound code
-    -- Uses self.FootStepSounds
+-- Emit a foot step sound, should idealy be used instead of regular emit sound code
+-- Uses self.FootStepSounds
 function NPC:EmitFootStepSound()
     local stepent = ents.Create("zb_temporary_ent")
     stepent.ShouldRemain = true
@@ -398,25 +386,22 @@ function NPC:EmitFootStepSound()
     SafeRemoveEntityDelayed(stepent, 1)
 end
 
-
-    -- Just like Entity:EmitSound(), except it will prevent certain sounds from playing over it
+-- Just like Entity:EmitSound(), except it will prevent certain sounds from playing over it
 function NPC:EmitSound_Uninterupted( ... )
     ZBase_DontSpeakOverThisSound = true
     self:EmitSound(...)
     ZBase_DontSpeakOverThisSound = false
 end
 
-    -- Returns the name of the NPC's squad
+-- Returns the name of the NPC's squad
 function NPC:SquadName()
     return self:GetKeyValues().squadname
 end
 
-
-    -- Is this NPC even alive at all?
+-- Is this NPC even alive at all?
 function NPC:IsAlive()
     return !(self.Dead or self.DoingDeathAnim or self:GetNPCState() == NPC_STATE_DEAD)
 end
-
 
 --[[
 ==================================================================================================
@@ -424,16 +409,20 @@ end
 ==================================================================================================
 --]]
 
-
-    -- Essentially just a classic ent:Visible() check
-    -- But maybe better performance idk
+-- Essentially just a classic ent:Visible() check
+-- But maybe better performance idk
 function NPC:SeeEne()
     return self.EnemyVisible
 end
 
+-- Essentially just a classic npc:IsMoving() check
+-- But maybe better performance idk
+function NPC:IsMoving_Cheap()
+    return self.ZBase_IsMoving or self.bControllerMoving
+end
 
-    -- Check if the NPC is facing a position or entity
-    -- 'maxYawDifference' - If the yaw difference is less than this, we are facing the entity/position (default 22.5 degrees)
+-- Check if the NPC is facing a position or entity
+-- 'maxYawDifference' - If the yaw difference is less than this, we are facing the entity/position (default 22.5 degrees)
 function NPC:IsFacing( ent_or_pos, maxYawDifference )
     if !ent_or_pos then return end
     if ent_or_pos == NULL then return end
@@ -449,12 +438,10 @@ function NPC:IsFacing( ent_or_pos, maxYawDifference )
     return yawDif < (maxYawDifference or 22.5)
 end
 
-
-
-    -- Check if an entity or position is within a certain distance
-    -- If tbl.within is given, return true if the entity is within x units from itself
-    -- If tbl.away is given, return true if the entity is x units away from itself
-    -- Example: self:ZBaseDist( self:GetEnemy(), {within=400, away=200} ) --> Returns true if enemy is 200 units away, but still within 400 units
+-- Check if an entity or position is within a certain distance
+-- If tbl.within is given, return true if the entity is within x units from itself
+-- If tbl.away is given, return true if the entity is x units away from itself
+-- Example: self:ZBaseDist( self:GetEnemy(), {within=400, away=200} ) --> Returns true if enemy is 200 units away, but still within 400 units
 function NPC:ZBaseDist( ent_or_pos, tbl )
     local dSqr
 
@@ -471,8 +458,7 @@ function NPC:ZBaseDist( ent_or_pos, tbl )
     return true
 end
 
-
-    -- Check if an entity is allied with the NPC
+-- Check if an entity is allied with the NPC
 function NPC:IsAlly( ent )
     if !IsValid(ent) then return false end
     if ent==self then return false end
@@ -481,19 +467,18 @@ function NPC:IsAlly( ent )
     return ent.ZBaseFaction == self.ZBaseFaction
 end
 
-
-    -- Same as below but uses a box and is probably more optimized
-    -- Only detects ZBase NPCs
+-- Same as below but uses a box and is probably more optimized
+-- Only detects ZBase NPCs
 function NPC:GetNearbyAlliesOptimized( lenght )
     local allies = {}
 
-    if !MinMaxCache[lenght] then
+    if !cacheGetNearbyAlliesOptimized[lenght] then
         local halflenght = lenght*0.5
         local vec = Vector(halflenght, halflenght, halflenght)
-        MinMaxCache[lenght] = vec
+        cacheGetNearbyAlliesOptimized[lenght] = vec
     end
 
-    local vec_add = MinMaxCache[lenght]
+    local vec_add = cacheGetNearbyAlliesOptimized[lenght]
 
     local mypos = self:GetPos()
     local amt = 0
@@ -513,9 +498,8 @@ function NPC:GetNearbyAlliesOptimized( lenght )
     return allies
 end
 
-
-    -- Get nearby allies within a in a certain radius
-    -- Returns an empty table if none was found
+-- Get nearby allies within a in a certain radius
+-- Returns an empty table if none was found
 function NPC:GetNearbyAllies( radius )
     local allies = {}
 
@@ -531,9 +515,8 @@ function NPC:GetNearbyAllies( radius )
     return allies
 end
 
-
-    -- Same as below but uses a box and should be more optimized
-    -- Only returns ZBase NPCs
+-- Same as below but uses a box and should be more optimized
+-- Only returns ZBase NPCs
 function NPC:GetNearestAllyOptimized( lenght )
     local mindist
     local ally
@@ -550,9 +533,8 @@ function NPC:GetNearestAllyOptimized( lenght )
     return ally
 end
 
-
-    -- Get the nearest allied within a in a certain radius
-    -- Returns nil if none was found
+-- Get the nearest allied within a in a certain radius
+-- Returns nil if none was found
 function NPC:GetNearestAlly( radius )
     local mindist
     local ally
@@ -570,13 +552,24 @@ function NPC:GetNearestAlly( radius )
     return ally
 end
 
+-- Get the velocity vector of a moving target
+function NPC:GetMovingTargetVel( trgt )
+    if !IsValid(trgt) then
+        return vector_origin
+    end
+
+    if trgt:IsNPC() then
+        return trgt:GetMoveVelocity()
+    end
+
+    return trgt:GetVelocity()
+end
 
 --[[
 ==================================================================================================
                                            DEATH / GIB STUFF
 ==================================================================================================
 --]]
-
 
 -- Kills the NPC (no death animation)
 -- 'dmginfo' - Damage info, not required
@@ -600,15 +593,14 @@ function NPC:InduceDeath( dmginfo, no_kill_feed_msg )
 
 end
 
-
-    -- Creates a gib entity with the given model
-    -- Returns the gib so that you can do whatever you want with it after creation
-    -- 'model' - The model to use
-    -- 'data' (table)
-        -- 'data.offset' - Vector position offset relative to itself
-        -- 'data.DontBleed' - If true, the gib will not have blood effects
-        -- 'IsRagdoll' - If true, spawn gib as ragdoll
-        -- 'SmartPositionRagdoll' - If true, position the ragdoll like the NPC
+-- Creates a gib entity with the given model
+-- Returns the gib so that you can do whatever you want with it after creation
+-- 'model' - The model to use
+-- 'data' (table)
+    -- 'data.offset' - Vector position offset relative to itself
+    -- 'data.DontBleed' - If true, the gib will not have blood effects
+    -- 'IsRagdoll' - If true, spawn gib as ragdoll
+    -- 'SmartPositionRagdoll' - If true, position the ragdoll like the NPC
 function NPC:CreateGib( model, data )
     return self:InternalCreateGib( model, data )
 end

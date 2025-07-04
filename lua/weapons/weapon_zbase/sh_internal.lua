@@ -1,13 +1,10 @@
 AddCSLuaFile()
 
-
 --[[
 ==================================================================================================
                     !! YOU GOT NOTHING TO DO HERE BOYE, GO BACK TO SHARED !!
 ==================================================================================================
 --]]
-
-
 
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = true -- Add to NPC weapon list
@@ -18,32 +15,51 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 ==================================================================================================
 --]]
 
+function SWEP:InternalInit()
+	-- Store bullet spread vector
+	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
+
+	-- Due to my whoopsies and daisies
+	-- this workaround is now needed for the
+	-- weapon base to function as intended lol
+	self.Primary.ClipSize = self.Primary.DefaultClip
+end
 
 function SWEP:Initialize()
+	self.InitialHoldType = self:GetHoldType()
 	self:Init()
-	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
 end
 
+function SWEP:OwnerChanged()
+	self:InternalInit()
 
-	-- Called when the SWEP should set up its Data Tables.
+	if !SERVER then return end
+	local own = self:GetOwner()
+
+	conv.callNextTick(function()
+		if !IsValid(self) or !IsValid(own) then return end
+
+		if own:IsNPC() then
+			own:ZBASE_SetHoldType(self, self.NPCHoldType)
+		else
+			self:SetHoldType(self.InitialHoldType)
+		end
+	end)
+end
+
+-- Called when the SWEP should set up its Data Tables.
 function SWEP:SetupDataTables()
-
 	self:CustomSetupDataTables()
-
 end
 
-
-	-- Called when the swep thinks. This hook won't be called during the deploy animation and when using Weapon:DefaultReload.
-	-- Works only in players hands. Doesn't work in NPCs hands. Despite being a predicted hook, this hook is called clientside in single player,
-	-- however it will not be recognized as a predicted hook to Player:GetCurrentCommand.
-	-- This hook will be called before Player movement is processed on the client, and after on the server.
-	-- This will not be run during deploy animations after a serverside-only deploy. This usually happens after picking up and dropping an object with +use.
+-- Called when the swep thinks. This hook won't be called during the deploy animation and when using Weapon:DefaultReload.
+-- Works only in players hands. Doesn't work in NPCs hands. Despite being a predicted hook, this hook is called clientside in single player,
+-- however it will not be recognized as a predicted hook to Player:GetCurrentCommand.
+-- This hook will be called before Player movement is processed on the client, and after on the server.
+-- This will not be run during deploy animations after a serverside-only deploy. This usually happens after picking up and dropping an object with +use.
 function SWEP:Think()
-
 	self:CustomThink()
-
 end
-
 
 --[[
 ==================================================================================================
@@ -51,82 +67,136 @@ end
 ==================================================================================================
 --]]
 
+-- Get the bullet position with the specified offset
+-- Or nil if it could not determine one
+function SWEP:GetBulletOffsetPos()
+	local own = self:GetOwner()
+	if !IsValid(own) then return end
 
+	local boneid = own:LookupBone(self.CustomWorldModel.Bone) -- Right Hand
+	if !boneid then return end
+
+	local matrix = own:GetBoneMatrix(boneid)
+	if !matrix then return end
+
+	return LocalToWorld(self.Primary.BulletPos.Offset, self.Primary.BulletPos.AngOffset, matrix:GetTranslation(), matrix:GetAngles())
+end
 
 function SWEP:PrimaryAttack()
-
 	local own = self:GetOwner()
-	local CanAttack = self:CanPrimaryAttack()
+	if !IsValid(own) then return end
 
+	if own:IsNPC() && self.NPCIsMeleeWep then return end
 
-	if own.IsZBaseNPC && !own.ZBWepSys_AllowShoot then return end -- muy imporante
+	-- Only let ZBASE NPCs fire when we ask them to
+	if own.IsZBaseNPC && !own.bZBaseNPCPullTrigger then
+		return
+	end
 
+	-- No ammo
+	-- *click*
+	if !self:CanPrimaryAttack() then
+		-- Notify owner we are dryfiring
+		if IsValid(own)  then
+			own:CONV_TempVar("bIsDryFiring", true, 0.2)
+		end
 
-	if own:IsNPC() && self:NPCPrimaryAttack()!=true && CanAttack && !self.NPCIsMeleeWep then
+		return 
+	end
 
+	-- Owner is NPC
+	if own:IsNPC() then
+		-- Combine workaround
+		if own:GetClass() == "npc_combine_s" then
+			self:Primary_DoCombineSWorkaround()
+		end
 
-		local bullet = {
-			Attacker = own,
-			Inflictor = self,
-			Damage = self.PrimaryDamage,
-			AmmoType = self.Primary.Ammo,
-			Src = own:GetShootPos(),
-			Dir = own:GetAimVector(),
-			Spread = self.BulletSpread,
-			Tracer = self.Primary.TracerChance,
-			TracerName = self.Primary.TracerName,
-			Num = self.Primary.NumShots,
-		}
-		self:FireBullets(bullet)
+		-- ..and default primary has not been prevented
+		if self:NPCPrimaryAttack() != true then
+			-- Do default primary for NPC
 
+			-- Owner or a temporary ent, if we want to adjust the offset
+			-- Will fire the bullet
+			local bulletDispatcherEnt = own
+			local src = own:GetShootPos() -- Bullet start position
 
-		if !self.IsZBaseNPC && self.Primary.TakeAmmoPerShot > 0 then
+			-- Check should use manual positioning
+			if self.Primary.BulletPos.ShouldUse == true then
+				local offsetpos = self:GetBulletOffsetPos()
+				
+				-- Got an offset...
+				if offsetpos then
+					-- Change bullet dispatcher to a temporary ent with the offset position
+					bulletDispatcherEnt = ents.Create("zb_temporary_ent")
+					bulletDispatcherEnt.ShouldRemain = true
+					bulletDispatcherEnt:SetPos(offsetpos)
+					bulletDispatcherEnt:SetNoDraw(true)
+					-- bulletDispatcherEnt:SetModel("models/props_junk/garbage_coffeemug001a.mdl")
+					-- bulletDispatcherEnt:SetMaterial("models/wireframe")
+					bulletDispatcherEnt:Spawn()
+					SafeRemoveEntityDelayed(bulletDispatcherEnt, 1)
+					
+					-- Change src to the offset position
+					src = offsetpos
+
+					debugoverlay.Axis(src, angle_zero, 20, 2, true)
+					debugoverlay.Text(src+vector_up*10, "Bullet start position", 2, false)
+				end
+			end
+			
+			local bullet = {
+				Attacker = own,
+				Inflictor = self,
+				Damage = self.PrimaryDamage,
+				AmmoType = self.Primary.Ammo,
+				Src = src,
+				Dir = own:GetAimVector(),
+				Spread = self.BulletSpread,
+				Tracer = self.Primary.TracerChance,
+				TracerName = self.Primary.TracerName,
+				Num = self.Primary.NumShots,
+			}
+			bulletDispatcherEnt:FireBullets(bullet)
+
+			self:NPCShootEffects()
+			self:EmitSound(self.PrimaryShootSound)
 			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
 		end
 
-
-		self:NPCShootEffects()
-	
-
-		-- Sound
-		self:EmitSound(self.PrimaryShootSound)
-
-	elseif own:IsPlayer() && self:OnPrimaryAttack()!=true && CanAttack then
-
+	-- Owner is player and default primary has not been prevented
+	elseif own:IsPlayer() && self:OnPrimaryAttack() != true then
+		-- Default primary logic for players here
+		-- None for now
 	end
-
 end
- 
 
 function SWEP:TakePrimaryAmmo( num )
-	
 	local own = self:GetOwner()
 
-
 	-- Doesn't use clips
-	if !own.IsZBaseNPC && self.Weapon:Clip1() <= 0 then 
-	
-		if self:Ammo1() <= 0 then return end
-
-
+	if self.Weapon:Clip1() <= 0 then 
 		own:RemoveAmmo( num, self.Weapon:GetPrimaryAmmoType() )
 		return
-
-	end
-	
-
-	if own.IsZBaseNPC then
-
-		own.ZBWepSys_PrimaryAmmo = own.ZBWepSys_PrimaryAmmo - num
-		
-	else
-
-		self.Weapon:SetClip1( self.Weapon:Clip1() - num )	
-
 	end
 
+	self:SetClip1( self:Clip1() - num )	
 end
 
+-- Workaround for combine soldier
+-- Their shooting AI does not match the rest
+function SWEP:Primary_DoCombineSWorkaround()
+	local own = self:GetOwner()
+	if !IsValid(own) then return end
+
+	-- Allow shooting in long bursts
+	own:SetSaveValue("m_nShots", 2)
+
+	-- Prevents combines from spamming their weapon
+	-- TODO: When should this run? It does not always work here
+	if self.NPCBurstMin == 1 && self.NPCBurstMin == self.NPCBurstMax then
+		own:SetSaveValue("m_flShotDelay", math.Rand(self.NPCFireRestTimeMin, self.NPCFireRestTimeMax))
+	end
+end
 
 --[[
 ==================================================================================================
@@ -134,11 +204,9 @@ end
 ==================================================================================================
 --]]
 
-
 function SWEP:SecondaryAttack()
 	self:CustomSecondaryAttack()
 end
-
 
 --[[
 ==================================================================================================
@@ -146,88 +214,110 @@ end
 ==================================================================================================
 --]]
 
+function SWEP:WorldMFlash(effectEnt)
+	local effectEnt = self
+
+	if self:ShouldDrawFakeModel() then
+		effectEnt = self.customWModel -- Client only variable
+
+		-- Only emit effect on client if has fake model
+		if SERVER or !IsValid(effectEnt) then
+			if SERVER then
+				-- Still, emit light on server
+				local iFlags = self.Primary.MuzzleFlashFlags
+				local col = iFlags==5 && "75 175 255" or "255 125 25"
+				ZBaseMuzzleLight( self:GetPos(), 1.5, 256, col )
+
+			end
+			
+			return 
+		end
+	end
+
+	if self.Primary.MuzzleFlashPos.ShouldUse then
+		if math.random(1, self.Primary.MuzzleFlashChance)==1 then
+			local ofs = 	self.Primary.MuzzleFlashPos.Offset
+			local angof = 	self.Primary.MuzzleFlashPos.AngOffset
+
+			ZBaseMuzzleFlashAtPos(
+				effectEnt:GetPos()+effectEnt:GetForward()*ofs.x+effectEnt:GetRight()*ofs.y+effectEnt:GetUp()*ofs.z, 
+				effectEnt:GetAngles()+angof,
+				self.Primary.MuzzleFlashFlags, effectEnt
+			)
+		end
+
+	else
+		local att_num = effectEnt:LookupAttachment("muzzle")
+		if att_num == 0 then
+			att_num = effectEnt:LookupAttachment("0")
+		end
+
+		if math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
+			ZBaseMuzzleFlash(effectEnt, self.Primary.MuzzleFlashFlags, att_num)
+		end
+
+	end
+end
+
+function SWEP:WorldShellEject()
+	local effectEnt = self
+
+	if self:ShouldDrawFakeModel() then
+		effectEnt = self.customWModel -- Client only variable
+
+		-- Only emit effect on client if has fake model
+		if SERVER or !IsValid(effectEnt) then return end
+	end
+
+	local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
+
+	if att then
+		-- Attachment found
+		local effectdata = EffectData()
+		effectdata:SetEntity(effectEnt)
+		effectdata:SetOrigin(att.Pos)
+		effectdata:SetAngles(att.Ang+self.Primary.ShellAngOffset)
+		util.Effect( self.Primary.ShellType, effectdata, true, rf )
+	else
+		-- No attachment
+		local effectdata = EffectData()
+		effectdata:SetEntity(effectEnt)
+		effectdata:SetOrigin(effectEnt:GetPos())
+		effectdata:SetAngles(effectEnt:GetAngles())
+		util.Effect( self.Primary.ShellType, effectdata, true, rf )
+	end
+end
+
+function SWEP:MainEffects()
+	-- Muzzle flash
+	if self.Primary.MuzzleFlash then
+		self:WorldMFlash(effectEnt)
+	end
+
+	-- Shell eject
+	if self.Primary.ShellEject then
+		self:WorldShellEject(effectEnt)
+	end
+end
 
 function SWEP:NPCShootEffects()
-
+	local own = self:GetOwner()
+	if !IsValid(own) then return end 
+	
 	-- Custom
 	local r = self:CustomShootEffects()
 	if r == true then
 		return
 	end
 
-
-	local modelname = self:GetNWString("ZBaseNPCWorldModel", nil)
-	local CustomModel = modelname!=nil && modelname!=""
-	local EffectEnt = CustomModel && ents.Create("base_gmodentity") or self
-	local own = self:GetOwner()
-
-
-	-- Model override effect fix, create temporary a new ent with the same model
-	if CustomModel && IsValid(EffectEnt) && IsValid(own) then
-		EffectEnt:SetModel(modelname)
-		EffectEnt:SetPos(own:GetPos())
-		EffectEnt:SetParent(own)
-		EffectEnt:AddEffects(EF_BONEMERGE)
-		EffectEnt:Spawn()
-		self:DeleteOnRemove(EffectEnt)
+	if self:ShouldDrawFakeModel() then
+		net.Start("ZBASE_MuzzleFlash")
+		net.WriteEntity(self)
+		net.SendPVS(self:GetPos())
 	end
 
-	
-	-- Muzzle flash
-	local att_num = EffectEnt:LookupAttachment("muzzle")
-	if IsValid(EffectEnt) && self.Primary.MuzzleFlash && math.random(1, self.Primary.MuzzleFlashChance)==1 && att_num != 0 then
-
-		if ZBCVAR.MMODMuzzle:GetBool() then
-			local particle = (self.Primary.MuzzleFlashFlags == 1 && "hl2mmod_muzzleflash_npc_pistol")
-			or (self.Primary.MuzzleFlashFlags == 5 && "hl2mmod_muzzleflash_npc_ar2")
-			or (self.Primary.MuzzleFlashFlags == 7 && "hl2mmod_muzzleflash_npc_shotgun")
-			if particle then ParticleEffectAttach( particle, PATTACH_POINT_FOLLOW, EffectEnt, att_num ) end
-		else
-			local effectdata = EffectData()
-			effectdata:SetFlags(self.Primary.MuzzleFlashFlags)
-			effectdata:SetEntity(EffectEnt)
-			util.Effect( "MuzzleFlash", effectdata, true, true )
-		end
-
-		if ZBCVAR.MuzzleLight:GetBool() then
-			local att = EffectEnt:GetAttachment(att_num)
-			local col = self.Primary.MuzzleFlashFlags==5 && "25 125 255" or "255 125 25"
-			local muzzleLight = ents.Create("light_dynamic")
-			muzzleLight:SetKeyValue("brightness", "1")
-			muzzleLight:SetKeyValue("distance", "250")
-			muzzleLight:SetPos(att.Pos)
-			muzzleLight:Fire("Color", col)
-			muzzleLight:Spawn()
-			muzzleLight:Activate()
-			muzzleLight:Fire("TurnOn", "", 0)
-			SafeRemoveEntityDelayed(muzzleLight, 0.1)
-		end
-
-	end
-	
-	-- Shell eject
-	if self.Primary.ShellEject then
-
-		local att = EffectEnt:GetAttachment(EffectEnt:LookupAttachment(self.Primary.ShellEject))
-
-		if att then
-			local effectdata = EffectData()
-			effectdata:SetEntity(EffectEnt)
-			effectdata:SetOrigin(att.Pos)
-			effectdata:SetAngles(att.Ang+self.Primary.ShellAngOffset)
-			util.Effect( self.Primary.ShellType, effectdata, true, rf )
-		end
-	
-	end
-
-
-	if CustomModel then
-		EffectEnt:SetNoDraw(true)
-		SafeRemoveEntityDelayed(EffectEnt, 0.5)
-	end
-
+	self:MainEffects()
 end
-
 
 -- Called so the weapon can override the impact effects it makes.
 function SWEP:DoImpactEffect( tr, damageType )
@@ -239,24 +329,19 @@ function SWEP:DoImpactEffect( tr, damageType )
 
 end
 
-
 --[[
 ==================================================================================================
                             OPTIONS I GUESS IDK
 ==================================================================================================
 --]]
 
-
 -- Should this weapon be dropped when its owner dies? This only works if the player has Player:ShouldDropWeapon set to true.
 function SWEP:ShouldDropOnDie()
-
 	local r = self:CustomShouldDropOnDie()
 	if r != nil then
 		return r
 	end
-
 end
-
 
 --[[
 ==================================================================================================
@@ -264,8 +349,7 @@ end
 ==================================================================================================
 --]]
 
-
-	-- Called when another entity fires an event to this entity.
+-- Called when another entity fires an event to this entity.
 function SWEP:AcceptInput( inputName, activator, called, data )
 
 	local r = self:CustomAcceptInput( inputName, activator, called, data )
@@ -275,9 +359,8 @@ function SWEP:AcceptInput( inputName, activator, called, data )
 
 end
 
-
-	-- Called before firing animation events, such as muzzle flashes or shell ejections.
-	-- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
+-- Called before firing animation events, such as muzzle flashes or shell ejections.
+-- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
 function SWEP:FireAnimationEvent( pos, ang, event, options, source )
 
 	local r = self:CustomFireAnimationEvent( pos, ang, event, options, source )
@@ -287,9 +370,8 @@ function SWEP:FireAnimationEvent( pos, ang, event, options, source )
 
 end
 
-
-	-- Called when the engine sets a value for this scripted weapon.
-	-- See GM:EntityKeyValue for a hook that works for all entities. See ENTITY:KeyValue for an hook that works for scripted entities.
+-- Called when the engine sets a value for this scripted weapon.
+-- See GM:EntityKeyValue for a hook that works for all entities. See ENTITY:KeyValue for an hook that works for scripted entities.
 function SWEP:KeyValue( key, value )
 
 	local r = self:CustomKeyValue( key, value )
@@ -299,17 +381,14 @@ function SWEP:KeyValue( key, value )
 
 end
 
-
-	-- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves or dupes)
-	-- or on a changelevel (for example Half-Life 2 campaign level transitions)
+-- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves or dupes)
+-- or on a changelevel (for example Half-Life 2 campaign level transitions)
 function SWEP:OnRestore()
 end
 
-
-	-- Called whenever the weapons Lua script is reloaded.
+-- Called whenever the weapons Lua script is reloaded.
 function SWEP:OnReloaded()
 end
-
 
 --[[
 ==================================================================================================
@@ -317,21 +396,17 @@ end
 ==================================================================================================
 --]]
 
-
 function SWEP:CanBePickedUpByNPCs()
 	return self.NPCCanBePickedUp
 end
-
 
 function SWEP:GetNPCRestTimes()
 	return self.NPCFireRestTimeMin, self.NPCFireRestTimeMax
 end
 
-
 function SWEP:ZBaseGetNPCBurstSettings()
 	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
 end
-
 
 function SWEP:GetNPCBurstSettings()
 	
@@ -347,13 +422,11 @@ function SWEP:GetNPCBurstSettings()
 
 end
 
-
 function SWEP:GetNPCBulletSpread( proficiency )
 	return (7 - proficiency)*self.NPCBulletSpreadMult
 end
 
-
-	-- This hook is for NPCs, you return what they should try to do with it.
+-- This hook is for NPCs, you return what they should try to do with it.
 function SWEP:GetCapabilities()
 	if self.NPCIsMeleeWep then
 		return bit.bor( CAP_WEAPON_MELEE_ATTACK1, CAP_INNATE_MELEE_ATTACK1 )
@@ -362,13 +435,11 @@ function SWEP:GetCapabilities()
 	end
 end
 
-
 --[[
 ==================================================================================================
                             NPC Stuff: Melee Weapon
 ==================================================================================================
 --]]
-
 
 function SWEP:CanTakeMeleeWepDmg( ent )
     local mtype = ent:GetMoveType()
@@ -378,29 +449,22 @@ function SWEP:CanTakeMeleeWepDmg( ent )
 	or ent:IsNextBot() -- Bextbit
 end
 
-
 function SWEP:NPCMeleeWeaponDamage(dmgData)
 	local own = self:GetOwner()
-
-
 	if !IsValid(own) then return end
-
 
     local ownerpos = own:WorldSpaceCenter()
     local soundEmitted = false
     local hurtEnts = {}
-
 
     for _, ent in ipairs(ents.FindInSphere(ownerpos, self.NPCMeleeWep_DamageDist)) do
         if ent == own then continue end
         if own.GetNPCState && own:GetNPCState() == NPC_STATE_DEAD then continue end
         if !own:Visible(ent) then continue end
 
-
 		local disp = own:Disposition(ent)
         local entpos = ent:WorldSpaceCenter()
         local undamagable = (ent:Health()==0 && ent:GetMaxHealth()==0)
-
 
         -- Angle check
         if self.NPCMeleeWep_DamageAngle != 360 then
@@ -408,11 +472,9 @@ function SWEP:NPCMeleeWeaponDamage(dmgData)
             if self.NPCMeleeWep_DamageAngle < yawDiff then continue end
         end
 
-
         if !self:CanTakeMeleeWepDmg(ent) then
             continue
         end
-
 
         -- Damage
         if !undamagable && disp != D_LI then
@@ -426,7 +488,6 @@ function SWEP:NPCMeleeWeaponDamage(dmgData)
             ent:TakeDamageInfo(dmg)
         end
     
-
         -- Sound
         if !soundEmitted && disp != D_NU then
             ent:EmitSound(self.NPCMeleeWep_HitSound)
@@ -436,13 +497,10 @@ function SWEP:NPCMeleeWeaponDamage(dmgData)
         table.insert(hurtEnts, ent)
     end
 
-
 	self:OnNPCMeleeWeaponDamage( hurtEnts )
-
 
     return hurtEnts
 end
-
 
 --[[
 ==================================================================================================
@@ -450,26 +508,21 @@ end
 ==================================================================================================
 --]]
 
-
 function SWEP:TranslateActivity( act )
 	local own = self:GetOwner()
 
-
 	-- ZBase
 	if own.IsZBaseNPC then
-
 		-- Activity translate override
 		local override = self.ZBase_ActTranslateOverride[act]
 		if isnumber(override) then
 			return override
 		end
 
-
 		local returnValue = own:ZBWepSys_TranslateAct(act, self.ActivityTranslateAI)
 		if isnumber(returnValue) then
 			return returnValue
 		end
-
 
 		-- Melee weapon activities
 		local holdType = self:GetHoldType()
@@ -479,10 +532,13 @@ function SWEP:TranslateActivity( act )
 			if own:IsMoving() && own:GetNavType() == NAV_GROUND then
 				local shouldMeleeRun = (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT or IsValid(own.PlayerToFollow))
 				meleeActOverride = ( shouldMeleeRun && ACT_RUN ) or ACT_WALK
+
 			elseif act == ACT_IDLE_PISTOL or act == ACT_IDLE_RELAXED then
 				return ACT_IDLE
+
 			elseif act == ACT_IDLE_ANGRY_PISTOL or act == ACT_IDLE_ANGRY then
 				return ACT_IDLE_ANGRY_MELEE
+
 			end
 		end
 
@@ -494,9 +550,7 @@ function SWEP:TranslateActivity( act )
 		if isnumber(meleeActOverride) then
 			return meleeActOverride
 		end
-
 	end
-
 
 	-- Custom
 	local r = self:CustomTranslateActivity( act )
@@ -504,129 +558,95 @@ function SWEP:TranslateActivity( act )
 		return r
 	end
 
-
-
 	-- NPC
 	if own:IsNPC() then
-
 		if self.ActivityTranslateAI[ act ] then
 			return self.ActivityTranslateAI[ act ]
 		end
 
 		return -1
-
 	end
-
 
 	-- Player
 	if self.ActivityTranslate[ act ] != nil then
-
 		return self.ActivityTranslate[ act ]
-
 	end
 
-
 	return -1
-
 end
-
 
 --[[
 ==================================================================================================
-                            CLIENT
+                            MODEL DRAWING
 ==================================================================================================
 --]]
 
+function SWEP:ShouldDrawFakeModel()
+	local own = self:GetOwner()
+	return IsValid(own) && self.CustomWorldModel.Active
+end
 
 if CLIENT then
+	function SWEP:DrawFakeModel()
+		local own = self:GetOwner()
 
+		if self:ShouldDrawFakeModel() then
+			if self.customWModel == nil then
+				-- New custom view model
+				self.customWModel = ClientsideModel(self.WorldModel)
+				self.customWModel:SetNoDraw(true)
+			else
+				-- Specify a good position
+				local offsetVec = self.CustomWorldModel.Offset
+				local offsetAng = self.CustomWorldModel.AngOffset
+				
+				local boneid = own:LookupBone(self.CustomWorldModel.Bone) -- Right Hand
+				if !boneid then return end
+
+				local matrix = own:GetBoneMatrix(boneid)
+				if !matrix then return end
+
+				local newPos, newAng = LocalToWorld(offsetVec, offsetAng, matrix:GetTranslation(), matrix:GetAngles())
+
+				self.customWModel:SetPos(newPos)
+				self.customWModel:SetAngles(newAng)
+				self.customWModel:SetupBones()
+				self.customWModel:DrawModel()
+				self:DrawShadow(false)
+			end
+		elseif self.customWModel != nil then
+			self.customWModel:Remove()
+			self.customWModel = nil
+		end
+	end
 
 	function SWEP:DrawWorldModel( flags )
+		self:DrawFakeModel()
 
 		local r = self:CustomDrawWorldModel( flags )
 		if r != nil then
 			return
 		end
 
-
-
-		local own = self:GetOwner()
-
-
-		if IsValid(own) && own:GetNWBool("IsZBaseNPC") then
-
-			if IsValid(self.NPCWorldModelOverride) then
-
-				if !self.NPCWorldModelOverride.SetupDone then
-
-					self.NPCWorldModelOverride:SetNoDraw(true)
-					self.NPCWorldModelOverride:AddEffects(EF_BONEMERGE)
-					self.NPCWorldModelOverride:AddEffects(EF_BONEMERGE_FASTCULL) -- dunno wtf this does but it fixed the leg jankin so
-
-					-- local ed = EffectData()
-					-- ed:SetEntity( self.NPCWorldModelOverride )
-					-- util.Effect( "zbasespawn", ed, true, true )
-
-					self.NPCWorldModelOverride.SetupDone = true
-
-				end
-
-
-				self.NPCWorldModelOverride:SetParent(own)
-				self.NPCWorldModelOverride:DrawModel()
-
-			else
-
-				local modelname = self:GetNWString("ZBaseNPCWorldModel", false)
-
-
-				if modelname then
-					self.NPCWorldModelOverride = ClientsideModel( modelname )
-				else
-					self:DrawModel()	
-				end
-			
-			end
-	
-		else
+		if !self:ShouldDrawFakeModel() then
 			self:DrawModel()
 		end
-
 	end
-
-
 
 	-- Called when we are about to draw the translucent world model.
 	function SWEP:DrawWorldModelTranslucent( flags )
+		self:DrawFakeModel()
 
 		local r = self:CustomDrawWorldModelTranslucent( flags )
 		if r != nil then
 			return
 		end
 
+		if !self:ShouldDrawFakeModel() then
+			self:DrawModel()
+		end
 	end
-
-
 end
-
-
---[[
-==================================================================================================
-                            PreRegisterSWEP
-==================================================================================================
---]]
-
-
--- Add zbase sweps to npc weapon menu if we should
-hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
-
-	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
-		list.Add( "NPCUsableWeapons", { class = class, title = "ZBASE: "..swep.PrintName.." ("..class..")" } )
-        table.insert(ZBaseNPCWeps, class)
-	end
-
-end)
-
 
 --[[
 ==================================================================================================
@@ -634,14 +654,6 @@ end)
 ==================================================================================================
 --]]
 
-
 function SWEP:OnRemove()
-
 	self:CustomOnRemove()
-
-
-	if IsValid(self.NPCWorldModelOverride) then
-		self.NPCWorldModelOverride:Remove()
-	end
-
 end

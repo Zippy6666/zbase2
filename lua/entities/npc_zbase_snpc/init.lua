@@ -1,20 +1,23 @@
 include("shared.lua")
 include("zbase_ai.lua")
 include("zbase_aerial.lua")
-
+include("zbase_poseparam.lua")
 
 ENT.IsZBase_SNPC = true
 
-
 function ENT:Initialize()
+	if !self.UseVPhysics then
+		-- Use normal physics
 
-	self:SetSolid(SOLID_BBOX)
-	self:SetMoveType(MOVETYPE_STEP)
+		self:SetSolid(SOLID_BBOX)
+		self:SetMoveType(MOVETYPE_STEP)
+	end
+
 	self:SetCollisionGroup(COLLISION_GROUP_NPC)
 	self:SetBloodColor(BLOOD_COLOR_RED)
 
 	self.Bullseye = ents.Create("npc_bullseye")
-	self.Bullseye:SetPos(self:GetPos())
+	self.Bullseye:SetPos(self:GetPos()) 
 	self.Bullseye:SetAngles(self:GetAngles())
 	self.Bullseye:SetNotSolid(true)
 	self.Bullseye:SetParent(self)
@@ -37,9 +40,7 @@ function ENT:Initialize()
 	self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 
 	self.ZBase_HasLUAFlyCapability = true -- Set to false whenever flying SNPCs should not be able to make new goals.
-
 end
-
 
 function ENT:Think()
 	-- Make sure we stay invisible when we are dead
@@ -63,9 +64,10 @@ function ENT:Think()
 
 	end
 
+	self:PoseParamThink()
+
 	self:ZBaseThink()
 end
-
 
 function ENT:OnTakeDamage( dmginfo )
 	-- On hurt behaviour
@@ -79,4 +81,3 @@ function ENT:OnTakeDamage( dmginfo )
 		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
 	end
 end
-

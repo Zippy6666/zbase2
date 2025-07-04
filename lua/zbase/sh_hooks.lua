@@ -1,8 +1,5 @@
-local Developer = GetConVar("developer")
-
-
-ReloadedSpawnmenuRecently = false
-
+local Developer             = GetConVar("developer")
+ReloadedSpawnmenuRecently   = false
 
 --[[
 ======================================================================================================================================================
@@ -10,20 +7,16 @@ ReloadedSpawnmenuRecently = false
 ======================================================================================================================================================
 --]]
 
-
 hook.Add("InitPostEntity", "ZBASE", function()
-
     -- Override functions
     timer.Simple(0.5, function()
         include("zbase/sh_override_functions.lua")
     end)
-    
 
+    -- Stuff ran on CLIENT post entity initialization
     if CLIENT then
-
         -- Follow halo table
         LocalPlayer().ZBaseFollowHaloEnts = LocalPlayer().ZBaseFollowHaloEnts or {}
-
 
         -- Add variable that checks if the spawn menu was recently reloaded
         local spawnmenu_reload = concommand.GetTable()["spawnmenu_reload"]
@@ -34,7 +27,6 @@ hook.Add("InitPostEntity", "ZBASE", function()
                 ReloadedSpawnmenuRecently = false 
             end)
         end)
-
 
         -- Welcome screen
         if ZBCVAR.PopUp:GetBool() then
@@ -66,9 +58,7 @@ hook.Add("InitPostEntity", "ZBASE", function()
                 chat.AddText(Color(0, 200, 255), "You can disable the ZBase pop-up in the ZBase settings tab.")
             end
         end
-
     end
-
 end)
 
 --[[
@@ -78,11 +68,9 @@ end)
 --]]
 
 if SERVER then
-
     hook.Add("OnEntityCreated", "ZBASE", function( ent )
         conv.callNextTick(function()
             if !IsValid(ent) then return end
-
 
             -- ZBase init stuff when NOT SPAWNED FROM MENU
             -- (also when not spawned from a dupe)
@@ -94,6 +82,7 @@ if SERVER then
             end    
 
             -- When a entity owned by a ZBase NPC is created
+            -- Catch that
             local own = ent:GetOwner()
             if IsValid(own) && own.IsZBaseNPC then
                 own:OnOwnedEntCreated( ent )
@@ -103,47 +92,41 @@ if SERVER then
                 end
             end
         
+            -- Same thing goes for a paranted entity
             local parent = ent:GetParent()
             if IsValid(parent) && parent.IsZBaseNPC then
                 parent:OnParentedEntCreated( ent )
             end
         end)
 
+        -- Two ticks after any NPC spawns..
+        -- Run some ZBase faction logic
         conv.callAfterTicks(2, function()
-
             if !IsValid(ent) then return end
 
             -- Give ZBASE faction and start using
             local shouldUseRelSys = ZBaseShouldUseRelationshipSys(ent)
             if shouldUseRelSys then
-
                 -- Very important!
                 table.InsertEntity(ZBaseRelationshipEnts, ent)
 
                 -- If a ZBASE NPC, apply the supplied start faction, or the override chosen by the player
                 -- If a different NPC, find a fitting ZBASE faction to apply
                 if ent.IsZBaseNPC or ent.ForceSetZBaseFaction then
-
                     local PlayerFactionOverride = IsValid(ent.ZBase_PlayerWhoSpawnedMe) && ent.ZBase_PlayerWhoSpawnedMe.ZBaseNPCFactionOverride
                     ZBaseSetFaction(ent, PlayerFactionOverride or nil)
-
                 else
-
                     ZBaseSetFaction(ent,
                         ZBaseFactionTranslation[ent.m_iClass or ent:Classify()]
                     )
-
                 end
             end
-
         end)
     end)
 end
 
-
-    -- Override code for spawning zbase npcs from regular spawn menu
+-- Override code for spawning zbase npcs from regular spawn menu
 hook.Add("PlayerSpawnNPC", "ZBASE", function(ply, npc_type, wep_cls)
-
     if ZBase_PlayerSpawnNPCHookCall then
         return
     end
@@ -154,14 +137,10 @@ hook.Add("PlayerSpawnNPC", "ZBASE", function(ply, npc_type, wep_cls)
     local zb_npc_tbl = ZBaseNPCs[npc_type]
 
     if zb_npc_tbl then
-
         Spawn_ZBaseNPC(ply, npc_type, wep_cls, ply:GetEyeTrace())
         return false
-
     end
-
 end)
-
 
 --[[
 ======================================================================================================================================================
@@ -170,37 +149,26 @@ end)
 --]]
 
 if SERVER then
-
     local NextThink = CurTime()
     local NextBehaviourThink = CurTime()
 
-
     hook.Add("Tick", "ZBASE", function()
-
-
         -- Regular think for non-scripted NPCs
-        if NextThink < CurTime() then
+        -- if NextThink < CurTime() then
+        --     for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
+        --         zbaseNPC:ZBaseThink()
 
-            for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
+        --         if zbaseNPC.Patch_Think then
+        --             zbaseNPC:Patch_Think()
+        --         end
+        --     end
 
-                zbaseNPC:ZBaseThink()
-
-                if zbaseNPC.Patch_Think then
-                    zbaseNPC:Patch_Think()
-                end
-
-            end
-
-            NextThink = CurTime()+0.1
-
-        end
-
-
+        --     NextThink = CurTime()+0.1
+        -- end
 
         -- Behaviour tick
         if !GetConVar("ai_disabled"):GetBool()
         && NextBehaviourThink < CurTime() then
-
             for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
                 local entValid = func()
 
@@ -210,16 +178,12 @@ if SERVER then
             end
 
             NextBehaviourThink = CurTime() + 0.4
-
         end
-
 
         for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
             zbaseNPC:FrameTick()
         end
-
     end)
-
 end
 
 --[[
@@ -228,12 +192,9 @@ end
 ======================================================================================================================================================
 --]]
 
-
 if SERVER then
-
     util.AddNetworkString("ZBasePlayerFactionSwitch")
     util.AddNetworkString("ZBaseNPCFactionOverrideSwitch")
-
 
     net.Receive("ZBasePlayerFactionSwitch", function( _, ply )
         local faction = net.ReadString()
@@ -243,7 +204,6 @@ if SERVER then
             v:UpdateRelationships()
         end
     end)
-
 
     net.Receive("ZBaseNPCFactionOverrideSwitch", function( _, ply )
         local faction = net.ReadString()
@@ -255,13 +215,10 @@ if SERVER then
         end
     end)
 
-
     hook.Add("PlayerInitialSpawn", "ZBASE", function( ply )
         ply.ZBaseFaction = "ally"
     end)
-
 end
-
 
 --[[
 ======================================================================================================================================================
@@ -269,13 +226,10 @@ end
 ======================================================================================================================================================
 --]]
 
-
 hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
-
     local attacker = dmg:GetAttacker()
     local infl = dmg:GetInflictor()
     local att_own = (IsValid(attacker) && attacker:GetOwner()) or NULL
-
 
     -- NPCs with ZBaseNPCCopy_DullState should not be able to take damage, nor should they be able to deal damage
     if ent.ZBaseNPCCopy_DullState or attacker.ZBaseNPCCopy_DullState or infl.ZBaseNPCCopy_DullState then
@@ -283,16 +237,13 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
         return true
     end
 
-
     -- Attacker is ZBase NPC
     local zbase_attacker = IsValid(attacker) && attacker.IsZBaseNPC && attacker
-
 
     -- ZBase NPC is the owner of this attacker, maybe this attacker is a grenade
     if IsValid(att_own) && att_own.IsZBaseNPC then
         zbase_attacker = att_own
     end
-
 
     -- Run ZBase NPCs' DealDamage
     if zbase_attacker then
@@ -302,27 +253,21 @@ hook.Add("EntityTakeDamage", "ZBASE", function( ent, dmg )
         end
     end
 
-
     -- Victim is ZBase NPC
     if ent.IsZBaseNPC then
-
         -- Run OnEntityTakeDamage
         local value = ent:OnEntityTakeDamage( dmg )
         if value != nil then
             return value
         end
-
     end
-
 end)
-
 
 hook.Add("PostEntityTakeDamage", "ZBASE", function( ent, dmg )
     if ent.IsZBaseNPC then
         ent:OnPostEntityTakeDamage( dmg )
     end
 end)
-
 
 hook.Add("ScaleNPCDamage", "ZBASE", function ( npc, hit_gr, dmg )
     local attacker = dmg:GetAttacker()
@@ -331,7 +276,6 @@ hook.Add("ScaleNPCDamage", "ZBASE", function ( npc, hit_gr, dmg )
         npc:OnScaleDamage( dmg, hit_gr )
     end
 end)
-
 
 hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
     if SERVER && ent.IsZBaseNPC then
@@ -346,7 +290,6 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
     end
 
     if SERVER && !ZBCVAR.PlayerHurtAllies:GetBool() && ZBaseNPCCount > 0 then
-
         local own = ent:GetOwner()
         local shooterPly = (own:IsPlayer() && own) or (ent:IsPlayer() && ent)
 
@@ -365,18 +308,14 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
                 return true
             end
         end
-    
     end
-
 end)
-
 
 --[[
 ======================================================================================================================================================
                                            SOUNDS
 ======================================================================================================================================================
 --]]
-
 
 local NPCFootstepSubStr = {
     ["npc_combine_s"] = "npc/combine_soldier/gear",
@@ -392,27 +331,21 @@ local NPCFootstepSubStr = {
     ["npc_zombine"] = "npc/combine_soldier/gear",
 }
 
-
 hook.Add("EntityEmitSound", "ZBASE", function( data )
     if !IsValid(data.Entity) then return end
-
 
     -- Silence navigator
     if data.Entity.IsZBaseNavigator then
         return false
     end
 
-
     -- Silence "dull state" NPCs
     if IsValid(data.Entity) && data.Entity:GetNWBool("ZBaseNPCCopy_DullState") then
         return false
     end
 
-
     -- ZBase NPCs
     if data.Entity:GetNWBool("IsZBaseNPC") then
-
-
         -- Mute engine footsteps, and call EngineFootStep
         local StepSubStr = NPCFootstepSubStr[data.Entity:GetClass()]
         local IsEngineFootStep = !IsEmitSoundCall && ((StepSubStr && string.find(data.SoundName, StepSubStr)) or string.find(data.SoundName, "footstep"))
@@ -430,7 +363,6 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
             return false
         end
 
-
         -- Mute default sounds if we should
         if !IsEmitSoundCall && data.Entity.MuteAllDefaultSoundEmittions then
             return false
@@ -443,9 +375,7 @@ hook.Add("EntityEmitSound", "ZBASE", function( data )
                 return value
             end
         end
-    
     end
-
 end)
 
 
@@ -454,33 +384,21 @@ end)
                                            GLOWING EYES
 ======================================================================================================================================================
 --]]
-
-
 if SERVER then
-
     util.AddNetworkString("ZBaseAddGlowEyes")
     util.AddNetworkString("ZBaseAddGlowEyes_Success")
-
 end
 
-
-ZBaseEntsWithGlowingEyes = ZBaseEntsWithGlowingEyes or {}
-ZBaseGlowingEyes = {}
-
-
-local mat = Material( "effects/blueflare1" )
-
+ZBaseEntsWithGlowingEyes    = ZBaseEntsWithGlowingEyes or {}
+ZBaseGlowingEyes            = {}
+local mat                   = Material( "effects/blueflare1" )
 
 if CLIENT then
-
     net.Receive("ZBaseAddGlowEyes", function()
-
         local Ent = net.ReadEntity()
         local Eyes = net.ReadTable()
 
-
         if IsValid(Ent) then
-
             Ent.GlowEyes = table.Copy(Eyes)
 
             table.insert(ZBaseEntsWithGlowingEyes, Ent)
@@ -490,26 +408,18 @@ if CLIENT then
             net.Start("ZBaseAddGlowEyes_Success")
             net.WriteEntity(Ent)
             net.SendToServer()
-
         end
-
     end)
-
 end
-
 
 if SERVER then
     net.Receive("ZBaseAddGlowEyes_Success", function( _, ply )
-
         if !ply.NPCsWithGlowEyes then ply.NPCsWithGlowEyes = {} end
-
 
         local Ent = net.ReadEntity()
 
-
         if IsValid(Ent) then
             ply.NPCsWithGlowEyes[Ent:EntIndex()] = true
-
 
             Ent:CallOnRemove("NPCsWithGlowEyesRemove"..ply:EntIndex(), function()
                 if ply.NPCsWithGlowEyes then
@@ -517,30 +427,21 @@ if SERVER then
                 end
             end)
         end
-
     end)
 end
 
-
-
 hook.Add( "PostDrawEffects", "ZBaseGlowingEyes", function()
-
     if !ZBCVAR.GlowingEyes:GetBool() then return end
 
     for _, ent in ipairs(ZBaseEntsWithGlowingEyes) do
-
         if !ent.GlowEyes then continue end
         if ent:GetNoDraw() then continue end
 
-
         for id, eye in pairs(ent.GlowEyes) do
-
-
             if eye.skin != false && ent:GetSkin() != eye.skin then continue end
 
             local matrix = ent:GetBoneMatrix(eye.bone or 0)
             if matrix then
-
                 local BonePos = matrix:GetTranslation()
                 local BoneAng = matrix:GetAngles()
                 local pos = BonePos + BoneAng:Forward()*eye.offset.x + BoneAng:Right()*eye.offset.y + BoneAng:Up()*eye.offset.z
@@ -549,15 +450,10 @@ hook.Add( "PostDrawEffects", "ZBaseGlowingEyes", function()
                     render.SetMaterial(mat)
                     render.DrawSprite( pos, eye.scale, eye.scale, eye.color)
                 cam.End3D()
-
             end
-
         end
-
     end
-
 end)
-
 
 --[[
 ======================================================================================================================================================
@@ -566,23 +462,18 @@ end)
 --]]
 
 if SERVER then
-
     util.AddNetworkString("ZBaseSetFollowHalo")
     util.AddNetworkString("ZBaseRemoveFollowHalo")
-
-
 end
 
-
 if CLIENT then
-    local mat = Material("effects/blueflare1")
+    local mat           = Material("effects/blueflare1")
+    local startoffset   = Vector(0, 0, 50)
+    local endoffset     = Vector(0, 0, 400)
+    local up            = Vector(0, 0, 1)
 
-
-    local startoffset = Vector(0, 0, 50)
-    local endoffset = Vector(0, 0, 400)
-    local up = Vector(0, 0, 1)
     hook.Add( "RenderScreenspaceEffects", "ZBaseFollowHalo", function()
-        
+        if !ZBCVAR.FollowHalo:GetBool() then return end
         local tbl = LocalPlayer().ZBaseFollowHaloEnts
         if tbl then
             for _, v in ipairs(tbl) do
@@ -603,7 +494,6 @@ if CLIENT then
         end
     end)
 
-
     net.Receive("ZBaseSetFollowHalo", function()
         local ent = net.ReadEntity()
         local wepCol = LocalPlayer():GetWeaponColor():ToColor()
@@ -619,7 +509,6 @@ if CLIENT then
             surface.PlaySound( "buttons/button16.wav" )
         end
     end)
-
 
     net.Receive("ZBaseRemoveFollowHalo", function()
         local ent = net.ReadEntity()
@@ -640,14 +529,12 @@ end
 ======================================================================================================================================================
 --]]
 
-
 if CLIENT then
     net.Receive("ZBaseClientRagdoll", function()
         local ent = net.ReadEntity() if !IsValid(ent) then return end
         local rag = ent:BecomeRagdollOnClient()
     end)
 end
-
 
 -- Client ragdolls
 hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
@@ -674,13 +561,11 @@ hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
     end
 end)
 
-
 --[[
 ======================================================================================================================================================
                                            EVENTS
 ======================================================================================================================================================
 --]]
-
 
 hook.Add( "KeyPress", "ZBaseUse", function( ply, key )
     if !IsValid(ply) then return end
@@ -709,7 +594,6 @@ hook.Add( "KeyPress", "ZBaseUse", function( ply, key )
     end
 end)
 
-
 -- Gravity gun punt for aerial ZBASE NPCs
 hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
     if ent.IsZBaseNPC && ent.SNPCType == ZBASE_SNPCTYPE_FLY && ent.Fly_GravGunPuntForceMult > 0 then
@@ -728,51 +612,38 @@ hook.Add("GravGunPunt", "ZBaseNPC", function( ply, ent )
     end
 end)
 
-
--- Don't pickup some zbase weapons
+-- Don't pickup some ZBASE weapons
+-- Give ammo instead
 hook.Add("PlayerCanPickupWeapon", "ZBASE", function( ply, wep )
-
 	if wep.IsZBaseWeapon && wep.NPCOnly then
-
         if !wep.Pickup_GaveAmmo then
 		    ply:GiveAmmo(wep.Primary.DefaultClip, wep:GetPrimaryAmmoType())
             wep.Pickup_GaveAmmo = true
         end
-
 		wep:Remove()
-
 		return false
 	end
-
 end)
 
-
 -- Player trying to shoot NPC
+-- Make NPC aware of this
 hook.Add( "KeyPress", "ZBASE", function( ply, key )
     if !SERVER then return end
-
-
-
     local wep = ply:GetActiveWeapon()
-
 
     if IsValid(wep) &&
     ( (wep:Clip1() > 0 && key == IN_ATTACK) or (wep:Clip2() > 0 && key == IN_ATTACK2)
     or (wep:GetClass()=="weapon_smg1" && ply:GetAmmoCount("SMG1_Grenade")>0 && key == IN_ATTACK2)
     or (wep:GetClass()=="weapon_ar2" && ply:GetAmmoCount("AR2AltFire")>0 && key == IN_ATTACK2)
     or (wep:GetClass()=="weapon_rpg" && ply:GetAmmoCount("RPG_Round")>0 && key == IN_ATTACK) ) then
-
         local tr = ply:GetEyeTrace()
         local ent = (tr.Entity.IsZBaseNPC && tr.Entity)
-
 
         if IsValid(ent) then
             ent:RangeThreatened(ply)
         end
-
     end
 end)
-
 
 hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
     -- Engine follow
@@ -801,6 +672,26 @@ hook.Add("AcceptInput", "ZBASE", function(ent, input, activator, ent, value)
     end
 end)
 
+-- Reset settings code
+if SERVER then
+    concommand.Add("zbase_resetsettings", function(ply)
+        if IsValid(ply) && ply:IsPlayer() && !ply:IsSuperAdmin() then return end
+
+        for k, v in pairs(ZBCVAR or {}) do
+            if !v.Revert then continue end -- Not a cvar?
+            v:Revert()
+        end
+    end)
+end
+
+
+-- Add ZBASE SWEPS to npc weapon menu if we should
+hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
+	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
+		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName } )
+        table.insert(ZBaseNPCWeps, class)
+	end
+end)
 
 --[[
 ======================================================================================================================================================
@@ -808,33 +699,27 @@ end)
 ======================================================================================================================================================
 --]]
 
-
+-- ZBASE NPC Logic when an NPC dies
 hook.Add("OnNPCKilled", "ZBASE", function( npc, attacker, infl)
-
     if npc.IsZBaseNPC && npc.Dead then return end
-
 
     -- Call on killed ent
     if IsValid(attacker) && attacker.IsZBaseNPC then
         attacker:OnKilledEnt( npc )
     end
 
-
     -- Mark enemy as dead
     for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
         zbaseNPC:MarkEnemyAsDead(npc, 2)
     end
 
-
     -- On death
     if npc.IsZBaseNPC then
         npc:OnDeath( attacker, infl, npc:LastDMGINFO() or DamageInfo(), npc.ZBLastHitGr )
     end
-
 end)
 
-
--- Find nearby zbase allies to player
+-- Find nearby ZBASE allies to player
 local function FindNearestZBaseAllyToPly( ply, returntable )
     if returntable then -- Return the table of all nearby allies
         local allies = {}
@@ -865,9 +750,8 @@ local function FindNearestZBaseAllyToPly( ply, returntable )
     return ally
 end
 
-
+-- ZBASE NPC logic when a player dies
 hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
-
     if table.IsEmpty(ZBaseNPCInstances) then return end -- No ZBase NPCs, don't do any ZBase stuff on player death
     
     local allies = FindNearestZBaseAllyToPly(ply, true)
@@ -898,5 +782,4 @@ hook.Add("PlayerDeath", "ZBASE", function( ply, infl, attacker )
     for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
         zbaseNPC:MarkEnemyAsDead(ply, 2)
     end
-
 end)

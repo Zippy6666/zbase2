@@ -1,5 +1,5 @@
-local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
-
+local NPC = ZBaseNPCs["npc_zbase"]
+-- ABOVE SHOULD BE "local NPC = FindZBaseTable(debug.getinfo(1, 'S'))" IN YOUR FILE
 
 --[[
 ==================================================================================================
@@ -7,11 +7,9 @@ local NPC = FindZBaseTable(debug.getinfo(1, 'S'))
 ==================================================================================================
 --]]
  
-
 -- NOTE FOR ADVANCED USERS: You can change any internal variable by doing NPC.m_typeNameOfInternalVar here
 -- Combine soldier example:
 -- NPC.m_nKickDamage = 15
-
 
 -- Spawn with a random model from this table
 -- Leave empty to use the default model for the NPC
@@ -19,26 +17,21 @@ NPC.Models = {}
 NPC.RenderMode = RENDERMODE_NORMAL -- https://wiki.facepunch.com/gmod/Enums/RENDERMODE
 NPC.SubMaterials = {} -- Submaterials {*number index* = *string name*}
 
-
 -- This obviously needs to be true if you want to use LUA animation events
 NPC.EnableLUAAnimationEvents = true
 
-
 NPC.StartHealth = 50 -- Max health
 
-
 NPC.SightDistance = ZBASE_DEFAULT_SIGHT_DIST -- Sight distance, set to any number
-NPC.SightAngle = 90 -- Sight angle
+NPC.SightAngle = 180 -- Sight angle
 NPC.AlertAllies = true -- Can this NPC call their faction allies for help (even though they aren't in the same squad)?
-NPC.AlertAlliesDistance = 2000 -- Call for help distance
+NPC.AlertAlliesDistance = 4096 -- Call for help distance
 NPC.CanBeAlertedByAlly = true -- Can this NPC be called by other allies when they need help?
 NPC.HearDistMult = 1 -- Hearing distance multiplier when this addon is enabled: https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.TimeUntilLooseEnemy = 15 -- (THIS VARIABLE IS CURRENTLY UNUSED) Time until it no longer knows where the enemy is
 
-
 NPC.HullType = false -- The hull type, false = default, https://wiki.facepunch.com/gmod/Enums/HULL
 NPC.CollisionBounds = false -- Example: NPC.CollisionBounds = {min=Vector(-50, -50, 0), max=Vector(50, 50, 100)}, false = default
-
 
 -- ZBase faction
 -- Can be any string, all ZBase NPCs with the same faction will be allied
@@ -48,7 +41,6 @@ NPC.CollisionBounds = false -- Example: NPC.CollisionBounds = {min=Vector(-50, -
     -- "neutral" = allied with everybody
 NPC.ZBaseStartFaction = "none"
 
-
 -- More factions this NPC should be allied towards, needs to follow this syntax:
 -- NPC.ZBaseFactionsExtra = {
 --     ["combine"] = true,
@@ -57,28 +49,22 @@ NPC.ZBaseStartFaction = "none"
 NPC.ZBaseFactionsExtra = {
 }
 
-
 NPC.KeyValues = {} -- Ex. NPC.KeyValues = {citizentype=CT_REBEL}
 NPC.SpawnFlagTbl = {} -- Ex. NPC.SpawnFlagTbl = {SF_CITIZEN_RANDOM_HEAD_FEMALE}, https://wiki.facepunch.com/gmod/Enums/SF
-
 
 NPC.CanOpenDoors = true -- Can open regular doors
 NPC.CanOpenAutoDoors = true -- Can open auto doors
 NPC.CanUse = true -- Can push buttons, pull levers, etc
 
-
 -- Do "zbase_reload" followed by "spawnmenu_reload" to apply the changes, or restart map
 NPC.OnCeiling = false -- Spawn this NPC on the ceiling
 NPC.Offset = false -- NPC Spawn offset from ground, false = default
-
 
 -- Health regen
 NPC.HealthRegenAmount = 0
 NPC.HealthCooldown = 0.2
 
-
 NPC.ForceAvoidDanger = false -- Force this NPC to avoid dangers such as grenades
-
 
 -- Items to drop on death
 -- ["item_class_name"] = {chance=1/x, max=x}
@@ -87,9 +73,7 @@ NPC.ItemDrops = {
 }
 NPC.ItemDrops_TotalMax = 5 -- The NPC can never drop more than this many items
 
-
 NPC.CanFollowPlayers = true -- Can it follow players when the player press their use key on them (if allied with the player)?
-
 
 --[[
 ==================================================================================================
@@ -97,15 +81,16 @@ NPC.CanFollowPlayers = true -- Can it follow players when the player press their
 ==================================================================================================
 --]]
 
-
 NPC.CanPatrol = true -- Use base patrol behaviour
 NPC.CanJump = true -- Can the NPC jump?
-
 
 -- Multiply the NPC's movement speed by this amount (ground NPCs)
 -- May not work properly for all NPCs
 NPC.MoveSpeedMultiplier = 1
 
+-- How much power to add when jumping using the controller on this NPC
+-- 0 = auto
+NPC.Controller_JumpPower = 0
 
 --[[
 ==================================================================================================
@@ -119,19 +104,15 @@ NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
 
-
 NPC.MeleeWeaponAnimations = {ACT_MELEE_ATTACK1} -- Animations to use when attacking with a melee weapon
 NPC.MeleeWeaponAnimations_TimeUntilDamage = 0.5 -- Time until the damage from melee weapons hit
-
 
 NPC.ExtraFireWeaponActivities = {} -- NPCs will fire when they have these activities. Syntax: [ACT_SOMETHING] = true
 NPC.ForceShootStance = true -- Set to false to not let the base force a shoot stance for the NPC
 
-
 -- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF, DON'T USE!! --
 -- NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK1_LOW} -- The NPC will randomly switch between these activities when firing their weapon
 -- NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM, ACT_RUN_AIM} -- The NPC will randomly switch between these activities when firing their weapon
-
 
 -- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF, DON'T USE!! --
 -- NPC.WeaponFire_DoGesture = true -- Should it play a gesture animation everytime it fires the weapon when standing still?
@@ -144,24 +125,20 @@ NPC.ForceShootStance = true -- Set to false to not let the base force a shoot st
 ==================================================================================================
 --]]
 
-
 -- Default engine blood color
 -- Set to DONT_BLEED if you want to use custom blood instead
 -- Set to false to use the default blood for the NPC class
 NPC.BloodColor = false -- DONT_BLEED || BLOOD_COLOR_RED || BLOOD_COLOR_YELLOW || BLOOD_COLOR_GREEN
 -- || BLOOD_COLOR_MECH || BLOOD_COLOR_ANTLION || BLOOD_COLOR_ZOMBIE || BLOOD_COLOR_ANTLION_WORKER || false
 
-
 NPC.CustomBloodParticles = false -- Table of custom particles
 NPC.CustomBloodDecals = false -- String name of custom decal
-
 
 --[[
 ==================================================================================================
                                            DAMAGE
 ==================================================================================================
 --]]
-
 
 -- Armor System
 -- These hitgroups will be armored
@@ -182,7 +159,6 @@ NPC.ArmorAlwaysPenDamage = 40 -- Always penetrate the armor if the damage is mor
 NPC.ArmorPenDamageMult = 1.5 -- Multiply damage by this amount if a armored hitgroup is penetrated
 NPC.ArmorHitSpark = true -- Do a spark on armor hit
 
-
 -- Scale damage against certain damage types:
 -- https://wiki.facepunch.com/gmod/Enums/DMG
 NPC.DamageScaling = {
@@ -192,20 +168,17 @@ NPC.DamageScaling = {
 }
 NPC.PhysDamageScale = 1 -- Damage scale from props
 
-
 --[[
 ==================================================================================================
                                            FLINCH
 ==================================================================================================
 --]]
 
-
 NPC.FlinchAnimations = {} -- Flinch animations to use, leave empty to disable the base flinch
 NPC.FlinchAnimationSpeed = 1 -- Speed of the flinch animation
 NPC.FlinchCooldown = {1, 2} -- Flinch cooldown in seconds {min, max}
 NPC.FlinchChance = 2 -- Flinch chance 1/x
 NPC.FlinchIsGesture = false -- Should the flinch animation be played as a gesture?
-
 
 --[[
 ==================================================================================================
@@ -221,23 +194,21 @@ NPC.DeathAnimation_StopAttackingMe = false -- Stop other NPCs from attacking thi
 -- Duration of death animation, set to false to use the default duration (note that doing so may cause issues with some models/npcs so be careful)
 NPC.DeathAnimationDuration = 1
 
-
 NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
 NPC.RagdollApplyForce = true -- Should the ragdoll get force applied to it?
 NPC.RagdollModel = "" -- Leave like this to use the default ragdoll
 
+NPC.DissolveRagdoll = true -- Dissolve ragdoll on death from dissolve damage
 
 -- Try messing with these if the ragdoll is buggy
 NPC.RagdollUseAltPositioning = false
 NPC.RagdollDontAnglePhysObjects = false
-
 
 --[[
 ==================================================================================================
                                            MELEE ATTACK
 ==================================================================================================
 --]]
-
 
 NPC.BaseMeleeAttack = false -- Use ZBase melee attack system
 NPC.MeleeAttackFaceEnemy = true -- Should it face enemy while doing the melee attack?
@@ -246,10 +217,8 @@ NPC.MeleeAttackDistance = 50 -- Distance that it initiates the melee attack from
 NPC.MeleeAttackCooldown = {0, 0} -- Melee attack cooldown {min, max}
 NPC.MeleeAttackName = "" -- Serves no real purpose, you can use it for whatever you want
 
-
 NPC.MeleeAttackAnimations = {} -- Example: NPC.MeleeAttackAnimations = {ACT_MELEE_ATTACK1}
 NPC.MeleeAttackAnimationSpeed = 1 -- Speed multiplier for the melee attack animation
-
 
 NPC.MeleeDamage = {10, 10} -- Melee damage {min, max}
 NPC.MeleeDamage_Distance = 70 -- Damage reach distance
@@ -260,14 +229,11 @@ NPC.MeleeDamage_Sound = "ZBase.Melee2" -- Sound when the melee attack hits an en
 NPC.MeleeDamage_Sound_Prop = "ZBase.Melee2" -- Sound when the melee attack hits props
 NPC.MeleeDamage_AffectProps = false -- Affect props and other entites
 
-
 --[[
 ==================================================================================================
                                            RANGE ATTACK
 ==================================================================================================
 --]]
-
-
 
 NPC.BaseRangeAttack = false -- Use ZBase range attack system
 NPC.RangeAttackFaceEnemy = true -- Should it face enemy while doing the range attack?
@@ -276,15 +242,12 @@ NPC.RangeAttackDistance = {0, 1000} -- Distance that it initiates the range atta
 NPC.RangeAttackCooldown = {2, 4} -- Range attack cooldown {min, max}
 NPC.RangeAttackSuppressEnemy = true -- If the enemy can't be seen, target the last seen position
 
-
 NPC.RangeAttackAnimations = {} -- Example: NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1}
 NPC.RangeAttackAnimationSpeed = 1 -- Speed multiplier for the range attack animation
-
 
 -- Time until the projectile code is ran
 -- Set to false to disable the timer (if you want to use animation events instead for example)
 NPC.RangeProjectile_Delay = 1
-
 
 -- Attachment to spawn the projectile on 
 -- If set to false the projectile will spawn from the NPCs center
@@ -293,13 +256,11 @@ NPC.RangeProjectile_Offset = false -- Projectile spawn offset, example: {forward
 NPC.RangeProjectile_Speed = 1000 -- The speed of the projectile
 NPC.RangeProjectile_Inaccuracy = 0 -- Inaccuracy, 0 = perfect, higher numbers = less accurate
 
-
 --[[
 ==================================================================================================
                                            THROW GRENADE
 ==================================================================================================
 --]]
-
 
 NPC.BaseGrenadeAttack = false -- Use ZBase grenade attack system
 NPC.ThrowGrenadeChance_Visible = 5 -- 1/x chance that it throws a grenade when the enemy is visible
@@ -311,7 +272,6 @@ NPC.GrenadeReleaseTime = 0.85 -- Time until grenade leaves the hand
 NPC.GrenadeAttachment = "anim_attachment_LH" -- The attachment to spawn the grenade on
 NPC.GrenadeMaxSpin = 11-- The amount to spin the grenade measured in spin units or something idfk
 
-
 --[[
 ==================================================================================================
                                            SNPC ONLY
@@ -322,26 +282,30 @@ NPC.GrenadeMaxSpin = 11-- The amount to spin the grenade measured in spin units 
 -- -1 = Pick automatically
 NPC.m_iClass = -1
 NPC.m_fMaxYawSpeed = 10 -- Max turning speed
-NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- SNPC Type: ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY || ZBASE_SNPCTYPE_STATIONARY
-
+NPC.SNPCType = ZBASE_SNPCTYPE_WALK -- SNPC Type: ZBASE_SNPCTYPE_WALK || ZBASE_SNPCTYPE_FLY
 
 NPC.CantReachEnemyBehaviour = ZBASE_CANTREACHENEMY_HIDE -- How should it behave when it cannot reach the enemy while chasing
 -- ZBASE_CANTREACHENEMY_HIDE - Hide from enemy
 -- ZBASE_CANTREACHENEMY_FACE - Stand still and face enemy
-
 
 -- Minimum distance it chases before doing it runs SNPCChase_TooClose
 -- SNPCChase_TooClose will by default cause the SNPC to stop and face the enemy
 -- 0 = Chase enemy regardless of how close it is
 NPC.ChaseMinDistance = 0
 
+NPC.LookPoseParams = false -- Enable looking pose parameters
+NPC.LookPoseParamNames = {
+    Pitch = {"aim_pitch"},
+    Yaw = {"aim_yaw"}
+}
+
+NPC.UseVPhysics = false -- Make NPC physical like a prop
 
 --[[
 ==================================================================================================
                                            FLYING SNPC ONLY
 ==================================================================================================
 --]]
-
 
 NPC.Fly_DistanceFromGround = 60 -- Minimum distance to try to keep from the ground when flying
 NPC.Fly_DistanceFromGround_IgnoreWhenMelee = true -- Should it ignore the distance from ground limit when in melee attack distance?
@@ -351,19 +315,14 @@ NPC.Fly_Accelerate = 15 -- Flying movement accelerate speed
 NPC.Fly_Decelerate = 15 -- Flying movement decelerate speed
 NPC.Fly_GravGunPuntForceMult = 1 -- How much should the flying SNPC be affected by the gravity gun push attack?
 
-
 --[[
 ==================================================================================================
                                            SOUNDS
 ==================================================================================================
 --]]
 
-
-
 NPC.MuteDefaultVoice = true -- Mute all default voice sounds emitted by this NPC
 NPC.MuteAllDefaultSoundEmittions = false -- Mute all default sounds emitted by this NPC
-
-
 
 -- Sounds (Use sound scripts to alter pitch and level and such!)
 -- It's recommended to uses different soundscripts for each sound or else captions might not work right
@@ -374,7 +333,6 @@ NPC.Idle_HasEnemy_Sounds = "" -- Sounds emitted while there is an enemy
 NPC.PainSounds = "" -- Sounds emitted on hurt
 NPC.DeathSounds = "" -- Sounds emitted on death
 NPC.KilledEnemySounds = "" -- Sounds emitted when the NPC kills an enemy
-
 
 NPC.LostEnemySounds = "" -- Sounds emitted when the enemy is lost
 NPC.SeeDangerSounds = "" -- Sounds emitted when the NPC spots a danger, such as a flaming barrel
@@ -387,32 +345,26 @@ NPC.OnGrenadeSounds = "" -- Sounds emitted when the NPC throws a grenade
 NPC.FollowPlayerSounds = "" -- Sounds emitted when the NPC starts following a player
 NPC.UnfollowPlayerSounds = "" -- Sounds emitted when the NPC stops following a player
 
-
 -- Dialogue sounds
 -- The NPCs will face each other as if they are talking
 NPC.Dialogue_Question_Sounds = "" -- Dialogue questions, emitted when the NPC starts talking to another NPC
 NPC.Dialogue_Answer_Sounds = "" -- Dialogue answers, emitted when the NPC is spoken to
 
-
 -- Sounds emitted when the NPC hears a potential enemy, only with this addon enabled:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
 NPC.HearDangerSounds = ""
 
-
 NPC.FootStepSounds = "ZBase.Step" -- Footstep sound
-
 
 -- Footstep timer (if active)
 NPC.FootStepSoundDelay_Walk = 0.5 -- Step cooldown when walking
 NPC.FootStepSoundDelay_Run = 0.3 -- Step cooldown when running
-
 
 -- Sound cooldowns {min, max}
 NPC.IdleSoundCooldown = {8, 16}
 NPC.IdleSounds_HasEnemyCooldown = {5, 10}
 NPC.PainSoundCooldown = {1, 2.5}
 NPC.AlertSoundCooldown = {8, 12}
-
 
 -- Sound chance 1/X
 NPC.IdleSound_Chance = 3
@@ -421,39 +373,53 @@ NPC.OnMeleeSound_Chance = 2
 NPC.OnRangeSound_Chance = 2
 NPC.OnReloadSound_Chance = 2
 
-
 --[[
 ==================================================================================================
                                            INIT/THINK
 ==================================================================================================
 --]]
 
-
-    -- Called when the NPC is created --
+-- Called when the NPC is created --
 function NPC:CustomInitialize()
 end
 
-
-    -- Called BEFORE the NPC spawns --
+-- Called BEFORE the NPC spawns --
 function NPC:CustomPreSpawn()
 end
 
-
-    -- Called when the base gives the NPC capabilities, you can do self:CapabilitiesRemove(CAP_YOUR_CAP) here for example
+-- Called when the base gives the NPC capabilities, you can do self:CapabilitiesRemove(CAP_YOUR_CAP) here for example
 function NPC:OnInitCap()
 end
 
+-- Called when the NPC controller sets up attacks
+-- Add your own attacks here
+function NPC:CustomControllerInitAttacks()
+end
 
-    -- Should the NPC have glowing eyes on spawn if the model supports it?
+-- Called if NPC is SNPC and uses VPhysics
+function NPC:OnInitPhys(phys)
+    -- Example:
+    -- phys:SetMass(100)
+end
+
+-- Should the NPC have glowing eyes on spawn if the model supports it?
 function NPC:ShouldGlowEyes()
     return true
 end
 
-
-    -- Called continiously --
+-- Called continiously
 function NPC:CustomThink()
 end
 
+-- Called continiously when thinking is enabled
+function NPC:AIThink()
+end
+
+-- Called continiously --
+-- But EVERY server tick --
+-- Should be used sparingly! --
+function NPC:CustomFrameTick()
+end
 
 --[[
 ==================================================================================================
@@ -461,29 +427,29 @@ end
 ==================================================================================================
 --]]
 
-
-    -- On NPC hurt, dmginfo:ScaleDamage(0) to prevent damage --
-    -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
-    -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
+-- On NPC hurt, dmginfo:ScaleDamage(0) to prevent damage --
+-- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
+-- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
 function NPC:CustomTakeDamage( dmginfo, HitGroup )
 end
 
-
-
-    -- On armor hit --
-    -- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
-    -- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
+-- On armor hit --
+-- HitGroup = HITGROUP_GENERIC || HITGROUP_HEAD || HITGROUP_CHEST || HITGROUP_STOMACH || HITGROUP_LEFTARM
+-- || HITGROUP_RIGHTARM || HITGROUP_LEFTLEG || HITGROUP_RIGHTLEG || HITGROUP_GEAR
 function NPC:HitArmor( dmginfo, HitGroup )
-
+    -- Check that damage type can be blocked by armor
     if !(dmginfo:IsDamageType(DMG_BULLET) or dmginfo:IsDamageType(DMG_BUCKSHOT)) then return end
 
     if self.ArmorAlwaysPenDamage && dmginfo:GetDamage() >= self.ArmorAlwaysPenDamage then
+        -- Penetrated armor because of high damage
+
         dmginfo:ScaleDamage(self.ArmorPenDamageMult)
         return
     end
 
     if !self.ArmorPenChance or math.random(1, self.ArmorPenChance) != 1 then
-    
+        -- Armor deflect
+
         if self.ArmorHitSpark && ZBCVAR.ArmorSparks:GetBool() then
             local spark = ents.Create("env_spark")
             spark:SetKeyValue("spawnflags", 256)
@@ -501,21 +467,18 @@ function NPC:HitArmor( dmginfo, HitGroup )
         dmginfo:ScaleDamage(0)
 
     else
+        -- Penetrated armor
         dmginfo:ScaleDamage(self.ArmorPenDamageMult)
     end
-
 end
 
-
-    -- Called when the NPC hurts an entity, return true to prevent damage --
+-- Called when the NPC hurts an entity, return true to prevent damage --
 function NPC:CustomDealDamage( victimEnt, dmginfo )
 end
 
-
-    -- Called when the NPC kills another entity (player or NPC)
+-- Called when the NPC kills another entity (player or NPC)
 function NPC:CustomOnKilledEnt( ent )
 end
-
 
 --[[
 ==================================================================================================
@@ -523,23 +486,20 @@ end
 ==================================================================================================
 --]]
 
-
-    -- Called before the NPC flinches
-    -- Only called on ZBase flinches, not from engine ones
-    -- Return false to prevent the flinch
+-- Called before the NPC flinches
+-- Only called on ZBase flinches, not from engine ones
+-- Return false to prevent the flinch
 function NPC:OnFlinch(dmginfo, HitGroup, flinchAnim)
 end
 
-
-    -- Called before the NPC flinches
-    -- Only called on ZBase flinches, not from engine ones
-    -- Return a animation to be used instead of the ones from the FlinchAnimations table (string sequence, or number activity)
+-- Called before the NPC flinches
+-- Only called on ZBase flinches, not from engine ones
+-- Return a animation to be used instead of the ones from the FlinchAnimations table (string sequence, or number activity)
 function NPC:GetFlinchAnimation(dmginfo, HitGroup)
     return table.Random(self.FlinchAnimations)
 end
 
-
-    -- Animation code
+-- Animation code
 function NPC:FlinchAnimation( anim )
     return self:PlayAnimation(anim, false, {
         speedMult=self.FlinchAnimationSpeed,
@@ -555,9 +515,8 @@ end
 ==================================================================================================
 --]]
 
-
-    -- Called continiusly if the NPC has a melee attack
-    -- Useful for changing things about the melee attack based on given conditions
+-- Called continiusly if the NPC has a melee attack
+-- Useful for changing things about the melee attack based on given conditions
 function NPC:MultipleMeleeAttacks()
     -- Example:
     -- if self:ZBaseDist(self:GetEnemy(), {within=40}) then
@@ -568,33 +527,28 @@ function NPC:MultipleMeleeAttacks()
     -- end
 end
 
-
-    -- Force to apply to entities affected by the melee attack damage, relative to the NPC
+-- Force to apply to entities affected by the melee attack damage, relative to the NPC
 function NPC:MeleeDamageForce( dmgData )
     -- Example:
     -- return {forward=500, up=500, right=0, randomness=100}
 end
 
-
-    -- Called when a melee attack is started
+-- Called when a melee attack is started
 function NPC:OnMelee()
 end
 
-
-    -- Called before a melee attack is started
-    -- Return true to prevent it
+-- Called before a melee attack is started
+-- Return true to prevent it
 function NPC:PreventMeleeAttack()
     return false 
 end
 
-
-    -- Called when the melee damage code is ran
-    -- 'hitEnts' table of entities affected by the damage, can be empty
+-- Called when the melee damage code is ran
+-- 'hitEnts' table of entities affected by the damage, can be empty
 function NPC:OnMeleeAttackDamage( hitEnts )
 end
 
-
-    -- Animation code
+-- Animation code
 function NPC:MeleeAnimation()
     return self:PlayAnimation(table.Random(self.MeleeAttackAnimations), self.MeleeAttackFaceEnemy, {
         speedMult=self.MeleeAttackAnimationSpeed,
@@ -604,14 +558,12 @@ function NPC:MeleeAnimation()
     })
 end
 
-
-    -- Animation code for melee weapons
+-- Animation code for melee weapons
 function NPC:Weapon_MeleeAnim()
     return self:PlayAnimation(table.Random(self.MeleeWeaponAnimations), true,  {
         noTransitions = true,
     })
 end
-
 
 --[[
 ==================================================================================================
@@ -619,12 +571,10 @@ end
 ==================================================================================================
 --]]
 
-
-    -- The range attack projectile code
-    -- Called by the base, but can be called whenever you like
+-- The range attack projectile code
+-- Called by the base, but can be called whenever you like
 function NPC:RangeAttackProjectile()
     local projStartPos = self:Projectile_SpawnPos()
-
 
     -- Projectile code --
     local proj = ents.Create("zb_projectile")
@@ -641,7 +591,6 @@ function NPC:RangeAttackProjectile()
     end
     ---------------------------------------=#
 
-
     -- Bullet code --
     -- self:FireBullets({
     --     Attacker = self,
@@ -655,8 +604,7 @@ function NPC:RangeAttackProjectile()
     ---------------------------------------=#
 end
 
-
-    -- The velocity to apply to the projectile when it spawns
+-- The velocity to apply to the projectile when it spawns
 function NPC:RangeAttackProjectileVelocity()
     local startPos = self:Projectile_SpawnPos()
 
@@ -667,44 +615,35 @@ function NPC:RangeAttackProjectileVelocity()
     return (self:Projectile_TargetPos() - startPos):GetNormalized()*self.RangeProjectile_Speed  
 end
 
-
-    -- Called continiusly if the NPC has a range attack
-    -- Useful for changing things about the range attack based on given conditions
+-- Called continiusly if the NPC has a range attack
+-- Useful for changing things about the range attack based on given conditions
 function NPC:MultipleRangeAttacks()
 end
 
-
-    -- Called when a range attack is started
+-- Called when a range attack is started
 function NPC:OnRangeAttack()
 end
 
-
-    -- Called before a range attack is started
-    -- Return true to prevent it
+-- Called before a range attack is started
+-- Return true to prevent it
 function NPC:PreventRangeAttack()
     return false 
 end
 
-
-    -- Animation code
+-- Animation code
 function NPC:RangeAttackAnimation()
     local rangeAttack = self.RangeAttackAnimations
-    local rangeAnimSpeed = self.RangeAttackAnimationSpeed
 
     if ( istable(rangeAttack) ) then
         rangeAttack = rangeAttack[math.random(1, #rangeAttack)]
     end
 
-    if ( istable(rangeAnimSpeed) ) then
-        rangeAnimSpeed = rangeAnimSpeed[math.random(1, #rangeAnimSpeed)]
-    end
-
     return self:PlayAnimation(rangeAttack, false, {
-        speedMult = self.rangeAnimSpeed,
+        speedMult = self.RangeAttackAnimationSpeed,
+        turnSpeed = self.RangeAttackTurnSpeed,
         noTransitions = true,
     })
 end
-
 
 --[[
 ==================================================================================================
@@ -712,8 +651,7 @@ end
 ==================================================================================================
 --]]
 
-
-    -- The position to spawn the grenade at
+-- The position to spawn the grenade at
 function NPC:GrenadeSpawnPos()
     local attachment = self.GrenadeAttachment
 
@@ -724,8 +662,7 @@ function NPC:GrenadeSpawnPos()
     return self:GetAttachment(self:LookupAttachment(self.GrenadeAttachment)).Pos
 end
 
-
-    -- The velocity to apply to the grenade
+-- The velocity to apply to the grenade
 function NPC:GrenadeVelocity()
     local StartPos = self:GrenadeSpawnPos()
     local EndPos = self:GetEnemyLastSeenPos()
@@ -735,8 +672,7 @@ function NPC:GrenadeVelocity()
     return (EndPos - StartPos)+Vector(0, 0, UpAmount)
 end
 
-
-    -- Animation code
+-- Animation code
 function NPC:GrenadeAnimation()
     local grenadeAnim = self.GrenadeAttackAnimations
 
@@ -747,11 +683,9 @@ function NPC:GrenadeAnimation()
     return self:PlayAnimation(grenadeAnim, true, {noTransitions = true})
 end
 
-
-    -- Called when the grenade entity spawned, allowing you to do stuff with it
+-- Called when the grenade entity spawned, allowing you to do stuff with it
 function NPC:OnGrenadeSpawned( grenade )
 end
-
 
 --[[
 ==================================================================================================
@@ -759,23 +693,21 @@ end
 ==================================================================================================
 --]]
 
-    -- Called when the NPC fires its weapon
+-- Called when the NPC fires its weapon
 function NPC:OnFireWeapon()
 end
 
-    -- Called when the NPC wants to fire its weapon
-    -- Return false to prevent it from doing so
+-- Called when the NPC wants to fire its weapon
+-- Return false to prevent it from doing so
 function NPC:ShouldFireWeapon()
     return true
 end
 
-
-    -- Called when the NPC fires a bullet
-    -- return true to apply changes to the bulletData table
-    -- return false to disallow the bullet
+-- Called when the NPC fires a bullet
+-- return true to apply changes to the bulletData table
+-- return false to disallow the bullet
 function NPC:OnFireBullet( bulletData )
 end
-
 
 --[[
 ==================================================================================================
@@ -783,137 +715,118 @@ end
 ==================================================================================================
 --]]
 
-
-    -- Called when the NPC's enemy is updated
-    -- 'enemy' - The new enemy, or nil if the enemy was lost
+-- Called when the NPC's enemy is updated
+-- 'enemy' - The new enemy, or nil if the enemy was lost
 function NPC:EnemyStatus( enemy )
 end
 
-
-    -- Called when the NPC reacts to a sound
-    -- Only with this addon enabled:
-    -- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
-    -- 'loudness' How loud the NPC percieved the sound to be
-    -- NPC_HEAR_BANG = 1 - Like a gunshot
-    -- NPC_HEAR_VOICE = 2 - Like a human voice
-    -- NPC_HEAR_STEP = 3 - Like footsteps
-    -- NPC_HEAR_QUIET = 4 - Not loud
+-- Called when the NPC reacts to a sound
+-- Only with this addon enabled:
+-- https://steamcommunity.com/sharedfiles/filedetails/?id=3001759765
+-- 'loudness' How loud the NPC percieved the sound to be
+-- NPC_HEAR_BANG = 1 - Like a gunshot
+-- NPC_HEAR_VOICE = 2 - Like a human voice
+-- NPC_HEAR_STEP = 3 - Like footsteps
+-- NPC_HEAR_QUIET = 4 - Not loud
 function NPC:OnReactToSound(Emitter, pos, loudness)
 end
 
-
-    -- Called when the NPC follows or unfollows a player
-    -- 'ply' - The player to follow, or NULL if the player was unfollowed
+-- Called when the NPC follows or unfollows a player
+-- 'ply' - The player to follow, or NULL if the player was unfollowed
 function NPC:FollowPlayerStatus( ply )
 end
 
-
-    -- Called when the NPC calls an ally outside their squad for help
+-- Called when the NPC calls an ally outside their squad for help
 function NPC:OnAlertAllies( ally )
 end
 
-
-    -- Called when the base is detecting a danger
-    -- https://wiki.facepunch.com/gmod/Structures/SoundHintData
+-- Called when the base is detecting a danger
+-- https://wiki.facepunch.com/gmod/Structures/SoundHintData
 function NPC:OnDangerDetected( DangerHint )
 end
 
-
-    -- Called when the base detects that the NPC is playing a new activity
+-- Called when the base detects that the NPC is playing a new activity
 function NPC:CustomNewActivityDetected( act )
 end
 
-
-    -- Called when the base detects that the NPC is playing a new sequence
+-- Called when the base detects that the NPC is playing a new sequence
 function NPC:CustomNewSequenceDetected( sequence, SequenceName )
 end
 
-
-    -- Called when the base detects that the NPC is playing a new schedule
+-- Called when the base detects that the NPC is playing a new schedule
 function NPC:CustomNewSchedDetected( sched, oldSched )
 end
 
-
-    -- Called when the base plays an animation (from NPC:PlayAnimation() that is)
-    -- 'anim' - The sequence (as a string) or activity (https://wiki.facepunch.com/gmod/Enums/ACT) to play
-    -- 'faceEnemy' - True if it should constantly face enemy while the animation is playing
-    -- 'extraData' (table)
-        -- extraData.isGesture - If true, it will play the animation as a gesture
-        -- extraData.face - Position or entity to constantly face, if set to false, it will face the direction it started the animation in
-        -- extraData.speedMult - Speed multiplier for the animation
-        -- extraData.duration - The animation duration
-        -- extraData.faceSpeed - Face turn speed
-        -- extraData.noTransitions - If true, it won't do any transition animations
+-- Called when the base plays an animation (from NPC:PlayAnimation() that is)
+-- 'anim' - The sequence (as a string) or activity (https://wiki.facepunch.com/gmod/Enums/ACT) to play
+-- 'faceEnemy' - True if it should constantly face enemy while the animation is playing
+-- 'extraData' (table)
+    -- extraData.isGesture - If true, it will play the animation as a gesture
+    -- extraData.face - Position or entity to constantly face, if set to false, it will face the direction it started the animation in
+    -- extraData.speedMult - Speed multiplier for the animation
+    -- extraData.duration - The animation duration
+    -- extraData.faceSpeed - Face turn speed
+    -- extraData.noTransitions - If true, it won't do any transition animations
 function NPC:OnPlayAnimation( anim, faceEnemy, extraData )
 end
 
-
-    -- Called when the base ends an animation (from NPC:PlayAnimation() that is, including transition animations)
+-- Called when the base ends an animation (from NPC:PlayAnimation() that is, including transition animations)
 function NPC:OnAnimEnded( anim, faceEnemy, extraData )
 end
 
-
-    -- Called when the base plays an animation (from NPC:PlayAnimation() that is),
-    -- but the animation fails at some point
-    -- 'seq' - The sequence that failed
+-- Called when the base plays an animation (from NPC:PlayAnimation() that is),
+-- but the animation fails at some point
+-- 'seq' - The sequence that failed
 function NPC:OnPlayAnimationFailed( seq )
 end
 
-
-    -- Called a tick after an entity owned by this NPC is created
-    -- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
+-- Called a tick after an entity owned by this NPC is created
+-- Very useful for replacing a combine's grenades or a hunter's flechettes or something of that nature
 function NPC:CustomOnOwnedEntCreated( ent )
 end
 
-
-    -- Called a tick after child entity of this NPC is spawned
-    -- Similiar to the function above
+-- Called a tick after child entity of this NPC is spawned
+-- Similiar to the function above
 function NPC:CustomOnParentedEntCreated( ent )
 end
 
-
-    -- Accept input, return true to prevent
+-- Accept input, return true to prevent
 function NPC:CustomAcceptInput( input, activator, caller, value )
 end
 
-    -- Called when the NPC notices that an entity is trying to do some kind of range attack on it
-    -- Like shooting it with a gun or something
+-- Called when the NPC notices that an entity is trying to do some kind of range attack on it
+-- Like shooting it with a gun or something
 function NPC:OnRangeThreatened( ent )
 end
 
-
-    -- Tries to override the movement activity
-    -- Return any activity to override the movement activity with said activity
-    -- Return false to not override
+-- Tries to override the movement activity
+-- Return any activity to override the movement activity with said activity
+-- Return false to not override
 function NPC:OverrideMovementAct()
     return false
 end
 
-
-    -- Called when the base decides how this NPC should feel about another entity
-    -- Return false to prevent the relationship change
-    -- https://wiki.facepunch.com/gmod/Enums/D
+-- Called when the base decides how this NPC should feel about another entity
+-- Return false to prevent the relationship change
+-- https://wiki.facepunch.com/gmod/Enums/D
 function NPC:CustomOnBaseSetRel(ent, rel)
     return true
 end
 
-
-    -- Called when a player presses their USE key on the NPC
+-- Called when a player presses their USE key on the NPC
 function NPC:OnUse(ply)
 end
 
-    -- Called when an ally dies
+-- Called when an ally dies
 function NPC:OnAllyDeath(ally)
 end
 
-
-    -- Your hook for handling custom defined LUA animation events
-    -- Add new animation events by calling:
-    -- self:AddAnimationEvent("your_animation", your_frame, your_event_id),
-    -- in CustomInitialize
+-- Your hook for handling custom defined LUA animation events
+-- Add new animation events by calling:
+-- self:AddAnimationEvent("your_animation", your_frame, your_event_id),
+-- in CustomInitialize
 function NPC:HandleLUAAnimationEvent(seq, ev) 
 end
-
 
 --[[
 ==================================================================================================
@@ -921,48 +834,38 @@ end
 ==================================================================================================
 --]]
 
-
-    -- Select schedule
-    -- Here you can change how the SNPC should behave entirely
-    -- This function is called whenever the SNPC isn't doing a schedule, allowing you to set it to whatever schedule you want
-    -- Do so by returning said schedule
-    -- Engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
-    -- Supports any custom schedule!
+-- Select schedule
+-- Here you can change how the SNPC should behave entirely
+-- This function is called whenever the SNPC isn't doing a schedule, allowing you to set it to whatever schedule you want
+-- Do so by returning said schedule
+-- Engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
+-- Supports any custom schedule!
 function NPC:SNPCSelectSchedule(iNPCState)
-
     -- Example:
     local ene = self:GetEnemy()
 
     if IsValid(ene) then
-
         -- ZBase advanced chase schedule
         -- Strongly recommended if you want the SNPC to chase the enemy
         return ZSched.CombatChase
 
     else
-
         -- No enemy, just stand in idle
         return SCHED_IDLE_STAND
 
     end
-
 end
 
-
-    -- Do this when we are too close to the enemy for chase
-    -- Return a engine or custom schedule to set schedule
-    -- Engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
+-- Do this when we are too close to the enemy for chase
+-- Return a engine or custom schedule to set schedule
+-- Engine schedules: https://wiki.facepunch.com/gmod/Enums/SCHED
 function NPC:SNPCChase_TooClose()
-
     -- Stand still and face enemy if we are too close
     return ZSched.CombatFace
-
 end
 
-
-    -- Called when the SNPC takes damage
+-- Called when the SNPC takes damage
 function NPC:SNPCOnHurt(dmginfo)
-
     -- Example:
 	if !IsValid(self:GetEnemy()) then
 
@@ -970,30 +873,22 @@ function NPC:SNPCOnHurt(dmginfo)
 		self:FaceHurtPos(dmginfo)
 
 	end
-
 end
 
-
-    -- Called when an animation event is fired
+-- Called when an animation event is fired
 function NPC:SNPCHandleAnimEvent(event, eventTime, cycle, type, option)
-
     -- Example:
 
     -- if event == 5 then
     --     self:MeleeAttackDamage()
     -- end
-
 end
 
-
-    -- Called continiusly for flying SNPCs
-    -- You can change anything about their flying velocity here
+-- Called continiusly for flying SNPCs
+-- You can change anything about their flying velocity here
 function NPC:SNPCFlyVelocity(destinationDirection, destinationCurrentSpeed)
-
     return destinationDirection*destinationCurrentSpeed
-
 end
-
 
 --[[
 ==================================================================================================
@@ -1001,51 +896,41 @@ end
 ==================================================================================================
 --]]
 
-
-
-    -- Called before emitting a sound
-    -- Return a new sound name to play that sound instead.
-    -- Return false to prevent the sound from playing.
+-- Called before emitting a sound
+-- Return a new sound name to play that sound instead.
+-- Return false to prevent the sound from playing.
 function NPC:BeforeEmitSound( sndData, sndVarName )
 end
 
-
-    -- Called after a sound is going to be emitted
+-- Called after a sound is going to be emitted
 function NPC:CustomOnSoundEmitted( sndData, duration, sndVarName )
 end
 
-
-    -- Timer based foot steps
+-- Timer based foot steps
 function NPC:FootStepTimer()
-    if !self:IsMoving() then return end
+    if !self:IsMoving_Cheap() then return end
     if self.HasEngineFootSteps then return end
-
 
     self:EmitFootStepSound()
 
-
     -- Set footstep cooldown
     if string.find(self:GetCurrentActivityName(), "ACT_RUN") then
-
         -- Run animation, do faster steps
         self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Run
 
     else
-
         -- Walk animation probably, do slower steps
         self.NextFootStepTimer = CurTime()+self.FootStepSoundDelay_Walk
 
     end
 end
 
-
-    -- Called when the NPC is trying to do a footstep sound
-    -- Not all NPCs do this
+-- Called when the NPC is trying to do a footstep sound
+-- Not all NPCs do this
 function NPC:OnEngineFootStep()
     self:EmitSound(self.FootStepSounds)
     self.HasEngineFootSteps = true
 end
-
 
 --[[
 ==================================================================================================
@@ -1053,23 +938,19 @@ end
 ==================================================================================================
 --]]
 
-
-    -- Called before death
-    -- Return true to not spawn ragdoll
-    -- Create gibs here
+-- Called before death
+-- Return true to not spawn ragdoll
+-- Create gibs here
 function NPC:ShouldGib( dmginfo, hit_gr )
 end
 
-
-    -- Called after death
-    -- You can do stuff with its ragdoll here if it has any (remember to check if it's valid!)
+-- Called after death
+-- You can do stuff with its ragdoll here if it has any (remember to check if it's valid!)
 function NPC:CustomOnDeath( dmginfo, hit_gr, rag )
 end
 
-
-    -- Death animation code
+-- Death animation code
 function NPC:DeathAnimation_Animation()
-
     return self:PlayAnimation(table.Random(self.DeathAnimations), false, {
         speedMult=self.DeathAnimationSpeed,
         face=false,
@@ -1078,10 +959,8 @@ function NPC:DeathAnimation_Animation()
         freezeForever = self.DeathAnimationDuration==false,
         onFinishFunc = function() self:InduceDeath() end, -- Kill NPC when the animation ends
     })
-
 end
 
-
-    -- Called when the NPC is removed
+-- Called when the NPC is removed
 function NPC:OnRemove()
 end
