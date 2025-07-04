@@ -53,7 +53,7 @@ NPC.RangeAttackAnimations = {ACT_RANGE_ATTACK1} -- Example: NPC.RangeAttackAnima
 NPC.RangeProjectile_Inaccuracy = 0.07
 NPC.RangeAttackCooldown = {10, 15} -- Range attack cooldown {min, max}
 NPC.RangeAttackDistance = {300, 2000} -- Distance that it initiates the range attack {min, max}
-NPC.RangeAttackTurnSpeed = 10 -- Speed that it turns while trying to face the enemy when range attacking
+NPC.RangeAttackTurnSpeed = 2 -- Speed that it turns while trying to face the enemy when range attacking
 NPC.RangeProjectile_Attachment = "muzzle"
 
 -- Time until the projectile code is ran
@@ -268,7 +268,12 @@ end
 
 -- Random range attack duration
 function NPC:RangeAttackAnimation()
-    return self:PlayAnimation(self.RangeAttackAnimations[1], self.RangeAttackFaceEnemy, {duration=math.Rand(4,6), forcedTransitionFrom=ACT_IDLE})
+    return self:PlayAnimation(
+        self.RangeAttackAnimations[1], 
+        self.RangeAttackFaceEnemy, 
+        {duration=math.Rand(4,6), forcedTransitionFrom=ACT_IDLE,
+        faceSpeed=self.RangeAttackTurnSpeed}
+    )
 end
 
 function NPC:OnRangeAttack()
@@ -301,7 +306,7 @@ function NPC:RangeAttackProjectile()
             self.CurTargetPos = projEndPos
         end
 
-        self.CurTrackSpeed = self.CurTrackSpeed+0.005
+        self.CurTrackSpeed = self.CurTrackSpeed+0.004
     end
 
     -- Fire bullet

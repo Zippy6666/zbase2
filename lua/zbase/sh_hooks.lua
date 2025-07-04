@@ -532,7 +532,7 @@ end
 if CLIENT then
     net.Receive("ZBaseClientRagdoll", function()
         local ent = net.ReadEntity() if !IsValid(ent) then return end
-        local rag = ent:BecomeRagdollOnClient()
+        ent:BecomeRagdollOnClient()
     end)
 end
 
@@ -554,17 +554,24 @@ hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
 end)
 
 
+ZBaseRagdolls = ZBaseRagdolls or {}
 local ai_serverragdolls = GetConVar("ai_serverragdolls")
 hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
     if ent.IsZBaseNPC then
         -- Remove ragdoll if undesired by the user
-        if !ent.HasDeathRagdoll then
+        -- or if the NPC was gibbed by ZBase
+        if !ent.HasDeathRagdoll or ent.ZBase_WasGibbedOnDeath then
             rag:Remove()
             return
         end
 
         -- Allow NPC to interact with ragdoll before death
         ent.ServerRagdoll = rag
+
+        -- Copy submaterials
+        for k, v in ipairs(ent:GetMaterials()) do
+            rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))
+        end
 
         if !ai_serverragdolls:GetBool() then
             -- ZBase ragdoll with keep corpses off

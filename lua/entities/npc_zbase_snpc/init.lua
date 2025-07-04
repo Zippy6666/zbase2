@@ -71,6 +71,24 @@ end
 
 -- Removes the SNPC and spawns a ragdoll
 function ENT:SNPCDeath()
+
+	if self.IsZBase_SNPC then
+		-- net.Start("ZBaseClientRagdoll")
+		-- net.WriteEntity(self)
+		-- net.SendPVS(self:GetPos())
+
+		-- self:StopMoving()
+		-- self:ClearGoal()
+		-- self:CapabilitiesClear()
+		-- self:SetCollisionBounds(vector_origin, vector_origin)
+		-- self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+		-- self:SetNPCState(NPC_STATE_DEAD)
+		
+		-- -- Remove with lua after one second
+		-- -- if not done by the engine now
+		-- SafeRemoveEntityDelayed(self, 1)
+	end
+
 	SafeRemoveEntityDelayed(self, 0.1)
 end
 

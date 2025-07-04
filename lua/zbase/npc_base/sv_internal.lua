@@ -3383,25 +3383,22 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
         end)
     end
 
+    -- Do gib code
+    self.ZBase_WasGibbedOnDeath = self:ShouldGib(dmg, hit_gr)
+
     local infl = dmg:GetInflictor()
-    local Gibbed = self:ShouldGib(dmg, hit_gr)
-    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !ai_serverragdolls:GetBool() && self.HasDeathRagdoll
+    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !ai_serverragdolls:GetBool() 
+    && self.HasDeathRagdoll
 
     self:SetShouldServerRagdoll(!shouldCLRagdoll)
 
-    local fakeRagdoll
     if shouldCLRagdoll then
         -- If we should client ragdoll, create a fake ragdoll on server first so that
         -- expected server stuff can still happen to the corpse
-        fakeRagdoll = self:FakeRagdoll()
+        local fakeRagdoll = !self.ZBase_WasGibbedOnDeath && self:FakeRagdoll()
 
         -- Run custom on death for the fake ragdoll
-        self:CustomOnDeath(dmg, hit_gr, fakeRagdoll)
-    end
-
-    -- Byebye
-    if shouldCLRagdoll && !Gibbed then
-        -- Do client ragdoll
+        self:CustomOnDeath(dmg, hit_gr, fakeRagdoll or NULL)
 
         if IsValid(fakeRagdoll) then
             -- If the server ragdoll is valid (i.e. the fake ragdoll in this case)..
@@ -3420,24 +3417,6 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
             if fakeRagdoll:GetSkin() != self:GetSkin() then
                 self:SetSkin(fakeRagdoll:GetSkin())
             end
-        end
-
-        if self.IsZBase_SNPC then
-            -- -- SNPCs don't client ragdoll by themselves the way engine NPCs do
-            -- net.Start("ZBaseClientRagdoll")
-            -- net.WriteEntity(self)
-            -- net.SendPVS(self:GetPos())
-
-            -- self:StopMoving()
-            -- self:ClearGoal()
-            -- self:CapabilitiesClear()
-            -- self:SetCollisionBounds(vector_origin, vector_origin)
-            -- self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-            -- self:SetNPCState(NPC_STATE_DEAD)
-            
-            -- -- Remove with lua after one second
-            -- -- if not done by the engine now
-            -- SafeRemoveEntityDelayed(self, 1)
         end
     end
 end
@@ -3533,15 +3512,6 @@ end
 ==================================================================================================
 --]]
 
-ZBaseRagdolls = ZBaseRagdolls or {}
-
-local RagdollBlacklist = {
-    ["npc_clawscanner"] = true,
-    ["npc_manhack"] = true,
-    ["npc_cscanner"] = true,
-    ["npc_combinegunship"] = true,
-    ["npc_combinedropship"] = true,
-}
 
 function NPC:FakeRagdoll()
 	local rag = ents.Create("prop_ragdoll")
