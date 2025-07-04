@@ -532,32 +532,90 @@ end
 if CLIENT then
     net.Receive("ZBaseClientRagdoll", function()
         local ent = net.ReadEntity() if !IsValid(ent) then return end
-        local rag = ent:BecomeRagdollOnClient()
+        ent:BecomeRagdollOnClient()
     end)
 end
 
 -- Client ragdolls
 hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
-
+    -- No ragdolls for "dull state" npcs
 	if ent:GetNWBool("ZBaseNPCCopy_DullState") then
 		rag:Remove()
         return
 	end
 
+    -- ZBase NPC...
     if ent:GetNWBool("IsZBaseNPC") then
+        -- Copy submaterials
+        for k, v in ipairs(ent:GetMaterials()) do
+            rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))
+        end
+    end
+end)
 
+-- Server ragdolls
+ZBaseRagdolls = ZBaseRagdolls or {}
+local ai_serverragdolls = GetConVar("ai_serverragdolls")
+hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
+    -- Is ZBase NPC..
+    if ent.IsZBaseNPC then
+        -- Copy submaterials
         for k, v in ipairs(ent:GetMaterials()) do
             rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))
         end
 
-    end
+        -- Run "custom on death" now, even if the ragdoll may be invalid
+        local dmg = ent:LastDMGINFO() -- Get last damage info
+        -- Create basic damage info if none was stored
+        if !dmg then
+            dmg = DamageInfo()
+            dmg:SetDamageForce(vector_up)
+            dmg:SetDamagePosition(ent:GetPos())
+            dmg:SetInflictor(ent)
+            dmg:SetAttacker(ent)
+            dmg:SetDamageType(DMG_GENERIC)
+        end
+        ent:CustomOnDeath(dmg, hit_gr, rag)
 
-end)
+        -- Remove ragdoll if undesired by the user
+        -- or if the NPC was gibbed by ZBase
+        if !ent.HasDeathRagdoll or ent.ZBase_WasGibbedOnDeath then
+            rag:Remove()
+            return
+        end
 
--- Disable default server ragdolls
-hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
-    if ent.IsZBaseNPC && !rag.IsZBaseRag then
-        rag:Remove()
+        if !ai_serverragdolls:GetBool() then
+            -- ZBase ragdoll with keep corpses off
+
+            -- Nocollide
+            rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+
+            -- Put in ragdoll table
+            table.insert(ZBaseRagdolls, rag)
+
+            -- Remove one ragdoll if there are too many
+            if #ZBaseRagdolls > ZBCVAR.MaxRagdolls:GetInt() then
+
+                local ragToRemove = ZBaseRagdolls[1]
+                table.remove(ZBaseRagdolls, 1)
+                ragToRemove:Remove()
+
+            end
+
+            -- Remove ragdoll after delay if that is active
+            if ZBCVAR.RemoveRagdollTime:GetBool() then
+                SafeRemoveEntityDelayed(rag, ZBCVAR.RemoveRagdollTime:GetInt())
+            end
+
+            -- Remove from table on ragdoll removed
+            rag:CallOnRemove("ZBase_RemoveFromRagdollTable", function()
+                table.RemoveByValue(ZBaseRagdolls, rag)
+            end)
+
+            -- Remove from undo/cleanup lists
+            undo.ReplaceEntity( rag, NULL )
+            cleanup.ReplaceEntity( rag, NULL )
+        end
     end
 end)
 

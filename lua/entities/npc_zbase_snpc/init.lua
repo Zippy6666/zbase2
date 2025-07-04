@@ -44,6 +44,7 @@ end
 
 function ENT:Think()
 	-- Make sure we stay invisible when we are dead
+	-- TODO: Does this still happpen?
 	if self.Dead && !self:GetNoDraw() then
 		self:SetNoDraw(true)
 	end
@@ -69,6 +70,32 @@ function ENT:Think()
 	self:ZBaseThink()
 end
 
+-- Removes the SNPC and spawns a ragdoll
+function ENT:SNPCDeath()
+	if self:GetShouldServerRagdoll() then
+		-- Server ragdoll
+
+		-- LUA BecomeRagdoll code
+		self:MakeShiftRagdoll()
+
+		-- Remove me soon
+		SafeRemoveEntityDelayed(self, 0.1)
+	else
+		-- Client ragdoll 
+		
+		self:StopMoving()
+		self:ClearGoal()
+		self:CapabilitiesClear()
+		self:SetCollisionBounds(vector_origin, vector_origin)
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+		self:SetNPCState(NPC_STATE_DEAD)
+		SafeRemoveEntityDelayed(self, 1)
+		net.Start("ZBaseClientRagdoll")
+		net.WriteEntity(self)
+		net.SendPVS(self:GetPos())
+	end
+end
+
 function ENT:OnTakeDamage( dmginfo )
 	-- On hurt behaviour
 	self:SNPCOnHurt(dmginfo)
@@ -78,6 +105,10 @@ function ENT:OnTakeDamage( dmginfo )
 
 	-- Die
 	if self:Health() <= 0 && !self.Dead then
+		// Run on killed cpde
 		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
+		
+		// Become ragdoll
+		self:SNPCDeath()
 	end
 end
