@@ -578,24 +578,47 @@ end
 
 -- Kills the NPC (no death animation)
 -- 'dmginfo' - Damage info, not required
--- 'no_kill_feed_msg' - Set to true to not use kill feed message
-function NPC:InduceDeath( dmginfo, no_kill_feed_msg )
+function NPC:InduceDeath( dmginfo )
+    dmginfo = dmginfo or DamageInfo()
+    
+    -- Death anim workaround
+    if self.DoingDeathAnim then
+        -- Mark us as not doing death animation
+        -- Allows damage to happen, etc..
+        self.DoingDeathAnim = false
 
-    if self.Dead then return end
-
-    dmginfo = dmginfo or self:LastDMGINFO()
-
-    self.DeathAnim_Finished = true
-
-    local att = dmginfo:GetAttacker()
-    local infl = dmginfo:GetInflictor()
-
-    if no_kill_feed_msg then
-        self:OnDeath(IsValid(att) && att or self, IsValid(infl) && infl or self, dmginfo, HITGROUP_GENERIC)
-    else
-        hook.Run("OnNPCKilled", self, IsValid(att) && att or self, IsValid(infl) && infl or self )
+        -- Stop playing the animation to reset our state
+        -- so we can die
+        self:InternalStopAnimation()
     end
 
+    local cls = self:GetClass()
+    local attacker = dmginfo:GetAttacker()
+
+    if cls == "npc_combinedropship" or cls == "npc_helicopter" or cls == "npc_combinegunship" then
+        hook.Run("OnNPCKilled", self, attacker, game.GetWorld())
+    end
+
+    if cls == "npc_combinedropship" then
+        self:Remove()
+        return
+    end
+
+    self:CONV_CallNextTick(function()
+        local dmginfo2 = DamageInfo()
+        dmginfo2:SetDamage(math.huge)
+        dmginfo2:SetAttacker(conv.thisEntOrWorld(attacker))
+        dmginfo2:SetInflictor(conv.thisEntOrWorld(attacker))
+        dmginfo2:SetDamageForce(Vector(1,1,1))
+        dmginfo2:SetDamagePosition(self:WorldSpaceCenter())
+        dmginfo2:SetDamageType(DMG_BLAST)
+
+        if cls=="npc_helicopter" then
+            dmginfo2:SetDamageType(DMG_AIRBOAT)
+        end
+
+        self:TakeDamageInfo(dmginfo2)
+    end)
 end
 
 -- Creates a gib entity with the given model

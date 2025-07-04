@@ -3166,7 +3166,7 @@ function NPC:StoreDMGINFO( dmg )
     }
 end
 
-function NPC:LastDMGINFO( dmg )
+function NPC:LastDMGINFO()
     if !self.LastDMGINFOTbl then return end
 
     local lastdmginfo = DamageInfo()
@@ -3238,7 +3238,7 @@ local ShouldPreventGib = {
 
     -- Called second
 function NPC:OnEntityTakeDamage( dmg )
-    if self.DoingDeathAnim && !self.DeathAnim_Finished then
+    if self.DoingDeathAnim then
         return true
     end
 
@@ -3306,7 +3306,9 @@ function NPC:OnEntityTakeDamage( dmg )
     end
 
     -- Death animation
-    if !table.IsEmpty(self.DeathAnimations) && goingToDie && math.random(1, self.DeathAnimationChance)==1 then
+    if !self.DeathAnimStarted
+    && !table.IsEmpty(self.DeathAnimations)
+    && goingToDie && math.random(1, self.DeathAnimationChance)==1 then
         self:DeathAnimation(dmg)
         return true
     end
@@ -3345,7 +3347,10 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     if self.Dead then return end
     self.Dead = true
 
+    local infl = dmg:GetInflictor()
+
     -- Return previous damage
+    -- If it was altered in an effort of preventing engine gibs
     if self.ZBasePreDeathDamageType then
         dmg:SetDamageType(self.ZBasePreDeathDamageType)
     end
@@ -3362,27 +3367,6 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     -- My honest reaction
     self:Death_AlliesReact()
 
-    local infl = dmg:GetInflictor()
-    local Gibbed = self:ShouldGib(dmg, hit_gr)
-    local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
-    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !ai_serverragdolls:GetBool() && !isDissolveDMG && self.HasDeathRagdoll
-    local rag
-
-    self:SetShouldServerRagdoll(!shouldCLRagdoll)
-
-    -- Become ragdoll if we should
-    if !shouldCLRagdoll && !Gibbed && !dmg:IsDamageType(DMG_REMOVENORAGDOLL) then
-        local Ragdoll = self:BecomeRagdoll(dmg, hit_gr, ai_serverragdolls:GetBool())
-        if IsValid(Ragdoll) then
-            rag = Ragdoll
-        end
-    elseif shouldCLRagdoll then
-        local Ragdoll = self:FakeRagdoll()
-        if IsValid(Ragdoll) then
-            rag = Ragdoll
-        end
-    end
-
     -- Drop engine weapon, not stoopid vegetable zbase weapon
     local wep = self:GetActiveWeapon()
     if IsValid(wep) && engineWeaponFlipped[wep:GetClass()] then
@@ -3393,9 +3377,6 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     if ZBCVAR.ItemDrop:GetBool() then
         self:Death_ItemDrop(dmg)
     end
-
-    -- Custom on death
-    self:CustomOnDeath( dmg, hit_gr, rag )
 
     -- Weapon dissolve
     if ZBCVAR.DissolveWep:GetBool() then
@@ -3417,46 +3398,52 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
         end)
     end
 
-    -- Byebye
-    if shouldCLRagdoll && !Gibbed then
-        if IsValid(rag) then
+    -- Do gib code
+    self.ZBase_WasGibbedOnDeath = self:ShouldGib(dmg, hit_gr)
+
+    -- Client or server ragdoll?
+    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !ai_serverragdolls:GetBool()
+    && self.HasDeathRagdoll
+    self:SetShouldServerRagdoll(!shouldCLRagdoll)
+
+    -- Set my own model to the custom ragdoll model if any
+    -- so that my ragdoll has the model
+    if self.RagdollModel != "" then
+        self:SetModel(self.RagdollModel)
+    end
+
+    if shouldCLRagdoll then
+        -- If we should client ragdoll, create a fake ragdoll on server first so that
+        -- expected server stuff can still happen to the corpse
+        local fakeRagdoll = !self.ZBase_WasGibbedOnDeath && self:FakeRagdoll()
+
+        -- Run custom on death for the fake ragdoll
+        self:CustomOnDeath(dmg, hit_gr, fakeRagdoll or NULL)
+
+        if IsValid(fakeRagdoll) then
+            -- If the server ragdoll is valid (i.e. the fake ragdoll in this case)..
 
             -- This makes so that the client ragdoll has the desired bodygroups
-            local bodygroups = rag:GetBodyGroups()
+            for k, v in pairs(fakeRagdoll:GetBodyGroups()) do
+                self:SetBodygroup(v.id, fakeRagdoll:GetBodygroup(v.id))
+            end
+
+            local bodygroups = fakeRagdoll:GetBodyGroups()
             for i = 1, #bodygroups do
-                local v = bodygroups[i]
-                self:SetBodygroup(v.id, rag:GetBodygroup(v.id))
+                local bodygroup = bodygroups[i]
+                self:SetBodygroup(bodygroup.id, fakeRagdoll:GetBodygroup(bodygroup.id))
             end
 
             -- And the desired model
-            if rag:GetModel()!=self:GetModel() then
-                self:SetModel(rag:GetModel())
+            if fakeRagdoll:GetModel()!=self:GetModel() then
+                self:SetModel(fakeRagdoll:GetModel())
             end
 
             -- And the desired skin
-            if rag:GetSkin() != self:GetSkin() then
-                self:SetSkin(rag:GetSkin())
+            if fakeRagdoll:GetSkin() != self:GetSkin() then
+                self:SetSkin(fakeRagdoll:GetSkin())
             end
-
         end
-
-        self:StopMoving()
-        self:ClearGoal()
-        self:CapabilitiesClear()
-        self:SetCollisionBounds(vector_origin, vector_origin)
-        self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-        self:SetNPCState(NPC_STATE_DEAD)
-        SafeRemoveEntityDelayed(self, 1)
-
-        if self.IsZBase_SNPC then
-            net.Start("ZBaseClientRagdoll")
-            net.WriteEntity(self)
-            net.SendPVS(self:GetPos())
-        elseif self.DoingDeathAnim then
-            self:FullReset()
-        end
-    else
-        self:Remove()
     end
 end
 
@@ -3553,15 +3540,6 @@ end
 ==================================================================================================
 --]]
 
-ZBaseRagdolls = ZBaseRagdolls or {}
-
-local RagdollBlacklist = {
-    ["npc_clawscanner"] = true,
-    ["npc_manhack"] = true,
-    ["npc_cscanner"] = true,
-    ["npc_combinegunship"] = true,
-    ["npc_combinedropship"] = true,
-}
 
 function NPC:FakeRagdoll()
 	local rag = ents.Create("prop_ragdoll")
@@ -3593,22 +3571,23 @@ function NPC:FakeRagdoll()
     return rag
 end
 
+-- LEGACY
 function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
-    if !self.HasDeathRagdoll then return end
-    if RagdollBlacklist[self:GetEngineClass()] && !self.RagdollModel then return end
+    error("Tried using legacy ZBase function: 'NPC.BecomeRagdoll'!")
+end
 
-    local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
-    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !keep_corpse && !isDissolveDMG
-    local infl = dmg:GetInflictor()
-    local npc = IsValid(self.ActiveRagdoll) && self.ActiveRagdoll or self
-	local rag = ents.Create("prop_ragdoll")
+-- Create server ragdoll manually with LUA, this may be desired at times
+function NPC:MakeShiftRagdoll()
+	if !self.HasDeathRagdoll then return end
+    if self.ZBase_WasGibbedOnDeath then return end
+
+    local rag = ents.Create("prop_ragdoll")
 	rag:SetModel(self.RagdollModel == "" && self:GetModel() or self.RagdollModel)
-    rag:SetPos(npc:GetPos())
-    rag:SetAngles(npc:GetAngles())
+    rag:SetPos(self:GetPos())
+    rag:SetAngles(self:GetAngles())
 	rag:SetSkin(self:GetSkin())
 	rag:SetColor(self:GetColor())
 	rag:SetMaterial(self:GetMaterial())
-    rag.IsZBaseRag = true
 	rag:Spawn()
 
     for k, v in ipairs(self:GetBodyGroups()) do
@@ -3625,6 +3604,18 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		return
 	end
 
+    local dmg = self:LastDMGINFO() -- Get last damage info
+
+    -- Create basic damage info if none was stored
+    if !dmg then
+        dmg = DamageInfo()
+        dmg:SetDamageForce(vector_up)
+        dmg:SetDamagePosition(self:GetPos())
+        dmg:SetInflictor(self)
+        dmg:SetAttacker(self)
+        dmg:SetDamageType(DMG_GENERIC)
+    end
+
 	local physcount = rag:GetPhysicsObjectCount()
     local dmgpos = dmg:GetDamagePosition()
     local force = self.RagdollApplyForce && (
@@ -3636,8 +3627,8 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 	for i = 1, physcount - 1 do
 		-- Placement
 		local physObj = rag:GetPhysicsObjectNum(i)
-        local bone = npc:TranslatePhysBoneToBone(i)
-		local pos, ang = npc:GetBonePosition(bone)
+        local bone = self:TranslatePhysBoneToBone(i)
+		local pos, ang = self:GetBonePosition(bone)
         local distsqrFromDmg = pos:DistToSqr(dmg:GetDamagePosition())
 
         if distsqrFromDmg < mindist then
@@ -3663,10 +3654,9 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
         closestPhys:ApplyForceCenter(force)
     end
 
-	-- Hook
-	hook.Run("CreateEntityRagdoll", self, rag)
-
 	-- Dissolve
+    local infl = dmg:GetInflictor()
+    local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
 	if isDissolveDMG && self.DissolveRagdoll then
 		rag:SetName( "base_ai_ext_rag" .. rag:EntIndex() )
 
@@ -3676,6 +3666,10 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		dissolve:Fire("Dissolve", rag:GetName())
 		dissolve:Spawn()
 		rag:DeleteOnRemove(dissolve)
+
+        rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+		undo.ReplaceEntity( rag, NULL )
+		cleanup.ReplaceEntity( rag, NULL )
 	end
 
 	-- Ignite
@@ -3683,44 +3677,8 @@ function NPC:BecomeRagdoll( dmg, hit_gr, keep_corpse )
 		rag:Ignite(math.Rand(4,8))
 	end
 
-    if isDissolveDMG then
-        rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-		undo.ReplaceEntity( rag, NULL )
-		cleanup.ReplaceEntity( rag, NULL )
-    elseif !keep_corpse then
-        -- If we should not keep corpse, do this:
-
-        -- Nocollide
-        rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-
-        -- Put in ragdoll table
-        table.insert(ZBaseRagdolls, rag)
-
-        -- Remove one ragdoll if there are too many
-        if #ZBaseRagdolls > ZBCVAR.MaxRagdolls:GetInt() then
-
-            local ragToRemove = ZBaseRagdolls[1]
-            table.remove(ZBaseRagdolls, 1)
-            ragToRemove:Remove()
-
-        end
-
-        -- Remove ragdoll after delay if that is active
-        if ZBCVAR.RemoveRagdollTime:GetBool() then
-            SafeRemoveEntityDelayed(rag, ZBCVAR.RemoveRagdollTime:GetInt())
-        end
-
-        -- Remove from table on ragdoll removed
-        rag:CallOnRemove("ZBase_RemoveFromRagdollTable", function()
-            table.RemoveByValue(ZBaseRagdolls, rag)
-        end)
-
-        -- Undo/cleanup replace entity
-		undo.ReplaceEntity( rag, NULL )
-		cleanup.ReplaceEntity( rag, NULL )
-    end
-
-    return rag
+	-- Hook
+	hook.Run("CreateEntityRagdoll", self, rag)
 end
 
 --[[
@@ -3850,6 +3808,8 @@ function NPC:DeathAnimation( dmg )
     self.DoingDeathAnim = true
 
     self:EmitSound(self.DeathSounds)
+    -- Emitted death sounds, don't emit again on actual death
+    self.DeathSounds = ""
 
     dmg:SetDamageForce(vector_origin)
     self:StoreDMGINFO(dmg)
