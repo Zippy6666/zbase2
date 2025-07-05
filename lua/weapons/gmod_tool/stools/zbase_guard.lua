@@ -33,7 +33,7 @@ if SERVER then
                 self.ZBase_HasLUAFlyCapability = true
                 conv.devPrint("Enabling fly capability for " .. tostring(self))
             end
- 
+
             self.ZBase_Guard_HasMovementSet = true
 
         -- DISABLE MOVEMENT
@@ -102,8 +102,11 @@ if SERVER then
     hook.Add("Think", "ZBase_GuardThink", function()
         if AIDisabled:GetBool() then return end
         if NextGuardThink > CurTime() then return end
+        if !IsValid(ZBase_Guards[1]) then return end
 
-        for _, npc in ipairs(ZBase_Guards) do ZBaseUpdateGuard(npc) end
+        for i = 1, #ZBase_Guards do
+            ZBaseUpdateGuard(ZBase_Guards[i])
+        end
 
         NextGuardThink = CurTime() + 0.8
     end)

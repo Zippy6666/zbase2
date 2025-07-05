@@ -9,7 +9,7 @@ function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFil
 
 	local sentTab = ZBaseScriptedSentences[ sentence ]
 	if !sentTab then return end
-	
+
 	self:ZBaseStopScriptedSentence( true )
 
 	self.FinishSentenceCallback = callback
@@ -17,12 +17,13 @@ function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFil
 	local stable = table.Copy( sentTab )
 	local captions = stable.caption && stable.caption[ 1 ] || ""
 
-	for _, snd in ipairs( stable.sound ) do
+	for i = 1, #stable.sound do
+		local snd = stable.sound[i]
 		local num = 1
 
 		if istable( snd ) && isstring( snd[ 1 ] ) then
-			num = math.random( 1, #snd ) 
-			snd = snd[ num ]			
+			num = math.random( 1, #snd )
+			snd = snd[ num ]
 		end
 
 		local nextSTable = stable.sound[ _ + 1 ]
@@ -43,46 +44,46 @@ function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFil
 		snd = sndOver || snd
 		stable.sound[ _ ] = snd
 	end
-	
+
 	local ZBase_ASS_CurAudio = 1
 	local ZBase_ASS_SoundLast = 0
 	local ZBase_ASS_SoundDelay = 0
-	
+
 	local timerName = "ZBaseEmitSoundSentenceTimer" .. self:EntIndex()
-	
+
 	timer.Remove( timerName )
 
 	if stable.caption then ZBaseAddCaption( true, captions, stable.caption[ 2 ], stable.level, pos ) end
 
-	timer.Create( timerName, 0, 0, function()	
+	timer.Create( timerName, 0, 0, function()
 		if !IsValid(self) || stable == nil || ( ZBase_ASS_CurAudio > #stable.sound ) then
-		
+
 			timer.Remove(timerName)
-			
-			ZBase_ASS_CurSound = 1			
-			if isfunction( callback ) then			
-				callback()				
+
+			ZBase_ASS_CurSound = 1
+			if isfunction( callback ) then
+				callback()
 			end
 
 			if IsValid(self) then
 				self.FinishSentenceCallback = nil
 			end
-			
+
 		return end
-	
+
 		if CurTime() - ZBase_ASS_SoundLast >= ZBase_ASS_SoundDelay then
-			
+
 			if ZBase_ASS_CurAudio <= #stable.sound then
-				
+
 				local snd = stable.sound[ZBase_ASS_CurAudio]
 
-				if isnumber( snd ) || ( istable( snd ) && !isstring( snd[ 1 ] ) || snd[ 1 ] == "" ) || snd == "" then ZBase_ASS_CurAudio = ZBase_ASS_CurAudio + 1 return end 
+				if isnumber( snd ) || ( istable( snd ) && !isstring( snd[ 1 ] ) || snd[ 1 ] == "" ) || snd == "" then ZBase_ASS_CurAudio = ZBase_ASS_CurAudio + 1 return end
 
 				local sndNext = stable.sound[ZBase_ASS_CurAudio + 1]
-				local dur = nil				
-				
+				local dur = nil
+
 				sndNext = overrideTab && overrideTab[ snd ] && overrideTab[ snd ][ 2 ] || sndNext
-				
+
 				--if istable( snd ) then PrintTable(snd) end
 				if isnumber( sndNext ) then
 					dur = ZBaseSoundDuration( snd ) + sndNext
@@ -93,7 +94,7 @@ function NPC:ZBaseEmitScriptedSentence(sentence, pos, overrideTab, CRecipientFil
 				end
 
 				self.m_sASSCurSentence = snd
-				
+
 				local channel = istable( sndNext ) && sndNext.channel || stable.channel
 				local volume = istable( sndNext ) && sndNext.volume || stable.volume
 				local level = istable( sndNext ) && sndNext.level || stable.level
@@ -122,25 +123,25 @@ end
 function NPC:ZBaseStopScriptedSentence(fullstop)
 
 	if self:ZBaseEmittingSentence() then
-		timer.Remove( "ZBaseEmitSoundSentenceTimer" .. self:EntIndex() ) 	
+		timer.Remove( "ZBaseEmitSoundSentenceTimer" .. self:EntIndex() )
 
 		if isfunction(self.FinishSentenceCallback) then
 			self.FinishSentenceCallback()
 		end
 
-		if fullstop == true && self.m_sASSCurSentence != nil then	
+		if fullstop == true && self.m_sASSCurSentence != nil then
 			self:StopSound( self.m_sASSCurSentence )
 			self.m_sASSCurSentence = nil
 		end
-	end	
+	end
 
 end
 
 if CLIENT then
 
-	net.Receive( "ZBaseAddCaption", function(len, ply)	
+	net.Receive( "ZBaseAddCaption", function(len, ply)
 		local text = net.ReadString()
-		local dur = net.ReadFloat()	
+		local dur = net.ReadFloat()
 		ZBaseAddCaption( nil, text, dur, nil, nil )
 	end)
 

@@ -329,7 +329,9 @@ if SERVER then
             npc:SetColor(invisCol)
         end
 
-        for _, child in ipairs(npc:GetChildren()) do
+        local children = npc:GetChildren()
+        for i = 1, #children do
+            local child = children[i]
             -- Remove manhack light, etc
             child:Remove()
         end
@@ -342,7 +344,7 @@ if SERVER then
                 SafeRemoveEntityDelayed(ZBaseNPC, 0)
             end)
         end
-        
+
         ZBaseNPC:CallOnRemove("KillDullNPC", function()
             if IsValid(npc) then
                 if !npc:GetNoDraw() then
@@ -433,7 +435,7 @@ function ZBaseSoundDuration( soundname )
         sounddur = math.Round( sounddur * 1000 ) / 1000
         SoundDurationCache[soundname] = sounddur
         return sounddur
-    end		
+    end
 
     conv.devPrint(Color(255, 0, 0), "ZBaseSoundDuration: failed to get sound duration for '"..soundname.."'")
     return 0
