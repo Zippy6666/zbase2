@@ -165,7 +165,7 @@ ZBaseAddToolMenu( "ZBASE", "Dev", function(panel)
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Show NPC Schedule", "zbase_show_sched") }, color_black, SettingFont, "Show what schedule the NPC is currently doing.", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "ZBase Reload Spawnmenu", "zbase_reload_spawnmenu") }, color_black, SettingFont, "Should 'zbase_reload' also reload the spawn menu?", DescriptionColor, DescriptionFont )
 
-    local ReloadButton = panel:ZBase_ToolMenuAddItem( { panel:Button( "Reload ZBase" ) }, color_black, SettingFont, "Runs 'zbase_reload' which can be necessary if your NPCs aren't updating properly on save.", DescriptionColor, DescriptionFont )
+    local ReloadButton = panel:ZBase_ToolMenuAddItem( { panel:Button( "Reload ZBase" ) }, color_black, SettingFont, "Runs 'zbase_reload' which can be necessary if your NPCs aren't updating properly on save.", DescriptionColor, DescriptionFont )[1]
     function ReloadButton:DoClick()
         net.Start("ZBaseReload")
         net.SendToServer()

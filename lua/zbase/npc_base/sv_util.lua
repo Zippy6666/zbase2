@@ -570,10 +570,19 @@ end
 ==================================================================================================
 --]]
 
--- Kills the NPC (no death animation)
+-- Kills the NPC
 -- 'dmginfo' - Damage info, not required
 function NPC:InduceDeath( dmginfo )
-    dmginfo = dmginfo or DamageInfo()
+    local attacker = game.GetWorld()
+    local dmgtype = DMG_BLAST -- Kills most
+
+    dmginfo = dmginfo or self:LastDMGINFO() -- Try get last dmginfo if none sent
+
+    -- Change some dmginfo properties by what is specified
+    if dmginfo then
+        attacker = dmginfo:GetAttacker()
+        dmgtype = dmginfo:GetDamageType()
+    end
     
     -- Death anim workaround
     if self.DoingDeathAnim then
@@ -587,7 +596,7 @@ function NPC:InduceDeath( dmginfo )
     end
 
     local cls = self:GetClass()
-    local attacker = dmginfo:GetAttacker()
+
 
     if cls == "npc_combinedropship" or cls == "npc_helicopter" or cls == "npc_combinegunship" then
         hook.Run("OnNPCKilled", self, attacker, game.GetWorld())

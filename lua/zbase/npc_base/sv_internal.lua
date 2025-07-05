@@ -3244,7 +3244,9 @@ function NPC:OnEntityTakeDamage( dmg )
 
     local infl = dmg:GetInflictor()
 
-    -- Combine balls should have dissolve damage
+    -- Workaround so that combine ball deals dissolve damage.
+    -- It does not for some reason when EFL_NO_DISSOLVE
+    -- is applied.
     if IsValid(infl) && infl:GetClass()=="prop_combine_ball" then
         dmg:SetDamageType(DMG_DISSOLVE)
     end
