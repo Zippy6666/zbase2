@@ -261,7 +261,7 @@ end
 function ZBaseSchedDebug( ent )
     return ( (ent.GetCurrentCustomSched && ent:GetCurrentCustomSched() )
     or ZBaseEngineSchedName(ent:GetCurrentSchedule()) )
-    or "custom "..ent:GetClass().." schedule ("..tostring(ent:GetCurrentSchedule()..")")
+    or "custom "..ent:GetEngineClass().." schedule ("..tostring(ent:GetCurrentSchedule()..")")
 end
 
 --[[
