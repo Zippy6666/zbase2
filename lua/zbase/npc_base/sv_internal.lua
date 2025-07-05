@@ -105,7 +105,7 @@ function NPC:ZBaseInit()
     self:InitInternalVars()
     self:InitModel()
     self:InitBounds()
-    self:AddEFlags(EFL_NO_DISSOLVE)
+    self:AddEFlags(self.AddNoDissolveFlag && EFL_NO_DISSOLVE or 0)
     self:SetMaxHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
     self:SetHealth(self.StartHealth*ZBCVAR.HPMult:GetFloat())
 
@@ -3637,7 +3637,7 @@ function NPC:MakeShiftRagdoll()
 
 	-- Dissolve
     local infl = dmg:GetInflictor()
-    local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE) or (IsValid(infl) && infl:GetClass()=="prop_combine_ball")
+    local isDissolveDMG = dmg:IsDamageType(DMG_DISSOLVE)
 	if isDissolveDMG && self.DissolveRagdoll then
 		rag:SetName( "base_ai_ext_rag" .. rag:EntIndex() )
 
@@ -3649,8 +3649,6 @@ function NPC:MakeShiftRagdoll()
 		rag:DeleteOnRemove(dissolve)
 
         rag:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-		undo.ReplaceEntity( rag, NULL )
-		cleanup.ReplaceEntity( rag, NULL )
 	end
 
 	-- Ignite

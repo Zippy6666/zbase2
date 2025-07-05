@@ -37,6 +37,8 @@ NPC.DodgeAnimations = {
     Right = "dodge_e",
 }
 
+NPC.AddNoDissolveFlag = false -- If set to true NPCs will not dissolve instantly from ar2 altfires
+
 function NPC:CustomInitialize()
     self:AddAnimationEvent("dodge_w", 5, 100)
     self:AddAnimationEvent("dodge_e", 5, 100)
@@ -90,11 +92,24 @@ function NPC:OnPlayAnimationFailed( seq )
     end
 end
 
+function NPC:CustomTakeDamage( dmginfo, HitGroup )
+    -- Workaround so that combine ball still explodes on death
+    -- even when doing a ZBase death animation
+    self.ZBaseHunter_LastInflComball = IsValid( dmginfo:GetInflictor() ) 
+    && dmginfo:GetInflictor():GetClass()=="prop_combine_ball" && dmginfo:GetInflictor()
+end
+
 -- Death animation code
 function NPC:DeathAnimation_Animation()
     -- This is to prevent another death sound from playing when the hunter
     -- officially dies after the animation
     self.MuteDefaultVoice = true
+
+    -- Workaround so that combine ball still explodes on death
+    -- even when doing a ZBase death animation
+    if IsValid(self.ZBaseHunter_LastInflComball) then
+        self.ZBaseHunter_LastInflComball:Fire("Explode")
+    end
     
     return self:PlayAnimation(table.Random(self.DeathAnimations), false, {
         speedMult=1,
