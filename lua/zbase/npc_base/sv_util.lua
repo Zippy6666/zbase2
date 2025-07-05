@@ -574,7 +574,7 @@ end
 -- 'dmginfo' - Damage info, not required
 function NPC:InduceDeath( dmginfo )
     local attacker = game.GetWorld()
-    local dmgtype = DMG_BLAST -- Kills most
+    local dmgtype = DMG_GENERIC
 
     dmginfo = dmginfo or self:LastDMGINFO() -- Try get last dmginfo if none sent
 
@@ -597,7 +597,6 @@ function NPC:InduceDeath( dmginfo )
 
     local cls = self:GetClass()
 
-
     if cls == "npc_combinedropship" or cls == "npc_helicopter" or cls == "npc_combinegunship" then
         hook.Run("OnNPCKilled", self, attacker, game.GetWorld())
     end
@@ -618,6 +617,8 @@ function NPC:InduceDeath( dmginfo )
 
         if cls=="npc_helicopter" then
             dmginfo2:SetDamageType(DMG_AIRBOAT)
+        elseif cls=="npc_combinegunship" or cls == "npc_strider" or cls == "npc_rollermine" then
+            dmginfo2:SetDamageType(DMG_BLAST)
         end
 
         self:TakeDamageInfo(dmginfo2)

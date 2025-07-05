@@ -12,10 +12,6 @@ ZBasePatchTable[my_cls] = function( NPC )
         self.DoingHunterDamageFix = nil
     end
 
-    -- Ensure insta-death when hit by comball
-    function NPC:Patch_TakeDamage( dmg )
-    end
-
     -- These are hunter specific fail schedules
     function NPC:Patch_IsFailSched(sched)
         return ZBaseESchedID("SCHED_HUNTER_FAIL_IMMEDIATE") == sched 
