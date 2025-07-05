@@ -584,18 +584,6 @@ hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
             rag:Remove()
             return
         end
-        
-        -- Dissolve ragdoll if it is not already dissolving
-        -- and damage was dissolve
-        -- May be necessary at times..
-        -- if dmg then
-        --     if (dmg:IsDamageType(DMG_DISSOLVE)   -- Damage is dissolve
-        --     && ent.DissolveRagdoll              -- NPC dev allows it
-        --     && !ent:IsFlagSet(FL_DISSOLVING)    -- Not already dissolving
-        --     then
-        --         rag:Dissolve(0, 100)
-        --     end
-        -- end
 
         if !ai_serverragdolls:GetBool() then
             -- ZBase ragdoll with keep corpses off

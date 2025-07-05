@@ -613,7 +613,7 @@ function NPC:InduceDeath( dmginfo )
         dmginfo2:SetInflictor(conv.thisEntOrWorld(attacker))
         dmginfo2:SetDamageForce(Vector(1,1,1))
         dmginfo2:SetDamagePosition(self:WorldSpaceCenter())
-        dmginfo2:SetDamageType(DMG_BLAST)
+        dmginfo2:SetDamageType(dmgtype)
 
         if cls=="npc_helicopter" then
             dmginfo2:SetDamageType(DMG_AIRBOAT)
