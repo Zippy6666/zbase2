@@ -72,7 +72,7 @@ SWEP.DisableDuplicator = false -- Disable the ability for players to duplicate t
 --]]
 
 SWEP.PrimaryShootSound = "Weapon_SMG1.NPC_Single" -- Shoot sound
-SWEP.PrimaryShootSound_Dist = "auto" -- Distant shoot sound, 'auto' decides it based on weapon stats, set to false to disable entirely
+SWEP.PrimaryShootSound_Dist = "auto" -- Distant shoot sound, auto decides it based on weapon stats
 SWEP.PrimarySpread = 0.02 -- Spread
 SWEP.PrimaryDamage = 3 -- Damage
 

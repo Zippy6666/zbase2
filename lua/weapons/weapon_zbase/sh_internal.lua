@@ -163,17 +163,9 @@ function SWEP:PrimaryAttack()
 			
 			-- Distant sound..
 			if self.PrimaryShootSound_Dist == "auto" then
-				local snd = "defaultblahblah.wav"
-
-				if self.Primary.NumShots > 1 then
-					snd = "shotty.wav"
-				elseif self.PrimaryDamage <= 3 then
-					snd = "pistol.wav"
-				end
-
-				self:EmitSound(snd, 140, math.random(90, 110), 0.9, CHAN_STATIC)
-			elseif self.PrimaryShootSound_Dist != false then
-				self:EmitSound(self.PrimaryShootSound_Dist, 140, math.random(90, 110), 0.9, CHAN_STATIC)
+				
+			else
+				self:EmitSound(self.PrimaryShootSound_Dist)
 			end
 
 			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
