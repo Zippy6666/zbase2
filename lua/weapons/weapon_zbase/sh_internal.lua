@@ -160,6 +160,14 @@ function SWEP:PrimaryAttack()
 
 			self:NPCShootEffects()
 			self:EmitSound(self.PrimaryShootSound)
+			
+			-- Distant sound..
+			if self.PrimaryShootSound_Dist == "auto" then
+				
+			else
+				self:EmitSound(self.PrimaryShootSound_Dist)
+			end
+
 			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
 		end
 
