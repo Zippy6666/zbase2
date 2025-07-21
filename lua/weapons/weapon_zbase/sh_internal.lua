@@ -101,7 +101,7 @@ function SWEP:PrimaryAttack()
 			own:CONV_TempVar("bIsDryFiring", true, 0.2)
 		end
 
-		return 
+		return
 	end
 
 	-- Owner is NPC
@@ -123,7 +123,7 @@ function SWEP:PrimaryAttack()
 			-- Check should use manual positioning
 			if self.Primary.BulletPos.ShouldUse == true then
 				local offsetpos = self:GetBulletOffsetPos()
-				
+
 				-- Got an offset...
 				if offsetpos then
 					-- Change bullet dispatcher to a temporary ent with the offset position
@@ -135,7 +135,7 @@ function SWEP:PrimaryAttack()
 					-- bulletDispatcherEnt:SetMaterial("models/wireframe")
 					bulletDispatcherEnt:Spawn()
 					SafeRemoveEntityDelayed(bulletDispatcherEnt, 1)
-					
+
 					-- Change src to the offset position
 					src = offsetpos
 
@@ -143,7 +143,7 @@ function SWEP:PrimaryAttack()
 					debugoverlay.Text(src+vector_up*10, "Bullet start position", 2, false)
 				end
 			end
-			
+
 			local bullet = {
 				Attacker = own,
 				Inflictor = self,
@@ -174,12 +174,12 @@ function SWEP:TakePrimaryAmmo( num )
 	local own = self:GetOwner()
 
 	-- Doesn't use clips
-	if self.Weapon:Clip1() <= 0 then 
+	if self.Weapon:Clip1() <= 0 then
 		own:RemoveAmmo( num, self.Weapon:GetPrimaryAmmoType() )
 		return
 	end
 
-	self:SetClip1( self:Clip1() - num )	
+	self:SetClip1( self:Clip1() - num )
 end
 
 -- Workaround for combine soldier
@@ -229,8 +229,8 @@ function SWEP:WorldMFlash(effectEnt)
 				ZBaseMuzzleLight( self:GetPos(), 1.5, 256, col )
 
 			end
-			
-			return 
+
+			return
 		end
 	end
 
@@ -240,7 +240,7 @@ function SWEP:WorldMFlash(effectEnt)
 			local angof = 	self.Primary.MuzzleFlashPos.AngOffset
 
 			ZBaseMuzzleFlashAtPos(
-				effectEnt:GetPos()+effectEnt:GetForward()*ofs.x+effectEnt:GetRight()*ofs.y+effectEnt:GetUp()*ofs.z, 
+				effectEnt:GetPos()+effectEnt:GetForward()*ofs.x+effectEnt:GetRight()*ofs.y+effectEnt:GetUp()*ofs.z,
 				effectEnt:GetAngles()+angof,
 				self.Primary.MuzzleFlashFlags, effectEnt
 			)
@@ -302,8 +302,8 @@ end
 
 function SWEP:NPCShootEffects()
 	local own = self:GetOwner()
-	if !IsValid(own) then return end 
-	
+	if !IsValid(own) then return end
+
 	-- Custom
 	local r = self:CustomShootEffects()
 	if r == true then
@@ -409,7 +409,7 @@ function SWEP:ZBaseGetNPCBurstSettings()
 end
 
 function SWEP:GetNPCBurstSettings()
-	
+
 	-- local own = self:GetOwner()
 
 	-- if IsValid(own) && own.IsZBaseNPC then
@@ -457,7 +457,11 @@ function SWEP:NPCMeleeWeaponDamage(dmgData)
     local soundEmitted = false
     local hurtEnts = {}
 
-    for _, ent in ipairs(ents.FindInSphere(ownerpos, self.NPCMeleeWep_DamageDist)) do
+	local entsInSphere = ents.FindInSphere(ownerpos, self.NPCMeleeWep_DamageDist)
+	if entsInSphere[1] == NULL then return end
+    for i = 1, #entsInSphere do
+        local ent = entsInSphere[i]
+
         if ent == own then continue end
         if own.GetNPCState && own:GetNPCState() == NPC_STATE_DEAD then continue end
         if !own:Visible(ent) then continue end
@@ -487,7 +491,7 @@ function SWEP:NPCMeleeWeaponDamage(dmgData)
             dmg:SetDamagePosition(ent:WorldSpaceAABB())
             ent:TakeDamageInfo(dmg)
         end
-    
+
         -- Sound
         if !soundEmitted && disp != D_NU then
             ent:EmitSound(self.NPCMeleeWep_HitSound)
@@ -599,7 +603,7 @@ if CLIENT then
 				-- Specify a good position
 				local offsetVec = self.CustomWorldModel.Offset
 				local offsetAng = self.CustomWorldModel.AngOffset
-				
+
 				local boneid = own:LookupBone(self.CustomWorldModel.Bone) -- Right Hand
 				if !boneid then return end
 

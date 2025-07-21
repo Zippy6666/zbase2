@@ -45,8 +45,9 @@ function TOOL:RightClick( trace )
     local own = self:GetOwner()
     if !IsValid(own) then return end
 
-    if SERVER && istable(self.NPCsToMove) && #self.NPCsToMove > 0 then
-        for _, npc in ipairs(self.NPCsToMove) do
+    if SERVER && istable(self.NPCsToMove) && IsValid(self.NPCsToMove[1]) then
+        for i = 1, #self.NPCsToMove do
+            local npc = self.NPCsToMove[i]
             if npc.IsZBaseNPC then
                 npc:FullReset()
             else
@@ -87,9 +88,10 @@ if CLIENT then
     }
 
     local function tableHasValue(t, val)
-        for k, v in ipairs( t ) do
-            if ( v == val ) then return true end
+        for i = 1, #t do
+            if ( t[i] == val ) then return true end
         end
+
         return false
     end
 
@@ -98,7 +100,7 @@ if CLIENT then
             npc:CONV_StoreInTable(LocalPlayer()[tblname])
         end
     end
-    
+
     hook.Add( "PreDrawHalos", "ZBaseToolHalos", function()
         local wep = LocalPlayer():GetActiveWeapon()
 
@@ -106,7 +108,8 @@ if CLIENT then
         && toolnames[LocalPlayer():GetTool().Name] ) then return end
         if !LocalPlayer().ZBaseToolTableNames then return end
 
-        for _, tblname in ipairs(LocalPlayer().ZBaseToolTableNames) do
+        for i = 1, #LocalPlayer().ZBaseToolTableNames do
+            local tblname = LocalPlayer().ZBaseToolTableNames[i]
             local tbl = LocalPlayer()[tblname]
 
             halo.Add(tbl, ToolHaloColors[tblname] or color_white, 2, 2, 1, true, true)
@@ -127,7 +130,7 @@ if CLIENT then
         then
             ToggleNPCHalo(ent, tblname)
         end
-        
+
         LocalPlayer().ZBaseToolTableNames = LocalPlayer().ZBaseToolTableNames or {}
         if !tableHasValue(LocalPlayer().ZBaseToolTableNames, tblname) then
             table.insert(LocalPlayer().ZBaseToolTableNames, tblname)
@@ -139,4 +142,3 @@ if CLIENT then
         panel:Help(help)
     end
 end
-
