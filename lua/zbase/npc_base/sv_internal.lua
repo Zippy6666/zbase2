@@ -890,7 +890,7 @@ function NPC:InternalOnFireWeapon()
     local actTranslateTbl = self:ZBWepSys_GetActTransTbl()
 
     -- Trigger firing animations
-    if self:HasAmmo() then
+    if self:HasAmmo() && !self:InDynamicInteraction() then
         if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture(self.ZBase_IsMoving) then
             -- Gesture
             self:PlayAnimation(actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
@@ -1164,6 +1164,18 @@ end
 ==================================================================================================
 --]]
 
+local dynamicInteractionScheds = {
+    [SCHED_SCRIPTED_CUSTOM_MOVE] = true,
+    [SCHED_SCRIPTED_FACE] = true,
+    [SCHED_SCRIPTED_RUN] = true,
+    [SCHED_SCRIPTED_WAIT] = true,
+    [SCHED_SCRIPTED_WALK] = true
+}
+
+function NPC:InDynamicInteraction()
+    return dynamicInteractionScheds[self:GetCurrentSchedule()]
+end
+
 function NPC:HasZBaseWeapon()
     local wep = self:GetActiveWeapon()
     if !IsValid(wep) then
@@ -1298,6 +1310,7 @@ end
 
 function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFace, faceSpeed, loop, onFinishFunc, isGest, isTransition, noTransitions, moreArgs)
     if self.Dead or self.DoingDeathAnim then return end
+
     if !anim then return end
 
     if isGest && !self.IsZBase_SNPC && bMultiplayer then return end -- Don't do gestures on non-scripted NPCs in multiplayer, it seems to be broken
@@ -1345,6 +1358,11 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
     -- Main function --
     local function playAnim()
+        -- No animation in dynamic interaction
+        if self:InDynamicInteraction() then
+            return
+        end
+
         -- Reset stuff
         if !moreArgs.skipReset then
             self:FullReset(moreArgs.dontStopZBaseMove)
@@ -1483,6 +1501,11 @@ end
 
 function NPC:InternalStopAnimation(dontTransitionOut)
     if !self.DoingPlayAnim then return end
+
+    -- Prevent this func from messing up dynamic interactions
+    if self:InDynamicInteraction() then
+        return
+    end
 
     if !dontTransitionOut then
         -- Out transition --
