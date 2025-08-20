@@ -576,10 +576,19 @@ end
 ==================================================================================================
 --]]
 
--- Kills the NPC (no death animation)
+-- Kills the NPC
 -- 'dmginfo' - Damage info, not required
 function NPC:InduceDeath( dmginfo )
-    dmginfo = dmginfo or DamageInfo()
+    local attacker = game.GetWorld()
+    local dmgtype = DMG_GENERIC
+
+    dmginfo = dmginfo or self:LastDMGINFO() -- Try get last dmginfo if none sent
+
+    -- Change some dmginfo properties by what is specified
+    if dmginfo then
+        attacker = dmginfo:GetAttacker()
+        dmgtype = dmginfo:GetDamageType()
+    end
     
     -- Death anim workaround
     if self.DoingDeathAnim then
@@ -593,7 +602,6 @@ function NPC:InduceDeath( dmginfo )
     end
 
     local cls = self:GetClass()
-    local attacker = dmginfo:GetAttacker()
 
     if cls == "npc_combinedropship" or cls == "npc_helicopter" or cls == "npc_combinegunship" then
         hook.Run("OnNPCKilled", self, attacker, game.GetWorld())
@@ -611,10 +619,12 @@ function NPC:InduceDeath( dmginfo )
         dmginfo2:SetInflictor(conv.thisEntOrWorld(attacker))
         dmginfo2:SetDamageForce(Vector(1,1,1))
         dmginfo2:SetDamagePosition(self:WorldSpaceCenter())
-        dmginfo2:SetDamageType(DMG_BLAST)
+        dmginfo2:SetDamageType(dmgtype)
 
         if cls=="npc_helicopter" then
             dmginfo2:SetDamageType(DMG_AIRBOAT)
+        elseif cls=="npc_combinegunship" or cls == "npc_strider" or cls == "npc_rollermine" then
+            dmginfo2:SetDamageType(DMG_BLAST)
         end
 
         self:TakeDamageInfo(dmginfo2)

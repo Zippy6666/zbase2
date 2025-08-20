@@ -198,7 +198,8 @@ NPC.HasDeathRagdoll = true -- Should the NPC spawn a ragdoll when it dies?
 NPC.RagdollApplyForce = true -- Should the ragdoll get force applied to it?
 NPC.RagdollModel = "" -- Leave like this to use the default ragdoll
 
-NPC.DissolveRagdoll = true -- Dissolve ragdoll on death from dissolve damage
+NPC.DissolveRagdoll = true -- Dissolve ragdoll on death from dissolve damage, may dissolve the ragdoll anyway if set to false
+NPC.AddNoDissolveFlag = true -- If set to true NPCs will not dissolve instantly from ar2 altfires
 
 -- Try messing with these if the ragdoll is buggy
 NPC.RagdollUseAltPositioning = false

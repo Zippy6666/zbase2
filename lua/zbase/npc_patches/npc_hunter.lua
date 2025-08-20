@@ -12,18 +12,9 @@ ZBasePatchTable[my_cls] = function( NPC )
         self.DoingHunterDamageFix = nil
     end
 
-    -- Ensure insta-death when hit by comball
-    function NPC:Patch_TakeDamage( dmg )
-        local infl = dmg:GetInflictor()
-
-        if infl:IsValid() && infl:GetClass() == "prop_combine_ball" then
-            self.RagdollApplyForce = false -- Don't fly a fkin mile
-            dmg:SetDamage(math.huge)
-        end
-    end
-
     -- These are hunter specific fail schedules
     function NPC:Patch_IsFailSched(sched)
-        return ZBaseESchedID("SCHED_HUNTER_FAIL_IMMEDIATE") == sched or ZBaseESchedID("SCHED_ESTABLISH_LINE_OF_FIRE_FALLBACK") == sched
+        return ZBaseESchedID("SCHED_HUNTER_FAIL_IMMEDIATE") == sched 
+        or ZBaseESchedID("SCHED_ESTABLISH_LINE_OF_FIRE_FALLBACK") == sched
     end
 end

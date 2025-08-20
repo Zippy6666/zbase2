@@ -571,18 +571,19 @@ hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
             rag:SetSubMaterial(k-1, ent:GetSubMaterial(k - 1))
         end
 
-        -- Run "custom on death" now, even if the ragdoll may be invalid
         local dmg = ent:LastDMGINFO() -- Get last damage info
+
+        -- Run "custom on death" now, even if the ragdoll may be invalid
         -- Create basic damage info if none was stored
         if !dmg then
-            dmg = DamageInfo()
-            dmg:SetDamageForce(vector_up)
-            dmg:SetDamagePosition(ent:GetPos())
-            dmg:SetInflictor(ent)
-            dmg:SetAttacker(ent)
-            dmg:SetDamageType(DMG_GENERIC)
+            local basicdmg = DamageInfo()
+            basicdmg:SetDamageForce(vector_up)
+            basicdmg:SetDamagePosition(ent:GetPos())
+            basicdmg:SetInflictor(ent)
+            basicdmg:SetAttacker(ent)
+            basicdmg:SetDamageType(DMG_GENERIC)
         end
-        ent:CustomOnDeath(dmg, hit_gr, rag)
+        ent:CustomOnDeath(dmg or basicdmg, ent.ZBLastHitGr or HITGROUP_GENERIC, rag)
 
         -- Remove ragdoll if undesired by the user
         -- or if the NPC was gibbed by ZBase

@@ -71,8 +71,6 @@ NPC.DeathAnimationSpeed = 1 -- Speed of the death animation
 NPC.DeathAnimationChance = 1 --  Death animation chance 1/x
 NPC.DeathAnimationDuration = 0.75 -- Duration of death animation
 
-NPC.RagdollApplyForce = false -- Should the ragdoll get force applied to it?
-
 -- Sounds (Use sound scripts to alter pitch and level and such!)
 NPC.AlertSounds = "ZBaseCrabSynth.Alert" -- Sounds emitted when an enemy is seen for the first time
 NPC.IdleSounds = "ZBaseCrabSynth.Idle" -- Sounds emitted while there is no enemy

@@ -42,6 +42,11 @@ local function BehaviourTimer( ent )
     -- Doing ZBaseMove, don't do behaviour
     if ZBaseMoveIsActive(ent) then return end
 
+    -- In dynamic interaction, no behavior
+    if ent:InDynamicInteraction() then
+        return
+    end
+
     ZBaseDelayEnt = ent
     for BehaviourName, Behaviour in pairs(ent.Behaviours) do
         if !Behaviour.Run then continue end
