@@ -16,9 +16,10 @@ function NPC:CustomInitialize()
 end
 
 function NPC:ChangeLightColor(color)
-    -- Change color of light
-    for _, child in ipairs(self:GetChildren()) do 
-        if child:GetClass()=="env_sprite" then
+    local children = self:GetChildren()
+    for i = 1, #children do
+        local child = children[i]
+        if child:GetClass() == "env_sprite" then
             child:SetColor(color)
         end
     end
@@ -72,6 +73,6 @@ function NPC:ShouldGib( dmginfo, hit_gr )
 end
 
 function NPC:OnRemove()
-    -- Stop alert sound 
+    -- Stop alert sound
     self:StopSound("NPC_FloorTurret.Alarm")
 end
