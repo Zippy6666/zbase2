@@ -17,7 +17,7 @@ function ENT:Initialize()
 	self:SetBloodColor(BLOOD_COLOR_RED)
 
 	self.Bullseye = ents.Create("npc_bullseye")
-	self.Bullseye:SetPos(self:GetPos()) 
+	self.Bullseye:SetPos(self:GetPos())
 	self.Bullseye:SetAngles(self:GetAngles())
 	self.Bullseye:SetNotSolid(true)
 	self.Bullseye:SetParent(self)
@@ -81,8 +81,8 @@ function ENT:SNPCDeath()
 		-- Remove me soon
 		SafeRemoveEntityDelayed(self, 0.1)
 	else
-		-- Client ragdoll 
-		
+		-- Client ragdoll
+
 		self:StopMoving()
 		self:ClearGoal()
 		self:CapabilitiesClear()
@@ -103,11 +103,24 @@ function ENT:OnTakeDamage( dmginfo )
 	-- Decrease health
 	self:SetHealth( self:Health() - dmginfo:GetDamage() )
 
+    if ( self:Health() > 0 ) then
+        for _, ent in ents.Iterator() do
+            if ( ent == self || !ent:IsNPC() ) then continue end
+            if ( ent:Disposition( self ) != D_LI || !ent:IsLineOfSightClear( self ) ) then continue end
+
+            local hEnemy = self:GetEnemy()
+            if ( IsValid( hEnemy ) ) then
+                ent:SetEnemy( hEnemy )
+                ent:SetNPCState( NPC_STATE_COMBAT )
+            end
+        end
+    end
+
 	-- Die
 	if self:Health() <= 0 && !self.Dead then
 		// Run on killed cpde
 		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
-		
+
 		// Become ragdoll
 		self:SNPCDeath()
 	end
