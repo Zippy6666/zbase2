@@ -3319,11 +3319,12 @@ function NPC:OnEntityTakeDamage( dmg )
 
     if ( !goingToDie ) then
         for _, ent in ents.Iterator() do
-            if ( ent == self or !ent:IsNPC() ) then continue end
-            if ( ent:Disposition( self ) != D_LI or !ent:IsLineOfSightClear( self ) ) then continue end
+            if ( ent == self || !ent:IsNPC() ) then continue end
+            if ( ent:Disposition( self ) != D_LI || !ent:IsLineOfSightClear( self ) ) then continue end
 
-            if ( IsValid( self:GetEnemy() ) ) then
-                ent:SetEnemy( self:GetEnemy() )
+            local hEnemy = self:GetEnemy()
+            if ( IsValid( hEnemy ) ) then
+                ent:SetEnemy( hEnemy )
                 ent:SetNPCState( NPC_STATE_COMBAT )
             end
         end
