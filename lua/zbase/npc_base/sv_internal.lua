@@ -1973,7 +1973,9 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
 
     local wep = self:GetActiveWeapon()
 
-    if self:HasZBaseWeapon() && !self:HasMeleeWeapon() && !self:HasAmmo() && !self:IsCurrentSchedule(SCHED_RELOAD) then
+    if self:HasZBaseWeapon() && !self:HasMeleeWeapon() && !self:HasAmmo() 
+    && !self:IsCurrentSchedule(SCHED_RELOAD) then
+        -- Re
         self:SetSchedule(SCHED_RELOAD)
     elseif !self.DontTakeCoverOnHurt then
         -- Take cover stuff
@@ -1981,23 +1983,42 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
         local hasEne = IsValid(ene)
 
         if !hasEne && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
-        && self:Disposition(attacker) != D_LI && self:GetPos():DistToSqr(attacker:GetPos()) >= UNKNOWN_DAMAGE_DIST then
+        && self:Disposition(attacker) != D_LI 
+        && self:GetPos():DistToSqr(attacker:GetPos()) >= UNKNOWN_DAMAGE_DIST then
             -- Become alert and try to hide when hurt by unknown source
             self:SetNPCState(NPC_STATE_ALERT)
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
 
         elseif hasEne && IsValid(wep) then
+            -- Take cover if armed
+            -- Like a cinematic gun fight with the enemy
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
         end
     end
 
+    -- Become enemy to attacker even if outside sight distance
+    -- As long as they are in view
     if !IsValid(ene) && IsValid(attacker) && self.IsInViewCone && self:IsInViewCone(attacker) && self:Visible(attacker) 
     && self:Disposition(attacker) == D_HT && !(attacker:IsPlayer() && ai_ignoreplayers:GetBool()) then
         self:SetNPCState(NPC_STATE_COMBAT)
         self:SetEnemy(attacker)
         self:UpdateEnemyMemory(attacker, attacker:GetPos())
+    end
+
+    -- Bloody cop's AI implementation
+    -- Alerts npcs who saw their ally get hurt of the ally's enemy
+    if !self.DontAlertAlliesOnHurt && !ZBase_DontDontAlertAlliesOnHurt then
+        self:IterateNearbyAllies(4000, function(npc)
+            if ( npc:Disposition( self ) != D_LI or !npc:IsLineOfSightClear( self ) ) then return end
+            if ( IsValid( self:GetEnemy() ) ) then
+                npc:UpdateEnemyMemory( self:GetEnemy(), self:GetPos() )
+            end
+        end)
+        
+        self:CONV_TempVar("DontAlertAlliesOnHurt", true, 4)
+        conv.tempCond("ZBase_DontDontAlertAlliesOnHurt", 1)
     end
 end
 
