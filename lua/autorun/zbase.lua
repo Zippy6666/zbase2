@@ -308,7 +308,7 @@ function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
                 table.Inherit(NPCTable.Behaviours, CurInheritTable.Behaviours)
 
                 if explicitAuthor == nil then
-                    NPCTable.Author = "An addon maker"
+                    NPCTable.Author = "An addon creator."
                 end
 
                 NPCTable.BaseClass = nil
