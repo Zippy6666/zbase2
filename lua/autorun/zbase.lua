@@ -413,6 +413,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             Name=t.Name,
             Category=t.Category,
             Class = t.Class,
+            SpawnMenuZBaseClass = cls,
             Weapons = t.Weapons,
             Models = t.Models,
             KeyValues = table.Copy(t.KeyValues),
