@@ -42,7 +42,6 @@ if CLIENT then
         
         LocalPlayer().ZBaseToolFactionCombox = 
             panel:ComboBox("Faction", "zbase_tool_faction")
-        LocalPlayer().ZBaseToolFactionCombox:SetPlaceholderText("faction")
 
         ZBaseListFactions()
     end
