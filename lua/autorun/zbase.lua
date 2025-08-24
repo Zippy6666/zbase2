@@ -302,8 +302,6 @@ function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
             if NPCTable.Inherit == CurInheritClass then
                 local explicitAuthor = NPCTable.Author
 
-                print(NPCClass, "expl auth", explicitAuthor)
-
                 table.Inherit(NPCTable, CurInheritTable)
                 table.Inherit(NPCTable.Behaviours, CurInheritTable.Behaviours)
 
