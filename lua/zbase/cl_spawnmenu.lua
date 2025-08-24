@@ -217,11 +217,19 @@ end
 net.Receive("ZBaseListFactions", function()
 	local tbl = table.Copy(net.ReadTable())
 
-	timer.Create("ZBasePlayerDDrawerGiveFactionTable", 1, 1, function()
+	timer.Create("ZBaseGiveFactionTableToDerma", 1, 1, function()
 		if LocalPlayer().ZBaseDDrawer then
 			LocalPlayer().ZBaseDDrawer:GetAllFactions(tbl)
-			timer.Remove("ZBasePlayerDDrawerGiveFactionTable")
 		end
+
+		if (LocalPlayer().ZBaseToolFactionCombox) then
+			LocalPlayer().ZBaseToolFactionCombox:Clear()
+			for k in pairs(tbl) do
+				LocalPlayer().ZBaseToolFactionCombox:AddChoice(k)
+			end
+		end
+
+		timer.Remove("ZBaseGiveFactionTableToDerma")
 	end)
 end)
 
