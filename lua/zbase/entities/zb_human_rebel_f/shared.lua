@@ -23,3 +23,4 @@ NPC.Weapons = {
     "weapon_zb_canalspipe"
 }
 NPC.Inherit = "zb_human_rebel" -- Inherit features from any existing zbase npc
+NPC.Author = "Zippy"

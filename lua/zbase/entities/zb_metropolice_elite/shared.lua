@@ -10,6 +10,7 @@ NPC.Name = "Civil Protection Elite" -- Name of your NPC
 NPC.Category = "HL2: Combine" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_elitepolice_mp5k", "weapon_pistol", "weapon_pistol", "weapon_stunstick"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_metropolice" -- Inherit features from any existing zbase npc
+NPC.Author = "Zippy"
 
 ZBaseAddGlowingEye("PoliceEye1", "models/zippy/elitepolice.mdl", 0, "ValveBiped.Bip01_Head1", Vector(3.8, 7, 1.9), 7, Color(255, 155, 0))
 ZBaseAddGlowingEye("PoliceEye2", "models/zippy/elitepolice.mdl", 0, "ValveBiped.Bip01_Head1", Vector(3.8, 7, -1.9), 7, Color(255, 155, 0))

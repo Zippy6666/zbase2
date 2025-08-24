@@ -10,6 +10,7 @@ NPC.Name = "Odessa Cubbage" -- Name of your NPC
 NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_rpg"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_human_rebel" -- Inherit features from any existing zbase npc
+NPC.Author = "Zippy"
 
 ZBaseCreateVoiceSounds("ZBaseOdessa.Question", {
     "vo/coast/odessa/nlo_cub_roadahead.wav",

@@ -300,8 +300,16 @@ function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
             if NPCClass == "npc_zbase" then continue end -- Don't do shit to the base
 
             if NPCTable.Inherit == CurInheritClass then
+                local explicitAuthor = NPCTable.Author
+
+                print(NPCClass, "expl auth", explicitAuthor)
+
                 table.Inherit(NPCTable, CurInheritTable)
                 table.Inherit(NPCTable.Behaviours, CurInheritTable.Behaviours)
+
+                if explicitAuthor == nil then
+                    NPCTable.Author = "An addon maker"
+                end
 
                 NPCTable.BaseClass = nil
                 NPCTable.Behaviours.BaseClass = nil
@@ -582,10 +590,9 @@ if SERVER then
         end
     end
 
-    local Developer = GetConVar("developer")
+    local developer = GetConVar("developer")
     timer.Create("ZBaseAutoRefresh_Base (set developer to 0 if performance is impacted too much!)", 4, 0, function()
-        if !Developer:GetBool() then return end
-
+        if !developer:GetBool() then return end
         pcall(AutoRefreshFunc)
     end)
 end

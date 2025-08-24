@@ -10,6 +10,7 @@ NPC.Name = "Resistance Hunter" -- Name of your NPC
 NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_hunter" -- Inherit features from any existing zbase npc
+NPC.Author = "Zippy"
 
 ZBaseAddGlowingEye("HunterEye1", "models/zippy/resistancehunter.mdl", 0, "MiniStrider.topEyeClose", Vector(0,0,0), 18, Color(255, 100, 0))
 ZBaseAddGlowingEye("HunterEye2", "models/zippy/resistancehunter.mdl", 0, "MiniStrider.bottomEyeClose", Vector(0,0,0), 18, Color(255, 100, 0))

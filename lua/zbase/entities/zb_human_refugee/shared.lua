@@ -11,3 +11,4 @@ NPC.Category = "HL2: Humans + Resistance" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_smg1", "weapon_crowbar", "weapon_stunstick", "weapon_pistol", "weapon_alyxgun",
     "weapon_zb_canalspipe"}
 NPC.Inherit = "zb_human_civilian" -- Inherit features from any existing zbase npc
+NPC.Author = "Zippy"
