@@ -67,6 +67,8 @@ ZBCVAR.SpawnerCooldown =        CreateConVar("zbase_spawner_cooldown", "3", Flag
 ZBCVAR.SpawnerVisibility =      CreateConVar("zbase_spawner_vis", "0", Flags)
 ZBCVAR.SpawnerDistance =        CreateConVar("zbase_spawner_mindist", "0", Flags)
 
+ZBCVAR.FactionAdminOnly =       CreateConVar("zbase_faction_admin_only", "0", Flags)
+
 if CLIENT then
     ZBCVAR.GlowingEyes =        CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)
     ZBCVAR.FollowHalo =         CreateConVar("zbase_follow_halo", "1", FCVAR_ARCHIVE)
