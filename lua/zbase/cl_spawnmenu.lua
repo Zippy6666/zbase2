@@ -222,7 +222,7 @@ net.Receive("ZBaseListFactions", function()
 			LocalPlayer().ZBaseDDrawer:GetAllFactions(tbl)
 		end
 
-		if (LocalPlayer().ZBaseToolFactionCombox) then
+		if IsValid(LocalPlayer().ZBaseToolFactionCombox) then
 			LocalPlayer().ZBaseToolFactionCombox:Clear()
 			for k in pairs(tbl) do
 				LocalPlayer().ZBaseToolFactionCombox:AddChoice(k)

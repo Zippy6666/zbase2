@@ -7,7 +7,7 @@ local toolname = "Faction"
 TOOL.Name = toolname
 TOOL.Description = "Change the ZBase faction of any entity."
 
-local help = "Left-click: Change the ZBase faction of the target entity."
+local help = "Left-click: Change the ZBase faction of the target entity. Right-click: Change your own faction."
 if CLIENT then
     language.Add("tool.zbase_faction.name", TOOL.Name)
     language.Add("tool.zbase_faction.desc", TOOL.Description)
@@ -19,18 +19,22 @@ function TOOL:LeftClick( trace )
     local own = self:GetOwner()
     if !IsValid(own) then return end
 
-    if IsValid(ent) && !ent:IsWorld() then
+    if SERVER && IsValid(ent) && !ent:IsWorld() then
         ZBaseSetFaction(ent, own:GetInfo("zbase_tool_faction"), own)
     end
 
-    return false
+    return true
 end
 
 function TOOL:RightClick( trace )
     local own = self:GetOwner()
     if !IsValid(own) then return end
 
-    return false
+    if SERVER then
+        ZBaseSetFaction(own, own:GetInfo("zbase_tool_faction"), own)
+    end
+
+    return true
 end
 
 function TOOL:Reload( trace )

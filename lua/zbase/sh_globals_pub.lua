@@ -121,16 +121,25 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
     -- Admin only check
     if plySetter && ZBCVAR.FactionAdminOnly:GetBool() && !plySetter:IsAdmin() then
         plySetter:PrintMessage(HUD_PRINTTALK, "You do not have permission to set the faction.")
+    end
+
+    newFaction = newFaction or ent.ZBaseStartFaction
+
+    -- Already has faction
+    if newFaction == ent.ZBaseFaction then
         return
     end
 
+    ent.ZBaseFaction = newFaction
+
     -- Print message if a player set the faction..
     if plySetter then
-        plySetter:PrintMessage(HUD_PRINTTALK, "You set faction '"..newFaction.."' to "..tostring(ent)..".")
+        local trgt = ent == plySetter && "yourself" or tostring(ent)
+        plySetter:PrintMessage(HUD_PRINTTALK, 
+            "You set faction '"..ent.ZBaseFaction.."' to "..trgt..".")
     end
 
-    ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
-
+    -- Update relationships
     for _, v in ipairs(ZBaseNPCInstances) do
         v:UpdateRelationships()
     end
