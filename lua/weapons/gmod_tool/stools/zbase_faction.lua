@@ -19,11 +19,12 @@ function TOOL:LeftClick( trace )
     local own = self:GetOwner()
     if !IsValid(own) then return end
 
-    if SERVER && IsValid(ent) && !ent:IsWorld() then
-        ZBaseSetFaction(ent, own:GetInfo("zbase_tool_faction"), own)
+    if IsValid(ent) && !ent:IsWorld() then
+        if SERVER then
+            ZBaseSetFaction(ent, own:GetInfo("zbase_tool_faction"), own)
+        end
+        return true
     end
-
-    return true
 end
 
 function TOOL:RightClick( trace )
@@ -34,7 +35,7 @@ function TOOL:RightClick( trace )
         ZBaseSetFaction(own, own:GetInfo("zbase_tool_faction"), own)
     end
 
-    return true
+    return false
 end
 
 function TOOL:Reload( trace )

@@ -134,9 +134,9 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
 
     -- Print message if a player set the faction..
     if plySetter then
-        local trgt = ent == plySetter && "yourself" or tostring(ent)
+        local trgt = ent == plySetter && "yourself" or ent:CONV_GetName()
         plySetter:PrintMessage(HUD_PRINTTALK, 
-            "You set faction '"..ent.ZBaseFaction.."' to "..trgt..".")
+            "You set ZBase faction '"..ent.ZBaseFaction.."' to "..trgt..".")
     end
 
     -- Update relationships
