@@ -66,8 +66,7 @@ AddZBaseNPCProperty("Join Faction", "icon16/connect.png", function( self, npc, l
         return
     end
 
-    ZBaseSetFaction(ply, npc.ZBaseFaction)
-    ply:PrintMessage(HUD_PRINTTALK, "You are now in ".. npc.Name .."'s faction ("..npc.ZBaseFaction..")")
+    -- ply:PrintMessage(HUD_PRINTTALK, "You are now in ".. npc.Name .."'s faction ("..npc.ZBaseFaction..")")
 
     net.Start("ZBaseUpdateSpawnMenuFactionDropDown")
     net.WriteString(npc.ZBaseFaction)
@@ -80,8 +79,8 @@ AddZBaseNPCProperty("Add to My Faction", "icon16/add.png", function( self, npc, 
         return
     end
 
-    ZBaseSetFaction(npc, ply.ZBaseFaction)
-    ply:PrintMessage(HUD_PRINTTALK, npc.Name.." is now in your faction ("..ply.ZBaseFaction..")")
+    ZBaseSetFaction(npc, ply.ZBaseFaction, ply)
+    -- ply:PrintMessage(HUD_PRINTTALK, npc.Name.." is now in your faction ("..ply.ZBaseFaction..")")
 end)
 
 AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )

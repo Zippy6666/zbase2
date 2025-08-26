@@ -199,7 +199,7 @@ if SERVER then
 
     net.Receive("ZBasePlayerFactionSwitch", function( _, ply )
         local faction = net.ReadString()
-        ply.ZBaseFaction = faction
+        ZBaseSetFaction(ply, faction, ply)
 
         for i = 1, #ZBaseNPCInstances do
             ZBaseNPCInstances[i]:UpdateRelationships()

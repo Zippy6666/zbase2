@@ -10,3 +10,4 @@ NPC.Name = "Zombine" -- Name of your NPC
 NPC.Category = "HL2: Zombies + Enemy Aliens" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "zb_zombie" -- Inherit features from any existing zbase npc
+NPC.Author = "Zippy"

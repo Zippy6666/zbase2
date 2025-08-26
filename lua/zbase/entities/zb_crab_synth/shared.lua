@@ -10,6 +10,7 @@ NPC.Name = "Crab Synth" -- Name of your NPC
 NPC.Category = "HL2: Combine" -- Category in the ZBase tab
 NPC.Weapons = {} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
+NPC.Author = "Zippy"
 
 ZBaseAddGlowingEye("CrabGlow", "models/zippy/synth.mdl", 0, "Box09", Vector(12,7,0), 65, Color(0, 75, 150))
 

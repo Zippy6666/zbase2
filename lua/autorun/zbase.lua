@@ -300,8 +300,14 @@ function ZBase_RegisterHandler:NPCsInherit(NPCTablesToInheritFrom)
             if NPCClass == "npc_zbase" then continue end -- Don't do shit to the base
 
             if NPCTable.Inherit == CurInheritClass then
+                local explicitAuthor = NPCTable.Author
+
                 table.Inherit(NPCTable, CurInheritTable)
                 table.Inherit(NPCTable.Behaviours, CurInheritTable.Behaviours)
+
+                if explicitAuthor == nil then
+                    NPCTable.Author = "An addon creator."
+                end
 
                 NPCTable.BaseClass = nil
                 NPCTable.Behaviours.BaseClass = nil
@@ -407,6 +413,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             Name=t.Name,
             Category=t.Category,
             Class = t.Class,
+            SpawnMenuZBaseClass = cls,
             Weapons = t.Weapons,
             Models = t.Models,
             KeyValues = table.Copy(t.KeyValues),
@@ -588,10 +595,9 @@ if SERVER then
         end
     end
 
-    local Developer = GetConVar("developer")
+    local developer = GetConVar("developer")
     timer.Create("ZBaseAutoRefresh_Base (set developer to 0 if performance is impacted too much!)", 4, 0, function()
-        if !Developer:GetBool() then return end
-
+        if !developer:GetBool() then return end
         pcall(AutoRefreshFunc)
     end)
 end

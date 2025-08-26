@@ -117,11 +117,31 @@ end
 
 -- Change the ZBASE faction for an entity
 -- Always use this function if you want to do so
-function ZBaseSetFaction( ent, newFaction )
-    ent.ZBaseFaction = newFaction or ent.ZBaseStartFaction
+function ZBaseSetFaction( ent, newFaction, plySetter )
+    -- Admin only check
+    if plySetter && ZBCVAR.FactionAdminOnly:GetBool() && !plySetter:IsAdmin() then
+        plySetter:PrintMessage(HUD_PRINTTALK, "You do not have permission to set the faction.")
+    end
 
-    for i = 1, #ZBaseNPCInstances do
-        ZBaseNPCInstances[i]:UpdateRelationships()
+    newFaction = newFaction or ent.ZBaseStartFaction
+
+    -- Already has faction
+    if newFaction == ent.ZBaseFaction then
+        return
+    end
+
+    ent.ZBaseFaction = newFaction
+
+    -- Print message if a player set the faction..
+    if plySetter then
+        local trgt = ent == plySetter && "yourself" or ent:CONV_GetName()
+        plySetter:PrintMessage(HUD_PRINTTALK,
+            "You set ZBase faction '"..ent.ZBaseFaction.."' to "..trgt..".")
+    end
+
+    -- Update relationships
+    for _, v in ipairs(ZBaseNPCInstances) do
+        v:UpdateRelationships()
     end
 end
 

@@ -467,8 +467,38 @@ function NPC:IsAlly( ent )
     return ent.ZBaseFaction == self.ZBaseFaction
 end
 
+-- Most optimized way of getting nearby allies
+-- Arguments:
+--      lenght (number)
+--      func[[npc], nil]
+-- Returns:
+--      nil
+function NPC:IterateNearbyAllies( lenght, func )
+    if !cacheGetNearbyAlliesOptimized[lenght] then
+        local halflenght = lenght*0.5
+        local vec = Vector(halflenght, halflenght, halflenght)
+        cacheGetNearbyAlliesOptimized[lenght] = vec
+    end
+
+    local vec_add = cacheGetNearbyAlliesOptimized[lenght]
+
+    local mypos = self:GetPos()
+    local amt = 0
+    for k, v in ipairs(ents.FindInBox(mypos-vec_add, mypos+vec_add)) do
+
+        amt = k
+        
+        if v == self then continue end
+        if !v:IsNPC() then continue end
+
+        if self:IsAlly(v) then
+            func(v)
+        end
+
+    end
+end
+
 -- Same as below but uses a box and is probably more optimized
--- Only detects ZBase NPCs
 function NPC:GetNearbyAlliesOptimized( lenght )
     local allies = {}
 

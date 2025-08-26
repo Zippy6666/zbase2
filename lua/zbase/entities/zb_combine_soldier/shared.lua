@@ -10,6 +10,7 @@ NPC.Name = "Overwatch Soldier" -- Name of your NPC
 NPC.Category = "HL2: Combine" -- Category in the ZBase tab
 NPC.Weapons = {"weapon_smg1", "weapon_smg1", "weapon_ar2", "weapon_shotgun"} -- Example: {"weapon_rpg", "weapon_crowbar", "weapon_crossbow"}
 NPC.Inherit = "npc_zbase" -- Inherit features from any existing zbase npc
+NPC.Author = "Zippy"
 
 ZBaseAddGlowingEye("CombineEye1", "models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(0, 50, 255))
 ZBaseAddGlowingEye("CombineEye2", "models/combine_soldier.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(0, 50, 255))
