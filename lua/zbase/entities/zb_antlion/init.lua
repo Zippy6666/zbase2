@@ -28,7 +28,6 @@ function NPC:OnInitCap()
 end
 
 function NPC:ShouldGib( dmginfo, hit_gr )
-    if dmginfo:IsDamageType(DMG_NEVERGIB) then return end
     if dmginfo:GetDamage() < 40 then return end
 
     local Gibs  = {
@@ -38,14 +37,14 @@ function NPC:ShouldGib( dmginfo, hit_gr )
         self:CreateGib("models/gibs/antlion_gib_medium_1.mdl", {offset=vector_origin}),
         self:CreateGib("models/gibs/antlion_gib_medium_2.mdl", {offset=vector_origin}),
         self:CreateGib("models/gibs/antlion_gib_small_1.mdl", {offset=vector_origin}),
-        self:CreateGib("models/gibs/antlion_gib_small_2.mdl", {offset=vector_origin}),   
+        self:CreateGib("models/gibs/antlion_gib_small_2.mdl", {offset=vector_origin}),
     }
 
     for _, v in ipairs(Gibs) do
         if self.GibMaterial then
             v:SetMaterial(self.GibMaterial)
         end
-        
+
         local phys = v:GetPhysicsObject()
         if IsValid(phys) then
             phys:SetVelocity(dmginfo:GetDamageForce()*0.1 + VectorRand()*200)
