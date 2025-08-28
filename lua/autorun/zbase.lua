@@ -474,7 +474,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             local clsname = "zbase_"..cls
             if ZBASE_MENU_REPLACEMENTS[cls] then
                 if ZBCVAR.MenuMixin:GetBool() then
-                    RegularSpawnMenuTable.Name = "[ZBASE] " .. RegularSpawnMenuTable.Name
+                    RegularSpawnMenuTable.Name = RegularSpawnMenuTable.Name.." (ZBase)"
                 end
 
                 if ZBCVAR.Replace:GetBool() then
