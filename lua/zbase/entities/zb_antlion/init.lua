@@ -50,6 +50,8 @@ function NPC:ShouldGib( dmginfo, hit_gr )
         if IsValid(phys) then
             phys:SetVelocity(dmginfo:GetDamageForce()*0.1 + VectorRand()*200)
         end
+
+        v:SetColor(self:GetColor())
     end
 
     ParticleEffect(self.GibParticle, self:GetPos(), self:GetAngles())
