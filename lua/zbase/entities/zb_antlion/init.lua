@@ -28,6 +28,7 @@ function NPC:OnInitCap()
 end
 
 function NPC:ShouldGib( dmginfo, hit_gr )
+    if dmginfo:IsDamageType(DMG_NEVERGIB) then return end
     if dmginfo:GetDamage() < 40 then return end
 
     local Gibs  = {

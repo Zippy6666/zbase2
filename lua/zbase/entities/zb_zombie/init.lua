@@ -42,6 +42,11 @@ function NPC:ShouldGib( dmginfo, hit_gr )
         return
     end
 
+    -- Don't gib from DMG_NEVERGIB
+    if dmginfo:IsDamageType(DMG_NEVERGIB) then
+        return false
+    end
+
     -- Don't gib if damage is too low
     -- Or damage is not roughly centered
     if dmginfo:GetDamage() < 60 or (dmginfo:IsBulletDamage() && hit_gr != HITGROUP_CHEST && hit_gr != HITGROUP_STOMACH && hit_gr != HITGROUP_GENERIC) then
@@ -58,7 +63,7 @@ function NPC:ShouldGib( dmginfo, hit_gr )
     if IsValid(Gib1) then
         Gib1:SetBodygroup(1, self:GetBodygroup(1)) -- Headcrab for gib
         Gib1:SetSkin(self:GetSkin()) -- Skin for gib
-
+        
         -- Emit respective blood color
         if bloodColor==BLOOD_COLOR_RED then
             ParticleEffectAttach("blood_advisor_puncture_withdraw", PATTACH_POINT_FOLLOW, Gib1, 0)

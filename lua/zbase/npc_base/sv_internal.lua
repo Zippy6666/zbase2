@@ -3445,7 +3445,7 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     end
 
     -- Do gib code
-    self.ZBase_WasGibbedOnDeath = dmg:IsDamageType(DMG_NEVERGIB) && false || self:ShouldGib(dmg, hit_gr)
+    self.ZBase_WasGibbedOnDeath = self:ShouldGib(dmg, hit_gr)
 
     -- Client or server ragdoll?
     local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !ai_serverragdolls:GetBool()
