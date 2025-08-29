@@ -36,13 +36,44 @@ function BEHAVIOUR.Spark:Run( self )
 
     local host = self
     local nextHost = ene
-    -- timer.Create("AirlionSpark"..self:EntIndex(), 0.5, 0, function()
-    --     util.ParticleTracerEx( "vortigaunt_beam", host:GetPos(), nextHost:GetPos(), false, host:EntIndex(), 0 )
+    local timerName = "AirlionSpark"..self:EntIndex()
+    timer.Create(timerName, 1, 0, function()
+        -- Handle self dead logic when spark is still active
+        if !IsValid(self) then
+            timer.Remove(timerName)
+            return
+        end
 
-    --     for _, ent in ipairs(ents.FindInSphere(host:GetPos(), 1000)) do
-    --         if ent:IsSolid() then
+        local mindist = math.huge
+        local bNewHost = false
+        for _, ent in ipairs(ents.FindInSphere(host:GetPos(), 500)) do
+            -- Spark cannot jump from the host back to itself
+            if ent == host then
+                continue
+            end
 
-    --         end
-    --     end
-    -- end)
+            -- Jump between solid entities
+            if ent:IsSolid() then
+                local dist = ent:GetPos():DistToSqr(host:GetPos())
+
+                if dist < mindist then
+                    mindist = dist
+                    nextHost = ent
+                    bNewHost = true
+                end
+            end
+        end
+
+        -- No new host, spark dies
+        if bNewHost == false then
+            timer.Remove(timerName)
+            return
+        end
+
+        util.ParticleTracerEx( "vortigaunt_beam", host:GetPos(), nextHost:GetPos(), false, host:EntIndex(), 0 )
+        effects.BeamRingPoint( host:GetPos(), 0.4, 0, 100, 20, 1, col )
+        effects.BeamRingPoint( nextHost:GetPos(), 0.4, 100, 0, 20, 1, col )
+
+        host = nextHost
+    end)
 end
