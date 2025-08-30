@@ -2010,14 +2010,15 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     -- Bloody cop's AI implementation
     -- Alerts npcs who saw their ally get hurt of the ally's enemy
     if !self.DontAlertAlliesOnHurt && !ZBase_DontDontAlertAlliesOnHurt then
-        self:IterateNearbyAllies(4000, function(npc)
+        self:IterateNearbyAllies(4096, function(npc)
             if ( npc:Disposition( self ) != D_LI or !npc:Visible( self ) ) then return end
 
             if ( IsValid( self:GetEnemy() ) ) then
                 npc:UpdateEnemyMemory( self:GetEnemy(), self:GetPos() )
                 -- comment@ bloodycop6385 : let's not assume that SELF was attacked by enemy. ( Rogue Rebel or smth LOL )
-                npc:SetNPCState( NPC_STATE_COMBAT )
-                npc:AddEntityRelationship( self:GetEnemy(), D_HT )
+                -- comment@ Zippy6666 : what
+                -- npc:SetNPCState( NPC_STATE_COMBAT )
+                -- npc:AddEntityRelationship( self:GetEnemy(), D_HT )
             end
         end)
 
