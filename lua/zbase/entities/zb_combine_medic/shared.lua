@@ -14,3 +14,9 @@ NPC.Author = "Zippy"
 
 ZBaseAddGlowingEye("CombineEye1", "models/zippy/combine_medic.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, 2), 8, Color(0, 155, 50))
 ZBaseAddGlowingEye("CombineEye2", "models/zippy/combine_medic.mdl", 0, "ValveBiped.Bip01_Head1", Vector(4.5, 5, -2), 8, Color(0, 155, 50))
+
+ZBaseCreateVoiceSounds("ZBaseCombineMedic.Death", {
+    "npc/elitepolice/fire_scream1.wav",
+    "npc/elitepolice/fire_scream2.wav",
+    "npc/elitepolice/fire_scream3.wav",
+})
