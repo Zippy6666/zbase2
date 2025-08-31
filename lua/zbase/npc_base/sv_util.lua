@@ -17,22 +17,22 @@ function NPC:AddControllerAttack(pressFunc, releaseFunc, attackName)
 end
 
 -- Returns wheter or not the NPC is being controlled by a player
-function NPC:IsBeingControlled() 
+function NPC:IsBeingControlled()
     return self.ZBASE_IsPlyControlled or false
 end
 
 -- Get where the player is aiming
-function NPC:ControllerTargetPos() 
+function NPC:ControllerTargetPos()
     return self:ZBASE_Controller_GetBullseye():GetPos()
 end
 
 -- Attack the bullseye entity that follows the players cursor
-function NPC:StartAttackBullseye() 
+function NPC:StartAttackBullseye()
     self:ZBASE_Controller_TargetBullseye(true)
 end
 
 -- Stop attacking the bullseye entity that follows the players cursor
-function NPC:StopAttackBullseye() 
+function NPC:StopAttackBullseye()
     self:ZBASE_Controller_TargetBullseye(false)
 end
 
@@ -83,7 +83,7 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
 
     local isTransition = false
 
-    
+
     local sched = SCHED_SCENE_GENERIC
     self:InternalPlayAnimation(
         anim, extraData.duration, extraData.speedMult,
@@ -140,11 +140,11 @@ function NPC:AddAnimationEvent(seq, frame, ev)
         conv.devPrint( Color( 255, 0, 0, 255 ), "LUA animation event ERROR! ", "You've tried to create an animation event at frame [" .. frame .. "] while sequence [" .. seq .. "] has only [" .. self.ZBaseLuaAnimationFrames[seq] .. "] frame/s." )
         return false
     end
- 
+
     self.ZBaseLuaAnimEvents[seq] = self.ZBaseLuaAnimEvents[seq] || {}
     self.ZBaseLuaAnimEvents[seq][frame] = self.ZBaseLuaAnimEvents[seq][frame] || {}
 
-    table.insert( self.ZBaseLuaAnimEvents[seq][frame], ev )	
+    table.insert( self.ZBaseLuaAnimEvents[seq][frame], ev )
 end
 
 --[[
@@ -162,7 +162,7 @@ function NPC:MeleeAttack( forceFaceEnt )
     if !table.IsEmpty(self.MeleeAttackAnimations) then
         self:MeleeAnimation()
     end
-    
+
     self.MeleeEntToFace = nil
 
     -- Damage
@@ -191,7 +191,7 @@ function NPC:MeleeAttack( forceFaceEnt )
     if math.random(1, self.OnMeleeSound_Chance) == 1 then
         self:EmitSound_Uninterupted(self.OnMeleeSounds)
     end
-        
+
     self:OnMelee()
 end
 
@@ -238,7 +238,7 @@ function NPC:RangeAttack()
         timer.Simple(self.RangeProjectile_Delay, function()
 
             self.RangeAttackTimerActive = nil
-            
+
             if !IsValid(self) then return end
             if self.Dead or self:GetNPCState()==NPC_STATE_DEAD then return end
 
@@ -316,7 +316,7 @@ function NPC:ThrowGrenade()
 
         local grencls = ( istable(self.GrenadeEntityClass) && self.GrenadeEntityClass[math.random(1, #self.GrenadeEntityClass)] )
         or self.GrenadeEntityClass
-        
+
         local grenade = ents.Create(grencls)
         grenade.IsZBaseGrenade = true
         grenade.IsZBaseDMGInfl = true
@@ -473,21 +473,18 @@ end
 --      func[[npc], nil]
 -- Returns:
 --      nil
-function NPC:IterateNearbyAllies( lenght, func )
-    if !cacheGetNearbyAlliesOptimized[lenght] then
-        local halflenght = lenght*0.5
-        local vec = Vector(halflenght, halflenght, halflenght)
-        cacheGetNearbyAlliesOptimized[lenght] = vec
+function NPC:IterateNearbyAllies( length, func )
+    if !cacheGetNearbyAlliesOptimized[length] then
+        local halfLength = length * 0.5
+        local vec = Vector(halfLength, halfLength, halfLength)
+        cacheGetNearbyAlliesOptimized[length] = vec
     end
 
-    local vec_add = cacheGetNearbyAlliesOptimized[lenght]
+    local vec_add = cacheGetNearbyAlliesOptimized[length]
 
     local mypos = self:GetPos()
-    local amt = 0
-    for k, v in ipairs(ents.FindInBox(mypos-vec_add, mypos+vec_add)) do
+    for k, v in ipairs(ents.FindInBox(mypos - vec_add, mypos + vec_add)) do
 
-        amt = k
-        
         if v == self then continue end
         if !v:IsNPC() then continue end
 
@@ -515,7 +512,7 @@ function NPC:GetNearbyAlliesOptimized( lenght )
     for k, v in ipairs(ents.FindInBox(mypos-vec_add, mypos+vec_add)) do
 
         amt = k
-        
+
         if v == self then continue end
         if !v.IsZBaseNPC then continue end
 
@@ -613,7 +610,7 @@ function NPC:InduceDeath( dmginfo )
         attacker = dmginfo:GetAttacker()
         dmgtype = dmginfo:GetDamageType()
     end
-    
+
     -- Death anim workaround
     if self.DoingDeathAnim then
         -- Mark us as not doing death animation
