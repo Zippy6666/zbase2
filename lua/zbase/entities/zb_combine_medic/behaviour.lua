@@ -28,7 +28,7 @@ function BEHAVIOUR.SelfHeal:Run( self )
     self.Medkit:Spawn()
     self:PlayAnimation("grenplace", true, {speedMult=1.6})
     
-    self:CONV_TimerSimple(0.7, function()
+    self:CONV_TimerSimple(0.5, function()
         if IsValid(self.Medkit) then
             self:EmitSound("WallHealth.Start")
             self:SetHealth( math.Clamp(self:Health() + 25, 0, self:GetMaxHealth()) )
