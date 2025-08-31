@@ -24,12 +24,12 @@ NPC.ItemDrops_TotalMax = 1 -- The NPC can never drop more than this many items
 
 NPC.MuteDefaultVoice = true
 NPC.DeathSounds = "ZBaseCombineMedic.Death" -- Sounds emitted on death
+NPC.PainSounds = "ZBaseCombineMedic.Pain" -- Sounds emitted on hurt
 
--- Only heal player if they are friendly to us
 function NPC:CustomThink()
+    -- Only heal player if they are friendly to us
     local ene = self:GetEnemy()
     local eneIsPly = IsValid(ene) && ene:IsPlayer()
-
     if eneIsPly && self.CanHeal then
         self:Fire("SetMedicOff")
         self.CanHeal = nil

@@ -20,3 +20,8 @@ ZBaseCreateVoiceSounds("ZBaseCombineMedic.Death", {
     "npc/elitepolice/fire_scream2.wav",
     "npc/elitepolice/fire_scream3.wav",
 })
+
+ZBaseCreateVoiceSounds("ZBaseCombineMedic.Pain", {
+    "npc/elitepolice/pain3.wav",
+    "npc/elitepolice/knockout3.wav"
+})

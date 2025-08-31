@@ -315,7 +315,6 @@ NPC.Fly_MoveSpeed = 200 -- Flying movement speed
 NPC.Fly_Accelerate = 15 -- Flying movement accelerate speed
 NPC.Fly_Decelerate = 15 -- Flying movement decelerate speed
 NPC.Fly_GravGunPuntForceMult = 1 -- How much should the flying SNPC be affected by the gravity gun push attack?
-
 --[[
 ==================================================================================================
                                            SOUNDS
