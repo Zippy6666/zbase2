@@ -514,7 +514,7 @@ function NPC:ZBaseThink()
         end
 
         -- Foot steps
-        if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND && self:CONV_HasCapability(CAP_MOVE_GROUND) then
+        if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND && self:CapabilitiesHas(CAP_MOVE_GROUND) then
             self:FootStepTimer()
         end
 
@@ -1722,7 +1722,7 @@ function NPC:AITick_Slow()
 
     -- Some prop doors normally won't open for NPCs
     -- Force open those doors
-    if self.ZBase_IsMoving && self:CONV_HasCapability(CAP_OPEN_DOORS) then
+    if self.ZBase_IsMoving && self:CapabilitiesHas(CAP_OPEN_DOORS) then
         local vel = self:GetMoveVelocity()
         local wspacecenter = self:WorldSpaceCenter()
         for _, ent in ipairs(ents.FindAlongRay(wspacecenter, wspacecenter+vel, vector_origin, vector_origin)) do

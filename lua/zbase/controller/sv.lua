@@ -94,7 +94,7 @@ function ZBASE_CONTROLLER:StartControlling( ply, npc )
 
     -- Disable jump capability for NPC
     -- Jumping will be controlled manually by the player
-    npc.ZBASE_HadJumpCap = npc:CONV_HasCapability(CAP_MOVE_JUMP)
+    npc.ZBASE_HadJumpCap = npc:CapabilitiesHas(CAP_MOVE_JUMP)
     npc:CapabilitiesRemove(CAP_MOVE_JUMP)
 
     -- NPC hooks/vars
@@ -304,7 +304,7 @@ function NPC:ZBASE_Controller_InitAttacks()
         -- Also add a CustomControllerInitAttacks so that developers can add their own
 
         -- If ZBase NPC can use weapons
-        if self:CONV_HasCapability(CAP_USE_WEAPONS) then
+        if self:CapabilitiesHas(CAP_USE_WEAPONS) then
             -- Weapon attack
             self:ZBASE_ControllerAddAttack(
                 function()
@@ -629,7 +629,7 @@ function NPC:ZBASE_ControllerThink()
             local destDist = self:OBBMaxs().x+200
             local moveVec = moveDir*destDist
 
-            if self:IsOnGround() or self:CONV_HasCapability(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
+            if self:IsOnGround() or self:CapabilitiesHas(CAP_MOVE_FLY) or self:GetNavType()==NAV_FLY then
                 if ply:KeyDown(IN_JUMP) && self:SelectWeightedSequence(ACT_JUMP) != -1 && !self.ZBASE_Controller_JumpOnCooldown then
                     self:ZBASE_Controller_Jump(moveDir)
                 else
@@ -637,7 +637,7 @@ function NPC:ZBASE_ControllerThink()
                     self:ZBASE_Controller_Move(self:WorldSpaceCenter()+moveVec)
                 end
             end
-        elseif self:CONV_HasCapability(CAP_MOVE_GROUND) then
+        elseif self:CapabilitiesHas(CAP_MOVE_GROUND) then
             -- Be still when should not move
             -- Stopped moving so remove ground capabilities and clear goal etc
             self:CapabilitiesRemove(CAP_MOVE_GROUND)
