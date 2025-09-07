@@ -527,7 +527,6 @@ function NPC:ZBaseThink()
         self:Give(engineWeaponReplacements[self:GetActiveWeapon():GetClass()])
     end
 
-
     -- Stuff to make play anim work as intended
     if self.DoingPlayAnim then
         self:InternalDoPlayAnim()
