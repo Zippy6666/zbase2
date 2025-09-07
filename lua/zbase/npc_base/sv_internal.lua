@@ -80,9 +80,6 @@ function NPC:ZBaseInit()
     self.NextFootStepTimer                  = CurTime()
     self.NextRangeThreatened                = CurTime()
     self.NextOutOfShootRangeSched           = CurTime()
-    self.ZBWepSys_NextBurst                 = CurTime()
-    self.ZBWepSys_NextShoot                 = CurTime()
-    self.ZBWepSys_NextCheckIsFacingEne      = CurTime()
     self.EnemyVisible                       = false
     self.HadPreviousEnemy                   = false
     self.LastEnemy                          = NULL
@@ -91,9 +88,6 @@ function NPC:ZBaseInit()
     self.PlayerToFollow                     = NULL
     self.GuardSpot                          = self:GetPos()
     self.InternalCurrentVoiceSoundDuration  = 0
-    self.ZBWepSys_LastShootCooldown         = 0
-    self.ZBWepSys_Stored_AIWantsToShoot     = false
-    self.ZBWepSys_Stored_FacingEne          = false
     self.ZBase_ExpectedSightDist            = ( (self.SightDistance == ZBASE_DEFAULT_SIGHT_DIST or ZBCVAR.SightDistOverride:GetBool()) && ZBCVAR.SightDist:GetInt() ) or self.SightDistance
     self.ZBaseLuaAnimationFrames            = {}
     self.ZBaseLuaAnimEvents                 = {}
@@ -526,9 +520,6 @@ function NPC:ZBaseThink()
         end
     end
 
-    -- Weapon system
-    self:ZBWepSys_Think()
-
     -- Stuff to make play anim work as intended
     if self.DoingPlayAnim then
         self:InternalDoPlayAnim()
@@ -691,151 +682,6 @@ local shootACTNeedles = {
 local holdtypesDontGesture = {
     shotgun = true,
 }
-
-function NPC:ZBWepSys_Shoot()
-    local wep = self:GetActiveWeapon()
-    if !IsValid(wep) then return end
-
-    wep:PrimaryAttack()
-    local _, _, cooldown = wep:ZBaseGetNPCBurstSettings()
-
-    self.ZBWepSys_ShotsLeft = self.ZBWepSys_ShotsLeft && (self.ZBWepSys_ShotsLeft - 1) or self:ZBNWepSys_NewNumShots()-1
-
-    if self.ZBWepSys_ShotsLeft <= 0 then
-        local RestTimeMin, RestTimeMax = wep:GetNPCRestTimes()
-        local RndRest = math.Rand(RestTimeMin, RestTimeMax)
-
-        self.ZBWepSys_NextBurst = CurTime()+RndRest
-        self.ZBWepSys_ShotsLeft = nil
-
-        self.ZBWepSys_LastShootCooldown = RndRest
-    else
-        self.ZBWepSys_LastShootCooldown = cooldown
-    end
-
-    self.ZBWepSys_NextShoot = CurTime()+cooldown
-
-    self:InternalOnFireWeapon()
-end
-
-function NPC:ZBNWepSys_NewNumShots()
-    local wep = self:GetActiveWeapon()
-
-    if IsValid(wep) && wep.ZBaseGetNPCBurstSettings then
-        local ShotsMin, ShotsMax = wep:ZBaseGetNPCBurstSettings()
-
-        local RndShots = math.random(ShotsMin, ShotsMax)
-        return RndShots
-    end
-
-    return 1
-end
-
--- Check if there is too many NPCs attacking this player
-function NPC:ZBWepSys_TooManyAttacking( ply )
-    local attacking, max = 0, ZBCVAR.MaxNPCsShootPly:GetInt()
-
-    for k in pairs(ply.AttackingZBaseNPCs) do
-        if k == self then continue end
-
-        attacking = attacking+1
-
-        if attacking >= max then
-            return true
-        end
-    end
-
-    return false
-end
-
-function NPC:ZBWepSys_AIWantsToShoot()
-    if ai_disabled:GetBool() then return false end
-    if !self.bStoredInShootDist then return false end
-
-    local ene = self:GetEnemy()
-
-    local result = self:ZBWepSys_SuppressionThink()
-    if result == false then
-        return false
-    end
-
-    if !self.EnemyVisible then return false end
-
-    if AIWantsToShoot_ACT_Blacklist[self:GetActivity()] then return false end
-
-    local sched = self:GetCurrentSchedule()
-    if AIWantsToShoot_SCHED_Blacklist[sched]
-    or (self.Patch_AIWantsToShoot_SCHED_Blacklist && self.Patch_AIWantsToShoot_SCHED_Blacklist[sched]) then
-        return false
-    end
-
-    if self.ZBWepSys_NextCheckIsFacingEne < CurTime() then
-        self.ZBWepSys_Stored_FacingEne = self:IsFacing(ene)
-        self.ZBWepSys_NextCheckIsFacingEne = CurTime()+0.7
-    end
-
-    if !self.ZBWepSys_Stored_FacingEne then
-        return false
-    end
-
-    if ZBCVAR.MaxNPCsShootPly:GetBool() then
-        if ene:IsPlayer() && istable(ene.AttackingZBaseNPCs) && self:ZBWepSys_TooManyAttacking(ene) then
-            return false
-        end
-    end
-
-    return true
-end
-
-function NPC:ZBWepSys_WantsToShoot()
-    return !self.DoingPlayAnim
-    && self:ShouldFireWeapon()
-    && (self.ZBASE_bControllerShoot or self:ZBWepSys_AIWantsToShoot())
-end
-
-function NPC:ZBWepSys_CanFireWeapon()
-    return self:ZBWepSys_WantsToShoot()
-    && self:ZBWepSys_HasShootAnim()
-    && self.ZBWepSys_NextShoot < CurTime()
-    && self.ZBWepSys_NextBurst < CurTime()
-    && !self.ComballAttacking
-end
-
-function NPC:ZBWepSys_HasShootAnim()
-    local seq, moveSeq = self:GetSequence(), self:GetMovementSequence()
-    local strMoveAct, strAct = self:GetSequenceActivityName(seq), self:GetSequenceActivityName(moveSeq)
-
-    for _, needle in ipairs(shootACTNeedles) do
-        if string.find(strAct, needle) or string.find(strMoveAct, needle) then
-            return true
-        end
-    end
-
-    local seqAct, moveSeqAct = self:GetSequenceActivity(seq), self:GetSequenceActivity(moveSeq)
-
-    if self.ExtraFireWeaponActivities[seqAct] or self.ExtraFireWeaponActivities[moveSeqAct] then
-        return true
-    end
-
-    return false
-end
-
-function NPC:ZBWepSys_GetActTransTbl()
-    local wep = self:GetActiveWeapon()
-    if !IsValid(wep) then return end
-
-    return wep.ActivityTranslateAI
-end
-
-function NPC:ZBWepSys_ShouldUseFireGesture( isMoving )
-    local wep = self:GetActiveWeapon()
-
-    if IsValid(wep) && wep:IsWeapon() && holdtypesDontGesture[wep:GetHoldType()] then
-        return false
-    end
-
-    return isMoving or !bMultiplayer
-end
 
 function NPC:ZBWepSys_TranslateAct(act, translateTbl)
     if ai_disabled:GetBool() then return end
@@ -2142,7 +1988,6 @@ function NPC:CanPursueFollowing()
     && !self.ZBaseFollow_DontSchedule
     && !self.DontUpdatePlayerFollowing
     && self:ZBaseDist(self.PlayerToFollow, {away=200})
-    && !self:ZBWepSys_CanFireWeapon()
     && !self.ZBase_Guard
     && !self.bControllerBlock
 end
@@ -2388,7 +2233,8 @@ function BEHAVIOUR.SecondaryFire:ShouldDoBehaviour( self )
     local wepTbl = wep.EngineCloneClass && SecondaryFireWeapons[ wep.EngineCloneClass ]
     if !wepTbl then return false end
 
-    if !self:ZBWepSys_WantsToShoot() then return end
+    -- TODO: What check should be here?
+    -- if !self:ZBWepSys_WantsToShoot() then return end
 
     return (self.AltCount > 0 or self.AltCount == -1)
     && self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )

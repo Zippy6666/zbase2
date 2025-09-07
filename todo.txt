@@ -1,6 +1,6 @@
 TODO
 * May or may not be updated
-- Fix controller not able to use nades and alts when they are infinite (-1)
-- Fix controller still not following bullseye for some reason
+- Remove old weapon system
+- Improve aerial AI
 - Make light quality functional
 - Shorter hint durations when calling for help? (to avoid overflow of hints)
