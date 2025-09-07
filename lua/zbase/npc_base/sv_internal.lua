@@ -643,261 +643,22 @@ end
 
 --[[
 ==================================================================================================
-                                WEAPON HANDLING / WEAPON AI
-==================================================================================================
---]]
-
-local AIWantsToShoot_ACT_Blacklist = {
-    [ACT_JUMP]              = true,
-    [ACT_GLIDE]             = true,
-    [ACT_LAND]              = true,
-    [ACT_SIGNAL1]           = true,
-    [ACT_SIGNAL2]           = true,
-    [ACT_SIGNAL3]           = true,
-    [ACT_SIGNAL_ADVANCE]    = true,
-    [ACT_SIGNAL_FORWARD]    = true,
-    [ACT_SIGNAL_GROUP]      = true,
-    [ACT_SIGNAL_HALT]       = true,
-    [ACT_SIGNAL_LEFT]       = true,
-    [ACT_SIGNAL_RIGHT]      = true,
-    [ACT_SIGNAL_TAKECOVER]  = true,
-}
-
-local AIWantsToShoot_SCHED_Blacklist = {
-    [SCHED_RELOAD]          = true,
-    [SCHED_HIDE_AND_RELOAD] = true,
-    [SCHED_SCENE_GENERIC]   = true,
-}
-
-local shootACTNeedles = {
-    "_AIM",
-    "RANGE_ATTACK",
-    "ANGRY_PISTOL",
-    "ANGRY_SMG1",
-    "ANGRY_AR2",
-    "ANGRY_RPG",
-    "ANGRY_SHOTGUN",
-}
-
-local holdtypesDontGesture = {
-    shotgun = true,
-}
-
-function NPC:ZBWepSys_TranslateAct(act, translateTbl)
-    if ai_disabled:GetBool() then return end
-
-    local useLegacyAnimSys = ( (self.WeaponFire_Activities or self.WeaponFire_MoveActivities) && (true or false) )
-    local shouldForceShootStance = self.ForceShootStance && !useLegacyAnimSys
-
-    -- Check forcing of shoot stance is allowed
-    if !shouldForceShootStance then return end
-
-    local translatedAct
-    local wep = self:GetActiveWeapon()
-
-    if self.ZBWepSys_Stored_AIWantsToShoot && !self:HasCondition(COND.NO_PRIMARY_AMMO) then
-        -- We want to shoot now...
-
-        if self.ZBase_IsMoving then
-            -- We are moving
-            local translatedMoveAct = translateTbl[ACT_RUN_AIM] -- Run shooting
-
-            if !self.MovementOverrideActive && self:SelectWeightedSequence(translatedMoveAct) != -1
-            && self:GetMovementActivity() != translatedMoveAct then
-                -- Put a run shooting movement activity
-                self:SetMovementActivity(translatedMoveAct)
-            end
-
-        elseif !self:ZBWepSys_ShouldUseFireGesture(false) then
-            -- We are not moving, and we are not expected to use a gesture
-            -- Translate the given activity using the weapon's ActivityTranslateAI table
-            translatedAct =  translateTbl[ act ]
-        else
-            -- We are not moving, but we should use a gesture
-            -- Translate from angry idle instead
-            -- #TODO: Why not do this when we are not doing a gesture as well?
-            translatedAct =  translateTbl[ ACT_IDLE_ANGRY ]
-        end
-
-    end
-
-    -- Don't put this activity if it has no animation for it
-    if translatedAct && self:SelectWeightedSequence(translatedAct) == -1 then return end
-
-    return translatedAct
-end
-
-function NPC:InternalOnFireWeapon()
-    local wep = self:GetActiveWeapon()
-    local ene = self:GetEnemy()
-
-    if !wep:IsValid() then return end
-
-    local actTranslateTbl = self:ZBWepSys_GetActTransTbl()
-
-    -- Trigger firing animations
-    if self:HasAmmo() && !self:InDynamicInteraction() then
-        if actTranslateTbl && actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1] && self:ZBWepSys_ShouldUseFireGesture(self.ZBase_IsMoving) then
-            -- Gesture
-            self:PlayAnimation(actTranslateTbl[ACT_GESTURE_RANGE_ATTACK1], false, {isGesture=true})
-
-        else
-            -- ACT
-            self:ResetIdealActivity(ACT_RANGE_ATTACK1)
-
-        end
-
-    end
-
-    -- AI when shooting at players
-    -- Check there aren't too many NPCs firing at this player
-    if ZBCVAR.MaxNPCsShootPly:GetBool() && IsValid(ene) && ene:IsPlayer() then
-        local ply = ene
-        ply.AttackingZBaseNPCs = ply.AttackingZBaseNPCs or {}
-        ply.AttackingZBaseNPCs[self]=true
-
-        ply:CONV_TimerCreate("RemoveFromAttackingZBaseNPCs_"..self:EntIndex().."_", 0.5, 1, function()
-            -- No longer considered to be attacking
-            if ply.AttackingZBaseNPCs[self] then
-                ply.AttackingZBaseNPCs[self] = nil
-            end
-        end)
-    end
-
-    self:OnFireWeapon()
-end
-
-function NPC:ZBWepSys_FireWeaponThink()
-    local ene = self:GetEnemy()
-    local wep = self:GetActiveWeapon()
-    self.ZBWepSys_CheckDist = {within=self.MaxShootDistance*wep.NPCShootDistanceMult, away=self.MinShootDistance}
-
-    -- In shoot dist check
-    self.bStoredInShootDist = ( IsValid(ene) && self:ZBaseDist(ene, self.ZBWepSys_CheckDist) ) or nil
-
-    -- Force move to enemy, do so if:
-    -- > Enemy is outside of the shooting range
-    -- > Enemy is visible
-    -- > We are not currently doing any schedule that causes the NPC to move
-    if IsValid(ene) && !self.bStoredInShootDist && !self:BusyPlayingAnimation() && self:SeeEne()
-    && !self:IsMoving() && !self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) && self.NextOutOfShootRangeSched < CurTime() then
-
-        local lastpos = ene:GetPos()
-        self:SetLastPosition(lastpos)
-        self:SetSchedule(SCHED_FORCED_GO_RUN)
-        self.OutOfShootRange_LastPos = lastpos
-        self.NextOutOfShootRangeSched = CurTime()+1
-
-    end
-
-    -- Here is where the fun begins
-    if self:ZBWepSys_CanFireWeapon() then
-        self.bZBaseNPCPullTrigger = true
-
-        -- Should shoot
-        if self.bZBaseNPCPullTrigger then
-            if !self:IsMoving_Cheap() && IsValid(ene) then
-                self:CONV_TempVar("bShouldFaceShootDir", true, 0.2)
-            end
-
-            if !( self.ZBASE_IsPlyControlled && !self.ZBASE_bControllerShoot) then
-                self:ZBWepSys_Shoot()
-            end
-
-            self.bZBaseNPCPullTrigger = nil
-        end
-    end
-end
-
-function NPC:ZBWepSys_MeleeAttack()
-    self:Weapon_MeleeAnim()
-
-    timer.Simple(self.MeleeWeaponAnimations_TimeUntilDamage, function()
-        if IsValid(self) && self:IsAlive() && self:HasZBaseWeapon() then
-            self:GetActiveWeapon():NPCMeleeWeaponDamage()
-        end
-    end)
-end
-
-function NPC:ZBWepSys_MeleeThink()
-    local ene = self:GetEnemy()
-
-    if IsValid(ene) then
-        if !self.DoingPlayAnim && self:ZBaseDist(ene, {within=ZBaseRoughRadius(ene)})
-        && !( ene:IsPlayer() && !ene:Alive() ) then
-            self:ZBWepSys_MeleeAttack()
-        end
-
-        if !self:IsMoving() && !(self.Patch_DontMeleeChase && self:Patch_DontMeleeChase()) then
-            self:SetTarget(ene)
-            self:SetSchedule(SCHED_CHASE_ENEMY)
-        end
-
-    end
-end
-
-function NPC:ZBWepSys_Think()
-    local wep = self:GetActiveWeapon()
-    local ene = self:GetEnemy()
-
-    -- If we have an engine-based weapon
-    -- Replace it with a ZBASE equivalent
-    -- so that we get more control over it
-    if IsValid(wep) then
-        local replCls = engineWeaponReplacements[wep:GetClass()]
-
-        if replCls then
-            self:Give(replCls)
-            return -- Skip this think
-        end
-    end
-
-    local bHasZBaseWep = self:HasZBaseWeapon()
-
-    -- Adjust sight distance back to normal if weapon system altered it
-    -- but we no longer have a valid zbase weapon
-    if ( !IsValid(wep) or !bHasZBaseWep ) && self:GetMaxLookDistance()!=self.ZBase_ExpectedSightDist then
-        self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
-    end
-
-    if bHasZBaseWep && !ai_disabled:GetBool() then
-        -- Weapon think
-        if wep.NPCIsMeleeWep then
-            self:ZBWepSys_MeleeThink()
-        else
-            self:ZBWepSys_FireWeaponThink()
-        end
-
-        -- Adjust sight distance to match shoot distance when the enemy is valid
-        -- Adjust sight distance back to normal when enemy is not valid
-        local maxShootDist = self.ZBWepSys_CheckDist && self.ZBWepSys_CheckDist.within
-        local alteredSightDist = false
-        if IsValid(ene) && maxShootDist && self:GetMaxLookDistance()!=maxShootDist then
-            self:SetMaxLookDistance(maxShootDist)
-        elseif !IsValid(ene) && self:GetMaxLookDistance()!=self.ZBase_ExpectedSightDist then
-            self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
-        end
-    end
-end
-
---[[
-==================================================================================================
                                            SUPPRESSION AI
 ==================================================================================================
 --]]
 
-function NPC:ZBWepSys_TrySuppress( target )
+function NPC:Weapon_TrySuppress( target )
     if self.ZBASE_IsPlyControlled then return end
     self:AddEntityRelationship(target.ZBase_SuppressionBullseye, D_HT, 0)
     self:UpdateEnemyMemory(target.ZBase_SuppressionBullseye, target:GetPos())
 end
 
-function NPC:ZBWepSys_RemoveSuppressionPoint( target )
+function NPC:Weapon_RemoveSuppressionPoint( target )
     SafeRemoveEntity(target.ZBase_SuppressionBullseye)
 end
 
 local PlayerHeightVec = Vector(0, 0, 60)
-function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
+function NPC:Weapon_CreateSuppressionPoint( lastseenpos, target )
     if self.ZBASE_IsPlyControlled then return end
 
     local pos
@@ -928,7 +689,7 @@ function NPC:ZBWepSys_CreateSuppressionPoint( lastseenpos, target )
     target.ZBase_SuppressionBullseye:SetNotSolid(true)
 end
 
-function NPC:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
+function NPC:Weapon_CanCreateSuppressionPointForEnemy( ene )
     if !ene.ZBase_DontCreateSuppressionPoint then
         return true
     end
@@ -942,7 +703,7 @@ end
 
 local minSuppressDist = 350
 local minDistFromSuppressPointToEne = 1000^2
-function NPC:ZBWepSys_SuppressionThink()
+function NPC:Weapon_SuppressionThink()
     local ene = self:GetEnemy()
 
     if !IsValid(ene) then return false end
@@ -953,20 +714,20 @@ function NPC:ZBWepSys_SuppressionThink()
     end
 
     if !self.EnemyVisible
-    && self:ZBWepSys_CanCreateSuppressionPointForEnemy( ene )
+    && self:Weapon_CanCreateSuppressionPointForEnemy( ene )
     && !ene.Is_ZBase_SuppressionBullseye -- Don't create a suppression point for a suppression point...
     then
         if !IsValid(ene.ZBase_SuppressionBullseye) then
             -- Create a new suppression point for this enemy if there is none
             local lastseenpos = self:GetEnemyLastSeenPos(ene)
             if lastseenpos:DistToSqr(ene:GetPos()) < minDistFromSuppressPointToEne then
-                self:ZBWepSys_CreateSuppressionPoint( lastseenpos, ene )
+                self:Weapon_CreateSuppressionPoint( lastseenpos, ene )
             end
         end
 
         -- Can see enemy's current suppression point, start hating it and make it enemy to us
         if IsValid(ene.ZBase_SuppressionBullseye) then
-            self:ZBWepSys_TrySuppress(ene)
+            self:Weapon_TrySuppress(ene)
         end
 
         -- Don't allow new suppression points for this enemy until it is seen again
@@ -985,7 +746,7 @@ function NPC:ZBWepSys_SuppressionThink()
         end
 
         -- Remove their suppression point since we know they are no longer there
-        self:ZBWepSys_RemoveSuppressionPoint( ene )
+        self:Weapon_RemoveSuppressionPoint( ene )
     end
 
     -- Enemy is a suppression point and its NPC/player (the actual enemy) is visible
@@ -994,7 +755,7 @@ function NPC:ZBWepSys_SuppressionThink()
     if ene.Is_ZBase_SuppressionBullseye
     && ( (IsValid(ene.EntityToSuppress) && self:Visible(ene.EntityToSuppress))
     or self:ZBaseDist(ene, {within=minSuppressDist}) ) then
-        self:ZBWepSys_RemoveSuppressionPoint( ene.EntityToSuppress )
+        self:Weapon_RemoveSuppressionPoint( ene.EntityToSuppress )
 
         self:UpdateEnemyMemory(ene.EntityToSuppress, ene.EntityToSuppress:GetPos())
 
@@ -2234,7 +1995,7 @@ function BEHAVIOUR.SecondaryFire:ShouldDoBehaviour( self )
     if !wepTbl then return false end
 
     -- TODO: What check should be here?
-    -- if !self:ZBWepSys_WantsToShoot() then return end
+    -- if !self:Weapon_WantsToShoot() then return end
 
     return (self.AltCount > 0 or self.AltCount == -1)
     && self:ZBaseDist( self:GetEnemy(), {within=wepTbl.dist, away=wepTbl.mindist} )
@@ -2437,7 +2198,7 @@ function BEHAVIOUR.RangeAttack:ShouldDoBehaviour( self )
     local trgtPos = self:Projectile_TargetPos()
 
     if self.RangeAttackSuppressEnemy then
-        local result = self:ZBWepSys_SuppressionThink()
+        local result = self:Weapon_SuppressionThink()
         if result == false then
             return false
         end

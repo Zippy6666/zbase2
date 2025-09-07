@@ -161,6 +161,11 @@ function SWEP:PrimaryAttack()
 			self:NPCShootEffects()
 			self:EmitSound(self.PrimaryShootSound)
 			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+
+			-- Give developer change to catch ZBase NPC shooting
+			if own.IsZBaseNPC then
+				own:OnFireWeapon()
+			end
 		end
 
 	-- Owner is player and default primary has not been prevented
@@ -517,11 +522,6 @@ function SWEP:TranslateActivity( act )
 		local override = self.ZBase_ActTranslateOverride[act]
 		if isnumber(override) then
 			return override
-		end
-
-		local returnValue = own:ZBWepSys_TranslateAct(act, self.ActivityTranslateAI)
-		if isnumber(returnValue) then
-			return returnValue
 		end
 
 		-- Melee weapon activities
