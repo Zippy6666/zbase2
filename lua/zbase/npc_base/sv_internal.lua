@@ -135,6 +135,17 @@ function NPC:ZBaseInit()
     -- This will be networked
     self:ApplyCustomClassName(self.NPCName)
 
+    -- If we have an engine-based weapon
+    -- Replace it with a ZBASE equivalent
+    -- so that we get more control over it
+    local wep       = self:GetActiveWeapon()
+    if IsValid(wep) then
+        local wepcls = wep:GetClass()
+        if engineWeaponReplacements[wepcls] then
+            self:Give(engineWeaponReplacements[wepcls])
+        end
+    end
+
     -- Start LUA thinking if non-scripted
     if !self:IsScripted() then
         self:EngineNPC_StartLuaThink()
@@ -153,15 +164,21 @@ end
 function NPC:EngineNPC_StartLuaThink()
     self.EngineNPC_NextLUAThink = CurTime()
     self:CONV_AddHook("Think", function()
-        if self.EngineNPC_NextLUAThink > CurTime() then return end
-        self:ZBaseThink()
+        -- Frame tick every frame
+        self:FrameTick()
 
-        if self.Patch_Think then
-            self:Patch_Think()
+        -- Regular think every 0.1 seconds
+        if self.EngineNPC_NextLUAThink < CurTime() then
+            self:ZBaseThink()
+
+            if self.Patch_Think then
+                self:Patch_Think()
+            end
+
+            self.EngineNPC_NextLUAThink = CurTime()+0.1
         end
-
-        self.EngineNPC_NextLUAThink = CurTime()+0.1
-    end, "EngineNPC_LUAThink")
+    end, 
+    "EngineNPC_LUAThink")
 end
 
 function NPC:InitSharedAnimEvents()
@@ -434,8 +451,6 @@ function NPC:ZBaseThink()
     end
 
     local isAIEnabled = !ai_disabled:GetBool()
-    local wep = self:GetActiveWeapon()
-    local wepcls = wep:GetClass()
 
     if isAIEnabled then
         local ene = self:GetEnemy()
@@ -517,13 +532,6 @@ function NPC:ZBaseThink()
         if self.MovementOverrideActive then
             self:SetMovementActivity(moveact)
         end
-    end
-
-    -- If we have an engine-based weapon
-    -- Replace it with a ZBASE equivalent
-    -- so that we get more control over it
-    if IsValid(wep) && engineWeaponReplacements[wepcls] then
-        self:Give(engineWeaponReplacements[wepcls])
     end
 
     -- Stuff to make play anim work as intended
@@ -1357,6 +1365,17 @@ function NPC:AITick_Slow()
             self:StopFollowingCurrentPlayer(true, true)
         end
 
+    end
+
+    -- If we have an engine-based weapon
+    -- Replace it with a ZBASE equivalent
+    -- so that we get more control over it
+    local wep       = self:GetActiveWeapon()
+    if IsValid(wep) then
+        local wepcls = wep:GetClass()
+        if engineWeaponReplacements[wepcls] then
+            self:Give(engineWeaponReplacements[wepcls])
+        end
     end
 end
 

@@ -1,4 +1,4 @@
-local Developer             = GetConVar("developer")
+local ai_disabled = GetConVar("ai_disabled")
 ReloadedSpawnmenuRecently   = false
 
 --[[
@@ -149,39 +149,21 @@ end)
 --]]
 
 if SERVER then
-    local NextThink = CurTime()
     local NextBehaviourThink = CurTime()
 
     hook.Add("Tick", "ZBASE", function()
-        -- Regular think for non-scripted NPCs
-        -- if NextThink < CurTime() then
-        --     for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
-        --         zbaseNPC:ZBaseThink()
-
-        --         if zbaseNPC.Patch_Think then
-        --             zbaseNPC:Patch_Think()
-        --         end
-        --     end
-
-        --     NextThink = CurTime()+0.1
-        -- end
-
         -- Behaviour tick
-        if !GetConVar("ai_disabled"):GetBool()
-        && NextBehaviourThink < CurTime() then
+        if !ai_disabled:GetBool() && NextBehaviourThink < CurTime() then
+            -- Do whatever this does lol
             for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
                 local entValid = func()
-
                 if !entValid then
                     table.remove(ZBaseBehaviourTimerFuncs, k)
                 end
             end
 
+            -- .. and delay
             NextBehaviourThink = CurTime() + 0.4
-        end
-
-        for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
-            zbaseNPC:FrameTick()
         end
     end)
 end
