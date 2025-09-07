@@ -520,6 +520,14 @@ function NPC:ZBaseThink()
         end
     end
 
+    -- If we have an engine-based weapon
+    -- Replace it with a ZBASE equivalent
+    -- so that we get more control over it
+    if IsValid(self:GetActiveWeapon()) && engineWeaponReplacements[self:GetActiveWeapon():GetClass()] then
+        self:Give(engineWeaponReplacements[self:GetActiveWeapon():GetClass()])
+    end
+
+
     -- Stuff to make play anim work as intended
     if self.DoingPlayAnim then
         self:InternalDoPlayAnim()

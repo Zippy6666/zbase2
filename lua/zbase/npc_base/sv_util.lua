@@ -292,7 +292,7 @@ end
     -- Returns the target position for the NPC's projectile
 function NPC:Projectile_TargetPos()
     local ene = self:GetEnemy()
-    self:ZBWepSys_SuppressionThink()
+    self:Weapon_SuppressionThink()
     return ( ene && self.EnemyVisible && ene:WorldSpaceCenter() ) or self:Projectile_SpawnPos()+self:GetForward()*400
 end
 

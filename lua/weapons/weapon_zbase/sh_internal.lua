@@ -89,9 +89,9 @@ function SWEP:PrimaryAttack()
 	if own:IsNPC() && self.NPCIsMeleeWep then return end
 
 	-- Only let ZBASE NPCs fire when we ask them to
-	if own.IsZBaseNPC && !own.bZBaseNPCPullTrigger then
-		return
-	end
+	-- if own.IsZBaseNPC && !own.bZBaseNPCPullTrigger then
+	-- 	return
+	-- end
 
 	-- No ammo
 	-- *click*
