@@ -79,7 +79,8 @@ function SWEP:GetBulletOffsetPos()
 	local matrix = own:GetBoneMatrix(boneid)
 	if !matrix then return end
 
-	return LocalToWorld(self.Primary.BulletPos.Offset, self.Primary.BulletPos.AngOffset, matrix:GetTranslation(), matrix:GetAngles())
+	return LocalToWorld(self.Primary.BulletPos.Offset, self.Primary.BulletPos.AngOffset, 
+						matrix:GetTranslation(), matrix:GetAngles())
 end
 
 function SWEP:PrimaryAttack()
@@ -87,11 +88,6 @@ function SWEP:PrimaryAttack()
 	if !IsValid(own) then return end
 
 	if own:IsNPC() && self.NPCIsMeleeWep then return end
-
-	-- Only let ZBASE NPCs fire when we ask them to
-	-- if own.IsZBaseNPC && !own.bZBaseNPCPullTrigger then
-	-- 	return
-	-- end
 
 	-- No ammo
 	-- *click*
@@ -106,11 +102,6 @@ function SWEP:PrimaryAttack()
 
 	-- Owner is NPC
 	if own:IsNPC() then
-		-- Combine workaround
-		if own:GetClass() == "npc_combine_s" then
-			self:Primary_DoCombineSWorkaround()
-		end
-
 		-- ..and default primary has not been prevented
 		if self:NPCPrimaryAttack() != true then
 			-- Do default primary for NPC
@@ -162,7 +153,7 @@ function SWEP:PrimaryAttack()
 			self:EmitSound(self.PrimaryShootSound)
 			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
 
-			-- Give developer change to catch ZBase NPC shooting
+			-- Give developer chance to catch ZBase NPC shooting
 			if own.IsZBaseNPC then
 				own:OnFireWeapon()
 			end
@@ -185,22 +176,6 @@ function SWEP:TakePrimaryAmmo( num )
 	end
 
 	self:SetClip1( self:Clip1() - num )	
-end
-
--- Workaround for combine soldier
--- Their shooting AI does not match the rest
-function SWEP:Primary_DoCombineSWorkaround()
-	local own = self:GetOwner()
-	if !IsValid(own) then return end
-
-	-- Allow shooting in long bursts
-	own:SetSaveValue("m_nShots", 2)
-
-	-- Prevents combines from spamming their weapon
-	-- TODO: When should this run? It does not always work here
-	if self.NPCBurstMin == 1 && self.NPCBurstMin == self.NPCBurstMax then
-		own:SetSaveValue("m_flShotDelay", math.Rand(self.NPCFireRestTimeMin, self.NPCFireRestTimeMax))
-	end
 end
 
 --[[

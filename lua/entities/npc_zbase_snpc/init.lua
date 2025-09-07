@@ -45,7 +45,7 @@ function ENT:Initialize()
     self:CONV_AddHook("Tick", function()
         -- Frame tick every frame
         self:FrameTick()
-	end)
+	end, "FrameSNPC")
 end
 
 function ENT:Think()
