@@ -562,10 +562,9 @@ function NPC:FrameTick()
     if ai_disabled:GetBool() then return end
 
     local ene = self:GetEnemy()
-    local isMoving = self:IsMoving()
 
     -- For NPC:PlayAnimation()
-    if !self.DoingPlayAnim && (isMoving || self.bControllerMoving) then
+    if !self.DoingPlayAnim && (self.ZBase_IsMoving || self.bControllerMoving) then
         self:DoMoveSpeed()
     end
 
@@ -1249,6 +1248,7 @@ local blockingColTypes = {
 }
 function NPC:AITick_Slow()
     local squad = self:GetSquad()
+    local wep       = self:GetActiveWeapon()
 
     -- Remove squad if faction is 'none'
     if self.ZBaseFaction == "none" && isstring(squad) && squad!="" then
@@ -1369,8 +1369,7 @@ function NPC:AITick_Slow()
 
     -- If we have an engine-based weapon
     -- Replace it with a ZBASE equivalent
-    -- so that we get more control over it
-    local wep       = self:GetActiveWeapon()
+    -- so that we get more control over i
     if IsValid(wep) then
         local wepcls = wep:GetClass()
         if engineWeaponReplacements[wepcls] then

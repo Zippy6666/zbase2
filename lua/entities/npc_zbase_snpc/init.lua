@@ -40,6 +40,12 @@ function ENT:Initialize()
 	self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 
 	self.ZBase_HasLUAFlyCapability = true -- Set to false whenever flying SNPCs should not be able to make new goals.
+
+	-- Register frame tick function for SNPC
+    self:CONV_AddHook("Tick", function()
+        -- Frame tick every frame
+        self:FrameTick()
+	end)
 end
 
 function ENT:Think()
