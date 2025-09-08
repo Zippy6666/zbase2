@@ -18,3 +18,5 @@ SWEP.NPCMeleeWep_DamageType = DMG_SHOCK -- Melee weapon damage type
 SWEP.NPCMeleeWep_HitSound = "Weapon_StunStick.Melee_Hit" -- Sound when the melee weapon hits an entity
 SWEP.NPCMeleeWep_DamageAngle = 90 -- Damage angle (180 = everything in front of the NPC is damaged)
 SWEP.NPCMeleeWep_DamageDist = 100 -- Melee weapon damage reach distance
+
+SWEP.Primary.Ammo = -1
