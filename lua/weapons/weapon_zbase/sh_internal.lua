@@ -499,24 +499,6 @@ function SWEP:TranslateActivity( act )
 			return override
 		end
 
-		-- Melee weapon activities
-		local holdType = self:GetHoldType()
-		local state = own:GetNPCState()
-		local meleeActOverride
-		if ( holdType=="passive" or holdType=="melee" or holdType=="melee2" ) then
-			if own:IsMoving() && own:GetNavType() == NAV_GROUND then
-				local shouldMeleeRun = (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT or IsValid(own.PlayerToFollow))
-				meleeActOverride = ( shouldMeleeRun && ACT_RUN ) or ACT_WALK
-
-			elseif act == ACT_IDLE_PISTOL or act == ACT_IDLE_RELAXED then
-				return ACT_IDLE
-
-			elseif act == ACT_IDLE_ANGRY_PISTOL or act == ACT_IDLE_ANGRY then
-				return ACT_IDLE_ANGRY_MELEE
-
-			end
-		end
-
 		-- No walk/run animations? Maybe it has weapon running animations
 		if meleeActOverride && own:IsMoving() && own:SelectWeightedSequence(meleeActOverride) == -1 then
 			meleeActOverride = ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN_RIFLE ) or ACT_WALK_RIFLE
