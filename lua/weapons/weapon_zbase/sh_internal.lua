@@ -15,7 +15,12 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 ==================================================================================================
 --]]
 
-function SWEP:InternalInit()
+function SWEP:Initialize()
+	self.InitialHoldType = self:GetHoldType()
+	self:Init()
+end
+
+function SWEP:OwnerChanged()
 	-- Store bullet spread vector
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
 
@@ -23,28 +28,21 @@ function SWEP:InternalInit()
 	-- this workaround is now needed for the
 	-- weapon base to function as intended lol
 	self.Primary.ClipSize = self.Primary.DefaultClip
-end
 
-function SWEP:Initialize()
-	self.InitialHoldType = self:GetHoldType()
-	self:Init()
-end
+	if SERVER then
+		local own = self:GetOwner()
 
-function SWEP:OwnerChanged()
-	self:InternalInit()
+		-- SET holdtype
+		conv.callNextTick(function()
+			if !IsValid(self) or !IsValid(own) then return end
 
-	if !SERVER then return end
-	local own = self:GetOwner()
-
-	conv.callNextTick(function()
-		if !IsValid(self) or !IsValid(own) then return end
-
-		if own:IsNPC() then
-			own:ZBASE_SetHoldType(self, self.NPCHoldType)
-		else
-			self:SetHoldType(self.InitialHoldType)
-		end
-	end)
+			if own:IsNPC() then
+				own:ZBASE_SetHoldType(self, self.NPCHoldType)
+			else
+				self:SetHoldType(self.InitialHoldType)
+			end
+		end)
+	end
 end
 
 -- Called when the SWEP should set up its Data Tables.
@@ -389,17 +387,7 @@ function SWEP:ZBaseGetNPCBurstSettings()
 end
 
 function SWEP:GetNPCBurstSettings()
-	
-	-- local own = self:GetOwner()
-
-	-- if IsValid(own) && own.IsZBaseNPC then
-	-- 	return 0, 0, math.huge
-	-- else
-	-- 	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
-	-- end
-
 	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
-
 end
 
 function SWEP:GetNPCBulletSpread( proficiency )
@@ -409,9 +397,9 @@ end
 -- This hook is for NPCs, you return what they should try to do with it.
 function SWEP:GetCapabilities()
 	if self.NPCIsMeleeWep then
-		return bit.bor( CAP_WEAPON_MELEE_ATTACK1, CAP_INNATE_MELEE_ATTACK1 )
+		return CAP_WEAPON_MELEE_ATTACK1
 	else
-		return bit.bor( CAP_WEAPON_RANGE_ATTACK1, CAP_INNATE_RANGE_ATTACK1 )
+		return CAP_WEAPON_RANGE_ATTACK1
 	end
 end
 
@@ -423,10 +411,10 @@ end
 
 function SWEP:CanTakeMeleeWepDmg( ent )
     local mtype = ent:GetMoveType()
-    return mtype == MOVETYPE_STEP -- NPC
-    or mtype == MOVETYPE_VPHYSICS -- Prop
-    or mtype == MOVETYPE_WALK -- Player
-	or ent:IsNextBot() -- Bextbit
+    return mtype == MOVETYPE_STEP 	-- NPC
+    or mtype == MOVETYPE_VPHYSICS 	-- Prop
+    or mtype == MOVETYPE_WALK 		-- Player
+	or ent:IsNextBot()
 end
 
 function SWEP:NPCMeleeWeaponDamage(dmgData)
