@@ -32,9 +32,11 @@ function SWEP:OwnerChanged()
 	if SERVER then
 		local own = self:GetOwner()
 
+
+
 		-- SET holdtype
 		conv.callNextTick(function()
-			if !IsValid(self) or !IsValid(own) then return end
+			if !IsValid(self) || !IsValid(own) then return end
 
 			if own:IsNPC() then
 				own:ZBASE_SetHoldType(self, self.NPCHoldType)
@@ -83,6 +85,7 @@ end
 
 function SWEP:PrimaryAttack()
 	local own = self:GetOwner()
+
 	if !IsValid(own) then return end
 
 	if own:IsNPC() && self.NPCIsMeleeWep then return end
@@ -104,7 +107,7 @@ function SWEP:PrimaryAttack()
 		if self:NPCPrimaryAttack() != true then
 			-- Do default primary for NPC
 
-			-- Owner or a temporary ent, if we want to adjust the offset
+			-- Owner || a temporary ent, if we want to adjust the offset
 			-- Will fire the bullet
 			local bulletDispatcherEnt = own
 			local src = own:GetShootPos() -- Bullet start position
@@ -199,11 +202,11 @@ function SWEP:WorldMFlash(effectEnt)
 		effectEnt = self.customWModel -- Client only variable
 
 		-- Only emit effect on client if has fake model
-		if SERVER or !IsValid(effectEnt) then
+		if SERVER || !IsValid(effectEnt) then
 			if SERVER then
 				-- Still, emit light on server
 				local iFlags = self.Primary.MuzzleFlashFlags
-				local col = iFlags==5 && "75 175 255" or "255 125 25"
+				local col = iFlags==5 && "75 175 255" || "255 125 25"
 				ZBaseMuzzleLight( self:GetPos(), 1.5, 256, col )
 
 			end
@@ -244,7 +247,7 @@ function SWEP:WorldShellEject()
 		effectEnt = self.customWModel -- Client only variable
 
 		-- Only emit effect on client if has fake model
-		if SERVER or !IsValid(effectEnt) then return end
+		if SERVER || !IsValid(effectEnt) then return end
 	end
 
 	local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
@@ -337,7 +340,7 @@ function SWEP:AcceptInput( inputName, activator, called, data )
 
 end
 
--- Called before firing animation events, such as muzzle flashes or shell ejections.
+-- Called before firing animation events, such as muzzle flashes || shell ejections.
 -- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
 function SWEP:FireAnimationEvent( pos, ang, event, options, source )
 
@@ -359,8 +362,8 @@ function SWEP:KeyValue( key, value )
 
 end
 
--- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves or dupes)
--- or on a changelevel (for example Half-Life 2 campaign level transitions)
+-- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves || dupes)
+-- || on a changelevel (for example Half-Life 2 campaign level transitions)
 function SWEP:OnRestore()
 end
 
@@ -412,9 +415,9 @@ end
 function SWEP:CanTakeMeleeWepDmg( ent )
     local mtype = ent:GetMoveType()
     return mtype == MOVETYPE_STEP 	-- NPC
-    or mtype == MOVETYPE_VPHYSICS 	-- Prop
-    or mtype == MOVETYPE_WALK 		-- Player
-	or ent:IsNextBot()
+    || mtype == MOVETYPE_VPHYSICS 	-- Prop
+    || mtype == MOVETYPE_WALK 		-- Player
+	|| ent:IsNextBot()
 end
 
 function SWEP:NPCMeleeWeaponDamage(dmgData)
@@ -486,15 +489,6 @@ function SWEP:TranslateActivity( act )
 		if isnumber(override) then
 			return override
 		end
-
-		-- No walk/run animations? Maybe it has weapon running animations
-		if meleeActOverride && own:IsMoving() && own:SelectWeightedSequence(meleeActOverride) == -1 then
-			meleeActOverride = ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN_RIFLE ) or ACT_WALK_RIFLE
-		end
-
-		if isnumber(meleeActOverride) then
-			return meleeActOverride
-		end
 	end
 
 	-- Custom
@@ -505,6 +499,37 @@ function SWEP:TranslateActivity( act )
 
 	-- NPC
 	if own:IsNPC() then
+		local holdType = self:GetHoldType()
+		local state = own:GetNPCState()
+		local shouldMeleeRun = state==NPC_STATE_ALERT || state==NPC_STATE_COMBAT || IsValid(own.PlayerToFollow)
+		local sched = own:GetCurrentSchedule()
+		local ene = own:GetEnemy()
+		local validEne = IsValid(ene)
+
+		-- Melee weapon activities
+		if holdType=="passive" || holdType=="melee" || holdType=="melee2" then
+			-- ok so stoopid ass fukn dipshit ai wants to treat melee weapon like
+			-- a pew pew weapon
+			-- so we tell em to run up to the enemy instead
+			-- and we also update their position of the chase target every other second
+			-- or so so thaat they dont act retareded
+			if sched == SCHED_MOVE_TO_WEAPON_RANGE && validEne then
+				own:SetSchedule(SCHED_CHASE_ENEMY)
+			end
+
+			if own:IsMoving() && own:GetNavType() == NAV_GROUND then
+				return ( shouldMeleeRun && ACT_RUN ) || ACT_WALK
+			elseif act == ACT_IDLE_PISTOL || act == ACT_IDLE_RELAXED then
+				return ACT_IDLE
+			elseif act == ACT_IDLE_ANGRY_PISTOL || act == ACT_IDLE_ANGRY then
+				return ACT_IDLE_ANGRY_MELEE
+			end
+
+			-- Return -1 lol idk why
+			-- or return at least so other shit does not run
+			return -1
+		end
+
 		if self.ActivityTranslateAI[ act ] then
 			return self.ActivityTranslateAI[ act ]
 		end
@@ -516,7 +541,6 @@ function SWEP:TranslateActivity( act )
 	if self.ActivityTranslate[ act ] != nil then
 		return self.ActivityTranslate[ act ]
 	end
-
 	return -1
 end
 
