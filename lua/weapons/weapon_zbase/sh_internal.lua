@@ -511,8 +511,6 @@ function SWEP:TranslateActivity( act )
 			-- ok so stoopid ass fukn dipshit ai wants to treat melee weapon like
 			-- a pew pew weapon
 			-- so we tell em to run up to the enemy instead
-			-- and we also update their position of the chase target every other second
-			-- or so so thaat they dont act retareded
 			if sched == SCHED_MOVE_TO_WEAPON_RANGE && validEne then
 				own:SetSchedule(SCHED_CHASE_ENEMY)
 			end
