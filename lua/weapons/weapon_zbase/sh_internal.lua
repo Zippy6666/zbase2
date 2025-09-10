@@ -32,7 +32,7 @@ function SWEP:OwnerChanged()
 	if SERVER then
 		local own = self:GetOwner()
 
-
+		self:CONV_TimerRemove("MeleeWepInstructAI") -- Remove this timer if it exists
 
 		-- SET holdtype
 		conv.callNextTick(function()
@@ -44,6 +44,20 @@ function SWEP:OwnerChanged()
 				self:SetHoldType(self.InitialHoldType)
 			end
 		end)
+
+		-- Create a timer that updates the AI of the NPC owner
+		-- with behavior for melee weapons
+		if own:IsNPC() && self.NPCIsMeleeWep then
+			self:CONV_TimerCreate("MeleeWepInstructAI", 0.5, 0, function()
+				-- Remove timer if owner went NULL
+				if !IsValid(own) then
+					self:CONV_TimerRemove("MeleeWepInstructAI")
+					return
+				end
+
+				self:MeleeInstructAI( own )
+			end)
+		end
 	end
 end
 
@@ -420,7 +434,45 @@ function SWEP:CanTakeMeleeWepDmg( ent )
 	|| ent:IsNextBot()
 end
 
-function SWEP:NPCMeleeWeaponDamage(dmgData)
+-- Melee AI for NPC (own)
+function SWEP:MeleeInstructAI( own )
+	local ene = own:GetEnemy()
+	local validEne = IsValid(ene)
+
+	-- Must have valid enemy
+	if !validEne then
+		return
+	end
+
+	-- Chase enemy
+	if !own:IsCurrentSchedule(SCHED_CHASE_ENEMY) then
+		own:SetSchedule(SCHED_CHASE_ENEMY)
+	end
+	
+	local ownPos = own:GetPos()
+	local enePos = ene:GetPos()
+	local meleeAttackDistSqr = (self.NPCMeleeWep_DamageDist*0.85)^2 -- Distance at which we initiate a swing
+	local distToSqr = ownPos:DistToSqr(enePos)
+
+	-- Swing when within distance and not playing anim currently
+	if distToSqr < meleeAttackDistSqr && !own.DoingPlayAnim then
+		local timeUntilMeleeStrike = own.MeleeWeaponAnimations_TimeUntilDamage || 0.5
+
+		-- Do anim
+		if own.IsZBaseNPC then
+			own:Weapon_MeleeAnim()
+		else
+			own:ZBASE_SimpleAnimation(ACT_MELEE_ATTACK_SWING)
+		end
+
+		-- Do damage
+		own:CONV_TimerCreate("MeleeWeaponDamage", timeUntilMeleeStrike, 1, function()
+			self:NPCMeleeWeaponDamage()
+		end)
+	end
+end
+
+function SWEP:NPCMeleeWeaponDamage()
 	local own = self:GetOwner()
 	if !IsValid(own) then return end
 
@@ -508,13 +560,6 @@ function SWEP:TranslateActivity( act )
 
 		-- Melee weapon activities
 		if holdType=="passive" || holdType=="melee" || holdType=="melee2" then
-			-- ok so stoopid ass fukn dipshit ai wants to treat melee weapon like
-			-- a pew pew weapon
-			-- so we tell em to run up to the enemy instead
-			if sched == SCHED_MOVE_TO_WEAPON_RANGE && validEne then
-				own:SetSchedule(SCHED_CHASE_ENEMY)
-			end
-
 			if own:IsMoving() && own:GetNavType() == NAV_GROUND then
 				return ( shouldMeleeRun && ACT_RUN ) || ACT_WALK
 			elseif act == ACT_IDLE_PISTOL || act == ACT_IDLE_RELAXED then

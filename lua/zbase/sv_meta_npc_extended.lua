@@ -12,6 +12,8 @@ ZBase_OldDropWeapon = ZBase_OldDropWeapon or NPC.DropWeapon
 --]]
 
 function NPC:ZBASE_SimpleAnimation(anim)
+    self.DoingPlayAnim = true
+
     self:SetSchedule(SCHED_SCENE_GENERIC)
 
     -- Set state to scripted
@@ -36,6 +38,13 @@ function NPC:ZBASE_SimpleAnimation(anim)
     self:ResetSequenceInfo()
     self:SetCycle(0)
     self:ResetSequence(anim)
+
+    -- Exit the animation after SequenceDuration
+    self:CONV_TimerCreate("ZBASE_SimpleAnimation_Exit", self:SequenceDuration(), 1, function()
+        self:SetNPCState(self.PreAnimNPCState)
+        self.DoingPlayAnim = false
+        self:ClearSchedule()
+    end)
 end
 
 --[[

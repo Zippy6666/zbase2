@@ -1621,7 +1621,7 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
 
-        elseif hasEne && IsValid(wep) then
+        elseif hasEne && IsValid(wep) && !self:HasMeleeWeapon() then
             -- Take cover if armed
             -- Like a cinematic gun fight with the enemy
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)

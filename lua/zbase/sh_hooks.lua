@@ -611,10 +611,8 @@ end)
 hook.Add( "KeyPress", "ZBaseUse", function( ply, key )
     if !IsValid(ply) then return end
 
-
     local tr = ply:GetEyeTrace()
     local ent = tr.Entity
-
 
     if key == IN_USE && IsValid(ent) && ent.IsZBaseNPC && ent:ZBaseDist(ply, {within=200}) then
 
@@ -729,7 +727,7 @@ end
 -- Add ZBASE SWEPS to npc weapon menu if we should
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
-		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName } )
+		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName.." ("..swep.Author..")" } )
         table.insert(ZBaseNPCWeps, class)
 	end
 end)
