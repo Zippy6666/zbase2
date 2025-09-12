@@ -806,28 +806,6 @@ function NPC:InDynamicInteraction()
     return dynamicInteractionScheds[self:GetCurrentSchedule()]
 end
 
-function NPC:HasZBaseWeapon()
-    local wep = self:GetActiveWeapon()
-    if !IsValid(wep) then
-        return false
-    end
-    return wep.IsZBaseWeapon
-end
-
--- Checks if weapon is ZBASE melee weapon
--- Not the best check but works for the current case(s)
-function NPC:HasMeleeWeapon()
-    local wep = self:GetActiveWeapon()
-    if !IsValid(wep) then
-        return false
-    end
-
-    if wep:GetClass() == "weapon_stunstick" then return true end
-    if wep:GetClass() == "weapon_crowbar"   then return true end
-
-    return wep.IsZBaseWeapon && wep.NPCIsMeleeWep
-end
-
 function NPC:ZBaseUpdateYaw(yaw, speed)
     self.ZBase_DidInternalUpdateYawCall = true
     self:SetIdealYawAndUpdate(yaw, speed)
@@ -1257,8 +1235,9 @@ local blockingColTypes = {
     [COLLISION_GROUP_WORLD] = true,
 }
 function NPC:AITick_Slow()
-    local squad = self:GetSquad()
+    local squad     = self:GetSquad()
     local wep       = self:GetActiveWeapon()
+    local validWep  = IsValid(wep)
 
     -- Remove squad if faction is 'none'
     if self.ZBaseFaction == "none" && isstring(squad) && squad!="" then
@@ -1278,7 +1257,8 @@ function NPC:AITick_Slow()
     self:InternalDetectDanger()
 
     -- Reload if we cannot see enemy and we have no ammo
-    if IsValid(self:GetActiveWeapon()) && !self:HasMeleeWeapon() && !self:HasAmmo() && !self.EnemyVisible && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
+    if validWep && !wep.NPCIsMeleeWep && wep:Clip1() <= 0 && !self.EnemyVisible 
+    && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
         self:SetSchedule(SCHED_RELOAD)
         debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end
@@ -1366,7 +1346,6 @@ function NPC:AITick_Slow()
     -- Make follow if in player squad
     local engineFollow = self.Patch_UseEngineFollow && self:Patch_UseEngineFollow()
     if engineFollow then
-
         local squad = self:GetSquad()
 
         if squad == "player_squad" then
@@ -1374,13 +1353,12 @@ function NPC:AITick_Slow()
         else
             self:StopFollowingCurrentPlayer(true, true)
         end
-
     end
 
     -- If we have an engine-based weapon
     -- Replace it with a ZBASE equivalent
     -- so that we get more control over i
-    if IsValid(wep) then
+    if validWep then
         local wepcls = wep:GetClass()
         if engineWeaponReplacements[wepcls] then
             self:Give(engineWeaponReplacements[wepcls])
@@ -1442,14 +1420,16 @@ function NPC:NewActivityDetected( act )
     self:CustomNewActivityDetected( act )
 end
 
+
 function NPC:NewSequenceDetected( seq, seqName )
     local bIsReloadAnim = string.find(self:GetSequenceActivityName(seq), "RELOAD") != nil
     local wep           = self:GetActiveWeapon()
+    local validWep      = IsValid(wep)
 
     -- Has ZBase weapon
     -- ZBase weapon reload sound
     -- I cannot think of a better method than this
-    if self:HasZBaseWeapon() then
+    if validWep && wep.IsZBaseWeapon then
         if IsValid(wep) && bIsReloadAnim then
             -- Reload sound for weapon
             wep:EmitSound(wep.NPCReloadSound)
@@ -1464,7 +1444,7 @@ function NPC:NewSequenceDetected( seq, seqName )
     end
 
     -- Has any weapon
-    if IsValid(wep) then
+    if validWep then
         if bIsReloadAnim then
             -- Weapon reload workaround
             self.bReloadWorkaround = true
@@ -1588,6 +1568,8 @@ local UNKNOWN_DAMAGE_DIST = 1000^2
 function NPC:AI_OnHurt( dmg, MoreThan0Damage )
     local attacker = dmg:GetAttacker()
     local ene = self:GetEnemy()
+    local wep = self:GetActiveWeapon()
+    local validWep = IsValid(wep)
 
     self:CONV_TempVar("ZBase_InDanger", true, 5)
     ZBaseUpdateGuard(self)
@@ -1612,26 +1594,21 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
         end
     end
 
-    local wep = self:GetActiveWeapon()
-
-    if self:HasZBaseWeapon() && !self:HasMeleeWeapon() && !self:HasAmmo()
-    && !self:IsCurrentSchedule(SCHED_RELOAD) then
-        -- Re
+    if validWep && !wep.NPCIsMeleeWep && wep:Clip1() <= 0 && !self:IsCurrentSchedule(SCHED_RELOAD) then
+        -- Reload
         self:SetSchedule(SCHED_RELOAD)
     elseif !self.DontTakeCoverOnHurt then
         -- Take cover stuff
-
         local hasEne = IsValid(ene)
 
-        if !hasEne && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
-        && self:Disposition(attacker) != D_LI
+        if !hasEne && !self:IsCurrentSchedule(SCHED_TAKE_COVER_FROM_ORIGIN) && self:Disposition(attacker) != D_LI
         && self:GetPos():DistToSqr(attacker:GetPos()) >= UNKNOWN_DAMAGE_DIST then
             -- Become alert and try to hide when hurt by unknown source
             self:SetNPCState(NPC_STATE_ALERT)
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ORIGIN)
             self:CONV_TempVar("DontTakeCoverOnHurt", true, math.Rand(6, 8))
 
-        elseif hasEne && IsValid(wep) && !self:HasMeleeWeapon() then
+        elseif hasEne && validWep && !wep.NPCIsMeleeWep then
             -- Take cover if armed
             -- Like a cinematic gun fight with the enemy
             self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
@@ -1656,10 +1633,6 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
 
             if ( IsValid( self:GetEnemy() ) ) then
                 npc:UpdateEnemyMemory( self:GetEnemy(), self:GetPos() )
-                -- comment@ bloodycop6385 : let's not assume that SELF was attacked by enemy. ( Rogue Rebel || smth LOL )
-                -- comment@ Zippy6666 : what
-                -- npc:SetNPCState( NPC_STATE_COMBAT )
-                -- npc:AddEntityRelationship( self:GetEnemy(), D_HT )
             end
         end)
 

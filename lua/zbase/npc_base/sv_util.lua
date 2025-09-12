@@ -60,7 +60,6 @@ end
 function NPC:PlayAnimation( anim, faceEnemy, extraData )
     extraData = extraData or {}
 
-
     local enemy = self:GetEnemy()
     local face = extraData.face
     or (faceEnemy && IsValid(enemy) && enemy)
@@ -80,16 +79,13 @@ function NPC:PlayAnimation( anim, faceEnemy, extraData )
     local loop = nil
     local onFinishFunc = nil
 
-
     local isTransition = false
-
 
     local sched = SCHED_SCENE_GENERIC
     self:InternalPlayAnimation(
         anim, extraData.duration, extraData.speedMult,
         sched, face, extraData.faceSpeed, loop, onFinishFunc, extraData.isGesture, isTransition, extraData.noTransitions, moreArgs
     )
-
 
     return extraData or {}
 end
@@ -345,7 +341,6 @@ end
 function NPC:HasAmmo()
     local wep = self:GetActiveWeapon()
     if !IsValid(wep) then return false end
-
     return wep:Clip1() > 0
 end
 
