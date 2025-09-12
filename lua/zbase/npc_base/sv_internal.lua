@@ -498,6 +498,8 @@ function NPC:ZBaseThink()
             self.ZBaseLastESchedName = name
         end
 
+        -- Keep track of goal position in case we want to force the NPC
+        -- to move there, for instance, when it refuses to because it cannot path find
         if !GP:IsZero() && self.ZBaseLastValidGoalPos != GP then
             self.ZBaseLastValidGoalPos = GP
             self:CONV_TempVar("ZBaseLastGoalPos_ValidForFallBack", true, 3 )
@@ -517,31 +519,39 @@ function NPC:ZBaseThink()
         end
 
         -- Base regen
-        if self.HealthRegenAmount > 0 && self:Health() < self:GetMaxHealth() && self.NextHealthRegen < CurTime() then
-            self:SetHealth(math.Clamp(self:Health()+self.HealthRegenAmount, 0, self:GetMaxHealth()))
-            self.NextHealthRegen = CurTime()+self.HealthCooldown
+        if self.HealthRegenAmount > 0 && self.NextHealthRegen < CurTime() then
+            local health, maxHealth = self:Health(), self:GetMaxHealth()
+
+            if health < maxHealth then
+                self:SetHealth(math.Clamp(health+self.HealthRegenAmount, 0, maxHealth))
+                self.NextHealthRegen = CurTime()+self.HealthCooldown
+            end
         end
 
-        -- Foot steps
+        -- Footsteps
         if self.NextFootStepTimer < CurTime() && self:GetNavType()==NAV_GROUND && self:CONV_HasCapability(CAP_MOVE_GROUND) then
             self:FootStepTimer()
         end
 
         -- Move anim override
-        self.MovementOverrideActive = isnumber(moveact) || nil
-        if self.MovementOverrideActive then
+        if isnumber(moveact) then
             self:SetMovementActivity(moveact)
+        end
+
+        -- If we are firing bullets, run suppression think
+        if self.FiringBullets then
+            self:Weapon_SuppressionThink()
         end
     end
 
-    -- Stuff to make play anim work as intended
+    -- For NPC:PlayAnimation()
     if self.DoingPlayAnim then
         self:InternalDoPlayAnim()
-    end
 
-    -- For NPC:PlayAnimation(), SNPC only
-    if self.DoingPlayAnim && self.IsZBase_SNPC then
-        self:ExecuteWalkFrames()
+        -- Execute walkframes, SNPC only
+        if self.IsZBase_SNPC then
+            self:ExecuteWalkFrames()
+        end
     end
 
     -- TODO: Should this really be ran here and not in FrameTick?
@@ -1696,6 +1706,10 @@ end
 
 function NPC:OnBaseSetRel( ent, rel )
     return self:CustomOnBaseSetRel(ent, rel, priority)
+end
+
+function NPC:InternalOnFireBullet()
+    self:CONV_TempVar("FiringBullets", true, 2)
 end
 
 --[[

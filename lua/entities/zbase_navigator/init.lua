@@ -16,9 +16,13 @@ function ENT:Initialize()
 	self:SetMaterial("models/wireframe")
     self:SetNoDraw(!GetConVar("developer"):GetBool() or !ZBCVAR.ShowNavigator:GetBool())
 	self:SetNPCState(NPC_STATE_IDLE)
+	self:SetHealth(math.huge)
 end
 
 function ENT:SelectSchedule()
+	if self.Sched == SCHED_DIE then return end
+	if self.Sched == SCHED_DIE_RAGDOLL then return end
+	
 	if IsValid(self.ForceEnemy) then
 		self:AddEntityRelationship(self.ForceEnemy, D_HT, 0)
 		self:SetEnemy(self.ForceEnemy)

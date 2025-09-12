@@ -261,7 +261,20 @@ end)
 
 hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
     if SERVER && ent.IsZBaseNPC then
-        local return_value = ent:OnFireBullet( data )
+        local return_value
+
+        -- Internal fire bullet function
+        return_value = ent:InternalOnFireBullet( data )
+        if return_value == false then
+            data.Num = 0
+            data.Distance = 0
+            return true
+        elseif return_value == true then
+            return true
+        end
+
+        -- User defined fire bullet function
+        return_value = ent:OnFireBullet( data )
         if return_value == false then
             data.Num = 0
             data.Distance = 0
