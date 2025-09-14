@@ -1827,6 +1827,7 @@ end
 -- Call allies outside of squad for help
 
 local callForHelpHint           = SOUND_COMBAT
+local hintDuration              = 1
 BEHAVIOUR.FactionCallForHelp    = {}
 
 function BEHAVIOUR.FactionCallForHelp:ShouldDoBehaviour( self )
@@ -1847,7 +1848,6 @@ function BEHAVIOUR.FactionCallForHelp:ShouldDoBehaviour( self )
 end
 
 function BEHAVIOUR.FactionCallForHelp:Run( self )
-    local hintDuration = math.Rand(2, 3.5)
     local loudestCallForHelpHint = sound.GetLoudestSoundHint(callForHelpHint, self:GetPos())
     local ene = self:GetEnemy()
     local hasEne = IsValid(ene)
@@ -1881,7 +1881,7 @@ function BEHAVIOUR.FactionCallForHelp:Run( self )
         end
     end
 
-    ZBaseDelayBehaviour(hintDuration)
+    ZBaseDelayBehaviour(math.Rand(2, 4))
 end
 
 --[[

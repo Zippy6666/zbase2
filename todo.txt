@@ -1,6 +1,3 @@
 TODO
 * May or may not be updated
-- Remove old weapon system
 - Improve aerial AI
-- Make light quality functional
-- Shorter hint durations when calling for help? (to avoid overflow of hints)
