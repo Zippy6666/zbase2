@@ -3057,9 +3057,19 @@ function NPC:OnDeath( attacker, infl, dmg, hit_gr )
     -- Do gib code
     self.ZBase_WasGibbedOnDeath = self:ShouldGib(dmg, hit_gr)
 
-    -- Client || server ragdoll?
-    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !ai_serverragdolls:GetBool()
-    && self.HasDeathRagdoll
+    -- Let clients know this NPC gibbed so that no client-side ragdolls
+    -- are created from it
+    self:SetNWBool("WasGibbedOnDeath", true)
+
+    -- Final decide client or server ragdoll
+    local shouldCLRagdoll = ZBCVAR.ClientRagdolls:GetBool() && !ai_serverragdolls:GetBool() && self.HasDeathRagdoll
+
+    -- Prevent client ragdoll if gibbed
+    -- no way to stop it from happening otherwise...
+    if self.ZBase_WasGibbedOnDeath then
+        shouldCLRagdoll = false
+    end
+
     self:SetShouldServerRagdoll(!shouldCLRagdoll)
 
     -- Set my own model to the custom ragdoll model if any

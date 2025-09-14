@@ -526,7 +526,11 @@ end
 
 if CLIENT then
     net.Receive("ZBaseClientRagdoll", function()
-        local ent = net.ReadEntity() if !IsValid(ent) then return end
+        local ent = net.ReadEntity() 
+        if !IsValid(ent) then 
+            return 
+        end
+
         ent:BecomeRagdollOnClient()
     end)
 end
@@ -535,7 +539,7 @@ end
 hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
     -- No ragdolls for "dull state" npcs
 	if ent:GetNWBool("ZBaseNPCCopy_DullState") then
-		rag:Remove()
+		SafeRemoveEntity(rag)
         return
 	end
 

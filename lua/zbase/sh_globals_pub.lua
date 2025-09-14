@@ -186,15 +186,15 @@ end
 -- 'dur' stands for duration and is optional
 -- ZBase muzzle light option must be enabled!
 function ZBaseMuzzleLight( pos, bright, dist, col, dur )
-    local zbase_muzzle_light = ZBCVAR.MuzzleLight
-
     if !SERVER then return end
+
+    local zbase_muzzle_light = ZBCVAR.MuzzleLight
     if !zbase_muzzle_light:GetBool() then return end
 
-    dur = dur or 0.05
-
     -- HIGH quality light using projected textures    
-    if zbase_muzzle_light:GetInt() >= 2 then       
+    if zbase_muzzle_light:GetInt() >= 2 then
+        dur = dur or 0.05
+
         local muzzleLight1 = ents.Create("env_projectedtexture")
         local muzzleLight2 = ents.Create("env_projectedtexture")
 
@@ -218,12 +218,14 @@ function ZBaseMuzzleLight( pos, bright, dist, col, dur )
         end
     -- Normal lights using dynamic lights
     else
+        dur = dur or 0.1
+
         local muzzleLight = ents.Create("light_dynamic")
         if IsValid(muzzleLight) then
             muzzleLight:SetPos(pos)
             muzzleLight:SetKeyValue("brightness", tostring(bright))
             muzzleLight:SetKeyValue("distance", tostring(dist))
-            muzzleLight:SetKeyValue("_light", col)
+            muzzleLight:Fire("Color", col)
             muzzleLight:Spawn()
             muzzleLight:Activate()
             muzzleLight:Fire("TurnOn", "1")
