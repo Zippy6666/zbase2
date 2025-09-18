@@ -2,18 +2,6 @@
 
 local NPC           = ZBaseNPCs["npc_zbase"]
 
-function NPC:GetEngineClass()
-    if CLIENT then
-        ZBASE_SkipClassNameWrapper = true
-        local cls = self:GetClass()
-        ZBASE_SkipClassNameWrapper = false
-        
-        return cls
-    end
-
-    return self.EngineClass
-end
-
 if SERVER then
     function NPC:ApplyCustomClassName(clsname)
         if ZBCVAR.CustomClass:GetBool() then

@@ -129,7 +129,7 @@ function SWEP:PrimaryAttack()
 		if self:NPCPrimaryAttack() != true then
 			-- Do default primary for NPC
 
-			-- Owner || a temporary ent, if we want to adjust the offset
+			-- Owner or a temporary ent, if we want to adjust the offset
 			-- Will fire the bullet
 			local bulletDispatcherEnt = own
 			local src = own:GetShootPos() -- Bullet start position
@@ -407,12 +407,27 @@ function SWEP:GetNPCRestTimes()
 	return self.NPCFireRestTimeMin, self.NPCFireRestTimeMax
 end
 
-function SWEP:ZBaseGetNPCBurstSettings()
-	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
-end
-
 function SWEP:GetNPCBurstSettings()
-	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
+	local own = self:GetOwner()
+	local min, max = self.NPCBurstMin, self.NPCBurstMax
+
+	-- If owner is a combine soldier, we want to prevent them
+	-- from not firing their weapons automatically like other NPCs.
+	-- Due to their AI they resort to a sort of semi-auto style of firing...
+	local do_combine_s_fix = IsValid(own) && own:IsNPC() && own:GetEngineClass() == "npc_combine_s" 
+									&& self.NPCFireRate == self.NPCFireRestTimeMin 
+									&& self.NPCFireRate == self.NPCFireRestTimeMax
+									&& self.NPCBurstMin == 1
+									&& self.NPCBurstMax == 1
+	if do_combine_s_fix then
+		-- Backup burst settings for bines.
+		-- So that they don't fire one bullet at a time, and instead
+		-- fire in bursts like their AI is supposed to
+		min = 3
+		max = 8
+	end
+
+	return min, max, self.NPCFireRate
 end
 
 function SWEP:GetNPCBulletSpread( proficiency )

@@ -1827,7 +1827,7 @@ end
 -- Call allies outside of squad for help
 
 local callForHelpHint           = SOUND_COMBAT
-local hintDuration              = 1
+local hintDuration              = 1.5
 BEHAVIOUR.FactionCallForHelp    = {}
 
 function BEHAVIOUR.FactionCallForHelp:ShouldDoBehaviour( self )
@@ -1881,7 +1881,7 @@ function BEHAVIOUR.FactionCallForHelp:Run( self )
         end
     end
 
-    ZBaseDelayBehaviour(math.Rand(2, 4))
+    ZBaseDelayBehaviour(math.Rand(2, 3))
 end
 
 --[[

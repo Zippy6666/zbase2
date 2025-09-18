@@ -126,6 +126,20 @@ function NPC:ZBASE_IsFacing(...)
     return isFacingFunc(self, ...)
 end
 
+-- Mainly useful for ZBase NPCs that are HL2 NPCs but have a custom class name
+-- so that we can retrieve its actual engine class name
+function NPC:GetEngineClass()
+    if CLIENT then
+        ZBASE_SkipClassNameWrapper = true
+        local cls = self:GetClass()
+        ZBASE_SkipClassNameWrapper = false
+        
+        return cls
+    end
+
+    return self.EngineClass
+end
+
 --[[
 ======================================================================================================================================================
                                            RELATIONSHIP STUFF
