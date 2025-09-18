@@ -105,10 +105,14 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.MeleeWeaponAnimations = {ACT_MELEE_ATTACK1} -- Animations to use when attacking with a melee weapon
 NPC.MeleeWeaponAnimations_TimeUntilDamage = 0.5 -- Time until the damage from melee weapons hit
 
+-- Maximum distance the NPC can fire its weapon from
+-- NOTE: Will be used as sight distance if the NPC has a weapon
+-- NPCs can still see foes that attack them if they are in the viewcone
+NPC.MaxShootDistance = 3000
+
 -- DEPRECATED, these have no effect and only exist for backwards compatability
 NPC.ExtraFireWeaponActivities = {}
 -- NPC.MinShootDistance = 0 -- Minimum distance the NPC will fire its weapon from
--- NPC.MaxShootDistance = 3000 -- Maximum distance the NPC can fire its weapon from
 -- NPC.ForceShootStance = true
 
 -- DEPRECATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF, DON'T USE!! --

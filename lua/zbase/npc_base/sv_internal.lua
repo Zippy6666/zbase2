@@ -88,7 +88,9 @@ function NPC:ZBaseInit()
     self.PlayerToFollow                     = NULL
     self.GuardSpot                          = self:GetPos()
     self.InternalCurrentVoiceSoundDuration  = 0
-    self.ZBase_ExpectedSightDist            = ( (self.SightDistance == ZBASE_DEFAULT_SIGHT_DIST || ZBCVAR.SightDistOverride:GetBool()) && ZBCVAR.SightDist:GetInt() ) || self.SightDistance
+    self.ZBase_ExpectedSightDist            = ((self.SightDistance == ZBASE_DEFAULT_SIGHT_DIST 
+                                                    || ZBCVAR.SightDistOverride:GetBool()) && ZBCVAR.SightDist:GetInt()) 
+                                                        || self.SightDistance
     self.ZBaseLuaAnimationFrames            = {}
     self.ZBaseLuaAnimEvents                 = {}
     self.ZBaseFrameLast                     = -1
@@ -1280,23 +1282,6 @@ function NPC:AITick_Slow()
         self:StopFollowingCurrentPlayer(true)
     end
 
-    -- Stop doing forced go when we really shouldn't
-    if ( self:IsCurrentSchedule(SCHED_FORCED_GO) || self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) )
-    && (self.EnemyVisible && self.bStoredInShootDist) then
-
-        -- Doing move fallback
-        if ZBaseMoveIsActive(self, "MoveFallback") then
-            self:FullReset()
-        else
-            -- Doing out of shoot range move || doing cover ally move
-            local lastpos = self:GetInternalVariable("m_vecLastPosition")
-            if lastpos == self.LastCoverHurtAllyPos || lastpos==self.OutOfShootRange_LastPos then
-                self:FullReset()
-            end
-        end
-
-    end
-
     -- Cheap detection for moving
     self.ZBase_IsMoving = self:IsMoving() || nil
 
@@ -1355,14 +1340,25 @@ function NPC:AITick_Slow()
         end
     end
 
-    -- If we have an engine-based weapon
-    -- Replace it with a ZBASE equivalent
-    -- so that we get more control over i
+    -- Has weapon...
     if validWep then
+        -- If we have an engine-based weapon
+        -- Replace it with a ZBASE equivalent
+        -- so that we get more control over i
         local wepcls = wep:GetClass()
         if engineWeaponReplacements[wepcls] then
             self:Give(engineWeaponReplacements[wepcls])
         end
+
+        -- Set max look distance to weapon distance
+        self:SetMaxLookDistance(self.MaxShootDistance*wep.NPCShootDistanceMult)
+
+    -- Does not have weapon...
+    else
+
+        -- Set max look distance to sight distance
+        self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
+
     end
 end
 
@@ -1375,14 +1371,6 @@ function NPC:ShouldPreventSetSched( sched )
     return self.HavingConversation
     || self.DoingPlayAnim
 end
-
--- function NPC:ShouldPreventSetYaw()
---     if self.IsZBaseSNPC && self:IsCurrentZSched("SCHED_ZBASE_COMBAT_FACE") then
---         print("PREVENTING")
---         return true
---     end
---     return false
--- end
 
 function NPC:OnKilledEnt( ent )
     if ent == self:GetEnemy() then
@@ -1618,10 +1606,9 @@ function NPC:AI_OnHurt( dmg, MoreThan0Damage )
 
     -- Become enemy to attacker even if outside sight distance
     -- As long as they are in view
-    if !IsValid(ene) && IsValid(attacker) && self.IsInViewCone && self:IsInViewCone(attacker) && self:Visible(attacker)
-    && self:Disposition(attacker) == D_HT && !(attacker:IsPlayer() && ai_ignoreplayers:GetBool()) then
-        self:SetNPCState(NPC_STATE_COMBAT)
-        self:SetEnemy(attacker)
+    if !IsValid(ene) && IsValid(attacker) && self:IsInViewCone(attacker) 
+        && self:Visible(attacker) && self:Disposition(attacker) == D_HT 
+            && !(attacker:IsPlayer() && ai_ignoreplayers:GetBool()) then
         self:UpdateEnemyMemory(attacker, attacker:GetPos())
     end
 
