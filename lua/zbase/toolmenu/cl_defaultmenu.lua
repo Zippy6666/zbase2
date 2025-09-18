@@ -70,7 +70,6 @@ ZBaseAddToolMenu( "ZBASE", "AI", function(panel)
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Override", "zbase_sightdist_override") }, color_black, SettingFont, "Override all ZBase NPC sight distances", DescriptionColor, DescriptionFont )
 
     panel:ZBase_ToolMenuAddCategory( "BEHAVIOR" )
-    panel:ZBase_ToolMenuAddItem( { panel:NumSlider("Max Shooters", "zbase_max_npcs_shoot_ply", 0, 10, 0) }, color_black, SettingFont, "Max NPCs that can shoot at a single player, '0' = infinite", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Patrol", "zbase_patrol" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Call Allies", "zbase_callforhelp" ) }, color_black, SettingFont, "Call any ally for help when in danger", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Squad", "zbase_autosquad" ) }, color_black, SettingFont, "Initially spawn with same squad name as faction name", DescriptionColor, DescriptionFont )

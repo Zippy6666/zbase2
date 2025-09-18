@@ -117,6 +117,14 @@ function SWEP:PrimaryAttack()
 
 	-- Owner is NPC
 	if own:IsNPC() then
+		-- .. and is not a ZBase NPC that had its weapon attack prevented
+		if own.IsZBaseNPC then
+			local shouldFireWeapon = own:ShouldFireWeapon()
+			if !shouldFireWeapon then
+				return
+			end
+		end
+
 		-- ..and default primary has not been prevented
 		if self:NPCPrimaryAttack() != true then
 			-- Do default primary for NPC

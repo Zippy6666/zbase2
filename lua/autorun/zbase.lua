@@ -342,6 +342,7 @@ function ZBase_RegisterHandler:RegBase()
 
     if SERVER then
         include(NPCBasePrefix.."sv_internal.lua")
+        include(NPCBasePrefix.."sv_backwards.lua")
         include(NPCBasePrefix.."sv_util.lua")
         include(NPCBasePrefix.."init.lua")
     end
