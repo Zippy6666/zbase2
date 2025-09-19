@@ -1351,7 +1351,7 @@ function NPC:AITick_Slow()
         end
 
         -- Set max look distance to weapon distance
-        self:SetMaxLookDistance(self.MaxShootDistance*wep.NPCShootDistanceMult)
+        self:SetMaxLookDistance(self.MaxShootDistance*(wep.NPCShootDistanceMult or 1))
 
     -- Does not have weapon...
     else

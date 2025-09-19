@@ -32,6 +32,9 @@ function SWEP:OwnerChanged()
 	if SERVER then
 		local own = self:GetOwner()
 
+		-- Backwards compatability
+		own.ZBWepSys_PrimaryAmmo = self:Clip1()
+
 		self:CONV_TimerRemove("MeleeWepInstructAI") -- Remove this timer if it exists
 
 		-- SET holdtype
@@ -175,6 +178,9 @@ function SWEP:PrimaryAttack()
 			self:NPCShootEffects()
 			self:EmitSound(self.PrimaryShootSound)
 			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+
+			-- Backwards compatability
+			own.ZBWepSys_PrimaryAmmo = self:Clip1()
 
 			-- Give developer chance to catch ZBase NPC shooting
 			if own.IsZBaseNPC then
@@ -501,6 +507,7 @@ function SWEP:MeleeInstructAI( own )
 
 		-- Do damage
 		own:CONV_TimerCreate("MeleeWeaponDamage", timeUntilMeleeStrike, 1, function()
+			if !IsValid(self) then return end -- Weapon went NULL
 			self:NPCMeleeWeaponDamage()
 		end)
 	end
@@ -572,6 +579,7 @@ function SWEP:TranslateActivity( act )
 	if own.IsZBaseNPC then
 		-- Activity translate override
 		local override = self.ZBase_ActTranslateOverride[act]
+		
 		if isnumber(override) then
 			return override
 		end
