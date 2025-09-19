@@ -5,39 +5,6 @@ local cacheGetNearbyAlliesOptimized = {}
 
 --[[
 ==================================================================================================
-                                           CONTROLLER
-==================================================================================================
---]]
-
--- Adds a new attack/bind that can be triggered via the controller
--- pressFunc and releaseFunc are called respectively when the key is pressed and released
--- attackName should be the name of your attack. Example: "Charge Attack"
-function NPC:AddControllerAttack(pressFunc, releaseFunc, attackName)
-    self:ZBASE_ControllerAddAttack(pressFunc, releaseFunc, nil, attackName)
-end
-
--- Returns wheter or not the NPC is being controlled by a player
-function NPC:IsBeingControlled()
-    return self.ZBASE_IsPlyControlled or false
-end
-
--- Get where the player is aiming
-function NPC:ControllerTargetPos()
-    return self:ZBASE_Controller_GetBullseye():GetPos()
-end
-
--- Attack the bullseye entity that follows the players cursor
-function NPC:StartAttackBullseye()
-    self:ZBASE_Controller_TargetBullseye(true)
-end
-
--- Stop attacking the bullseye entity that follows the players cursor
-function NPC:StopAttackBullseye()
-    self:ZBASE_Controller_TargetBullseye(false)
-end
-
---[[
-==================================================================================================
                                            ANIMATION
 ==================================================================================================
 --]]
@@ -141,6 +108,39 @@ function NPC:AddAnimationEvent(seq, frame, ev)
     self.ZBaseLuaAnimEvents[seq][frame] = self.ZBaseLuaAnimEvents[seq][frame] || {}
 
     table.insert( self.ZBaseLuaAnimEvents[seq][frame], ev )
+end
+
+--[[
+==================================================================================================
+                                           CONTROLLER
+==================================================================================================
+--]]
+
+-- Adds a new attack/bind that can be triggered via the controller
+-- pressFunc and releaseFunc are called respectively when the key is pressed and released
+-- attackName should be the name of your attack. Example: "Charge Attack"
+function NPC:AddControllerAttack(pressFunc, releaseFunc, attackName)
+    self:ZBASE_ControllerAddAttack(pressFunc, releaseFunc, nil, attackName)
+end
+
+-- Returns wheter or not the NPC is being controlled by a player
+function NPC:IsBeingControlled()
+    return self.ZBASE_IsPlyControlled or false
+end
+
+-- Get where the player is aiming
+function NPC:ControllerTargetPos()
+    return self:ZBASE_Controller_GetBullseye():GetPos()
+end
+
+-- Attack the bullseye entity that follows the players cursor
+function NPC:StartAttackBullseye()
+    self:ZBASE_Controller_TargetBullseye(true)
+end
+
+-- Stop attacking the bullseye entity that follows the players cursor
+function NPC:StopAttackBullseye()
+    self:ZBASE_Controller_TargetBullseye(false)
 end
 
 --[[

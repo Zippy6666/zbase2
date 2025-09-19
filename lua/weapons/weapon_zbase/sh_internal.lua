@@ -452,9 +452,9 @@ end
 function SWEP:CanTakeMeleeWepDmg( ent )
     local mtype = ent:GetMoveType()
     return mtype == MOVETYPE_STEP 	-- NPC
-    || mtype == MOVETYPE_VPHYSICS 	-- Prop
-    || mtype == MOVETYPE_WALK 		-- Player
-	|| ent:IsNextBot()
+			|| mtype == MOVETYPE_VPHYSICS 	-- Prop
+			|| mtype == MOVETYPE_WALK 		-- Player
+			|| ent:IsNextBot()
 end
 
 -- Melee AI for NPC (own)
@@ -467,8 +467,19 @@ function SWEP:MeleeInstructAI( own )
 		return
 	end
 
+	local sched = own:GetCurrentSchedule()
+	
+	-- Used by some ZBase NPCs to ensure they don't attack
+	-- if they are doing some other important behavior
+	-- (metro cop arrest for instance)
+	local preventAttack = own.Patch_AIWantsToShoot_SCHED_Blacklist
+			&& own.Patch_AIWantsToShoot_SCHED_Blacklist[sched]
+	if preventAttack then
+		return
+	end
+
 	-- Chase enemy
-	if !own:IsCurrentSchedule(SCHED_CHASE_ENEMY) then
+	if sched != SCHED_CHASE_ENEMY then
 		own:SetSchedule(SCHED_CHASE_ENEMY)
 	end
 	
