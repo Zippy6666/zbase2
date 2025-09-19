@@ -1240,6 +1240,9 @@ function NPC:AITick_Slow()
     local squad     = self:GetSquad()
     local wep       = self:GetActiveWeapon()
     local validWep  = IsValid(wep)
+    local sched     = self:GetCurrentSchedule()
+    local ene       = self:GetEnemy()
+    local validEne  = IsValid(ene)
 
     -- Remove squad if faction is 'none'
     if self.ZBaseFaction == "none" && isstring(squad) && squad!="" then
@@ -1260,7 +1263,7 @@ function NPC:AITick_Slow()
 
     -- Reload if we cannot see enemy and we have no ammo
     if validWep && !wep.NPCIsMeleeWep && wep:Clip1() <= 0 && !self.EnemyVisible 
-    && !self:IsCurrentSchedule(SCHED_RELOAD) && !self.bControllerBlock then
+    && sched != SCHED_RELOAD && !self.bControllerBlock then
         self:SetSchedule(SCHED_RELOAD)
         debugoverlay.Text(self:GetPos(), "Doing SCHED_RELOAD because enemy occluded")
     end
@@ -1342,16 +1345,36 @@ function NPC:AITick_Slow()
 
     -- Has weapon...
     if validWep then
+        local wepcls = wep:GetClass()
+        local gundist = self.MaxShootDistance*(wep.NPCShootDistanceMult || 1)
+
         -- If we have an engine-based weapon
         -- Replace it with a ZBASE equivalent
         -- so that we get more control over i
-        local wepcls = wep:GetClass()
+
         if engineWeaponReplacements[wepcls] then
             self:Give(engineWeaponReplacements[wepcls])
         end
 
         -- Set max look distance to weapon distance
-        self:SetMaxLookDistance(self.MaxShootDistance*(wep.NPCShootDistanceMult or 1))
+        self:SetMaxLookDistance(gundist)
+
+        -- Weapon behavior if we have an enemy
+        if IsValid(ene) then
+            local inGunDist = self:ZBaseDist(ene, {within=gundist})
+
+            -- If forcing running towards enemy but is now in gun distance
+            -- stop chasing and start gunning instead
+            if sched == SCHED_FORCED_GO_RUN && inGunDist then 
+                self:ClearSchedule()
+
+            -- Forced run to enemy if outside of gun distance
+            elseif !inGunDist && !self:HasCondition(COND.NO_PRIMARY_AMMO) &&
+                    sched != SCHED_FORCED_GO_RUN then
+                self:SetLastPosition(ene:GetPos())
+                self:SetSchedule(SCHED_FORCED_GO_RUN)
+            end
+        end
 
     -- Does not have weapon...
     else
