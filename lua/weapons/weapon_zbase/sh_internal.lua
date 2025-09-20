@@ -496,21 +496,25 @@ function SWEP:MeleeInstructAI( own )
 
 	-- Swing when within distance and not playing anim currently
 	if distToSqr < meleeAttackDistSqr && !own.DoingPlayAnim then
-		local timeUntilMeleeStrike = own.MeleeWeaponAnimations_TimeUntilDamage || 0.5
-
-		-- Do anim
-		if own.IsZBaseNPC then
-			own:Weapon_MeleeAnim()
-		else
-			own:ZBASE_SimpleAnimation(ACT_MELEE_ATTACK_SWING)
-		end
-
-		-- Do damage
-		own:CONV_TimerCreate("MeleeWeaponDamage", timeUntilMeleeStrike, 1, function()
-			if !IsValid(self) then return end -- Weapon went NULL
-			self:NPCMeleeWeaponDamage()
-		end)
+		self:MeleeStrike(own)
 	end
+end
+
+function SWEP:MeleeStrike(own)
+	local timeUntilMeleeStrike = own.MeleeWeaponAnimations_TimeUntilDamage || 0.5
+
+	-- Do anim
+	if own.IsZBaseNPC then
+		own:Weapon_MeleeAnim()
+	else
+		own:ZBASE_SimpleAnimation(ACT_MELEE_ATTACK_SWING)
+	end
+
+	-- Do damage
+	own:CONV_TimerCreate("MeleeWeaponDamage", timeUntilMeleeStrike, 1, function()
+		if !IsValid(self) then return end -- Weapon went NULL
+		self:NPCMeleeWeaponDamage()
+	end)
 end
 
 function SWEP:NPCMeleeWeaponDamage()

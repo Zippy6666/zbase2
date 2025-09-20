@@ -18,5 +18,7 @@ I instead made a new system so that any NPC (zbase or nah) can use ZBase melee w
 - DOG NPC less retarded jumping.
 # IMPROVEMENTS
 - Minor performance improvements
+- Controller can now fire past NPCs maximum weapon range
+- Controller no longer displays some player hud elements
 # IDONTREMEMBER
 - Some important changes might have been lost because i forgot them

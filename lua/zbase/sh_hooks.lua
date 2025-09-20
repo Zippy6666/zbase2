@@ -284,9 +284,12 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
         end
     end
 
+    -- Don't throw bullets at allies we cannot hurt
     if SERVER && !ZBCVAR.PlayerHurtAllies:GetBool() && ZBaseNPCCount > 0 then
         local own = ent:GetOwner()
-        local shooterPly = (own:IsPlayer() && own) or (ent:IsPlayer() && ent)
+        local shooterPly = (own:IsPlayer() 
+                                && !own.ZBASE_ControlledNPC -- Prevent this functionality if player is controlling an NPC 
+                                    && own) || (ent:IsPlayer() && ent)
 
         if shooterPly then
             local tr = util.TraceLine({

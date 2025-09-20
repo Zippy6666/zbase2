@@ -312,11 +312,10 @@ function NPC:ZBASE_Controller_InitAttacks()
                     if !IsValid(wep) then return end
 
                     if wep.NPCIsMeleeWep && !self:BusyPlayingAnimation() then
-                        self:ZBWepSys_MeleeAttack()
-                        return
+                        wep:MeleeStrike(self)
                     end
 
-                    if wep:Clip1() <= 0 then
+                    if !wep.NPCIsMeleeWep && wep:Clip1() <= 0 then
                         if !timer.Exists("ZBaseReloadWeapon"..self:EntIndex()) then
                             ply:PrintMessage(HUD_PRINTTALK, "Out of ammo!")
                         end
@@ -578,9 +577,9 @@ function NPC:ZBASE_ControllerThink()
     -- Delay hearing so we are temporarily deaf while being controlled
     self.NextHearSound = CurTime()+1
 
-    if self.ZBASE_Controller_FreeAttacking then
+    if self.ZBASE_Controller_FreeAttacking || self.ZBASE_bControllerShoot then
         -- Don't mess with NPC movement
-        -- Just let it do its own thing whil
+        -- Just let it do its own thing while free attacking or shooting
         bForceMv = false
 
         -- Give back move cap if any

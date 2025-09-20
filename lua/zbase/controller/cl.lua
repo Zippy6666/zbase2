@@ -113,6 +113,15 @@ local hudMrgn       = 5
 local barMrgn       = 5
 local barH          = 10
 
+local hide = {
+	["CHudHealth"]      = true,
+	["CHudBattery"]     = true,
+    ["CHudAmmo"]        = true,
+    ["CHudCrosshair"]   = true,
+    ["CHUDQuickInfo"]   = true,
+    ["CHudSuitPower"]   = true
+}
+
 hook.Add("HUDPaint", "ZBASE_CONTROLLER", function()
     local ply = LocalPlayer()
     local camEnt = ply:GetNWEntity("ZBASE_ControllerCamEnt", NULL)
@@ -155,3 +164,20 @@ end)
 net.Receive("ZBASE_Ctrlr_UpdateNPCHealth", function()
     LocalPlayer().ZBASE_ControlledNPCHealth = net.ReadUInt(16)
 end)
+
+-- Hide hud elements when in controller
+hook.Add( "HUDShouldDraw", "HideHUD", function( name )
+    -- Check if we should hide hud elements
+    -- because we are controlling an NPC
+    local ply = LocalPlayer()
+    if !IsValid(ply) then return end
+
+    local camEnt = ply:GetNWEntity("ZBASE_ControllerCamEnt", NULL)
+    if !IsValid(camEnt) then return end
+
+    if hide[name] then
+		return false
+	end
+
+	-- Don't return anything here, it may break other addons that rely on this hook.
+end )
