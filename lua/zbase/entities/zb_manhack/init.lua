@@ -43,21 +43,8 @@ function NPC:FootStepTimer()
 end
 
 function NPC:CustomTakeDamage( dmginfo, HitGroup )
-    if dmginfo:IsBulletDamage() or dmginfo:IsDamageType(DMG_CLUB) then
-        -- Club and bullet damage lowered
-        dmginfo:ScaleDamage(0.68)
-    end
-
-    if dmginfo:GetDamage() >= 8 then
-        -- If damage is above some value
-        -- Have a more intense reaction
-        dmginfo:SetDamageType(bit.bor(dmginfo:GetDamageType(), DMG_CLUB))
-        self.PainSounds = "NPC_Manhack.Stunned"
-    else
-        -- Damage force lowered overall
-        dmginfo:SetDamageForce(dmginfo:GetDamageForce()*0.25)
-        self.PainSounds = ""
-    end
+    -- Damage force lowered overall
+    dmginfo:SetDamageForce(dmginfo:GetDamageForce()*0.25)
 end
 
 function NPC:ShouldGib( dmginfo, hit_gr )
