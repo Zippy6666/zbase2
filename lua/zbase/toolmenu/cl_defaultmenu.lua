@@ -67,7 +67,7 @@ ZBaseAddToolMenu( "ZBASE", "AI", function(panel)
     panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Alt Fires", "zbase_alt_count", -1, 20, 0 ) }, color_black, SettingFont, "-1 = inf", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Grenade/Alt Rnd", "zbase_gren_alt_rand") }, color_black, SettingFont, "NPCs spawn with 0 to MAX grenades & alts, where the sliders above are MAX", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Sight Dist", "zbase_sightdist", 1, 30000, 0 ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
-    panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Override", "zbase_sightdist_override") }, color_black, SettingFont, "Override all ZBase NPC sight distances", DescriptionColor, DescriptionFont )
+    panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Override", "zbase_sightdist_override") }, color_black, SettingFont, "Override all ZBase NPC sight distances. The distance still may vary due to what weapon the NPC has. Also NPCs ignore this distance if you attack them while you are in their view-cone.", DescriptionColor, DescriptionFont )
 
     panel:ZBase_ToolMenuAddCategory( "BEHAVIOR" )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Patrol", "zbase_patrol" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
@@ -182,7 +182,7 @@ ZBaseAddToolMenu( "DEF. NPCs", "Combine", function(panel)
     panel:ZBase_ToolMenuCustomize( "COMBINE", color_white, "ChatFont", grey, lightgrey, posterTab  )
 
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Metrocop Glow Eyes", "zbase_metrocop_glow_eyes") }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
-    panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Metrocop Arrest", "zbase_metrocop_arrest") }, color_black, SettingFont, "Metrocops will 'arrest' enemies, instead of attacking immediately", DescriptionColor, DescriptionFont )
+    panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Metrocop Arrest", "zbase_metrocop_arrest") }, color_black, SettingFont, "Metrocops will 'arrest' enemies, instead of attacking immediately. They need to be in a squad in order for it to work.", DescriptionColor, DescriptionFont )
 end)
 
 ZBaseAddToolMenu( "DEF. NPCs", "Citizen", function(panel)

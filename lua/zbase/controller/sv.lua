@@ -563,7 +563,7 @@ function NPC:ZBASE_ControllerThink()
     if viewpos then
         local tr = util.TraceLine({
             start = viewpos,
-            endpos = viewpos+forward*100000,
+            endpos = viewpos+forward*self:GetMaxLookDistance(),
             mask = MASK_VISIBLE_AND_NPCS,
             filter = self,
         })

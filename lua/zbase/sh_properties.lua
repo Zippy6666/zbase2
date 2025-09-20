@@ -88,6 +88,10 @@ AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )
 
     local cls = npc:GetClass()
 
+    -- This will make so that they will die
+    -- regardless if they were previously allied
+    npc.ZBaseFaction = "none"
+
     if cls == "npc_combinedropship" or cls == "npc_helicopter" or cls == "npc_combinegunship" then
         hook.Run("OnNPCKilled", npc, ply, game.GetWorld())
     end

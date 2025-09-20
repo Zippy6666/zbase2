@@ -10,25 +10,22 @@ ZBCVAR.FriendlyFire =           CreateConVar("zbase_friendly_fire", "0", Flags)
 
 ZBCVAR.Nerf =                   CreateConVar("zbase_nerf", "1", Flags)
 ZBCVAR.MaxNPCsShootPly =        CreateConVar("zbase_max_npcs_shoot_ply", "3", Flags)
-ZBCVAR.GrenCount =              CreateConVar("zbase_gren_count", "-1", Flags)
+ZBCVAR.GrenCount =              CreateConVar("zbase_gren_count", "2", Flags)
 ZBCVAR.AltCount =               CreateConVar("zbase_alt_count", "-1", Flags)
 ZBCVAR.GrenAltRand =            CreateConVar("zbase_gren_alt_rand", "0", Flags)
-
-ZBCVAR.RandWepNPCBlackList =    CreateConVar("zbase_randwep_blacklist_npc", "beta_unit_combine_assassin", Flags)
-ZBCVAR.RandWepBlackList =       CreateConVar("zbase_randwep_blacklist_wep", "", Flags)
 
 ZBCVAR.FallbackNav =            CreateConVar("zbase_fallback_nav", "1", Flags)
 ZBCVAR.MoreJumping =            CreateConVar("zbase_more_jumping", "0", Flags)
 ZBCVAR.NPCNocollide =           CreateConVar("zbase_nocollide", "0", Flags)
 
 ZBCVAR.ArmorSparks =            CreateConVar("zbase_armor_sparks", "1", Flags)
-ZBCVAR.MuzzleLight =            CreateConVar("zbase_muzzle_light", "1", Flags)
+ZBCVAR.MuzzleLight =            CreateConVar("zbase_muzzle_light", "0", Flags)
 ZBCVAR.Muzzle =                 CreateConVar("zbase_muzztyle", "mmod", Flags)
 ZBCVAR.AR2Muzzle =              CreateConVar("zbase_mar2tyle", "mmod", Flags)
 
 ZBCVAR.Patrol =                 CreateConVar("zbase_patrol", "1", Flags)
 ZBCVAR.CallForHelp =            CreateConVar("zbase_callforhelp", "1", Flags)
-ZBCVAR.AutoSquad =              CreateConVar("zbase_autosquad", "1", Flags)
+ZBCVAR.AutoSquad =              CreateConVar("zbase_autosquad", "0", Flags)
 ZBCVAR.FollowingEnabled =       CreateConVar("zbase_followplayers", "1", Flags)
 ZBCVAR.SightDist =              CreateConVar("zbase_sightdist", "4096", Flags)
 ZBCVAR.SightDistOverride =      CreateConVar("zbase_sightdist_override", "0", Flags)
@@ -49,7 +46,7 @@ ZBCVAR.CitizenRocks =           CreateConVar("zbase_cit_rocks", "1", Flags)
 ZBCVAR.RebelAmmo =              CreateConVar("zbase_reb_ammo", "0", Flags)
 
 ZBCVAR.MetroCopGlowEyes =       CreateConVar("zbase_metrocop_glow_eyes", "0", Flags)
-ZBCVAR.MetroCopArrest =         CreateConVar("zbase_metrocop_arrest", "1", Flags)
+ZBCVAR.MetroCopArrest =         CreateConVar("zbase_metrocop_arrest", "0", Flags)
 
 ZBCVAR.SvGlowingEyes =          CreateConVar("zbase_sv_glowing_eyes", "1", Flags)
 
@@ -67,7 +64,7 @@ ZBCVAR.SpawnerCooldown =        CreateConVar("zbase_spawner_cooldown", "3", Flag
 ZBCVAR.SpawnerVisibility =      CreateConVar("zbase_spawner_vis", "0", Flags)
 ZBCVAR.SpawnerDistance =        CreateConVar("zbase_spawner_mindist", "0", Flags)
 
-ZBCVAR.FactionAdminOnly =       CreateConVar("zbase_faction_admin_only", "0", Flags)
+ZBCVAR.FactionAdminOnly =       CreateConVar("zbase_faction_admin_only", "1", Flags)
 
 if CLIENT then
     ZBCVAR.GlowingEyes =        CreateConVar("zbase_glowing_eyes", "1", FCVAR_ARCHIVE)
