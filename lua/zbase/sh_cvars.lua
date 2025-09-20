@@ -39,7 +39,7 @@ ZBCVAR.RemoveGibTime =          CreateConVar("zbase_gib_remove_time", "60", Flag
 ZBCVAR.MaxGibs =                CreateConVar("zbase_gib_max", "30", Flags)
 ZBCVAR.GibCollide =             CreateConVar("zbase_gib_collide", "0", Flags)
 
-ZBCVAR.ZombieHeadcrabs =        CreateConVar("zbase_zombie_headcrabs", "0", Flags)
+ZBCVAR.ZombieHeadcrabs =        CreateConVar("zbase_zombie_headcrabs", "1", Flags)
 ZBCVAR.ZombieRedBlood =         CreateConVar("zbase_zombie_red_blood", "1", Flags)
 
 ZBCVAR.CitizenRocks =           CreateConVar("zbase_cit_rocks", "1", Flags)
@@ -55,6 +55,7 @@ ZBCVAR.CampaignReplace =        CreateConVar("zbase_camp_replace", "0", Flags)
 ZBCVAR.CustomClass =            CreateConVar("zbase_custom_class", "1", Flags)
 ZBCVAR.DefaultMenu =            CreateConVar("zbase_defmenu", "0", Flags)
 ZBCVAR.MenuMixin =              CreateConVar("zbase_mixmenu", "0", Flags)
+ZBCVAR.NoDefHL2 =               CreateConVar("zbase_nodefhl2", "0", Flags)
 ZBCVAR.ReloadSpawnMenu =        CreateConVar("zbase_reload_spawnmenu", "0", Flags)
 
 ZBCVAR.ShowNavigator =          CreateConVar("zbase_show_navigator", "0", Flags)

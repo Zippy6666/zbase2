@@ -23,7 +23,8 @@ ZBaseAddToolMenu( "ZBASE", "Misc", function(panel)
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "NPC Tab", "zbase_defmenu" ) }, color_black, SettingFont, "NPCs in regular NPC tab too", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Tab Mixin", "zbase_mixmenu" ) }, color_black, SettingFont, "Don't use separate categories in default NPC tab", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Collapse", "zbase_collapse_cat" ) }, color_black, SettingFont, "Collapse ZBase category icons by default", DescriptionColor, DescriptionFont )
-
+    panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "No HL2", "zbase_nodefhl2" ) }, color_black, SettingFont, "Don't add retail HL2 NPC 'replicas' to the menu", DescriptionColor, DescriptionFont )
+    
     panel:ZBase_ToolMenuAddCategory( "NPC GENERAL" )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Ply Hurt Ally", "zbase_ply_hurt_ally" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "NPC Hurt Ally", "zbase_friendly_fire" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )

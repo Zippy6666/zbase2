@@ -399,10 +399,43 @@ function ZBase_RegisterHandler:RegNPCs()
     end
 end
 
+local retail_hl2_mfs = {
+    ["zb_antlion"]                  = true,
+    ["zb_combine_soldier"]          = true,
+    ["zb_zombine"]                  = true,
+    ["zb_fastzombie"]               = true,
+    ["zb_stalker"]                  = true,
+    ["zb_kleiner"]                  = true,
+    ["zb_zombie"]                   = true,
+    ["zb_human_rebel"]              = true,
+    ["zb_human_refugee"]            = true,
+    ["zb_human_medic"]              = true,
+    ["zb_human_civilian"]           = true,
+    ["zb_human_rebel_f"]              = true,
+    ["zb_human_refugee_f"]            = true,
+    ["zb_human_medic_f"]              = true,
+    ["zb_human_civilian_f"]           = true,
+    ["zb_poisonzombie"]             = true,
+    ["zb_metropolice"]              = true,
+    ["zb_combine_elite"]            = true,
+    ["zb_combine_nova_prospekt"]    = true,
+    ["zb_hunter"]                   = true,
+    ["zb_vortigaunt"]               = true,
+    ["zb_odessa"]                   = true,
+    ["zb_magnusson"]                = true,
+    ["zb_dog"]                      = true,
+    ["zb_uriah"]                    = true,
+    ["zb_manhack"]                  = true
+}
 function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
     for cls, t in pairs( ZBaseNPCs ) do
         if t.Category == false then continue end -- Don't add to menu
         if cls == "npc_zbase" then continue end -- Don't add base to menu
+        
+        -- Don't add retail hl2 npc "replicas" if not desired
+        if ZBCVAR.NoDefHL2:GetBool() && retail_hl2_mfs[cls] then 
+            continue 
+        end
 
         -- ZBase spawn menu tab
         local ZBaseSpawnMenuTbl = {
