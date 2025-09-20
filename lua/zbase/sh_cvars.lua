@@ -55,7 +55,7 @@ ZBCVAR.CampaignReplace =        CreateConVar("zbase_camp_replace", "0", Flags)
 ZBCVAR.CustomClass =            CreateConVar("zbase_custom_class", "1", Flags)
 ZBCVAR.DefaultMenu =            CreateConVar("zbase_defmenu", "0", Flags)
 ZBCVAR.MenuMixin =              CreateConVar("zbase_mixmenu", "0", Flags)
-ZBCVAR.NoDefHL2 =               CreateConVar("zbase_nodefhl2", "0", Flags)
+ZBCVAR.NoDefHL2 =               CreateConVar("zbase_nodefhl2", "1", Flags)
 ZBCVAR.ReloadSpawnMenu =        CreateConVar("zbase_reload_spawnmenu", "0", Flags)
 
 ZBCVAR.ShowNavigator =          CreateConVar("zbase_show_navigator", "0", Flags)
