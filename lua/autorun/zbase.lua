@@ -567,6 +567,8 @@ if SERVER then
     end
 
     concommand.Add("zbase_update_autorefresh", function()
+        if !ply:IsSuperAdmin() then return end
+        
         ZBaseFilesToAutorefresh = FetchFilenamesForAddonsInDevelopment()
     end)
 
