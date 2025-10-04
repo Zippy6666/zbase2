@@ -263,8 +263,7 @@ duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, 
 end)
 
 function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
-	local NPCList = ZBaseSpawnMenuNPCList
-	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
+	local NPCData = ZBaseNPCs[ Class ]
 
 	-- Don't let them spawn this entity if it isn't in our NPC Spawn list.
 	-- We don't want them spawning any entity they like!
