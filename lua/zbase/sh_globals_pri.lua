@@ -164,6 +164,7 @@ ZBaseFactionTranslation = SERVER && {
     [CLASS_ZOMBIE]              = "zombie",
     [CLASS_ANTLION]             = "antlion",
     [CLASS_EARTH_FAUNA]         = "neutral"
+    -- [CLASS_NONE]                = "none" -- these are not the same
 } or nil
 
 ZBaseFactionTranslation_Flipped = SERVER and {
@@ -174,6 +175,7 @@ ZBaseFactionTranslation_Flipped = SERVER and {
     zombie      = CLASS_ZOMBIE,
     antlion     = CLASS_ANTLION,
     neutral     = CLASS_EARTH_FAUNA,
+    -- none        = CLASS_NONE  -- these are not the same
 } or nil
 
 ZBaseVJFactionTranslation = {

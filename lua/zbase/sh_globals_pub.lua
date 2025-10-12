@@ -123,6 +123,7 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
         plySetter:PrintMessage(HUD_PRINTTALK, "You do not have permission to set the faction.")
     end
 
+    -- newFaction not provided, use default
     newFaction = newFaction or ent.ZBaseStartFaction
 
     -- Already has faction
@@ -130,6 +131,7 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
         return
     end
 
+    -- Set the faction variable
     ent.ZBaseFaction = newFaction
 
     -- Print message if a player set the faction..
@@ -137,6 +139,19 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
         local trgt = ent == plySetter && "yourself" or ent:CONV_GetName()
         plySetter:PrintMessage(HUD_PRINTTALK, 
             "You set ZBase faction '"..ent.ZBaseFaction.."' to "..trgt..".")
+    end
+
+    if ent:IsPlayer() then
+        -- Set player's NPC class if avaiable instead
+        -- of doing expensive faction operation
+    
+        local classify = ZBaseFactionTranslation_Flipped[newFaction]
+        if classify then
+            ent:CONV_SetPlayerClass( classify )
+            return
+        else
+            ent:CONV_SetPlayerClass( CLASS_PLAYER )
+        end
     end
 
     -- Update relationships
