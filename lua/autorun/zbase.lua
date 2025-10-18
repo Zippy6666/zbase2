@@ -479,6 +479,8 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
             local cat = RegularSpawnMenuTable.Category
             local kvs = RegularSpawnMenuTable.KeyValues
+
+            RegularSpawnMenuTable.Class = cls
             if kvs then
                 kvs["parentname"] = cls
             end
