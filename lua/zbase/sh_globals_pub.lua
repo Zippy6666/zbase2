@@ -141,6 +141,7 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
             "You set ZBase faction '"..ent.ZBaseFaction.."' to "..trgt..".")
     end
 
+    -- Players only..
     if ent:IsPlayer() then
         -- Set player's NPC class if available
         -- This will make non-zbase NPCs behave properly towards players of different factions
@@ -154,6 +155,9 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
             ent:CONV_SetPlayerClass( CLASS_PLAYER )
         end
     end
+
+    -- Try to set a matching VJ class
+    ent.VJ_NPC_Class = {ZBaseVJFactionTranslation[newFaction]}
 
     -- Update ZBase NPC relationships
     for _, v in ipairs(ZBaseNPCInstances) do
