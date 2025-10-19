@@ -101,7 +101,7 @@ local function GiveIconsToNode( pnlContent, tree, node, categories )
 			self.PropPanel:Add( header )
 			
 			for name, ent in SortedPairsByMemberValue( npcdata, "Name" ) do
-				local mat = ent.IconOverride or GenericIcon
+				local mat = ent.IconOverride || "entities/zippyhighres.png"
 
 				if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
 					mat = "entities/" .. name .. ".png"
