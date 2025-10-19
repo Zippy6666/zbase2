@@ -237,16 +237,6 @@ sound.Add({
 
 --[[
 ======================================================================================================================================================
-                                           SET SPAWN MENU CATEGORY ICONS
-======================================================================================================================================================
---]]
-
-list.Set("ContentCategoryIcons", "HL2: Humans + Resistance",    "games/16/hl2.png")
-list.Set("ContentCategoryIcons", "HL2: Combine",                "games/16/hl2.png")
-list.Set("ContentCategoryIcons", "HL2: Zombies + Enemy Aliens",  "games/16/hl2.png")
-
---[[
-======================================================================================================================================================
                                            INCLUDES
 ======================================================================================================================================================
 --]]
@@ -433,7 +423,7 @@ local retail_hl2_mfs = {
 }
 function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
     for cls, t in pairs( ZBaseNPCs ) do
-        if t.Category == false then continue end -- Don't add to menu
+        if t.Category == false then continue end -- Don't add to menu if category is false
         if cls == "npc_zbase" then continue end -- Don't add base to menu
         
         -- Don't add retail hl2 npc "replicas" if not desired
@@ -441,73 +431,96 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             continue 
         end
 
-        -- ZBase spawn menu tab
-        local ZBaseSpawnMenuTbl = {
-            Name=t.Name,
-            Category=t.Category,
-            Class = t.Class,
-            SpawnMenuZBaseClass = cls,
-            Weapons = t.Weapons,
-            Models = t.Models,
-            KeyValues = table.Copy(t.KeyValues),
-            OnFloor = t.OnFloor,
-            OnCeiling = t.OnCeiling,
-            NoDrop = t.NoDrop,
-            Offset = t.Offset or (t.SNPCType == ZBASE_SNPCTYPE_FLY && t.Fly_DistanceFromGround),
-            Rotate = t.Rotate,
-            Skins = t.Skins,
-            AdminOnly = t.AdminOnly,
-            SpawnFlagTbl = t.SpawnFlagTbl,
-            TotalSpawnFlags = t.TotalSpawnFlags,
-            OnDuplicated = t.OnDuplicated,
-            BodyGroups = BodyGroups,
-            StartHealth = t.StartHealth,
-            Material = t.Material,
-            Author=t.Author,
-            IconOverride = "entities/"..cls..".png",
-        }
-        ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
-
-        -- Regular npc spawn menu
-        if ZBCVAR.DefaultMenu:GetBool() then
-            local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
-            local cat = RegularSpawnMenuTable.Category
-
-            -- Set the entity class in the spawn menu to
-            -- the non-existent zbase class name.
-            -- This will cause the wrapper around ents.Create
-            -- to spawn the ZBase NPC instead.
-            RegularSpawnMenuTable.Class = cls
-
-            -- Mix with regular NPCs, or don't
-            if ZBCVAR.MenuMixin:GetBool() then
-                local split = string.Split(cat, ": ")    
-                if #split == 2 then
-                    RegularSpawnMenuTable.Category = split[2]
-                else
-                    RegularSpawnMenuTable.Category = cat
-                end
-            else
-                RegularSpawnMenuTable.Category = cat
-            end
-
-            -- Decide name and class name in regular spawn menu NPC tab
-            local clsname = "zbase_"..cls
-            if ZBASE_MENU_REPLACEMENTS[cls] then
-                if ZBCVAR.MenuMixin:GetBool() then
-                    RegularSpawnMenuTable.Name = RegularSpawnMenuTable.Name.." (ZBase)"
-                end
-
-                if ZBCVAR.Replace:GetBool() then
-                    clsname = ZBASE_MENU_REPLACEMENTS[cls]
-                end
-            end
-
-            print("'"..RegularSpawnMenuTable.Category.."'")
-
-            -- Add to regular spawn menu
-            list.Set("NPC", clsname, RegularSpawnMenuTable)
+        local RegularSpawnMenuCat
+        local split = string.Split(t.Category, ": ")    
+        if #split == 2 then
+            RegularSpawnMenuCat = split[2]
+        else
+            RegularSpawnMenuCat = t.Category
         end
+
+        -- Add to NPC tab in spawn menu
+        list.Set("NPC", cls, {
+            Name        = t.Name,
+            Category        = RegularSpawnMenuCat,
+            ZBaseCategory   = t.Category,
+            Class       = cls,
+            Weapons     = t.Weapons,
+            Offset      = t.Offset || (t.SNPCType == ZBASE_SNPCTYPE_FLY && t.Fly_DistanceFromGround),
+            OnFloor     = t.OnFloor,
+            OnCeiling   = t.OnCeiling,
+            NoDrop      = t.NoDrop,
+            Rotate      = t.Rotate,
+            AdminOnly   = t.AdminOnly,
+            Author      = t.Author,
+            IconOverride= t.IconOverride,
+        })
+
+        -- ZBase spawn menu tab
+        -- local ZBaseSpawnMenuTbl = {
+        --     Name=t.Name,
+        --     Category=t.Category,
+        --     Class = t.Class,
+        --     SpawnMenuZBaseClass = cls,
+        --     Weapons = t.Weapons,
+        --     Models = t.Models,
+        --     KeyValues = table.Copy(t.KeyValues),
+        --     OnFloor = t.OnFloor,
+        --     OnCeiling = t.OnCeiling,
+        --     NoDrop = t.NoDrop,
+        --     Offset = t.Offset or (t.SNPCType == ZBASE_SNPCTYPE_FLY && t.Fly_DistanceFromGround),
+        --     Rotate = t.Rotate,
+        --     Skins = t.Skins,
+        --     AdminOnly = t.AdminOnly,
+        --     SpawnFlagTbl = t.SpawnFlagTbl,
+        --     TotalSpawnFlags = t.TotalSpawnFlags,
+        --     OnDuplicated = t.OnDuplicated,
+        --     BodyGroups = BodyGroups,
+        --     StartHealth = t.StartHealth,
+        --     Material = t.Material,
+        --     Author=t.Author,
+        --     IconOverride = "entities/"..cls..".png",
+        -- }
+        -- ZBaseSpawnMenuNPCList[cls] = ZBaseSpawnMenuTbl -- Add to zbase menu
+
+        -- -- Regular npc spawn menu
+        -- if ZBCVAR.DefaultMenu:GetBool() then
+        --     local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
+        --     local cat = RegularSpawnMenuTable.Category
+
+        --     -- Set the entity class in the spawn menu to
+        --     -- the non-existent zbase class name.
+        --     -- This will cause the wrapper around ents.Create
+        --     -- to spawn the ZBase NPC instead.
+        --     RegularSpawnMenuTable.Class = cls
+
+        --     -- Mix with regular NPCs, or don't
+        --     if ZBCVAR.MenuMixin:GetBool() then
+        --         local split = string.Split(cat, ": ")    
+        --         if #split == 2 then
+        --             RegularSpawnMenuTable.Category = split[2]
+        --         else
+        --             RegularSpawnMenuTable.Category = cat
+        --         end
+        --     else
+        --         RegularSpawnMenuTable.Category = cat
+        --     end
+
+        --     -- Decide name and class name in regular spawn menu NPC tab
+        --     local clsname = "zbase_"..cls
+        --     if ZBASE_MENU_REPLACEMENTS[cls] then
+        --         if ZBCVAR.MenuMixin:GetBool() then
+        --             RegularSpawnMenuTable.Name = RegularSpawnMenuTable.Name.." (ZBase)"
+        --         end
+
+        --         if ZBCVAR.Replace:GetBool() then
+        --             clsname = ZBASE_MENU_REPLACEMENTS[cls]
+        --         end
+        --     end
+
+        --     -- Add to regular spawn menu
+        --     list.Set("NPC", clsname, RegularSpawnMenuTable)
+        -- end
     end
 end
 

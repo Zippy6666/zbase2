@@ -128,9 +128,12 @@ end
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
 	-- Horror code
 	local tbl = {}
-	for class, npcdata in pairs( ZBaseSpawnMenuNPCList ) do
-		if isstring(npcdata.Category) then
-			local split = string.Split(npcdata.Category, ": ")
+	for class, npcdata in pairs( list.GetForEdit("NPC") ) do
+		-- Skip non ZBase NPCs
+		if !ZBaseNPCs[class] then continue end
+
+		if isstring(npcdata.ZBaseCategory) then
+			local split = string.Split(npcdata.ZBaseCategory, ": ")
 			local s1, s2 = split[1], split[2]
 			tbl[s1] = tbl[s1] or {}
 
