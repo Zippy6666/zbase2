@@ -142,19 +142,20 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
     end
 
     if ent:IsPlayer() then
-        -- Set player's NPC class if avaiable instead
-        -- of doing expensive faction operation
+        -- Set player's NPC class if available
+        -- This will make non-zbase NPCs behave properly towards players of different factions
     
         local classify = ZBaseFactionTranslation_Flipped[newFaction]
         if classify then
+            -- Set faction-matched NPC class
             ent:CONV_SetPlayerClass( classify )
-            return
         else
+            -- Default back to CLASS_PLAYER if no faction match found
             ent:CONV_SetPlayerClass( CLASS_PLAYER )
         end
     end
 
-    -- Update relationships
+    -- Update ZBase NPC relationships
     for _, v in ipairs(ZBaseNPCInstances) do
         v:UpdateRelationships()
     end
