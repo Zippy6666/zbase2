@@ -46,13 +46,13 @@ if CLIENT then
     end)
 end
 
-AddZBaseNPCProperty("Control", "icon16/controller.png", function( self, npc, length, ply )
+AddZBaseNPCProperty("Control", "materials/entities/zippy.png", function( self, npc, length, ply )
     if SERVER then
         ZBASE_CONTROLLER:StartControlling( ply, npc )
     end
 end, false)
 
-AddZBaseNPCProperty("Guard", "icon16/anchor.png", function( self, npc, length, ply )
+AddZBaseNPCProperty("Toggle Guarding", "materials/entities/zippy.png", function( self, npc, length, ply )
     if SERVER then
         ply:ConCommand("zbase_guard " .. npc:EntIndex())
         conv.sendGModHint( ply, !npc.ZBase_Guard && "Enabled guarding." or "Disabled guarding.", 0, 2 )
@@ -60,7 +60,7 @@ AddZBaseNPCProperty("Guard", "icon16/anchor.png", function( self, npc, length, p
 
 end, false)
  
-AddZBaseNPCProperty("Join Faction", "icon16/connect.png", function( self, npc, length, ply )
+AddZBaseNPCProperty("Join Faction", "materials/entities/zippy.png", function( self, npc, length, ply )
     if npc.ZBaseFaction == ply.ZBaseFaction then
         ply:PrintMessage(HUD_PRINTTALK, "You are already in the same faction! ("..npc.ZBaseFaction..")")
         return
@@ -73,7 +73,7 @@ AddZBaseNPCProperty("Join Faction", "icon16/connect.png", function( self, npc, l
     net.Send(ply)
 end)
 
-AddZBaseNPCProperty("Add to My Faction", "icon16/add.png", function( self, npc, length, ply )
+AddZBaseNPCProperty("Add to My Faction", "materials/entities/zippy.png", function( self, npc, length, ply )
     if npc.ZBaseFaction == ply.ZBaseFaction then
         ply:PrintMessage(HUD_PRINTTALK, "You are already in the same faction! ("..npc.ZBaseFaction..")")
         return
@@ -83,7 +83,7 @@ AddZBaseNPCProperty("Add to My Faction", "icon16/add.png", function( self, npc, 
     -- ply:PrintMessage(HUD_PRINTTALK, npc.Name.." is now in your faction ("..ply.ZBaseFaction..")")
 end)
 
-AddZBaseNPCProperty("Kill", "icon16/gun.png", function( self, npc, length, ply )
+AddZBaseNPCProperty("Kill", "materials/entities/zippy.png", function( self, npc, length, ply )
     if !ply:IsAdmin() then return end
 
     local cls = npc:GetClass()
