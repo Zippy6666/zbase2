@@ -47,27 +47,6 @@ if SERVER then
     end)
 end
 
--- Add ZBase NPCs to NPC list
-function list.Get( Type )
-    if !ReloadedSpawnmenuRecently && Type == "NPC" then
-        local ZBaseTableAdd = {}
-        for k, v in pairs(ZBaseSpawnMenuNPCList) do
-            local ZBaseNPC = table.Copy(v)
-
-            ZBaseNPC.Name = ZBaseNPC.Name
-            ZBaseNPC.Category = "[ZBase] "..(ZBaseNPC.Category or "Other")
-            ZBaseNPC.KeyValues = {parentname=k}
-            ZBaseTableAdd[k] = ZBaseNPC
-        end
-
-        local t = table.Merge(listGet(Type), ZBaseTableAdd)
-
-        return t
-    end
-
-    return listGet(Type)
-end
-
 -- Wrapper for checking elsewhere in code if a sound was produces by ENT.EmitSound
 function ENT:EmitSound( snd, ... )
 	IsEmitSoundCall = true

@@ -72,10 +72,9 @@ if SERVER then
         conv.callNextTick(function()
             if !IsValid(ent) then return end
 
-            -- ZBase init stuff when NOT SPAWNED FROM MENU
-            -- (also when not spawned from a dupe)
-            -- Uses parentname to determine if it is a zbase npc
-            -- Uses the "copy system"
+            -- If an NPC with their parentname set to a ZBase NPC class is created
+            -- Convert them to that ZBase NPC
+            -- This may be needed for hammer support
             local zbaseClass = ent:GetKeyValues().parentname
             if ZBaseNPCs[zbaseClass] && !ent.IsDupeSpawnedZBaseNPC then
                 ZBaseNPCCopy( ent, zbaseClass, true )

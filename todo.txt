@@ -1,4 +1,5 @@
 TODO
 * May or may not be updated
 - Improve aerial AI
-- Improve controller
+- Fix weapon randomization
+- Fix factions not always appearing in dropdown

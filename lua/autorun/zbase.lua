@@ -356,6 +356,10 @@ function ZBase_RegisterHandler:NPCReg( name )
 
             include(sh)
 
+            if CLIENT then
+                language.Add(name, ZBaseNPCs[name].Name)
+            end
+
             if SERVER then
                 include(sv)
 
@@ -466,33 +470,18 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
 
         -- Regular npc spawn menu
         if ZBCVAR.DefaultMenu:GetBool() then
-            local function SpawnFlagTblToBit()
-                local bt = 0
-
-                for _, flag in ipairs(t.SpawnFlagTbl or {}) do
-                    bt = bit.bor(bt, flag)
-                end
-
-                return bt
-            end
-
             local RegularSpawnMenuTable = table.Copy(ZBaseSpawnMenuTbl)
             local cat = RegularSpawnMenuTable.Category
-            local kvs = RegularSpawnMenuTable.KeyValues
 
+            -- Set the entity class in the spawn menu to
+            -- the non-existent zbase class name.
+            -- This will cause the wrapper around ents.Create
+            -- to spawn the ZBase NPC instead.
             RegularSpawnMenuTable.Class = cls
-            if kvs then
-                kvs["parentname"] = cls
-            end
-
-            local sFlags = RegularSpawnMenuTable.TotalSpawnFlags or SpawnFlagTblToBit()
-
-            RegularSpawnMenuTable.TotalSpawnFlags = sFlags
 
             -- Mix with regular NPCs, or don't
             if ZBCVAR.MenuMixin:GetBool() then
-                local split = string.Split(cat, ": ")
-                
+                local split = string.Split(cat, ": ")    
                 if #split == 2 then
                     RegularSpawnMenuTable.Category = split[2]
                 else
@@ -502,6 +491,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
                 RegularSpawnMenuTable.Category = cat
             end
 
+            -- Decide name and class name in regular spawn menu NPC tab
             local clsname = "zbase_"..cls
             if ZBASE_MENU_REPLACEMENTS[cls] then
                 if ZBCVAR.MenuMixin:GetBool() then
@@ -513,7 +503,10 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
                 end
             end
 
-            list.Set("NPC", clsname, RegularSpawnMenuTable) -- Add to regular spawn menu
+            print("'"..RegularSpawnMenuTable.Category.."'")
+
+            -- Add to regular spawn menu
+            list.Set("NPC", clsname, RegularSpawnMenuTable)
         end
     end
 end
