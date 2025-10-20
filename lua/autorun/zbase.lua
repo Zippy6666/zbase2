@@ -1,69 +1,46 @@
 ZBaseInstalled = true
 
---[[
-======================================================================================================================================================
-                                           CONV CHECK
-============================================= =========================================================================================================
---]]
+--[[=========================== CONV MESSAGE START ===========================]]--
+MissingConvMsg2 = CLIENT && function()
 
-if CLIENT then
-    function MissingConvMsg()
-        local frame = vgui.Create("DFrame")
-        frame:SetSize(300, 125)
-        frame:SetTitle("Missing Library!")
-        frame:Center()
-        frame:MakePopup()
+    Derma_Query(
+        "This server does not have Zippy's Library installed, addons will function incorrectly!",
 
-        local text = vgui.Create("DLabel", frame)
-        text:SetText("This server does not have the CONV library installed, some addons may function incorrectly. Click the link below to get it:")
-        text:Dock(TOP)
-        text:SetWrap(true)  -- Enable text wrapping for long messages
-        text:SetAutoStretchVertical(true)  -- Allow the text label to stretch vertically
-        text:SetFont("BudgetLabel")
+        "ZIPPY'S LIBRARY MISSING!",
+        
+        "Get Zippy's Library",
 
-        local label = vgui.Create("DLabelURL", frame)
-        label:SetText("CONV Library")
-        label:SetURL("https://steamcommunity.com/sharedfiles/filedetails/?id=3146473253")
-        label:Dock(BOTTOM)
-        label:SetContentAlignment(5)  -- 5 corresponds to center alignment
-    end
+        function()
+            gui.OpenURL("https://steamcommunity.com/sharedfiles/filedetails/?id=3146473253")
+        end,
 
-elseif SERVER && ( !file.Exists("convenience/adam.lua", "LUA") && !conv ) then
-    -- Conv lib not on on server, send message to clients
-    hook.Add("PlayerInitialSpawn", "convenienceerrormsg", function( ply )
-        local sendstr = 'MissingConvMsg()'
-        ply:SendLua(sendstr)
-    end)
+        "Close"
+    )
 
-    -- This second hook is needed so that the ZBASE message isn't overwritten
-    hook.Add("PlayerInitialSpawn", "convenienceerrormsg_zbase", function( ply )
-        local sendstr = 'chat.AddText(Color(255, 0, 0), "WARNING: ZBase WILL not work as intended without the CONV library!") '
-        sendstr = sendstr..'chat.AddText(Color(255, 0, 0), "Get it at: https://steamcommunity.com/sharedfiles/filedetails/?id=3146473253")'
-        ply:SendLua(sendstr)
-    end)
+end || nil
 
-    return -- CONV not on server so return...
+hook.Add("PlayerInitialSpawn", "MissingConvMsg2", function( ply )
 
-end
+    if file.Exists("autorun/conv.lua", "LUA") then return end
 
---[[
-======================================================================================================================================================
-                                           WELCOME MESSAGE OR SOMETHING IDK
-======================================================================================================================================================
---]]
+    local sendstr = 'MissingConvMsg2()'
+    ply:SendLua(sendstr)
+
+end)
+--[[============================ CONV MESSAGE END ============================]]--
 
 if SERVER then
     ZBaseDidConsoleLogo = ZBaseDidConsoleLogo
-    or MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
-    or MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
-    or MsgN("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
-    or MsgN("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
-    or MsgN("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
-    or MsgN("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --")
-    or MsgN("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
-    or MsgN("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
-    or MsgN("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
-    or true
+    || MsgN("-- ███████╗██████╗░░█████╗░░██████╗███████╗ --")
+    || MsgN("-- ╚════██║██╔══██╗██╔══██╗██╔════╝██╔════╝ --")
+    || MsgN("-- ░░███╔═╝██████╦╝███████║╚█████╗░█████╗░░ --")
+    || MsgN("-- ██╔══╝░░██╔══██╗██╔══██║░╚═══██╗██╔══╝░░ --")
+    || MsgN("-- ███████╗██████╦╝██║░░██║██████╔╝███████╗ --")
+    || MsgN("-- ╚══════╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝ --")
+    || MsgN("                                     -- █▀▀▄ █──█ 　 ▀▀█ ─▀─ █▀▀█ █▀▀█ █──█ --")
+    || MsgN("                                     -- █▀▀▄ █▄▄█ 　 ▄▀─ ▀█▀ █──█ █──█ █▄▄█ --")
+    || MsgN("                                     -- ▀▀▀─ ▄▄▄█ 　 ▀▀▀ ▀▀▀ █▀▀▀ █▀▀▀ ▄▄▄█ --")
+    || true
 end
 
 --[[
@@ -340,7 +317,7 @@ function ZBase_RegisterHandler:NPCReg( name )
         local cl = path.."cl_init.lua"
         local sv = path.."init.lua"
 
-        if file.Exists(sh, "LUA") && (CLIENT or file.Exists(sv, "LUA")) then
+        if file.Exists(sh, "LUA") && (CLIENT || file.Exists(sv, "LUA")) then
             ZBaseNPCs[name] = {}
             ZBaseNPCs[name].Behaviours = {}
 
