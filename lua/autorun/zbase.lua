@@ -422,6 +422,7 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
             Category        = RegularSpawnMenuCat,
             ZBaseCategory   = t.Category,
             Class       = cls,
+            ZBaseEngineClass = t.Class,
             Weapons     = t.Weapons,
             Offset      = t.Offset || (t.SNPCType == ZBASE_SNPCTYPE_FLY && t.Fly_DistanceFromGround),
             OnFloor     = t.OnFloor,

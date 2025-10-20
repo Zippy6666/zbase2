@@ -74,8 +74,8 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 		menu:Open()
 	end
 
-	if istable(obj.tblMisc) && isstring(obj.tblMisc.Class) && isstring(obj.tblMisc.Author) then
-		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.Class .. "'\nAuthor: " .. (obj.tblMisc.Author) .. "\n\n Middle-click to create spawner.")
+	if istable(obj.tblMisc) && isstring(obj.tblMisc.ZBaseEngineClass) && isstring(obj.tblMisc.Author) then
+		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.ZBaseEngineClass .. "'\nAuthor: " .. (obj.tblMisc.Author) .. "\n\n Middle-click to create spawner.")
 	end
 
 	if ( IsValid( container ) ) then
