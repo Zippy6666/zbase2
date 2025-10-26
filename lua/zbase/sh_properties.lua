@@ -9,8 +9,12 @@ local prop_shared = {
     end,
 	Receive = function( self, length, ply ) -- The action to perform upon using the property ( Serverside )
 		local npc = net.ReadEntity()
-		if ( !properties.CanBeTargeted( npc, ply ) ) then return end
-		if ( !self:Filter( npc, ply ) ) then return end
+        if not IsValid(npc) then return end
+        if not npc:IsNPC() and not npc.IsZBase_SNPC then return end
+        if not npc.GetNWBool or not npc:GetNWBool("IsZBaseNPC") then return end
+        if not properties.CanBeTargeted(npc, ply) then return end
+        if not self:Filter(npc, ply) then return end
+
         self:ZBaseNPCRecieve(npc, length, ply)
 	end
 }
@@ -20,7 +24,7 @@ local function AddZBaseNPCProperty( name, icon, func, bZBaseOnly )
     local prop_tbl = {
         MenuLabel = name,
         Order = CurOrder,
-        MenuIcon = icon, 
+        MenuIcon = icon,
         ZBaseNPCRecieve = func,
         PrependSpacer = CurOrder==7000
     }
@@ -59,7 +63,7 @@ AddZBaseNPCProperty("Guard", "icon16/anchor.png", function( self, npc, length, p
     end
 
 end, false)
- 
+
 AddZBaseNPCProperty("Join Faction", "icon16/connect.png", function( self, npc, length, ply )
     if npc.ZBaseFaction == ply.ZBaseFaction then
         ply:PrintMessage(HUD_PRINTTALK, "You are already in the same faction! ("..npc.ZBaseFaction..")")
