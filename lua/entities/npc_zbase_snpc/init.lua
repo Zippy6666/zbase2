@@ -17,7 +17,7 @@ function ENT:Initialize()
 	self:SetBloodColor(BLOOD_COLOR_RED)
 
 	self.Bullseye = ents.Create("npc_bullseye")
-	self.Bullseye:SetPos(self:GetPos()) 
+	self.Bullseye:SetPos(self:GetPos())
 	self.Bullseye:SetAngles(self:GetAngles())
 	self.Bullseye:SetNotSolid(true)
 	self.Bullseye:SetParent(self)
@@ -25,6 +25,7 @@ function ENT:Initialize()
 	self.Bullseye:AddEFlags(EFL_DONTBLOCKLOS)
 	self.Bullseye:Spawn()
 	self.Bullseye:Activate()
+	self:DeleteOnRemove( self.Bullseye )
 
 	self.NextDetermineNewSched = CurTime()
 	self.Move_AvoidSquadMembers = CurTime()
@@ -87,8 +88,8 @@ function ENT:SNPCDeath(dmginfo)
 		-- Remove me soon
 		SafeRemoveEntityDelayed(self, 0.1)
 	else
-		-- Client ragdoll 
-		
+		-- Client ragdoll
+
 		self:StopMoving()
 		self:ClearGoal()
 		self:CapabilitiesClear()
@@ -113,7 +114,7 @@ function ENT:OnTakeDamage( dmginfo )
 	if self:Health() <= 0 && !self.Dead then
 		-- Run OnNPCKilled
 		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
-		
+
 		-- Become ragdoll
 		self:SNPCDeath(dmginfo)
 	end
