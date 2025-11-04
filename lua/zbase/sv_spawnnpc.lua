@@ -121,9 +121,9 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		})
 
 		for i, wclass in ipairs( table.Copy(randTBL) ) do
-			if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
-				table.RemoveByValue(randTBL, wclass)
-			end
+			-- if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
+			-- 	table.RemoveByValue(randTBL, wclass)
+			-- end
 		end
 
 		local randWep = randTBL[math.random(1, #randTBL)]

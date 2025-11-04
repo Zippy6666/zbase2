@@ -19,7 +19,7 @@ if CLIENT then
     -- A wrapper that returns the CustomClass instead of the class if it has one
     ENT.GetClass = conv.wrapFunc("ZBASE_ClassOverrideCL", ENT.GetClass, function( self )
         if self:GetNWBool("IsZBaseNPC", false)==true && self:GetNWString("ZBASE_CustomClass", "")!="" && !ZBASE_SkipClassNameWrapper then
-            return self:GetNWString("CustomClass", nil)
+            return self:GetNWString("ZBASE_CustomClass", nil)
         end
     end)
 end

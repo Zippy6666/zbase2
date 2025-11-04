@@ -124,7 +124,7 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
     end
 
     -- newFaction not provided, use default
-    newFaction = newFaction or ent.ZBaseStartFaction
+    newFaction = newFaction || ent.ZBaseStartFaction
 
     -- Already has faction
     if newFaction == ent.ZBaseFaction then
@@ -136,11 +136,12 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
 
     -- Print message if a player set the faction..
     if plySetter then
-        local trgt = ent == plySetter && "yourself" or ent:CONV_GetName()
+        local trgt = ent == plySetter && "yourself" || ent:CONV_GetName()
         plySetter:PrintMessage(HUD_PRINTTALK, 
             "You set ZBase faction '"..ent.ZBaseFaction.."' to "..trgt..".")
     end
 
+    -- Players only..
     if ent:IsPlayer() then
         -- Set player's NPC class if available
         -- This will make non-zbase NPCs behave properly towards players of different factions
@@ -153,11 +154,15 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
             -- Default back to CLASS_PLAYER if no faction match found
             ent:CONV_SetPlayerClass( CLASS_PLAYER )
         end
+    
+        -- Try to set a matching VJ class
+        -- (players only)
+        ent.VJ_NPC_Class = {ZBaseVJFactionTranslation[newFaction]}
     end
 
     -- Update ZBase NPC relationships
-    for _, v in ipairs(ZBaseNPCInstances) do
-        v:UpdateRelationships()
+    for _, zbase_npc in ipairs(ZBaseNPCInstances) do
+        zbase_npc:UpdateRelationships()
     end
 end 
 

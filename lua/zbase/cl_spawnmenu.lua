@@ -74,8 +74,8 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 		menu:Open()
 	end
 
-	if istable(obj.tblMisc) && isstring(obj.tblMisc.Class) && isstring(obj.tblMisc.Author) then
-		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.Class .. "'\nAuthor: " .. (obj.tblMisc.Author) .. "\n\n Middle-click to create spawner.")
+	if istable(obj.tblMisc) && isstring(obj.tblMisc.ZBaseEngineClass) && isstring(obj.tblMisc.Author) then
+		icon:SetToolTip(obj.nicename .. "\n\nClass: '" .. obj.tblMisc.ZBaseEngineClass .. "'\nAuthor: " .. (obj.tblMisc.Author) .. "\n\n Middle-click to create spawner.")
 	end
 
 	if ( IsValid( container ) ) then
@@ -101,7 +101,7 @@ local function GiveIconsToNode( pnlContent, tree, node, categories )
 			self.PropPanel:Add( header )
 			
 			for name, ent in SortedPairsByMemberValue( npcdata, "Name" ) do
-				local mat = ent.IconOverride or GenericIcon
+				local mat = ent.IconOverride || "entities/zippyhighres.png"
 
 				if file.Exists( "materials/entities/" .. name .. ".png", "GAME" ) then
 					mat = "entities/" .. name .. ".png"
@@ -128,9 +128,12 @@ end
 hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, node )
 	-- Horror code
 	local tbl = {}
-	for class, npcdata in pairs( ZBaseSpawnMenuNPCList ) do
-		if isstring(npcdata.Category) then
-			local split = string.Split(npcdata.Category, ": ")
+	for class, npcdata in pairs( list.GetForEdit("NPC") ) do
+		-- Skip non ZBase NPCs
+		if !ZBaseNPCs[class] then continue end
+
+		if isstring(npcdata.ZBaseCategory) then
+			local split = string.Split(npcdata.ZBaseCategory, ": ")
 			local s1, s2 = split[1], split[2]
 			tbl[s1] = tbl[s1] or {}
 
