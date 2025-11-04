@@ -21,6 +21,7 @@ ZBasePatchTable[my_cls] = function( NPC )
     end
     
     -- Remove default grenades, if they spawn
+    local down10_000 = Vector(0,0,-10000)
     function NPC:Patch_CreateEnt( ent )
         if ent:GetClass() == "npc_grenade_frag" && !ent.IsZBaseGrenade then
             
@@ -30,7 +31,7 @@ ZBasePatchTable[my_cls] = function( NPC )
             -- this way we ensure compatability with explosion replacement addons
             -- so that we don't trigger an effect when removing the grenade
             ent:CONV_TimerCreate("PushOutOfWorld", 0, 0, function()
-                ent:SetPos( ent:GetPos() - Vector(0, 0, 10000) )
+                ent:SetPos( ent:GetPos() + down10_000 )
             end)
         end
     end
