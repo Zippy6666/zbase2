@@ -9,6 +9,7 @@ local prop_shared = {
     end,
 	Receive = function( self, length, ply ) -- The action to perform upon using the property ( Serverside )
 		local npc = net.ReadEntity()
+        if !IsValid( npc ) then return end
 		if ( !properties.CanBeTargeted( npc, ply ) ) then return end
 		if ( !self:Filter( npc, ply ) ) then return end
         self:ZBaseNPCRecieve(npc, length, ply)
