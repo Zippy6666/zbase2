@@ -39,7 +39,7 @@ if SERVER then
         -- DISABLE MOVEMENT
         elseif self.ZBase_Guard_HasMovementSet && bool == false then
             -- Regular ground NPC/SNPCs
-            if self:CONV_HasCapability(CAP_MOVE_GROUND) then
+            if self:CapabilitiesHas(CAP_MOVE_GROUND) then
                 self:CapabilitiesRemove(CAP_MOVE_GROUND)
                 self.ZBase_Guard_HadGroundMovement = true
             end
