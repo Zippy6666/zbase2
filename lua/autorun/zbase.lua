@@ -53,6 +53,7 @@ if SERVER then
     util.AddNetworkString("ZBaseListFactions")
     util.AddNetworkString("ZBase_GetFactionsFromServer")
     util.AddNetworkString("ZBaseClientReload")
+    util.AddNetworkString("ZBaseReload")
     util.AddNetworkString("ZBaseUpdateSpawnMenuFactionDropDown")
 
     net.Receive("ZBase_GetFactionsFromServer", function(_, ply)
@@ -457,6 +458,20 @@ function ZBase_RegisterHandler:NetworkedReload()
 
     net.Start("ZBaseClientReload")
     net.Broadcast()
+end
+
+concommand.Add("zbase_reload", function( ply )
+    if !ply:IsSuperAdmin() then return end
+
+    ZBase_RegisterHandler:NetworkedReload()
+    conv.devPrint(Color(0, 255, 200), "ZBase reloaded!")
+end)
+
+if SERVER then
+    net.Receive("ZBaseReload", function( len, ply )
+        if !ply:IsSuperAdmin() then return end
+        RunConsoleCommand("zbase_reload")
+    end)
 end
 
 --[[
