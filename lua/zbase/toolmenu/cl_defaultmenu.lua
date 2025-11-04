@@ -20,10 +20,11 @@ ZBaseAddToolMenu( "ZBASE", "Misc", function(panel)
 
     panel:ZBase_ToolMenuAddCategory( "MENU" )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Pop-Up", "zbase_popup" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
-    panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "NPC Tab", "zbase_defmenu" ) }, color_black, SettingFont, "NPCs in regular NPC tab too", DescriptionColor, DescriptionFont )
-    panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Tab Mixin", "zbase_mixmenu" ) }, color_black, SettingFont, "Don't use separate categories in default NPC tab", DescriptionColor, DescriptionFont )
+    -- panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "NPC Tab", "zbase_defmenu" ) }, color_black, SettingFont, "NPCs in regular NPC tab too", DescriptionColor, DescriptionFont )
+    -- panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Tab Mixin", "zbase_mixmenu" ) }, color_black, SettingFont, "Don't use separate categories in default NPC tab", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Collapse", "zbase_collapse_cat" ) }, color_black, SettingFont, "Collapse ZBase category icons by default", DescriptionColor, DescriptionFont )
-
+    panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "No HL2", "zbase_nodefhl2" ) }, color_black, SettingFont, "Don't add retail HL2 NPC 'replicas' to the menu", DescriptionColor, DescriptionFont )
+    
     panel:ZBase_ToolMenuAddCategory( "NPC GENERAL" )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Ply Hurt Ally", "zbase_ply_hurt_ally" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "NPC Hurt Ally", "zbase_friendly_fire" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
@@ -67,10 +68,9 @@ ZBaseAddToolMenu( "ZBASE", "AI", function(panel)
     panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Alt Fires", "zbase_alt_count", -1, 20, 0 ) }, color_black, SettingFont, "-1 = inf", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Grenade/Alt Rnd", "zbase_gren_alt_rand") }, color_black, SettingFont, "NPCs spawn with 0 to MAX grenades & alts, where the sliders above are MAX", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Sight Dist", "zbase_sightdist", 1, 30000, 0 ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
-    panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Override", "zbase_sightdist_override") }, color_black, SettingFont, "Override all ZBase NPC sight distances", DescriptionColor, DescriptionFont )
+    panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Override", "zbase_sightdist_override") }, color_black, SettingFont, "Override all ZBase NPC sight distances. The distance still may vary due to what weapon the NPC has. Also NPCs ignore this distance if you attack them while you are in their view-cone.", DescriptionColor, DescriptionFont )
 
     panel:ZBase_ToolMenuAddCategory( "BEHAVIOR" )
-    panel:ZBase_ToolMenuAddItem( { panel:NumSlider("Max Shooters", "zbase_max_npcs_shoot_ply", 0, 10, 0) }, color_black, SettingFont, "Max NPCs that can shoot at a single player, '0' = infinite", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Patrol", "zbase_patrol" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Call Allies", "zbase_callforhelp" ) }, color_black, SettingFont, "Call any ally for help when in danger", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Squad", "zbase_autosquad" ) }, color_black, SettingFont, "Initially spawn with same squad name as faction name", DescriptionColor, DescriptionFont )
@@ -82,7 +82,7 @@ end)
 ZBaseAddToolMenu( "ZBASE", "Replace", function(panel)
     panel:ZBase_ToolMenuCustomize( "REPLACE", color_white, "ChatFont", grey, lightgrey, posterTab  )
 
-    panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Menu Replace", "zbase_replace") }, color_black, SettingFont, "Should the default HL2 NPCs be replaced by their ZBase equivalents in the spawn menu? This only works if you have 'NPC Tab' option enabled. You will also need to restart the map for changes to take effect.", DescriptionColor, DescriptionFont )
+    -- panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Menu Replace", "zbase_replace") }, color_black, SettingFont, "Should the default HL2 NPCs be replaced by their ZBase equivalents in the spawn menu? This only works if you have 'NPC Tab' option enabled. You will also need to restart the map for changes to take effect.", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Campaign Replace", "zbase_camp_replace") }, color_black, SettingFont, "Enable the zbase campaign replace system. Replaces retail HL2 NPCs with any desired ZBase NPC.", DescriptionColor, DescriptionFont )
     
     local ReloadButton = panel:ZBase_ToolMenuAddItem( { panel:Button( "Load Campaign Replace File" ) }, color_black, SettingFont, "Loads the 'zbase_campaign_replace.json' file in your data directory with your supplied changes.", DescriptionColor, DescriptionFont )[1]
@@ -183,7 +183,7 @@ ZBaseAddToolMenu( "DEF. NPCs", "Combine", function(panel)
     panel:ZBase_ToolMenuCustomize( "COMBINE", color_white, "ChatFont", grey, lightgrey, posterTab  )
 
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Metrocop Glow Eyes", "zbase_metrocop_glow_eyes") }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
-    panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Metrocop Arrest", "zbase_metrocop_arrest") }, color_black, SettingFont, "Metrocops will 'arrest' enemies, instead of attacking immediately", DescriptionColor, DescriptionFont )
+    panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Metrocop Arrest", "zbase_metrocop_arrest") }, color_black, SettingFont, "Metrocops will 'arrest' enemies, instead of attacking immediately. They need to be in a squad in order for it to work.", DescriptionColor, DescriptionFont )
 end)
 
 ZBaseAddToolMenu( "DEF. NPCs", "Citizen", function(panel)

@@ -121,9 +121,9 @@ function ZBaseInitialize( NPC, NPCData, Class, Equipment, wasSpawnedOnCeiling, b
 		})
 
 		for i, wclass in ipairs( table.Copy(randTBL) ) do
-			if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
-				table.RemoveByValue(randTBL, wclass)
-			end
+			-- if string.find(ZBCVAR.RandWepBlackList:GetString(), wclass) then
+			-- 	table.RemoveByValue(randTBL, wclass)
+			-- end
 		end
 
 		local randWep = randTBL[math.random(1, #randTBL)]
@@ -263,8 +263,7 @@ duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, 
 end)
 
 function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
-	local NPCList = ZBaseSpawnMenuNPCList
-	local NPCData = ZBaseSpawnMenuNPCList[ Class ]
+	local NPCData = ZBaseNPCs[ Class ]
 
 	-- Don't let them spawn this entity if it isn't in our NPC Spawn list.
 	-- We don't want them spawning any entity they like!

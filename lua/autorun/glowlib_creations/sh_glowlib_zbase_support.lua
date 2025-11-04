@@ -72,6 +72,17 @@ GlowLib:Define("models/zippy/resistancehunter.mdl", {
     end,
 })
 
+GlowLib:Define("models/zippy/combine_medic.mdl", {
+    Position = function(self, ent)
+        local attachmentData = ent:GetAttachment(ent:LookupAttachment("eyes"))
+        return attachmentData.Pos
+    end,
+    Attachment = "eyes",
+    Color = {
+        [0] = Color(40, 130, 0, 170)
+    },
+})
+
 --[[
 ======================================================================================================================================================
                                         COMBINE NPC RESEARCH

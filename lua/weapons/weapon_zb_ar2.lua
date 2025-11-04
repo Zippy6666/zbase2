@@ -25,9 +25,9 @@ SWEP.NPCBurstMax = 8
 SWEP.NPCFireRate = 0.1
 SWEP.NPCFireRestTimeMin = 0.2 
 SWEP.NPCFireRestTimeMax = 0.5
-SWEP.NPCBulletSpreadMult = 0.25 
+SWEP.NPCBulletSpreadMult = 0.75 
 SWEP.NPCReloadSound = "Weapon_AR2.NPC_Reload" 
-SWEP.NPCShootDistanceMult = 1
+SWEP.NPCShootDistanceMult = 1.25
 SWEP.NPCHoldType =  "ar2" -- https://wiki.facepunch.com/gmod/Hold_Types
 
 SWEP.EngineCloneClass = "weapon_ar2"

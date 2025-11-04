@@ -15,7 +15,12 @@ SWEP.NPCSpawnable = true -- Add to NPC weapon list
 ==================================================================================================
 --]]
 
-function SWEP:InternalInit()
+function SWEP:Initialize()
+	self.InitialHoldType = self:GetHoldType()
+	self:Init()
+end
+
+function SWEP:OwnerChanged()
 	-- Store bullet spread vector
 	self.BulletSpread = Vector(self.PrimarySpread, self.PrimarySpread)
 
@@ -23,28 +28,40 @@ function SWEP:InternalInit()
 	-- this workaround is now needed for the
 	-- weapon base to function as intended lol
 	self.Primary.ClipSize = self.Primary.DefaultClip
-end
 
-function SWEP:Initialize()
-	self.InitialHoldType = self:GetHoldType()
-	self:Init()
-end
+	if SERVER then
+		local own = self:GetOwner()
 
-function SWEP:OwnerChanged()
-	self:InternalInit()
+		-- Backwards compatability
+		own.ZBWepSys_PrimaryAmmo = self:Clip1()
 
-	if !SERVER then return end
-	local own = self:GetOwner()
+		self:CONV_TimerRemove("MeleeWepInstructAI") -- Remove this timer if it exists
 
-	conv.callNextTick(function()
-		if !IsValid(self) or !IsValid(own) then return end
+		-- SET holdtype
+		conv.callNextTick(function()
+			if !IsValid(self) || !IsValid(own) then return end
 
-		if own:IsNPC() then
-			own:ZBASE_SetHoldType(self, self.NPCHoldType)
-		else
-			self:SetHoldType(self.InitialHoldType)
+			if own:IsNPC() then
+				own:ZBASE_SetHoldType(self, self.NPCHoldType)
+			else
+				self:SetHoldType(self.InitialHoldType)
+			end
+		end)
+
+		-- Create a timer that updates the AI of the NPC owner
+		-- with behavior for melee weapons
+		if own:IsNPC() && self.NPCIsMeleeWep then
+			self:CONV_TimerCreate("MeleeWepInstructAI", 0.5, 0, function()
+				-- Remove timer if owner went NULL
+				if !IsValid(own) then
+					self:CONV_TimerRemove("MeleeWepInstructAI")
+					return
+				end
+
+				self:MeleeInstructAI( own )
+			end)
 		end
-	end)
+	end
 end
 
 -- Called when the SWEP should set up its Data Tables.
@@ -79,19 +96,16 @@ function SWEP:GetBulletOffsetPos()
 	local matrix = own:GetBoneMatrix(boneid)
 	if !matrix then return end
 
-	return LocalToWorld(self.Primary.BulletPos.Offset, self.Primary.BulletPos.AngOffset, matrix:GetTranslation(), matrix:GetAngles())
+	return LocalToWorld(self.Primary.BulletPos.Offset, self.Primary.BulletPos.AngOffset, 
+						matrix:GetTranslation(), matrix:GetAngles())
 end
 
 function SWEP:PrimaryAttack()
 	local own = self:GetOwner()
+
 	if !IsValid(own) then return end
 
 	if own:IsNPC() && self.NPCIsMeleeWep then return end
-
-	-- Only let ZBASE NPCs fire when we ask them to
-	if own.IsZBaseNPC && !own.bZBaseNPCPullTrigger then
-		return
-	end
 
 	-- No ammo
 	-- *click*
@@ -106,9 +120,12 @@ function SWEP:PrimaryAttack()
 
 	-- Owner is NPC
 	if own:IsNPC() then
-		-- Combine workaround
-		if own:GetClass() == "npc_combine_s" then
-			self:Primary_DoCombineSWorkaround()
+		-- .. and is not a ZBase NPC that had its weapon attack prevented
+		if own.IsZBaseNPC then
+			local shouldFireWeapon = own:ShouldFireWeapon()
+			if !shouldFireWeapon then
+				return
+			end
 		end
 
 		-- ..and default primary has not been prevented
@@ -161,6 +178,14 @@ function SWEP:PrimaryAttack()
 			self:NPCShootEffects()
 			self:EmitSound(self.PrimaryShootSound)
 			self:TakePrimaryAmmo(self.Primary.TakeAmmoPerShot)
+
+			-- Backwards compatability
+			own.ZBWepSys_PrimaryAmmo = self:Clip1()
+
+			-- Give developer chance to catch ZBase NPC shooting
+			if own.IsZBaseNPC then
+				own:OnFireWeapon()
+			end
 		end
 
 	-- Owner is player and default primary has not been prevented
@@ -180,22 +205,6 @@ function SWEP:TakePrimaryAmmo( num )
 	end
 
 	self:SetClip1( self:Clip1() - num )	
-end
-
--- Workaround for combine soldier
--- Their shooting AI does not match the rest
-function SWEP:Primary_DoCombineSWorkaround()
-	local own = self:GetOwner()
-	if !IsValid(own) then return end
-
-	-- Allow shooting in long bursts
-	own:SetSaveValue("m_nShots", 2)
-
-	-- Prevents combines from spamming their weapon
-	-- TODO: When should this run? It does not always work here
-	if self.NPCBurstMin == 1 && self.NPCBurstMin == self.NPCBurstMax then
-		own:SetSaveValue("m_flShotDelay", math.Rand(self.NPCFireRestTimeMin, self.NPCFireRestTimeMax))
-	end
 end
 
 --[[
@@ -221,11 +230,11 @@ function SWEP:WorldMFlash(effectEnt)
 		effectEnt = self.customWModel -- Client only variable
 
 		-- Only emit effect on client if has fake model
-		if SERVER or !IsValid(effectEnt) then
+		if SERVER || !IsValid(effectEnt) then
 			if SERVER then
 				-- Still, emit light on server
 				local iFlags = self.Primary.MuzzleFlashFlags
-				local col = iFlags==5 && "75 175 255" or "255 125 25"
+				local col = iFlags==5 && "75 175 255" || "255 125 25"
 				ZBaseMuzzleLight( self:GetPos(), 1.5, 256, col )
 
 			end
@@ -266,7 +275,7 @@ function SWEP:WorldShellEject()
 		effectEnt = self.customWModel -- Client only variable
 
 		-- Only emit effect on client if has fake model
-		if SERVER or !IsValid(effectEnt) then return end
+		if SERVER || !IsValid(effectEnt) then return end
 	end
 
 	local att = self:GetAttachment(self:LookupAttachment(self.Primary.ShellEject))
@@ -359,7 +368,7 @@ function SWEP:AcceptInput( inputName, activator, called, data )
 
 end
 
--- Called before firing animation events, such as muzzle flashes or shell ejections.
+-- Called before firing animation events, such as muzzle flashes || shell ejections.
 -- This will only be called serverside for 3000-range events, and clientside for 5000-range and other events.
 function SWEP:FireAnimationEvent( pos, ang, event, options, source )
 
@@ -381,8 +390,8 @@ function SWEP:KeyValue( key, value )
 
 end
 
--- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves or dupes)
--- or on a changelevel (for example Half-Life 2 campaign level transitions)
+-- Called when the weapon entity is reloaded from a Source Engine save (not the Sandbox saves || dupes)
+-- || on a changelevel (for example Half-Life 2 campaign level transitions)
 function SWEP:OnRestore()
 end
 
@@ -404,22 +413,27 @@ function SWEP:GetNPCRestTimes()
 	return self.NPCFireRestTimeMin, self.NPCFireRestTimeMax
 end
 
-function SWEP:ZBaseGetNPCBurstSettings()
-	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
-end
-
 function SWEP:GetNPCBurstSettings()
-	
-	-- local own = self:GetOwner()
+	local own = self:GetOwner()
+	local min, max = self.NPCBurstMin, self.NPCBurstMax
 
-	-- if IsValid(own) && own.IsZBaseNPC then
-	-- 	return 0, 0, math.huge
-	-- else
-	-- 	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
-	-- end
+	-- If owner is a combine soldier, we want to prevent them
+	-- from not firing their weapons automatically like other NPCs.
+	-- Due to their AI they resort to a sort of semi-auto style of firing...
+	local do_combine_s_fix = IsValid(own) && own:IsNPC() && own:GetEngineClass() == "npc_combine_s" 
+									&& self.NPCFireRate == self.NPCFireRestTimeMin 
+									&& self.NPCFireRate == self.NPCFireRestTimeMax
+									&& self.NPCBurstMin == 1
+									&& self.NPCBurstMax == 1
+	if do_combine_s_fix then
+		-- Backup burst settings for bines.
+		-- So that they don't fire one bullet at a time, and instead
+		-- fire in bursts like their AI is supposed to
+		min = 3
+		max = 8
+	end
 
-	return self.NPCBurstMin, self.NPCBurstMax, self.NPCFireRate
-
+	return min, max, self.NPCFireRate
 end
 
 function SWEP:GetNPCBulletSpread( proficiency )
@@ -429,9 +443,9 @@ end
 -- This hook is for NPCs, you return what they should try to do with it.
 function SWEP:GetCapabilities()
 	if self.NPCIsMeleeWep then
-		return bit.bor( CAP_WEAPON_MELEE_ATTACK1, CAP_INNATE_MELEE_ATTACK1 )
+		return CAP_WEAPON_MELEE_ATTACK1
 	else
-		return bit.bor( CAP_WEAPON_RANGE_ATTACK1, CAP_INNATE_RANGE_ATTACK1 )
+		return CAP_WEAPON_RANGE_ATTACK1
 	end
 end
 
@@ -443,13 +457,67 @@ end
 
 function SWEP:CanTakeMeleeWepDmg( ent )
     local mtype = ent:GetMoveType()
-    return mtype == MOVETYPE_STEP -- NPC
-    or mtype == MOVETYPE_VPHYSICS -- Prop
-    or mtype == MOVETYPE_WALK -- Player
-	or ent:IsNextBot() -- Bextbit
+    return mtype == MOVETYPE_STEP 	-- NPC
+			|| mtype == MOVETYPE_VPHYSICS 	-- Prop
+			|| mtype == MOVETYPE_WALK 		-- Player
+			|| ent:IsNextBot()
 end
 
-function SWEP:NPCMeleeWeaponDamage(dmgData)
+-- Melee AI for NPC (own)
+function SWEP:MeleeInstructAI( own )
+	local ene = own:GetEnemy()
+	local validEne = IsValid(ene)
+
+	-- Must have valid enemy
+	if !validEne then
+		return
+	end
+
+	local sched = own:GetCurrentSchedule()
+	
+	-- Used by some ZBase NPCs to ensure they don't attack
+	-- if they are doing some other important behavior
+	-- (metro cop arrest for instance)
+	local preventAttack = own.Patch_AIWantsToShoot_SCHED_Blacklist
+			&& own.Patch_AIWantsToShoot_SCHED_Blacklist[sched]
+	if preventAttack then
+		return
+	end
+
+	-- Chase enemy
+	if sched != SCHED_CHASE_ENEMY then
+		own:SetSchedule(SCHED_CHASE_ENEMY)
+	end
+	
+	local ownPos = own:GetPos()
+	local enePos = ene:GetPos()
+	local meleeAttackDistSqr = (self.NPCMeleeWep_DamageDist*0.85)^2 -- Distance at which we initiate a swing
+	local distToSqr = ownPos:DistToSqr(enePos)
+
+	-- Swing when within distance and not playing anim currently
+	if distToSqr < meleeAttackDistSqr && !own.DoingPlayAnim then
+		self:MeleeStrike(own)
+	end
+end
+
+function SWEP:MeleeStrike(own)
+	local timeUntilMeleeStrike = own.MeleeWeaponAnimations_TimeUntilDamage || 0.5
+
+	-- Do anim
+	if own.IsZBaseNPC then
+		own:Weapon_MeleeAnim()
+	else
+		own:ZBASE_SimpleAnimation(ACT_MELEE_ATTACK_SWING)
+	end
+
+	-- Do damage
+	own:CONV_TimerCreate("MeleeWeaponDamage", timeUntilMeleeStrike, 1, function()
+		if !IsValid(self) then return end -- Weapon went NULL
+		self:NPCMeleeWeaponDamage()
+	end)
+end
+
+function SWEP:NPCMeleeWeaponDamage()
 	local own = self:GetOwner()
 	if !IsValid(own) then return end
 
@@ -515,40 +583,9 @@ function SWEP:TranslateActivity( act )
 	if own.IsZBaseNPC then
 		-- Activity translate override
 		local override = self.ZBase_ActTranslateOverride[act]
+		
 		if isnumber(override) then
 			return override
-		end
-
-		local returnValue = own:ZBWepSys_TranslateAct(act, self.ActivityTranslateAI)
-		if isnumber(returnValue) then
-			return returnValue
-		end
-
-		-- Melee weapon activities
-		local holdType = self:GetHoldType()
-		local state = own:GetNPCState()
-		local meleeActOverride
-		if ( holdType=="passive" or holdType=="melee" or holdType=="melee2" ) then
-			if own:IsMoving() && own:GetNavType() == NAV_GROUND then
-				local shouldMeleeRun = (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT or IsValid(own.PlayerToFollow))
-				meleeActOverride = ( shouldMeleeRun && ACT_RUN ) or ACT_WALK
-
-			elseif act == ACT_IDLE_PISTOL or act == ACT_IDLE_RELAXED then
-				return ACT_IDLE
-
-			elseif act == ACT_IDLE_ANGRY_PISTOL or act == ACT_IDLE_ANGRY then
-				return ACT_IDLE_ANGRY_MELEE
-
-			end
-		end
-
-		-- No walk/run animations? Maybe it has weapon running animations
-		if meleeActOverride && own:IsMoving() && own:SelectWeightedSequence(meleeActOverride) == -1 then
-			meleeActOverride = ( (state==NPC_STATE_ALERT or state==NPC_STATE_COMBAT) && ACT_RUN_RIFLE ) or ACT_WALK_RIFLE
-		end
-
-		if isnumber(meleeActOverride) then
-			return meleeActOverride
 		end
 	end
 
@@ -560,6 +597,28 @@ function SWEP:TranslateActivity( act )
 
 	-- NPC
 	if own:IsNPC() then
+		local holdType = self:GetHoldType()
+		local state = own:GetNPCState()
+		local shouldMeleeRun = state==NPC_STATE_ALERT || state==NPC_STATE_COMBAT || IsValid(own.PlayerToFollow)
+		local sched = own:GetCurrentSchedule()
+		local ene = own:GetEnemy()
+		local validEne = IsValid(ene)
+
+		-- Melee weapon activities
+		if holdType=="passive" || holdType=="melee" || holdType=="melee2" then
+			if own:IsMoving() && own:GetNavType() == NAV_GROUND then
+				return ( shouldMeleeRun && ACT_RUN ) || ACT_WALK
+			elseif act == ACT_IDLE_PISTOL || act == ACT_IDLE_RELAXED then
+				return ACT_IDLE
+			elseif act == ACT_IDLE_ANGRY_PISTOL || act == ACT_IDLE_ANGRY then
+				return ACT_IDLE_ANGRY_MELEE
+			end
+
+			-- Return -1 lol idk why
+			-- or return at least so other shit does not run
+			return -1
+		end
+
 		if self.ActivityTranslateAI[ act ] then
 			return self.ActivityTranslateAI[ act ]
 		end
@@ -571,7 +630,6 @@ function SWEP:TranslateActivity( act )
 	if self.ActivityTranslate[ act ] != nil then
 		return self.ActivityTranslate[ act ]
 	end
-
 	return -1
 end
 

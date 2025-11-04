@@ -8,13 +8,12 @@ ZBasePatchTable[my_cls] = function( NPC )
             ent:TakeDamage(dmg:GetDamage(), self, self)
             return
         end
-        
         self.DoingHunterDamageFix = nil
     end
 
     -- These are hunter specific fail schedules
     function NPC:Patch_IsFailSched(sched)
         return ZBaseESchedID("SCHED_HUNTER_FAIL_IMMEDIATE") == sched 
-        or ZBaseESchedID("SCHED_ESTABLISH_LINE_OF_FIRE_FALLBACK") == sched
+                || ZBaseESchedID("SCHED_ESTABLISH_LINE_OF_FIRE_FALLBACK") == sched
     end
 end

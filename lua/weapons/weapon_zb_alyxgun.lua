@@ -18,12 +18,12 @@ SWEP.Primary.ShellEject = "1"
 SWEP.Primary.ShellType = "ShellEject" -- https://wiki.facepunch.com/gmod/Default_Effects
 SWEP.Primary.NumShots = 1
 
-SWEP.NPCBurstMin = 1
-SWEP.NPCBurstMax = 1
+SWEP.NPCBurstMin = 3
+SWEP.NPCBurstMax = 6
 SWEP.NPCFireRate = 0.1
 SWEP.NPCFireRestTimeMin = 0.1
 SWEP.NPCFireRestTimeMax = 0.1
-SWEP.NPCBulletSpreadMult = 0.75
+SWEP.NPCBulletSpreadMult = 1
 SWEP.NPCReloadSound = "Weapon_Alyx_Gun.NPC_Reload"
 SWEP.NPCShootDistanceMult = 1
 

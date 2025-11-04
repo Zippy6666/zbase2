@@ -40,6 +40,12 @@ function ENT:Initialize()
 	self.InternalDistanceFromGround = self.Fly_DistanceFromGround
 
 	self.ZBase_HasLUAFlyCapability = true -- Set to false whenever flying SNPCs should not be able to make new goals.
+
+	-- Register frame tick function for SNPC
+    self:CONV_AddHook("Tick", function()
+        -- Frame tick every frame
+        self:FrameTick()
+	end, "FrameSNPC")
 end
 
 function ENT:Think()
@@ -71,8 +77,8 @@ function ENT:Think()
 end
 
 -- Removes the SNPC and spawns a ragdoll
-function ENT:SNPCDeath()
-	if self:GetShouldServerRagdoll() then
+function ENT:SNPCDeath(dmginfo)
+	if self:GetShouldServerRagdoll() || dmginfo:IsDamageType(DMG_DISSOLVE) then
 		-- Server ragdoll
 
 		-- LUA BecomeRagdoll code
@@ -105,10 +111,10 @@ function ENT:OnTakeDamage( dmginfo )
 
 	-- Die
 	if self:Health() <= 0 && !self.Dead then
-		// Run on killed cpde
+		-- Run OnNPCKilled
 		hook.Run("OnNPCKilled", self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
 		
-		// Become ragdoll
-		self:SNPCDeath()
+		-- Become ragdoll
+		self:SNPCDeath(dmginfo)
 	end
 end

@@ -123,25 +123,46 @@ function ZBaseSetFaction( ent, newFaction, plySetter )
         plySetter:PrintMessage(HUD_PRINTTALK, "You do not have permission to set the faction.")
     end
 
-    newFaction = newFaction or ent.ZBaseStartFaction
+    -- newFaction not provided, use default
+    newFaction = newFaction || ent.ZBaseStartFaction
 
     -- Already has faction
     if newFaction == ent.ZBaseFaction then
         return
     end
 
+    -- Set the faction variable
     ent.ZBaseFaction = newFaction
 
     -- Print message if a player set the faction..
     if plySetter then
-        local trgt = ent == plySetter && "yourself" or ent:CONV_GetName()
+        local trgt = ent == plySetter && "yourself" || ent:CONV_GetName()
         plySetter:PrintMessage(HUD_PRINTTALK, 
             "You set ZBase faction '"..ent.ZBaseFaction.."' to "..trgt..".")
     end
 
-    -- Update relationships
-    for _, v in ipairs(ZBaseNPCInstances) do
-        v:UpdateRelationships()
+    -- Players only..
+    if ent:IsPlayer() then
+        -- Set player's NPC class if available
+        -- This will make non-zbase NPCs behave properly towards players of different factions
+    
+        local classify = ZBaseFactionTranslation_Flipped[newFaction]
+        if classify then
+            -- Set faction-matched NPC class
+            ent:CONV_SetPlayerClass( classify )
+        else
+            -- Default back to CLASS_PLAYER if no faction match found
+            ent:CONV_SetPlayerClass( CLASS_PLAYER )
+        end
+    
+        -- Try to set a matching VJ class
+        -- (players only)
+        ent.VJ_NPC_Class = {ZBaseVJFactionTranslation[newFaction]}
+    end
+
+    -- Update ZBase NPC relationships
+    for _, zbase_npc in ipairs(ZBaseNPCInstances) do
+        zbase_npc:UpdateRelationships()
     end
 end 
 
@@ -187,28 +208,48 @@ end
 -- ZBase muzzle light option must be enabled!
 function ZBaseMuzzleLight( pos, bright, dist, col, dur )
     if !SERVER then return end
-    if !ZBCVAR.MuzzleLight:GetBool() then return end
 
-    dur = dur or 0.05
+    local zbase_muzzle_light = ZBCVAR.MuzzleLight
+    if !zbase_muzzle_light:GetBool() then return end
 
-    local muzzleLight1 = ents.Create("env_projectedtexture")
-    local muzzleLight2 = ents.Create("env_projectedtexture")
+    -- HIGH quality light using projected textures    
+    if zbase_muzzle_light:GetInt() >= 2 then
+        dur = dur or 0.05
 
-    if IsValid(muzzleLight1) && IsValid(muzzleLight2) then
-        bright = math.Rand(bright*0.1, bright)
+        local muzzleLight1 = ents.Create("env_projectedtexture")
+        local muzzleLight2 = ents.Create("env_projectedtexture")
 
-        for k, muzzleLight in ipairs({muzzleLight1, muzzleLight2}) do
-            local ang = k == 1 && Angle(0, 90, 0) or Angle(0, 270, 0)
+        if IsValid(muzzleLight1) && IsValid(muzzleLight2) then
+            bright = math.Rand(bright*0.1, bright)
+
+            for k, muzzleLight in ipairs({muzzleLight1, muzzleLight2}) do
+                local ang = k == 1 && Angle(0, 90, 0) or Angle(0, 270, 0)
+                muzzleLight:SetPos(pos)
+                muzzleLight:SetAngles(ang)
+                muzzleLight:SetKeyValue("enableshadows", 0)
+                muzzleLight:SetKeyValue("lightcolor", col) 
+                muzzleLight:SetKeyValue("farz", dist) 
+                muzzleLight:SetKeyValue("nearz", 1)
+                muzzleLight:SetKeyValue("lightfov", 179.99) 
+                muzzleLight:SetKeyValue("lightstrength", bright)
+                muzzleLight:Spawn()
+                muzzleLight:Activate()
+                SafeRemoveEntityDelayed(muzzleLight, dur)
+            end
+        end
+    -- Normal lights using dynamic lights
+    else
+        dur = dur or 0.1
+
+        local muzzleLight = ents.Create("light_dynamic")
+        if IsValid(muzzleLight) then
             muzzleLight:SetPos(pos)
-            muzzleLight:SetAngles(ang)
-            muzzleLight:SetKeyValue("enableshadows", 0)
-            muzzleLight:SetKeyValue("lightcolor", col) 
-            muzzleLight:SetKeyValue("farz", dist) 
-            muzzleLight:SetKeyValue("nearz", 1)
-            muzzleLight:SetKeyValue("lightfov", 179.99) 
-            muzzleLight:SetKeyValue("lightstrength", bright)
+            muzzleLight:SetKeyValue("brightness", tostring(bright))
+            muzzleLight:SetKeyValue("distance", tostring(dist))
+            muzzleLight:Fire("Color", col)
             muzzleLight:Spawn()
             muzzleLight:Activate()
+            muzzleLight:Fire("TurnOn", "1")
             SafeRemoveEntityDelayed(muzzleLight, dur)
         end
     end

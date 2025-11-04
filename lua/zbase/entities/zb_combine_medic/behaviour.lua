@@ -36,4 +36,6 @@ function BEHAVIOUR.SelfHeal:Run( self )
             self.Medkit:Remove()
         end
     end)
+
+    ZBaseDelayBehaviour(math.Rand(1, 3))
 end

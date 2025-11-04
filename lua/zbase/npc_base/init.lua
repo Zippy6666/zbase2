@@ -98,8 +98,6 @@ NPC.Controller_JumpPower = 0
 ==================================================================================================
 --]]
 
-NPC.MinShootDistance = 0 -- Minimum distance the NPC will fire its weapon from
-NPC.MaxShootDistance = 3000 -- Maximum distance the NPC can fire its weapon from
 NPC.CanSecondaryAttack = true -- Can use weapon secondary attacks
 NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR || WEAPON_PROFICIENCY_AVERAGE || WEAPON_PROFICIENCY_GOOD
 -- || WEAPON_PROFICIENCY_VERY_GOOD || WEAPON_PROFICIENCY_PERFECT
@@ -107,17 +105,24 @@ NPC.WeaponProficiency = WEAPON_PROFICIENCY_VERY_GOOD -- WEAPON_PROFICIENCY_POOR 
 NPC.MeleeWeaponAnimations = {ACT_MELEE_ATTACK1} -- Animations to use when attacking with a melee weapon
 NPC.MeleeWeaponAnimations_TimeUntilDamage = 0.5 -- Time until the damage from melee weapons hit
 
-NPC.ExtraFireWeaponActivities = {} -- NPCs will fire when they have these activities. Syntax: [ACT_SOMETHING] = true
-NPC.ForceShootStance = true -- Set to false to not let the base force a shoot stance for the NPC
+-- Maximum distance the NPC can fire its weapon from
+-- NOTE: Will be used as sight distance if the NPC has a weapon
+-- NPCs can still see foes that attack them if they are in the viewcone
+NPC.MaxShootDistance = 3000
 
--- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF, DON'T USE!! --
--- NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK1_LOW} -- The NPC will randomly switch between these activities when firing their weapon
--- NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM, ACT_RUN_AIM} -- The NPC will randomly switch between these activities when firing their weapon
+-- DEPRECATED, these have no effect and only exist for backwards compatability
+NPC.ExtraFireWeaponActivities = {}
+-- NPC.MinShootDistance = 0 -- Minimum distance the NPC will fire its weapon from
+-- NPC.ForceShootStance = true
 
--- DEPRICATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF, DON'T USE!! --
--- NPC.WeaponFire_DoGesture = true -- Should it play a gesture animation everytime it fires the weapon when standing still?
--- NPC.WeaponFire_DoGesture_Moving = true -- Should it play a gesture animation everytime it fires the weapon when moving?
--- NPC.WeaponFire_Gestures = {ACT_GESTURE_RANGE_ATTACK1} -- The gesture animations to play
+-- DEPRECATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF, DON'T USE!! --
+-- NPC.WeaponFire_Activities = {ACT_RANGE_ATTACK1, ACT_RANGE_ATTACK1_LOW} 
+-- NPC.WeaponFire_MoveActivities = {ACT_WALK_AIM, ACT_RUN_AIM} 
+
+-- DEPRECATED, IF YOU NEED CUSTOM SHOOT ANIMATIONS, YOU WILL HAVE TO CODE IT YOURSELF, DON'T USE!! --
+-- NPC.WeaponFire_DoGesture = true 
+-- NPC.WeaponFire_DoGesture_Moving = true 
+-- NPC.WeaponFire_Gestures = {ACT_GESTURE_RANGE_ATTACK1}
 
 --[[
 ==================================================================================================

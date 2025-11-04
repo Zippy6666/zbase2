@@ -41,6 +41,10 @@ function SWEP:NPCPrimaryAttack()
             self.LaserDot.tNextThink = CurTime()
             self.LaserDot:CONV_AddHook("Think", function(lDot)
                 if lDot.tNextThink > CurTime() then return end
+                if !IsValid(own) then 
+                    self.LaserDot:CONV_RemoveHook("Think", "PositionLaserDot")
+                    return 
+                end
                 local vecStart = self:GetAttachment(self:LookupAttachment("muzzle")).Pos
 
                 local tr = util.TraceLine({

@@ -1,4 +1,4 @@
-local Developer             = GetConVar("developer")
+local ai_disabled = GetConVar("ai_disabled")
 ReloadedSpawnmenuRecently   = false
 
 --[[
@@ -72,10 +72,9 @@ if SERVER then
         conv.callNextTick(function()
             if !IsValid(ent) then return end
 
-            -- ZBase init stuff when NOT SPAWNED FROM MENU
-            -- (also when not spawned from a dupe)
-            -- Uses parentname to determine if it is a zbase npc
-            -- Uses the "copy system"
+            -- If an NPC with their parentname set to a ZBase NPC class is created
+            -- Convert them to that ZBase NPC
+            -- This may be needed for hammer support
             local zbaseClass = ent:GetKeyValues().parentname
             if ZBaseNPCs[zbaseClass] && !ent.IsDupeSpawnedZBaseNPC then
                 ZBaseNPCCopy( ent, zbaseClass, true )
@@ -125,23 +124,6 @@ if SERVER then
     end)
 end
 
--- Override code for spawning zbase npcs from regular spawn menu
-hook.Add("PlayerSpawnNPC", "ZBASE", function(ply, npc_type, wep_cls)
-    if ZBase_PlayerSpawnNPCHookCall then
-        return
-    end
-
-    local replace_cls = ZBCVAR.Replace:GetBool() && ZBASE_MENU_REPLACEMENTS_FLIPPED[npc_type]
-
-    npc_type = replace_cls or string.Right(npc_type, #npc_type-6)
-    local zb_npc_tbl = ZBaseNPCs[npc_type]
-
-    if zb_npc_tbl then
-        Spawn_ZBaseNPC(ply, npc_type, wep_cls, ply:GetEyeTrace())
-        return false
-    end
-end)
-
 --[[
 ======================================================================================================================================================
                                            THINK/TICK
@@ -149,39 +131,21 @@ end)
 --]]
 
 if SERVER then
-    local NextThink = CurTime()
     local NextBehaviourThink = CurTime()
 
     hook.Add("Tick", "ZBASE", function()
-        -- Regular think for non-scripted NPCs
-        -- if NextThink < CurTime() then
-        --     for _, zbaseNPC in ipairs(ZBaseNPCInstances_NonScripted) do
-        --         zbaseNPC:ZBaseThink()
-
-        --         if zbaseNPC.Patch_Think then
-        --             zbaseNPC:Patch_Think()
-        --         end
-        --     end
-
-        --     NextThink = CurTime()+0.1
-        -- end
-
         -- Behaviour tick
-        if !GetConVar("ai_disabled"):GetBool()
-        && NextBehaviourThink < CurTime() then
+        if !ai_disabled:GetBool() && NextBehaviourThink < CurTime() then
+            -- Do whatever this does lol
             for k, func in ipairs(ZBaseBehaviourTimerFuncs) do
                 local entValid = func()
-
                 if !entValid then
                     table.remove(ZBaseBehaviourTimerFuncs, k)
                 end
             end
 
+            -- .. and delay
             NextBehaviourThink = CurTime() + 0.4
-        end
-
-        for _, zbaseNPC in ipairs(ZBaseNPCInstances) do
-            zbaseNPC:FrameTick()
         end
     end)
 end
@@ -279,7 +243,20 @@ end)
 
 hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
     if SERVER && ent.IsZBaseNPC then
-        local return_value = ent:OnFireBullet( data )
+        local return_value
+
+        -- Internal fire bullet function
+        return_value = ent:InternalOnFireBullet( data )
+        if return_value == false then
+            data.Num = 0
+            data.Distance = 0
+            return true
+        elseif return_value == true then
+            return true
+        end
+
+        -- User defined fire bullet function
+        return_value = ent:OnFireBullet( data )
         if return_value == false then
             data.Num = 0
             data.Distance = 0
@@ -289,9 +266,12 @@ hook.Add("EntityFireBullets", "ZBASE", function( ent, data )
         end
     end
 
+    -- Don't throw bullets at allies we cannot hurt
     if SERVER && !ZBCVAR.PlayerHurtAllies:GetBool() && ZBaseNPCCount > 0 then
         local own = ent:GetOwner()
-        local shooterPly = (own:IsPlayer() && own) or (ent:IsPlayer() && ent)
+        local shooterPly = (own:IsPlayer() 
+                                && !own.ZBASE_ControlledNPC -- Prevent this functionality if player is controlling an NPC 
+                                    && own) || (ent:IsPlayer() && ent)
 
         if shooterPly then
             local tr = util.TraceLine({
@@ -531,7 +511,11 @@ end
 
 if CLIENT then
     net.Receive("ZBaseClientRagdoll", function()
-        local ent = net.ReadEntity() if !IsValid(ent) then return end
+        local ent = net.ReadEntity() 
+        if !IsValid(ent) then 
+            return 
+        end
+
         ent:BecomeRagdollOnClient()
     end)
 end
@@ -540,7 +524,7 @@ end
 hook.Add("CreateClientsideRagdoll", "ZBaseRagHook", function(ent, rag)
     -- No ragdolls for "dull state" npcs
 	if ent:GetNWBool("ZBaseNPCCopy_DullState") then
-		rag:Remove()
+		SafeRemoveEntity(rag)
         return
 	end
 
@@ -629,10 +613,8 @@ end)
 hook.Add( "KeyPress", "ZBaseUse", function( ply, key )
     if !IsValid(ply) then return end
 
-
     local tr = ply:GetEyeTrace()
     local ent = tr.Entity
-
 
     if key == IN_USE && IsValid(ent) && ent.IsZBaseNPC && ent:ZBaseDist(ply, {within=200}) then
 
@@ -747,7 +729,8 @@ end
 -- Add ZBASE SWEPS to npc weapon menu if we should
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
 	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
-		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName } )
+        local author = tostring(swep.Author) -- will let us know it the author is nil or false or some other shit it should not be
+		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName.." ("..author..")" } )
         table.insert(ZBaseNPCWeps, class)
 	end
 end)

@@ -156,24 +156,26 @@ ZBaseFactionTranslation = SERVER && {
     [CLASS_BARNACLE]            = "xen",
     [CLASS_ALIEN_MILITARY]      = "xen",
     [CLASS_ALIEN_PREDATOR]      = "xen",
-    [CLASS_ALIEN_MONSTER]       = "xen",
     [CLASS_MACHINE]             = "hecu",
     [CLASS_HUMAN_MILITARY]      = "hecu",
     [CLASS_HEADCRAB]            = "zombie",
     [CLASS_ALIEN_PREY]          = "zombie",
     [CLASS_ZOMBIE]              = "zombie",
+    [CLASS_ALIEN_MONSTER]       = "zombie",
     [CLASS_ANTLION]             = "antlion",
     [CLASS_EARTH_FAUNA]         = "neutral"
+    -- [CLASS_NONE]                = "none" -- these are not the same
 } or nil
 
 ZBaseFactionTranslation_Flipped = SERVER and {
     combine     = CLASS_COMBINE,
     ally        = CLASS_PLAYER_ALLY,
-    xen         = CLASS_ALIEN_MONSTER,
+    xen         = CLASS_ALIEN_MILITARY,
     hecu        = CLASS_HUMAN_MILITARY,
     zombie      = CLASS_ZOMBIE,
     antlion     = CLASS_ANTLION,
     neutral     = CLASS_EARTH_FAUNA,
+    -- none        = CLASS_NONE  -- these are not the same
 } or nil
 
 ZBaseVJFactionTranslation = {
@@ -191,23 +193,23 @@ ZBaseVJFactionTranslation = {
 ZBaseVJFactionTranslation_Flipped = table.Flip(ZBaseVJFactionTranslation)
 
 ZBASE_MENU_REPLACEMENTS = {
-    ["zb_human_civilian"]           = "npc_citizen",
     ["zb_antlion"]                  = "npc_antlion",
     ["zb_combine_soldier"]          = "npc_combine_s",
     ["zb_zombine"]                  = "npc_zombine",
     ["zb_fastzombie"]               = "npc_fastzombie",
-    ["zb_human_medic"]              = "Medic",
     ["zb_stalker"]                  = "npc_stalker",
     ["zb_kleiner"]                  = "npc_kleiner",
     ["zb_zombie"]                   = "npc_zombie",
     ["zb_human_rebel"]              = "Rebel",
+    ["zb_human_refugee"]            = "Refugee",
+    ["zb_human_medic"]              = "Medic",
+    ["zb_human_civilian"]           = "npc_citizen",
     ["zb_poisonzombie"]             = "npc_poisonzombie",
     ["zb_metropolice"]              = "npc_metropolice",
     ["zb_combine_elite"]            = "CombineElite",
     ["zb_combine_nova_prospekt"]    = "CombinePrison",
     ["zb_hunter"]                   = "npc_hunter",
     ["zb_vortigaunt"]               = "npc_vortigaunt",
-    ["zb_human_refugee"]            = "Refugee",
     ["zb_odessa"]                   = "npc_odessa",
     ["zb_magnusson"]                = "npc_magnusson",
     ["zb_dog"]                      = "npc_dog",

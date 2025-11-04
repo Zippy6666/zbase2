@@ -23,7 +23,7 @@ SWEP.NPCBurstMax = 1
 SWEP.NPCFireRate = 0.2
 SWEP.NPCFireRestTimeMin = 0.2
 SWEP.NPCFireRestTimeMax = 0.6
-SWEP.NPCBulletSpreadMult = 1.5
+SWEP.NPCBulletSpreadMult = 0.75
 SWEP.NPCReloadSound = "Weapon_Pistol.Reload"
 SWEP.NPCShootDistanceMult = 0.75
 

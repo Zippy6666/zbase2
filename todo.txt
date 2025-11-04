@@ -1,6 +1,5 @@
 TODO
 * May or may not be updated
-- Fix controller not able to use nades and alts when they are infinite (-1)
-- Fix controller still not following bullseye for some reason
-- Make light quality functional
-- Shorter hint durations when calling for help? (to avoid overflow of hints)
+- Improve aerial AI
+- Fix weapon randomization
+- Fix factions not always appearing in dropdown

@@ -28,8 +28,8 @@ SWEP.WorldModel = Model( "models/weapons/zippy/w_mp5k.mdl" )
 SWEP.IsZBaseWeapon = true
 SWEP.NPCSpawnable = true -- Add to NPC weapon list
 
-SWEP.NPCBurstMin = 1 -- Minimum amount of bullets the NPC can fire when firing a burst
-SWEP.NPCBurstMax = 1 -- Maximum amount of bullets the NPC can fire when firing a burst
+SWEP.NPCBurstMin = 3 -- Minimum amount of bullets the NPC can fire when firing a burst
+SWEP.NPCBurstMax = 6 -- Maximum amount of bullets the NPC can fire when firing a burst
 SWEP.NPCFireRate = 0.1 -- Shoot delay in seconds
 SWEP.NPCFireRestTimeMin = 0.1 -- Minimum amount of time the NPC rests between bursts in seconds
 SWEP.NPCFireRestTimeMax = 0.1 -- Maximum amount of time the NPC rests between bursts in seconds

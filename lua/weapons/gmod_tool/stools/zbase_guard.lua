@@ -172,6 +172,7 @@ function TOOL:LeftClick( trace )
     if IsValid(ent) and ent:IsNPC() && !ent.IsVJBaseSNPC then
         if SERVER then
             own:ConCommand("zbase_guard " .. ent:EntIndex())
+            conv.sendGModHint( own, !ent.ZBase_Guard && "Enabled guarding." or "Disabled guarding.", 0, 2 )
         end
 
         return true
