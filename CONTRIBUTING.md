@@ -3,5 +3,5 @@ If you wan't to contribute, please message me instead of just throwing PR:s in t
 
 ## Contact:
 ## Discord: 
-Username: "z__o__o__p" (probably)
+Username: "z__o__o__p" (probably) 
 ID: 394121363826147358
