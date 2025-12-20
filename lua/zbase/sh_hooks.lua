@@ -725,12 +725,19 @@ if SERVER then
     end)
 end
 
-
--- Add ZBASE SWEPS to npc weapon menu if we should
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
-	if swep.IsZBaseWeapon && class!="weapon_zbase" && swep.NPCSpawnable then
-        local author = tostring(swep.Author) -- will let us know it the author is nil or false or some other shit it should not be
+	if swep.IsZBaseWeapon && class != "weapon_zbase" && swep.NPCSpawnable then
+        local author = tostring(swep.Author) 
+        
+        -- Add to NPC usable weapons
 		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName.." ("..author..")" } )
+
+        -- Add to language
+        if CLIENT && language.GetPhrase(class) == class then
+            language.Add(class, swep.PrintName) 
+        end
+
+        -- Example use case: randomizing zbase npc weapons 
         table.insert(ZBaseNPCWeps, class)
 	end
 end)

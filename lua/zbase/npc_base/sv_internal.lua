@@ -8,6 +8,7 @@ local developer         = GetConVar("developer")
 local ai_serverragdolls = GetConVar("ai_serverragdolls")
 local ai_disabled       = GetConVar("ai_disabled")
 local ai_ignoreplayers  = GetConVar("ai_ignoreplayers")
+local max_alert_time    = 10
 
 local engineWeaponReplacements = {
     ["weapon_ar2"]          = "weapon_zb_ar2",
@@ -1249,6 +1250,14 @@ function NPC:AITick_Slow()
         self:SetSquad("")
     end
 
+    -- Calm down if NPC state was alert for some time
+    -- if self:GetNPCState() != NPC_STATE_ALERT then
+    --     self:CONV_TempVar("ZBase_ContinueBeingStateAlert", true, max_alert_time)
+    -- elseif !self.ZBase_ContinueBeingStateAlert then
+    --     self:SetNPCState(NPC_STATE_IDLE)
+    --     debugoverlay.Text(self:GetPos(), "Waited ~"..max_alert_time.." = ALERT -> IDLE", 0.5)
+    -- end
+
     -- Config weapon proficiency
     if self:GetCurrentWeaponProficiency() != self.WeaponProficiency then
         self:SetCurrentWeaponProficiency(self.WeaponProficiency)
@@ -1823,8 +1832,6 @@ function BEHAVIOUR.Patrol:Run( self )
 
     if IsValid(self.PlayerToFollow) then
         self:SetSchedule(SCHED_ALERT_SCAN)
-    elseif IsAlert then
-        self:SetSchedule(SCHED_PATROL_RUN)
     else
         self:SetSchedule(SCHED_PATROL_WALK)
     end
