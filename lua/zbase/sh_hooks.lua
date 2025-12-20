@@ -598,8 +598,11 @@ hook.Add("CreateEntityRagdoll", "ZBaseRagHook", function(ent, rag)
             end)
 
             -- Remove from undo/cleanup lists
-            undo.ReplaceEntity( rag, NULL )
-            cleanup.ReplaceEntity( rag, NULL )
+            conv.callNextTick(function()
+                if !IsValid(rag) then return end
+                undo.ReplaceEntity( rag, NULL )
+                cleanup.ReplaceEntity( rag, NULL )
+            end)
         end
     end
 end)
