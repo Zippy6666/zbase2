@@ -1356,11 +1356,11 @@ function NPC:AITick_Slow()
             self:Give(engineWeaponReplacements[wepcls])
         end
 
-        -- Set max look distance to weapon distance
-        self:SetMaxLookDistance(gundist)
-
         -- Weapon behavior if we have an enemy
         if IsValid(ene) then
+            -- Set max look distance to weapon distance
+            self:SetMaxLookDistance(gundist)
+
             local inGunDist = self:ZBaseDist(ene, {within=gundist})
 
             -- If forcing running towards enemy but is now in gun distance
@@ -1374,6 +1374,10 @@ function NPC:AITick_Slow()
                 self:SetLastPosition(ene:GetPos())
                 self:SetSchedule(SCHED_FORCED_GO_RUN)
             end
+        -- No enemy...
+        else
+            -- Set max look distance to sight distance
+            self:SetMaxLookDistance(self.ZBase_ExpectedSightDist)
         end
 
     -- Does not have weapon...
