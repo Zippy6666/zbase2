@@ -928,6 +928,11 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
 
     moreArgs = moreArgs || {}
 
+    -- Remember schedule before we initiated an animation
+    if sched then 
+        self.PreAnimSched = self:GetCurrentSchedule()
+    end
+
     local extraData = {}
     extraData.isGesture = isGest -- If true, it will play the animation as a gesture
     extraData.face = forceFace -- Position || entity to constantly face, if set to false, it will face the direction it started the animation in
@@ -980,7 +985,9 @@ function NPC:InternalPlayAnimation(anim, duration, playbackRate, sched, forceFac
         end
 
         -- Set schedule
-        if sched then self:SetSchedule(sched) end
+        if sched then 
+            self:SetSchedule(sched) 
+        end
 
         -- Set state to scripted
         self.PreAnimNPCState = self:GetNPCState()
@@ -1140,6 +1147,14 @@ function NPC:InternalStopAnimation(dontTransitionOut)
     self:SetNPCState(self.PreAnimNPCState)
     self:SetMoveYawLocked(false)
     self:StopFace()
+
+    -- Go back to schedule we had before the animation started
+    if self.PreAnimSched && self.PreAnimSched != -1 && self.PreAnimSched != SCHED_NONE then
+        self:CONV_CallNextTick(function()
+            self:SetSchedule(self.PreAnimSched)
+            self.PreAnimSched = nil
+        end)
+    end
 
     if isfunction(self.PlayAnim_OnFinishFunc) then
         if istable(self.PlayAnim_OnFinishArgs) then self.PlayAnim_OnFinishFunc( self.PlayAnim_OnFinishArgs )
