@@ -728,12 +728,26 @@ if SERVER then
     end)
 end
 
+local zbwepinfo = CLIENT && {} || nil
 hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
-	if swep.IsZBaseWeapon && class != "weapon_zbase" && swep.NPCSpawnable then
-        local author = tostring(swep.Author) 
+	if swep.IsZBaseWeapon && class != "weapon_zbase" && swep.NPCSpawnable then 
+        local wepinfo = { 
+            class       = class, 
+            title       = swep.PrintName, 
+            category    = swep.Category, 
+            author      = swep.Author,
+        }
         
-        -- Add to NPC usable weapons
-		list.Add( "NPCUsableWeapons", { class = class, title = swep.PrintName.." ("..author..")" } )
+        -- Add to NPC usable weapons serverside
+		if SERVER then
+            list.Add( "NPCUsableWeapons", wepinfo )
+        end
+
+        -- Add to ZBase weapon table clientside
+        -- This will show up in a custom drop down in the C menu
+        if CLIENT then
+            table.insert(zbwepinfo, wepinfo)
+        end
 
         -- Add to language
         if CLIENT && language.GetPhrase(class) == class then
@@ -744,6 +758,47 @@ hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
         table.insert(ZBaseNPCWeps, class)
 	end
 end)
+
+if CLIENT then
+    -- Separate ZBase Weapons from regular NPC weapons
+    hook.Add("PopulateMenuBar", "ZBASE", function( menubar )
+        local npcmenu = menubar:AddOrGetMenu( "#menubar.npcs" )
+        local zbwpns = npcmenu:AddSubMenu( "ZBase Weapons" )
+
+        zbwpns:AddCVar("Random", "zbase_randwep", "1", "0")
+        zbwpns:AddSpacer()
+
+        zbwpns:SetDeleteSelf( false )
+
+        local groupedWeps = {}
+        local noAuthorWpns = {}
+        for _, v in pairs( zbwepinfo ) do
+            if !isstring(v.author) || v.author == "" then
+                noAuthorWpns[#noAuthorWpns+1] = v
+                continue
+            end
+
+            groupedWeps[ v.author ] = groupedWeps[ v.author ] || {}
+            groupedWeps[ v.author ][ v.class ] = language.GetPhrase( v.title )
+        end
+
+        for group, items in SortedPairs( groupedWeps ) do
+            local authormenu = zbwpns:AddSubMenu( group )
+            authormenu:SetDeleteSelf( false )
+
+            for class, title in SortedPairsByValue( items ) do
+                authormenu:AddCVar( title, "gmod_npcweapon", class )
+            end
+        end
+
+        zbwpns:AddSpacer()
+        for _, v in ipairs( noAuthorWpns ) do
+            zbwpns:AddCVar( v.title, "gmod_npcweapon", v.class )
+        end
+
+        zbwepinfo = nil -- Byebye dont need this anymore
+    end)
+end
 
 --[[
 ======================================================================================================================================================
