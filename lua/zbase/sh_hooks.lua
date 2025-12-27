@@ -85,7 +85,6 @@ if SERVER then
             local own = ent:GetOwner()
             if IsValid(own) && own.IsZBaseNPC then
                 own:OnOwnedEntCreated( ent )
-
                 if own.Patch_CreateEnt then
                     own:Patch_CreateEnt( ent )
                 end
@@ -96,22 +95,37 @@ if SERVER then
             if IsValid(parent) && parent.IsZBaseNPC then
                 parent:OnParentedEntCreated( ent )
             end
-
-            -- Randomize NPC weapons if creator has zbase_randwep enabled
-            if ent:IsNPC() && ent:CapabilitiesHas(CAP_USE_WEAPONS) then
-                local creator = ent:GetCreator()
-                
-                if IsValid(creator) && creator:IsPlayer() && creator:GetInfo("zbase_randwep") == "1" then
+            
+            -- NPCs created by players...
+            local creator = ent:GetCreator()
+            if ent:IsNPC() && IsValid(creator) && creator:IsPlayer() then
+                -- Randomize NPC weapons if creator has zbase_randwep enabled
+                if ent:CapabilitiesHas(CAP_USE_WEAPONS) && creator:GetInfo("zbase_randwep") == "1" then
                     local npcweptbl     = list.GetForEdit("NPCUsableWeapons")
                     local randwepcls    = npcweptbl[ math.random(1, #npcweptbl) ].class
                     ent:Give( randwepcls )
                 end
-            end
 
-            local creator = ent:GetCreator()
-            if IsValid(creator) && creator:IsPlayer() && creator:GetInfo("zbase_guardonspwn") == "1" then
-                creator:ConCommand("zbase_guard " .. ent:EntIndex())
-                conv.sendGModHint( creator, hook.Run("GetDeathNoticeEntityName", ent).." spawned as guard.", 0, 2 )
+                -- Spawn as guard if creator has zbase_guardonspwn enabled
+                if creator:GetInfo("zbase_guardonspwn") == "1" then
+                    creator:ConCommand("zbase_guard " .. ent:EntIndex())
+                    conv.sendGModHint( creator, hook.Run("GetDeathNoticeEntityName", ent).." spawned as guard.", 0, 2 )
+                end
+
+                -- Spawn docile if creator has zbase_spwndocile enabled
+                if creator:GetInfo("zbase_spwndocile") == "1" then
+                    ent:AddEFlags(EFL_NO_THINK_FUNCTION)
+
+                    conv.sendGModHint( creator, hook.Run("GetDeathNoticeEntityName", ent).." wakes up when you fire a weapon.", 0, 4)
+                    
+                    -- Unfreeze NPC when player fires a bullet
+                    ent:CONV_AddHook( "EntityFireBullets", function(self, entWhoFired) 
+                        if entWhoFired == creator || entWhoFired:GetOwner()==creator  then
+                            self:RemoveEFlags(EFL_NO_THINK_FUNCTION)
+                            self:CONV_RemoveHook( "EntityFireBullets", "ZBaseDocile" )
+                        end
+                    end, "ZBaseDocile")
+                end
             end
         end)
 
@@ -791,8 +805,11 @@ if CLIENT then
         local rndweppnl = npcmenu:AddCVar("Randomize Weapons", "zbase_randwep", "1", "0")
         giveZBaseIcon(rndweppnl)
 
-        local guardpnl = npcmenu:AddCVar("Spawn as Guard", "zbase_guardonspwn", "1", "0")
+        local guardpnl = npcmenu:AddCVar("Spawn as Guards", "zbase_guardonspwn", "1", "0")
         giveZBaseIcon(guardpnl)
+
+        local spwndocpnl = npcmenu:AddCVar("Spawn Docile", "zbase_spwndocile", "1", "0")
+        giveZBaseIcon(spwndocpnl)
 
         local zbwpns = npcmenu:AddSubMenu( "ZBase Weapons" )
         giveZBaseIcon(zbwpns:GetParent())

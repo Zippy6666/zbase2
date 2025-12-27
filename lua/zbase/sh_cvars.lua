@@ -74,4 +74,5 @@ if CLIENT then
     
     ZBCVAR.RandWep =            CreateClientConVar("zbase_randwep", "0", true, true)
     ZBCVAR.GuardOnSpwn =        CreateClientConVar("zbase_guardonspwn", "0", true, true)
+    ZBCVAR.SpawnDocile =        CreateClientConVar("zbase_spwndocile", "0", true, true)
 end
