@@ -38,3 +38,10 @@ function NPC:CustomThink()
         self.CanHeal = true
     end
 end
+
+function NPC:EnemyStatus(ene)
+    if ene != nil && !self.DontCoverOnNewEnemy then
+        self:SetSchedule(SCHED_TAKE_COVER_FROM_ENEMY)
+        self:CONV_TempVar("DontCoverOnNewEnemy", true, 5)
+    end
+end
