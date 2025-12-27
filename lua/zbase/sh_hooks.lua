@@ -107,6 +107,12 @@ if SERVER then
                     ent:Give( randwepcls )
                 end
             end
+
+            local creator = ent:GetCreator()
+            if IsValid(creator) && creator:IsPlayer() && creator:GetInfo("zbase_guardonspwn") == "1" then
+                creator:ConCommand("zbase_guard " .. ent:EntIndex())
+                conv.sendGModHint( creator, hook.Run("GetDeathNoticeEntityName", ent).." spawned as guard.", 0, 2 )
+            end
         end)
 
         -- Two ticks after any NPC spawns..
@@ -784,6 +790,9 @@ if CLIENT then
         
         local rndweppnl = npcmenu:AddCVar("Randomize Weapons", "zbase_randwep", "1", "0")
         giveZBaseIcon(rndweppnl)
+
+        local guardpnl = npcmenu:AddCVar("Spawn as Guard", "zbase_guardonspwn", "1", "0")
+        giveZBaseIcon(guardpnl)
 
         local zbwpns = npcmenu:AddSubMenu( "ZBase Weapons" )
         giveZBaseIcon(zbwpns:GetParent())
