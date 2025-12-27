@@ -96,6 +96,17 @@ if SERVER then
             if IsValid(parent) && parent.IsZBaseNPC then
                 parent:OnParentedEntCreated( ent )
             end
+
+            -- Randomize NPC weapons if creator has zbase_randwep enabled
+            if ent:IsNPC() && ent:CapabilitiesHas(CAP_USE_WEAPONS) then
+                local creator = ent:GetCreator()
+                
+                if IsValid(creator) && creator:IsPlayer() && creator:GetInfo("zbase_randwep") == "1" then
+                    local npcweptbl     = list.GetForEdit("NPCUsableWeapons")
+                    local randwepcls    = npcweptbl[ math.random(1, #npcweptbl) ].class
+                    ent:Give( randwepcls )
+                end
+            end
         end)
 
         -- Two ticks after any NPC spawns..
@@ -753,21 +764,29 @@ hook.Add("PreRegisterSWEP", "ZBASE", function( swep, class )
         if CLIENT && language.GetPhrase(class) == class then
             language.Add(class, swep.PrintName) 
         end
-
-        -- Example use case: randomizing zbase npc weapons 
-        table.insert(ZBaseNPCWeps, class)
 	end
 end)
 
 if CLIENT then
+    local function giveZBaseIcon(pnl)
+        pnl.ZBaseIcon = vgui.Create("DImage", pnl)
+        pnl.ZBaseIcon:SetImage("entities/zippy.png")
+        pnl.ZBaseIcon:SetSize(16, 16)
+        pnl.ZBaseIcon:SetPos(3, 3)
+        pnl.OnChecked = conv.wrapFunc2(pnl.OnChecked, function(_, checked)
+            pnl.ZBaseIcon:SetImage( checked && "icon16/accept.png" || "entities/zippy.png" )
+        end)
+    end
+
     -- Separate ZBase Weapons from regular NPC weapons
     hook.Add("PopulateMenuBar", "ZBASE", function( menubar )
         local npcmenu = menubar:AddOrGetMenu( "#menubar.npcs" )
+        
+        local rndweppnl = npcmenu:AddCVar("Randomize Weapons", "zbase_randwep", "1", "0")
+        giveZBaseIcon(rndweppnl)
+
         local zbwpns = npcmenu:AddSubMenu( "ZBase Weapons" )
-
-        zbwpns:AddCVar("Random", "zbase_randwep", "1", "0")
-        zbwpns:AddSpacer()
-
+        giveZBaseIcon(zbwpns:GetParent())
         zbwpns:SetDeleteSelf( false )
 
         local groupedWeps = {}

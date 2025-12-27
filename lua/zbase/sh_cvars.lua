@@ -72,5 +72,5 @@ if CLIENT then
     ZBCVAR.PopUp =              CreateConVar("zbase_popup", "1", FCVAR_ARCHIVE)
     ZBCVAR.CollapseCat =        CreateConVar("zbase_collapse_cat", "1", FCVAR_ARCHIVE)
     
-    ZBCVAR.RandWep =            CreateConVar("zbase_randwep", "0", FCVAR_ARCHIVE)
+    ZBCVAR.RandWep =            CreateClientConVar("zbase_randwep", "0", true, true)
 end

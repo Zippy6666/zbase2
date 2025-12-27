@@ -25,7 +25,7 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 	icon:SetAdminOnly( obj.admin )
 	icon:SetColor( Color( 205, 92, 92, 255 ) )
 	icon.DoClick = function()
-		local override = (ZBCVAR.RandWep:GetBool() && "zbase_random_weapon") or GetConVar("gmod_npcweapon"):GetString()
+		local override = GetConVar("gmod_npcweapon"):GetString()
 
 		RunConsoleCommand( "zbase_spawnnpc", obj.spawnname, override == "" && table.Random(obj.weapon) or override )
 		surface.PlaySound( "buttons/button16.wav" )
@@ -50,7 +50,7 @@ spawnmenu.AddContentType("zbase_npcs", function( container, obj )
 		end
 	
 		menu:AddOption( "#spawnmenu.menu.spawn_with_toolgun", function()
-			local override = (ZBCVAR.RandWep:GetBool() && "zbase_random_weapon") or GetConVar("gmod_npcweapon"):GetString()
+			local override = GetConVar("gmod_npcweapon"):GetString()
 
 			RunConsoleCommand( "gmod_tool", "creator" ) RunConsoleCommand( "creator_type", "2" )
 			RunConsoleCommand( "creator_name", obj.spawnname ) RunConsoleCommand( "creator_arg", override == "" && table.Random(obj.weapon) or override )

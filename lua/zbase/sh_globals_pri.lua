@@ -111,7 +111,6 @@ ZBase_RegisterHandler = {}
 ZBaseNPCs = {}
 ZBaseSpawnMenuNPCList = {}
 ZBaseDynSplatterInstalled = file.Exists("dynsplatter", "LUA")
-ZBaseNPCWeps = ZBaseNPCWeps or {}
 
 if SERVER then
     ZBaseNPCInstances = ZBaseNPCInstances or {}
