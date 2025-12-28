@@ -3,6 +3,8 @@ util.AddNetworkString("ZBaseClientRagdoll")
 
 local NPC               = ZBaseNPCs["npc_zbase"]
 local BEHAVIOUR         = ZBaseNPCs["npc_zbase"].Behaviours
+local SQUAD_SIZE        = 3
+local SQUAD_NMAX        = 100
 local bMultiplayer      = !game.SinglePlayer()
 local developer         = GetConVar("developer")
 local ai_serverragdolls = GetConVar("ai_serverragdolls")
@@ -63,8 +65,6 @@ function NPC:PreSpawn()
     if self.Patch_PreSpawn then
         self:Patch_PreSpawn()
     end
-
-    self.DontAutoSetSquad = self.DontAutoSetSquad || !ZBCVAR.AutoSquad:GetBool()
 
     self:CustomPreSpawn()
 end
@@ -204,6 +204,33 @@ function NPC:InitNextTick()
     self:CONV_CallNextTick("Init2Ticks")
 end
 
+function NPC:InitSquad()
+    local newsquad = self.ZBaseFaction
+    local creator = self:GetCreator()
+    
+    -- Rotate squad number per creator
+    if IsValid(creator) then
+        creator.ZBase_N_InCurrentSquadNum = creator.ZBase_N_InCurrentSquadNum 
+                                                && creator.ZBase_N_InCurrentSquadNum + 1 || 1
+
+        creator.ZBaseSquadNum = creator.ZBaseSquadNum || 1
+
+        if creator.ZBase_N_InCurrentSquadNum > SQUAD_SIZE then
+            creator.ZBaseSquadNum = creator.ZBaseSquadNum + 1
+            creator.ZBase_N_InCurrentSquadNum = 1
+
+            if creator.ZBaseSquadNum > SQUAD_NMAX then
+                creator.ZBaseSquadNum = 1
+            end
+        end
+
+        newsquad = newsquad..creator:EntIndex().."_"..creator.ZBaseSquadNum
+    end
+
+    -- Set the squad
+    self:SetSquad(newsquad)
+end
+
 function NPC:Init2Ticks()
     -- FOV and sight dist
     self.FieldOfView = math.cos( (self.SightAngle*(math.pi/180))*0.5 )
@@ -216,13 +243,9 @@ function NPC:Init2Ticks()
     -- Initialize capabilities
     self:InitCap()
 
-    -- Set squad to faction if we should
+    -- Decide squad based on faction
     if !self.DontAutoSetSquad then
-        conv.callNextTick(function()
-            if IsValid(self) then
-                self:SetSquad(self.ZBaseFaction)
-            end
-        end)
+        self:CONV_CallNextTick("InitSquad")
     end
 end
 

@@ -24,9 +24,8 @@ ZBCVAR.AR2Muzzle =              CreateConVar("zbase_mar2tyle", "mmod", Flags)
 
 ZBCVAR.Patrol =                 CreateConVar("zbase_patrol", "1", Flags)
 ZBCVAR.CallForHelp =            CreateConVar("zbase_callforhelp", "1", Flags)
-ZBCVAR.AutoSquad =              CreateConVar("zbase_autosquad", "1", Flags)
 ZBCVAR.FollowingEnabled =       CreateConVar("zbase_followplayers", "1", Flags)
-ZBCVAR.SightDist =              CreateConVar("zbase_sightdist", "4096", Flags)
+ZBCVAR.SightDist =              CreateConVar("zbase_sightdist", "10000", Flags)
 ZBCVAR.SightDistOverride =      CreateConVar("zbase_sightdist_override", "0", Flags)
 
 ZBCVAR.ItemDrop =               CreateConVar("zbase_item_drops", "1", Flags)
