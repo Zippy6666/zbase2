@@ -65,6 +65,21 @@ end
 -- include("zbase/sh_globals_pub.lua")
 function ZBaseSetCategoryIcon( category, path )
     if SERVER then return end
+
+    local function setIconIfNotSet( cat, pth )
+        if !list.Get("ContentCategoryIcons")[cat] then
+            list.Set("ContentCategoryIcons", cat, pth)
+        end
+    end
+
+    -- Change icon in normal NPC tab too
+    local splittbl = category:Split(": ")
+    if splittbl[2] then
+        setIconIfNotSet( splittbl[2], path )
+    else
+        setIconIfNotSet( category, path )
+    end
+
     ZBaseCategoryImages[category] = path
 end
 

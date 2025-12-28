@@ -1151,6 +1151,7 @@ function NPC:InternalStopAnimation(dontTransitionOut)
     -- Go back to schedule we had before the animation started
     if self.PreAnimSched && self.PreAnimSched != -1 && self.PreAnimSched != SCHED_NONE then
         self:CONV_CallNextTick(function()
+            if !self.PreAnimSched then return end
             self:SetSchedule(self.PreAnimSched)
             self.PreAnimSched = nil
         end)
