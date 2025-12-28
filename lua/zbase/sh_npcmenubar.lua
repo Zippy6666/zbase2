@@ -42,6 +42,11 @@ if CLIENT then
     hook.Add("PopulateMenuBar", "ZBASE", function( menubar )
         local npcmenu = menubar:AddOrGetMenu( "#menubar.npcs" )
         
+        local factions = npcmenu:AddSubMenu( "Player Faction" )
+        ZBaseNPCFactionBar = factions
+        giveZBaseIcon(factions:GetParent())
+        factions:SetDeleteSelf( false )
+
         local rndweppnl = npcmenu:AddCVar("Randomize Weapons", "zbase_randwep", "1", "0")
         giveZBaseIcon(rndweppnl)
 
@@ -80,7 +85,5 @@ if CLIENT then
         for _, v in ipairs( noAuthorWpns ) do
             zbwpns:AddCVar( v.title, "gmod_npcweapon", v.class )
         end
-
-        zbwepinfo = nil -- Byebye dont need this anymore
     end)
 end

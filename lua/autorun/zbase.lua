@@ -57,7 +57,9 @@ if SERVER then
     util.AddNetworkString("ZBaseUpdateSpawnMenuFactionDropDown")
 
     net.Receive("ZBase_GetFactionsFromServer", function(_, ply)
+        if ply.UpdatedFactionListRecently then return end
         ZBaseListFactions(_, ply)
+        ply:CONV_TempVar("UpdatedFactionListRecently", true, 2)
     end)
 end
 

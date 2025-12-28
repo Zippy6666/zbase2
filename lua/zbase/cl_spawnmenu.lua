@@ -203,17 +203,17 @@ hook.Add( "PopulateZBase", "ZBaseAddNPCContent", function( pnlContent, tree, nod
 end)
 
 function PANEL:GetAllFactions( factions )
-	self.PlyFactionDropDown:Clear()
+	-- self.PlyFactionDropDown:Clear()
 	self.NPCFactionDropDown:Clear()
 
 	self.NPCFactionDropDown:AddChoice("No Override")
 
 	for k in pairs(factions) do
-		self.PlyFactionDropDown:AddChoice(k)
+		-- self.PlyFactionDropDown:AddChoice(k)
 		self.NPCFactionDropDown:AddChoice(k)
 	end
 
-	self.PlyFactionDropDown:ChooseOption(self.PlyFactionDropDown.StartVal)
+	-- self.PlyFactionDropDown:ChooseOption(self.PlyFactionDropDown.StartVal)
 	self.NPCFactionDropDown:ChooseOption(self.NPCFactionDropDown.StartVal)
 end
 
@@ -221,18 +221,31 @@ net.Receive("ZBaseListFactions", function()
 	local tbl = table.Copy(net.ReadTable())
 
 	timer.Create("ZBaseGiveFactionTableToDerma", 1, 1, function()
+		local ddrawer = LocalPlayer().ZBaseDDrawer
+		local toolcombox = LocalPlayer().ZBaseToolFactionCombox
+		local npcbar = ZBaseNPCFactionBar
+
 		if LocalPlayer().ZBaseDDrawer then
-			LocalPlayer().ZBaseDDrawer:GetAllFactions(tbl)
+			ddrawer:GetAllFactions(tbl)
 		end
 
-		if IsValid(LocalPlayer().ZBaseToolFactionCombox) then
-			LocalPlayer().ZBaseToolFactionCombox:Clear()
+		if IsValid(toolcombox) then
+			toolcombox:Clear()
 			for k in pairs(tbl) do
-				LocalPlayer().ZBaseToolFactionCombox:AddChoice(k)
+				toolcombox:AddChoice(k)
 			end
 		end
 
-		timer.Remove("ZBaseGiveFactionTableToDerma")
+		if IsValid(npcbar) then
+			npcbar:Clear()
+			for k in pairs(tbl) do
+				local pnl = npcbar:AddCVar(k, "zbase_clplyfaction", k, nil, function()
+					net.Start("ZBasePlayerFactionSwitch")
+					net.WriteString(k)
+					net.SendToServer()
+				end)
+			end
+		end
 	end)
 end)
 
@@ -272,18 +285,18 @@ end
 
 function PANEL:Init()
 	self:DockPadding( 15, 10, 15, 10 )
-	self:SetOpenSize(150)
+	self:SetOpenSize(125)
 
 	self:AddCheckbox( "Random Weapons", "zbase_randwep" )
 
-	self.PlyFactionDropDown = self:AddDropdown("Your Faction", function( v )
-		if v != "" then
-			net.Start("ZBasePlayerFactionSwitch")
-			net.WriteString(v)
-			net.SendToServer()
-		end
-	end, "ally")
-	LocalPlayer().FactionDropDown = self.PlyFactionDropDown
+	-- self.PlyFactionDropDown = self:AddDropdown("Your Faction", function( v )
+	-- 	if v != "" then
+	-- 		net.Start("ZBasePlayerFactionSwitch")
+	-- 		net.WriteString(v)
+	-- 		net.SendToServer()
+	-- 	end
+	-- end, "ally")
+	-- LocalPlayer().FactionDropDown = self.PlyFactionDropDown
 
 	self.NPCFactionDropDown = self:AddDropdown("NPC Faction Override", function( v )
 		net.Start("ZBaseNPCFactionOverrideSwitch")
@@ -292,6 +305,14 @@ function PANEL:Init()
 	end, "No Override")
 
 	ZBaseListFactions()
+
+	self.UpdateFactionsButton = self:Add( "DButton" )
+	self.UpdateFactionsButton:Dock( TOP )
+	self.UpdateFactionsButton:DockMargin( 0, 5, 0, 0 )
+	self.UpdateFactionsButton:SetText( "Refresh Factions (Wait)" )
+	self.UpdateFactionsButton.DoClick = function()
+		ZBaseListFactions()
+	end
 
 	self:Open()
 end

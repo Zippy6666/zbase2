@@ -193,7 +193,11 @@ if SERVER then
 
     net.Receive("ZBasePlayerFactionSwitch", function( _, ply )
         local faction = net.ReadString()
+
         ZBaseSetFaction(ply, faction, ply)
+
+        -- Update visually what faction the player is in
+        ply:ConCommand("zbase_clplyfaction "..faction)
 
         for _, v in ipairs(ZBaseNPCInstances) do
             v:UpdateRelationships()
