@@ -3383,7 +3383,7 @@ function NPC:InternalCreateGib( model, data )
     data = data || {}
 
     -- Create
-    local entclass = !data.IsRagdoll && "zb_temporary_ent" || "prop_ragdoll"
+    local entclass = !data.IsRagdoll && "zb_gib" || "prop_ragdoll"
     local Gib = ents.Create(entclass)
     Gib.ShouldRemain = true
     Gib:SetModel(model)
