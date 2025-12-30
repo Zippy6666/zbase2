@@ -439,6 +439,15 @@ function ZBase_RegisterHandler:AddNPCsToSpawnMenu()
     end
 end
 
+-- Add option to hide zbase spawn icons in regular NPC tab
+if CLIENT then
+    spawnmenu.CreateContentIcon = conv.wrapFunc("ZBasePreventIcon", spawnmenu.CreateContentIcon, function( type_, parent, data )
+        if type_ == "npc" && ZBaseNPCs[data.spawnname] && ZBCVAR.NPCTabHide:GetBool() then
+            return false -- Return something to prevent further execution
+        end
+    end)
+end
+
 function ZBase_RegisterHandler:Reload()
     self:RegNPCs()
     self:NPCsInherit({npc_zbase=ZBaseNPCs["npc_zbase"]})
