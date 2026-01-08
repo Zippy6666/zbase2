@@ -187,7 +187,8 @@ ZBaseVJFactionTranslation = {
     ["blackops"]    = "CLASS_BLACKOPS",
     ["racex"]       = "CLASS_RACE_X",
     ["clonecop"]    = "CLASS_AIDEN",
-    ["snark"]       = "CLASS_SNARK"
+    ["snark"]       = "CLASS_SNARK",
+    ["replicant"]   = "CLASS_REPLICANT"
 }
 ZBaseVJFactionTranslation_Flipped = table.Flip(ZBaseVJFactionTranslation)
 
