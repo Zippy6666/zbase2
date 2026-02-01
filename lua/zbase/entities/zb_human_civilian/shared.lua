@@ -36,6 +36,11 @@ ZBaseCreateVoiceSounds("ZBaseMale.Alert", {
     "vo/episode_1/npc/male01/cit_alert_zombie06.wav",
     "vo/episode_1/npc/male01/cit_alert_antlions06.wav",
     "vo/episode_1/npc/male01/cit_alert_antlions08.wav",
+	"vo/npc/male01/reb2_antlions05.wav",
+	"vo/npc/male01/reb1_sawmillexplo03.wav",
+	"vo/npc/male01/reb1_prepare_battle_03.wav",
+	"vo/npc/male01/reb1_prepare_battle_08.wav",
+	"vo/npc/male01/cpt_battle_positions01.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseMale.Question", {
@@ -93,6 +98,11 @@ ZBaseCreateVoiceSounds("ZBaseMale.Question", {
     "vo/episode_1/npc/male01/cit_remarks21.wav",
     "vo/episode_1/npc/male01/cit_remarks22.wav",
     "vo/episode_1/npc/male01/cit_remarks23.wav",
+	"vo/npc/male01/reb1_idles03.wav",
+	"vo/npc/male01/reb1_idles06.wav",
+	"vo/npc/male01/reb_tvwatching_04.wav",
+	"vo/npc/male01/reb2_idle02.wav",
+	"vo/npc/male01/reb1_idles07.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseMale.Answer", {
@@ -135,28 +145,56 @@ ZBaseCreateVoiceSounds("ZBaseMale.Answer", {
     "vo/npc/male01/answer38.wav",
     "vo/npc/male01/answer39.wav",
     "vo/npc/male01/answer40.wav",
+	"vo/npc/male01/reb_tvwatching_03.wav",
+	"vo/npc/male01/reb_tvwatching_04.wav",
+	"vo/npc/male01/cit_kill20.wav",
+	"vo/npc/male01/vanswer01.wav",
+	"vo/npc/male01/vanswer13.wav",
+	"vo/npc/male01/vanswer14.wav",
+	"vo/npc/male01/sheckley_aboutthat.wav",
+	"vo/npc/male01/reb_chop_shipdown03.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseMale.KillEnemy", {
     "vo/npc/male01/gotone01.wav",
     "vo/npc/male01/gotone02.wav",
     "vo/npc/male01/likethat.wav",
-    "vo/episode_1/npc/male01/reb2_killshots01.wav",
-    "vo/episode_1/npc/male01/reb2_killshots22.wav",
+    "vo/episode_1/npc/male01/reb1_killshots01.wav",
+    "vo/episode_1/npc/male01/reb1_killshots22.wav",
     "vo/episode_1/npc/male01/cit_alert_head05.wav",
+	"vo/npc/male01/rebc_chop_hit04.wav",
+	"vo/npc/male01/reb1_lastwave10.wav",
+	"vo/npc/male01/cit_kill17.wav",
+	"vo/npc/male01/cit_kill20.wav",
+	"vo/npc/male01/reb1_prepare_battle_03.wav",
+	"vo/npc/male01/sheckley_lookalive.wav",
+	"vo/npc/male01/rebc_chop_hit01.wav",
+	"vo/npc/male01/rebc_chop_hit02.wav",
+	"vo/npc/male01/griggs_killion_01.wav",
+	"vo/npc/male01/griggs_killion_02.wav",
+	"vo/npc/male01/nlo_cheer01.wav",
+	"vo/npc/male01/nlo_cheer02.wav",
+	"vo/npc/male01/nlo_cheer03.wav",
+	"vo/npc/male01/nlo_cheer04.wav",
+	"vo/npc/male01/reb2_killshots01.wav",
+	"vo/npc/male01/reb2_killshots22.wav",
+	"vo/npc/male01/reb1_striderdown11.wav",
+	"vo/npc/male01/reb1_striderdown12.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseMale.HearSound", {
     "vo/npc/male01/startle01.wav",
     "vo/npc/male01/startle02.wav",
     "vo/episode_1/npc/male01/cit_alert_antlions09.wav",
+	"vo/npc/male01/sheckley_lookalive.wav",
+	"vo/npc/male01/cpt_battle_positions02.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseMale.Melee", {
     "vo/npc/male01/gethellout.wav",
     "vo/npc/male01/getdown02.wav",
     "vo/episode_1/npc/male01/reb2_antlions05.wav",
-    "vo/episode_1/npc/male01/reb2_buddykilled13.wav",
+    "vo/episode_1/npc/male01/reb1_buddykilled13.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseMale.Follow", {
@@ -168,6 +206,7 @@ ZBaseCreateVoiceSounds("ZBaseMale.Follow", {
     "vo/npc/male01/readywhenyouare01.wav",
     "vo/npc/male01/readywhenyouare02.wav",
     "vo/npc/male01/squad_follow03.wav",
+	"vo/npc/male01/reb_tvwatching_03.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseMale.Unfollow", {
@@ -187,4 +226,10 @@ ZBaseCreateVoiceSounds("ZBaseMale.AllyDeath", {
     "vo/npc/male01/gordead_ans06.wav",
     "vo/npc/male01/gordead_ans07.wav",
     "vo/npc/male01/gordead_ques02.wav",
+	"vo/npc/male01/reb1_buildingexplo03.wav",
+	"vo/npc/male01/reb1_lastwave01.wav",
+	"vo/npc/male01/reb1_lastwaveannounced05.wav",
+	"vo/npc/male01/reb1_buddykilled13.wav",
+	"vo/npc/male01/no01.wav",
+	"vo/npc/male01/no02.wav",
 })

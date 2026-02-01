@@ -127,12 +127,16 @@ ZBaseCreateVoiceSounds("ZBaseFemale.Answer", {
     "vo/npc/female01/answer38.wav",
     "vo/npc/female01/answer39.wav",
     "vo/npc/female01/answer40.wav",
+	"vo/npc/female01/vanswer01.wav",
+	"vo/npc/female01/vanswer13.wav",
+	"vo/npc/female01/vanswer14.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseFemale.KillEnemy", {
     "vo/npc/female01/gotone01.wav",
     "vo/npc/female01/gotone02.wav",
     "vo/npc/female01/likethat.wav",
+	"vo/npc/female01/nlo_cheer02.wav",
 })
 
 ZBaseCreateVoiceSounds("ZBaseFemale.HearSound", {
@@ -174,4 +178,5 @@ ZBaseCreateVoiceSounds("ZBaseFemale.AllyDeath", {
     "vo/npc/female01/gordead_ans06.wav",
     "vo/npc/female01/gordead_ans07.wav",
     "vo/npc/female01/gordead_ques02.wav",
+	"vo/npc/female01/no02.wav",
 })
