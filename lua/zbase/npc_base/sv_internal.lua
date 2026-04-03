@@ -1413,13 +1413,16 @@ function NPC:AITick_Slow()
 
             -- If forcing running towards enemy but is now in gun distance
             -- stop chasing and start gunning instead
-            if sched == SCHED_FORCED_GO_RUN && inGunDist then 
+            if sched == SCHED_FORCED_GO_RUN && self:GetLastPosition()==self.ForcedGoPosForGunning && inGunDist then 
                 self:ClearSchedule()
+                self.ForcedGoPosForGunning = nil
+                debugoverlay.Text(self:GetPos(), "Cleared sched because reached gundist", 2, false)
 
             -- Forced run to enemy if outside of gun distance
             elseif !inGunDist && !self:HasCondition(COND.NO_PRIMARY_AMMO) &&
                     sched != SCHED_FORCED_GO_RUN then
-                self:SetLastPosition(ene:GetPos())
+                self.ForcedGoPosForGunning = ene:GetPos()
+                self:SetLastPosition(self.ForcedGoPosForGunning)
                 self:SetSchedule(SCHED_FORCED_GO_RUN)
             end
         -- No enemy...
