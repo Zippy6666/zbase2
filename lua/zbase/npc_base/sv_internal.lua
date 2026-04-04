@@ -1425,6 +1425,20 @@ function NPC:AITick_Slow()
                 self:SetLastPosition(self.ForcedGoPosForGunning)
                 self:SetSchedule(SCHED_FORCED_GO_RUN)
             end
+
+            -- Actively advance towards enemy if visible and not doing other move schedule
+            -- local doingGunForcedGo = (self:IsCurrentSchedule(SCHED_FORCED_GO_RUN) || self:IsCurrentSchedule(SCHED_FORCED_GO)) 
+            --                             && self:GetLastPosition() == self.ForcedGoPosForGunning
+            -- if self:SeeEne() 
+            -- && (!self:IsMoving() || doingGunForcedGo) 
+            -- && !self.DontGunPushUpdate then
+            --     self.ForcedGoPosForGunning = ene:GetPos()
+            --     self:SetLastPosition(self.ForcedGoPosForGunning)
+            --     self:SetSchedule(SCHED_FORCED_GO_RUN)
+            --     self:CONV_TempVar("DontGunPushUpdate", true, 1.5)
+            --     debugoverlay.Sphere(self.ForcedGoPosForGunning, 20, 1.5, Color(155, 0, 255))
+            -- end
+
         -- No enemy...
         else
             -- Set max look distance to sight distance
