@@ -5,6 +5,7 @@ ZBCVAR = {}
 ZBCVAR.HPMult =                 CreateConVar("zbase_hp_mult", "1", flags)
 ZBCVAR.DMGMult =                CreateConVar("zbase_dmg_mult", "1", flags)
 ZBCVAR.MoveSpeedMult =          CreateConVar("zbase_speed_mult", "1", flags)
+ZBCVAR.WepAccuracyMult =        CreateConVar("zbase_wep_accuracy", "1", flags)
 ZBCVAR.PlayerHurtAllies =       CreateConVar("zbase_ply_hurt_ally", "1", flags)
 ZBCVAR.FriendlyFire =           CreateConVar("zbase_friendly_fire", "0", flags)
 

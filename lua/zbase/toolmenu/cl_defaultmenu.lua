@@ -20,11 +20,10 @@ ZBaseAddToolMenu( "ZBASE", "Misc", function(panel)
 
     panel:ZBase_ToolMenuAddCategory( "MENU" )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Pop-Up", "zbase_popup" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
-    -- panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "NPC Tab", "zbase_defmenu" ) }, color_black, SettingFont, "NPCs in regular NPC tab too", DescriptionColor, DescriptionFont )
-    -- panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Tab Mixin", "zbase_mixmenu" ) }, color_black, SettingFont, "Don't use separate categories in default NPC tab", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Collapse", "zbase_collapse_cat" ) }, color_black, SettingFont, "Collapse ZBase category icons by default", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "No HL2", "zbase_nodefhl2" ) }, color_black, SettingFont, "Don't add retail HL2 NPC 'replicas' to the menu", DescriptionColor, DescriptionFont )
-    
+    panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "ZBase Tab Only", "zbase_npctabhide" ) }, color_black, SettingFont, "Don't add ZBase NPCs to the regular NPC tab, may put empty categories in it", DescriptionColor, DescriptionFont ) 
+
     panel:ZBase_ToolMenuAddCategory( "NPC GENERAL" )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "Ply Hurt Ally", "zbase_ply_hurt_ally" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox( "NPC Hurt Ally", "zbase_friendly_fire" ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
@@ -62,7 +61,9 @@ ZBaseAddToolMenu( "ZBASE", "AI", function(panel)
     panel:ZBase_ToolMenuAddCategory( "STATS" )
     panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Multiply HP", "zbase_hp_mult", 0, 20, 2 ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Multiply DMG", "zbase_dmg_mult", 0, 20, 2 ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
+    panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Multiply Accuracy", "zbase_wep_accuracy", 0.1, 20, 2 ) }, color_black, SettingFont, "Affects ZBase NPCs and weapons", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Multiply Speed", "zbase_speed_mult", 0.1, 3, 2 ) }, color_black, SettingFont, "", DescriptionColor, DescriptionFont )
+
     panel:ZBase_ToolMenuAddItem( { panel:CheckBox("Nerf", "zbase_nerf") }, color_black, SettingFont, "Nerf NPC AR2 alts, RPGs, crossbow, etc", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Grenades", "zbase_gren_count", -1, 20, 0 ) }, color_black, SettingFont, "-1 = inf", DescriptionColor, DescriptionFont )
     panel:ZBase_ToolMenuAddItem( { panel:NumSlider( "Alt Fires", "zbase_alt_count", -1, 20, 0 ) }, color_black, SettingFont, "-1 = inf", DescriptionColor, DescriptionFont )
