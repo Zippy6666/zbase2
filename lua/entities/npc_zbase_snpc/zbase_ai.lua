@@ -202,7 +202,7 @@ function ENT:DoSchedule( schedule )
 end
 
 function ENT:RunAI( strExp )
-	if self.Dead or self.DoingPlayAnim then
+	if self.Dead || self.DoingPlayAnim || self.Vegetable then
 		return
 	end
 
@@ -215,7 +215,7 @@ function ENT:RunAI( strExp )
 	-- newsched == false -> stop schedule
 	-- newsched == nil -> do nothing
 	local newsched = self:GetBetterSchedule()
-	if newsched or newsched==false then
+	if newsched || newsched==false then
 		self:NewSched(newsched)
 	end
 

@@ -307,6 +307,8 @@ NPC.LookPoseParamNames = {
 
 NPC.UseVPhysics = false -- Make NPC physical like a prop
 
+NPC.Vegetable = false -- Make NPC completely braindead
+
 --[[
 ==================================================================================================
                                            FLYING SNPC ONLY
