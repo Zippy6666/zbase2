@@ -1,6 +1,14 @@
--- Useful globals
+-- Useful globals --
 
+-- Locals (ignore)
 local up = Vector(0, 0, 1)
+local defaultCategories = {
+    ["Animals"]                 = true,
+    ["Combine"]                 = true,
+    ["Humans + Resistance"]     = true,
+    ["Other"]                   = true,
+    ["Zombies + Enemy Aliens"]  = true,
+}
 
 --[[
 ======================================================================================================================================================
@@ -67,7 +75,7 @@ function ZBaseSetCategoryIcon( category, path )
     if SERVER then return end
 
     local function setIconIfNotSet( cat, pth )
-        if !list.Get("ContentCategoryIcons")[cat] then
+        if !list.Get("ContentCategoryIcons")[cat] && !defaultCategories[cat] then
             list.Set("ContentCategoryIcons", cat, pth)
         end
     end
