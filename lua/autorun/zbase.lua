@@ -233,7 +233,7 @@ include("zbase/sh_globals_pub.lua")
 conv.includeDir(
     "zbase", 
     -- These require special procedures so they are skipped
-    {"sh_override_functions", "npc_patches", "entities", "npc_base", "sh_globals_"} 
+    {"sh_override_functions", "npc_patches", "entities", "npc_base", "sh_globals_", "sv_save"}
 )
 
 if SERVER then
@@ -249,6 +249,9 @@ if SERVER then
     for _, v in ipairs(dirs) do
         AddCSLuaFile("zbase/entities/"..v.."/shared.lua")
     end
+
+    -- Include save/loading path file
+    include("zbase/sv_save.lua")
 end
 
 --[[
