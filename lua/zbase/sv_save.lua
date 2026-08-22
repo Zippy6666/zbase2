@@ -1,13 +1,12 @@
 if !SERVER then return end
 
+-- utility functions
 local function VectorToTable(vector)
     return {x = vector.x, y = vector.y, z = vector.z}
 end
-
 local function AngleToTable(angle)
     return {p = angle.p, y = angle.y, r = angle.r}
 end
-
 local function GetBodygroups(ent)
     local bodygroups = {}
 
@@ -18,6 +17,7 @@ local function GetBodygroups(ent)
     return bodygroups
 end
 
+-- store zbase npcs as table
 local function GetZBaseNPCData()
     local npcs = {}
 
@@ -82,8 +82,8 @@ local function FormatSaveData(savedata)
     return savedata
 end
 
--- manual "hook" that overwrites original gmsave
--- jfl this is terrible but no alternative, as hook for saving is TODO rn in internal gmsave.lua
+-- manual "hook" that overwrites original gmsave function
+-- jfl this is pretty bad but no alternative, as hook for saving is TODO/not implemented rn in internal gmsave.lua
 -- don't think it will break other addons w/ same save mechanism, bc recursive gmsave.SaveMap stack
     -- eg zbase gmsave.SaveMap overwrite -> calls other base gmsave.SaveMap overwrite -> ... -> calls original gmsave.SaveMap
 function HookSaveFunction()
@@ -111,7 +111,7 @@ function HookSaveFunction()
 end
 HookSaveFunction()
 
--- hook for loading save already exists in gmsave.lua and cleanly passes savedata, so we can just use that and overwrite from there
+-- hook for loading save already exists in gmsave.lua and cleanly passes savedata, so we can just use that and process savedata specifically for zbase
 -- we use integrated load hook to get cleanly passed saveData upon loading (garrysmod/gamemodes/sandbox/gamemode/save_load.lua L91)
 hook.Add("LoadGModSave", "ZBase_LoadNPCs", function(savedata, mapname, maptime)
     -- applies native gmod formatting done to savedata in load functions
@@ -120,8 +120,12 @@ hook.Add("LoadGModSave", "ZBase_LoadNPCs", function(savedata, mapname, maptime)
     
     local restored = 0
     -- replicate gmsave.LoadMap loading entities process in "PostCleanupMap" hook, w small delay (garrysmod/lua/includes/gmsave.lua L87)
+    -- potential problem: if the LoadGModSave hook somehow significantly delays between firing for gmod's save_load.lua and firing for zbase,
+    -- there's an off chance the cleanup finishes before the PostCleanupMap hook here is added. This is quite unlikely though, because cleanup can take a while
+    -- and thus any delay between the two LoadGModSave hooks will be minute compared to the delay from cleanup (?) 
     hook.Add( "PostCleanupMap", "ZBase_SafeLoadSave", function()
         hook.Remove( "PostCleanupMap", "ZBase_SafeLoadSave" )
+        -- Gmod's native gmsave.lua has a 0.5s delay @L58 for safety before spawning NPCs from savedata via duplicator, I used 0.75s here just in case
         timer.Simple( 0.75, function()
             for _, npcData in ipairs(savedata.ZBase.npcs) do
                 -- basic checks for stability
