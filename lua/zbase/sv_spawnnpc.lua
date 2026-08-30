@@ -213,21 +213,21 @@ function ZBaseAfterSpawn( NPC, Class, bDropToFloor )
 	NPC:ZBaseInit()
 
 	-- Store my class for dupe data
-	duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
+	-- duplicator.StoreEntityModifier( NPC, "ZBaseNPCDupeApplyStuff", {Class} )
 
 	-- Make sure I always spawn with my engine class when duped
 	-- not my custom ZBase one
 	-- If i should have a custom class
 	-- it will be applied after I am pasted anyway
-	function NPC:PreEntityCopy()
-		self.PreDupeClassName = self:GetClass()
-		self:SetKeyValue("classname", self:GetEngineClass())
+	-- function NPC:PreEntityCopy()
+	-- 	self.PreDupeClassName = self:GetClass()
+	-- 	self:SetKeyValue("classname", self:GetEngineClass())
 		
-		self:CONV_CallNextTick(function()
-			self:SetKeyValue("classname", self.PreDupeClassName)
-			self.PreDupeClassName = nil
-		end)
-	end
+	-- 	self:CONV_CallNextTick(function()
+	-- 		self:SetKeyValue("classname", self.PreDupeClassName)
+	-- 		self.PreDupeClassName = nil
+	-- 	end)
+	-- end
 
 	-- Drop to floor
 	if ( bDropToFloor ) then
@@ -238,29 +238,29 @@ function ZBaseAfterSpawn( NPC, Class, bDropToFloor )
 end
 
 -- Apply stuff after duped
-duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
-    local ZBaseClass = data[1]
-    local ZBaseNPCTable = ZBaseNPCs[ ZBaseClass ]
-	local EngineClass = ZBaseNPCTable.Class
+-- duplicator.RegisterEntityModifier( "ZBaseNPCDupeApplyStuff", function(ply, ent, data)
+--     local ZBaseClass = data[1]
+--     local ZBaseNPCTable = ZBaseNPCs[ ZBaseClass ]
+-- 	local EngineClass = ZBaseNPCTable.Class
 
-	-- Apparently, entities can be duped but their classes can change
-	-- Easy animation tool for example, does this when you select
-	-- "Make Animatable" through the context menu
-	-- We don't want any special ZBase shenanigans on the entity
-	-- in this case, so return
-	if ent:GetClass() != EngineClass then
-		return
-	end
+-- 	-- Apparently, entities can be duped but their classes can change
+-- 	-- Easy animation tool for example, does this when you select
+-- 	-- "Make Animatable" through the context menu
+-- 	-- We don't want any special ZBase shenanigans on the entity
+-- 	-- in this case, so return
+-- 	if ent:GetClass() != EngineClass then
+-- 		return
+-- 	end
 
-    if ZBaseNPCTable then
-		local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
+--     if ZBaseNPCTable then
+-- 		local Equipment, wasSpawnedOnCeiling, bDropToFloor = false, false, true
 
-        ent.ZBaseInitialized = false -- So that it can be initialized again
-        ent.IsDupeSpawnedZBaseNPC = true
+--         ent.ZBaseInitialized = false -- So that it can be initialized again
+--         ent.IsDupeSpawnedZBaseNPC = true
 
-        ZBaseInitialize( ent, ZBaseNPCTable, ZBaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
-    end
-end)
+--         ZBaseInitialize( ent, ZBaseNPCTable, ZBaseClass, Equipment, wasSpawnedOnCeiling, bDropToFloor )
+--     end
+-- end)
 
 function ZBaseInternalSpawnNPC( ply, Position, Normal, Class, Equipment, SpawnFlagsSaved, NoDropToFloor, skipSpawnAndActivate )
 	local NPCData = ZBaseNPCs[ Class ]
